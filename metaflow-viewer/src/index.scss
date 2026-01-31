@@ -62,9 +62,11 @@ button {
 
 #logoWrap {
     position: fixed;
-    top: max(16px, env(safe-area-inset-top));
-    left: max(16px, env(safe-area-inset-left));
+    top: max(12px, env(safe-area-inset-top));
+    left: max(12px, env(safe-area-inset-left));
     z-index: 100;
+    padding: 4px; // 为阴影留出空间
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
 }
 
 #logoContainer {
@@ -73,7 +75,6 @@ button {
     height: 40px;
     cursor: pointer;
     overflow: hidden;
-    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
 }
 
 #logoIcon {
