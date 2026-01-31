@@ -12,10 +12,6 @@ metaflow-viewer/public/assets/
 # Data files (large assets, stored separately)
 data_sample/
 
-# Large files over 100MB (GitHub limit)
-**/260118 190943 J04 场景 ggc高谷仓/
-**/260118 150402 J04 痛车/260118 150402 J04 Itasha.sog
-
 # Cloned repos (can be re-cloned)
 supersplat/
 supersplat-viewer/
