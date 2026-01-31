@@ -1,0 +1,36 @@
+# Dependencies
+node_modules/
+
+# Build outputs
+metaflow-viewer/dist/
+metaflow-viewer/public/index.html
+metaflow-viewer/public/index.js
+metaflow-viewer/public/index.js.map
+metaflow-viewer/public/index.css
+metaflow-viewer/public/assets/
+
+# Data files (large assets, stored separately)
+data/
+data_sample/
+
+# Cloned repos (can be re-cloned)
+supersplat/
+supersplat-viewer/
+pcui/
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+npm-debug.log*
+
+# Environment
+.env
+.env.local
+.env.*.local
