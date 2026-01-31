@@ -8,9 +8,10 @@ metaflow-viewer/public/index.js
 metaflow-viewer/public/index.js.map
 metaflow-viewer/public/index.css
 metaflow-viewer/public/assets/
+metaflow-viewer/public/data/
+data/
 
 # Data files (large assets, stored separately)
-data/
 data_sample/
 
 # Cloned repos (can be re-cloned)
