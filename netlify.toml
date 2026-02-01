@@ -3,6 +3,14 @@
   command = "npm install && npm run build && cp -r ../data public/data"
   publish = "public"
 
+# Custom domain redirects - 深圳技术大学.com → /sztu/c2-lib
+[[redirects]]
+  from = "/"
+  to = "/sztu/c2-lib"
+  status = 302
+  force = true
+  conditions = {Host = ["深圳技术大学.com", "www.深圳技术大学.com", "xn--fiqs8sixa891d4ma7152dfa.com", "www.xn--fiqs8sixa891d4ma7152dfa.com"]}
+
 # Handle SPA routing - redirect all routes to index.html
 [[redirects]]
   from = "/data/*"
