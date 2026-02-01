@@ -1,7 +1,7 @@
 {
   "version": "1.0",
-  "lastUpdated": "2026-02-01",
-  "totalResources": 30,
+  "lastUpdated": "2026-02-02",
+  "totalResources": 31,
   "categories": {
     "acg": {
       "name": "二次元",
@@ -49,7 +49,7 @@
         "model": "ACG/yzx/260124 yzx.sog",
         "environment": "ACG/yzx/260124 yzx_environment.compressed.ply",
         "settings": "ACG/yzx/settings.json",
-        "thumbnail": null
+        "thumbnail": "ACG/yzx/260124 yzx.jpg"
       },
       "fileSize": {
         "model": 33032995,
@@ -81,7 +81,7 @@
         "model": "ACG/AD05/260102 163416 AD05 三角洲/260102 163416 AD05 Delta Force.sog",
         "environment": "ACG/AD05/260102 163416 AD05 三角洲/260102 163416 AD05 Delta Force_environment.compressed.ply",
         "settings": "ACG/AD05/260102 163416 AD05 三角洲/settings.json",
-        "thumbnail": null
+        "thumbnail": "ACG/AD05/260102 163416 AD05 三角洲/260102 163416 AD05 Delta Force.jpg"
       },
       "fileSize": {
         "model": 38965893,
@@ -113,7 +113,7 @@
         "model": "ACG/AD05/260102 165752 AD05 葬送的芙莉莲 芙莉莲辛美尔/260102 165752 AD05 Frieren.sog",
         "environment": "ACG/AD05/260102 165752 AD05 葬送的芙莉莲 芙莉莲辛美尔/260102 165752 AD05 Frieren_environment.compressed.ply",
         "settings": "ACG/AD05/260102 165752 AD05 葬送的芙莉莲 芙莉莲辛美尔/settings.json",
-        "thumbnail": null
+        "thumbnail": "ACG/AD05/260102 165752 AD05 葬送的芙莉莲 芙莉莲辛美尔/260102 165752 AD05 Frieren.jpg"
       },
       "fileSize": {
         "model": 20273636,
@@ -177,7 +177,7 @@
         "model": "ACG/AD05/260102 160304 AD05 魔道祖师 江厌离/260102 160304 AD05 jiangyanli.sog",
         "environment": "ACG/AD05/260102 160304 AD05 魔道祖师 江厌离/260102 160304 AD05 jiangyanli_environment.compressed.ply",
         "settings": "ACG/AD05/260102 160304 AD05 魔道祖师 江厌离/settings.json",
-        "thumbnail": null
+        "thumbnail": "ACG/AD05/260102 160304 AD05 魔道祖师 江厌离/260102 160304 AD05 jiangyanli.jpg"
       },
       "fileSize": {
         "model": 35013526,
@@ -209,7 +209,7 @@
         "model": "ACG/AD05/260102 162440 AD05 最终幻想 萨菲罗斯/260102 162440 AD05 Sephiroth.sog",
         "environment": "ACG/AD05/260102 162440 AD05 最终幻想 萨菲罗斯/260102 162440 AD05 Sephiroth_environment.compressed.ply",
         "settings": "ACG/AD05/260102 162440 AD05 最终幻想 萨菲罗斯/settings.json",
-        "thumbnail": null
+        "thumbnail": "ACG/AD05/260102 162440 AD05 最终幻想 萨菲罗斯/260102 162440 AD05 Sephiroth.jpg"
       },
       "fileSize": {
         "model": 26989439,
@@ -241,7 +241,7 @@
         "model": "ACG/AD05/260102 161509 AD05 紫罗兰永恒花园 薇尔莉特·伊芙加登/260102 161509 AD05 Violet Evergarden.sog",
         "environment": "ACG/AD05/260102 161509 AD05 紫罗兰永恒花园 薇尔莉特·伊芙加登/260102 161509 AD05 Violet Evergarden_environment.compressed.ply",
         "settings": "ACG/AD05/260102 161509 AD05 紫罗兰永恒花园 薇尔莉特·伊芙加登/settings.json",
-        "thumbnail": null
+        "thumbnail": "ACG/AD05/260102 161509 AD05 紫罗兰永恒花园 薇尔莉特·伊芙加登/260102 161509 AD05 Violet Evergarden.jpg"
       },
       "fileSize": {
         "model": 26332028,
@@ -273,7 +273,7 @@
         "model": "ACG/AD05/260102 155010 AD05 如鸢 诸葛亮/260102 155010 AD05 yuan_zhugeliang.sog",
         "environment": "ACG/AD05/260102 155010 AD05 如鸢 诸葛亮/260102 155010 AD05 yuan_zhugeliang_environment.compressed.ply",
         "settings": "ACG/AD05/260102 155010 AD05 如鸢 诸葛亮/settings.json",
-        "thumbnail": null
+        "thumbnail": "ACG/AD05/260102 155010 AD05 如鸢 诸葛亮/260102 155010 AD05 yuan_zhugeliang.jpg"
       },
       "fileSize": {
         "model": 20520595,
@@ -305,7 +305,7 @@
         "model": "ACG/J04/260118 153546 J04 守护甜心 日奈森亚梦/260118 153546 J04 Hinamori Amu.sog",
         "environment": "ACG/J04/260118 153546 J04 守护甜心 日奈森亚梦/260118 153546 J04 Hinamori Amu_environment.compressed.ply",
         "settings": "ACG/J04/260118 153546 J04 守护甜心 日奈森亚梦/settings.json",
-        "thumbnail": null
+        "thumbnail": "ACG/J04/260118 153546 J04 守护甜心 日奈森亚梦/260118 153546 J04 Hinamori Amu.jpg"
       },
       "fileSize": {
         "model": 18854166,
@@ -337,7 +337,7 @@
         "model": "ACG/J04/260118 183217 J04 电锯人 电次/260118 183217 J04 Denji.sog",
         "environment": "ACG/J04/260118 183217 J04 电锯人 电次/260118 183217 J04 Denji_environment.compressed.ply",
         "settings": "ACG/J04/260118 183217 J04 电锯人 电次/settings.json",
-        "thumbnail": null
+        "thumbnail": "ACG/J04/260118 183217 J04 电锯人 电次/260118 183217 J04 Denji.jpg"
       },
       "fileSize": {
         "model": 19355282,
@@ -369,7 +369,7 @@
         "model": "ACG/J04/260118 180245 J04 王者荣耀 朵莉亚1/260118_180245_J04_Dolia1-2.sog",
         "environment": "ACG/J04/260118 180245 J04 王者荣耀 朵莉亚1/260118_180245_J04_Dolia1-2_environment.compressed.ply",
         "settings": "ACG/J04/260118 180245 J04 王者荣耀 朵莉亚1/settings.json",
-        "thumbnail": null
+        "thumbnail": "ACG/J04/260118 180245 J04 王者荣耀 朵莉亚1/260118_180245_J04_Dolia1-2.ssproj.jpg"
       },
       "fileSize": {
         "model": 17072132,
@@ -401,7 +401,7 @@
         "model": "ACG/J04/260118 181326 J04 王者荣耀 朵莉亚2/260118 181326 J04 Dolia2.sog",
         "environment": "ACG/J04/260118 181326 J04 王者荣耀 朵莉亚2/260118 181326 J04 Dolia2_environment.compressed.ply",
         "settings": "ACG/J04/260118 181326 J04 王者荣耀 朵莉亚2/settings.json",
-        "thumbnail": null
+        "thumbnail": "ACG/J04/260118 181326 J04 王者荣耀 朵莉亚2/260118 181326 J04 Dolia2.jpg"
       },
       "fileSize": {
         "model": 18892298,
@@ -433,7 +433,7 @@
         "model": "ACG/J04/260118 152808 J04 福瑞/260118 152808 J04 furry.sog",
         "environment": "ACG/J04/260118 152808 J04 福瑞/260118 152808 J04 furry_environment.compressed.ply",
         "settings": "ACG/J04/260118 152808 J04 福瑞/settings.json",
-        "thumbnail": null
+        "thumbnail": "ACG/J04/260118 152808 J04 福瑞/260118 152808 J04 furry.jpg"
       },
       "fileSize": {
         "model": 21596494,
@@ -537,7 +537,7 @@
         "model": "ACG/J04/260118 161109 J04 假面骑士 build创骑 极狐 景和将军形态/260118 161109 J04 kamen rider.sog",
         "environment": "ACG/J04/260118 161109 J04 假面骑士 build创骑 极狐 景和将军形态/260118 161109 J04 kamen rider_environment.compressed.ply",
         "settings": "ACG/J04/260118 161109 J04 假面骑士 build创骑 极狐 景和将军形态/settings.json",
-        "thumbnail": null
+        "thumbnail": "ACG/J04/260118 161109 J04 假面骑士 build创骑 极狐 景和将军形态/260118 161109 J04 kamen rider.jpg"
       },
       "fileSize": {
         "model": 33568026,
@@ -569,7 +569,7 @@
         "model": "ACG/J04/260118 155718 J04 赛博朋克边缘行者 露西/260118 155718 J04 Lucyna.sog",
         "environment": "ACG/J04/260118 155718 J04 赛博朋克边缘行者 露西/260118 155718 J04 Lucyna_environment.compressed.ply",
         "settings": "ACG/J04/260118 155718 J04 赛博朋克边缘行者 露西/settings.json",
-        "thumbnail": null
+        "thumbnail": "ACG/J04/260118 155718 J04 赛博朋克边缘行者 露西/260118 155718 J04 Lucyna.jpg"
       },
       "fileSize": {
         "model": 32094570,
@@ -596,7 +596,7 @@
         "model": "ACG/J04/260118 181757 J04 境界的彼方 栗山未来/260118 181757 J04 Kuriyama Mirai.sog",
         "environment": "ACG/J04/260118 181757 J04 境界的彼方 栗山未来/260118 181757 J04 Kuriyama Mirai_environment.compressed.ply",
         "settings": "ACG/J04/260118 181757 J04 境界的彼方 栗山未来/settings.json",
-        "thumbnail": null
+        "thumbnail": "ACG/J04/260118 181757 J04 境界的彼方 栗山未来/260118 181757 J04 Kuriyama Mirai.jpg"
       },
       "fileSize": {
         "model": 23473776,
@@ -628,7 +628,7 @@
         "model": "ACG/J04/260118 181014 J04 王者荣耀 少司缘/260118 181014 J04 shaosiyuan.sog",
         "environment": "ACG/J04/260118 181014 J04 王者荣耀 少司缘/260118 181014 J04 shaosiyuan_environment.compressed.ply",
         "settings": "ACG/J04/260118 181014 J04 王者荣耀 少司缘/settings.json",
-        "thumbnail": null
+        "thumbnail": "ACG/J04/260118 181014 J04 王者荣耀 少司缘/260118 181014 J04 shaosiyuan.jpg"
       },
       "fileSize": {
         "model": 19788589,
@@ -660,7 +660,7 @@
         "model": "ACG/J04/260118 182644 J04 明日方舟 史尔特尔/260118 182644 J04 Surtr.sog",
         "environment": "ACG/J04/260118 182644 J04 明日方舟 史尔特尔/260118 182644 J04 Surtr_environment.compressed.ply",
         "settings": "ACG/J04/260118 182644 J04 明日方舟 史尔特尔/settings.json",
-        "thumbnail": null
+        "thumbnail": "ACG/J04/260118 182644 J04 明日方舟 史尔特尔/260118 182644 J04 Surtr.jpg"
       },
       "fileSize": {
         "model": 19527161,
@@ -692,7 +692,7 @@
         "model": "ACG/J04/260118 190306 J04 小林家的龙女仆 托尔/260118 190306 J04 Tohru.sog",
         "environment": "ACG/J04/260118 190306 J04 小林家的龙女仆 托尔/260118 190306 J04 Tohru_environment.compressed.ply",
         "settings": "ACG/J04/260118 190306 J04 小林家的龙女仆 托尔/settings.json",
-        "thumbnail": null
+        "thumbnail": "ACG/J04/260118 190306 J04 小林家的龙女仆 托尔/260118 190306 J04 Tohru.jpg"
       },
       "fileSize": {
         "model": 22552206,
@@ -724,7 +724,7 @@
         "model": "ACG/J04/260118 155035 J04 原神 散兵/260118 155035 J04 GenshinImpact_Wanderer.sog",
         "environment": "ACG/J04/260118 155035 J04 原神 散兵/260118 155035 J04 GenshinImpact_Wanderer_environment.compressed.ply",
         "settings": "ACG/J04/260118 155035 J04 原神 散兵/settings.json",
-        "thumbnail": null
+        "thumbnail": "ACG/J04/260118 155035 J04 原神 散兵/260118 155035 J04 GenshinImpact_Wanderer.jpg"
       },
       "fileSize": {
         "model": 30548511,
@@ -788,7 +788,7 @@
         "model": "ACG/J04/260118 164325 J04 王者荣耀 西施 织梦人/260118 164325 J04 xishi.sog",
         "environment": "ACG/J04/260118 164325 J04 王者荣耀 西施 织梦人/260118 164325 J04 xishi_point_cloud.compressed.ply",
         "settings": "ACG/J04/260118 164325 J04 王者荣耀 西施 织梦人/settings.json",
-        "thumbnail": null
+        "thumbnail": "ACG/J04/260118 164325 J04 王者荣耀 西施 织梦人/260118 164325 J04 xishi.jpg"
       },
       "fileSize": {
         "model": 18854032,
@@ -883,7 +883,7 @@
         "model": "SZCAEE/ciqi_r2j-2_full_15MSplats_150kSteps_SSIM0.942_260112_clear/ciqi_r2j-2_full_15MSplats_150kSteps_SSIM0.942_260112_clear.sog",
         "environment": null,
         "settings": "SZCAEE/ciqi_r2j-2_full_15MSplats_150kSteps_SSIM0.942_260112_clear/settings.json",
-        "thumbnail": null
+        "thumbnail": "SZCAEE/ciqi_r2j-2_full_15MSplats_150kSteps_SSIM0.942_260112_clear/ciqi_r2j-2_full_15MSplats_150kSteps_SSIM0.942_260112_clear-image.jpg"
       },
       "fileSize": {
         "model": 36251198,
@@ -914,7 +914,7 @@
         "model": "SZCAEE/foxiang_r2j-3-2_full_14.95MSplats_152kSteps_SSIM0.946_260112_crop/foxiang_r2j-3-2_full_14.95MSplats_152kSteps_SSIM0.946_260112_crop.sog",
         "environment": null,
         "settings": "SZCAEE/foxiang_r2j-3-2_full_14.95MSplats_152kSteps_SSIM0.946_260112_crop/settings.json",
-        "thumbnail": null
+        "thumbnail": "SZCAEE/foxiang_r2j-3-2_full_14.95MSplats_152kSteps_SSIM0.946_260112_crop/foxiang_r2j-3-2_full_14.95MSplats_152kSteps_SSIM0.946_260112_crop.jpg"
       },
       "fileSize": {
         "model": 19569923,
@@ -945,7 +945,7 @@
         "model": "SZCAEE/guanyin_r2j-2_full_16MSplats_300kSteps_SSIM0.913_260113_clear-2/guanyin_r2j-2_full_16MSplats_300kSteps_SSIM0.913_260113_clear-2.sog",
         "environment": null,
         "settings": "SZCAEE/guanyin_r2j-2_full_16MSplats_300kSteps_SSIM0.913_260113_clear-2/settings.json",
-        "thumbnail": null
+        "thumbnail": "SZCAEE/guanyin_r2j-2_full_16MSplats_300kSteps_SSIM0.913_260113_clear-2/guanyin_r2j-2_full_16MSplats_300kSteps_SSIM0.913_260113_clear-2.jpg"
       },
       "fileSize": {
         "model": 42676396,
@@ -976,7 +976,7 @@
         "model": "SZTU/250424 SZTU C2-Lib/SZTU_C2-Lib_M3E_WU_5286px_5000ksplats_150kStep_5000ksplats_250508_Cleansky.sog",
         "environment": null,
         "settings": "SZTU/250424 SZTU C2-Lib/settings.json",
-        "thumbnail": null
+        "thumbnail": "SZTU/250424 SZTU C2-Lib/SZTU_C2-Lib_M3E_WU_5286px_5000ksplats_150kStep_5000ksplats_250508_Cleansky.jpg"
       },
       "fileSize": {
         "model": 73111603,
@@ -990,6 +990,45 @@
       },
       "animation": {
         "duration": 40,
+        "frameRate": 60,
+        "loopMode": "repeat"
+      }
+    },
+    {
+      "id": "b1-sdi-206",
+      "title": "SZTU B1-sdi 206",
+      "titleEn": "SZTU B1 SDI 206",
+      "category": [
+        "sztu"
+      ],
+      "route": "/sztu/b1-sdi/206",
+      "source": "scanner",
+      "files": {
+        "model": "SZTU/251220 SZTU B1-sdi 206/251220 SZTU B1-sdi 206 zhan_20500.sog",
+        "environment": "SZTU/251220 SZTU B1-sdi 206/251220 SZTU B1-sdi 206 zhan_20500_environment.compressed.ply",
+        "settings": "SZTU/251220 SZTU B1-sdi 206/settings.json",
+        "thumbnail": "SZTU/251220 SZTU B1-sdi 206/251220 SZTU B1-sdi 206 zhan_20500.jpg",
+        "lod": [
+          {
+            "level": 1,
+            "file": "SZTU/251220 SZTU B1-sdi 206/251220 SZTU B1-sdi 206 zhan_20500_LOD1.sog",
+            "size": 84581533
+          }
+        ]
+      },
+      "fileSize": {
+        "model": 154380940,
+        "environment": 575213,
+        "total": 154956153,
+        "recommended": "lod1"
+      },
+      "meta": {
+        "date": "2025-12-20",
+        "device": "SZTU",
+        "folderName": "251220 SZTU B1-sdi 206"
+      },
+      "animation": {
+        "duration": 30,
         "frameRate": 60,
         "loopMode": "repeat"
       }
