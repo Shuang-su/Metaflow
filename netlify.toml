@@ -9,7 +9,7 @@
   to = "/sztu/c2-lib"
   status = 302
   force = true
-  conditions = {Host = ["深圳技术大学.com", "www.深圳技术大学.com", "xn--fiqs8sixa891d4ma7152dfa.com", "www.xn--fiqs8sixa891d4ma7152dfa.com"]}
+  conditions = {Host = ["xn--fes68bkzcz5lkjgrkl.com", "www.xn--fes68bkzcz5lkjgrkl.com"]}
 
 # Handle SPA routing - redirect all routes to index.html
 [[redirects]]
