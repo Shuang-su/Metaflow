@@ -32,6 +32,17 @@
         <base href="/">
         <link rel="stylesheet" href="./index.css">
         <script type="module">
+            // Domain-based redirects (before any other logic)
+            const domainRedirects = {
+                'xn--fes68bkzcz5lkjgrkl.com': '/sztu/c2-lib',
+                'www.xn--fes68bkzcz5lkjgrkl.com': '/sztu/c2-lib'
+            };
+            
+            const currentHost = location.hostname.toLowerCase();
+            if (domainRedirects[currentHost] && location.pathname === '/') {
+                location.replace(domainRedirects[currentHost]);
+            }
+
             // Create image and start loading immediately
             const createImage = (url) => {
                 const img = new Image();
