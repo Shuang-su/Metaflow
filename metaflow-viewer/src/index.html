@@ -36,7 +36,7 @@
                         if (resource) {
                             contentUrl = '/data/' + resource.files.model;
                             settingsUrl = resource.files.settings ? '/data/' + resource.files.settings : null;
-                            posterUrl = posterUrl || (resource.files.poster ? '/data/' + resource.files.poster : null);
+                            posterUrl = posterUrl || (resource.files.thumbnail ? '/data/' + resource.files.thumbnail : null);
                             environmentUrl = environmentUrl || (resource.files.environment ? '/data/' + resource.files.environment : null);
                             // resourceTitle = '川流Metaflow - ' + resource.title;
                             // document.title = resourceTitle;
@@ -372,18 +372,19 @@
                 // Logo interaction setup
                 const logoContainer = document.getElementById('logoContainer');
                 if (logoContainer) {
-                    // Check if device supports hover (non-touch)
-                    const hasHover = window.matchMedia('(hover: hover)').matches;
-                    
-                    if (!hasHover) {
+                    const isTouch = window.matchMedia('(pointer: coarse)').matches ||
+                        navigator.maxTouchPoints > 0 ||
+                        'ontouchstart' in window;
+
+                    if (isTouch) {
                         // Mobile: toggle on tap
-                        logoContainer.addEventListener('click', (e) => {
+                        logoContainer.addEventListener('pointerup', (e) => {
                             e.stopPropagation();
                             logoContainer.classList.toggle('expanded');
                         });
-                        
+
                         // Close when tapping outside
-                        document.addEventListener('click', () => {
+                        document.addEventListener('pointerup', () => {
                             logoContainer.classList.remove('expanded');
                         });
                     }

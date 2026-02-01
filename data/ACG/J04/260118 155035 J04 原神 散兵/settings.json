@@ -11,8 +11,8 @@
             0.632218932038679,
             -0.49286265558468423
         ],
-        "startAnim": "animTrack",
-        "animTrack": "cameraAnim"
+        "startAnim": "none",
+        "animTrack": null
     },
     "background": {
         "color": [
@@ -21,39 +21,5 @@
             1
         ]
     },
-    "animTracks": [
-        {
-            "name": "cameraAnim",
-            "duration": 3,
-            "frameRate": 60,
-            "target": "camera",
-            "loopMode": "repeat",
-            "interpolation": "spline",
-            "smoothness": 1,
-            "keyframes": {
-                "times": [
-                    0,
-                    22
-                ],
-                "values": {
-                    "position": [
-                        -1.7900424003601074,
-                        0.9162275791168213,
-                        2.2450037002563477,
-                        -1.7900424003601074,
-                        0.9162275791168213,
-                        2.2450037002563477
-                    ],
-                    "target": [
-                        -0.2923512960271313,
-                        0.632218932038679,
-                        -0.49286265558468423,
-                        -0.2923512960271313,
-                        0.632218932038679,
-                        -0.49286265558468423
-                    ]
-                }
-            }
-        }
-    ]
+    "animTracks": []
 }
