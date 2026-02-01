@@ -7,8 +7,10 @@
         <base href="/">
         <link rel="stylesheet" href="./index.css">
         <script type="module">
+            // Create image and start loading immediately
             const createImage = (url) => {
                 const img = new Image();
+                img.crossOrigin = 'anonymous';
                 img.src = url;
                 return img;
             };
@@ -55,8 +57,11 @@
                     settingsUrl = './settings.json';
                 }
 
+                // Create poster image early to start loading
+                const posterImage = posterUrl ? createImage(posterUrl) : null;
+
                 return {
-                    poster: posterUrl && createImage(posterUrl),
+                    poster: posterImage,
                     skyboxUrl,
                     contentUrl,
                     contents: fetch(contentUrl),
@@ -357,15 +362,28 @@
             const { config, settings } = window.sse;
             const { poster } = config;
 
-            // Show the poster image
-            if (poster) {
-                const element = document.getElementById('poster');
-                element.style.setProperty('--poster-url', `url(${poster.src})`);
-                element.style.display = 'block';
-                element.style.filter = 'blur(40px)';
+            // Show the poster image - wait for it to load first
+            const showPoster = () => {
+                if (poster) {
+                    const element = document.getElementById('poster');
+                    element.style.setProperty('--poster-url', `url(${poster.src})`);
+                    element.style.display = 'block';
+                    element.style.filter = 'blur(40px)';
 
-                // hide the canvas
-                document.documentElement.style.setProperty('--canvas-opacity', '0');
+                    // hide the canvas until content loads
+                    document.documentElement.style.setProperty('--canvas-opacity', '0');
+                }
+            };
+
+            // Wait for poster image to load before showing it
+            if (poster) {
+                if (poster.complete) {
+                    showPoster();
+                } else {
+                    poster.onload = showPoster;
+                    // Also hide canvas immediately while poster loads
+                    document.documentElement.style.setProperty('--canvas-opacity', '0');
+                }
             }
 
             document.addEventListener('DOMContentLoaded', async () => {
