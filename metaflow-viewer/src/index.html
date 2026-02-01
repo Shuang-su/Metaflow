@@ -1,9 +1,32 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-CN">
     <head>
         <title>川流Metaflow</title>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+        <meta name="description" content="川流Metaflow - 高斯泼溅3D资源浏览平台，沉浸式体验二次元角色、文化艺术展品的3D高斯泼溅重建">
+        <meta name="keywords" content="高斯泼溅,Gaussian Splatting,3D,三维重建,二次元,cosplay,漫展,深圳">
+        <meta name="author" content="Metaflow">
+        
+        <!-- Favicon -->
+        <link rel="icon" type="image/svg+xml" href="./assets/metaflow_logo.svg">
+        <link rel="apple-touch-icon" href="./assets/metaflow_web-2.jpg">
+        
+        <!-- Open Graph / Facebook / 微信分享 -->
+        <meta property="og:type" content="website">
+        <meta property="og:url" content="https://metaflow.shuang-su.com/">
+        <meta property="og:title" content="川流Metaflow">
+        <meta property="og:description" content="高斯泼溅3D资源浏览平台，沉浸式体验二次元角色、文化艺术展品的3D重建">
+        <meta property="og:image" content="https://metaflow.shuang-su.com/assets/metaflow_web-2.jpg">
+        <meta property="og:image:width" content="1200">
+        <meta property="og:image:height" content="630">
+        
+        <!-- Twitter -->
+        <meta name="twitter:card" content="summary_large_image">
+        <meta name="twitter:title" content="川流Metaflow">
+        <meta name="twitter:description" content="高斯泼溅3D资源浏览平台，沉浸式体验二次元角色、文化艺术展品的3D重建">
+        <meta name="twitter:image" content="https://metaflow.shuang-su.com/assets/metaflow_web-2.jpg">
+        
         <base href="/">
         <link rel="stylesheet" href="./index.css">
         <script type="module">
@@ -390,22 +413,44 @@
                 // Logo interaction setup
                 const logoContainer = document.getElementById('logoContainer');
                 if (logoContainer) {
-                    const isTouch = window.matchMedia('(pointer: coarse)').matches ||
-                        navigator.maxTouchPoints > 0 ||
-                        'ontouchstart' in window;
-
-                    if (isTouch) {
-                        // Mobile: toggle on tap
-                        logoContainer.addEventListener('pointerup', (e) => {
+                    // Always enable tap/click toggle for mobile compatibility
+                    let touchStarted = false;
+                    
+                    // Track touch start to differentiate from scroll
+                    logoContainer.addEventListener('touchstart', (e) => {
+                        touchStarted = true;
+                    }, { passive: true });
+                    
+                    // Handle touch end
+                    logoContainer.addEventListener('touchend', (e) => {
+                        if (touchStarted) {
+                            e.preventDefault();
                             e.stopPropagation();
                             logoContainer.classList.toggle('expanded');
-                        });
+                            touchStarted = false;
+                        }
+                    });
+                    
+                    // Also handle click for desktop
+                    logoContainer.addEventListener('click', (e) => {
+                        // Only handle if not a touch event (avoid double trigger)
+                        if (!touchStarted) {
+                            e.stopPropagation();
+                            logoContainer.classList.toggle('expanded');
+                        }
+                    });
 
-                        // Close when tapping outside
-                        document.addEventListener('pointerup', () => {
+                    // Close when tapping/clicking outside
+                    document.addEventListener('touchend', (e) => {
+                        if (!logoContainer.contains(e.target)) {
                             logoContainer.classList.remove('expanded');
-                        });
-                    }
+                        }
+                    });
+                    document.addEventListener('click', (e) => {
+                        if (!logoContainer.contains(e.target)) {
+                            logoContainer.classList.remove('expanded');
+                        }
+                    });
                 }
 
                 const [appElement, cameraElement, settingsJson] = await Promise.all([
