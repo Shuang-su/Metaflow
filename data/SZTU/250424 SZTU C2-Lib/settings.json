@@ -1,4 +1,5 @@
 {
+    "tonemapping": "neutral",
     "camera": {
         "fov": 70,
         "position": [
