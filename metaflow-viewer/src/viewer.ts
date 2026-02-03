@@ -310,27 +310,43 @@ class Viewer {
 
             const { instance } = gsplat;
             if (instance) {
+                let firstFrameFired = false;
+                const fireFirstFrame = () => {
+                    if (firstFrameFired) return;
+                    firstFrameFired = true;
+                    state.readyToRender = true;
+                    app.once('frameend', () => {
+                        events.fire('firstFrame');
+                        // emit first frame event on window
+                        window.firstFrame?.();
+                    });
+                };
+
                 // kick off gsplat sorting immediately now that camera is in position
                 instance.sort(camera);
 
-                // listen for sorting updates to trigger first frame events
-                instance.sorter?.on('updated', () => {
-                    // request frame render when sorting changes
-                    app.renderNextFrame = true;
+                if (instance.sorter) {
+                    // listen for sorting updates to trigger first frame events
+                    instance.sorter.on('updated', () => {
+                        // request frame render when sorting changes
+                        app.renderNextFrame = true;
 
-                    if (!state.readyToRender) {
-                        // we're ready to render once the first sort has completed
-                        state.readyToRender = true;
+                        if (!state.readyToRender) {
+                            // we're ready to render once the first sort has completed
+                            fireFirstFrame();
+                        }
+                    });
 
-                        // wait for the first valid frame to complete rendering
-                        app.once('frameend', () => {
-                            events.fire('firstFrame');
-
-                            // emit first frame event on window
-                            window.firstFrame?.();
-                        });
-                    }
-                });
+                    // fallback in case sorter doesn't emit updates
+                    setTimeout(() => {
+                        if (!state.readyToRender) {
+                            fireFirstFrame();
+                        }
+                    }, 2000);
+                } else {
+                    // no sorter available; allow render immediately
+                    fireFirstFrame();
+                }
             } else {
 
                 const { gsplat } = app.scene;
