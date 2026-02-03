@@ -51,9 +51,9 @@ const initUI = (global: Global) => {
     events.on('progress:changed', (progress) => {
         dom.loadingText.textContent = `${progress}%`;
         if (progress < 100) {
-            dom.loadingBar.style.backgroundImage = `linear-gradient(90deg, #F60 0%, #F60 ${progress}%, white ${progress}%, white 100%)`;
+            dom.loadingBar.style.backgroundImage = `linear-gradient(90deg, #50c2ff 0%, #50c2ff ${progress}%, white ${progress}%, white 100%)`;
         } else {
-            dom.loadingBar.style.backgroundImage = 'linear-gradient(90deg, #F60 0%, #F60 100%)';
+            dom.loadingBar.style.backgroundImage = 'linear-gradient(90deg, #50c2ff 0%, #50c2ff 100%)';
         }
     });
 
