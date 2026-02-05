@@ -42,9 +42,17 @@ const loadGsplat = async (app: AppBase, config: Config, progressCallback: (progr
         });
 
         let watermark = 0;
+        let progressEventCount = 0;
+        const startTime = performance.now();
+        console.log('[Loading] Model download started:', filename);
         asset.on('progress', (received, length) => {
+            progressEventCount++;
             // Cap download progress at 99% - only show 100% after LOD/sorting is complete
             const progress = Math.min(0.99, received / length) * 100;
+            const elapsed = ((performance.now() - startTime) / 1000).toFixed(2);
+            if (progressEventCount <= 3 || progress > watermark + 10) {
+                console.log(`[Loading] Progress event #${progressEventCount}: ${received}/${length} bytes (${progress.toFixed(1)}%) at ${elapsed}s`);
+            }
             if (progress > watermark) {
                 watermark = progress;
                 progressCallback(Math.trunc(watermark));
@@ -163,7 +171,13 @@ const main = (app: AppBase, camera: Entity, settingsJson: any, config: Config) =
     initUI(global);
 
     // Set initial loading status after UI is ready
+    console.log('[Loading] UI initialized, setting initial status');
     state.loadingStatus = '正在初始化...';
+
+    // Debug: log progress changes
+    events.on('progress:changed', (progress) => {
+        console.log(`[Loading] Progress changed to: ${progress}%`);
+    });
 
     // Determine if we need unified mode (required when loading multiple gsplats)
     const hasEnvironment = !!config.environmentUrl;

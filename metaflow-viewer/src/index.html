@@ -408,6 +408,7 @@
 
             // Show loading UI - called when poster is ready (or immediately if no poster)
             const showLoadingUI = () => {
+                console.log('[Loading] showLoadingUI called at', performance.now().toFixed(0), 'ms');
                 const loadingWrap = document.getElementById('loadingWrap');
                 if (loadingWrap) {
                     loadingWrap.classList.remove('hidden');
@@ -416,6 +417,7 @@
 
             // Show the poster image - wait for it to load first
             const showPoster = () => {
+                console.log('[Loading] showPoster called at', performance.now().toFixed(0), 'ms, poster.complete:', poster?.complete);
                 if (poster) {
                     const element = document.getElementById('poster');
                     element.style.setProperty('--poster-url', `url(${poster.src})`);
@@ -431,16 +433,20 @@
             };
 
             // Wait for poster image to load before showing it
+            console.log('[Loading] Poster setup at', performance.now().toFixed(0), 'ms, poster exists:', !!poster, 'poster.complete:', poster?.complete);
             if (poster) {
                 if (poster.complete) {
+                    console.log('[Loading] Poster already complete, calling showPoster immediately');
                     showPoster();
                 } else {
+                    console.log('[Loading] Poster not complete, waiting for onload event');
                     poster.onload = showPoster;
                     // Also hide canvas immediately while poster loads
                     document.documentElement.style.setProperty('--canvas-opacity', '0');
                 }
             } else {
                 // No poster, show loading UI immediately
+                console.log('[Loading] No poster, showing loading UI immediately');
                 showLoadingUI();
             }
 
