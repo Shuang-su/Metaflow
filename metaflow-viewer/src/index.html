@@ -148,8 +148,8 @@
 
             <div id="poster"></div>
 
-            <!-- Loading Indicator -->
-            <div id="loadingWrap">
+            <!-- Loading Indicator - hidden until poster loads -->
+            <div id="loadingWrap" class="hidden">
                 <div id="loadingText"></div>
                 <div id="loadingBar"></div>
                 <div id="loadingStatus"></div>
@@ -399,6 +399,14 @@
             const { config, settings } = window.sse;
             const { poster } = config;
 
+            // Show loading UI - called when poster is ready (or immediately if no poster)
+            const showLoadingUI = () => {
+                const loadingWrap = document.getElementById('loadingWrap');
+                if (loadingWrap) {
+                    loadingWrap.classList.remove('hidden');
+                }
+            };
+
             // Show the poster image - wait for it to load first
             const showPoster = () => {
                 if (poster) {
@@ -409,6 +417,9 @@
 
                     // hide the canvas until content loads
                     document.documentElement.style.setProperty('--canvas-opacity', '0');
+
+                    // Show loading UI now that poster is visible
+                    showLoadingUI();
                 }
             };
 
@@ -421,6 +432,9 @@
                     // Also hide canvas immediately while poster loads
                     document.documentElement.style.setProperty('--canvas-opacity', '0');
                 }
+            } else {
+                // No poster, show loading UI immediately
+                showLoadingUI();
             }
 
             document.addEventListener('DOMContentLoaded', async () => {
