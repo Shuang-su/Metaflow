@@ -127,7 +127,7 @@ const main = (app: AppBase, camera: Entity, settingsJson: any, config: Config) =
         readyToRender: false,
         hqMode: true,
         progress: 0,
-        loadingStatus: '正在初始化...',
+        loadingStatus: '',
         inputMode: 'desktop',
         cameraMode: 'orbit',
         hasAnimation: false,
@@ -161,6 +161,9 @@ const main = (app: AppBase, camera: Entity, settingsJson: any, config: Config) =
 
     // Initialize user interface
     initUI(global);
+
+    // Set initial loading status after UI is ready
+    state.loadingStatus = '正在初始化...';
 
     // Determine if we need unified mode (required when loading multiple gsplats)
     const hasEnvironment = !!config.environmentUrl;
