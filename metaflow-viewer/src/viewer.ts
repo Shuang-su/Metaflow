@@ -315,12 +315,16 @@ class Viewer {
                     if (firstFrameFired) return;
                     firstFrameFired = true;
                     state.readyToRender = true;
+                    state.progress = 100;
+                    state.loadingStatus = '加载完成';
                     app.once('frameend', () => {
                         events.fire('firstFrame');
                         // emit first frame event on window
                         window.firstFrame?.();
                     });
                 };
+
+                state.loadingStatus = '正在排序高斯点...';
 
                 // kick off gsplat sorting immediately now that camera is in position
                 instance.sort(camera);
@@ -399,12 +403,16 @@ class Viewer {
                 let watermark = 1;
                 let firstFrameFired = false;
 
+                state.loadingStatus = '正在加载 LOD 数据...';
+
                 const fireFirstFrame = () => {
                     if (firstFrameFired) return;
                     firstFrameFired = true;
                     eventHandler.off('frame:ready', readyHandler);
 
                     state.readyToRender = true;
+                    state.progress = 100;
+                    state.loadingStatus = '加载完成';
 
                     // handle quality mode changes
                     const updateLod = () => {

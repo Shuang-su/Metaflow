@@ -39,7 +39,7 @@ const initUI = (global: Global) => {
         'orbitCamera', 'flyCamera',
         'hqCheck', 'hqOption', 'lqCheck', 'lqOption',
         'reset', 'frame',
-        'loadingText', 'loadingBar',
+        'loadingText', 'loadingBar', 'loadingStatus',
         'joystickBase', 'joystick',
         'tooltip'
     ].reduce((acc: Record<string, HTMLElement>, id) => {
@@ -49,11 +49,18 @@ const initUI = (global: Global) => {
 
     // Handle loading progress updates
     events.on('progress:changed', (progress) => {
-        dom.loadingText.textContent = `${progress}%`;
+        dom.loadingText.textContent =  `${progress}%`;
         if (progress < 100) {
             dom.loadingBar.style.backgroundImage = `linear-gradient(90deg, #50c2ff 0%, #50c2ff ${progress}%, white ${progress}%, white 100%)`;
         } else {
             dom.loadingBar.style.backgroundImage = 'linear-gradient(90deg, #50c2ff 0%, #50c2ff 100%)';
+        }
+    });
+
+    // Handle loading status text updates
+    events.on('loadingStatus:changed', (status: string) => {
+        if (dom.loadingStatus) {
+            dom.loadingStatus.textContent = status;
         }
     });
 

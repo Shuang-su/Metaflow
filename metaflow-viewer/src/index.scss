@@ -151,6 +151,14 @@ button {
         border-radius: 4px;
         overflow: hidden;
     }
+
+    > #loadingStatus {
+        font-size: 14px;
+        color: rgba($clr-text-light, 0.7);
+        text-align: center;
+        margin-top: 8px;
+        text-shadow: 0 0 4px rgba(0, 0, 0, 0.5);
+    }
 }
 
 /* controlsWrap */

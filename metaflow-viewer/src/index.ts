@@ -43,7 +43,8 @@ const loadGsplat = async (app: AppBase, config: Config, progressCallback: (progr
 
         let watermark = 0;
         asset.on('progress', (received, length) => {
-            const progress = Math.min(1, received / length) * 100;
+            // Cap download progress at 99% - only show 100% after LOD/sorting is complete
+            const progress = Math.min(0.99, received / length) * 100;
             if (progress > watermark) {
                 watermark = progress;
                 progressCallback(Math.trunc(watermark));
@@ -126,6 +127,7 @@ const main = (app: AppBase, camera: Entity, settingsJson: any, config: Config) =
         readyToRender: false,
         hqMode: true,
         progress: 0,
+        loadingStatus: '正在初始化...',
         inputMode: 'desktop',
         cameraMode: 'orbit',
         hasAnimation: false,
@@ -170,8 +172,10 @@ const main = (app: AppBase, camera: Entity, settingsJson: any, config: Config) =
     const gsplatLoad = (async () => {
         // Wait for environment to load first if it exists
         if (environmentLoad) {
+            state.loadingStatus = '正在加载环境...';
             await environmentLoad;
         }
+        state.loadingStatus = '正在下载模型...';
         return loadGsplat(
             app,
             config,

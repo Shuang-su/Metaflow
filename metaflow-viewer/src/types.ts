@@ -28,6 +28,7 @@ type State = {
     readyToRender: boolean;                     // don't render till this is set
     hqMode: boolean;
     progress: number;                           // content loading progress 0-100
+    loadingStatus: string;                      // current loading status text
     inputMode: InputMode;
     cameraMode: CameraMode;
     hasAnimation: boolean;
