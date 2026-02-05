@@ -339,10 +339,11 @@ class Viewer {
 
                     // fallback in case sorter doesn't emit updates
                     setTimeout(() => {
-                        if (!state.readyToRender) {
+                        if (!firstFrameFired) {
+                            console.warn('[Viewer] Sorter timeout - forcing firstFrame');
                             fireFirstFrame();
                         }
-                    }, 2000);
+                    }, 3000);
                 } else {
                     // no sorter available; allow render immediately
                     fireFirstFrame();
@@ -396,33 +397,41 @@ class Viewer {
 
                 let current = 0;
                 let watermark = 1;
+                let firstFrameFired = false;
+
+                const fireFirstFrame = () => {
+                    if (firstFrameFired) return;
+                    firstFrameFired = true;
+                    eventHandler.off('frame:ready', readyHandler);
+
+                    state.readyToRender = true;
+
+                    // handle quality mode changes
+                    const updateLod = () => {
+                        const settings = state.hqMode ? quality.high : quality.low;
+                        gsplat.lodRangeMin = settings.range[0];
+                        gsplat.lodRangeMax = settings.range[1];
+                        results[0].gsplat.splatBudget = settings.splatBudget * 1000000;
+                    };
+                    events.on('hqMode:changed', updateLod);
+                    updateLod();
+
+                    // debug colorize lods
+                    gsplat.colorizeLod = config.colorize;
+
+                    // wait for the first valid frame to complete rendering
+                    app.once('frameend', () => {
+                        events.fire('firstFrame');
+
+                        // emit first frame event on window
+                        window.firstFrame?.();
+                    });
+                };
+
                 const readyHandler = (camera: CameraComponent, layer: Layer, ready: boolean, loading: number) => {
                     if (ready && loading === 0) {
                         // scene is done loading
-                        eventHandler.off('frame:ready', readyHandler);
-
-                        state.readyToRender = true;
-
-                        // handle quality mode changes
-                        const updateLod = () => {
-                            const settings = state.hqMode ? quality.high : quality.low;
-                            gsplat.lodRangeMin = settings.range[0];
-                            gsplat.lodRangeMax = settings.range[1];
-                            results[0].gsplat.splatBudget = settings.splatBudget * 1000000;
-                        };
-                        events.on('hqMode:changed', updateLod);
-                        updateLod();
-
-                        // debug colorize lods
-                        gsplat.colorizeLod = config.colorize;
-
-                        // wait for the first valid frame to complete rendering
-                        app.once('frameend', () => {
-                            events.fire('firstFrame');
-
-                            // emit first frame event on window
-                            window.firstFrame?.();
-                        });
+                        fireFirstFrame();
                     }
 
                     // update loading status
@@ -433,6 +442,15 @@ class Viewer {
                     }
                 };
                 eventHandler.on('frame:ready', readyHandler);
+
+                // Fallback: if frame:ready doesn't fire with loading === 0 within 5 seconds,
+                // fire firstFrame anyway to prevent the page from being stuck
+                setTimeout(() => {
+                    if (!firstFrameFired) {
+                        console.warn('[Viewer] LOD loading timeout - forcing firstFrame');
+                        fireFirstFrame();
+                    }
+                }, 5000);
             }
         });
     }
