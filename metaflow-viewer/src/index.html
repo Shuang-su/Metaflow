@@ -69,17 +69,20 @@
                     try {
                         const indexResponse = await fetch('/data/index.json');
                         const indexData = await indexResponse.json();
+                        console.log('[Route] pathname:', pathname, 'resources count:', indexData.resources?.length);
                         // 同时支持完整路由和 aliases 别名路由
                         const resource = indexData.resources.find(r => 
                             r.route === pathname || 
                             (r.aliases && r.aliases.includes(pathname))
                         );
+                        console.log('[Route] found resource:', resource?.id, resource?.route, resource?.aliases);
                         
                         if (resource) {
                             contentUrl = '/data/' + resource.files.model;
                             settingsUrl = resource.files.settings ? '/data/' + resource.files.settings : null;
                             posterUrl = posterUrl || (resource.files.thumbnail ? '/data/' + resource.files.thumbnail : null);
                             environmentUrl = environmentUrl || (resource.files.environment ? '/data/' + resource.files.environment : null);
+                            console.log('[Route] contentUrl:', contentUrl);
                             // resourceTitle = '川流Metaflow - ' + resource.title;
                             // document.title = resourceTitle;
                         }
