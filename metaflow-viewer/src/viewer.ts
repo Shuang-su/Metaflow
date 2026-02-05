@@ -48,6 +48,12 @@ vec3 prepareOutputFromGamma(vec3 gammaColor) {
 }
 `;
 
+const gammaChunkWgsl = /* wgsl */ `
+fn prepareOutputFromGamma(gammaColor: vec3f) -> vec3f {
+    return gammaColor;
+}
+`;
+
 const pickDepthWgsl = /* wgsl */ `
     uniform camera_params: vec4f;       // 1/far, far, near, isOrtho
     fn getPickOutput() -> vec4f {
@@ -485,8 +491,9 @@ class Viewer {
             applyPostEffectSettings(cameraFrame, postEffectSettings);
             cameraFrame.update();
 
-            // force gsplat shader to write gamma-space colors
+            // force gsplat shader to write gamma-space colors (GLSL for WebGL, WGSL for WebGPU)
             ShaderChunks.get(app.graphicsDevice, 'glsl').set('gsplatOutputVS', gammaChunk);
+            ShaderChunks.get(app.graphicsDevice, 'wgsl').set('gsplatOutputVS', gammaChunkWgsl);
 
             // ensure the final blit doesn't perform linear->gamma conversion
             RenderTarget.prototype.isColorBufferSrgb = function () {
