@@ -34,8 +34,8 @@
         <script type="module">
             // Domain-based redirects (before any other logic)
             const domainRedirects = {
-                'xn--fes68bkzcz5lkjgrkl.com': '/sztu/c2-lib',
-                'www.xn--fes68bkzcz5lkjgrkl.com': '/sztu/c2-lib'
+                'xn--fes68bkzcz5lkjgrkl.com': '/c2-lib',
+                'www.xn--fes68bkzcz5lkjgrkl.com': '/c2-lib'
             };
             
             const currentHost = location.hostname.toLowerCase();
@@ -69,7 +69,11 @@
                     try {
                         const indexResponse = await fetch('/data/index.json');
                         const indexData = await indexResponse.json();
-                        const resource = indexData.resources.find(r => r.route === pathname);
+                        // 同时支持完整路由和 aliases 别名路由
+                        const resource = indexData.resources.find(r => 
+                            r.route === pathname || 
+                            (r.aliases && r.aliases.includes(pathname))
+                        );
                         
                         if (resource) {
                             contentUrl = '/data/' + resource.files.model;

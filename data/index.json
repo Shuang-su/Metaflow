@@ -971,6 +971,7 @@
         "sztu"
       ],
       "route": "/sztu/c2-lib",
+      "aliases": ["/c2-lib"],
       "source": "photogrammetry",
       "files": {
         "model": "SZTU/250424 SZTU C2-Lib/SZTU_C2-Lib_M3E_WU_5286px_5000ksplats_150kStep_5000ksplats_250508_Cleansky.sog",
@@ -1002,6 +1003,7 @@
         "sztu"
       ],
       "route": "/sztu/b1-sdi-206",
+      "aliases": ["/b1-sdi-206"],
       "source": "scanner",
       "files": {
         "model": "SZTU/251220 SZTU B1-sdi 206/251220 SZTU B1-sdi 206 zhan_20500.sog",
