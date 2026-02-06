@@ -337,7 +337,9 @@ class Viewer {
                     ? `${(numSplats / 10000).toFixed(1)} 万`
                     : `${numSplats}`;
 
-                state.loadingStatus = `正在排序 ${splatLabel} 个高斯点...`;
+                state.loadingStatus = numSplats > 0
+                    ? `正在排序 ${splatLabel} 个高斯点...`
+                    : '正在排序高斯点...';
                 state.progress = -1; // indeterminate during sorting
 
                 // kick off gsplat sorting immediately now that camera is in position

@@ -69,9 +69,48 @@ const initUI = (global: Global) => {
     });
 
     // Handle loading status text updates
+    // During indeterminate phases, append elapsed time to give feedback
+    let statusTimer: ReturnType<typeof setInterval> | null = null;
+    let statusBaseText = '';
+    let statusStartTime = 0;
+
+    const stopStatusTimer = () => {
+        if (statusTimer) {
+            clearInterval(statusTimer);
+            statusTimer = null;
+        }
+    };
+
+    const startStatusTimer = () => {
+        stopStatusTimer();
+        statusStartTime = performance.now();
+        statusTimer = setInterval(() => {
+            const elapsed = ((performance.now() - statusStartTime) / 1000).toFixed(1);
+            if (dom.loadingStatus) {
+                dom.loadingStatus.textContent = `${statusBaseText} (${elapsed}s)`;
+            }
+        }, 100);
+    };
+
     events.on('loadingStatus:changed', (status: string) => {
+        statusBaseText = status;
         if (dom.loadingStatus) {
             dom.loadingStatus.textContent = status;
+        }
+        // Restart timer on status change during indeterminate mode
+        if (state.progress < 0) {
+            startStatusTimer();
+        }
+    });
+
+    // Sync timer with progress mode
+    events.on('progress:changed', (progress: number) => {
+        if (progress >= 0) {
+            stopStatusTimer();
+            // Restore base text without timer suffix
+            if (dom.loadingStatus) {
+                dom.loadingStatus.textContent = statusBaseText;
+            }
         }
     });
 

@@ -27,6 +27,8 @@ const formatSize = (bytes: number) => {
     return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
 };
 
+const formatSplats = (n: number) => n >= 10000 ? `${(n / 10000).toFixed(1)} 万` : `${n}`;
+
 const loadGsplat = async (app: AppBase, config: Config, callbacks: LoadCallbacks, forceUnified = false) => {
     const { contents, contentUrl, unified, aa } = config;
     const c = contents as unknown as ArrayBuffer;
@@ -51,6 +53,14 @@ const loadGsplat = async (app: AppBase, config: Config, callbacks: LoadCallbacks
             resolve(entity);
         });
 
+        // PLY parsing milestone: fires when data is parsed, before GPU resource creation
+        asset.on('load:data', (data: any) => {
+            const numSplats = data?.numSplats;
+            if (numSplats) {
+                callbacks.onStatus(`已解析 ${formatSplats(numSplats)} 个高斯点，正在创建 GPU 资源...`);
+            }
+        });
+
         let watermark = 0;
         let isCached = false;
         let progressEventCount = 0;
@@ -61,9 +71,10 @@ const loadGsplat = async (app: AppBase, config: Config, callbacks: LoadCallbacks
             if (!length || length <= 0) {
                 if (!isCached) {
                     isCached = true;
-                    callbacks.onStatus('正在加载模型...');
                     callbacks.onProgress(-1); // indeterminate
                 }
+                // Still show received bytes even when cached
+                callbacks.onStatus(`正在解析模型数据 ${formatSize(received)}`);
                 return;
             }
 
