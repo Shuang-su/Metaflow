@@ -17,7 +17,12 @@ import { Viewer } from './viewer';
 import { initXr } from './xr';
 import { version as appVersion } from '../package.json';
 
-const loadGsplat = async (app: AppBase, config: Config, progressCallback: (progress: number) => void, forceUnified = false) => {
+interface LoadCallbacks {
+    onProgress: (progress: number) => void;  // 0-99 for determinate, -1 for indeterminate
+    onStatus: (status: string) => void;
+}
+
+const loadGsplat = async (app: AppBase, config: Config, callbacks: LoadCallbacks, forceUnified = false) => {
     const { contents, contentUrl, unified, aa } = config;
     const c = contents as unknown as ArrayBuffer;
     const filename = new URL(contentUrl, location.href).pathname.split('/').pop();
@@ -42,28 +47,26 @@ const loadGsplat = async (app: AppBase, config: Config, progressCallback: (progr
         });
 
         let watermark = 0;
+        let isCached = false;
         let progressEventCount = 0;
-        const startTime = performance.now();
-        console.log('[Loading] Model download started:', filename);
         asset.on('progress', (received, length) => {
             progressEventCount++;
-            // When content is served from cache, length may be 0 - skip progress update
-            // to avoid misleading 99% (received/0 = Infinity → min(0.99, Inf) = 0.99)
+
+            // Detect cached content: length is 0 or undefined
             if (!length || length <= 0) {
-                if (progressEventCount <= 3) {
-                    console.log(`[Loading] Progress event #${progressEventCount}: ${received}/${length} bytes (cached, skipping) at ${((performance.now() - startTime) / 1000).toFixed(2)}s`);
+                if (!isCached) {
+                    isCached = true;
+                    callbacks.onStatus('正在加载模型...');
+                    callbacks.onProgress(-1); // indeterminate
                 }
                 return;
             }
-            // Cap download progress at 99% - only show 100% after LOD/sorting is complete
+
+            // Determinate progress: cap at 99%, 100% reserved for post-processing
             const progress = Math.min(0.99, received / length) * 100;
-            const elapsed = ((performance.now() - startTime) / 1000).toFixed(2);
-            if (progressEventCount <= 3 || progress > watermark + 10) {
-                console.log(`[Loading] Progress event #${progressEventCount}: ${received}/${length} bytes (${progress.toFixed(1)}%) at ${elapsed}s`);
-            }
             if (progress > watermark) {
                 watermark = progress;
-                progressCallback(Math.trunc(watermark));
+                callbacks.onProgress(Math.trunc(watermark));
             }
         });
 
@@ -179,13 +182,7 @@ const main = (app: AppBase, camera: Entity, settingsJson: any, config: Config) =
     initUI(global);
 
     // Set initial loading status after UI is ready
-    console.log('[Loading] UI initialized, setting initial status');
     state.loadingStatus = '正在初始化...';
-
-    // Debug: log progress changes
-    events.on('progress:changed', (progress) => {
-        console.log(`[Loading] Progress changed to: ${progress}%`);
-    });
 
     // Determine if we need unified mode (required when loading multiple gsplats)
     const hasEnvironment = !!config.environmentUrl;
@@ -198,17 +195,28 @@ const main = (app: AppBase, camera: Entity, settingsJson: any, config: Config) =
         // Wait for environment to load first if it exists
         if (environmentLoad) {
             state.loadingStatus = '正在加载环境...';
+            state.progress = -1; // indeterminate
             await environmentLoad;
         }
         state.loadingStatus = '正在下载模型...';
-        return loadGsplat(
+        state.progress = 0;
+        const entity = await loadGsplat(
             app,
             config,
-            (progress: number) => {
-                state.progress = progress;
+            {
+                onProgress: (progress: number) => {
+                    state.progress = progress;
+                },
+                onStatus: (status: string) => {
+                    state.loadingStatus = status;
+                }
             },
             hasEnvironment  // Force unified mode when environment exists
         );
+        // Model data downloaded and parsed by engine
+        state.loadingStatus = '正在准备渲染...';
+        state.progress = -1; // indeterminate while waiting for sorting
+        return entity;
     })();
 
     // Load skybox

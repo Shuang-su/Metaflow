@@ -331,6 +331,7 @@ class Viewer {
                 };
 
                 state.loadingStatus = '正在排序高斯点...';
+                state.progress = -1; // indeterminate during sorting
 
                 // kick off gsplat sorting immediately now that camera is in position
                 instance.sort(camera);
@@ -410,6 +411,7 @@ class Viewer {
                 let firstFrameFired = false;
 
                 state.loadingStatus = '正在加载 LOD 数据...';
+                state.progress = 0;
 
                 const fireFirstFrame = () => {
                     if (firstFrameFired) return;

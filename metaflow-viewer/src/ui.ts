@@ -15,6 +15,8 @@ const initPoster = (events: EventHandler) => {
     });
 
     const blur = (progress: number) => {
+        // Skip blur update for indeterminate progress
+        if (progress < 0) return;
         poster.style.filter = `blur(${Math.floor((100 - progress) * 0.4)}px)`;
     };
 
@@ -48,12 +50,21 @@ const initUI = (global: Global) => {
     }, {});
 
     // Handle loading progress updates
-    events.on('progress:changed', (progress) => {
-        dom.loadingText.textContent =  `${progress}%`;
-        if (progress < 100) {
-            dom.loadingBar.style.backgroundImage = `linear-gradient(90deg, #50c2ff 0%, #50c2ff ${progress}%, white ${progress}%, white 100%)`;
+    // progress: 0-100 = determinate, -1 = indeterminate (pulsing bar)
+    events.on('progress:changed', (progress: number) => {
+        if (progress < 0) {
+            // Indeterminate mode: hide percentage, show pulsing animation
+            dom.loadingText.textContent = '';
+            dom.loadingBar.style.backgroundImage = '';
+            dom.loadingBar.classList.add('indeterminate');
         } else {
-            dom.loadingBar.style.backgroundImage = 'linear-gradient(90deg, #50c2ff 0%, #50c2ff 100%)';
+            dom.loadingBar.classList.remove('indeterminate');
+            dom.loadingText.textContent = `${progress}%`;
+            if (progress < 100) {
+                dom.loadingBar.style.backgroundImage = `linear-gradient(90deg, #50c2ff 0%, #50c2ff ${progress}%, white ${progress}%, white 100%)`;
+            } else {
+                dom.loadingBar.style.backgroundImage = 'linear-gradient(90deg, #50c2ff 0%, #50c2ff 100%)';
+            }
         }
     });
 

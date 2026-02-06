@@ -150,6 +150,12 @@ button {
         margin-top: 8px;
         border-radius: 4px;
         overflow: hidden;
+
+        &.indeterminate {
+            background: linear-gradient(90deg, white 0%, #50c2ff 50%, white 100%);
+            background-size: 200% 100%;
+            animation: indeterminate 1.5s ease-in-out infinite;
+        }
     }
 
     > #loadingStatus {
@@ -159,6 +165,11 @@ button {
         margin-top: 8px;
         text-shadow: 0 0 4px rgba(0, 0, 0, 0.5);
     }
+}
+
+@keyframes indeterminate {
+    0% { background-position: 100% 0; }
+    100% { background-position: -100% 0; }
 }
 
 /* controlsWrap */
