@@ -22,6 +22,11 @@ interface LoadCallbacks {
     onStatus: (status: string) => void;
 }
 
+const formatSize = (bytes: number) => {
+    if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(0)} KB`;
+    return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+};
+
 const loadGsplat = async (app: AppBase, config: Config, callbacks: LoadCallbacks, forceUnified = false) => {
     const { contents, contentUrl, unified, aa } = config;
     const c = contents as unknown as ArrayBuffer;
@@ -68,6 +73,9 @@ const loadGsplat = async (app: AppBase, config: Config, callbacks: LoadCallbacks
                 watermark = progress;
                 callbacks.onProgress(Math.trunc(watermark));
             }
+
+            // Update status with download size details
+            callbacks.onStatus(`正在下载模型 ${formatSize(received)} / ${formatSize(length)}`);
         });
 
         asset.on('error', (err) => {

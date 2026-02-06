@@ -331,7 +331,13 @@ class Viewer {
 
             const { instance } = gsplat;
             if (instance) {
-                state.loadingStatus = '正在排序高斯点...';
+                // Get splat count from resource
+                const numSplats = instance.resource?.numSplats ?? 0;
+                const splatLabel = numSplats >= 10000
+                    ? `${(numSplats / 10000).toFixed(1)} 万`
+                    : `${numSplats}`;
+
+                state.loadingStatus = `正在排序 ${splatLabel} 个高斯点...`;
                 state.progress = -1; // indeterminate during sorting
 
                 // kick off gsplat sorting immediately now that camera is in position
@@ -339,7 +345,7 @@ class Viewer {
 
                 if (instance.sorter) {
                     // listen for sorting updates to trigger first frame events
-                    instance.sorter.on('updated', () => {
+                    instance.sorter.on('updated', (count: number) => {
                         // request frame render when sorting changes
                         app.renderNextFrame = true;
 
@@ -434,11 +440,14 @@ class Viewer {
                         });
                     }
 
-                    // update loading status
+                    // update loading status with file count
                     if (loading !== current) {
                         watermark = Math.max(watermark, loading);
                         current = watermark - loading;
                         state.progress = Math.trunc(current / watermark * 100);
+                        if (loading > 0) {
+                            state.loadingStatus = `正在加载 LOD 数据 (剩余 ${loading} 个文件)`;
+                        }
                     }
                 };
                 eventHandler.on('frame:ready', readyHandler);
