@@ -16,6 +16,10 @@ import type { Global } from './types';
 /* Vec initialisation to avoid recurrent memory allocation */
 const tmpV1 = new Vec3();
 const tmpV2 = new Vec3();
+const tmpKeyMove = new Vec3();
+const tmpPanMove = new Vec3();
+const tmpWheelMove = new Vec3();
+const tmpOrbitMove = new Vec3();
 const mouseRotate = new Vec3();
 const flyMove = new Vec3();
 const pinchMove = new Vec3();
@@ -35,7 +39,7 @@ const stickRotate = new Vec3();
  * @returns - The pan vector in world space.
  * @private
  */
-const screenToWorld = (camera: CameraComponent, dx: number, dy: number, dz: number, out: Vec3 = new Vec3()) => {
+const screenToWorld = (camera: CameraComponent, dx: number, dy: number, dz: number, out: Vec3) => {
     const { system, fov, aspectRatio, horizontalFov, projection, orthoHeight } = camera;
     const { width, height } = system.app.graphicsDevice.clientRect;
 
@@ -253,12 +257,12 @@ class InputController {
 
         // desktop move
         const v = tmpV1.set(0, 0, 0);
-        const keyMove = this._state.axis.clone().normalize();
-        v.add(keyMove.mulScalar(fly * this.moveSpeed * (this._state.shift ? 4 : this._state.ctrl ? 0.25 : 1) * dt));
-        const panMove = screenToWorld(camera, mouse[0], mouse[1], distance);
-        v.add(panMove.mulScalar(pan));
-        const wheelMove = new Vec3(0, 0, -wheel[0]);
-        v.add(wheelMove.mulScalar(this.wheelSpeed * dt));
+        tmpKeyMove.copy(this._state.axis).normalize();
+        v.add(tmpKeyMove.mulScalar(fly * this.moveSpeed * (this._state.shift ? 4 : this._state.ctrl ? 0.25 : 1) * dt));
+        screenToWorld(camera, mouse[0], mouse[1], distance, tmpPanMove);
+        v.add(tmpPanMove.mulScalar(pan));
+        tmpWheelMove.set(0, 0, -wheel[0]);
+        v.add(tmpWheelMove.mulScalar(this.wheelSpeed * dt));
         // FIXME: need to flip z axis for orbit camera
         deltas.move.append([v.x, v.y, orbit ? -v.z : v.z]);
 
@@ -270,8 +274,8 @@ class InputController {
 
         // mobile move
         v.set(0, 0, 0);
-        const orbitMove = screenToWorld(camera, touch[0], touch[1], distance);
-        v.add(orbitMove.mulScalar(orbit * pan));
+        screenToWorld(camera, touch[0], touch[1], distance, tmpOrbitMove);
+        v.add(tmpOrbitMove.mulScalar(orbit * pan));
         flyMove.set(leftInput[0], 0, -leftInput[1]);
         v.add(flyMove.mulScalar(fly * this.moveSpeed * dt));
         pinchMove.set(0, 0, pinch[0]);

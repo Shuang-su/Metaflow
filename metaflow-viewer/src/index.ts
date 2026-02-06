@@ -71,7 +71,7 @@ const loadGsplat = async (app: AppBase, config: Config, callbacks: LoadCallbacks
         });
 
         asset.on('error', (err) => {
-            console.log(err);
+            console.error(err);
             reject(err);
         });
 
@@ -105,7 +105,7 @@ const loadEnvironment = async (app: AppBase, config: Config) => {
         });
 
         asset.on('error', (err) => {
-            console.log('Environment load error:', err);
+            console.error('Environment load error:', err);
             resolve(null); // Don't reject, environment is optional
         });
 
@@ -130,7 +130,7 @@ const loadSkybox = (app: AppBase, url: string) => {
         });
 
         asset.on('error', (err) => {
-            console.log(err);
+            console.error(err);
             reject(err);
         });
 

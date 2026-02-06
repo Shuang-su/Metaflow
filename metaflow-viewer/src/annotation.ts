@@ -413,15 +413,17 @@ export class Annotation extends Script {
         this.hotspotDom.addEventListener('pointerenter', enter);
         this.hotspotDom.addEventListener('pointerleave', leave);
 
-        document.addEventListener('click', () => {
+        const onDocumentClick = () => {
             this.hideTooltip();
-        });
+        };
+        document.addEventListener('click', onDocumentClick);
 
         Annotation.parentDom.appendChild(this.hotspotDom);
 
         // Clean up on entity destruction
         this.on('destroy', () => {
             this.hotspotDom.remove();
+            document.removeEventListener('click', onDocumentClick);
             if (Annotation.activeAnnotation === this) {
                 this.hideTooltip();
             }
@@ -433,7 +435,7 @@ export class Annotation extends Script {
             this.texture = null;
         });
 
-        this.app.on('prerender', () => {
+        const onPrerender = () => {
             if (!Annotation.camera) return;
 
             const position = this.entity.getPosition();
@@ -455,6 +457,10 @@ export class Annotation extends Script {
             this.materials[1].opacity = 0.25 * Annotation.opacity;
             this.materials[0].setParameter('material_opacity', Annotation.opacity);
             this.materials[1].setParameter('material_opacity', 0.25 * Annotation.opacity);
+        };
+        this.app.on('prerender', onPrerender);
+        this.on('destroy', () => {
+            this.app.off('prerender', onPrerender);
         });
     }
 
@@ -562,8 +568,8 @@ export class Annotation extends Script {
      */
     _calculateScreenSpaceScale() {
         const cameraPos = Annotation.camera.getPosition();
-        const toAnnotation = this.entity.getPosition().sub(cameraPos);
-        const distance = toAnnotation.length();
+        vec.sub2(this.entity.getPosition(), cameraPos);
+        const distance = vec.length();
 
         // Use the canvas's CSS/client height instead of graphics device height
         const canvas = this.app.graphicsDevice.canvas;

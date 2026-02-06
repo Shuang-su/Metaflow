@@ -38,11 +38,13 @@ class AnimCursor {
     }
 
     set value(value: number) {
-        this.cursor = mod(value, this.duration);
+        this.cursor = this.loopMode === 'pingpong'
+            ? mod(value, this.duration * 2)
+            : mod(value, this.duration);
     }
 
     get value() {
-        return this.cursor > this.duration ? this.duration - this.cursor : this.cursor;
+        return this.cursor > this.duration ? 2 * this.duration - this.cursor : this.cursor;
     }
 }
 

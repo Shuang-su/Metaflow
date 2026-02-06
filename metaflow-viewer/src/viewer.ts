@@ -314,22 +314,23 @@ class Viewer {
             this.cameraManager = new CameraManager(global, sceneBound);
             applyCamera(this.cameraManager.camera);
 
+            // Shared first-frame trigger: marks render ready, updates loading UI, fires event
+            let firstFrameFired = false;
+            const fireFirstFrame = (onReady?: () => void) => {
+                if (firstFrameFired) return;
+                firstFrameFired = true;
+                state.readyToRender = true;
+                state.progress = 100;
+                state.loadingStatus = '加载完成';
+                onReady?.();
+                app.once('frameend', () => {
+                    events.fire('firstFrame');
+                    window.firstFrame?.();
+                });
+            };
+
             const { instance } = gsplat;
             if (instance) {
-                let firstFrameFired = false;
-                const fireFirstFrame = () => {
-                    if (firstFrameFired) return;
-                    firstFrameFired = true;
-                    state.readyToRender = true;
-                    state.progress = 100;
-                    state.loadingStatus = '加载完成';
-                    app.once('frameend', () => {
-                        events.fire('firstFrame');
-                        // emit first frame event on window
-                        window.firstFrame?.();
-                    });
-                };
-
                 state.loadingStatus = '正在排序高斯点...';
                 state.progress = -1; // indeterminate during sorting
 
@@ -408,46 +409,29 @@ class Viewer {
 
                 let current = 0;
                 let watermark = 1;
-                let firstFrameFired = false;
 
                 state.loadingStatus = '正在加载 LOD 数据...';
                 state.progress = 0;
 
-                const fireFirstFrame = () => {
-                    if (firstFrameFired) return;
-                    firstFrameFired = true;
-                    eventHandler.off('frame:ready', readyHandler);
-
-                    state.readyToRender = true;
-                    state.progress = 100;
-                    state.loadingStatus = '加载完成';
-
-                    // handle quality mode changes
-                    const updateLod = () => {
-                        const settings = state.hqMode ? quality.high : quality.low;
-                        gsplat.lodRangeMin = settings.range[0];
-                        gsplat.lodRangeMax = settings.range[1];
-                        results[0].gsplat.splatBudget = settings.splatBudget * 1000000;
-                    };
-                    events.on('hqMode:changed', updateLod);
-                    updateLod();
-
-                    // debug colorize lods
-                    gsplat.colorizeLod = config.colorize;
-
-                    // wait for the first valid frame to complete rendering
-                    app.once('frameend', () => {
-                        events.fire('firstFrame');
-
-                        // emit first frame event on window
-                        window.firstFrame?.();
-                    });
-                };
-
                 const readyHandler = (camera: CameraComponent, layer: Layer, ready: boolean, loading: number) => {
                     if (ready && loading === 0) {
                         // scene is done loading
-                        fireFirstFrame();
+                        fireFirstFrame(() => {
+                            eventHandler.off('frame:ready', readyHandler);
+
+                            // handle quality mode changes
+                            const updateLod = () => {
+                                const settings = state.hqMode ? quality.high : quality.low;
+                                gsplat.lodRangeMin = settings.range[0];
+                                gsplat.lodRangeMax = settings.range[1];
+                                results[0].gsplat.splatBudget = settings.splatBudget * 1000000;
+                            };
+                            events.on('hqMode:changed', updateLod);
+                            updateLod();
+
+                            // debug colorize lods
+                            gsplat.colorizeLod = config.colorize;
+                        });
                     }
 
                     // update loading status
@@ -464,10 +448,14 @@ class Viewer {
                 setTimeout(() => {
                     if (!firstFrameFired) {
                         console.warn('[Viewer] LOD loading timeout - forcing firstFrame');
-                        fireFirstFrame();
+                        fireFirstFrame(() => {
+                            eventHandler.off('frame:ready', readyHandler);
+                        });
                     }
                 }, 5000);
             }
+        }).catch((err) => {
+            console.error('[Viewer] Failed to load model:', err);
         });
     }
 

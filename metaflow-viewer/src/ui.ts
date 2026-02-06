@@ -226,83 +226,83 @@ const initUI = (global: Global) => {
 
     events.on('inputEvent', showUI);
 
-    // Animation controls
-    events.on('hasAnimation:changed', (value, prev) => {
-        // Start and Stop animation
-        dom.play.addEventListener('click', () => {
-            state.cameraMode = 'anim';
-            state.animationPaused = false;
-        });
+    // Animation controls - register listeners once, outside hasAnimation:changed
+    dom.play.addEventListener('click', () => {
+        state.cameraMode = 'anim';
+        state.animationPaused = false;
+    });
 
-        dom.pause.addEventListener('click', () => {
-            state.cameraMode = 'anim';
+    dom.pause.addEventListener('click', () => {
+        state.cameraMode = 'anim';
+        state.animationPaused = true;
+    });
+
+    const updatePlayPause = () => {
+        if (state.cameraMode !== 'anim' || state.animationPaused) {
+            dom.play.classList.remove('hidden');
+            dom.pause.classList.add('hidden');
+        } else {
+            dom.play.classList.add('hidden');
+            dom.pause.classList.remove('hidden');
+        }
+
+        if (state.cameraMode === 'anim') {
+            dom.timelineContainer.classList.remove('hidden');
+        } else {
+            dom.timelineContainer.classList.add('hidden');
+        }
+    };
+
+    events.on('cameraMode:changed', updatePlayPause);
+    events.on('animationPaused:changed', updatePlayPause);
+
+    const updateSlider = () => {
+        dom.handle.style.left = `${state.animationTime / state.animationDuration * 100}%`;
+        dom.time.style.left = `${state.animationTime / state.animationDuration * 100}%`;
+        dom.time.innerText = `${state.animationTime.toFixed(1)}s`;
+    };
+
+    events.on('animationTime:changed', updateSlider);
+    events.on('animationLength:changed', updateSlider);
+
+    const handleScrub = (event: PointerEvent) => {
+        const rect = dom.timelineContainer.getBoundingClientRect();
+        const t = Math.max(0, Math.min(rect.width - 1, event.clientX - rect.left)) / rect.width;
+        events.fire('scrubAnim', state.animationDuration * t);
+        showUI();
+    };
+
+    let paused = false;
+    let captured = false;
+
+    dom.timelineContainer.addEventListener('pointerdown', (event: PointerEvent) => {
+        if (!captured) {
+            handleScrub(event);
+            dom.timelineContainer.setPointerCapture(event.pointerId);
+            dom.time.classList.remove('hidden');
+            paused = state.animationPaused;
             state.animationPaused = true;
-        });
+            captured = true;
+        }
+    });
 
-        const updatePlayPause = () => {
-            if (state.cameraMode !== 'anim' || state.animationPaused) {
-                dom.play.classList.remove('hidden');
-                dom.pause.classList.add('hidden');
-            } else {
-                dom.play.classList.add('hidden');
-                dom.pause.classList.remove('hidden');
-            }
+    dom.timelineContainer.addEventListener('pointermove', (event: PointerEvent) => {
+        if (captured) {
+            handleScrub(event);
+        }
+    });
 
-            if (state.cameraMode === 'anim') {
-                dom.timelineContainer.classList.remove('hidden');
-            } else {
-                dom.timelineContainer.classList.add('hidden');
-            }
-        };
+    dom.timelineContainer.addEventListener('pointerup', (event) => {
+        if (captured) {
+            dom.timelineContainer.releasePointerCapture(event.pointerId);
+            dom.time.classList.add('hidden');
+            state.animationPaused = paused;
+            captured = false;
+        }
+    });
 
-        // Update UI on animation changes
-        events.on('cameraMode:changed', updatePlayPause);
-        events.on('animationPaused:changed', updatePlayPause);
-
-        const updateSlider = () => {
-            dom.handle.style.left = `${state.animationTime / state.animationDuration * 100}%`;
-            dom.time.style.left = `${state.animationTime / state.animationDuration * 100}%`;
-            dom.time.innerText = `${state.animationTime.toFixed(1)}s`;
-        };
-
-        events.on('animationTime:changed', updateSlider);
-        events.on('animationLength:changed', updateSlider);
-
-        const handleScrub = (event: PointerEvent) => {
-            const rect = dom.timelineContainer.getBoundingClientRect();
-            const t = Math.max(0, Math.min(rect.width - 1, event.clientX - rect.left)) / rect.width;
-            events.fire('scrubAnim', state.animationDuration * t);
-            showUI();
-        };
-
-        let paused = false;
-        let captured = false;
-
-        dom.timelineContainer.addEventListener('pointerdown', (event: PointerEvent) => {
-            if (!captured) {
-                handleScrub(event);
-                dom.timelineContainer.setPointerCapture(event.pointerId);
-                dom.time.classList.remove('hidden');
-                paused = state.animationPaused;
-                state.animationPaused = true;
-                captured = true;
-            }
-        });
-
-        dom.timelineContainer.addEventListener('pointermove', (event: PointerEvent) => {
-            if (captured) {
-                handleScrub(event);
-            }
-        });
-
-        dom.timelineContainer.addEventListener('pointerup', (event) => {
-            if (captured) {
-                dom.timelineContainer.releasePointerCapture(event.pointerId);
-                dom.time.classList.add('hidden');
-                state.animationPaused = paused;
-                captured = false;
-            }
-        });
+    events.on('hasAnimation:changed', () => {
+        updatePlayPause();
     });
 
     // Camera mode UI
