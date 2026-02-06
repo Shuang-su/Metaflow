@@ -1,6 +1,6 @@
 [build]
   base = "metaflow-viewer"
-  command = "npm install && npm run build && cp -r ../data public/data"
+  command = "npm install && npm run build && cp -r ../data public/data && cp -r ../metaflow-editor public/editor"
   publish = "public"
 
 # Custom domain redirects - 深圳技术大学.com → /c2-lib
@@ -22,6 +22,12 @@
   to = "/assets/:splat"
   status = 200
 
+# Editor routes - serve editor files directly, SPA fallback for editor
+[[redirects]]
+  from = "/editor/*"
+  to = "/editor/:splat"
+  status = 200
+
 [[redirects]]
   from = "/*"
   to = "/index.html"
@@ -32,6 +38,11 @@
   for = "/*"
   [headers.values]
     Access-Control-Allow-Origin = "*"
+
+[[headers]]
+  for = "/editor/static/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
 
 [[headers]]
   for = "/data/*"
