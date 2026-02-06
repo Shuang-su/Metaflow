@@ -47,6 +47,14 @@ const loadGsplat = async (app: AppBase, config: Config, progressCallback: (progr
         console.log('[Loading] Model download started:', filename);
         asset.on('progress', (received, length) => {
             progressEventCount++;
+            // When content is served from cache, length may be 0 - skip progress update
+            // to avoid misleading 99% (received/0 = Infinity → min(0.99, Inf) = 0.99)
+            if (!length || length <= 0) {
+                if (progressEventCount <= 3) {
+                    console.log(`[Loading] Progress event #${progressEventCount}: ${received}/${length} bytes (cached, skipping) at ${((performance.now() - startTime) / 1000).toFixed(2)}s`);
+                }
+                return;
+            }
             // Cap download progress at 99% - only show 100% after LOD/sorting is complete
             const progress = Math.min(0.99, received / length) * 100;
             const elapsed = ((performance.now() - startTime) / 1000).toFixed(2);
