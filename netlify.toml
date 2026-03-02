@@ -33,11 +33,12 @@
   to = "/index.html"
   status = 200
 
-# Headers for better caching and CORS
+# Headers for better caching, CORS, and WebXR
 [[headers]]
   for = "/*"
   [headers.values]
     Access-Control-Allow-Origin = "*"
+    Permissions-Policy = "xr-spatial-tracking=*"
 
 [[headers]]
   for = "/editor/static/*"

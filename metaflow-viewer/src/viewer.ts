@@ -235,8 +235,8 @@ class Viewer {
                 }
             }
 
-            // suppress rendering till we're ready
-            if (!state.readyToRender) {
+            // suppress rendering till we're ready (but always render during XR sessions)
+            if (!state.readyToRender && !app.xr.active) {
                 app.renderNextFrame = false;
             }
 
