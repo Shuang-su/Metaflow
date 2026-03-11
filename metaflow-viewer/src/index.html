@@ -96,6 +96,21 @@
                     settingsUrl = './settings.json';
                 }
 
+                // PICO VR 设备检测：使用低面数 LOD 模型替换原始模型
+                const isPico = /pico/i.test(navigator.userAgent);
+                if (isPico && contentUrl.endsWith('.sog')) {
+                    const lodUrl = contentUrl.replace(/\.sog$/, '_LOD1.sog');
+                    try {
+                        const head = await fetch(lodUrl, { method: 'HEAD' });
+                        if (head.ok) {
+                            console.log('[PICO] Using LOD model:', lodUrl);
+                            contentUrl = lodUrl;
+                        }
+                    } catch (e) {
+                        // LOD file not available, use original
+                    }
+                }
+
                 // Create poster image early to start loading
                 const posterImage = posterUrl ? createImage(posterUrl) : null;
 
