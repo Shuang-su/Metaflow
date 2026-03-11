@@ -101,13 +101,16 @@
                 if (isPico && contentUrl.endsWith('.sog')) {
                     const lodUrl = contentUrl.replace(/\.sog$/, '_LOD1.sog');
                     try {
-                        const head = await fetch(lodUrl, { method: 'HEAD' });
+                        const ac = new AbortController();
+                        const tid = setTimeout(() => ac.abort(), 3000);
+                        const head = await fetch(lodUrl, { method: 'HEAD', signal: ac.signal });
+                        clearTimeout(tid);
                         if (head.ok) {
                             console.log('[PICO] Using LOD model:', lodUrl);
                             contentUrl = lodUrl;
                         }
                     } catch (e) {
-                        // LOD file not available, use original
+                        // LOD file not available or request timed out, use original
                     }
                 }
 
