@@ -28,6 +28,23 @@ const flyRotate = new Vec3();
 const stickMove = new Vec3();
 const stickRotate = new Vec3();
 
+/* Gamepad constants */
+const STICK_DEADZONE = 0.15;
+
+/**
+ * Apply deadzone and non-linear response curve to a stick axis value.
+ * Returns 0 inside deadzone, then smooth ramp from 0→1 with quadratic curve
+ * for fine control at small deflections and full speed at large deflections.
+ */
+const applyStickCurve = (value: number): number => {
+    const abs = Math.abs(value);
+    if (abs < STICK_DEADZONE) return 0;
+    // remap [deadzone..1] → [0..1] then apply quadratic curve
+    const normalized = (abs - STICK_DEADZONE) / (1 - STICK_DEADZONE);
+    const curved = normalized * normalized;
+    return Math.sign(value) * curved;
+};
+
 /**
  * Converts screen space mouse deltas to world space pan vector.
  *
@@ -290,16 +307,42 @@ class InputController {
         v.add(flyRotate.mulScalar(fly * this.orbitSpeed * orbitFactor * dt));
         deltas.rotate.append([v.x, v.y, v.z]);
 
+        // gamepad - detect single vs dual stick
+        const gpLeftX = applyStickCurve(leftStick[0]);
+        const gpLeftY = applyStickCurve(leftStick[1]);
+        const gpRightX = applyStickCurve(rightStick[0]);
+        const gpRightY = applyStickCurve(rightStick[1]);
+
+        const hasLeft = gpLeftX !== 0 || gpLeftY !== 0;
+        const hasRight = gpRightX !== 0 || gpRightY !== 0;
+
+        // Single stick: whichever stick has input → movement
+        // Dual sticks: left → movement, right → rotation
+        const gpMoveX = hasLeft ? gpLeftX : gpRightX;
+        const gpMoveY = hasLeft ? gpLeftY : gpRightY;
+        const gpRotX = (hasLeft && hasRight) ? gpRightX : 0;
+        const gpRotY = (hasLeft && hasRight) ? gpRightY : 0;
+
         // gamepad move
         v.set(0, 0, 0);
-        stickMove.set(leftStick[0], 0, -leftStick[1]);
-        v.add(stickMove.mulScalar(this.moveSpeed * dt));
+        if (gpMoveX !== 0 || gpMoveY !== 0) {
+            if (state.cameraMode !== 'fly') {
+                state.cameraMode = 'fly';
+            }
+            stickMove.set(gpMoveX, 0, -gpMoveY);
+            v.add(stickMove.mulScalar(fly * this.moveSpeed * dt));
+        }
         deltas.move.append([v.x, v.y, v.z]);
 
         // gamepad rotate
         v.set(0, 0, 0);
-        stickRotate.set(rightStick[0], rightStick[1], 0);
-        v.add(stickRotate.mulScalar(this.orbitSpeed * orbitFactor * dt));
+        if (gpRotX !== 0 || gpRotY !== 0) {
+            if (state.cameraMode !== 'fly') {
+                state.cameraMode = 'fly';
+            }
+            stickRotate.set(gpRotX, gpRotY, 0);
+            v.add(stickRotate.mulScalar(this.orbitSpeed * orbitFactor * dt));
+        }
         deltas.rotate.append([v.x, v.y, v.z]);
 
         // update touch joystick UI

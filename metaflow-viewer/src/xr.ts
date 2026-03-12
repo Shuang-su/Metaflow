@@ -6,9 +6,9 @@ import {
     type CameraComponent
 } from 'playcanvas';
 import { XrControllers } from 'playcanvas/scripts/esm/xr-controllers.mjs';
-import { XrNavigation } from 'playcanvas/scripts/esm/xr-navigation.mjs';
 
 import { Global } from './types';
+import { XrVrNavigation } from './xr-navigation';
 
 // XR clipping planes optimized for VR/AR headsets (meters)
 const XR_NEAR_CLIP = 0.01;   // 1cm - close enough for hand interaction
@@ -43,7 +43,7 @@ const initXr = (global: Global) => {
 
     parent.addComponent('script');
     parent.script.create(XrControllers);
-    parent.script.create(XrNavigation);
+    parent.script.create(XrVrNavigation);
 
     app.xr.on('start', () => {
         // enable continuous rendering for XR (headset requires every-frame updates)
