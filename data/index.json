@@ -1,7 +1,7 @@
 {
   "version": "1.0",
-  "lastUpdated": "2026-02-02",
-  "totalResources": 31,
+  "lastUpdated": "2026-03-16",
+  "totalResources": 33,
   "categories": {
     "acg": {
       "name": "二次元",
@@ -996,6 +996,70 @@
       }
     },
     {
+      "id": "c4-hangpai",
+      "title": "C4-HangPai",
+      "titleEn": "C4 HangPai",
+      "category": [
+        "sztu"
+      ],
+      "route": "/sztu/c4-hangpai",
+      "aliases": ["/c4-hangpai"],
+      "source": "photogrammetry",
+      "files": {
+        "model": "SZTU/250324 SZTU C4-HangPai/250324 C4hangpai.sog",
+        "environment": null,
+        "settings": "SZTU/250324 SZTU C4-HangPai/settings.json",
+        "thumbnail": "SZTU/250324 SZTU C4-HangPai/250324 C4hangpai.jpg"
+      },
+      "fileSize": {
+        "model": 45200899,
+        "environment": 0,
+        "total": 45200899
+      },
+      "meta": {
+        "date": "2025-03-24",
+        "device": "SZTU",
+        "folderName": "250324 SZTU C4-HangPai"
+      },
+      "animation": {
+        "duration": 20,
+        "frameRate": 60,
+        "loopMode": "repeat"
+      }
+    },
+    {
+      "id": "d1-utl-107",
+      "title": "D1-UTL-107",
+      "titleEn": "D1 UTL 107",
+      "category": [
+        "sztu"
+      ],
+      "route": "/sztu/d1-utl-107",
+      "aliases": ["/d1-utl-107"],
+      "source": "scanner",
+      "files": {
+        "model": "SZTU/251225 SZTU D1-UTL-107/SZTURacingCarStudio_260206.sog",
+        "environment": "SZTU/251225 SZTU D1-UTL-107/SZTURacingCarStudio_260206_environment.compressed.ply",
+        "settings": "SZTU/251225 SZTU D1-UTL-107/settings.json",
+        "thumbnail": "SZTU/251225 SZTU D1-UTL-107/SZTURacingCarStudio_260206.jpg"
+      },
+      "fileSize": {
+        "model": 203322144,
+        "environment": 89867,
+        "total": 203412011
+      },
+      "meta": {
+        "date": "2025-12-25",
+        "device": "SZTU",
+        "folderName": "251225 SZTU D1-UTL-107"
+      },
+      "animation": {
+        "duration": 90,
+        "frameRate": 60,
+        "loopMode": "repeat"
+      }
+    },
+    {
       "id": "b1-sdi-206",
       "title": "SZTU B1-sdi 206",
       "titleEn": "SZTU B1 SDI 206",
@@ -1006,14 +1070,14 @@
       "aliases": ["/b1-sdi-206"],
       "source": "scanner",
       "files": {
-        "model": "SZTU/251220 SZTU B1-sdi 206/251220 SZTU B1-sdi 206 zhan_20500.sog",
-        "environment": "SZTU/251220 SZTU B1-sdi 206/251220 SZTU B1-sdi 206 zhan_20500_environment.compressed.ply",
-        "settings": "SZTU/251220 SZTU B1-sdi 206/settings.json",
-        "thumbnail": "SZTU/251220 SZTU B1-sdi 206/251220 SZTU B1-sdi 206 zhan_20500.jpg",
+        "model": "SZTU/251220 SZTU B1-SDI-206/251220 SZTU B1-SDI-206 zhan_20500.sog",
+        "environment": "SZTU/251220 SZTU B1-SDI-206/251220 SZTU B1-SDI-206 zhan_20500_environment.compressed.ply",
+        "settings": "SZTU/251220 SZTU B1-SDI-206/settings.json",
+        "thumbnail": "SZTU/251220 SZTU B1-SDI-206/251220 SZTU B1-SDI-206 zhan_20500.jpg",
         "lod": [
           {
             "level": 1,
-            "file": "SZTU/251220 SZTU B1-sdi 206/251220 SZTU B1-sdi 206 zhan_20500_LOD1.sog",
+            "file": "SZTU/251220 SZTU B1-SDI-206/251220 SZTU B1-SDI-206 zhan_20500_LOD1.sog",
             "size": 84581533
           }
         ]
@@ -1027,7 +1091,7 @@
       "meta": {
         "date": "2025-12-20",
         "device": "SZTU",
-        "folderName": "251220 SZTU B1-sdi 206"
+        "folderName": "251220 SZTU B1-SDI-206"
       },
       "animation": {
         "duration": 341.67,
