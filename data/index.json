@@ -1003,7 +1003,7 @@
         "sztu"
       ],
       "route": "/sztu/c4-hangpai",
-      "aliases": ["/c4-hangpai"],
+      "aliases": ["/c4"],
       "source": "photogrammetry",
       "files": {
         "model": "SZTU/250324 SZTU C4-HangPai/250324 C4hangpai.sog",
