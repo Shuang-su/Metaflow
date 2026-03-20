@@ -181,6 +181,12 @@ class Viewer {
 
         // handle canvas pixel density through retinaDisplay (hqMode is reserved for splat budget)
         const updatePixelRatio = () => {
+            // During XR sessions, the XR system manages framebuffers.
+            // Avoid changing pixel ratio to prevent XR layer instability.
+            if (app.xr?.active) {
+                return;
+            }
+
             // limit the backbuffer to 4k on desktop and HD on mobile
             // we use the shorter dimension so ultra-wide (or high) monitors still work correctly.
             const maxRatio = (platform.mobile ? 1080 : 2160) / Math.min(screen.width, screen.height);
