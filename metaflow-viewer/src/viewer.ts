@@ -446,8 +446,26 @@ class Viewer {
 
                 const eventHandler = app.systems.gsplat;
 
-                // we must force continuous rendering with streaming & lod system
+                // idle timer: force continuous rendering until 4s of inactivity
+                let idleTime = 0;
                 this.forceRenderNextFrame = true;
+
+                app.on('update', (dt: number) => {
+                    idleTime += dt;
+                    this.forceRenderNextFrame = idleTime < 4;
+                });
+
+                events.on('inputEvent', (type: string) => {
+                    if (type !== 'interact') {
+                        idleTime = 0;
+                    }
+                });
+
+                eventHandler.on('frame:ready', (_camera: CameraComponent, _layer: Layer, ready: boolean, loading: number) => {
+                    if (loading > 0 || !ready) {
+                        idleTime = 0;
+                    }
+                });
 
                 let current = 0;
                 let watermark = 1;
