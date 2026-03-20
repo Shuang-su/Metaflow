@@ -26,6 +26,22 @@ const initPoster = (events: EventHandler) => {
 const initUI = (global: Global) => {
     const { config, events, state } = global;
 
+    const stageLabels: Record<string, string> = {
+        init: '初始化',
+        environment: '环境加载',
+        detect: '资源识别',
+        download: '模型下载',
+        parse: '数据解析',
+        gpu: 'GPU 构建',
+        prepare: '渲染准备',
+        sort: '高斯排序',
+        'stream-schedule': '流式调度',
+        'stream-loading': '流式加载',
+        'legacy-lod-loading': 'LOD 加载',
+        timeout: '超时兜底',
+        complete: '完成'
+    };
+
     // Acquire Elements
     const docRoot = document.documentElement;
     const dom = [
@@ -40,6 +56,7 @@ const initUI = (global: Global) => {
         'settings', 'settingsPanel',
         'orbitCamera', 'flyCamera',
         'hqCheck', 'hqOption', 'lqCheck', 'lqOption',
+        'retinaDisplayCheck', 'retinaDisplayOption', 'retinaDisplayRow',
         'reset', 'frame',
         'loadingText', 'loadingBar', 'loadingStatus',
         'joystickBase', 'joystick',
@@ -93,9 +110,10 @@ const initUI = (global: Global) => {
     };
 
     events.on('loadingStatus:changed', (status: string) => {
-        statusBaseText = status;
+        const stageLabel = stageLabels[state.loadingStage] || '加载';
+        statusBaseText = `[${stageLabel}] ${status}`;
         if (dom.loadingStatus) {
-            dom.loadingStatus.textContent = status;
+            dom.loadingStatus.textContent = statusBaseText;
         }
         // Restart timer on status change during indeterminate mode
         if (state.progress < 0) {
@@ -183,6 +201,18 @@ const initUI = (global: Global) => {
         updateHQ();
     });
     updateHQ();
+
+    // Retina display mode (pixel density control)
+    dom.retinaDisplayRow.addEventListener('click', () => {
+        state.retinaDisplay = !state.retinaDisplay;
+    });
+
+    const updateRetinaDisplay = () => {
+        dom.retinaDisplayCheck.classList[state.retinaDisplay ? 'add' : 'remove']('active');
+        localStorage.setItem('retinaDisplay', String(state.retinaDisplay));
+    };
+    events.on('retinaDisplay:changed', updateRetinaDisplay);
+    updateRetinaDisplay();
 
     // AR/VR
     const arChanged = () => dom.arMode.classList[state.hasAR ? 'remove' : 'add']('hidden');

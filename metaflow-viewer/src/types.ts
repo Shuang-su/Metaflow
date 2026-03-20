@@ -6,6 +6,23 @@ type CameraMode = 'orbit' | 'anim' | 'fly';
 
 type InputMode = 'desktop' | 'touch';
 
+type LoadMode = 'legacy-sog' | 'streaming-json';
+
+type LoadingStage =
+    | 'init'
+    | 'environment'
+    | 'detect'
+    | 'download'
+    | 'parse'
+    | 'gpu'
+    | 'prepare'
+    | 'sort'
+    | 'stream-schedule'
+    | 'stream-loading'
+    | 'legacy-lod-loading'
+    | 'timeout'
+    | 'complete';
+
 // configuration options are immutable at runtime
 type Config = {
     poster?: HTMLImageElement;
@@ -25,8 +42,12 @@ type Config = {
 
 // observable state that can change at runtime
 type State = {
+    loaded: boolean;                            // true once first frame is rendered
     readyToRender: boolean;                     // don't render till this is set
+    retinaDisplay: boolean;                     // controls canvas pixel density
     hqMode: boolean;
+    loadingMode: LoadMode;                      // current loading strategy
+    loadingStage: LoadingStage;                 // structured loading stage for UI/logging
     progress: number;                           // content loading progress 0-100
     loadingStatus: string;                      // current loading status text
     inputMode: InputMode;
@@ -50,4 +71,4 @@ type Global = {
     camera: Entity;
 };
 
-export { CameraMode, InputMode, Config, State, Global };
+export { CameraMode, InputMode, LoadMode, LoadingStage, Config, State, Global };

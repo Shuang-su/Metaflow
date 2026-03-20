@@ -5,13 +5,14 @@ import {
     EventHandler,
     type Texture,
     type AppBase,
+    platform,
     revision as engineRevision,
     version as engineVersion
 } from 'playcanvas';
 
 import { observe } from './core/observe';
 import { importSettings } from './settings';
-import type { Config, Global } from './types';
+import type { Config, Global, LoadMode, LoadingStage } from './types';
 import { initPoster, initUI } from './ui';
 import { Viewer } from './viewer';
 import { initXr } from './xr';
@@ -20,6 +21,8 @@ import { version as appVersion } from '../package.json';
 interface LoadCallbacks {
     onProgress: (progress: number) => void;  // 0-99 for determinate, -1 for indeterminate
     onStatus: (status: string) => void;
+    onMode: (mode: LoadMode) => void;
+    onStage: (stage: LoadingStage) => void;
 }
 
 const formatSize = (bytes: number) => {
@@ -29,19 +32,47 @@ const formatSize = (bytes: number) => {
 
 const formatSplats = (n: number) => n >= 10000 ? `${(n / 10000).toFixed(1)} 万` : `${n}`;
 
+const detectStreamingLodByStructure = (data: any) => {
+    if (!data || typeof data !== 'object') return false;
+
+    // Structure-first detection for streaming JSON resources.
+    return (
+        Array.isArray(data.lods) ||
+        Array.isArray(data.levels) ||
+        Array.isArray(data.chunks) ||
+        Array.isArray(data.nodes) ||
+        typeof data.octree === 'object' ||
+        (typeof data.meta === 'object' && (
+            Array.isArray(data.meta.lods) ||
+            Array.isArray(data.meta.levels)
+        ))
+    );
+};
+
 const loadGsplat = async (app: AppBase, config: Config, callbacks: LoadCallbacks, forceUnified = false) => {
     const { contents, contentUrl, unified, aa } = config;
     const c = contents as unknown as ArrayBuffer;
-    const filename = new URL(contentUrl, location.href).pathname.split('/').pop();
-    const data = filename.toLowerCase() === 'meta.json' ? await (await contents).json() : undefined;
+    const filename = new URL(contentUrl, location.href).pathname.split('/').pop() || '';
+    const lowerFilename = filename.toLowerCase();
+    const isJsonFile = lowerFilename.endsWith('.json');
+    const data = isJsonFile ? await (await contents).json() : undefined;
+    const streamingByStructure = detectStreamingLodByStructure(data);
+    const streamingByName = lowerFilename === 'meta.json' || lowerFilename.endsWith('lod-meta.json');
+    const loadMode: LoadMode = (streamingByStructure || streamingByName) ? 'streaming-json' : 'legacy-sog';
+
+    callbacks.onMode(loadMode);
+    callbacks.onStage('detect');
+    callbacks.onStatus(loadMode === 'streaming-json' ? '已识别流式 LOD 资源，准备加载索引...' : '已识别传统 SOG 资源，准备加载模型...');
+
     const asset = new Asset(filename, 'gsplat', { url: contentUrl, filename, contents: c }, data);
 
     return new Promise<Entity>((resolve, reject) => {
         asset.on('load', () => {
+            callbacks.onStage('gpu');
             const entity = new Entity('gsplat');
             entity.setLocalEulerAngles(0, 0, 180);
             // Use unified mode when: explicitly set, LOD file, or forced (when environment exists)
-            const useUnified = forceUnified || unified || filename.toLowerCase().endsWith('lod-meta.json');
+            const useUnified = forceUnified || unified || lowerFilename.endsWith('lod-meta.json');
             entity.addComponent('gsplat', {
                 unified: useUnified,
                 asset
@@ -50,14 +81,18 @@ const loadGsplat = async (app: AppBase, config: Config, callbacks: LoadCallbacks
             material.setDefine('GSPLAT_AA', aa);
             material.setParameter('alphaClip', 1 / 255);
             app.root.addChild(entity);
+            callbacks.onStatus('模型 GPU 资源已就绪，等待渲染准备...');
             resolve(entity);
         });
 
         // PLY parsing milestone: fires when data is parsed, before GPU resource creation
         asset.on('load:data', (data: any) => {
+            callbacks.onStage('parse');
             const numSplats = data?.numSplats;
             if (numSplats) {
                 callbacks.onStatus(`已解析 ${formatSplats(numSplats)} 个高斯点，正在创建 GPU 资源...`);
+            } else {
+                callbacks.onStatus('正在解析模型结构数据...');
             }
         });
 
@@ -66,6 +101,7 @@ const loadGsplat = async (app: AppBase, config: Config, callbacks: LoadCallbacks
         let progressEventCount = 0;
         asset.on('progress', (received, length) => {
             progressEventCount++;
+            callbacks.onStage('download');
 
             // Detect cached content: length is 0 or undefined
             if (!length || length <= 0) {
@@ -162,8 +198,12 @@ const main = (app: AppBase, camera: Entity, settingsJson: any, config: Config) =
     const events = new EventHandler();
 
     const state = observe(events, {
+        loaded: false,
         readyToRender: false,
+        retinaDisplay: platform.mobile ? localStorage.getItem('retinaDisplay') === 'true' : localStorage.getItem('retinaDisplay') !== 'false',
         hqMode: true,
+        loadingMode: 'legacy-sog',
+        loadingStage: 'init',
         progress: 0,
         loadingStatus: '',
         inputMode: 'desktop',
@@ -201,6 +241,7 @@ const main = (app: AppBase, camera: Entity, settingsJson: any, config: Config) =
     initUI(global);
 
     // Set initial loading status after UI is ready
+    state.loadingStage = 'init';
     state.loadingStatus = '正在初始化...';
 
     // Determine if we need unified mode (required when loading multiple gsplats)
@@ -213,11 +254,14 @@ const main = (app: AppBase, camera: Entity, settingsJson: any, config: Config) =
     const gsplatLoad = (async () => {
         // Wait for environment to load first if it exists
         if (environmentLoad) {
+            state.loadingStage = 'environment';
             state.loadingStatus = '正在加载环境...';
             state.progress = -1; // indeterminate
             await environmentLoad;
+            state.loadingStatus = '环境加载完成，准备加载主体模型...';
         }
-        state.loadingStatus = '正在下载模型...';
+        state.loadingStage = 'detect';
+        state.loadingStatus = '正在识别资源结构...';
         state.progress = 0;
         const entity = await loadGsplat(
             app,
@@ -228,11 +272,18 @@ const main = (app: AppBase, camera: Entity, settingsJson: any, config: Config) =
                 },
                 onStatus: (status: string) => {
                     state.loadingStatus = status;
+                },
+                onMode: (mode: LoadMode) => {
+                    state.loadingMode = mode;
+                },
+                onStage: (stage: LoadingStage) => {
+                    state.loadingStage = stage;
                 }
             },
             hasEnvironment  // Force unified mode when environment exists
         );
         // Model data downloaded and parsed by engine
+        state.loadingStage = 'prepare';
         state.loadingStatus = '正在准备渲染...';
         state.progress = -1; // indeterminate while waiting for sorting
         return entity;
@@ -262,6 +313,11 @@ const main = (app: AppBase, camera: Entity, settingsJson: any, config: Config) =
     return new Viewer(global, gsplatLoad, skyboxLoad);
 };
 
-console.log(`SuperSplat Viewer v${appVersion} | Engine v${engineVersion} (${engineRevision})`);
+console.log(
+    `Metaflow Viewer v${appVersion} | ` +
+    `Base SSV v1.11.1 (PlayCanvas 2.15.2) | ` +
+    `Upstream SSV v1.18.2 (PlayCanvas 2.17.1) | ` +
+    `Engine v${engineVersion} (${engineRevision})`
+);
 
 export { main };

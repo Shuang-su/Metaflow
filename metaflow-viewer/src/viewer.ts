@@ -179,19 +179,20 @@ class Viewer {
         graphicsDevice.on('resizecanvas', updateHorizontalFov);
         updateHorizontalFov();
 
-        // handle HQ mode changes
-        const updateHqMode = () => {
+        // handle canvas pixel density through retinaDisplay (hqMode is reserved for splat budget)
+        const updatePixelRatio = () => {
             // limit the backbuffer to 4k on desktop and HD on mobile
             // we use the shorter dimension so ultra-wide (or high) monitors still work correctly.
             const maxRatio = (platform.mobile ? 1080 : 2160) / Math.min(screen.width, screen.height);
 
-            // half pixel resolution with hq mode disabled
-            graphicsDevice.maxPixelRatio = (state.hqMode ? 1.0 : 0.5) * Math.min(maxRatio, window.devicePixelRatio);
+            // retinaDisplay controls pixel resolution scaling independently from quality budget.
+            const densityScale = state.retinaDisplay ? 1.0 : 0.5;
+            graphicsDevice.maxPixelRatio = densityScale * Math.min(maxRatio, window.devicePixelRatio);
 
             app.renderNextFrame = true;
         };
-        events.on('hqMode:changed', updateHqMode);
-        updateHqMode();
+        events.on('retinaDisplay:changed', updatePixelRatio);
+        updatePixelRatio();
 
         // construct debug ministats
         if (config.ministats) {
@@ -319,7 +320,9 @@ class Viewer {
             const fireFirstFrame = (onReady?: () => void) => {
                 if (firstFrameFired) return;
                 firstFrameFired = true;
+                state.loaded = true;
                 state.readyToRender = true;
+                state.loadingStage = 'complete';
                 state.progress = 100;
                 state.loadingStatus = '加载完成';
                 onReady?.();
@@ -340,6 +343,7 @@ class Viewer {
                 state.loadingStatus = numSplats > 0
                     ? `正在排序 ${splatLabel} 个高斯点...`
                     : '正在排序高斯点...';
+                state.loadingStage = 'sort';
                 state.progress = -1; // indeterminate during sorting
 
                 // kick off gsplat sorting immediately now that camera is in position
@@ -361,6 +365,7 @@ class Viewer {
                     setTimeout(() => {
                         if (!firstFrameFired) {
                             console.warn('[Viewer] Sorter timeout - forcing firstFrame');
+                            state.loadingStage = 'timeout';
                             fireFirstFrame();
                         }
                     }, 3000);
@@ -371,9 +376,31 @@ class Viewer {
             } else {
 
                 const { gsplat } = app.scene;
+                const isStreamingJson = state.loadingMode === 'streaming-json';
 
-                // quality ranges
-                const ranges = {
+                // Keep two budget/range profiles to support both legacy SOG LOD and streaming JSON LOD.
+                const ranges = isStreamingJson ? {
+                    mobile: {
+                        low: {
+                            range: [0, 1000],
+                            splatBudget: 1
+                        },
+                        high: {
+                            range: [0, 1000],
+                            splatBudget: 2
+                        }
+                    },
+                    desktop: {
+                        low: {
+                            range: [0, 1000],
+                            splatBudget: 2
+                        },
+                        high: {
+                            range: [0, 1000],
+                            splatBudget: 4
+                        }
+                    }
+                } : {
                     mobile: {
                         low: {
                             range: [2, 8],
@@ -399,8 +426,15 @@ class Viewer {
                 const quality = platform.mobile ? ranges.mobile : ranges.desktop;
 
                 // start in low quality mode so we can get user interacting asap
-                gsplat.lodRangeMin = quality.low.range[0];
-                gsplat.lodRangeMax = quality.low.range[1];
+                if (isStreamingJson) {
+                    const lodLevels = (results[0].gsplat as any)?.resource?.octree?.lodLevels;
+                    if (lodLevels) {
+                        gsplat.lodRangeMax = gsplat.lodRangeMin = lodLevels - 1;
+                    }
+                } else {
+                    gsplat.lodRangeMin = quality.low.range[0];
+                    gsplat.lodRangeMax = quality.low.range[1];
+                }
                 results[0].gsplat.splatBudget = quality.low.splatBudget * 1000000;
 
                 // these two allow LOD behind camera to drop, saves lots of splats
@@ -418,7 +452,10 @@ class Viewer {
                 let current = 0;
                 let watermark = 1;
 
-                state.loadingStatus = '正在加载 LOD 数据...';
+                state.loadingStatus = isStreamingJson
+                    ? '正在建立流式 LOD 调度...'
+                    : '正在加载 LOD 数据...';
+                state.loadingStage = isStreamingJson ? 'stream-schedule' : 'legacy-lod-loading';
                 state.progress = 0;
 
                 const readyHandler = (camera: CameraComponent, layer: Layer, ready: boolean, loading: number) => {
@@ -426,15 +463,36 @@ class Viewer {
                         // scene is done loading
                         fireFirstFrame(() => {
                             eventHandler.off('frame:ready', readyHandler);
+                            state.loadingStatus = isStreamingJson
+                                ? '流式 LOD 数据就绪，正在准备首帧...'
+                                : 'LOD 数据就绪，正在准备首帧...';
+                            state.loadingStage = 'prepare';
 
                             // handle quality mode changes
                             const updateLod = () => {
                                 const settings = state.hqMode ? quality.high : quality.low;
+
+                                // Streaming JSON path: budget is controlled by both hqMode and retinaDisplay.
+                                if (isStreamingJson) {
+                                    const retinaFactor = state.retinaDisplay ? 1.1 : 0.9;
+                                    const budget = Math.round(settings.splatBudget * retinaFactor * 1000000);
+                                    const clampedBudget = Math.max(500000, Math.min(10000000, budget));
+
+                                    gsplat.lodRangeMin = settings.range[0];
+                                    gsplat.lodRangeMax = settings.range[1];
+                                    results[0].gsplat.splatBudget = clampedBudget;
+                                    return;
+                                }
+
+                                // Legacy SOG path: budget controlled by hqMode only.
                                 gsplat.lodRangeMin = settings.range[0];
                                 gsplat.lodRangeMax = settings.range[1];
                                 results[0].gsplat.splatBudget = settings.splatBudget * 1000000;
                             };
                             events.on('hqMode:changed', updateLod);
+                            if (isStreamingJson) {
+                                events.on('retinaDisplay:changed', updateLod);
+                            }
                             updateLod();
 
                             // debug colorize lods
@@ -448,7 +506,10 @@ class Viewer {
                         current = watermark - loading;
                         state.progress = Math.trunc(current / watermark * 100);
                         if (loading > 0) {
-                            state.loadingStatus = `正在加载 LOD 数据 (剩余 ${loading} 个文件)`;
+                            state.loadingStage = isStreamingJson ? 'stream-loading' : 'legacy-lod-loading';
+                            state.loadingStatus = isStreamingJson
+                                ? `流式 LOD 拉取中 (剩余 ${loading} 个分块)`
+                                : `正在加载 LOD 数据 (剩余 ${loading} 个文件)`;
                         }
                     }
                 };
@@ -459,6 +520,7 @@ class Viewer {
                 setTimeout(() => {
                     if (!firstFrameFired) {
                         console.warn('[Viewer] LOD loading timeout - forcing firstFrame');
+                        state.loadingStage = 'timeout';
                         fireFirstFrame(() => {
                             eventHandler.off('frame:ready', readyHandler);
                         });
