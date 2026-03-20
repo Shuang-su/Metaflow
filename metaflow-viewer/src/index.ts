@@ -41,33 +41,46 @@ const detectStreamingLodByStructure = (data: any) => {
     const octree = (root.octree && typeof root.octree === 'object') ? root.octree : undefined;
     const stream = (root.stream && typeof root.stream === 'object') ? root.stream : undefined;
 
-    const hasArrayLikeLod = (
+    const hasCoreLodArrays = (
         Array.isArray(root.lods) ||
         Array.isArray(root.levels) ||
-        Array.isArray(root.chunks) ||
-        Array.isArray(root.nodes) ||
         Array.isArray(meta?.lods) ||
-        Array.isArray(meta?.levels) ||
-        Array.isArray(stream?.chunks) ||
-        Array.isArray(octree?.nodes)
+        Array.isArray(meta?.levels)
     );
 
-    const hasStructuralLodHints = (
-        typeof octree === 'object' ||
+    const hasCoreNumericHints = (
         typeof root.lodCount === 'number' ||
         typeof root.maxLod === 'number' ||
         typeof root.minLod === 'number' ||
-        typeof root.chunkCount === 'number' ||
         typeof meta?.lodCount === 'number' ||
-        typeof stream?.chunkCount === 'number' ||
         typeof octree?.lodLevels === 'number'
     );
 
-    // Structure-first detection for streaming JSON resources.
-    return (
-        hasArrayLikeLod ||
-        hasStructuralLodHints
+    const hasStrongStreamingShape = (
+        typeof octree === 'object' &&
+        (
+            typeof octree?.lodLevels === 'number' ||
+            Array.isArray(octree?.nodes)
+        )
+    ) || (
+        typeof stream === 'object' &&
+        (
+            typeof stream?.chunkCount === 'number' ||
+            Array.isArray(stream?.chunks)
+        )
     );
+
+    // Additional weak hints are only used when paired with stronger signals.
+    const hasWeakHints = (
+        typeof root.chunkCount === 'number' ||
+        Array.isArray(root.chunks) ||
+        Array.isArray(root.nodes)
+    );
+
+    // Structure-first, but conservative to avoid false positives on generic JSON payloads.
+    if (hasCoreLodArrays || hasStrongStreamingShape) return true;
+    if (hasCoreNumericHints && hasWeakHints) return true;
+    return false;
 };
 
 const loadGsplat = async (app: AppBase, config: Config, callbacks: LoadCallbacks, forceUnified = false) => {
