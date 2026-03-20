@@ -23,6 +23,7 @@ interface LoadCallbacks {
     onStatus: (status: string) => void;
     onMode: (mode: LoadMode) => void;
     onStage: (stage: LoadingStage) => void;
+    onConflict: (conflict: boolean) => void;
 }
 
 const formatSize = (bytes: number) => {
@@ -79,9 +80,11 @@ const loadGsplat = async (app: AppBase, config: Config, callbacks: LoadCallbacks
     const streamingByStructure = detectStreamingLodByStructure(data);
     const streamingByName = lowerFilename === 'meta.json' || lowerFilename.endsWith('lod-meta.json');
     const loadMode: LoadMode = (streamingByStructure || streamingByName) ? 'streaming-json' : 'legacy-sog';
+    callbacks.onConflict(false);
 
     // Conflict reporting: structure-first, filename-second. We surface mismatches immediately.
     if (isJsonFile && streamingByStructure !== streamingByName) {
+        callbacks.onConflict(true);
         const decision = streamingByStructure ? 'streaming-json(结构优先)' : 'legacy-sog(结构优先)';
         console.warn('[Loader] 资源识别冲突: 结构特征与文件名不一致', {
             filename,
@@ -236,6 +239,7 @@ const main = (app: AppBase, camera: Entity, settingsJson: any, config: Config) =
         hqMode: true,
         loadingMode: 'legacy-sog',
         loadingStage: 'init',
+        loadingConflict: false,
         progress: 0,
         loadingStatus: '',
         inputMode: 'desktop',
@@ -310,6 +314,9 @@ const main = (app: AppBase, camera: Entity, settingsJson: any, config: Config) =
                 },
                 onStage: (stage: LoadingStage) => {
                     state.loadingStage = stage;
+                },
+                onConflict: (conflict: boolean) => {
+                    state.loadingConflict = conflict;
                 }
             },
             hasEnvironment  // Force unified mode when environment exists

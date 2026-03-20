@@ -48,6 +48,7 @@ type State = {
     hqMode: boolean;
     loadingMode: LoadMode;                      // current loading strategy
     loadingStage: LoadingStage;                 // structured loading stage for UI/logging
+    loadingConflict: boolean;                   // true when structure/name detection conflict occurs
     progress: number;                           // content loading progress 0-100
     loadingStatus: string;                      // current loading status text
     inputMode: InputMode;

@@ -111,7 +111,8 @@ const initUI = (global: Global) => {
 
     events.on('loadingStatus:changed', (status: string) => {
         const stageLabel = stageLabels[state.loadingStage] || '加载';
-        statusBaseText = `[${stageLabel}] ${status}`;
+        const conflictPrefix = state.loadingConflict ? '[冲突]' : '';
+        statusBaseText = `${conflictPrefix}[${stageLabel}] ${status}`;
         if (dom.loadingStatus) {
             dom.loadingStatus.textContent = statusBaseText;
         }
