@@ -245,7 +245,7 @@ const main = (app: AppBase, camera: Entity, settingsJson: any, config: Config) =
         loadingConflict: false,
         progress: 0,
         loadingStatus: '',
-        inputMode: 'desktop',
+        inputMode: platform.mobile ? 'touch' : 'desktop',
         cameraMode: 'orbit',
         hasAnimation: false,
         animationDuration: 0,
