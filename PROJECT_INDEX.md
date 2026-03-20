@@ -82,6 +82,33 @@ supersplat-viewer-v1.11.1/
 
 **LOD 策略差异：v1.11.1 用固定 range 预设驱动 LOD，v1.18.2 用流式加载 + 动态等级。升级时将通过三方对比引入新方案，保留双通道加载能力。**
 
+### 迁移落地规则（Metaflow）
+
+- 保留 `metaflow-viewer` 对“主体 + 环境”双资源的加载优化。
+- 保留 `metaflow-viewer` 的双通道语义：`progress + status`。
+- 保留首帧与超时兜底机制：`firstFrame`、排序超时、LOD 超时。
+- 保留并扩展加载状态追踪字段：`loadingMode`、`loadingStage`、`loadingConflict`。
+- 保留 `metaflow-editor` 旧版本，不参与本次迁移。
+
+### 运行时验证矩阵
+
+| 场景 | 输入资源 | 路径判定 | 期望加载阶段 | 关键断言 |
+|------|----------|----------|--------------|----------|
+| A | 传统 SOG（无 JSON 流式结构） | `legacy-sog` | init → detect → download/parse/gpu → legacy-lod-loading → prepare/sort → complete | 双通道状态正常；hqMode 改预算；retinaDisplay 仅改像素比 |
+| B | 流式 LOD JSON（结构字段命中） | `streaming-json` | init → detect → download/parse/gpu → stream-schedule/stream-loading → prepare → complete | 结构优先判定；hqMode + retinaDisplay 共同影响预算 |
+| C | 主体 + 环境 | 按主体资源判定 | init → environment → detect → ... → complete | 环境先加载；状态文案连续；首帧/超时仍生效 |
+| D | JSON 文件名与结构冲突 | 结构优先 | detect（冲突可见） → 后续按决策路径执行 | `loadingConflict=true` 且 UI 状态前缀显示 `[冲突]` |
+
+### 冲突确认流程
+
+1. 触发条件：JSON 文件名判定与结构字段判定不一致。
+2. 系统行为：默认采用“结构优先”，并在控制台输出冲突详情。
+3. UI 行为：加载状态文本带 `[冲突]` 前缀，提示当前采用的决策。
+4. 人工确认：
+        - 若素材来自新流式管线，保持结构优先；
+        - 若素材为历史包且结构不完整，可补充文件名或元数据映射；
+        - 若需强制路径，增加白名单映射（后续批次可加）。
+
 ### 关键模块说明
 
 | 模块 | 文件 | 功能 | 可复用性 |
