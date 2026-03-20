@@ -35,17 +35,37 @@ const formatSplats = (n: number) => n >= 10000 ? `${(n / 10000).toFixed(1)} 万`
 const detectStreamingLodByStructure = (data: any) => {
     if (!data || typeof data !== 'object') return false;
 
+    const root = data as Record<string, any>;
+    const meta = (root.meta && typeof root.meta === 'object') ? root.meta : undefined;
+    const octree = (root.octree && typeof root.octree === 'object') ? root.octree : undefined;
+    const stream = (root.stream && typeof root.stream === 'object') ? root.stream : undefined;
+
+    const hasArrayLikeLod = (
+        Array.isArray(root.lods) ||
+        Array.isArray(root.levels) ||
+        Array.isArray(root.chunks) ||
+        Array.isArray(root.nodes) ||
+        Array.isArray(meta?.lods) ||
+        Array.isArray(meta?.levels) ||
+        Array.isArray(stream?.chunks) ||
+        Array.isArray(octree?.nodes)
+    );
+
+    const hasStructuralLodHints = (
+        typeof octree === 'object' ||
+        typeof root.lodCount === 'number' ||
+        typeof root.maxLod === 'number' ||
+        typeof root.minLod === 'number' ||
+        typeof root.chunkCount === 'number' ||
+        typeof meta?.lodCount === 'number' ||
+        typeof stream?.chunkCount === 'number' ||
+        typeof octree?.lodLevels === 'number'
+    );
+
     // Structure-first detection for streaming JSON resources.
     return (
-        Array.isArray(data.lods) ||
-        Array.isArray(data.levels) ||
-        Array.isArray(data.chunks) ||
-        Array.isArray(data.nodes) ||
-        typeof data.octree === 'object' ||
-        (typeof data.meta === 'object' && (
-            Array.isArray(data.meta.lods) ||
-            Array.isArray(data.meta.levels)
-        ))
+        hasArrayLikeLod ||
+        hasStructuralLodHints
     );
 };
 
@@ -59,6 +79,18 @@ const loadGsplat = async (app: AppBase, config: Config, callbacks: LoadCallbacks
     const streamingByStructure = detectStreamingLodByStructure(data);
     const streamingByName = lowerFilename === 'meta.json' || lowerFilename.endsWith('lod-meta.json');
     const loadMode: LoadMode = (streamingByStructure || streamingByName) ? 'streaming-json' : 'legacy-sog';
+
+    // Conflict reporting: structure-first, filename-second. We surface mismatches immediately.
+    if (isJsonFile && streamingByStructure !== streamingByName) {
+        const decision = streamingByStructure ? 'streaming-json(结构优先)' : 'legacy-sog(结构优先)';
+        console.warn('[Loader] 资源识别冲突: 结构特征与文件名不一致', {
+            filename,
+            streamingByStructure,
+            streamingByName,
+            decision
+        });
+        callbacks.onStatus(`资源识别冲突，已采用 ${decision}`);
+    }
 
     callbacks.onMode(loadMode);
     callbacks.onStage('detect');
