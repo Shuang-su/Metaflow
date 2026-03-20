@@ -79,7 +79,10 @@ const loadGsplat = async (app: AppBase, config: Config, callbacks: LoadCallbacks
     const data = isJsonFile ? await (await contents).json() : undefined;
     const streamingByStructure = detectStreamingLodByStructure(data);
     const streamingByName = lowerFilename === 'meta.json' || lowerFilename.endsWith('lod-meta.json');
-    const loadMode: LoadMode = (streamingByStructure || streamingByName) ? 'streaming-json' : 'legacy-sog';
+    const hasStructurePayload = !!(data && typeof data === 'object');
+    const loadMode: LoadMode = hasStructurePayload
+        ? (streamingByStructure ? 'streaming-json' : 'legacy-sog')
+        : (streamingByName ? 'streaming-json' : 'legacy-sog');
     callbacks.onConflict(false);
 
     // Conflict reporting: structure-first, filename-second. We surface mismatches immediately.
