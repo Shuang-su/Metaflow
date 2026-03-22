@@ -35,6 +35,26 @@ const createFrameCamera = (bbox: BoundingBox, fov: number) => {
     );
 };
 
+const resolveInitialCameraMode = (
+    preferred: CameraMode | undefined,
+    hasAnimation: boolean,
+    isObjectExperience: boolean,
+    hasCollider: boolean
+): CameraMode => {
+    switch (preferred) {
+        case 'anim':
+            return hasAnimation ? 'anim' : (isObjectExperience ? 'orbit' : 'fly');
+        case 'orbit':
+            return 'orbit';
+        case 'fly':
+            return 'fly';
+        case 'walk':
+            return hasCollider ? 'walk' : 'fly';
+        default:
+            return hasAnimation ? 'anim' : (isObjectExperience ? 'orbit' : 'fly');
+    }
+};
+
 class CameraManager {
     update: (deltaTime: number, cameraFrame: CameraFrame) => void;
 
@@ -42,7 +62,7 @@ class CameraManager {
     camera = new Camera();
 
     constructor(global: Global, bbox: BoundingBox, collider: VoxelCollider | null = null) {
-        const { events, settings, state } = global;
+        const { config, events, settings, state } = global;
 
         // Character resources under /acg should exit animation to orbit on first cancel/interrupt,
         // except known scene-like entries (itasha, ggc/gcc).
@@ -99,7 +119,12 @@ class CameraManager {
         state.animationDuration = controllers.anim ? controllers.anim.animState.cursor.duration : 0;
 
         // initialize camera mode and initial camera position
-        state.cameraMode = state.hasAnimation ? 'anim' : (isObjectExperience ? 'orbit' : 'fly');
+        state.cameraMode = resolveInitialCameraMode(
+            config.defaultCameraMode,
+            state.hasAnimation,
+            isObjectExperience,
+            !!collider
+        );
         this.camera.copy(resetCamera);
 
         const target = new Camera(this.camera);             // the active controller updates this

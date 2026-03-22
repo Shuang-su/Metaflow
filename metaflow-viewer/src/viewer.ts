@@ -32,6 +32,7 @@ import { InputController } from './input-controller';
 import type { ExperienceSettings, PostEffectSettings } from './settings';
 import type { Global } from './types';
 import type { VoxelCollider } from './voxel-collider';
+import { WalkCursor } from './walk-cursor';
 
 // override global pick to pack depth instead of meshInstance id
 const pickDepthGlsl = /* glsl */ `
@@ -140,6 +141,8 @@ class Viewer {
     annotations: Annotations;
 
     forceRenderNextFrame = false;
+
+    walkCursor: WalkCursor | null = null;
 
     constructor(global: Global, gsplatLoad: Promise<Entity>, skyboxLoad: Promise<void>, voxelLoad: Promise<VoxelCollider | null>) {
         this.global = global;
@@ -322,9 +325,14 @@ class Viewer {
             this.inputController.collider = collider;
 
             state.hasCollision = !!collider;
+            state.hasVoxelOverlay = false;
 
             this.cameraManager = new CameraManager(global, sceneBound, collider);
             applyCamera(this.cameraManager.camera);
+
+            if (collider) {
+                this.walkCursor = new WalkCursor(app, camera, collider, events, state);
+            }
 
             // Shared first-frame trigger: marks render ready, updates loading UI, fires event
             let firstFrameFired = false;

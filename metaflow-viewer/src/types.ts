@@ -34,6 +34,7 @@ type Config = {
     voxelUrl?: string;
     environmentUrl?: string;
     environmentContents?: Promise<Response>;
+    defaultCameraMode?: CameraMode;
 
     noui: boolean;
     noanim: boolean;

@@ -1140,6 +1140,9 @@
       ],
       "route": "/acg/j05/xunyangpai",
       "source": "scanner",
+      "viewer": {
+        "defaultCameraMode": "fly"
+      },
       "files": {
         "model": "ACG/J05/260315 184701 J05 08 寻洋派/lod-meta.json",
         "environment": null,

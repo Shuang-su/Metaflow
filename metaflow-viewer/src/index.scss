@@ -32,6 +32,11 @@ body {
 
 canvas {
     opacity: var(--canvas-opacity);
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
 }
 
 button {
@@ -233,11 +238,21 @@ button {
         display: flex;
         gap: 8px;
 
+        .buttonGroup {
+            display: flex;
+            background-color: rgba(black, 0.3);
+            border-radius: 6px;
+
+            &:not(:has(> :not(.hidden))) {
+                display: none;
+            }
+        }
+
         /* controlButton */
 
         .controlButton {
-            width: 40px;
-            height: 40px;
+            width: 34px;
+            height: 34px;
             padding: 0;
             margin: 0;
             border: 0;
@@ -248,6 +263,12 @@ button {
 
             &:hover {
                 color: $clr-text-light;
+            }
+
+            &.active:not(.toggle) {
+                color: $clr-text-light;
+                background-color: rgba($clr-accent, 0.28);
+                border-radius: 6px;
             }
 
             /* icon styling */
@@ -273,35 +294,27 @@ button {
 
             /* camera toggle styling */
             &.toggle {
-                background: linear-gradient(
-                    90deg,
-                    transparent 0%,
-                    transparent 50%,
-                    $clr-accent 50%,
-                    $clr-accent 100%
-                );
-                background-size: 200% 100%;
-                background-position: 100% 0%;
-                background-repeat: no-repeat;
-                transition: background-position 0.1s ease-in-out;
+                transition: background-color 0.1s ease-in-out, color 0.1s ease-in-out;
 
                 &.left {
-                    margin-right: -4px;
-                    border-radius: 4px 0px 0px 4px;
+                    border-radius: 6px 0 0 6px;
+                }
 
-                    &:not(.active) {
-                        background-position: 0% 0%;
-                    }
+                &.middle {
+                    border-radius: 0;
                 }
 
                 &.right {
-                    margin-left: -4px;
-                    margin-right: 20px;
-                    border-radius: 0px 4px 4px 0px;
+                    border-radius: 0 6px 6px 0;
+                }
 
-                    &:not(.active) {
-                        background-position: 200% 0%;
-                    }
+                &:not(.active) {
+                    background-color: transparent;
+                }
+
+                &.active {
+                    color: $clr-text-light;
+                    background-color: rgba($clr-accent, 0.9);
                 }
             }
         }
@@ -314,54 +327,93 @@ button {
     position: fixed;
     right: max(16px, env(safe-area-inset-right));
     bottom: calc(max(16px, env(safe-area-inset-bottom)) + 70px);
+    min-width: 260px;
     padding: 10px;
-    border-radius: 8px;
+    border-radius: 14px;
+    box-shadow: 0 16px 48px rgba(0, 0, 0, 0.32);
 
     display: flex;
     flex-direction: column;
-    align-items: flex-end;
     gap: 4px;
 
     font-size: 14px;
 
     color: $clr-text;
-    background-color: $clr-bkg;
+    background-color: rgba($clr-bkg, 0.95);
+    backdrop-filter: blur(10px);
 
     > .settingsRow {
         display: flex;
-        gap: 4px;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
         width: 100%;
+        padding: 6px 4px;
+        box-sizing: border-box;
 
         > button {
             flex-grow: 1;
-            padding: 10px 20px;
+            padding: 10px 16px;
             border: 0;
             cursor: pointer;
+            border-radius: 10px;
 
-            color: $clr-text;
-            background-color: $clr-bkg-darkest;
+            color: $clr-text-light;
+            background-color: rgba($clr-bkg-darkest, 0.95);
 
             &:hover {
                 color: $clr-text-light;
+                background-color: rgba($clr-bkg-light, 0.95);
             }
         }
 
         > div {
-            padding: 8px;
+            padding: 0;
             cursor: pointer;
-
-            color: $clr-text-dark;
-
-            &.checkMark {
-                width: 16px;
-
-                &:not(.active) {
-                    color: $clr-bkg;
-                }
-            }
+            color: $clr-text;
 
             &:hover {
                 color: $clr-text;
+            }
+        }
+
+        &.qualityRow {
+            cursor: pointer;
+        }
+
+        .toggleSwitch {
+            width: 42px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+
+            .toggleTrack {
+                width: 42px;
+                height: 24px;
+                border-radius: 999px;
+                padding: 2px;
+                box-sizing: border-box;
+                background-color: rgba($clr-bkg-light, 0.9);
+                transition: background-color 0.2s ease;
+            }
+
+            .toggleThumb {
+                width: 20px;
+                height: 20px;
+                border-radius: 50%;
+                background-color: $clr-text-light;
+                transform: translateX(0);
+                transition: transform 0.2s ease;
+            }
+
+            &.active {
+                .toggleTrack {
+                    background-color: rgba($clr-accent, 0.95);
+                }
+
+                .toggleThumb {
+                    transform: translateX(18px);
+                }
             }
         }
     }
@@ -369,9 +421,9 @@ button {
     > .divider {
         width: 100%;
         height: 1px;
-        margin: 8px 0;
+        margin: 6px 0;
 
-        background-color: $clr-text-darkest;
+        background-color: rgba($clr-text-darkest, 0.7);
     }
 }
 
@@ -388,18 +440,20 @@ button {
 
     > #infoPanelContent {
         position: absolute;
-        top: 40px;
+        top: 50%;
         left: 50%;
-        transform: translate(-50%, 0);
-        min-height: 280px;
-        min-width: 320px;
+        transform: translate(-50%, -50%);
+        width: min(520px, calc(100vw - 32px));
+        max-height: min(680px, calc(100vh - 40px));
+        overflow: auto;
         padding: 8px;
         border-radius: 24px;
         display: flex;
         flex-direction: column;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.35);
 
         color: $clr-text;
-        background-color: rgba($clr-bkg, 0.8);
+        background-color: rgba($clr-bkg, 0.92);
 
         > #tabs {
             display: flex;
@@ -466,24 +520,26 @@ button {
 
 #joystickBase {
     position: absolute;
-    width: 96px;
-    height: 96px;
+    width: 100px;
+    height: 100px;
     transform: translate(-50%, -50%);
     border-radius: 50%;
     touch-action: none;
 
-    background: radial-gradient(circle at center, #0000 50%, #000f 100%);
-    background-color: #0002;
+    background: radial-gradient(circle at center, rgba(255, 255, 255, 0.08) 0%, rgba(0, 0, 0, 0.28) 70%, rgba(0, 0, 0, 0.42) 100%);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(6px);
 
     > #joystick {
         position: absolute;
-        width: 48px;
-        height: 48px;
+        width: 40px;
+        height: 40px;
         transform: translate(-50%, -50%);
         border-radius: 50%;
         touch-action: none;
 
-        background-color: #fff8;
+        background-color: rgba(255, 255, 255, 0.75);
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
     }
 }
 
@@ -644,5 +700,17 @@ button {
             right: max(0px, env(safe-area-inset-right));
             border-radius: 6px 0 0 6px;
         }
+    }
+}
+
+#ui.modal-open {
+    #annotationNav {
+        visibility: hidden;
+        opacity: 0;
+        pointer-events: none;
+    }
+
+    #tooltip {
+        display: none !important;
     }
 }
