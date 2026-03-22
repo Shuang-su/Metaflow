@@ -23,12 +23,15 @@ CATEGORIES = {
 # 设备/子分类配置
 SUBCATEGORIES = {
     "j04": {"name": "J04 扫描", "device": "J04"},
+    "j05": {"name": "J05 扫描", "device": "J05"},
     "ad05": {"name": "AD05 扫描", "device": "AD05"},
     "yzx": {"name": "YZX 项目", "device": "YZX"}
 }
 
 def slugify(text):
     """将中文名称转换为 URL slug"""
+    text = re.sub(r'^\d+\s+', '', text).strip()
+
     # 常见名称映射
     name_map = {
         "明日方舟 史尔特尔": "surtr",
@@ -56,6 +59,10 @@ def slugify(text):
         "紫罗兰永恒花园 薇尔莉特·伊芙加登": "violet",
         "最终幻想 萨菲罗斯": "sephiroth",
         "葬送的芙莉莲 芙莉莲辛美尔": "frieren",
+        "黑执事 夏尔": "ciel",
+        "重返未來1999 贝丽尔": "beryl",
+        "第五人格 红夫人 小女孩": "bloodyqueen",
+        "原神 娜维娅": "navia",
     }
     
     for cn, en in name_map.items():
@@ -191,7 +198,7 @@ def scan_resource_folder(folder_path, category, subcategory=None):
         "titleEn": slug.replace("-", " ").title(),
         "category": [category] + ([subcategory] if subcategory else []),
         "route": route,
-        "source": "scanner" if subcategory in ["j04", "ad05"] else "photogrammetry",
+        "source": "scanner" if subcategory in ["j04", "j05", "ad05"] else "photogrammetry",
         "files": {
             "model": str(main_model.relative_to(DATA_DIR)) if main_model.exists() else None,
             "environment": str(environment_ply.relative_to(DATA_DIR)) if environment_ply else None,

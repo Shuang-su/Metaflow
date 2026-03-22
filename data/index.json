@@ -1,14 +1,14 @@
 {
   "version": "1.0",
-  "lastUpdated": "2026-03-16",
-  "totalResources": 33,
+  "lastUpdated": "2026-03-23",
+  "totalResources": 42,
   "categories": {
     "acg": {
       "name": "二次元",
       "nameEn": "ACG Characters"
     },
     "szcaee": {
-      "name": "深圳文交所",
+      "name": "深圳文博会",
       "nameEn": "SZCAEE Exhibition"
     },
     "szmg": {
@@ -22,11 +22,15 @@
   },
   "subcategories": {
     "j04": {
-      "name": "J04 韭菜102漫展",
+      "name": "J04 扫描",
       "device": "J04"
     },
+    "j05": {
+      "name": "J05 扫描",
+      "device": "J05"
+    },
     "ad05": {
-      "name": "AD05 漫展",
+      "name": "AD05 扫描",
       "device": "AD05"
     },
     "yzx": {
@@ -44,7 +48,7 @@
         "yzx"
       ],
       "route": "/acg/yzx/yzx",
-      "source": "scanner",
+      "source": "photogrammetry",
       "files": {
         "model": "ACG/yzx/260124 yzx.sog",
         "environment": "ACG/yzx/260124 yzx_environment.compressed.ply",
@@ -84,9 +88,9 @@
         "thumbnail": "ACG/AD05/260102 163416 AD05 三角洲/260102 163416 AD05 Delta Force.jpg"
       },
       "fileSize": {
-        "model": 38965893,
+        "model": 39172964,
         "environment": 1075716,
-        "total": 40041609
+        "total": 40248680
       },
       "meta": {
         "date": "2026-01-02",
@@ -244,9 +248,9 @@
         "thumbnail": "ACG/AD05/260102 161509 AD05 紫罗兰永恒花园 薇尔莉特·伊芙加登/260102 161509 AD05 Violet Evergarden.jpg"
       },
       "fileSize": {
-        "model": 26332028,
+        "model": 26901829,
         "environment": 470287,
-        "total": 26802315
+        "total": 27372116
       },
       "meta": {
         "date": "2026-01-02",
@@ -276,9 +280,9 @@
         "thumbnail": "ACG/AD05/260102 155010 AD05 如鸢 诸葛亮/260102 155010 AD05 yuan_zhugeliang.jpg"
       },
       "fileSize": {
-        "model": 20520595,
+        "model": 20777477,
         "environment": 1827826,
-        "total": 22348421
+        "total": 22605303
       },
       "meta": {
         "date": "2026-01-02",
@@ -308,9 +312,9 @@
         "thumbnail": "ACG/J04/260118 153546 J04 守护甜心 日奈森亚梦/260118 153546 J04 Hinamori Amu.jpg"
       },
       "fileSize": {
-        "model": 18854166,
+        "model": 19788148,
         "environment": 322141,
-        "total": 19176307
+        "total": 20110289
       },
       "meta": {
         "date": "2026-01-18",
@@ -372,9 +376,9 @@
         "thumbnail": "ACG/J04/260118 180245 J04 王者荣耀 朵莉亚1/260118_180245_J04_Dolia1-2.ssproj.jpg"
       },
       "fileSize": {
-        "model": 17072132,
+        "model": 16757050,
         "environment": 108913,
-        "total": 17181045
+        "total": 16865963
       },
       "meta": {
         "date": "2026-01-18",
@@ -436,9 +440,9 @@
         "thumbnail": "ACG/J04/260118 152808 J04 福瑞/260118 152808 J04 furry.jpg"
       },
       "fileSize": {
-        "model": 21596494,
+        "model": 22470023,
         "environment": 72718,
-        "total": 21669212
+        "total": 22542741
       },
       "meta": {
         "date": "2026-01-18",
@@ -540,9 +544,9 @@
         "thumbnail": "ACG/J04/260118 161109 J04 假面骑士 build创骑 极狐 景和将军形态/260118 161109 J04 kamen rider.jpg"
       },
       "fileSize": {
-        "model": 33568026,
+        "model": 33660304,
         "environment": 4570725,
-        "total": 38138751
+        "total": 38231029
       },
       "meta": {
         "date": "2026-01-18",
@@ -572,9 +576,9 @@
         "thumbnail": "ACG/J04/260118 155718 J04 赛博朋克边缘行者 露西/260118 155718 J04 Lucyna.jpg"
       },
       "fileSize": {
-        "model": 32094570,
+        "model": 32298195,
         "environment": 4448149,
-        "total": 36542719
+        "total": 36746344
       },
       "meta": {
         "date": "2026-01-18",
@@ -727,9 +731,9 @@
         "thumbnail": "ACG/J04/260118 155035 J04 原神 散兵/260118 155035 J04 GenshinImpact_Wanderer.jpg"
       },
       "fileSize": {
-        "model": 30548511,
+        "model": 30797647,
         "environment": 4357437,
-        "total": 34905948
+        "total": 35155084
       },
       "meta": {
         "date": "2026-01-18",
@@ -791,9 +795,9 @@
         "thumbnail": "ACG/J04/260118 164325 J04 王者荣耀 西施 织梦人/260118 164325 J04 xishi.jpg"
       },
       "fileSize": {
-        "model": 18854032,
+        "model": 18940464,
         "environment": 90297,
-        "total": 18944329
+        "total": 19030761
       },
       "meta": {
         "date": "2026-01-18",
@@ -866,6 +870,262 @@
       },
       "animation": {
         "duration": 25,
+        "frameRate": 60,
+        "loopMode": "repeat"
+      }
+    },
+    {
+      "id": "01",
+      "title": "01",
+      "titleEn": "01",
+      "category": [
+        "acg",
+        "j05"
+      ],
+      "route": "/acg/j05/01",
+      "source": "scanner",
+      "files": {
+        "model": "ACG/J05/260315 162919 J05 01/260315 162919 J05 01.sog",
+        "environment": null,
+        "settings": "ACG/J05/260315 162919 J05 01/settings.json",
+        "thumbnail": "ACG/J05/260315 162919 J05 01/260315 162919 J05 01.jpg"
+      },
+      "fileSize": {
+        "model": 25551692,
+        "environment": 0,
+        "total": 25551692
+      },
+      "meta": {
+        "date": "2026-03-15",
+        "device": "J05",
+        "folderName": "260315 162919 J05 01"
+      },
+      "animation": {
+        "duration": 16.666666666666668,
+        "frameRate": 60,
+        "loopMode": "repeat"
+      }
+    },
+    {
+      "id": "beryl",
+      "title": "05 重返未來1999 贝丽尔",
+      "titleEn": "Beryl",
+      "category": [
+        "acg",
+        "j05"
+      ],
+      "route": "/acg/j05/beryl",
+      "source": "scanner",
+      "files": {
+        "model": "ACG/J05/260315 165959 J05 05 重返未來1999 贝丽尔/260315 173745 J05 05 Beryl Bouanich.sog",
+        "environment": null,
+        "settings": "ACG/J05/260315 165959 J05 05 重返未來1999 贝丽尔/settings.json",
+        "thumbnail": "ACG/J05/260315 165959 J05 05 重返未來1999 贝丽尔/260315 173745 J05 05 Beryl Bouanich.jpg"
+      },
+      "fileSize": {
+        "model": 22782243,
+        "environment": 0,
+        "total": 22782243
+      },
+      "meta": {
+        "date": "2026-03-15",
+        "device": "J05",
+        "folderName": "260315 165959 J05 05 重返未來1999 贝丽尔"
+      },
+      "animation": {
+        "duration": 17.5,
+        "frameRate": 60,
+        "loopMode": "repeat"
+      }
+    },
+    {
+      "id": "bloodyqueen",
+      "title": "06 第五人格 红夫人 小女孩",
+      "titleEn": "Bloodyqueen",
+      "category": [
+        "acg",
+        "j05"
+      ],
+      "route": "/acg/j05/bloodyqueen",
+      "source": "scanner",
+      "files": {
+        "model": "ACG/J05/260315 180620 J05 06 第五人格 红夫人 小女孩/260315 180620 J05 06 BloodyQueen.sog",
+        "environment": null,
+        "settings": "ACG/J05/260315 180620 J05 06 第五人格 红夫人 小女孩/settings.json",
+        "thumbnail": "ACG/J05/260315 180620 J05 06 第五人格 红夫人 小女孩/260315 180620 J05 06 BloodyQueen.jpg"
+      },
+      "fileSize": {
+        "model": 32001679,
+        "environment": 0,
+        "total": 32001679
+      },
+      "meta": {
+        "date": "2026-03-15",
+        "device": "J05",
+        "folderName": "260315 180620 J05 06 第五人格 红夫人 小女孩"
+      },
+      "animation": {
+        "duration": 41.666666666666664,
+        "frameRate": 60,
+        "loopMode": "repeat"
+      }
+    },
+    {
+      "id": "ciel",
+      "title": "02 黑执事 夏尔",
+      "titleEn": "Ciel",
+      "category": [
+        "acg",
+        "j05"
+      ],
+      "route": "/acg/j05/ciel",
+      "source": "scanner",
+      "files": {
+        "model": "ACG/J05/260315 163519 J05 02 黑执事 夏尔/260315 163519 J05 02 Ciel Phantomhive.sog",
+        "environment": null,
+        "settings": "ACG/J05/260315 163519 J05 02 黑执事 夏尔/settings.json",
+        "thumbnail": "ACG/J05/260315 163519 J05 02 黑执事 夏尔/260315 163519 J05 02 Ciel Phantomhive.jpg"
+      },
+      "fileSize": {
+        "model": 26558800,
+        "environment": 0,
+        "total": 26558800
+      },
+      "meta": {
+        "date": "2026-03-15",
+        "device": "J05",
+        "folderName": "260315 163519 J05 02 黑执事 夏尔"
+      },
+      "animation": {
+        "duration": 10,
+        "frameRate": 60,
+        "loopMode": "repeat"
+      }
+    },
+    {
+      "id": "lolita",
+      "title": "03 lolita",
+      "titleEn": "Lolita",
+      "category": [
+        "acg",
+        "j05"
+      ],
+      "route": "/acg/j05/lolita",
+      "source": "scanner",
+      "files": {
+        "model": "ACG/J05/260315 165007 J05 03 lolita/260315 165007 J05 03 lolita.sog",
+        "environment": null,
+        "settings": "ACG/J05/260315 165007 J05 03 lolita/settings.json",
+        "thumbnail": "ACG/J05/260315 165007 J05 03 lolita/260315 165007 J05 03 lolita.jpg"
+      },
+      "fileSize": {
+        "model": 26244529,
+        "environment": 0,
+        "total": 26244529
+      },
+      "meta": {
+        "date": "2026-03-15",
+        "device": "J05",
+        "folderName": "260315 165007 J05 03 lolita"
+      },
+      "animation": {
+        "duration": 16.666666666666668,
+        "frameRate": 60,
+        "loopMode": "repeat"
+      }
+    },
+    {
+      "id": "lolita2",
+      "title": "04 lolita2",
+      "titleEn": "Lolita2",
+      "category": [
+        "acg",
+        "j05"
+      ],
+      "route": "/acg/j05/lolita2",
+      "source": "scanner",
+      "files": {
+        "model": "ACG/J05/260315 165959 J05 04 lolita2/260315 165959 J05 04 lolita2.sog",
+        "environment": null,
+        "settings": "ACG/J05/260315 165959 J05 04 lolita2/settings.json",
+        "thumbnail": "ACG/J05/260315 165959 J05 04 lolita2/260315 165959 J05 04 lolita2.jpg"
+      },
+      "fileSize": {
+        "model": 23469823,
+        "environment": 0,
+        "total": 23469823
+      },
+      "meta": {
+        "date": "2026-03-15",
+        "device": "J05",
+        "folderName": "260315 165959 J05 04 lolita2"
+      },
+      "animation": {
+        "duration": 20,
+        "frameRate": 60,
+        "loopMode": "repeat"
+      }
+    },
+    {
+      "id": "lolita3",
+      "title": "09 lolita3",
+      "titleEn": "Lolita3",
+      "category": [
+        "acg",
+        "j05"
+      ],
+      "route": "/acg/j05/lolita3",
+      "source": "scanner",
+      "files": {
+        "model": "ACG/J05/260315 190259 J05 09 lolita3/260315 190259 J05 09 lolita3.sog",
+        "environment": null,
+        "settings": "ACG/J05/260315 190259 J05 09 lolita3/settings.json",
+        "thumbnail": "ACG/J05/260315 190259 J05 09 lolita3/260315 190259 J05 09 lolita3.jpg"
+      },
+      "fileSize": {
+        "model": 21189116,
+        "environment": 0,
+        "total": 21189116
+      },
+      "meta": {
+        "date": "2026-03-15",
+        "device": "J05",
+        "folderName": "260315 190259 J05 09 lolita3"
+      },
+      "animation": {
+        "duration": 28.333333333333332,
+        "frameRate": 60,
+        "loopMode": "repeat"
+      }
+    },
+    {
+      "id": "navia",
+      "title": "07 原神 娜维娅",
+      "titleEn": "Navia",
+      "category": [
+        "acg",
+        "j05"
+      ],
+      "route": "/acg/j05/navia",
+      "source": "scanner",
+      "files": {
+        "model": "ACG/J05/260315 183428 J05 07 原神 娜维娅/260315 183428 J05 07 Navia Caspar.sog",
+        "environment": null,
+        "settings": "ACG/J05/260315 183428 J05 07 原神 娜维娅/settings.json",
+        "thumbnail": "ACG/J05/260315 183428 J05 07 原神 娜维娅/260315 183428 J05 07 Navia Caspar.jpg"
+      },
+      "fileSize": {
+        "model": 34732454,
+        "environment": 0,
+        "total": 34732454
+      },
+      "meta": {
+        "date": "2026-03-15",
+        "device": "J05",
+        "folderName": "260315 183428 J05 07 原神 娜维娅"
+      },
+      "animation": {
+        "duration": 30,
         "frameRate": 60,
         "loopMode": "repeat"
       }
@@ -964,33 +1224,32 @@
       }
     },
     {
-      "id": "c2-lib",
-      "title": "C2-Lib",
-      "titleEn": "C2 Lib",
+      "id": "广电大厦6楼演播室",
+      "title": "广电大厦6楼演播室",
+      "titleEn": "广电大厦6楼演播室",
       "category": [
-        "sztu"
+        "szmg"
       ],
-      "route": "/sztu/c2-lib",
-      "aliases": ["/c2-lib"],
+      "route": "/szmg/广电大厦6楼演播室",
       "source": "photogrammetry",
       "files": {
-        "model": "SZTU/250424 SZTU C2-Lib/SZTU_C2-Lib_M3E_WU_5286px_5000ksplats_150kStep_5000ksplats_250508_Cleansky.sog",
+        "model": "SZMG/251217 广电大厦6楼演播室/SZMG6L.sog",
         "environment": null,
-        "settings": "SZTU/250424 SZTU C2-Lib/settings.json",
-        "thumbnail": "SZTU/250424 SZTU C2-Lib/SZTU_C2-Lib_M3E_WU_5286px_5000ksplats_150kStep_5000ksplats_250508_Cleansky.jpg"
+        "settings": "SZMG/251217 广电大厦6楼演播室/settings.json",
+        "thumbnail": "SZMG/251217 广电大厦6楼演播室/SZMG6L.jpg"
       },
       "fileSize": {
-        "model": 73111603,
+        "model": 54533945,
         "environment": 0,
-        "total": 73111603
+        "total": 54533945
       },
       "meta": {
-        "date": "2025-04-24",
-        "device": "SZTU",
-        "folderName": "250424 SZTU C2-Lib"
+        "date": "2025-12-17",
+        "device": null,
+        "folderName": "251217 广电大厦6楼演播室"
       },
       "animation": {
-        "duration": 40,
+        "duration": 33.333333333333336,
         "frameRate": 60,
         "loopMode": "repeat"
       }
@@ -998,12 +1257,11 @@
     {
       "id": "c4-hangpai",
       "title": "C4-HangPai",
-      "titleEn": "C4 HangPai",
+      "titleEn": "C4 Hangpai",
       "category": [
         "sztu"
       ],
       "route": "/sztu/c4-hangpai",
-      "aliases": ["/c4"],
       "source": "photogrammetry",
       "files": {
         "model": "SZTU/250324 SZTU C4-HangPai/250324 C4hangpai.sog",
@@ -1028,47 +1286,45 @@
       }
     },
     {
-      "id": "d1-utl-107",
-      "title": "D1-UTL-107",
-      "titleEn": "D1 UTL 107",
+      "id": "c2-lib",
+      "title": "C2-Lib",
+      "titleEn": "C2 Lib",
       "category": [
         "sztu"
       ],
-      "route": "/sztu/d1-utl-107",
-      "aliases": ["/d1-utl-107"],
-      "source": "scanner",
+      "route": "/sztu/c2-lib",
+      "source": "photogrammetry",
       "files": {
-        "model": "SZTU/251225 SZTU D1-UTL-107/SZTURacingCarStudio_260206.sog",
-        "environment": "SZTU/251225 SZTU D1-UTL-107/SZTURacingCarStudio_260206_environment.compressed.ply",
-        "settings": "SZTU/251225 SZTU D1-UTL-107/settings.json",
-        "thumbnail": "SZTU/251225 SZTU D1-UTL-107/SZTURacingCarStudio_260206.jpg"
+        "model": "SZTU/250424 SZTU C2-Lib/SZTU_C2-Lib_M3E_WU_5286px_5000ksplats_150kStep_5000ksplats_250508_Cleansky.sog",
+        "environment": null,
+        "settings": "SZTU/250424 SZTU C2-Lib/settings.json",
+        "thumbnail": "SZTU/250424 SZTU C2-Lib/SZTU_C2-Lib_M3E_WU_5286px_5000ksplats_150kStep_5000ksplats_250508_Cleansky.jpg"
       },
       "fileSize": {
-        "model": 203322144,
-        "environment": 89867,
-        "total": 203412011
+        "model": 73111603,
+        "environment": 0,
+        "total": 73111603
       },
       "meta": {
-        "date": "2025-12-25",
+        "date": "2025-04-24",
         "device": "SZTU",
-        "folderName": "251225 SZTU D1-UTL-107"
+        "folderName": "250424 SZTU C2-Lib"
       },
       "animation": {
-        "duration": 90,
+        "duration": 40,
         "frameRate": 60,
         "loopMode": "repeat"
       }
     },
     {
       "id": "b1-sdi-206",
-      "title": "SZTU B1-sdi 206",
-      "titleEn": "SZTU B1 SDI 206",
+      "title": "B1-SDI-206",
+      "titleEn": "B1 Sdi 206",
       "category": [
         "sztu"
       ],
       "route": "/sztu/b1-sdi-206",
-      "aliases": ["/b1-sdi-206"],
-      "source": "scanner",
+      "source": "photogrammetry",
       "files": {
         "model": "SZTU/251220 SZTU B1-SDI-206/251220 SZTU B1-SDI-206 zhan_20500.sog",
         "environment": "SZTU/251220 SZTU B1-SDI-206/251220 SZTU B1-SDI-206 zhan_20500_environment.compressed.ply",
@@ -1094,7 +1350,38 @@
         "folderName": "251220 SZTU B1-SDI-206"
       },
       "animation": {
-        "duration": 341.67,
+        "duration": 341.6666666666667,
+        "frameRate": 60,
+        "loopMode": "repeat"
+      }
+    },
+    {
+      "id": "d1-utl-107",
+      "title": "D1-UTL-107",
+      "titleEn": "D1 Utl 107",
+      "category": [
+        "sztu"
+      ],
+      "route": "/sztu/d1-utl-107",
+      "source": "photogrammetry",
+      "files": {
+        "model": "SZTU/251225 SZTU D1-UTL-107/SZTURacingCarStudio_260206.sog",
+        "environment": "SZTU/251225 SZTU D1-UTL-107/SZTURacingCarStudio_260206_environment.compressed.ply",
+        "settings": "SZTU/251225 SZTU D1-UTL-107/settings.json",
+        "thumbnail": "SZTU/251225 SZTU D1-UTL-107/SZTURacingCarStudio_260206.jpg"
+      },
+      "fileSize": {
+        "model": 203322144,
+        "environment": 89867,
+        "total": 203412011
+      },
+      "meta": {
+        "date": "2025-12-25",
+        "device": "SZTU",
+        "folderName": "251225 SZTU D1-UTL-107"
+      },
+      "animation": {
+        "duration": 90,
         "frameRate": 60,
         "loopMode": "repeat"
       }
