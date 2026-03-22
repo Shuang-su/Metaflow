@@ -15,6 +15,7 @@ import { importSettings } from './settings';
 import type { Config, Global, LoadMode, LoadingStage } from './types';
 import { initPoster, initUI } from './ui';
 import { Viewer } from './viewer';
+import { VoxelCollider } from './voxel-collider';
 import { initXr } from './xr';
 import { version as appVersion } from '../package.json';
 
@@ -252,6 +253,7 @@ const main = (app: AppBase, camera: Entity, settingsJson: any, config: Config) =
         loaded: false,
         readyToRender: false,
         retinaDisplay: platform.mobile ? localStorage.getItem('retinaDisplay') === 'true' : localStorage.getItem('retinaDisplay') !== 'false',
+        gamingControls: localStorage.getItem('gamingControls') === 'true',
         hqMode: true,
         loadingMode: 'legacy-sog',
         loadingStage: 'init',
@@ -260,12 +262,17 @@ const main = (app: AppBase, camera: Entity, settingsJson: any, config: Config) =
         loadingStatus: '',
         inputMode: platform.mobile ? 'touch' : 'desktop',
         cameraMode: 'orbit',
+        walkInputMode: 'none',
+        walkInputLocked: false,
         hasAnimation: false,
         animationDuration: 0,
         animationTime: 0,
         animationPaused: true,
         hasAR: false,
         hasVR: false,
+        hasCollision: false,
+        hasVoxelOverlay: false,
+        voxelOverlayEnabled: false,
         isFullscreen: false,
         controlsHidden: false
     });
@@ -364,8 +371,16 @@ const main = (app: AppBase, camera: Entity, settingsJson: any, config: Config) =
         });
     }
 
+    // Load collision voxel data (optional)
+    const voxelLoad: Promise<VoxelCollider | null> = config.voxelUrl
+        ? VoxelCollider.load(config.voxelUrl).catch((err: unknown): null => {
+            console.warn('[Voxel] Failed to load collision data:', err);
+            return null;
+        })
+        : Promise.resolve(null);
+
     // Create the viewer
-    return new Viewer(global, gsplatLoad, skyboxLoad);
+    return new Viewer(global, gsplatLoad, skyboxLoad, voxelLoad);
 };
 
 console.log(

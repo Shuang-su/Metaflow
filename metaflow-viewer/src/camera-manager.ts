@@ -8,9 +8,12 @@ import { AnimController } from './cameras/anim-controller';
 import { Camera, type CameraFrame, type CameraController } from './cameras/camera';
 import { FlyController } from './cameras/fly-controller';
 import { OrbitController } from './cameras/orbit-controller';
+import { WalkController } from './cameras/walk-controller';
+import { WalkSource } from './cameras/walk-source';
 import { easeOut } from './core/math';
 import { Annotation } from './settings';
 import { CameraMode, Global } from './types';
+import type { VoxelCollider } from './voxel-collider';
 
 const tmpCamera = new Camera();
 const tmpv = new Vec3();
@@ -38,7 +41,7 @@ class CameraManager {
     // holds the camera state
     camera = new Camera();
 
-    constructor(global: Global, bbox: BoundingBox) {
+    constructor(global: Global, bbox: BoundingBox, collider: VoxelCollider | null = null) {
         const { events, settings, state } = global;
 
         // Character resources under /acg should exit animation to orbit on first cancel/interrupt,
@@ -74,10 +77,18 @@ class CameraManager {
         const controllers = {
             orbit: new OrbitController(),
             fly: new FlyController(),
+            walk: new WalkController(),
             anim: animTrack ? new AnimController(animTrack) : null
         };
 
-        const getController = (cameraMode: 'orbit' | 'anim' | 'fly'): CameraController => {
+        controllers.walk.collider = collider;
+
+        const walkSource = new WalkSource();
+        walkSource.onComplete = () => {
+            events.fire('walkComplete');
+        };
+
+        const getController = (cameraMode: CameraMode): CameraController => {
             return controllers[cameraMode];
         };
 
@@ -92,6 +103,7 @@ class CameraManager {
         const target = new Camera(this.camera);             // the active controller updates this
         const from = new Camera(this.camera);               // stores the previous camera state during transition
         let fromMode: CameraMode = isObjectExperience ? 'orbit' : 'fly';
+        let preWalkMode: CameraMode = isObjectExperience ? 'orbit' : 'fly';
         let hasHandledFirstAnimExit = false;
 
         // enter the initial controller
@@ -111,6 +123,10 @@ class CameraManager {
             transitionTimer = Math.min(1, transitionTimer + deltaTime * transitionSpeed);
 
             const controller = getController(state.cameraMode);
+
+            if (state.cameraMode === 'walk') {
+                walkSource.update(dt, this.camera.position, this.camera.angles, frame);
+            }
 
             controller.update(dt, frame, target);
 
@@ -148,6 +164,21 @@ class CameraManager {
                         }
                     }
                     break;
+                case 'toggleWalk':
+                    if (collider) {
+                        if (state.cameraMode === 'walk') {
+                            state.cameraMode = preWalkMode;
+                        } else {
+                            preWalkMode = state.cameraMode;
+                            state.cameraMode = 'walk';
+                        }
+                    }
+                    break;
+                case 'exitWalk':
+                    if (state.cameraMode === 'walk') {
+                        state.cameraMode = preWalkMode;
+                    }
+                    break;
                 case 'cancel':
                 case 'interrupt':
                     if (state.cameraMode === 'anim') {
@@ -164,6 +195,10 @@ class CameraManager {
 
         // handle camera mode switching
         events.on('cameraMode:changed', (value, prev) => {
+            if (prev === 'walk') {
+                walkSource.cancelWalk();
+            }
+
             // store previous camera mode and pose
             target.copy(this.camera);
             from.copy(this.camera);
@@ -179,6 +214,23 @@ class CameraManager {
 
             // reset camera transition timer
             transitionTimer = 0;
+        });
+
+        // tap/click-to-walk auto navigation in walk mode
+        events.on('walkTo', (position: Vec3, normal: Vec3) => {
+            if (state.cameraMode === 'walk') {
+                walkSource.walkTo(position);
+                events.fire('walkTarget:set', position, normal);
+            }
+        });
+
+        events.on('walkCancel', () => {
+            walkSource.cancelWalk();
+            events.fire('walkTarget:clear');
+        });
+
+        events.on('walkComplete', () => {
+            events.fire('walkTarget:clear');
         });
 
         // handle user scrubbing the animation timeline

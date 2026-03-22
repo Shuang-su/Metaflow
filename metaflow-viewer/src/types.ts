@@ -2,7 +2,9 @@ import type { Entity, EventHandler, AppBase } from 'playcanvas';
 
 import type { ExperienceSettings } from './settings';
 
-type CameraMode = 'orbit' | 'anim' | 'fly';
+type CameraMode = 'orbit' | 'anim' | 'fly' | 'walk';
+
+type WalkInputMode = 'none' | 'gamepad' | 'touchclick' | 'keyboard' | 'mouseclick';
 
 type InputMode = 'desktop' | 'touch';
 
@@ -29,6 +31,7 @@ type Config = {
     skyboxUrl?: string;
     contentUrl?: string;
     contents?: Promise<Response>;
+    voxelUrl?: string;
     environmentUrl?: string;
     environmentContents?: Promise<Response>;
 
@@ -45,6 +48,7 @@ type State = {
     loaded: boolean;                            // true once first frame is rendered
     readyToRender: boolean;                     // don't render till this is set
     retinaDisplay: boolean;                     // controls canvas pixel density
+    gamingControls: boolean;                    // keep touch fly joystick visible when enabled
     hqMode: boolean;
     loadingMode: LoadMode;                      // current loading strategy
     loadingStage: LoadingStage;                 // structured loading stage for UI/logging
@@ -53,12 +57,17 @@ type State = {
     loadingStatus: string;                      // current loading status text
     inputMode: InputMode;
     cameraMode: CameraMode;
+    walkInputMode: WalkInputMode;               // first-input lock mode for walk
+    walkInputLocked: boolean;
     hasAnimation: boolean;
     animationDuration: number;
     animationTime: number;
     animationPaused: boolean;
     hasAR: boolean;
     hasVR: boolean;
+    hasCollision: boolean;
+    hasVoxelOverlay: boolean;
+    voxelOverlayEnabled: boolean;
     isFullscreen: boolean;
     controlsHidden: boolean;
 };
@@ -72,4 +81,4 @@ type Global = {
     camera: Entity;
 };
 
-export { CameraMode, InputMode, LoadMode, LoadingStage, Config, State, Global };
+export { CameraMode, InputMode, WalkInputMode, LoadMode, LoadingStage, Config, State, Global };

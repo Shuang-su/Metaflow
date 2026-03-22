@@ -103,6 +103,7 @@
             let skyboxUrl = url.searchParams.get('skybox');
             let settingsUrl = url.searchParams.has('settings') ? url.searchParams.get('settings') : null;
             let contentUrl = url.searchParams.has('content') ? url.searchParams.get('content') : null;
+            let voxelUrl = url.searchParams.get('voxel');
             let environmentUrl = url.searchParams.get('environment');
             let resourceTitle = '川流Metaflow';
 
@@ -125,6 +126,7 @@
                             contentUrl = dataUrl(pickModelFile(resource));
                             settingsUrl = dataUrl(resource?.files?.settings);
                             posterUrl = posterUrl || dataUrl(resource?.files?.thumbnail);
+                            voxelUrl = voxelUrl || dataUrl(resource?.files?.voxel);
                             environmentUrl = environmentUrl || dataUrl(resource?.files?.environment);
                             // resourceTitle = '川流Metaflow - ' + resource.title;
                             // document.title = resourceTitle;
@@ -151,6 +153,7 @@
                     skyboxUrl,
                     contentUrl,
                     contents: fetch(contentUrl),
+                    voxelUrl,
                     environmentUrl,
                     environmentContents: environmentUrl ? fetch(environmentUrl) : null,
                     noui: url.searchParams.has('noui'),
@@ -243,6 +246,12 @@
                             <g class='fill'><use href="#flyIcon"/></g>
                         </svg>
                     </button>
+                    <button id="fpsCamera" class="controlButton">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24">
+                            <g class='stroke'><use href="#flyIcon"/></g>
+                            <g class='fill'><use href="#flyIcon"/></g>
+                        </svg>
+                    </button>
 
                     <button id="arMode" class="controlButton hidden">
                         <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28">
@@ -298,6 +307,10 @@
                 <div id="retinaDisplayRow" class="settingsRow">
                     <div id="retinaDisplayCheck" class="checkMark">✓</div>
                     <div id="retinaDisplayOption">Retina Display</div>
+                </div>
+                <div id="gamingControlsRow" class="settingsRow">
+                    <div id="gamingControlsCheck" class="checkMark">✓</div>
+                    <div id="gamingControlsOption">Gaming Controls</div>
                 </div>
                 <div class="divider"></div>
                 <div class="settingsRow">
