@@ -94,13 +94,19 @@ const loadGsplat = async (app: AppBase, config: Config, callbacks: LoadCallbacks
     const streamingByStructure = detectStreamingLodByStructure(data);
     const streamingByName = lowerFilename === 'meta.json' || lowerFilename.endsWith('lod-meta.json');
     const hasStructurePayload = !!(data && typeof data === 'object');
-    const loadMode: LoadMode = hasStructurePayload
-        ? (streamingByStructure ? 'streaming-json' : 'legacy-sog')
-        : (streamingByName ? 'streaming-json' : 'legacy-sog');
+    const loadMode: LoadMode = streamingByName
+        ? 'streaming-json'
+        : (hasStructurePayload && streamingByStructure ? 'streaming-json' : 'legacy-sog');
     callbacks.onConflict(false);
 
-    // Conflict reporting: structure-first, filename-second. We surface mismatches immediately.
-    if (isJsonFile && streamingByStructure !== streamingByName) {
+    // Known LOD index filenames are authoritative. Structure probing is kept as diagnostics only.
+    if (isJsonFile && streamingByName && !streamingByStructure) {
+        console.info('[Loader] 已按文件名强制使用流式 LOD 入口', {
+            filename,
+            streamingByStructure,
+            decision: 'streaming-json(文件名优先)'
+        });
+    } else if (isJsonFile && hasStructurePayload && streamingByStructure !== streamingByName) {
         callbacks.onConflict(true);
         const decision = streamingByStructure ? 'streaming-json(结构优先)' : 'legacy-sog(结构优先)';
         console.warn('[Loader] 资源识别冲突: 结构特征与文件名不一致', {
@@ -385,7 +391,7 @@ const main = (app: AppBase, camera: Entity, settingsJson: any, config: Config) =
 
 console.log(
     `Metaflow Viewer v${appVersion} | ` +
-    `Base SSV v1.11.1 (PlayCanvas 2.15.2) | ` +
+    `Metaflow fork (PlayCanvas 2.17.1) | ` +
     `Upstream SSV v1.18.2 (PlayCanvas 2.17.1) | ` +
     `Engine v${engineVersion} (${engineRevision})`
 );

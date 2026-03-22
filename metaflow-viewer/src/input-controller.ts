@@ -100,6 +100,26 @@ const screenToWorld = (camera: CameraComponent, dx: number, dy: number, dz: numb
     return out;
 };
 
+const patchKeyboardMeta = (desktopInput: any) => {
+    const origOnKeyDown = desktopInput._onKeyDown;
+    desktopInput._onKeyDown = (event: KeyboardEvent) => {
+        if (event.key === 'Meta') {
+            desktopInput._keyNow.fill(0);
+        } else if (!event.metaKey) {
+            origOnKeyDown(event);
+        }
+    };
+
+    const origOnKeyUp = desktopInput._onKeyUp;
+    desktopInput._onKeyUp = (event: KeyboardEvent) => {
+        if (event.key === 'Meta') {
+            desktopInput._keyNow.fill(0);
+        } else if (!event.metaKey) {
+            origOnKeyUp(event);
+        }
+    };
+};
+
 class InputController {
     private _state = {
         axis: new Vec3(),
@@ -164,6 +184,8 @@ class InputController {
         const { app, camera, events, state } = global;
         const canvas = app.graphicsDevice.canvas as HTMLCanvasElement;
 
+        patchKeyboardMeta(this._desktopInput);
+
         this._desktopInput.attach(canvas);
         this._orbitInput.attach(canvas);
         this._flyInput.attach(canvas);
@@ -186,6 +208,45 @@ class InputController {
 
         this.global = global;
 
+        const updateCanvasCursor = () => {
+            if (state.cameraMode === 'walk' && state.inputMode === 'desktop' && state.walkInputMode === 'mouseclick') {
+                canvas.style.cursor = this._mouseClickTracking ? 'default' : 'pointer';
+            } else {
+                canvas.style.cursor = '';
+            }
+        };
+
+        const activatePointerLock = () => {
+            if (document.pointerLockElement === canvas) {
+                return;
+            }
+            (this._desktopInput as any)._pointerLock = true;
+            canvas.requestPointerLock?.();
+        };
+
+        const deactivatePointerLock = () => {
+            (this._desktopInput as any)._pointerLock = false;
+            if (document.pointerLockElement === canvas) {
+                document.exitPointerLock();
+            }
+        };
+
+        const shouldUsePointerLock = () => {
+            return state.cameraMode === 'walk' &&
+                state.inputMode === 'desktop' &&
+                state.walkInputMode === 'keyboard' &&
+                state.gamingControls;
+        };
+
+        const syncPointerLock = () => {
+            if (shouldUsePointerLock()) {
+                activatePointerLock();
+            } else {
+                deactivatePointerLock();
+            }
+            updateCanvasCursor();
+        };
+
         // Generate input events
         ['wheel', 'pointerdown', 'contextmenu', 'keydown'].forEach((eventName) => {
             canvas.addEventListener(eventName, (event) => {
@@ -206,6 +267,7 @@ class InputController {
             if (state.cameraMode === 'walk' && state.walkInputMode === 'mouseclick' && event.pointerType !== 'touch' && event.button === 0) {
                 this._mouseClickTracking = true;
                 this._mouseClickDelta = 0;
+                updateCanvasCursor();
             }
 
             if (state.cameraMode === 'walk' && state.walkInputMode === 'touchclick' && event.pointerType === 'touch') {
@@ -267,6 +329,7 @@ class InputController {
             this._touchTapTracking = false;
             this._mouseClickDelta = 0;
             this._touchTapDelta = 0;
+            updateCanvasCursor();
         });
 
         canvas.addEventListener('pointercancel', () => {
@@ -274,12 +337,16 @@ class InputController {
             this._touchTapTracking = false;
             this._mouseClickDelta = 0;
             this._touchTapDelta = 0;
+            updateCanvasCursor();
         });
 
         // Calculate pick location on double click
         events.on('inputEvent', async (eventName, event) => {
             switch (eventName) {
                 case 'dblclick': {
+                    if (state.cameraMode === 'walk') {
+                        break;
+                    }
                     if (!this._picker) {
                         this._picker = new Picker(app, camera);
                     }
@@ -302,10 +369,19 @@ class InputController {
         // handle keyboard events
         window.addEventListener('keydown', (event: KeyboardEvent) => {
             if (event.key === 'Escape') {
-                events.fire('inputEvent', 'cancel', event);
+                if (state.cameraMode === 'walk' && state.inputMode === 'desktop' && state.walkInputMode === 'keyboard' && state.gamingControls) {
+                    state.gamingControls = false;
+                    state.walkInputMode = 'mouseclick';
+                    state.walkInputLocked = true;
+                    events.fire('walkCancel');
+                } else if (state.cameraMode === 'walk') {
+                    events.fire('inputEvent', 'exitWalk', event);
+                } else {
+                    events.fire('inputEvent', 'cancel', event);
+                }
             } else if (!event.ctrlKey && !event.altKey && !event.metaKey) {
                 if (state.cameraMode === 'walk' && !state.walkInputLocked) {
-                    if (['w', 'a', 's', 'd', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(event.key)) {
+                    if (['KeyW', 'KeyA', 'KeyS', 'KeyD', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(event.code)) {
                         state.walkInputMode = 'keyboard';
                         state.walkInputLocked = true;
                         state.gamingControls = true;
@@ -326,6 +402,31 @@ class InputController {
                         break;
                 }
             }
+        });
+
+        events.on('cameraMode:changed', syncPointerLock);
+        events.on('gamingControls:changed', syncPointerLock);
+        events.on('walkInputMode:changed', syncPointerLock);
+        events.on('inputMode:changed', syncPointerLock);
+
+        document.addEventListener('pointerlockchange', () => {
+            if (!document.pointerLockElement && state.cameraMode === 'walk' && state.inputMode === 'desktop' && state.walkInputMode === 'keyboard' && state.gamingControls) {
+                (this._desktopInput as any)._pointerLock = false;
+                state.gamingControls = false;
+                state.walkInputMode = 'mouseclick';
+                state.walkInputLocked = true;
+                updateCanvasCursor();
+            }
+        });
+
+        document.addEventListener('pointerlockerror', () => {
+            (this._desktopInput as any)._pointerLock = false;
+            if (state.cameraMode === 'walk' && state.inputMode === 'desktop' && state.walkInputMode === 'keyboard') {
+                state.gamingControls = false;
+                state.walkInputMode = 'mouseclick';
+                state.walkInputLocked = true;
+            }
+            updateCanvasCursor();
         });
     }
 
@@ -389,7 +490,7 @@ class InputController {
         this._state.ctrl += key[keyCode.CTRL];
 
         if (state.cameraMode !== 'fly' && state.cameraMode !== 'walk' && this._state.axis.length() > 0) {
-            state.cameraMode = 'fly';
+            events.fire('inputEvent', 'requestFirstPerson');
         }
 
         const isWalk = state.cameraMode === 'walk';

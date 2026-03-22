@@ -480,6 +480,7 @@ class Viewer {
 
                 let current = 0;
                 let watermark = 1;
+                let lodConfigured = false;
 
                 state.loadingStatus = isStreamingJson
                     ? '正在建立流式 LOD 调度...'
@@ -487,45 +488,53 @@ class Viewer {
                 state.loadingStage = isStreamingJson ? 'stream-schedule' : 'legacy-lod-loading';
                 state.progress = 0;
 
+                const updateLod = () => {
+                    const settings = state.hqMode ? quality.high : quality.low;
+
+                    if (isStreamingJson) {
+                        const retinaFactor = state.retinaDisplay ? 1.1 : 0.9;
+                        const budget = Math.round(settings.splatBudget * retinaFactor * 1000000);
+                        const clampedBudget = Math.max(500000, Math.min(10000000, budget));
+
+                        gsplat.lodRangeMin = settings.range[0];
+                        gsplat.lodRangeMax = settings.range[1];
+                        results[0].gsplat.splatBudget = clampedBudget;
+                        return;
+                    }
+
+                    gsplat.lodRangeMin = settings.range[0];
+                    gsplat.lodRangeMax = settings.range[1];
+                    results[0].gsplat.splatBudget = settings.splatBudget * 1000000;
+                };
+
+                const configureReadyLod = () => {
+                    if (lodConfigured) {
+                        return;
+                    }
+                    lodConfigured = true;
+
+                    state.loadingStatus = isStreamingJson
+                        ? '流式 LOD 数据就绪，正在准备首帧...'
+                        : 'LOD 数据就绪，正在准备首帧...';
+                    state.loadingStage = 'prepare';
+                    state.progress = 100;
+                    state.readyToRender = true;
+
+                    events.on('hqMode:changed', updateLod);
+                    if (isStreamingJson) {
+                        events.on('retinaDisplay:changed', updateLod);
+                    }
+                    updateLod();
+
+                    gsplat.colorizeLod = config.colorize;
+                };
+
                 const readyHandler = (camera: CameraComponent, layer: Layer, ready: boolean, loading: number) => {
                     if (ready && loading === 0) {
-                        // scene is done loading
-                        fireFirstFrame(() => {
-                            eventHandler.off('frame:ready', readyHandler);
-                            state.loadingStatus = isStreamingJson
-                                ? '流式 LOD 数据就绪，正在准备首帧...'
-                                : 'LOD 数据就绪，正在准备首帧...';
-                            state.loadingStage = 'prepare';
-
-                            // handle quality mode changes
-                            const updateLod = () => {
-                                const settings = state.hqMode ? quality.high : quality.low;
-
-                                // Streaming JSON path: budget is controlled by both hqMode and retinaDisplay.
-                                if (isStreamingJson) {
-                                    const retinaFactor = state.retinaDisplay ? 1.1 : 0.9;
-                                    const budget = Math.round(settings.splatBudget * retinaFactor * 1000000);
-                                    const clampedBudget = Math.max(500000, Math.min(10000000, budget));
-
-                                    gsplat.lodRangeMin = settings.range[0];
-                                    gsplat.lodRangeMax = settings.range[1];
-                                    results[0].gsplat.splatBudget = clampedBudget;
-                                    return;
-                                }
-
-                                // Legacy SOG path: budget controlled by hqMode only.
-                                gsplat.lodRangeMin = settings.range[0];
-                                gsplat.lodRangeMax = settings.range[1];
-                                results[0].gsplat.splatBudget = settings.splatBudget * 1000000;
-                            };
-                            events.on('hqMode:changed', updateLod);
-                            if (isStreamingJson) {
-                                events.on('retinaDisplay:changed', updateLod);
-                            }
-                            updateLod();
-
-                            // debug colorize lods
-                            gsplat.colorizeLod = config.colorize;
+                        eventHandler.off('frame:ready', readyHandler);
+                        configureReadyLod();
+                        app.once('frameend', () => {
+                            fireFirstFrame();
                         });
                     }
 
@@ -543,18 +552,6 @@ class Viewer {
                     }
                 };
                 eventHandler.on('frame:ready', readyHandler);
-
-                // Fallback: if frame:ready doesn't fire with loading === 0 within 5 seconds,
-                // fire firstFrame anyway to prevent the page from being stuck
-                setTimeout(() => {
-                    if (!firstFrameFired) {
-                        console.warn('[Viewer] LOD loading timeout - forcing firstFrame');
-                        state.loadingStage = 'timeout';
-                        fireFirstFrame(() => {
-                            eventHandler.off('frame:ready', readyHandler);
-                        });
-                    }
-                }, 5000);
             }
         }).catch((err) => {
             console.error('[Viewer] Failed to load model:', err);

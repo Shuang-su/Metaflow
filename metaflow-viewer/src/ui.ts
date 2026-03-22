@@ -1,5 +1,6 @@
 import { EventHandler, Vec3 } from 'playcanvas';
 
+import type { Annotation as AnnotationSettings } from './settings';
 import { Tooltip } from './tooltip';
 import { Global } from './types';
 
@@ -21,6 +22,72 @@ const initPoster = (events: EventHandler) => {
     };
 
     events.on('progress:changed', blur);
+};
+
+const initAnnotationNav = (
+    dom: Record<string, HTMLElement>,
+    events: EventHandler,
+    state: { loaded: boolean; inputMode: string; controlsHidden: boolean },
+    annotations: AnnotationSettings[]
+) => {
+    if (annotations.length < 2 || !dom.annotationNav) {
+        return;
+    }
+
+    let currentIndex = 0;
+
+    const updateDisplay = () => {
+        dom.annotationNavTitle.textContent = annotations[currentIndex].title || '';
+    };
+
+    const updateMode = () => {
+        if (!state.loaded) {
+            return;
+        }
+        dom.annotationNav.classList.remove('desktop', 'touch', 'hidden');
+        dom.annotationNav.classList.add(state.inputMode);
+    };
+
+    const updateFade = () => {
+        if (!state.loaded) {
+            return;
+        }
+        dom.annotationNav.classList.toggle('faded-in', !state.controlsHidden);
+        dom.annotationNav.classList.toggle('faded-out', state.controlsHidden);
+    };
+
+    const goTo = (index: number) => {
+        currentIndex = index;
+        updateDisplay();
+        events.fire('annotation.navigate', annotations[currentIndex]);
+    };
+
+    dom.annotationPrev.addEventListener('click', (event) => {
+        event.stopPropagation();
+        goTo((currentIndex - 1 + annotations.length) % annotations.length);
+    });
+
+    dom.annotationNext.addEventListener('click', (event) => {
+        event.stopPropagation();
+        goTo((currentIndex + 1) % annotations.length);
+    });
+
+    events.on('annotation.activate', (annotation: AnnotationSettings) => {
+        const idx = annotations.indexOf(annotation);
+        if (idx !== -1) {
+            currentIndex = idx;
+            updateDisplay();
+        }
+    });
+
+    events.on('loaded:changed', () => {
+        updateMode();
+        updateFade();
+    });
+    events.on('inputMode:changed', updateMode);
+    events.on('controlsHidden:changed', updateFade);
+
+    updateDisplay();
 };
 
 const initUI = (global: Global) => {
@@ -61,11 +128,19 @@ const initUI = (global: Global) => {
         'reset', 'frame',
         'loadingText', 'loadingBar', 'loadingStatus',
         'joystickBase', 'joystick',
-        'tooltip'
+        'tooltip',
+        'annotationNav', 'annotationPrev', 'annotationNext', 'annotationInfo', 'annotationNavTitle'
     ].reduce((acc: Record<string, HTMLElement>, id) => {
         acc[id] = document.getElementById(id);
         return acc;
     }, {});
+
+    const canvas = global.app.graphicsDevice.canvas as HTMLCanvasElement;
+
+    dom.ui.addEventListener('wheel', (event: WheelEvent) => {
+        event.preventDefault();
+        canvas.dispatchEvent(new WheelEvent(event.type, event));
+    }, { passive: false });
 
     // Handle loading progress updates
     // progress: 0-100 = determinate, -1 = indeterminate (pulsing bar)
@@ -305,6 +380,7 @@ const initUI = (global: Global) => {
 
     // show the ui and start a timer to hide it again
     let uiTimeout: ReturnType<typeof setTimeout> | null = null;
+    let annotationVisible = false;
     const showUI = () => {
         if (uiTimeout) {
             clearTimeout(uiTimeout);
@@ -312,12 +388,22 @@ const initUI = (global: Global) => {
         state.controlsHidden = false;
         uiTimeout = setTimeout(() => {
             uiTimeout = null;
-            state.controlsHidden = true;
+            if (!annotationVisible) {
+                state.controlsHidden = true;
+            }
         }, 4000);
     };
     showUI();
 
     events.on('inputEvent', showUI);
+    events.on('annotation.activate', () => {
+        annotationVisible = true;
+        showUI();
+    });
+    events.on('annotation.deactivate', () => {
+        annotationVisible = false;
+        showUI();
+    });
 
     // Animation controls - register listeners once, outside hasAnimation:changed
     dom.play.addEventListener('click', () => {
@@ -521,7 +607,6 @@ const initUI = (global: Global) => {
     dom.joystickBase.addEventListener('pointerup', endWalkJoystick);
     dom.joystickBase.addEventListener('pointercancel', endWalkJoystick);
 
-    const canvas = global.app.graphicsDevice.canvas as HTMLCanvasElement;
     canvas.addEventListener('pointerdown', (event: PointerEvent) => {
         if (state.cameraMode !== 'walk' || state.walkInputLocked) {
             return;
@@ -626,6 +711,8 @@ const initUI = (global: Global) => {
     tooltip.register(dom.vrMode, 'Enter VR', 'top');
     tooltip.register(dom.enterFullscreen, 'Fullscreen', 'top');
     tooltip.register(dom.exitFullscreen, 'Fullscreen', 'top');
+
+    initAnnotationNav(dom, events, state, global.settings.annotations);
 };
 
 export { initPoster, initUI };

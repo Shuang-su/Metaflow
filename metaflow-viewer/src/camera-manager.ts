@@ -81,6 +81,8 @@ class CameraManager {
             anim: animTrack ? new AnimController(animTrack) : null
         };
 
+        controllers.fly.fov = resetCamera.fov;
+        controllers.fly.collider = collider;
         controllers.walk.collider = collider;
 
         const walkSource = new WalkSource();
@@ -172,6 +174,11 @@ class CameraManager {
                             preWalkMode = state.cameraMode;
                             state.cameraMode = 'walk';
                         }
+                    }
+                    break;
+                case 'requestFirstPerson':
+                    if (state.cameraMode !== 'walk') {
+                        state.cameraMode = 'fly';
                     }
                     break;
                 case 'exitWalk':

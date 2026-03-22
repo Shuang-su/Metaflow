@@ -405,6 +405,25 @@
                 <div id="joystick"></div>
             </div>
 
+            <!-- Annotation Navigator -->
+            <div id="annotationNav" class="hidden">
+                <button id="annotationPrev">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20">
+                        <g class='stroke'><use href="#chevronLeftIcon"/></g>
+                        <g class='fill'><use href="#chevronLeftIcon"/></g>
+                    </svg>
+                </button>
+                <div id="annotationInfo">
+                    <span id="annotationNavTitle"></span>
+                </div>
+                <button id="annotationNext">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20">
+                        <g class='stroke'><use href="#chevronRightIcon"/></g>
+                        <g class='fill'><use href="#chevronRightIcon"/></g>
+                    </svg>
+                </button>
+            </div>
+
             <!-- Tooltip -->
             <div id="tooltip"></div>
         </div>
@@ -456,6 +475,12 @@
                 <path d="M21 15.0996C21.4971 15.0996 21.9004 15.5029 21.9004 16C21.9004 16.4971 21.4971 16.9004 21 16.9004H16.9004V21C16.9004 21.4971 16.4971 21.9004 16 21.9004C15.5029 21.9004 15.0996 21.4971 15.0996 21V16C15.0996 15.5029 15.5029 15.0996 16 15.0996H21Z" />
                 <path d="M8 2.09961C8.49706 2.09961 8.90039 2.50294 8.90039 3V8C8.90039 8.49706 8.49706 8.90039 8 8.90039H3C2.50294 8.90039 2.09961 8.49706 2.09961 8C2.09961 7.50294 2.50294 7.09961 3 7.09961H7.09961V3C7.09961 2.50294 7.50294 2.09961 8 2.09961Z" />
                 <path d="M16 2.09961C16.4971 2.09961 16.9004 2.50294 16.9004 3V7.09961H21C21.4971 7.09961 21.9004 7.50294 21.9004 8C21.9004 8.49706 21.4971 8.90039 21 8.90039H16C15.5029 8.90039 15.0996 8.49706 15.0996 8V3C15.0996 2.50294 15.5029 2.09961 16 2.09961Z" />
+            </symbol>
+            <symbol id="chevronLeftIcon" viewBox="0 0 20 20">
+                <path d="M12.5 4.5L7 10l5.5 5.5"/>
+            </symbol>
+            <symbol id="chevronRightIcon" viewBox="0 0 20 20">
+                <path d="M7.5 4.5L13 10l-5.5 5.5"/>
             </symbol>
         </svg>
 
