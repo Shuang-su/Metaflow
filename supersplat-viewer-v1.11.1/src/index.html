@@ -1,172 +1,41 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
     <head>
-        <title>川流Metaflow</title>
+        <title>SuperSplat Viewer</title>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-        <!-- <meta name="description" content="川流Metaflow - 高斯泼溅3D资源浏览平台，沉浸式体验二次元角色、文化艺术展品的3D高斯泼溅重建"> -->
-        <meta name="description" content="">
-        <meta name="keywords" content="">
-        <meta name="author" content="Metaflow">
-        
-        <!-- Favicon -->
-        <link rel="icon" type="image/svg+xml" href="./assets/metaflow_logo.svg">
-        <link rel="apple-touch-icon" href="./assets/metaflow_web-2.jpg">
-        
-        <!-- Open Graph / Facebook / 微信分享 -->
-        <meta property="og:type" content="website">
-        <meta property="og:url" content="https://metaflow.shuang-su.com/">
-        <meta property="og:title" content="川流Metaflow">
-        <!-- <meta property="og:description" content="高斯泼溅3D资源浏览平台，沉浸式体验二次元角色、文化艺术展品的3D重建"> -->
-         <meta property="og:description" content="">
-        <meta property="og:image" content="https://metaflow.shuang-su.com/assets/metaflow_web-2.jpg">
-        <meta property="og:image:width" content="1200">
-        <meta property="og:image:height" content="630">
-        
-        <!-- Twitter -->
-        <meta name="twitter:card" content="summary_large_image">
-        <meta name="twitter:title" content="川流Metaflow">
-        <meta name="twitter:description" content="">
-        <meta name="twitter:image" content="https://metaflow.shuang-su.com/assets/metaflow_web-2.jpg">
-        
-        <base href="/">
+        <base href="">
         <link rel="stylesheet" href="./index.css">
         <script type="module">
-            // Domain-based redirects (before any other logic)
-            const domainRedirects = {
-                'xn--fes68bkzcz5lkjgrkl.com': '/c2-lib',
-                'www.xn--fes68bkzcz5lkjgrkl.com': '/c2-lib'
-            };
-            
-            const currentHost = location.hostname.toLowerCase();
-            if (domainRedirects[currentHost] && location.pathname === '/') {
-                location.replace(domainRedirects[currentHost]);
-            }
-
-            // Create image and start loading immediately
             const createImage = (url) => {
                 const img = new Image();
-                img.crossOrigin = 'anonymous';
                 img.src = url;
                 return img;
             };
 
             const url = new URL(location.href);
-            const pathname = location.pathname;
 
-            const normalizeRoutePath = (value) => {
-                if (!value || value === '/') return '/';
-                const trimmed = value.endsWith('/') ? value.slice(0, -1) : value;
-                return trimmed || '/';
+            const posterUrl = url.searchParams.get('poster');
+            const skyboxUrl = url.searchParams.get('skybox');
+            const settingsUrl = url.searchParams.has('settings') ? url.searchParams.get('settings') : './settings.json';
+            const contentUrl = url.searchParams.has('content') ? url.searchParams.get('content') : './scene.compressed.ply';
+
+            const sseConfig = {
+                poster: posterUrl && createImage(posterUrl),
+                skyboxUrl,
+                contentUrl,
+                contents: fetch(contentUrl),
+                noui: url.searchParams.has('noui'),
+                noanim: url.searchParams.has('noanim'),
+                ministats: url.searchParams.has('ministats'),
+                colorize: url.searchParams.has('colorize'),
+                unified: url.searchParams.has('unified'),
+                aa: url.searchParams.has('aa')
             };
-
-            const dataUrl = (filePath) => {
-                if (!filePath || typeof filePath !== 'string') return null;
-                if (/^https?:\/\//i.test(filePath) || filePath.startsWith('/')) return filePath;
-                return '/data/' + filePath;
-            };
-
-            const parseRecommendedLevel = (recommended) => {
-                if (typeof recommended === 'number' && Number.isFinite(recommended)) return recommended;
-                if (typeof recommended !== 'string') return null;
-                const normalized = recommended.trim().toLowerCase();
-                const lodMatch = normalized.match(/^lod\s*(\d+)$/);
-                if (lodMatch) return Number(lodMatch[1]);
-                if (/^\d+$/.test(normalized)) return Number(normalized);
-                return null;
-            };
-
-            const pickModelFile = (resource) => {
-                const files = resource?.files || {};
-                const model = typeof files.model === 'string' ? files.model : null;
-                const lod = Array.isArray(files.lod) ? files.lod : [];
-
-                if (!lod.length) return model;
-
-                const recommendedRaw =
-                    resource?.fileSize?.recommended ??
-                    resource?.recommended ??
-                    files?.recommended;
-                const recommendedLevel = parseRecommendedLevel(recommendedRaw);
-
-                if (recommendedLevel !== null) {
-                    const hit = lod.find((entry) => Number(entry?.level) === recommendedLevel && typeof entry?.file === 'string');
-                    if (hit) return hit.file;
-                }
-
-                const firstValidLod = lod.find((entry) => typeof entry?.file === 'string');
-                return firstValidLod?.file || model;
-            };
-
-            // 默认值
-            let posterUrl = url.searchParams.get('poster');
-            let skyboxUrl = url.searchParams.get('skybox');
-            let settingsUrl = url.searchParams.has('settings') ? url.searchParams.get('settings') : null;
-            let contentUrl = url.searchParams.has('content') ? url.searchParams.get('content') : null;
-            let environmentUrl = url.searchParams.get('environment');
-            let resourceTitle = '川流Metaflow';
-
-            // 路由解析：从路径获取资源信息
-            const initConfig = async () => {
-                // 如果路径不是根目录，尝试从 index.json 查找资源
-                if (pathname !== '/' && pathname !== '/index.html' && !contentUrl) {
-                    try {
-                        const indexResponse = await fetch('/data/index.json');
-                        const indexData = await indexResponse.json();
-                        const resources = Array.isArray(indexData?.resources) ? indexData.resources : [];
-                        const normalizedPath = normalizeRoutePath(decodeURIComponent(pathname));
-                        const resource = resources.find((r) => {
-                            const routeMatch = normalizeRoutePath(r?.route) === normalizedPath;
-                            const aliasMatch = Array.isArray(r?.aliases) && r.aliases.some((alias) => normalizeRoutePath(alias) === normalizedPath);
-                            return routeMatch || aliasMatch;
-                        });
-                        
-                        if (resource) {
-                            contentUrl = dataUrl(pickModelFile(resource));
-                            settingsUrl = dataUrl(resource?.files?.settings);
-                            posterUrl = posterUrl || dataUrl(resource?.files?.thumbnail);
-                            environmentUrl = environmentUrl || dataUrl(resource?.files?.environment);
-                            // resourceTitle = '川流Metaflow - ' + resource.title;
-                            // document.title = resourceTitle;
-                        }
-                    } catch (e) {
-                        console.warn('Failed to load index.json:', e);
-                    }
-                }
-
-                // 如果仍然没有内容，使用默认值或显示首页
-                if (!contentUrl) {
-                    // 检查是否有默认的场景文件
-                    contentUrl = './scene.compressed.ply';
-                }
-                if (!settingsUrl) {
-                    settingsUrl = './settings.json';
-                }
-
-                // Create poster image early to start loading
-                const posterImage = posterUrl ? createImage(posterUrl) : null;
-
-                return {
-                    poster: posterImage,
-                    skyboxUrl,
-                    contentUrl,
-                    contents: fetch(contentUrl),
-                    environmentUrl,
-                    environmentContents: environmentUrl ? fetch(environmentUrl) : null,
-                    noui: url.searchParams.has('noui'),
-                    noanim: url.searchParams.has('noanim'),
-                    ministats: url.searchParams.has('ministats'),
-                    colorize: url.searchParams.has('colorize'),
-                    unified: url.searchParams.has('unified'),
-                    aa: url.searchParams.has('aa')
-                };
-            };
-
-            const sseConfig = await initConfig();
 
             window.sse = {
                 config: sseConfig,
-                settings: fetch(settingsUrl).then(response => response.ok ? response.json() : {})
+                settings: fetch(settingsUrl).then(response => response.json())
             };
         </script>
     </head>
@@ -188,21 +57,12 @@
         </pc-app>
 
         <div id="ui">
-            <!-- Logo -->
-            <div id="logoWrap">
-                <div id="logoContainer">
-                    <img id="logoIcon" src="./assets/metaflow_logo.svg" alt="Metaflow Logo">
-                    <img id="logoWord" src="./assets/metaflow_word.svg" alt="Metaflow">
-                </div>
-            </div>
-
             <div id="poster"></div>
 
-            <!-- Loading Indicator - hidden until poster loads -->
-            <div id="loadingWrap" class="hidden">
+            <!-- Loading Indicator -->
+            <div id="loadingWrap">
                 <div id="loadingText"></div>
                 <div id="loadingBar"></div>
-                <div id="loadingStatus"></div>
             </div>
 
             <div id="controlsWrap" class="faded-in">
@@ -294,10 +154,6 @@
                 <div class="settingsRow">
                     <div id="lqCheck" class="checkMark">✓</div>
                     <div id="lqOption">Low Quality Render</div>
-                </div>
-                <div id="retinaDisplayRow" class="settingsRow">
-                    <div id="retinaDisplayCheck" class="checkMark">✓</div>
-                    <div id="retinaDisplayOption">Retina Display</div>
                 </div>
                 <div class="divider"></div>
                 <div class="settingsRow">
@@ -453,88 +309,18 @@
             const { config, settings } = window.sse;
             const { poster } = config;
 
-            // Show loading UI - called when poster is ready (or immediately if no poster)
-            const showLoadingUI = () => {
-                const loadingWrap = document.getElementById('loadingWrap');
-                if (loadingWrap) {
-                    loadingWrap.classList.remove('hidden');
-                }
-            };
-
-            // Show the poster image - wait for it to load first
-            const showPoster = () => {
-                if (poster) {
-                    const element = document.getElementById('poster');
-                    element.style.setProperty('--poster-url', `url(${poster.src})`);
-                    element.style.display = 'block';
-                    element.style.filter = 'blur(40px)';
-
-                    // hide the canvas until content loads
-                    document.documentElement.style.setProperty('--canvas-opacity', '0');
-
-                    // Show loading UI now that poster is visible
-                    showLoadingUI();
-                }
-            };
-
-            // Wait for poster image to load before showing it
+            // Show the poster image
             if (poster) {
-                if (poster.complete) {
-                    showPoster();
-                } else {
-                    poster.onload = showPoster;
-                    // Also hide canvas immediately while poster loads
-                    document.documentElement.style.setProperty('--canvas-opacity', '0');
-                }
-            } else {
-                // No poster, show loading UI immediately
-                showLoadingUI();
+                const element = document.getElementById('poster');
+                element.style.setProperty('--poster-url', `url(${poster.src})`);
+                element.style.display = 'block';
+                element.style.filter = 'blur(40px)';
+
+                // hide the canvas
+                document.documentElement.style.setProperty('--canvas-opacity', '0');
             }
 
             document.addEventListener('DOMContentLoaded', async () => {
-                // Logo interaction setup
-                const logoContainer = document.getElementById('logoContainer');
-                if (logoContainer) {
-                    // Always enable tap/click toggle for mobile compatibility
-                    let touchStarted = false;
-                    
-                    // Track touch start to differentiate from scroll
-                    logoContainer.addEventListener('touchstart', (e) => {
-                        touchStarted = true;
-                    }, { passive: true });
-                    
-                    // Handle touch end
-                    logoContainer.addEventListener('touchend', (e) => {
-                        if (touchStarted) {
-                            e.preventDefault();
-                            e.stopPropagation();
-                            logoContainer.classList.toggle('expanded');
-                            touchStarted = false;
-                        }
-                    });
-                    
-                    // Also handle click for desktop
-                    logoContainer.addEventListener('click', (e) => {
-                        // Only handle if not a touch event (avoid double trigger)
-                        if (!touchStarted) {
-                            e.stopPropagation();
-                            logoContainer.classList.toggle('expanded');
-                        }
-                    });
-
-                    // Close when tapping/clicking outside
-                    document.addEventListener('touchend', (e) => {
-                        if (!logoContainer.contains(e.target)) {
-                            logoContainer.classList.remove('expanded');
-                        }
-                    });
-                    document.addEventListener('click', (e) => {
-                        if (!logoContainer.contains(e.target)) {
-                            logoContainer.classList.remove('expanded');
-                        }
-                    });
-                }
-
                 const [appElement, cameraElement, settingsJson] = await Promise.all([
                     document.querySelector('pc-app').ready(),
                     document.querySelector('pc-entity[name="camera"]').ready(),
