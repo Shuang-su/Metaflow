@@ -1131,6 +1131,41 @@
       }
     },
     {
+      "id": "xunyangpai",
+      "title": "08 寻洋派",
+      "titleEn": "Xunyangpai",
+      "category": [
+        "acg",
+        "j05"
+      ],
+      "route": "/acg/j05/xunyangpai",
+      "source": "scanner",
+      "files": {
+        "model": "ACG/J05/260315 184701 J05 08 寻洋派/lod-meta.json",
+        "environment": null,
+        "settings": "ACG/J05/260315 184701 J05 08 寻洋派/settings.json",
+        "thumbnail": "ACG/J05/260315 184701 J05 08 寻洋派/260315 184701 J05 08 xunyangpai.jpg",
+        "voxel": "ACG/J05/260315 184701 J05 08 寻洋派/260315 184701 J05 08 xunyangpai_O0_r006_a018.voxel.json"
+      },
+      "fileSize": {
+        "model": 113820161,
+        "environment": 0,
+        "voxel": 58190076,
+        "thumbnail": 379368,
+        "total": 172389605
+      },
+      "meta": {
+        "date": "2026-03-15",
+        "device": "J05",
+        "folderName": "260315 184701 J05 08 寻洋派"
+      },
+      "animation": {
+        "duration": 75,
+        "frameRate": 60,
+        "loopMode": "repeat"
+      }
+    },
+    {
       "id": "ciqi",
       "title": "ciqi",
       "titleEn": "Ciqi",
