@@ -41,6 +41,13 @@ class CameraManager {
     constructor(global: Global, bbox: BoundingBox) {
         const { events, settings, state } = global;
 
+        // Character resources under /acg should exit animation to orbit on first cancel/interrupt,
+        // except known scene-like entries (itasha, ggc/gcc).
+        const pathname = (globalThis?.location?.pathname || '').toLowerCase();
+        const isAcgRoute = pathname.startsWith('/acg/');
+        const isSceneLikeRoute = /\/(itasha|ggc|gcc)\/?$/.test(pathname);
+        const shouldFirstExitAnimToOrbit = isAcgRoute && !isSceneLikeRoute;
+
         const camera0 = settings.cameras[0].initial;
         const frameCamera = createFrameCamera(bbox, camera0.fov);
         const resetCamera = createCamera(new Vec3(camera0.position), new Vec3(camera0.target), camera0.fov);
@@ -85,6 +92,7 @@ class CameraManager {
         const target = new Camera(this.camera);             // the active controller updates this
         const from = new Camera(this.camera);               // stores the previous camera state during transition
         let fromMode: CameraMode = isObjectExperience ? 'orbit' : 'fly';
+        let hasHandledFirstAnimExit = false;
 
         // enter the initial controller
         getController(state.cameraMode).onEnter(this.camera);
@@ -143,7 +151,12 @@ class CameraManager {
                 case 'cancel':
                 case 'interrupt':
                     if (state.cameraMode === 'anim') {
-                        state.cameraMode = fromMode;
+                        if (shouldFirstExitAnimToOrbit && !hasHandledFirstAnimExit) {
+                            hasHandledFirstAnimExit = true;
+                            state.cameraMode = 'orbit';
+                        } else {
+                            state.cameraMode = fromMode;
+                        }
                     }
                     break;
             }
