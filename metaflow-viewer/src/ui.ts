@@ -2,11 +2,11 @@ import { EventHandler, Vec3 } from 'playcanvas';
 
 import type { Annotation as AnnotationSettings } from './settings';
 import { Tooltip } from './tooltip';
-import type { Global, WalkInputMode } from './types';
+import type { CameraMode, Global, WalkInputMode } from './types';
 
 const v = new Vec3();
 
-const WALK_HINT_DURATION_MS = 3000;
+const WALK_HINT_DURATION_MS = 6000;
 const WALK_HINT_DISMISS_GRACE_MS = 150;
 
 const initPoster = (events: EventHandler) => {
@@ -398,21 +398,35 @@ const initUI = (global: Global) => {
         emitWalkHintState();
     };
 
-    const getWalkHintText = (mode: WalkInputMode) => {
-        switch (mode) {
-            case 'keyboard':
-                return 'WASD 移动，鼠标观察，Esc 返回点击行走。';
-            case 'mouseclick':
-                return '点击地面行走，拖动画面观察。';
-            case 'touchclick':
-                return '点按地面行走，拖动画面观察。';
-            case 'gamepad':
-                return '拖动摇杆移动，拖动画面观察，轻点可跳跃。';
-            case 'none':
-            default:
+    const getModeHintText = (cameraMode: CameraMode, walkMode: WalkInputMode = state.walkInputMode) => {
+        switch (cameraMode) {
+            case 'orbit':
                 return state.inputMode === 'touch'
-                    ? '点按地面行走，或使用左下摇杆自由移动。'
-                    : '点击地面行走，或按 WASD 进入自由行走。';
+                    ? '单指旋转，双指平移，双指缩放。'
+                    : '左键旋转，右键平移，滚轮缩放。';
+            case 'fly':
+                return state.inputMode === 'touch'
+                    ? '拖动画面观察，使用摇杆或双指手势移动。'
+                    : '拖动画面观察，WASD 移动。';
+            case 'walk':
+                switch (walkMode) {
+                    case 'keyboard':
+                        return 'WASD 移动，鼠标观察，Esc 返回点击行走。';
+                    case 'mouseclick':
+                        return '点击地面行走，拖动画面观察。';
+                    case 'touchclick':
+                        return '点按地面行走，拖动画面观察。';
+                    case 'gamepad':
+                        return '拖动摇杆移动，拖动画面观察，轻点可跳跃。';
+                    case 'none':
+                    default:
+                        return state.inputMode === 'touch'
+                            ? '点按地面行走，或使用左下摇杆自由移动。'
+                            : '点击地面行走，或按 WASD 进入自由行走。';
+                }
+            case 'anim':
+            default:
+                return '';
         }
     };
 
@@ -432,6 +446,15 @@ const initUI = (global: Global) => {
         walkHintTimeout = setTimeout(() => {
             hideWalkHint();
         }, WALK_HINT_DURATION_MS);
+    };
+
+    const showCurrentModeHint = (cameraMode: CameraMode = state.cameraMode, walkMode: WalkInputMode = state.walkInputMode) => {
+        const text = getModeHintText(cameraMode, walkMode);
+        if (!text) {
+            hideWalkHint();
+            return;
+        }
+        showWalkHint(text);
     };
 
     const setModal = (modal: 'info' | 'settings' | null) => {
@@ -497,9 +520,9 @@ const initUI = (global: Global) => {
         hideWalkHint();
     });
 
-    events.on('cameraMode:changed', (value: string) => {
-        if (value === 'walk') {
-            showWalkHint(getWalkHintText('none'));
+    events.on('cameraMode:changed', (value: CameraMode) => {
+        if (value === 'orbit' || value === 'fly' || value === 'walk') {
+            showCurrentModeHint(value, value === 'walk' ? 'none' : state.walkInputMode);
         } else {
             hideWalkHint();
         }
@@ -507,13 +530,17 @@ const initUI = (global: Global) => {
 
     events.on('walkInputMode:changed', (value: WalkInputMode) => {
         if (state.cameraMode === 'walk' && value !== 'none') {
-            showWalkHint(getWalkHintText(value));
+            showCurrentModeHint('walk', value);
         }
     });
 
     events.on('inputMode:changed', () => {
-        if (walkHintVisible && state.cameraMode === 'walk') {
-            showWalkHint(getWalkHintText(state.walkInputMode));
+        if (walkHintVisible) {
+            if (state.cameraMode === 'walk') {
+                showCurrentModeHint('walk', state.walkInputMode);
+            } else {
+                showCurrentModeHint(state.cameraMode);
+            }
         }
     });
 
