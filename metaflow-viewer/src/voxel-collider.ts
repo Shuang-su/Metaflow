@@ -32,6 +32,14 @@ interface RayHit {
     z: number;
 }
 
+type VoxelLoadStage = 'voxel-meta' | 'voxel-bin' | 'voxel-build';
+
+interface VoxelLoadCallbacks {
+    onStage?: (stage: VoxelLoadStage, status: string) => void;
+    onProgress?: (progress: number) => void;
+    onBinaryProgress?: (receivedBytes: number, totalBytes: number | null) => void;
+}
+
 /**
  * Solid leaf node marker: childMask = 0xFF, baseOffset = 0.
  * Unambiguous because BFS layout guarantees children always come after their parent,
@@ -303,8 +311,67 @@ class VoxelCollider {
      * @param jsonUrl - URL to the .voxel.json metadata file.
      * @returns A promise resolving to a VoxelCollider instance.
      */
-    static async load(jsonUrl: string): Promise<VoxelCollider> {
+    static async load(jsonUrl: string, callbacks: VoxelLoadCallbacks = {}): Promise<VoxelCollider> {
+        const reportStage = (stage: VoxelLoadStage, status: string) => {
+            callbacks.onStage?.(stage, status);
+        };
+
+        const readArrayBuffer = async (response: Response) => {
+            const totalHeader = response.headers.get('content-length');
+            const totalBytes = totalHeader ? Number.parseInt(totalHeader, 10) : Number.NaN;
+            const hasKnownLength = Number.isFinite(totalBytes) && totalBytes > 0;
+
+            if (!response.body) {
+                if (!hasKnownLength) {
+                    callbacks.onProgress?.(-1);
+                }
+                const buffer = await response.arrayBuffer();
+                callbacks.onBinaryProgress?.(buffer.byteLength, hasKnownLength ? totalBytes : null);
+                callbacks.onProgress?.(100);
+                return buffer;
+            }
+
+            const reader = response.body.getReader();
+            const chunks: Uint8Array[] = [];
+            let receivedBytes = 0;
+
+            if (!hasKnownLength) {
+                callbacks.onProgress?.(-1);
+            }
+
+            while (true) {
+                const { done, value } = await reader.read();
+                if (done) {
+                    break;
+                }
+                if (!value) {
+                    continue;
+                }
+
+                chunks.push(value);
+                receivedBytes += value.byteLength;
+                callbacks.onBinaryProgress?.(receivedBytes, hasKnownLength ? totalBytes : null);
+
+                if (hasKnownLength) {
+                    callbacks.onProgress?.(Math.min(99, Math.trunc((receivedBytes / totalBytes) * 100)));
+                }
+            }
+
+            const buffer = new Uint8Array(receivedBytes);
+            let offset = 0;
+            for (const chunk of chunks) {
+                buffer.set(chunk, offset);
+                offset += chunk.byteLength;
+            }
+
+            callbacks.onBinaryProgress?.(receivedBytes, hasKnownLength ? totalBytes : null);
+            callbacks.onProgress?.(100);
+            return buffer.buffer;
+        };
+
         // Fetch metadata
+        reportStage('voxel-meta', '正在读取碰撞体素索引...');
+        callbacks.onProgress?.(-1);
         const metaResponse = await fetch(jsonUrl);
         if (!metaResponse.ok) {
             throw new Error(`Failed to fetch voxel metadata: ${metaResponse.statusText}`);
@@ -313,13 +380,16 @@ class VoxelCollider {
 
         // Fetch binary data
         const binUrl = jsonUrl.replace('.voxel.json', '.voxel.bin');
+        reportStage('voxel-bin', '正在下载碰撞体素数据...');
         const binResponse = await fetch(binUrl);
         if (!binResponse.ok) {
             throw new Error(`Failed to fetch voxel binary: ${binResponse.statusText}`);
         }
-        const buffer = await binResponse.arrayBuffer();
+        const buffer = await readArrayBuffer(binResponse);
         const view = new Uint32Array(buffer);
 
+        reportStage('voxel-build', '正在构建碰撞体素索引...');
+        callbacks.onProgress?.(-1);
         const nodes = view.slice(0, metadata.nodeCount);
         const leafData = view.slice(metadata.nodeCount, metadata.nodeCount + metadata.leafDataCount);
 

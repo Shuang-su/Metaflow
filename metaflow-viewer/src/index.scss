@@ -567,6 +567,25 @@ button {
     pointer-events: auto;
 }
 
+#walkHint {
+    position: absolute;
+    top: max(16px, env(safe-area-inset-top));
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 12;
+    max-width: min(520px, calc(100vw - 32px));
+    padding: 10px 16px;
+    border-radius: 999px;
+    pointer-events: auto;
+    text-align: center;
+    font-size: 13px;
+    line-height: 1.4;
+    color: $clr-text-light;
+    background-color: rgba(black, 0.7);
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.28);
+    backdrop-filter: blur(10px);
+}
+
 #annotationNav {
     pointer-events: none;
 
@@ -704,6 +723,24 @@ button {
 }
 
 #ui.modal-open {
+    #annotationNav {
+        visibility: hidden;
+        opacity: 0;
+        pointer-events: none;
+    }
+
+    #walkHint {
+        visibility: hidden;
+        opacity: 0;
+        pointer-events: none;
+    }
+
+    #tooltip {
+        display: none !important;
+    }
+}
+
+#ui.walk-hint-open {
     #annotationNav {
         visibility: hidden;
         opacity: 0;

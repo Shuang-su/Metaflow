@@ -352,7 +352,9 @@ const main = (app: AppBase, camera: Entity, settingsJson: any, config: Config) =
         );
         // Model data downloaded and parsed by engine
         state.loadingStage = 'prepare';
-        state.loadingStatus = '正在准备渲染...';
+        state.loadingStatus = config.voxelUrl
+            ? '主体模型已就绪，正在等待碰撞体素与渲染准备...'
+            : '正在准备渲染...';
         state.progress = -1; // indeterminate while waiting for sorting
         return entity;
     })();
@@ -379,8 +381,24 @@ const main = (app: AppBase, camera: Entity, settingsJson: any, config: Config) =
 
     // Load collision voxel data (optional)
     const voxelLoad: Promise<VoxelCollider | null> = config.voxelUrl
-        ? VoxelCollider.load(config.voxelUrl).catch((err: unknown): null => {
+        ? VoxelCollider.load(config.voxelUrl, {
+            onStage: (stage, status) => {
+                state.loadingStage = stage;
+                state.loadingStatus = status;
+            },
+            onProgress: (progress) => {
+                state.progress = progress;
+            },
+            onBinaryProgress: (receivedBytes, totalBytes) => {
+                state.loadingStatus = totalBytes && totalBytes > 0
+                    ? `正在下载碰撞体素 ${formatSize(receivedBytes)} / ${formatSize(totalBytes)}`
+                    : `正在下载碰撞体素 ${formatSize(receivedBytes)}`;
+            }
+        }).catch((err: unknown): null => {
             console.warn('[Voxel] Failed to load collision data:', err);
+            state.loadingStage = 'prepare';
+            state.loadingStatus = '碰撞体素加载失败，继续以无碰撞模式准备渲染...';
+            state.progress = -1;
             return null;
         })
         : Promise.resolve(null);
