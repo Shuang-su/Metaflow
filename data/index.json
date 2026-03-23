@@ -1148,14 +1148,14 @@
         "environment": "ACG/J05/260315 184701 J05 08 寻洋派/260315 184701 J05 08 xunyangpai_environment.compressed.ply",
         "settings": "ACG/J05/260315 184701 J05 08 寻洋派/settings.json",
         "thumbnail": "ACG/J05/260315 184701 J05 08 寻洋派/260315 184701 J05 08 xunyangpai.jpg",
-        "voxel": "ACG/J05/260315 184701 J05 08 寻洋派/260315 184701 J05 08 xunyangpai_O0_r006_a018.voxel.json"
+        "voxel": "ACG/J05/260315 184701 J05 08 寻洋派/260315 184701 J05 08 xunyangpai_collision.voxel.json"
       },
       "fileSize": {
         "model": 113820161,
         "environment": 330972,
-        "voxel": 58190076,
+        "voxel": 28667052,
         "thumbnail": 379368,
-        "total": 172720577
+        "total": 143197553
       },
       "meta": {
         "date": "2026-03-15",

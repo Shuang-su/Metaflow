@@ -58,6 +58,8 @@ const resolveInitialCameraMode = (
 class CameraManager {
     update: (deltaTime: number, cameraFrame: CameraFrame) => void;
 
+    setCollider: (collider: VoxelCollider | null) => void;
+
     // holds the camera state
     camera = new Camera();
 
@@ -94,6 +96,9 @@ class CameraManager {
         const isObjectExperience = !bbox.containsPoint(resetCamera.position);
         const animTrack = getAnimTrack(settings.hasStartPose ? resetCamera : frameCamera, isObjectExperience);
 
+        let currentCollider = collider;
+        let pendingDefaultWalk = config.defaultCameraMode === 'walk' && !currentCollider;
+
         const controllers = {
             orbit: new OrbitController(),
             fly: new FlyController(),
@@ -102,8 +107,8 @@ class CameraManager {
         };
 
         controllers.fly.fov = resetCamera.fov;
-        controllers.fly.collider = collider;
-        controllers.walk.collider = collider;
+        controllers.fly.collider = currentCollider;
+        controllers.walk.collider = currentCollider;
 
         const walkSource = new WalkSource();
         walkSource.onComplete = () => {
@@ -123,7 +128,7 @@ class CameraManager {
             config.defaultCameraMode,
             state.hasAnimation,
             isObjectExperience,
-            !!collider
+            !!currentCollider
         );
         this.camera.copy(resetCamera);
 
@@ -132,6 +137,20 @@ class CameraManager {
         let fromMode: CameraMode = isObjectExperience ? 'orbit' : 'fly';
         let preWalkMode: CameraMode = isObjectExperience ? 'orbit' : 'fly';
         let hasHandledFirstAnimExit = false;
+
+        this.setCollider = (nextCollider: VoxelCollider | null) => {
+            const hadCollider = !!currentCollider;
+            currentCollider = nextCollider;
+            controllers.fly.collider = nextCollider;
+            controllers.walk.collider = nextCollider;
+
+            if (!hadCollider && nextCollider && pendingDefaultWalk && state.cameraMode === 'fly') {
+                pendingDefaultWalk = false;
+                state.cameraMode = 'walk';
+            } else if (nextCollider) {
+                pendingDefaultWalk = false;
+            }
+        };
 
         // enter the initial controller
         getController(state.cameraMode).onEnter(this.camera);
@@ -192,7 +211,7 @@ class CameraManager {
                     }
                     break;
                 case 'toggleWalk':
-                    if (collider) {
+                    if (currentCollider) {
                         if (state.cameraMode === 'walk') {
                             state.cameraMode = preWalkMode;
                         } else {

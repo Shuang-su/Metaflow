@@ -144,7 +144,7 @@ class Viewer {
 
     walkCursor: WalkCursor | null = null;
 
-    constructor(global: Global, gsplatLoad: Promise<Entity>, skyboxLoad: Promise<void>, voxelLoad: Promise<VoxelCollider | null>) {
+    constructor(global: Global, gsplatLoad: Promise<Entity>, skyboxLoad: Promise<void>, voxelLoadFactory: (() => Promise<VoxelCollider | null>) | null) {
         this.global = global;
 
         const { app, settings, config, events, state, camera } = global;
@@ -306,10 +306,10 @@ class Viewer {
             state.animationPaused = !!config.noanim;
         });
 
-        // wait for the model to load
-        Promise.all([gsplatLoad, skyboxLoad, voxelLoad]).then((results) => {
+        // wait for the renderable scene to load first; collision is attached lazily after first frame
+        Promise.all([gsplatLoad, skyboxLoad]).then((results) => {
             const gsplat = results[0].gsplat as GSplatComponent;
-            const collider = results[2];
+            let voxelLoadStarted = false;
 
             // get scene bounding box
             const gsplatBbox = gsplat.customAabb;
@@ -322,17 +322,43 @@ class Viewer {
             }
 
             this.inputController = new InputController(global);
-            this.inputController.collider = collider;
 
-            state.hasCollision = !!collider;
+            state.hasCollision = false;
             state.hasVoxelOverlay = false;
 
-            this.cameraManager = new CameraManager(global, sceneBound, collider);
+            this.cameraManager = new CameraManager(global, sceneBound, null);
             applyCamera(this.cameraManager.camera);
 
-            if (collider) {
-                this.walkCursor = new WalkCursor(app, camera, collider, events, state);
-            }
+            const attachCollider = (collider: VoxelCollider | null) => {
+                if (!collider) {
+                    return;
+                }
+
+                this.inputController.collider = collider;
+                this.cameraManager.setCollider(collider);
+                state.hasCollision = true;
+
+                if (!this.walkCursor) {
+                    this.walkCursor = new WalkCursor(app, camera, collider, events, state);
+                }
+
+                app.renderNextFrame = true;
+            };
+
+            const startVoxelLoad = () => {
+                if (voxelLoadStarted || !voxelLoadFactory) {
+                    return;
+                }
+                voxelLoadStarted = true;
+
+                voxelLoadFactory()
+                    .then((collider) => {
+                        attachCollider(collider);
+                    })
+                    .catch((err) => {
+                        console.warn('[Voxel] Failed to attach collision data:', err);
+                    });
+            };
 
             // Shared first-frame trigger: marks render ready, updates loading UI, fires event
             let firstFrameFired = false;
@@ -348,6 +374,7 @@ class Viewer {
                 app.once('frameend', () => {
                     events.fire('firstFrame');
                     window.firstFrame?.();
+                    startVoxelLoad();
                 });
             };
 
