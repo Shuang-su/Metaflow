@@ -332,8 +332,9 @@ class VoxelCollider {
             }
 
             const reader = response.body.getReader();
-            const chunks: Uint8Array[] = [];
             let receivedBytes = 0;
+            const target = hasKnownLength ? new Uint8Array(totalBytes) : null;
+            const chunks: Uint8Array[] = [];
 
             if (!hasKnownLength) {
                 callbacks.onProgress?.(-1);
@@ -348,7 +349,11 @@ class VoxelCollider {
                     continue;
                 }
 
-                chunks.push(value);
+                if (target) {
+                    target.set(value, receivedBytes);
+                } else {
+                    chunks.push(value);
+                }
                 receivedBytes += value.byteLength;
                 callbacks.onBinaryProgress?.(receivedBytes, hasKnownLength ? totalBytes : null);
 
@@ -357,16 +362,24 @@ class VoxelCollider {
                 }
             }
 
-            const buffer = new Uint8Array(receivedBytes);
-            let offset = 0;
-            for (const chunk of chunks) {
-                buffer.set(chunk, offset);
-                offset += chunk.byteLength;
+            let buffer: ArrayBuffer;
+            if (target) {
+                buffer = receivedBytes === target.byteLength
+                    ? target.buffer
+                    : target.slice(0, receivedBytes).buffer;
+            } else {
+                const merged = new Uint8Array(receivedBytes);
+                let offset = 0;
+                for (const chunk of chunks) {
+                    merged.set(chunk, offset);
+                    offset += chunk.byteLength;
+                }
+                buffer = merged.buffer;
             }
 
             callbacks.onBinaryProgress?.(receivedBytes, hasKnownLength ? totalBytes : null);
             callbacks.onProgress?.(100);
-            return buffer.buffer;
+            return buffer;
         };
 
         // Fetch metadata
@@ -390,8 +403,8 @@ class VoxelCollider {
 
         reportStage('voxel-build', '正在构建碰撞体素索引...');
         callbacks.onProgress?.(-1);
-        const nodes = view.slice(0, metadata.nodeCount);
-        const leafData = view.slice(metadata.nodeCount, metadata.nodeCount + metadata.leafDataCount);
+        const nodes = view.subarray(0, metadata.nodeCount);
+        const leafData = view.subarray(metadata.nodeCount, metadata.nodeCount + metadata.leafDataCount);
 
         return new VoxelCollider(metadata, nodes, leafData);
     }
