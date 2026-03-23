@@ -886,14 +886,14 @@
       "source": "scanner",
       "files": {
         "model": "ACG/J05/260315 162919 J05 01/260315 162919 J05 01.sog",
-        "environment": null,
+        "environment": "ACG/J05/260315 162919 J05 01/260315 162919 J05 01_environment.compressed.ply",
         "settings": "ACG/J05/260315 162919 J05 01/settings.json",
         "thumbnail": "ACG/J05/260315 162919 J05 01/260315 162919 J05 01.jpg"
       },
       "fileSize": {
         "model": 25551692,
-        "environment": 0,
-        "total": 25551692
+        "environment": 164712,
+        "total": 25716404
       },
       "meta": {
         "date": "2026-03-15",
@@ -918,14 +918,14 @@
       "source": "scanner",
       "files": {
         "model": "ACG/J05/260315 165959 J05 05 重返未來1999 贝丽尔/260315 173745 J05 05 Beryl Bouanich.sog",
-        "environment": null,
+        "environment": "ACG/J05/260315 165959 J05 05 重返未來1999 贝丽尔/260315 173745 J05 05 Beryl Bouanich_environment.compressed.ply",
         "settings": "ACG/J05/260315 165959 J05 05 重返未來1999 贝丽尔/settings.json",
         "thumbnail": "ACG/J05/260315 165959 J05 05 重返未來1999 贝丽尔/260315 173745 J05 05 Beryl Bouanich.jpg"
       },
       "fileSize": {
         "model": 22782243,
-        "environment": 0,
-        "total": 22782243
+        "environment": 114109,
+        "total": 22896352
       },
       "meta": {
         "date": "2026-03-15",
@@ -950,14 +950,14 @@
       "source": "scanner",
       "files": {
         "model": "ACG/J05/260315 180620 J05 06 第五人格 红夫人 小女孩/260315 180620 J05 06 BloodyQueen.sog",
-        "environment": null,
+        "environment": "ACG/J05/260315 180620 J05 06 第五人格 红夫人 小女孩/260315 180620 J05 06 BloodyQueen_environment.compressed.ply",
         "settings": "ACG/J05/260315 180620 J05 06 第五人格 红夫人 小女孩/settings.json",
         "thumbnail": "ACG/J05/260315 180620 J05 06 第五人格 红夫人 小女孩/260315 180620 J05 06 BloodyQueen.jpg"
       },
       "fileSize": {
         "model": 32001679,
-        "environment": 0,
-        "total": 32001679
+        "environment": 4800239,
+        "total": 36801918
       },
       "meta": {
         "date": "2026-03-15",
@@ -982,14 +982,14 @@
       "source": "scanner",
       "files": {
         "model": "ACG/J05/260315 163519 J05 02 黑执事 夏尔/260315 163519 J05 02 Ciel Phantomhive.sog",
-        "environment": null,
+        "environment": "ACG/J05/260315 163519 J05 02 黑执事 夏尔/260315 163519 J05 02 Ciel Phantomhive_environment.compressed.ply",
         "settings": "ACG/J05/260315 163519 J05 02 黑执事 夏尔/settings.json",
         "thumbnail": "ACG/J05/260315 163519 J05 02 黑执事 夏尔/260315 163519 J05 02 Ciel Phantomhive.jpg"
       },
       "fileSize": {
         "model": 26558800,
-        "environment": 0,
-        "total": 26558800
+        "environment": 57577,
+        "total": 26616377
       },
       "meta": {
         "date": "2026-03-15",
@@ -1014,14 +1014,14 @@
       "source": "scanner",
       "files": {
         "model": "ACG/J05/260315 165007 J05 03 lolita/260315 165007 J05 03 lolita.sog",
-        "environment": null,
+        "environment": "ACG/J05/260315 165007 J05 03 lolita/260315 165007 J05 03 lolita_environment.compressed.ply",
         "settings": "ACG/J05/260315 165007 J05 03 lolita/settings.json",
         "thumbnail": "ACG/J05/260315 165007 J05 03 lolita/260315 165007 J05 03 lolita.jpg"
       },
       "fileSize": {
         "model": 26244529,
-        "environment": 0,
-        "total": 26244529
+        "environment": 56967,
+        "total": 26301496
       },
       "meta": {
         "date": "2026-03-15",
@@ -1046,14 +1046,14 @@
       "source": "scanner",
       "files": {
         "model": "ACG/J05/260315 165959 J05 04 lolita2/260315 165959 J05 04 lolita2.sog",
-        "environment": null,
+        "environment": "ACG/J05/260315 165959 J05 04 lolita2/260315 165959 J05 04 lolita2_environment.compressed.ply",
         "settings": "ACG/J05/260315 165959 J05 04 lolita2/settings.json",
         "thumbnail": "ACG/J05/260315 165959 J05 04 lolita2/260315 165959 J05 04 lolita2.jpg"
       },
       "fileSize": {
         "model": 23469823,
-        "environment": 0,
-        "total": 23469823
+        "environment": 89288980,
+        "total": 112758803
       },
       "meta": {
         "date": "2026-03-15",
@@ -1078,14 +1078,14 @@
       "source": "scanner",
       "files": {
         "model": "ACG/J05/260315 190259 J05 09 lolita3/260315 190259 J05 09 lolita3.sog",
-        "environment": null,
+        "environment": "ACG/J05/260315 190259 J05 09 lolita3/260315 190259 J05 09 lolita3_environment.compressed.ply",
         "settings": "ACG/J05/260315 190259 J05 09 lolita3/settings.json",
         "thumbnail": "ACG/J05/260315 190259 J05 09 lolita3/260315 190259 J05 09 lolita3.jpg"
       },
       "fileSize": {
         "model": 21189116,
-        "environment": 0,
-        "total": 21189116
+        "environment": 61359,
+        "total": 21250475
       },
       "meta": {
         "date": "2026-03-15",
@@ -1110,14 +1110,14 @@
       "source": "scanner",
       "files": {
         "model": "ACG/J05/260315 183428 J05 07 原神 娜维娅/260315 183428 J05 07 Navia Caspar.sog",
-        "environment": null,
+        "environment": "ACG/J05/260315 183428 J05 07 原神 娜维娅/260315 183428 J05 07 Navia Caspar_environment.compressed.ply",
         "settings": "ACG/J05/260315 183428 J05 07 原神 娜维娅/settings.json",
         "thumbnail": "ACG/J05/260315 183428 J05 07 原神 娜维娅/260315 183428 J05 07 Navia Caspar.jpg"
       },
       "fileSize": {
         "model": 34732454,
-        "environment": 0,
-        "total": 34732454
+        "environment": 2826673,
+        "total": 37559127
       },
       "meta": {
         "date": "2026-03-15",
@@ -1145,17 +1145,17 @@
       },
       "files": {
         "model": "ACG/J05/260315 184701 J05 08 寻洋派/lod-meta.json",
-        "environment": null,
+        "environment": "ACG/J05/260315 184701 J05 08 寻洋派/260315 184701 J05 08 xunyangpai_environment.compressed.ply",
         "settings": "ACG/J05/260315 184701 J05 08 寻洋派/settings.json",
         "thumbnail": "ACG/J05/260315 184701 J05 08 寻洋派/260315 184701 J05 08 xunyangpai.jpg",
         "voxel": "ACG/J05/260315 184701 J05 08 寻洋派/260315 184701 J05 08 xunyangpai_O0_r006_a018.voxel.json"
       },
       "fileSize": {
         "model": 113820161,
-        "environment": 0,
+        "environment": 330972,
         "voxel": 58190076,
         "thumbnail": 379368,
-        "total": 172389605
+        "total": 172720577
       },
       "meta": {
         "date": "2026-03-15",

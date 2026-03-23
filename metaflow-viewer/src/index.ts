@@ -214,6 +214,7 @@ const loadEnvironment = async (app: AppBase, config: Config) => {
             // In unified mode, material is shared via app.scene.gsplat.material
             // No need to set material here as it's set by the main model
             app.root.addChild(entity);
+            app.renderNextFrame = true;
             resolve(entity);
         });
 
@@ -312,19 +313,11 @@ const main = (app: AppBase, camera: Entity, settingsJson: any, config: Config) =
     // Determine if we need unified mode (required when loading multiple gsplats)
     const hasEnvironment = !!config.environmentUrl;
 
-    // Load environment first (background gsplat - renders behind main model)
-    const environmentLoad = hasEnvironment && loadEnvironment(app, config);
+    // Start environment load in parallel so late arrivals can attach after first frame.
+    const environmentLoad = hasEnvironment ? loadEnvironment(app, config) : null;
 
-    // Load main model after environment
+    // Load main model without blocking on the environment.
     const gsplatLoad = (async () => {
-        // Wait for environment to load first if it exists
-        if (environmentLoad) {
-            state.loadingStage = 'environment';
-            state.loadingStatus = '正在加载环境...';
-            state.progress = -1; // indeterminate
-            await environmentLoad;
-            state.loadingStatus = '环境加载完成，准备加载主体模型...';
-        }
         state.loadingStage = 'detect';
         state.loadingStatus = '正在识别资源结构...';
         state.progress = 0;
@@ -358,6 +351,14 @@ const main = (app: AppBase, camera: Entity, settingsJson: any, config: Config) =
         state.progress = -1; // indeterminate while waiting for sorting
         return entity;
     })();
+
+    if (environmentLoad) {
+        environmentLoad.then((entity) => {
+            if (entity) {
+                console.info('[Environment] 环境模型已并行挂载');
+            }
+        });
+    }
 
     // Load skybox
     const skyboxLoad = config.skyboxUrl &&
