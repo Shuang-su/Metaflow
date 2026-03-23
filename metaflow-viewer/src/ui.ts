@@ -626,9 +626,9 @@ const initUI = (global: Global) => {
         }
     });
 
-    const setWalkMode = (mode: WalkInputMode) => {
+    const setWalkMode = (mode: WalkInputMode, locked = true) => {
         state.walkInputMode = mode;
-        state.walkInputLocked = mode !== 'none';
+        state.walkInputLocked = locked && mode !== 'none';
         if (mode !== 'gamepad') {
             events.fire('joystickSession:reset');
         }
@@ -637,8 +637,9 @@ const initUI = (global: Global) => {
         }
     };
 
-    const setFlyMode = (mode: FlyInputMode) => {
+    const setFlyMode = (mode: FlyInputMode, locked = true) => {
         state.flyInputMode = mode;
+        state.flyInputLocked = locked && mode !== 'none';
         if (mode !== 'gamepad') {
             events.fire('joystickSession:reset');
         }
@@ -938,6 +939,12 @@ const initUI = (global: Global) => {
             return;
         }
 
+        const flyLockedOut = state.cameraMode === 'fly' && state.flyInputLocked && state.flyInputMode !== 'gamepad';
+        const walkLockedOut = state.cameraMode === 'walk' && state.walkInputLocked && state.walkInputMode !== 'gamepad';
+        if (flyLockedOut || walkLockedOut) {
+            return;
+        }
+
         const now = Date.now();
         const isDoubleTap =
             now - lastJoystickTap < 320 &&
@@ -953,10 +960,10 @@ const initUI = (global: Global) => {
         }
 
         if (state.cameraMode === 'fly' && state.flyInputMode !== 'gamepad') {
-            setFlyMode('gamepad');
+            setFlyMode('gamepad', false);
         }
         if (state.cameraMode === 'walk' && state.walkInputMode !== 'gamepad') {
-            setWalkMode('gamepad');
+            setWalkMode('gamepad', false);
             events.fire('walkCancel');
         }
 

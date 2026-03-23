@@ -270,6 +270,7 @@ const main = (app: AppBase, camera: Entity, settingsJson: any, config: Config) =
         inputMode: platform.mobile ? 'touch' : 'desktop',
         cameraMode: 'orbit',
         flyInputMode: 'none',
+        flyInputLocked: false,
         walkInputMode: 'none',
         walkInputLocked: false,
         hasAnimation: false,

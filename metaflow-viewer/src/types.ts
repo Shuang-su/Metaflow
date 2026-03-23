@@ -64,6 +64,7 @@ type State = {
     inputMode: InputMode;
     cameraMode: CameraMode;
     flyInputMode: FlyInputMode;                 // touch fly first-input lock mode
+    flyInputLocked: boolean;                    // true when fly submode was explicitly chosen
     walkInputMode: WalkInputMode;               // first-input lock mode for walk
     walkInputLocked: boolean;
     hasAnimation: boolean;

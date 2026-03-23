@@ -176,13 +176,14 @@ class InputController {
 
         this.global = global;
 
-        const setWalkInputMode = (mode: WalkInputMode) => {
+        const setWalkInputMode = (mode: WalkInputMode, locked = false) => {
             state.walkInputMode = mode;
-            state.walkInputLocked = mode !== 'none';
+            state.walkInputLocked = locked && mode !== 'none';
         };
 
-        const setFlyInputMode = (mode: FlyInputMode) => {
+        const setFlyInputMode = (mode: FlyInputMode, locked = false) => {
             state.flyInputMode = mode;
+            state.flyInputLocked = locked && mode !== 'none';
         };
 
         const resetJoystickInput = () => {
@@ -197,6 +198,7 @@ class InputController {
             this._panVelocity[0] = 0;
             this._panVelocity[1] = 0;
             this._tapJump = false;
+            this._jumpButtonPressed = 0;
             this._touchGesturePrimed = false;
             this._touchTapTracking = false;
             this._touchTapDelta = 0;
@@ -263,15 +265,15 @@ class InputController {
             resetTouchState();
 
             if (state.cameraMode === 'walk') {
-                setWalkInputMode('none');
+                setWalkInputMode('none', false);
             } else {
-                setWalkInputMode('none');
+                setWalkInputMode('none', false);
             }
 
             if (state.cameraMode === 'fly' && state.inputMode === 'touch') {
-                setFlyInputMode('none');
+                setFlyInputMode('none', false);
             } else {
-                setFlyInputMode('none');
+                setFlyInputMode('none', false);
             }
 
             syncGamingControls();
@@ -284,7 +286,10 @@ class InputController {
         });
 
         events.on('jumpButton:changed', (pressed: boolean) => {
-            this._jumpButtonPressed = pressed ? 1 : 0;
+            this._jumpButtonPressed = 0;
+            if (pressed) {
+                this._tapJump = true;
+            }
         });
 
         ['wheel', 'pointerdown', 'contextmenu', 'keydown'].forEach((eventName) => {
@@ -307,8 +312,8 @@ class InputController {
                 event.pointerType !== 'touch' &&
                 event.button === 0
             ) {
-                if (state.walkInputMode === 'none') {
-                    setWalkInputMode('mouseclick');
+                if (state.walkInputMode === 'none' && !state.walkInputLocked) {
+                    setWalkInputMode('mouseclick', false);
                 }
                 if (state.walkInputMode === 'mouseclick') {
                     this._mouseClickTracking = true;
@@ -318,8 +323,8 @@ class InputController {
             }
 
             if (state.cameraMode === 'walk' && event.pointerType === 'touch') {
-                if (state.walkInputMode === 'none') {
-                    setWalkInputMode('touchclick');
+                if (state.walkInputMode === 'none' && !state.walkInputLocked) {
+                    setWalkInputMode('touchclick', false);
                 }
                 if (state.walkInputMode === 'touchclick' || state.walkInputMode === 'gamepad') {
                     this._touchTapTracking = true;
@@ -330,7 +335,7 @@ class InputController {
             }
 
             if (state.cameraMode === 'fly' && event.pointerType === 'touch') {
-                this._touchGesturePrimed = true;
+                this._touchGesturePrimed = !state.flyInputLocked || state.flyInputMode === 'gesture' || state.flyInputMode === 'none';
             }
 
             const now = Date.now();
@@ -435,12 +440,14 @@ class InputController {
                     state.inputMode === 'desktop' &&
                     state.walkInputMode === 'keyboard'
                 ) {
-                    setWalkInputMode('mouseclick');
+                    setWalkInputMode('mouseclick', false);
                     events.fire('walkCancel');
-                } else if (state.cameraMode === 'walk') {
-                    events.fire('inputEvent', 'exitWalk', event);
                 } else {
-                    events.fire('inputEvent', 'cancel', event);
+                    if (state.cameraMode === 'walk') {
+                        events.fire('inputEvent', 'exitWalk', event);
+                    } else {
+                        events.fire('inputEvent', 'cancel', event);
+                    }
                 }
                 return;
             }
@@ -452,9 +459,10 @@ class InputController {
             if (
                 state.cameraMode === 'walk' &&
                 state.walkInputMode === 'none' &&
+                !state.walkInputLocked &&
                 ['KeyW', 'KeyA', 'KeyS', 'KeyD', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(event.code)
             ) {
-                setWalkInputMode('keyboard');
+                setWalkInputMode('keyboard', false);
             }
 
             switch (event.key.toLowerCase()) {
@@ -472,13 +480,14 @@ class InputController {
                         setWalkInputMode(
                             state.inputMode === 'touch'
                                 ? (state.walkInputMode === 'gamepad' ? 'touchclick' : 'gamepad')
-                                : (state.walkInputMode === 'keyboard' ? 'mouseclick' : 'keyboard')
+                                : (state.walkInputMode === 'keyboard' ? 'mouseclick' : 'keyboard'),
+                            true
                         );
                         if (state.walkInputMode !== 'gamepad' && state.walkInputMode !== 'keyboard') {
                             events.fire('walkCancel');
                         }
                     } else if (state.cameraMode === 'fly' && state.inputMode === 'touch') {
-                        setFlyInputMode(state.flyInputMode === 'gamepad' ? 'gesture' : 'gamepad');
+                        setFlyInputMode(state.flyInputMode === 'gamepad' ? 'gesture' : 'gamepad', true);
                     }
                     break;
                 case 'h':
@@ -555,7 +564,7 @@ class InputController {
                 state.walkInputMode === 'keyboard'
             ) {
                 (this._desktopInput as any)._pointerLock = false;
-                setWalkInputMode('mouseclick');
+                setWalkInputMode('mouseclick', false);
                 updateCanvasCursor();
             }
         });
@@ -567,7 +576,7 @@ class InputController {
                 state.inputMode === 'desktop' &&
                 state.walkInputMode === 'keyboard'
             ) {
-                setWalkInputMode('mouseclick');
+                setWalkInputMode('mouseclick', false);
             }
             updateCanvasCursor();
         });
@@ -639,12 +648,13 @@ class InputController {
             (this._state.axis.x !== 0 || this._state.axis.z !== 0)
         ) {
             state.walkInputMode = 'keyboard';
-            state.walkInputLocked = true;
+            state.walkInputLocked = false;
         }
 
         const touchMoved = Math.abs(touch[0]) + Math.abs(touch[1]) > 0.01 || Math.abs(pinch[0]) > 0.01;
         if (isFly && state.inputMode === 'touch' && state.flyInputMode === 'none' && this._touchGesturePrimed && touchMoved) {
             state.flyInputMode = 'gesture';
+            state.flyInputLocked = false;
         }
 
         if (isWalk && state.walkInputMode === 'keyboard' && (this._state.axis.x !== 0 || this._state.axis.z !== 0)) {
