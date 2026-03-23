@@ -149,7 +149,7 @@ const initUI = (global: Global) => {
         'retinaDisplayCheck', 'retinaDisplayOption', 'retinaDisplayRow',
         'reset', 'frame',
         'loadingText', 'loadingBar', 'loadingStatus',
-        'joystickZone', 'joystickBase', 'joystick', 'walkJump',
+        'joystickZone', 'jumpZone', 'joystickBase', 'joystick', 'walkJump',
         'tooltip',
         'annotationNav', 'annotationPrev', 'annotationNext', 'annotationInfo', 'annotationNavTitle'
     ];
@@ -786,6 +786,8 @@ const initUI = (global: Global) => {
     let joystickAnchorX = 0;
     let joystickAnchorY = 0;
     let walkJumpPointerId: number | null = null;
+    let walkJumpAnchorX = 0;
+    let walkJumpAnchorY = 0;
 
     const clamp = (value: number, min: number, max: number) => Math.min(max, Math.max(min, value));
 
@@ -834,6 +836,11 @@ const initUI = (global: Global) => {
         resetJoystickVisual();
     };
 
+    const hideWalkJump = () => {
+        dom.walkJump.classList.remove('visible');
+        dom.walkJump.classList.remove('active');
+    };
+
     const positionJoystickBase = (clientX: number, clientY: number) => {
         const metrics = getJoystickMetrics();
         const rect = dom.joystickZone.getBoundingClientRect();
@@ -870,12 +877,27 @@ const initUI = (global: Global) => {
         events.fire('joystickInput', { x: dx / joystickRadius, y: dy / joystickRadius });
     };
 
+    const positionWalkJump = (clientX: number, clientY: number) => {
+        const rect = dom.jumpZone.getBoundingClientRect();
+        const radius = 24;
+        if (rect.width > 0 && rect.height > 0) {
+            walkJumpAnchorX = clamp(clientX, rect.left + radius, rect.right - radius);
+            walkJumpAnchorY = clamp(clientY, rect.top + radius, rect.bottom - radius);
+        } else {
+            walkJumpAnchorX = clientX;
+            walkJumpAnchorY = clientY;
+        }
+
+        dom.walkJump.style.left = `${walkJumpAnchorX}px`;
+        dom.walkJump.style.top = `${walkJumpAnchorY}px`;
+    };
+
     const releaseWalkJump = () => {
-        if (walkJumpPointerId !== null && dom.walkJump.hasPointerCapture(walkJumpPointerId)) {
-            dom.walkJump.releasePointerCapture(walkJumpPointerId);
+        if (walkJumpPointerId !== null && dom.jumpZone.hasPointerCapture(walkJumpPointerId)) {
+            dom.jumpZone.releasePointerCapture(walkJumpPointerId);
         }
         walkJumpPointerId = null;
-        dom.walkJump.classList.remove('active');
+        hideWalkJump();
         events.fire('jumpButton:changed', false);
     };
 
@@ -888,6 +910,7 @@ const initUI = (global: Global) => {
             state.hasCollision;
 
         dom.joystickZone.classList.toggle('hidden', !showJoystickZone);
+        dom.jumpZone.classList.toggle('hidden', !showJumpButton);
         dom.walkJump.classList.toggle('hidden', !showJumpButton);
         updateJoystickModeVisual();
 
@@ -897,6 +920,8 @@ const initUI = (global: Global) => {
 
         if (!showJumpButton) {
             releaseWalkJump();
+        } else if (walkJumpPointerId === null) {
+            hideWalkJump();
         }
     };
 
@@ -967,20 +992,32 @@ const initUI = (global: Global) => {
         }
     });
 
-    dom.walkJump.addEventListener('pointerdown', (event: PointerEvent) => {
+    dom.jumpZone.addEventListener('pointerdown', (event: PointerEvent) => {
         if (event.pointerType !== 'touch' || state.cameraMode !== 'walk' || state.inputMode !== 'touch') {
             return;
         }
 
         walkJumpPointerId = event.pointerId;
-        dom.walkJump.setPointerCapture(event.pointerId);
+        dom.jumpZone.setPointerCapture(event.pointerId);
+        positionWalkJump(event.clientX, event.clientY);
+        dom.walkJump.classList.remove('hidden');
+        dom.walkJump.classList.add('visible');
         dom.walkJump.classList.add('active');
         events.fire('jumpButton:changed', true);
         event.preventDefault();
         event.stopPropagation();
     });
 
-    dom.walkJump.addEventListener('pointerup', (event: PointerEvent) => {
+    dom.jumpZone.addEventListener('pointermove', (event: PointerEvent) => {
+        if (walkJumpPointerId !== event.pointerId) {
+            return;
+        }
+        positionWalkJump(event.clientX, event.clientY);
+        event.preventDefault();
+        event.stopPropagation();
+    });
+
+    dom.jumpZone.addEventListener('pointerup', (event: PointerEvent) => {
         if (walkJumpPointerId !== event.pointerId) {
             return;
         }
@@ -988,8 +1025,12 @@ const initUI = (global: Global) => {
         event.preventDefault();
         event.stopPropagation();
     });
-    dom.walkJump.addEventListener('pointercancel', releaseWalkJump);
-    dom.walkJump.addEventListener('lostpointercapture', releaseWalkJump);
+    dom.jumpZone.addEventListener('pointercancel', releaseWalkJump);
+    dom.jumpZone.addEventListener('lostpointercapture', () => {
+        if (walkJumpPointerId !== null) {
+            releaseWalkJump();
+        }
+    });
 
     events.on('joystickSession:reset', () => {
         endJoystickSession();
