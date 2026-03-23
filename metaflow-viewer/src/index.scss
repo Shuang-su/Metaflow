@@ -427,7 +427,7 @@ button {
                 }
             }
 
-            &.touch-expanded {
+            &.inline-expanded {
                 width: 68px;
                 background:
                     linear-gradient(180deg, rgba(0, 0, 0, 0.54) 0%, rgba(0, 0, 0, 0.42) 100%);
@@ -443,16 +443,6 @@ button {
                     width: 68px;
                     background: transparent;
                     box-shadow: none;
-                }
-            }
-
-            &.desktop-expanded {
-                width: auto;
-
-                > .submodeCapsule.desktop-inline {
-                    margin-left: 2px;
-                    border-radius: 6px;
-                    background-color: rgba(black, 0.42);
                 }
             }
         }

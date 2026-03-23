@@ -665,20 +665,16 @@ const initUI = (global: Global) => {
         const showTouchWalk = state.inputMode === 'touch' && state.cameraMode === 'walk' && !!config.voxelUrl && state.hasCollision;
         const showDesktopWalk = state.inputMode === 'desktop' && state.cameraMode === 'walk' && !!config.voxelUrl;
         const showWalkSubmodes = showTouchWalk || showDesktopWalk;
+        const showInlineWalk = showWalkSubmodes;
 
-        dom.flyModeGroup.classList.toggle('touch-expanded', showTouchFly);
-        dom.walkModeGroup.classList.toggle('touch-expanded', showTouchWalk);
-        dom.walkModeGroup.classList.toggle('desktop-expanded', showDesktopWalk);
+        dom.flyModeGroup.classList.toggle('inline-expanded', showTouchFly);
+        dom.walkModeGroup.classList.toggle('inline-expanded', showInlineWalk);
 
         dom.flyCamera.classList.toggle('hidden', showTouchFly);
-        dom.fpsCamera.classList.toggle('hidden', showTouchWalk);
+        dom.fpsCamera.classList.toggle('hidden', showInlineWalk);
 
         dom.flySubmodes.classList.toggle('hidden', !showTouchFly);
-        dom.flySubmodes.classList.toggle('touch-inline', showTouchFly);
-        dom.flySubmodes.classList.toggle('desktop-inline', false);
         dom.walkSubmodes.classList.toggle('hidden', !showWalkSubmodes || !state.hasCollision);
-        dom.walkSubmodes.classList.toggle('touch-inline', showTouchWalk);
-        dom.walkSubmodes.classList.toggle('desktop-inline', showDesktopWalk);
 
         dom.flyGestureMode.classList.toggle('hidden', !showTouchFly);
         dom.flyGamepadMode.classList.toggle('hidden', !showTouchFly);

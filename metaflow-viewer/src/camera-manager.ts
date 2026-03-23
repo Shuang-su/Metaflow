@@ -35,15 +35,12 @@ const createFrameCamera = (bbox: BoundingBox, fov: number) => {
     );
 };
 
-const resolveInitialCameraMode = (
+const resolvePreferredCameraMode = (
     preferred: CameraMode | undefined,
-    hasAnimation: boolean,
     isObjectExperience: boolean,
     hasCollider: boolean
 ): CameraMode => {
     switch (preferred) {
-        case 'anim':
-            return hasAnimation ? 'anim' : (isObjectExperience ? 'orbit' : 'fly');
         case 'orbit':
             return 'orbit';
         case 'fly':
@@ -51,8 +48,26 @@ const resolveInitialCameraMode = (
         case 'walk':
             return hasCollider ? 'walk' : 'fly';
         default:
-            return hasAnimation ? 'anim' : (isObjectExperience ? 'orbit' : 'fly');
+            return isObjectExperience ? 'orbit' : 'fly';
     }
+};
+
+const resolveInitialCameraMode = (
+    preferred: CameraMode | undefined,
+    hasAnimation: boolean,
+    startInAnimation: boolean,
+    isObjectExperience: boolean,
+    hasCollider: boolean
+): CameraMode => {
+    if (preferred === 'anim') {
+        return hasAnimation ? 'anim' : resolvePreferredCameraMode(undefined, isObjectExperience, hasCollider);
+    }
+
+    if (hasAnimation && startInAnimation) {
+        return 'anim';
+    }
+
+    return resolvePreferredCameraMode(preferred, isObjectExperience, hasCollider);
 };
 
 class CameraManager {
@@ -95,6 +110,7 @@ class CameraManager {
         // object experience starts outside the bounding box
         const isObjectExperience = !bbox.containsPoint(resetCamera.position);
         const animTrack = getAnimTrack(settings.hasStartPose ? resetCamera : frameCamera, isObjectExperience);
+        const startInAnimation = settings.startMode === 'animTrack';
 
         let currentCollider = collider;
         let pendingDefaultWalk = config.defaultCameraMode === 'walk' && !currentCollider;
@@ -122,11 +138,17 @@ class CameraManager {
         // set the global animation flag
         state.hasAnimation = !!controllers.anim;
         state.animationDuration = controllers.anim ? controllers.anim.animState.cursor.duration : 0;
+        const preferredMode = resolvePreferredCameraMode(
+            config.defaultCameraMode,
+            isObjectExperience,
+            !!currentCollider
+        );
 
         // initialize camera mode and initial camera position
         state.cameraMode = resolveInitialCameraMode(
             config.defaultCameraMode,
             state.hasAnimation,
+            startInAnimation,
             isObjectExperience,
             !!currentCollider
         );
@@ -134,8 +156,8 @@ class CameraManager {
 
         const target = new Camera(this.camera);             // the active controller updates this
         const from = new Camera(this.camera);               // stores the previous camera state during transition
-        let fromMode: CameraMode = isObjectExperience ? 'orbit' : 'fly';
-        let preWalkMode: CameraMode = isObjectExperience ? 'orbit' : 'fly';
+        let fromMode: CameraMode = preferredMode;
+        let preWalkMode: CameraMode = preferredMode;
         let hasHandledFirstAnimExit = false;
 
         this.setCollider = (nextCollider: VoxelCollider | null) => {
