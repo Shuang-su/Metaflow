@@ -265,6 +265,20 @@ button {
                 color: $clr-text-light;
             }
 
+            &:disabled,
+            &.disabled {
+                cursor: not-allowed;
+                color: rgba($clr-text, 0.45);
+
+                > svg > g.stroke {
+                    opacity: 0.2;
+                }
+
+                &:hover {
+                    color: rgba($clr-text, 0.45);
+                }
+            }
+
             &.active:not(.toggle) {
                 color: $clr-text-light;
                 background-color: rgba($clr-accent, 0.28);
@@ -309,6 +323,11 @@ button {
                 }
 
                 &:not(.active) {
+                    background-color: transparent;
+                }
+
+                &:disabled,
+                &.disabled {
                     background-color: transparent;
                 }
 

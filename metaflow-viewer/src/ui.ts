@@ -630,9 +630,15 @@ const initUI = (global: Global) => {
     };
 
     const updateWalkCameraVisibility = () => {
-        dom.fpsCamera.classList.toggle('hidden', !state.hasCollision);
-        dom.flyCamera.classList.toggle('middle', state.hasCollision);
-        dom.flyCamera.classList.toggle('right', !state.hasCollision);
+        const hasWalkCapability = !!config.voxelUrl;
+        const walkReady = state.hasCollision;
+
+        dom.fpsCamera.classList.toggle('hidden', !hasWalkCapability);
+        dom.fpsCamera.classList.toggle('disabled', hasWalkCapability && !walkReady);
+        (dom.fpsCamera as HTMLButtonElement).disabled = hasWalkCapability && !walkReady;
+
+        dom.flyCamera.classList.toggle('middle', hasWalkCapability);
+        dom.flyCamera.classList.toggle('right', !hasWalkCapability);
     };
 
     const updateVoxelOverlayUI = () => {
