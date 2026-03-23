@@ -875,7 +875,7 @@ const initUI = (global: Global) => {
 
     const positionWalkJump = (clientX: number, clientY: number) => {
         const rect = dom.jumpZone.getBoundingClientRect();
-        const radius = 24;
+        const radius = 27;
         if (rect.width > 0 && rect.height > 0) {
             walkJumpAnchorX = clamp(clientX, rect.left + radius, rect.right - radius);
             walkJumpAnchorY = clamp(clientY, rect.top + radius, rect.bottom - radius);

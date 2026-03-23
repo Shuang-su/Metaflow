@@ -15,6 +15,7 @@ OUTPUT_FILE = DATA_DIR / "index.json"
 # 类别配置
 CATEGORIES = {
     "acg": {"name": "二次元", "nameEn": "ACG Characters"},
+    "shenzhen": {"name": "深圳项目", "nameEn": "Shenzhen Projects"},
     "szcaee": {"name": "深圳文博会", "nameEn": "SZCAEE Exhibition"},
     "szmg": {"name": "深圳广电", "nameEn": "Shenzhen Media Group"},
     "sztu": {"name": "深圳技术大学", "nameEn": "SZTU"}
@@ -119,6 +120,147 @@ def parse_folder_name(folder_name):
     
     return {"date": None, "device": None, "title": folder_name}
 
+
+def find_settings_file(folder_path):
+    """查找 settings 文件，优先标准命名，再接受 settings-*.json"""
+    standard_file = folder_path / "settings.json"
+    if standard_file.exists():
+        return standard_file
+
+    settings_candidates = sorted(
+        file for file in folder_path.glob("settings*.json")
+        if file.is_file()
+    )
+    return settings_candidates[0] if settings_candidates else None
+
+
+def find_thumbnail_file(folder_path):
+    thumbnails = sorted(
+        file for pattern in ("*.jpg", "*.png")
+        for file in folder_path.glob(pattern)
+        if file.is_file()
+    )
+    return thumbnails[0] if thumbnails else None
+
+
+def find_voxel_file(folder_path):
+    preferred = folder_path / "walk.voxel.json"
+    if preferred.exists():
+        return preferred
+
+    voxel_candidates = sorted(
+        file for file in folder_path.glob("*.voxel.json")
+        if file.is_file()
+    )
+    return voxel_candidates[0] if voxel_candidates else None
+
+
+def find_streaming_model_file(folder_path):
+    for name in ("lod-meta.json", "meta.json"):
+        candidate = folder_path / name
+        if candidate.exists():
+            return candidate
+    return None
+
+
+def strip_json_comments(text):
+    """移除 JSONC 中的 // 和 /* */ 注释"""
+    result = []
+    in_string = False
+    string_quote = ''
+    escape = False
+    i = 0
+
+    while i < len(text):
+        char = text[i]
+        next_char = text[i + 1] if i + 1 < len(text) else ''
+
+        if in_string:
+            result.append(char)
+            if escape:
+                escape = False
+            elif char == '\\':
+                escape = True
+            elif char == string_quote:
+                in_string = False
+            i += 1
+            continue
+
+        if char in ('"', "'"):
+            in_string = True
+            string_quote = char
+            result.append(char)
+            i += 1
+            continue
+
+        if char == '/' and next_char == '/':
+            i += 2
+            while i < len(text) and text[i] not in '\r\n':
+                i += 1
+            continue
+
+        if char == '/' and next_char == '*':
+            i += 2
+            while i + 1 < len(text) and not (text[i] == '*' and text[i + 1] == '/'):
+                i += 1
+            i += 2
+            continue
+
+        result.append(char)
+        i += 1
+
+    return ''.join(result)
+
+
+def load_settings_json(settings_file):
+    if not settings_file or not settings_file.exists():
+        return None
+
+    try:
+        return json.loads(settings_file.read_text(encoding='utf-8'))
+    except json.JSONDecodeError:
+        try:
+            stripped = strip_json_comments(settings_file.read_text(encoding='utf-8'))
+            return json.loads(stripped)
+        except Exception:
+            return None
+    except Exception:
+        return None
+
+
+def get_voxel_size(voxel_file):
+    if not voxel_file:
+        return 0
+
+    total = voxel_file.stat().st_size
+    voxel_bin = voxel_file.with_suffix(".bin")
+    if voxel_bin.exists():
+        total += voxel_bin.stat().st_size
+    return total
+
+
+def get_streaming_model_size(folder_path, settings_file=None, thumbnail_file=None, voxel_file=None, environment_file=None):
+    excluded_paths = {
+        path.resolve()
+        for path in (settings_file, thumbnail_file, voxel_file, environment_file)
+        if path is not None and path.exists()
+    }
+
+    if voxel_file:
+        voxel_bin = voxel_file.with_suffix(".bin")
+        if voxel_bin.exists():
+            excluded_paths.add(voxel_bin.resolve())
+
+    total = 0
+    for file in folder_path.rglob("*"):
+        if not file.is_file() or file.name.startswith('.'):
+            continue
+        if file.resolve() in excluded_paths:
+            continue
+        total += file.stat().st_size
+
+    return total
+
 def scan_resource_folder(folder_path, category, subcategory=None):
     """扫描单个资源文件夹"""
     folder_name = folder_path.name
@@ -127,14 +269,17 @@ def scan_resource_folder(folder_path, category, subcategory=None):
     # 查找文件
     sog_files = list(folder_path.glob("*.sog"))
     ply_files = list(folder_path.glob("*.compressed.ply"))
-    settings_file = folder_path / "settings.json"
-    jpg_files = list(folder_path.glob("*.jpg")) + list(folder_path.glob("*.png"))
-    
-    if not sog_files:
+    streaming_model_file = find_streaming_model_file(folder_path)
+    settings_file = find_settings_file(folder_path)
+    thumbnail_file = find_thumbnail_file(folder_path)
+    voxel_file = find_voxel_file(folder_path)
+
+    if not sog_files and not streaming_model_file:
         return None  # 没有模型文件，跳过
     
     # 区分主模型和 LOD 文件
     main_model = None
+    model_mode = "legacy-sog"
     lod_files = []
     
     for sog in sog_files:
@@ -150,7 +295,10 @@ def scan_resource_folder(folder_path, category, subcategory=None):
         else:
             main_model = sog
     
-    if not main_model:
+    if not main_model and streaming_model_file:
+        main_model = streaming_model_file
+        model_mode = "streaming-json"
+    elif not main_model:
         # 如果只有 LOD 文件，取第一个作为主模型
         if lod_files:
             main_model = folder_path / lod_files[0]["file"].split("/")[-1].replace("_LOD1", "")
@@ -179,18 +327,23 @@ def scan_resource_folder(folder_path, category, subcategory=None):
     route_parts.append(slug)
     route = "/" + "/".join(route_parts)
     
-    # 读取 settings.json 获取额外信息
-    settings_data = None
-    if settings_file.exists():
-        try:
-            with open(settings_file, 'r', encoding='utf-8') as f:
-                settings_data = json.load(f)
-        except:
-            pass
+    # 读取 settings 获取额外信息
+    settings_data = load_settings_json(settings_file)
     
     # 计算文件大小
-    model_size = main_model.stat().st_size if main_model.exists() else 0
+    if model_mode == "streaming-json":
+        model_size = get_streaming_model_size(
+            folder_path,
+            settings_file=settings_file,
+            thumbnail_file=thumbnail_file,
+            voxel_file=voxel_file,
+            environment_file=environment_ply
+        )
+    else:
+        model_size = main_model.stat().st_size if main_model.exists() else 0
     env_size = environment_ply.stat().st_size if environment_ply else 0
+    thumbnail_size = thumbnail_file.stat().st_size if thumbnail_file else 0
+    voxel_size = get_voxel_size(voxel_file)
     
     resource = {
         "id": slug,
@@ -202,13 +355,14 @@ def scan_resource_folder(folder_path, category, subcategory=None):
         "files": {
             "model": str(main_model.relative_to(DATA_DIR)) if main_model.exists() else None,
             "environment": str(environment_ply.relative_to(DATA_DIR)) if environment_ply else None,
-            "settings": str(settings_file.relative_to(DATA_DIR)) if settings_file.exists() else None,
-            "thumbnail": str(jpg_files[0].relative_to(DATA_DIR)) if jpg_files else None
+            "settings": str(settings_file.relative_to(DATA_DIR)) if settings_file and settings_file.exists() else None,
+            "thumbnail": str(thumbnail_file.relative_to(DATA_DIR)) if thumbnail_file else None
         },
         "fileSize": {
             "model": model_size,
             "environment": env_size,
-            "total": model_size + env_size
+            "thumbnail": thumbnail_size,
+            "total": model_size + env_size + thumbnail_size
         },
         "meta": {
             "date": parsed["date"],
@@ -216,6 +370,11 @@ def scan_resource_folder(folder_path, category, subcategory=None):
             "folderName": folder_name
         }
     }
+
+    if voxel_file:
+        resource["files"]["voxel"] = str(voxel_file.relative_to(DATA_DIR))
+        resource["fileSize"]["voxel"] = voxel_size
+        resource["fileSize"]["total"] += voxel_size
     
     # 添加 LOD 信息
     if lod_files:

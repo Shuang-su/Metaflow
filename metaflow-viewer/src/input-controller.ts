@@ -330,9 +330,6 @@ class InputController {
             }
 
             if (state.cameraMode === 'fly' && event.pointerType === 'touch') {
-                if (state.flyInputMode === 'none') {
-                    setFlyInputMode('gesture');
-                }
                 this._touchGesturePrimed = true;
             }
 
@@ -376,6 +373,9 @@ class InputController {
             this._touchTapTracking = false;
             this._mouseClickDelta = 0;
             this._touchTapDelta = 0;
+            if (state.cameraMode === 'fly' && state.inputMode === 'touch' && state.flyInputMode === 'none') {
+                this._touchGesturePrimed = false;
+            }
             updateCanvasCursor();
         };
 
