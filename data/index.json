@@ -1,11 +1,15 @@
 {
   "version": "1.0",
   "lastUpdated": "2026-03-23",
-  "totalResources": 42,
+  "totalResources": 44,
   "categories": {
     "acg": {
       "name": "二次元",
       "nameEn": "ACG Characters"
+    },
+    "shenzhen": {
+      "name": "深圳项目",
+      "nameEn": "Shenzhen Projects"
     },
     "szcaee": {
       "name": "深圳文博会",
@@ -1165,6 +1169,43 @@
       "animation": {
         "duration": 75,
         "frameRate": 60,
+        "loopMode": "repeat"
+      }
+    },
+    {
+      "id": "dayun",
+      "title": "Dayun",
+      "titleEn": "Dayun",
+      "category": [
+        "shenzhen"
+      ],
+      "route": "/shenzhen/dayun",
+      "source": "photogrammetry",
+      "viewer": {
+        "defaultCameraMode": "fly"
+      },
+      "files": {
+        "model": "Shenzhen/250917 Dayun/lod-meta.json",
+        "environment": null,
+        "settings": "Shenzhen/250917 Dayun/settings-rx90-close.json",
+        "thumbnail": "Shenzhen/250917 Dayun/250917 dayun.jpg",
+        "voxel": "Shenzhen/250917 Dayun/walk.voxel.json"
+      },
+      "fileSize": {
+        "model": 5203432324,
+        "environment": 0,
+        "voxel": 170348287,
+        "thumbnail": 10782680,
+        "total": 5384563291
+      },
+      "meta": {
+        "date": "2025-09-17",
+        "device": null,
+        "folderName": "250917 Dayun"
+      },
+      "animation": {
+        "duration": 48,
+        "frameRate": 1,
         "loopMode": "repeat"
       }
     },
