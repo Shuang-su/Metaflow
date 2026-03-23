@@ -156,8 +156,13 @@ class CameraManager {
         getController(state.cameraMode).onEnter(this.camera);
 
         // transition time between cameras
-        const transitionSpeed = 2.0;
+        const transitionSpeed = 1.0;
         let transitionTimer = 1;
+
+        const startTransition = () => {
+            from.copy(this.camera);
+            transitionTimer = 0;
+        };
 
         // application update
         this.update = (deltaTime: number, frame: CameraFrame) => {
@@ -195,10 +200,12 @@ class CameraManager {
                 case 'frame':
                     state.cameraMode = 'orbit';
                     controllers.orbit.goto(frameCamera);
+                    startTransition();
                     break;
                 case 'reset':
                     state.cameraMode = 'orbit';
                     controllers.orbit.goto(resetCamera);
+                    startTransition();
                     break;
                 case 'playPause':
                     if (state.hasAnimation) {
@@ -252,7 +259,7 @@ class CameraManager {
 
             // store previous camera mode and pose
             target.copy(this.camera);
-            from.copy(this.camera);
+            startTransition();
             fromMode = prev;
 
             // exit the old controller
@@ -263,8 +270,6 @@ class CameraManager {
             const newController = getController(value);
             newController.onEnter(this.camera);
 
-            // reset camera transition timer
-            transitionTimer = 0;
         });
 
         // tap/click-to-walk auto navigation in walk mode
@@ -303,6 +308,7 @@ class CameraManager {
             tmpCamera.look(this.camera.position, position);
 
             controllers.orbit.goto(tmpCamera);
+            startTransition();
         });
 
         events.on('annotation.activate', (annotation: Annotation) => {
@@ -319,6 +325,7 @@ class CameraManager {
             );
 
             controllers.orbit.goto(tmpCamera);
+            startTransition();
         });
     }
 }

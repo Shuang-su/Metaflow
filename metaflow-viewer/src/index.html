@@ -259,6 +259,15 @@
                         </button>
                     </div>
 
+                    <div id="firstPersonSubmodes" class="buttonGroup hidden">
+                        <button id="flyGestureMode" class="controlButton submode hidden">Gesture</button>
+                        <button id="flyGamepadMode" class="controlButton submode hidden">Gamepad</button>
+                        <button id="walkTouchMode" class="controlButton submode hidden">Touch</button>
+                        <button id="walkGamepadMode" class="controlButton submode hidden">Gamepad</button>
+                        <button id="walkClickMode" class="controlButton submode hidden">Click</button>
+                        <button id="walkKeyboardMode" class="controlButton submode hidden">Keyboard</button>
+                    </div>
+
                     <div class="buttonGroup">
                         <button id="arMode" class="controlButton hidden">
                             <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28">
@@ -322,11 +331,6 @@
                     <div id="retinaDisplayOption">Retina Display</div>
                     <div id="retinaDisplayCheck" class="toggleSwitch"><div class="toggleTrack"><div class="toggleThumb"></div></div></div>
                 </div>
-                <div id="gamingControlsDivider" class="divider"></div>
-                <div id="gamingControlsRow" class="settingsRow">
-                    <div id="gamingControlsOption">Gaming Controls</div>
-                    <div id="gamingControlsCheck" class="toggleSwitch"><div class="toggleTrack"><div class="toggleThumb"></div></div></div>
-                </div>
                 <div class="divider"></div>
                 <div class="settingsRow">
                     <button id="frame">Frame</button>
@@ -385,33 +389,25 @@
                             </div>
                             <div class="control-spacer"></div>
                             <h1>Walk Mode</h1>
-                            <div id="desktopClickToWalk">
-                                <div class="control-item">
-                                    <span class="control-action">Walk To</span>
-                                    <span class="control-key">Click</span>
-                                </div>
-                                <div class="control-item">
-                                    <span class="control-action">Look Around</span>
-                                    <span class="control-key">Click + Drag</span>
-                                </div>
+                            <div class="control-item">
+                                <span class="control-action">Click Mode</span>
+                                <span class="control-key">Click / Drag</span>
                             </div>
-                            <div id="desktopGamingControls" class="hidden">
-                                <div class="control-item">
-                                    <span class="control-action">Look Around</span>
-                                    <span class="control-key">Mouse</span>
-                                </div>
-                                <div class="control-item">
-                                    <span class="control-action">Move</span>
-                                    <span class="control-key">W,S,A,D</span>
-                                </div>
-                                <div class="control-item">
-                                    <span class="control-action">Jump</span>
-                                    <span class="control-key">Space</span>
-                                </div>
-                                <div class="control-item">
-                                    <span class="control-action">Back To Click Walk</span>
-                                    <span class="control-key">Esc</span>
-                                </div>
+                            <div class="control-item">
+                                <span class="control-action">Keyboard Mode</span>
+                                <span class="control-key">Keyboard Button</span>
+                            </div>
+                            <div class="control-item">
+                                <span class="control-action">Auto Switch To Keyboard</span>
+                                <span class="control-key">W,S,A,D</span>
+                            </div>
+                            <div class="control-item">
+                                <span class="control-action">Jump</span>
+                                <span class="control-key">Space</span>
+                            </div>
+                            <div class="control-item">
+                                <span class="control-action">Back To Click Walk</span>
+                                <span class="control-key">Esc</span>
                             </div>
                             <div class="control-spacer"></div>
                             <h1>Mode Switching</h1>
@@ -439,10 +435,6 @@
                                 <span class="control-action">Toggle Help</span>
                                 <span class="control-key">H</span>
                             </div>
-                            <div class="control-item">
-                                <span class="control-action">Toggle Gaming Controls</span>
-                                <span class="control-key">G</span>
-                            </div>
                         </div>
                         <div id="touchInfoPanel" class="hidden">
                             <div class="control-spacer"></div>
@@ -465,51 +457,39 @@
                             </div>
                             <div class="control-spacer"></div>
                             <h1>Fly Mode</h1>
-                            <div id="touchFlyClickToWalk">
-                                <div class="control-item">
-                                    <span class="control-action">Look Around</span>
-                                    <span class="control-key">Touch + Drag</span>
-                                </div>
-                                <div class="control-item">
-                                    <span class="control-action">Move</span>
-                                    <span class="control-key">Pinch / Two Finger Drag</span>
-                                </div>
+                            <div class="control-item">
+                                <span class="control-action">Default</span>
+                                <span class="control-key">None</span>
                             </div>
-                            <div id="touchFlyGamingControls" class="hidden">
-                                <div class="control-item">
-                                    <span class="control-action">Look Around</span>
-                                    <span class="control-key">Touch + Drag</span>
-                                </div>
-                                <div class="control-item">
-                                    <span class="control-action">Move</span>
-                                    <span class="control-key">Joystick</span>
-                                </div>
+                            <div class="control-item">
+                                <span class="control-action">Gesture Mode</span>
+                                <span class="control-key">Drag / Pinch / Two Finger Drag</span>
+                            </div>
+                            <div class="control-item">
+                                <span class="control-action">Gamepad Mode</span>
+                                <span class="control-key">Joystick</span>
+                            </div>
+                            <div class="control-item">
+                                <span class="control-action">Joystick 1D / 2D</span>
+                                <span class="control-key">Double Tap Joystick</span>
                             </div>
                             <div class="control-spacer"></div>
                             <h1>Walk Mode</h1>
-                            <div id="touchClickToWalk">
-                                <div class="control-item">
-                                    <span class="control-action">Walk To</span>
-                                    <span class="control-key">Tap</span>
-                                </div>
-                                <div class="control-item">
-                                    <span class="control-action">Look Around</span>
-                                    <span class="control-key">Touch + Drag</span>
-                                </div>
+                            <div class="control-item">
+                                <span class="control-action">Default</span>
+                                <span class="control-key">None</span>
                             </div>
-                            <div id="touchGamingControls" class="hidden">
-                                <div class="control-item">
-                                    <span class="control-action">Look Around</span>
-                                    <span class="control-key">Touch + Drag</span>
-                                </div>
-                                <div class="control-item">
-                                    <span class="control-action">Move</span>
-                                    <span class="control-key">Joystick</span>
-                                </div>
-                                <div class="control-item">
-                                    <span class="control-action">Jump</span>
-                                    <span class="control-key">Tap</span>
-                                </div>
+                            <div class="control-item">
+                                <span class="control-action">TouchClick Mode</span>
+                                <span class="control-key">Tap Ground / Drag View</span>
+                            </div>
+                            <div class="control-item">
+                                <span class="control-action">Gamepad Mode</span>
+                                <span class="control-key">Joystick</span>
+                            </div>
+                            <div class="control-item">
+                                <span class="control-action">Jump</span>
+                                <span class="control-key">Tap</span>
                             </div>
                         </div>
                     </div>

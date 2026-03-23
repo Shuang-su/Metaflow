@@ -6,6 +6,8 @@ type CameraMode = 'orbit' | 'anim' | 'fly' | 'walk';
 
 type WalkInputMode = 'none' | 'gamepad' | 'touchclick' | 'keyboard' | 'mouseclick';
 
+type FlyInputMode = 'none' | 'gesture' | 'gamepad';
+
 type InputMode = 'desktop' | 'touch';
 
 type LoadMode = 'legacy-sog' | 'streaming-json';
@@ -52,7 +54,7 @@ type State = {
     loaded: boolean;                            // true once first frame is rendered
     readyToRender: boolean;                     // don't render till this is set
     retinaDisplay: boolean;                     // controls canvas pixel density
-    gamingControls: boolean;                    // keep touch fly joystick visible when enabled
+    gamingControls: boolean;                    // shared runtime semantic for "direct-control" submodes
     hqMode: boolean;
     loadingMode: LoadMode;                      // current loading strategy
     loadingStage: LoadingStage;                 // structured loading stage for UI/logging
@@ -61,6 +63,7 @@ type State = {
     loadingStatus: string;                      // current loading status text
     inputMode: InputMode;
     cameraMode: CameraMode;
+    flyInputMode: FlyInputMode;                 // touch fly first-input lock mode
     walkInputMode: WalkInputMode;               // first-input lock mode for walk
     walkInputLocked: boolean;
     hasAnimation: boolean;
@@ -85,4 +88,4 @@ type Global = {
     camera: Entity;
 };
 
-export { CameraMode, InputMode, WalkInputMode, LoadMode, LoadingStage, Config, State, Global };
+export { CameraMode, InputMode, WalkInputMode, FlyInputMode, LoadMode, LoadingStage, Config, State, Global };

@@ -1,10 +1,8 @@
-import { EventHandler, Vec3 } from 'playcanvas';
+import { EventHandler } from 'playcanvas';
 
 import type { Annotation as AnnotationSettings } from './settings';
 import { Tooltip } from './tooltip';
-import type { CameraMode, Global, WalkInputMode } from './types';
-
-const v = new Vec3();
+import type { CameraMode, FlyInputMode, Global, WalkInputMode } from './types';
 
 const WALK_HINT_DURATION_MS = 6000;
 const WALK_HINT_DISMISS_GRACE_MS = 150;
@@ -140,14 +138,14 @@ const initUI = (global: Global) => {
         'play', 'pause',
         'settings', 'settingsPanel',
         'orbitCamera', 'flyCamera', 'fpsCamera',
+        'firstPersonSubmodes',
+        'flyGestureMode', 'flyGamepadMode',
+        'walkTouchMode', 'walkGamepadMode',
+        'walkClickMode', 'walkKeyboardMode',
         'showVoxels',
         'walkHint',
         'hqRow', 'hqCheck', 'hqOption', 'lqRow', 'lqCheck', 'lqOption',
         'retinaDisplayCheck', 'retinaDisplayOption', 'retinaDisplayRow',
-        'gamingControlsDivider', 'gamingControlsCheck', 'gamingControlsOption', 'gamingControlsRow',
-        'desktopClickToWalk', 'desktopGamingControls',
-        'touchFlyClickToWalk', 'touchFlyGamingControls',
-        'touchClickToWalk', 'touchGamingControls',
         'reset', 'frame',
         'loadingText', 'loadingBar', 'loadingStatus',
         'joystickBase', 'joystick',
@@ -297,63 +295,6 @@ const initUI = (global: Global) => {
     events.on('retinaDisplay:changed', updateRetinaDisplay);
     updateRetinaDisplay();
 
-    const resetWalkJoystick = () => {
-        dom.joystick.style.left = '50px';
-        dom.joystick.style.top = '50px';
-        events.fire('joystickInput', { x: 0, y: 0 });
-    };
-
-    const applyWalkGamingControls = (enabled: boolean) => {
-        state.gamingControls = enabled;
-
-        if (state.cameraMode !== 'walk') {
-            return;
-        }
-
-        state.walkInputLocked = true;
-        state.walkInputMode = enabled
-            ? (state.inputMode === 'touch' ? 'gamepad' : 'keyboard')
-            : (state.inputMode === 'touch' ? 'touchclick' : 'mouseclick');
-
-        if (!enabled) {
-            events.fire('walkCancel');
-            resetWalkJoystick();
-        }
-    };
-
-    dom.gamingControlsRow.addEventListener('click', () => {
-        if (state.cameraMode === 'walk') {
-            const walkGamingActive = state.walkInputMode === 'keyboard' || state.walkInputMode === 'gamepad';
-            applyWalkGamingControls(!walkGamingActive);
-            return;
-        }
-
-        state.gamingControls = !state.gamingControls;
-    });
-
-    const updateGamingHelpState = () => {
-        const desktopGaming = state.walkInputMode === 'keyboard';
-        const touchGaming = state.walkInputMode === 'gamepad';
-        const flyTouchGaming = state.gamingControls && state.inputMode === 'touch';
-
-        dom.desktopClickToWalk.classList.toggle('hidden', desktopGaming);
-        dom.desktopGamingControls.classList.toggle('hidden', !desktopGaming);
-        dom.touchFlyClickToWalk.classList.toggle('hidden', flyTouchGaming);
-        dom.touchFlyGamingControls.classList.toggle('hidden', !flyTouchGaming);
-        dom.touchClickToWalk.classList.toggle('hidden', touchGaming);
-        dom.touchGamingControls.classList.toggle('hidden', !touchGaming);
-
-        const walkGamingActive = desktopGaming || touchGaming;
-        dom.gamingControlsCheck.classList.toggle('active', state.cameraMode === 'walk' ? walkGamingActive : state.gamingControls);
-        localStorage.setItem('gamingControls', String(state.cameraMode === 'walk' ? walkGamingActive : state.gamingControls));
-    };
-
-    events.on('gamingControls:changed', updateGamingHelpState);
-    events.on('walkInputMode:changed', updateGamingHelpState);
-    events.on('cameraMode:changed', updateGamingHelpState);
-    events.on('inputMode:changed', updateGamingHelpState);
-    updateGamingHelpState();
-
     const arChanged = () => dom.arMode.classList[state.hasAR ? 'remove' : 'add']('hidden');
     const vrChanged = () => dom.vrMode.classList[state.hasVR ? 'remove' : 'add']('hidden');
 
@@ -398,16 +339,29 @@ const initUI = (global: Global) => {
         emitWalkHintState();
     };
 
-    const getModeHintText = (cameraMode: CameraMode, walkMode: WalkInputMode = state.walkInputMode) => {
+    const getModeHintText = (
+        cameraMode: CameraMode,
+        walkMode: WalkInputMode = state.walkInputMode,
+        flyMode: FlyInputMode = state.flyInputMode
+    ) => {
         switch (cameraMode) {
             case 'orbit':
                 return state.inputMode === 'touch'
                     ? '单指旋转，双指平移，双指缩放。'
                     : '左键旋转，右键平移，滚轮缩放。';
             case 'fly':
-                return state.inputMode === 'touch'
-                    ? '拖动画面观察，使用摇杆或双指手势移动。'
-                    : '拖动画面观察，WASD 移动。';
+                if (state.inputMode === 'touch') {
+                    switch (flyMode) {
+                        case 'gesture':
+                            return '拖动画面观察，双指拖动与捏合移动。';
+                        case 'gamepad':
+                            return '拖动摇杆移动，拖动画面观察，双点摇杆可切 1D / 2D。';
+                        case 'none':
+                        default:
+                            return '拖动画面观察；先用摇杆进入 Gamepad，先用手势进入 Gesture。';
+                    }
+                }
+                return '拖动画面观察，WASD 移动。';
             case 'walk':
                 switch (walkMode) {
                     case 'keyboard':
@@ -448,8 +402,12 @@ const initUI = (global: Global) => {
         }, WALK_HINT_DURATION_MS);
     };
 
-    const showCurrentModeHint = (cameraMode: CameraMode = state.cameraMode, walkMode: WalkInputMode = state.walkInputMode) => {
-        const text = getModeHintText(cameraMode, walkMode);
+    const showCurrentModeHint = (
+        cameraMode: CameraMode = state.cameraMode,
+        walkMode: WalkInputMode = state.walkInputMode,
+        flyMode: FlyInputMode = state.flyInputMode
+    ) => {
+        const text = getModeHintText(cameraMode, walkMode, flyMode);
         if (!text) {
             hideWalkHint();
             return;
@@ -522,7 +480,7 @@ const initUI = (global: Global) => {
 
     events.on('cameraMode:changed', (value: CameraMode) => {
         if (value === 'orbit' || value === 'fly' || value === 'walk') {
-            showCurrentModeHint(value, value === 'walk' ? 'none' : state.walkInputMode);
+            showCurrentModeHint(value, value === 'walk' ? 'none' : state.walkInputMode, value === 'fly' ? 'none' : state.flyInputMode);
         } else {
             hideWalkHint();
         }
@@ -534,10 +492,18 @@ const initUI = (global: Global) => {
         }
     });
 
+    events.on('flyInputMode:changed', (value: FlyInputMode) => {
+        if (state.cameraMode === 'fly' && value !== 'none') {
+            showCurrentModeHint('fly', state.walkInputMode, value);
+        }
+    });
+
     events.on('inputMode:changed', () => {
         if (walkHintVisible) {
             if (state.cameraMode === 'walk') {
                 showCurrentModeHint('walk', state.walkInputMode);
+            } else if (state.cameraMode === 'fly') {
+                showCurrentModeHint('fly', state.walkInputMode, state.flyInputMode);
             } else {
                 showCurrentModeHint(state.cameraMode);
             }
@@ -596,6 +562,7 @@ const initUI = (global: Global) => {
         dom.play.classList.toggle('hidden', state.cameraMode === 'anim' && !state.animationPaused);
         dom.pause.classList.toggle('hidden', state.cameraMode !== 'anim' || state.animationPaused);
         dom.timelineContainer.classList.toggle('hidden', state.cameraMode !== 'anim');
+        dom.ui.classList.toggle('timeline-active', state.cameraMode === 'anim');
     };
 
     events.on('cameraMode:changed', updatePlayPause);
@@ -650,6 +617,21 @@ const initUI = (global: Global) => {
         }
     });
 
+    const setWalkMode = (mode: WalkInputMode) => {
+        state.walkInputMode = mode;
+        state.walkInputLocked = mode !== 'none';
+        if (mode !== 'none') {
+            events.fire('walkCancel');
+        }
+    };
+
+    const setFlyMode = (mode: FlyInputMode) => {
+        state.flyInputMode = mode;
+        if (mode !== 'gamepad') {
+            events.fire('joystickSession:reset');
+        }
+    };
+
     const updateCameraModeUI = () => {
         dom.orbitCamera.classList.toggle('active', state.cameraMode === 'orbit');
         dom.flyCamera.classList.toggle('active', state.cameraMode === 'fly');
@@ -668,17 +650,46 @@ const initUI = (global: Global) => {
         dom.flyCamera.classList.toggle('right', !hasWalkCapability);
     };
 
+    const updateFirstPersonSubmodes = () => {
+        const showTouchFly = state.inputMode === 'touch' && state.cameraMode === 'fly';
+        const showTouchWalk = state.inputMode === 'touch' && state.cameraMode === 'walk' && !!config.voxelUrl;
+        const showDesktopWalk = state.inputMode === 'desktop' && state.cameraMode === 'walk' && !!config.voxelUrl;
+        const showAny = showTouchFly || showTouchWalk || showDesktopWalk;
+
+        dom.firstPersonSubmodes.classList.toggle('hidden', !showAny);
+
+        dom.flyGestureMode.classList.toggle('hidden', !showTouchFly);
+        dom.flyGamepadMode.classList.toggle('hidden', !showTouchFly);
+        dom.walkTouchMode.classList.toggle('hidden', !showTouchWalk);
+        dom.walkGamepadMode.classList.toggle('hidden', !showTouchWalk);
+        dom.walkClickMode.classList.toggle('hidden', !showDesktopWalk);
+        dom.walkKeyboardMode.classList.toggle('hidden', !showDesktopWalk);
+
+        dom.flyGestureMode.classList.toggle('active', showTouchFly && state.flyInputMode === 'gesture');
+        dom.flyGamepadMode.classList.toggle('active', showTouchFly && state.flyInputMode === 'gamepad');
+        dom.walkTouchMode.classList.toggle('active', showTouchWalk && state.walkInputMode === 'touchclick');
+        dom.walkGamepadMode.classList.toggle('active', showTouchWalk && state.walkInputMode === 'gamepad');
+        dom.walkClickMode.classList.toggle('active', showDesktopWalk && state.walkInputMode === 'mouseclick');
+        dom.walkKeyboardMode.classList.toggle('active', showDesktopWalk && state.walkInputMode === 'keyboard');
+    };
+
     const updateVoxelOverlayUI = () => {
         dom.showVoxels.classList.toggle('hidden', !state.hasVoxelOverlay);
         dom.showVoxels.classList.toggle('active', state.voxelOverlayEnabled);
     };
 
     events.on('cameraMode:changed', updateCameraModeUI);
+    events.on('cameraMode:changed', updateFirstPersonSubmodes);
+    events.on('inputMode:changed', updateFirstPersonSubmodes);
+    events.on('walkInputMode:changed', updateFirstPersonSubmodes);
+    events.on('flyInputMode:changed', updateFirstPersonSubmodes);
     events.on('hasCollision:changed', updateWalkCameraVisibility);
+    events.on('hasCollision:changed', updateFirstPersonSubmodes);
     events.on('hasVoxelOverlay:changed', updateVoxelOverlayUI);
     events.on('voxelOverlayEnabled:changed', updateVoxelOverlayUI);
     updateCameraModeUI();
     updateWalkCameraVisibility();
+    updateFirstPersonSubmodes();
     updateVoxelOverlayUI();
 
     dom.orbitCamera.addEventListener('click', () => {
@@ -694,6 +705,43 @@ const initUI = (global: Global) => {
         events.fire('inputEvent', 'toggleWalk');
     });
 
+    dom.flyGestureMode.addEventListener('click', () => {
+        if (state.cameraMode === 'fly') {
+            setFlyMode('gesture');
+        }
+    });
+
+    dom.flyGamepadMode.addEventListener('click', () => {
+        if (state.cameraMode === 'fly') {
+            setFlyMode('gamepad');
+        }
+    });
+
+    dom.walkTouchMode.addEventListener('click', () => {
+        if (state.cameraMode === 'walk') {
+            setWalkMode('touchclick');
+        }
+    });
+
+    dom.walkGamepadMode.addEventListener('click', () => {
+        if (state.cameraMode === 'walk') {
+            setWalkMode('gamepad');
+            events.fire('walkCancel');
+        }
+    });
+
+    dom.walkClickMode.addEventListener('click', () => {
+        if (state.cameraMode === 'walk') {
+            setWalkMode('mouseclick');
+        }
+    });
+
+    dom.walkKeyboardMode.addEventListener('click', () => {
+        if (state.cameraMode === 'walk') {
+            setWalkMode('keyboard');
+        }
+    });
+
     dom.showVoxels.addEventListener('click', () => {
         if (!state.hasVoxelOverlay) return;
         state.voxelOverlayEnabled = !state.voxelOverlayEnabled;
@@ -707,148 +755,145 @@ const initUI = (global: Global) => {
         events.fire('inputEvent', 'frame', event);
     });
 
-    const joystickBaseX = 84;
-    const joystickBaseY = () => window.innerHeight - 120;
-    const joystickCenter = 50;
-    const joystickRadius = 30;
-    let walkJoystickPointerId: number | null = null;
+    const joystickBaseX = 70;
+    const joystickBaseY = () => window.innerHeight - 140;
+    let joystickPointerId: number | null = null;
+    let joystickMode: '1d' | '2d' = '2d';
+    let lastJoystickTap = 0;
 
-    const updateWalkJoystickVisibility = () => {
-        const showWalkJoystick = state.cameraMode === 'walk' &&
-            state.inputMode === 'touch' &&
-            (!state.walkInputLocked || state.walkInputMode === 'gamepad');
+    const shouldShowJoystickShell = () =>
+        state.inputMode === 'touch' &&
+        (state.cameraMode === 'fly' || (state.cameraMode === 'walk' && !!config.voxelUrl));
 
-        if (showWalkJoystick) {
-            dom.joystickBase.classList.remove('hidden');
-            dom.joystickBase.style.left = `${joystickBaseX}px`;
-            dom.joystickBase.style.top = `${joystickBaseY()}px`;
-            if (state.walkInputMode !== 'gamepad') {
-                resetWalkJoystick();
-            }
+    const isJoystickActive = () =>
+        state.inputMode === 'touch' &&
+        ((state.cameraMode === 'fly' && state.flyInputMode === 'gamepad') ||
+            (state.cameraMode === 'walk' && state.walkInputMode === 'gamepad'));
+
+    const getJoystickMetrics = () => {
+        const rect = dom.joystickBase.getBoundingClientRect();
+        const knobSize = dom.joystick.getBoundingClientRect().width || 40;
+        const centerX = rect.width / 2;
+        const centerY = rect.height / 2;
+        const maxTravel = Math.max(0, Math.min(rect.width, rect.height) / 2 - knobSize / 2);
+        return { rect, centerX, centerY, maxTravel };
+    };
+
+    const resetJoystickVisual = () => {
+        const rect = dom.joystickBase.getBoundingClientRect();
+        const centerX = rect.width / 2;
+        const centerY = rect.height / 2;
+        dom.joystick.style.left = `${centerX}px`;
+        dom.joystick.style.top = `${centerY}px`;
+        events.fire('joystickInput', { x: 0, y: 0 });
+    };
+
+    const updateJoystickVisibility = () => {
+        const showShell = shouldShowJoystickShell();
+        const active = isJoystickActive();
+
+        dom.joystickBase.classList.toggle('hidden', !showShell);
+        if (!showShell) {
             return;
         }
 
-        if (state.cameraMode === 'fly' && state.inputMode === 'touch' && state.gamingControls) {
-            dom.joystickBase.classList.remove('hidden');
-            dom.joystickBase.style.left = `${joystickBaseX}px`;
-            dom.joystickBase.style.top = `${joystickBaseY()}px`;
-            dom.joystick.style.left = `${joystickCenter}px`;
-            dom.joystick.style.top = `${joystickCenter}px`;
-            return;
+        dom.joystickBase.classList.toggle('mode-2d', joystickMode === '2d');
+        dom.joystickBase.classList.toggle('passive', !active);
+        dom.joystickBase.classList.toggle('active', active);
+        dom.joystickBase.style.left = `${joystickBaseX}px`;
+        dom.joystickBase.style.top = `${joystickBaseY()}px`;
+
+        if (!active) {
+            resetJoystickVisual();
+        }
+    };
+
+    const updateJoystickStick = (clientX: number, clientY: number) => {
+        const { rect, centerX, centerY, maxTravel } = getJoystickMetrics();
+        let dx = clientX - (rect.left + centerX);
+        let dy = clientY - (rect.top + centerY);
+
+        if (joystickMode === '1d') {
+            dx = 0;
         }
 
-        dom.joystickBase.classList.add('hidden');
+        const length = Math.hypot(dx, dy);
+        if (length > maxTravel && length > 0) {
+            const scale = maxTravel / length;
+            dx *= scale;
+            dy *= scale;
+        }
+
+        dom.joystick.style.left = `${centerX + dx}px`;
+        dom.joystick.style.top = `${centerY + dy}px`;
+        events.fire('joystickInput', {
+            x: maxTravel > 0 ? dx / maxTravel : 0,
+            y: maxTravel > 0 ? dy / maxTravel : 0
+        });
+    };
+
+    const endJoystickSession = (event?: PointerEvent) => {
+        if (event && joystickPointerId !== event.pointerId) {
+            return;
+        }
+        if (event && dom.joystickBase.hasPointerCapture(event.pointerId)) {
+            dom.joystickBase.releasePointerCapture(event.pointerId);
+        }
+        joystickPointerId = null;
+        resetJoystickVisual();
+        updateJoystickVisibility();
     };
 
     dom.joystickBase.addEventListener('pointerdown', (event: PointerEvent) => {
-        if (state.cameraMode !== 'walk' || state.inputMode !== 'touch') {
+        if (!shouldShowJoystickShell() || state.inputMode !== 'touch') {
             return;
         }
 
-        state.walkInputMode = 'gamepad';
-        state.walkInputLocked = true;
-        state.gamingControls = true;
-        events.fire('walkCancel');
+        const now = Date.now();
+        if (now - lastJoystickTap < 320) {
+            joystickMode = joystickMode === '1d' ? '2d' : '1d';
+            lastJoystickTap = 0;
+            updateJoystickVisibility();
+        } else {
+            lastJoystickTap = now;
+        }
 
-        walkJoystickPointerId = event.pointerId;
+        if (state.cameraMode === 'fly' && state.flyInputMode !== 'gamepad') {
+            setFlyMode('gamepad');
+        }
+        if (state.cameraMode === 'walk' && state.walkInputMode !== 'gamepad') {
+            setWalkMode('gamepad');
+            events.fire('walkCancel');
+        }
+
+        joystickPointerId = event.pointerId;
         dom.joystickBase.setPointerCapture(event.pointerId);
+        updateJoystickVisibility();
+        updateJoystickStick(event.clientX, event.clientY);
         event.preventDefault();
         event.stopPropagation();
     });
 
     dom.joystickBase.addEventListener('pointermove', (event: PointerEvent) => {
-        if (state.cameraMode !== 'walk' || walkJoystickPointerId !== event.pointerId || state.walkInputMode !== 'gamepad') {
+        if (joystickPointerId !== event.pointerId || !isJoystickActive()) {
             return;
         }
-
-        const rect = dom.joystickBase.getBoundingClientRect();
-        const cx = rect.left + rect.width / 2;
-        const cy = rect.top + rect.height / 2;
-        let dx = event.clientX - cx;
-        let dy = event.clientY - cy;
-        const len = Math.hypot(dx, dy);
-        if (len > joystickRadius) {
-            dx = dx / len * joystickRadius;
-            dy = dy / len * joystickRadius;
-        }
-
-        dom.joystick.style.left = `${joystickCenter + dx}px`;
-        dom.joystick.style.top = `${joystickCenter + dy}px`;
-        events.fire('joystickInput', { x: dx / joystickRadius, y: dy / joystickRadius });
+        updateJoystickStick(event.clientX, event.clientY);
         event.preventDefault();
     });
 
-    const endWalkJoystick = (event: PointerEvent) => {
-        if (walkJoystickPointerId !== event.pointerId) {
-            return;
-        }
-        walkJoystickPointerId = null;
-        resetWalkJoystick();
-        dom.joystickBase.releasePointerCapture(event.pointerId);
-    };
+    dom.joystickBase.addEventListener('pointerup', endJoystickSession);
+    dom.joystickBase.addEventListener('pointercancel', endJoystickSession);
 
-    dom.joystickBase.addEventListener('pointerup', endWalkJoystick);
-    dom.joystickBase.addEventListener('pointercancel', endWalkJoystick);
-
-    canvas.addEventListener('pointerdown', (event: PointerEvent) => {
-        if (state.cameraMode !== 'walk' || state.walkInputLocked) {
-            return;
-        }
-
-        if (event.pointerType === 'touch') {
-            state.walkInputMode = 'touchclick';
-            state.walkInputLocked = true;
-            state.gamingControls = false;
-            resetWalkJoystick();
-            updateWalkJoystickVisibility();
-        } else if (event.button === 0) {
-            state.walkInputMode = 'mouseclick';
-            state.walkInputLocked = true;
-            state.gamingControls = false;
-        }
+    events.on('joystickSession:reset', () => {
+        endJoystickSession();
     });
-
-    events.on('cameraMode:changed', () => {
-        if (state.cameraMode === 'walk') {
-            state.walkInputMode = 'none';
-            state.walkInputLocked = false;
-            state.gamingControls = false;
-            walkJoystickPointerId = null;
-            resetWalkJoystick();
-        } else {
-            walkJoystickPointerId = null;
-            resetWalkJoystick();
-        }
-        updateWalkJoystickVisibility();
-    });
-
-    events.on('inputMode:changed', updateWalkJoystickVisibility);
-    events.on('gamingControls:changed', updateWalkJoystickVisibility);
-    events.on('walkInputMode:changed', updateWalkJoystickVisibility);
-    window.addEventListener('resize', updateWalkJoystickVisibility);
-
-    events.on('touchJoystickUpdate', (base: [number, number] | null, stick: [number, number] | null) => {
-        if (state.cameraMode !== 'fly' || state.inputMode !== 'touch') {
-            return;
-        }
-
-        if (base === null || stick === null) {
-            updateWalkJoystickVisibility();
-            return;
-        }
-
-        v.set(stick[0], stick[1], 0).mulScalar(1 / 48);
-        if (v.length() > 1) {
-            v.normalize();
-        }
-        v.mulScalar(30);
-
-        dom.joystickBase.classList.remove('hidden');
-        dom.joystickBase.style.left = `${base[0]}px`;
-        dom.joystickBase.style.top = `${base[1]}px`;
-        dom.joystick.style.left = `${joystickCenter + v.x}px`;
-        dom.joystick.style.top = `${joystickCenter + v.y}px`;
-    });
+    events.on('cameraMode:changed', updateJoystickVisibility);
+    events.on('inputMode:changed', updateJoystickVisibility);
+    events.on('walkInputMode:changed', updateJoystickVisibility);
+    events.on('flyInputMode:changed', updateJoystickVisibility);
+    window.addEventListener('resize', updateJoystickVisibility);
+    updateJoystickVisibility();
 
     if (config.noui) {
         dom.ui.classList.add('hidden');
@@ -861,6 +906,12 @@ const initUI = (global: Global) => {
     tooltip.register(dom.orbitCamera, 'Orbit Camera', 'top');
     tooltip.register(dom.flyCamera, 'Fly Camera', 'top');
     tooltip.register(dom.fpsCamera, 'Walk Mode', 'top');
+    tooltip.register(dom.flyGestureMode, 'Fly Gesture Mode', 'top');
+    tooltip.register(dom.flyGamepadMode, 'Fly Gamepad Mode', 'top');
+    tooltip.register(dom.walkTouchMode, 'Walk TouchClick Mode', 'top');
+    tooltip.register(dom.walkGamepadMode, 'Walk Gamepad Mode', 'top');
+    tooltip.register(dom.walkClickMode, 'Walk Click Mode', 'top');
+    tooltip.register(dom.walkKeyboardMode, 'Walk Keyboard Mode', 'top');
     tooltip.register(dom.showVoxels, 'Show Voxels', 'top');
     tooltip.register(dom.reset, 'Reset Camera', 'bottom');
     tooltip.register(dom.frame, 'Frame Scene', 'bottom');
