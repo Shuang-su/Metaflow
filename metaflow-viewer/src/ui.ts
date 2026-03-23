@@ -137,8 +137,9 @@ const initUI = (global: Global) => {
         'buttonsContainer',
         'play', 'pause',
         'settings', 'settingsPanel',
+        'cameraModeControls', 'orbitModeGroup', 'flyModeGroup', 'walkModeGroup',
         'orbitCamera', 'flyCamera', 'fpsCamera',
-        'firstPersonSubmodes',
+        'flySubmodes', 'walkSubmodes',
         'flyGestureMode', 'flyGamepadMode',
         'walkTouchMode', 'walkGamepadMode',
         'walkClickMode', 'walkKeyboardMode',
@@ -633,30 +634,29 @@ const initUI = (global: Global) => {
     };
 
     const updateCameraModeUI = () => {
-        dom.orbitCamera.classList.toggle('active', state.cameraMode === 'orbit');
-        dom.flyCamera.classList.toggle('active', state.cameraMode === 'fly');
-        dom.fpsCamera.classList.toggle('active', state.cameraMode === 'walk');
+        dom.orbitModeGroup.classList.toggle('active', state.cameraMode === 'orbit');
+        dom.flyModeGroup.classList.toggle('active', state.cameraMode === 'fly');
+        dom.walkModeGroup.classList.toggle('active', state.cameraMode === 'walk');
     };
 
     const updateWalkCameraVisibility = () => {
         const hasWalkCapability = !!config.voxelUrl;
         const walkReady = state.hasCollision;
 
-        dom.fpsCamera.classList.toggle('hidden', !hasWalkCapability);
+        dom.walkModeGroup.classList.toggle('hidden', !hasWalkCapability);
         dom.fpsCamera.classList.toggle('disabled', hasWalkCapability && !walkReady);
+        dom.walkModeGroup.classList.toggle('disabled', hasWalkCapability && !walkReady);
         (dom.fpsCamera as HTMLButtonElement).disabled = hasWalkCapability && !walkReady;
-
-        dom.flyCamera.classList.toggle('middle', hasWalkCapability);
-        dom.flyCamera.classList.toggle('right', !hasWalkCapability);
     };
 
     const updateFirstPersonSubmodes = () => {
         const showTouchFly = state.inputMode === 'touch' && state.cameraMode === 'fly';
         const showTouchWalk = state.inputMode === 'touch' && state.cameraMode === 'walk' && !!config.voxelUrl;
         const showDesktopWalk = state.inputMode === 'desktop' && state.cameraMode === 'walk' && !!config.voxelUrl;
-        const showAny = showTouchFly || showTouchWalk || showDesktopWalk;
+        const showWalkSubmodes = showTouchWalk || showDesktopWalk;
 
-        dom.firstPersonSubmodes.classList.toggle('hidden', !showAny);
+        dom.flySubmodes.classList.toggle('hidden', !showTouchFly);
+        dom.walkSubmodes.classList.toggle('hidden', !showWalkSubmodes || !state.hasCollision);
 
         dom.flyGestureMode.classList.toggle('hidden', !showTouchFly);
         dom.flyGamepadMode.classList.toggle('hidden', !showTouchFly);
