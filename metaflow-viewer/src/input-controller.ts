@@ -140,6 +140,8 @@ class InputController {
 
     private _tapJump = false;
 
+    private _jumpButtonPressed = 0;
+
     private _touchGesturePrimed = false;
 
     collider: VoxelCollider | null = null;
@@ -279,6 +281,10 @@ class InputController {
         events.on('joystickInput', (value: { x: number; y: number }) => {
             this._touchJoystick[0] = value.x;
             this._touchJoystick[1] = value.y;
+        });
+
+        events.on('jumpButton:changed', (pressed: boolean) => {
+            this._jumpButtonPressed = pressed ? 1 : 0;
         });
 
         ['wheel', 'pointerdown', 'contextmenu', 'keydown'].forEach((eventName) => {
@@ -503,11 +509,13 @@ class InputController {
 
         events.on('cameraMode:changed', () => {
             resetFirstPersonModes();
+            this._jumpButtonPressed = 0;
             syncPointerLock();
         });
 
         events.on('inputMode:changed', () => {
             resetFirstPersonModes();
+            this._jumpButtonPressed = 0;
             syncPointerLock();
         });
 
@@ -608,7 +616,7 @@ class InputController {
             (key[keyCode.E] - key[keyCode.Q]),
             (key[keyCode.W] - key[keyCode.S]) + (key[keyCode.UP] - key[keyCode.DOWN])
         ));
-        this._state.jump += key[keyCode.SPACE] + (this._tapJump ? 1 : 0);
+        this._state.jump += key[keyCode.SPACE] + (this._tapJump ? 1 : 0) + this._jumpButtonPressed;
         this._state.touches += count[0];
         for (let i = 0; i < button.length; i++) {
             this._state.mouse[i] += button[i];
@@ -726,7 +734,7 @@ class InputController {
         } else {
             orbitRotate.set(touch[0], touch[1], 0);
             mobileRotate.add(orbitRotate.mulScalar(orbit * (1 - pan) * this.orbitSpeed * dt));
-            flyRotate.set(-touch[0], -touch[1], 0);
+            flyRotate.set(touch[0], touch[1], 0);
             mobileRotate.add(flyRotate.mulScalar(fly * (1 - double) * this.orbitSpeed * orbitFactor * dt));
         }
         deltas.rotate.append([mobileRotate.x, mobileRotate.y, mobileRotate.z]);

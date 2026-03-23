@@ -253,6 +253,7 @@ button {
             padding: 0;
             background-color: rgba(black, 0.3);
             border-radius: 6px;
+            overflow: hidden;
         }
 
         /* controlButton */
@@ -323,23 +324,27 @@ button {
             display: flex;
             align-items: center;
             gap: 0;
-            padding: 3px;
-            border-radius: 8px;
+            width: 34px;
+            height: 34px;
+            flex: 0 0 auto;
+            padding: 0;
+            overflow: hidden;
+            border-radius: 6px;
             background-color: transparent;
-            transition: background-color 0.12s ease-in-out, padding 0.12s ease-in-out;
-
-            &.active {
-                background-color: rgba($clr-accent, 0.9);
-            }
+            transition: width 0.16s ease-in-out, background-color 0.16s ease-in-out;
 
             &.disabled {
                 opacity: 0.6;
             }
 
+            &.active {
+                background-color: rgba($clr-accent, 0.82);
+            }
+
             > .modePrimary {
-                width: 32px;
-                height: 32px;
-                border-radius: 4px;
+                width: 34px;
+                height: 34px;
+                border-radius: 6px;
                 color: rgba($clr-text, 0.9);
                 background-color: transparent;
 
@@ -353,58 +358,95 @@ button {
                 }
             }
 
+            &.active > .modePrimary.active {
+                background-color: transparent;
+            }
+
             > .submodeCapsule {
-                position: relative;
                 display: flex;
                 align-items: center;
-                min-height: 32px;
-                box-sizing: border-box;
-                gap: 2px;
-                padding: 1px 2px 1px 1px;
-                border-radius: 4px;
-                background-color: transparent;
+                height: 34px;
+                gap: 0;
+                padding: 0;
+                margin: 0;
+                background:
+                    linear-gradient(180deg, rgba(0, 0, 0, 0.56) 0%, rgba(0, 0, 0, 0.42) 100%);
                 overflow: hidden;
-
-                &::before {
-                    content: '';
-                    position: absolute;
-                    inset: 1px;
-                    border-radius: inherit;
-                    background:
-                        linear-gradient(180deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0)) ,
-                        rgba($clr-bkg-dark, 0.94);
-                    box-shadow:
-                        inset 0 0 0 1px rgba(255, 255, 255, 0.05),
-                        inset 0 1px 0 rgba(255, 255, 255, 0.04);
-                }
+                border-radius: 6px;
+                box-shadow:
+                    inset 0 0 0 1px rgba(255, 255, 255, 0.035),
+                    inset 0 1px 0 rgba(255, 255, 255, 0.03);
 
                 > .submodeIcon {
-                    position: relative;
-                    z-index: 1;
-                    width: 22px;
-                    height: 28px;
+                    width: 34px;
+                    height: 34px;
+                    margin: 0;
                     border-radius: 0;
-                    color: rgba($clr-text, 0.42);
+                    color: rgba($clr-text-light, 0.62);
                     background-color: transparent;
 
                     &:hover {
-                        color: rgba($clr-text-light, 0.82);
-                        background-color: transparent;
+                        color: rgba($clr-text-light, 0.88);
+                        background-color: rgba(255, 255, 255, 0.04);
                     }
 
                     &.active {
-                        color: $clr-accent;
-                        background-color: transparent;
+                        color: $clr-text-light;
+                        background-color: rgba($clr-accent, 0.92);
+                    }
+
+                    &:first-child.active {
+                        border-radius: 6px 0 0 6px;
+                    }
+
+                    &:last-child.active {
+                        border-radius: 0 6px 6px 0;
                     }
 
                     > svg {
-                        width: 15px;
-                        height: 15px;
+                        width: 18px;
+                        height: 18px;
 
-                        > g.fill {
-                            opacity: 1;
+                        > g {
+                            &.stroke {
+                                fill: none;
+                                stroke: rgba(black, 0.62);
+                                stroke-width: 2.65;
+                                stroke-linecap: round;
+                                stroke-linejoin: round;
+                                opacity: 1;
+                            }
+
+                            &.fill {
+                                fill: currentColor;
+                                stroke: none;
+                                opacity: 0.95;
+                            }
                         }
                     }
+                }
+            }
+
+            &.touch-expanded {
+                width: 68px;
+                background-color: transparent;
+
+                > .modePrimary {
+                    display: none;
+                }
+
+                > .submodeCapsule {
+                    width: 68px;
+                }
+            }
+
+            &.desktop-expanded {
+                width: auto;
+
+                > .submodeCapsule.desktop-inline {
+                    margin-left: 2px;
+                    border-radius: 6px;
+                    background-color: rgba(black, 0.42);
                 }
             }
         }
@@ -663,53 +705,107 @@ button {
     }
 }
 
+#joystickZone {
+    position: fixed;
+    left: max(0px, env(safe-area-inset-left));
+    bottom: calc(max(12px, env(safe-area-inset-bottom)) + 56px);
+    width: min(40vw, 220px);
+    height: min(32vh, 260px);
+    z-index: 9;
+    touch-action: none;
+    background: transparent;
+}
+
 #joystickBase {
-    position: absolute;
-    width: 56px;
-    height: 100px;
+    position: fixed;
+    width: 104px;
+    height: 104px;
     transform: translate(-50%, -50%);
-    border-radius: 28px;
+    border-radius: 42px;
     touch-action: none;
     box-sizing: border-box;
+    pointer-events: none;
+    opacity: 0;
     transition:
-        width 0.15s ease,
-        border-radius 0.15s ease,
-        opacity 0.15s ease,
-        transform 0.15s ease,
-        background-color 0.15s ease;
+        opacity 0.12s ease-in-out,
+        width 0.14s ease-in-out,
+        height 0.14s ease-in-out,
+        border-radius 0.14s ease-in-out;
 
     background:
-        linear-gradient(180deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.03)),
-        rgba(0, 0, 0, 0.34);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    backdrop-filter: blur(10px);
-    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.22);
+        linear-gradient(180deg, rgba(255, 255, 255, 0.06) 0%, rgba(255, 255, 255, 0.01) 100%),
+        rgba(0, 0, 0, 0.22);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.05),
+        inset 0 0 0 1px rgba(255, 255, 255, 0.02),
+        0 8px 24px rgba(0, 0, 0, 0.18);
+    z-index: 11;
+
+    &.visible {
+        opacity: 1;
+    }
 
     &.mode-2d {
-        width: 100px;
-        border-radius: 24px;
+        width: 104px;
+        height: 104px;
+        border-radius: 42px;
     }
 
-    &.passive {
-        opacity: 0.65;
+    &.mode-1d {
+        width: 68px;
+        height: 104px;
+        border-radius: 999px;
     }
 
-    &.active {
-        opacity: 0.96;
+    &::after {
+        content: '';
+        position: absolute;
+        inset: 14px;
+        border-radius: 28px;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        background: rgba(255, 255, 255, 0.03);
+        pointer-events: none;
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+    }
+
+    &.mode-1d::after {
+        inset: 14px 12px;
+        border-radius: 999px;
     }
 
     > #joystick {
         position: absolute;
-        width: 40px;
-        height: 40px;
+        width: 36px;
+        height: 36px;
         transform: translate(-50%, -50%);
         border-radius: 50%;
         touch-action: none;
         background:
-            linear-gradient(180deg, rgba(255, 255, 255, 0.92), rgba(255, 255, 255, 0.72));
+            radial-gradient(circle at 32% 28%, rgba(255, 255, 255, 0.92) 0%, rgba(255, 255, 255, 0.76) 38%, rgba(255, 255, 255, 0.48) 100%);
+        border: 1px solid rgba(255, 255, 255, 0.26);
         box-shadow:
-            0 4px 18px rgba(0, 0, 0, 0.28),
-            inset 0 1px 3px rgba(255, 255, 255, 0.25);
+            inset 0 -1px 0 rgba(0, 0, 0, 0.07),
+            0 5px 14px rgba(0, 0, 0, 0.18);
+    }
+}
+
+#walkJump {
+    position: fixed;
+    right: max(16px, env(safe-area-inset-right));
+    bottom: calc(max(12px, env(safe-area-inset-bottom)) + 58px);
+    width: 46px;
+    height: 46px;
+    border-radius: 50%;
+    color: $clr-text-light;
+    background-color: rgba(black, 0.46);
+    backdrop-filter: blur(8px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.22);
+    z-index: 10;
+
+    &.active,
+    &:active {
+        background-color: rgba($clr-accent, 0.92);
     }
 }
 
@@ -859,21 +955,22 @@ button {
     &.touch {
         position: fixed;
         left: 50%;
-        bottom: calc(max(16px, env(safe-area-inset-bottom)) + 54px);
+        top: max(12px, env(safe-area-inset-top));
+        bottom: auto;
         transform: translateX(-50%);
 
         display: flex;
         align-items: center;
         gap: 0;
-        max-width: min(360px, calc(100vw - 32px));
-        border-radius: 999px;
+        max-width: min(320px, calc(100vw - 32px));
+        border-radius: 6px;
         overflow: hidden;
         background-color: rgba(black, 0.55);
         box-shadow: 0 12px 30px rgba(0, 0, 0, 0.22);
 
         > button {
-            width: 40px;
-            height: 40px;
+            width: 34px;
+            height: 34px;
             flex: 0 0 auto;
             background-color: transparent;
 
@@ -888,11 +985,11 @@ button {
             align-items: center;
             justify-content: center;
             min-width: 0;
-            padding: 0 12px;
-            width: min(240px, calc(100vw - 128px));
+            padding: 0 10px;
+            width: min(220px, calc(100vw - 120px));
 
             > #annotationNavTitle {
-                font-size: 13px;
+                font-size: 14px;
                 color: $clr-text-light;
                 overflow: hidden;
                 text-overflow: ellipsis;
@@ -902,8 +999,22 @@ button {
     }
 }
 
-#ui.timeline-active #annotationNav.touch {
-    bottom: calc(max(16px, env(safe-area-inset-bottom)) + 96px);
+@media (max-width: 430px) {
+    #annotationNav.touch {
+        max-width: min(320px, max(160px, calc(100vw - 136px)));
+
+        > #annotationInfo {
+            width: min(220px, max(96px, calc(100vw - 204px)));
+        }
+    }
+}
+
+#ui.timeline-active #joystickZone {
+    bottom: calc(max(12px, env(safe-area-inset-bottom)) + 98px);
+}
+
+#ui.timeline-active #walkJump {
+    bottom: calc(max(12px, env(safe-area-inset-bottom)) + 100px);
 }
 
 #ui.modal-open {
