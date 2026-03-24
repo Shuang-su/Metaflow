@@ -128,11 +128,19 @@ const anyPostEffectEnabled = (settings: PostEffectSettings): boolean => {
 };
 
 const clamp01 = (value: number) => Math.max(0, Math.min(1, value));
-
-const toCssRgb = (color: [number, number, number]) => {
-    const [r, g, b] = color.map((channel) => Math.round(clamp01(channel) * 255));
-    return `rgb(${r}, ${g}, ${b})`;
+const toCssColor = (color: [number, number, number]) => `rgb(${color.map((v) => Math.round(clamp01(v) * 255)).join(' ')})`;
+const backgroundColor = new Color();
+const gradientCss = (gradient: NonNullable<ExperienceSettings['background']['gradient']>) => {
+    const horizonStop = `${Math.round(clamp01(gradient.horizonStop ?? 0.55) * 100)}%`;
+    const bottomStop = `${Math.round(clamp01(gradient.bottomStop ?? 1) * 100)}%`;
+    const stops = [
+        `${toCssColor(gradient.topColor)} 0%`,
+        `${toCssColor(gradient.horizonColor ?? gradient.bottomColor)} ${horizonStop}`,
+        `${toCssColor(gradient.bottomColor)} ${bottomStop}`
+    ];
+    return `linear-gradient(180deg, ${stops.join(', ')})`;
 };
+const origIsColorBufferSrgb = RenderTarget.prototype.isColorBufferSrgb;
 
 const vec = new Vec3();
 
@@ -152,24 +160,30 @@ class Viewer {
     walkCursor: WalkCursor | null = null;
 
     applyBackground(settings: ExperienceSettings) {
+        const { app, camera } = this.global;
         const { background } = settings;
         const rootStyle = document.documentElement.style;
-        const solidColor = toCssRgb(background.color);
-
-        rootStyle.setProperty('--viewer-background-color', solidColor);
+        const backgroundCss = background.gradient ? gradientCss(background.gradient) : toCssColor(background.color);
 
         const gradient = background.gradient;
+        rootStyle.setProperty('--app-background', backgroundCss);
+        rootStyle.setProperty('--canvas-background', backgroundCss);
+
         if (gradient) {
-            const topStop = 0;
-            const horizonStop = clamp01(gradient.horizonStop) * 100;
-            const bottomStop = clamp01(gradient.bottomStop) * 100;
-            const cssGradient = `linear-gradient(180deg, ${toCssRgb(gradient.topColor)} ${topStop}%, ${toCssRgb(gradient.horizonColor)} ${horizonStop}%, ${toCssRgb(gradient.bottomColor)} ${bottomStop}%)`;
-            rootStyle.setProperty('--viewer-background-image', cssGradient);
-            return true;
+            // Keep the render target transparent black so semi-transparent splats do not
+            // pre-blend against a bright sky color, which creates white fringes.
+            backgroundColor.set(0, 0, 0, 0);
+        } else {
+            backgroundColor.set(
+                background.color[0],
+                background.color[1],
+                background.color[2],
+                1
+            );
         }
 
-        rootStyle.setProperty('--viewer-background-image', 'none');
-        return false;
+        camera.camera.clearColor = backgroundColor;
+        app.renderNextFrame = true;
     }
 
     constructor(global: Global, gsplatLoad: Promise<Entity>, skyboxLoad: Promise<void>, voxelLoadFactory: (() => Promise<VoxelCollider | null>) | null) {
@@ -626,11 +640,7 @@ class Viewer {
         const { global } = this;
         const { app, camera } = global;
         const { postEffectSettings } = settings;
-        const { background } = settings;
-        const hasGradientBackground = this.applyBackground(settings);
-        const clearColor = hasGradientBackground
-            ? new Color(background.color[0], background.color[1], background.color[2], 0)
-            : new Color(background.color);
+        this.applyBackground(settings);
 
         const enableCameraFrame = !app.xr.active && (anyPostEffectEnabled(postEffectSettings) || settings.highPrecisionRendering);
 
@@ -651,12 +661,10 @@ class Viewer {
             ShaderChunks.get(app.graphicsDevice, 'glsl').set('gsplatOutputVS', gammaChunk);
             ShaderChunks.get(app.graphicsDevice, 'wgsl').set('gsplatOutputVS', gammaChunkWgsl);
 
-            // ensure the final blit doesn't perform linear->gamma conversion
-            RenderTarget.prototype.isColorBufferSrgb = function () {
-                return true;
+            // ensure the final blit doesn't perform linear->gamma conversion.
+            RenderTarget.prototype.isColorBufferSrgb = function (index) {
+                return this === app.graphicsDevice.backBuffer ? true : origIsColorBufferSrgb.call(this, index);
             };
-
-            camera.camera.clearColor = clearColor;
         } else {
             // no post effects needed, destroy camera frame if it exists
             if (this.cameraFrame) {
@@ -666,7 +674,6 @@ class Viewer {
 
             if (!app.xr.active) {
                 camera.camera.toneMapping = tonemapTable[settings.tonemapping];
-                camera.camera.clearColor = clearColor;
             }
         }
     }

@@ -14,8 +14,8 @@ $clr-bkg-light: #444;
 
 :root {
     --canvas-opacity: 1;
-    --viewer-background-color: rgb(0, 0, 0);
-    --viewer-background-image: none;
+    --app-background: #000;
+    --canvas-background: transparent;
 }
 
 * {
@@ -30,14 +30,13 @@ body {
     user-select: none;
     -webkit-user-select: none;
     -webkit-touch-callout: none;
-    background-color: var(--viewer-background-color);
-    background-image: var(--viewer-background-image);
-    background-repeat: no-repeat;
-    background-size: cover;
+    background: var(--app-background);
+    background-attachment: fixed;
 }
 
 canvas {
     opacity: var(--canvas-opacity);
+    background: var(--canvas-background);
     position: fixed;
     top: 0;
     left: 0;
