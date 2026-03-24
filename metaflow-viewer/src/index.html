@@ -98,6 +98,81 @@
                 return firstValidLod?.file || model;
             };
 
+            const stripJsonComments = (source) => {
+                let result = '';
+                let inString = false;
+                let escapeNext = false;
+                let lineComment = false;
+                let blockComment = false;
+
+                for (let i = 0; i < source.length; i++) {
+                    const char = source[i];
+                    const next = source[i + 1];
+
+                    if (lineComment) {
+                        if (char === '\n') {
+                            lineComment = false;
+                            result += char;
+                        }
+                        continue;
+                    }
+
+                    if (blockComment) {
+                        if (char === '*' && next === '/') {
+                            blockComment = false;
+                            i++;
+                        }
+                        continue;
+                    }
+
+                    if (inString) {
+                        result += char;
+                        if (escapeNext) {
+                            escapeNext = false;
+                        } else if (char === '\\') {
+                            escapeNext = true;
+                        } else if (char === '"') {
+                            inString = false;
+                        }
+                        continue;
+                    }
+
+                    if (char === '"') {
+                        inString = true;
+                        result += char;
+                        continue;
+                    }
+
+                    if (char === '/' && next === '/') {
+                        lineComment = true;
+                        i++;
+                        continue;
+                    }
+
+                    if (char === '/' && next === '*') {
+                        blockComment = true;
+                        i++;
+                        continue;
+                    }
+
+                    result += char;
+                }
+
+                return result;
+            };
+
+            const stripTrailingCommas = (source) => source.replace(/,\s*([}\]])/g, '$1');
+
+            const parseJsonc = (source) => JSON.parse(stripTrailingCommas(stripJsonComments(source)));
+
+            const loadSettings = async (settingsUrl) => {
+                const response = await fetch(settingsUrl);
+                if (!response.ok) return {};
+                const text = await response.text();
+                if (!text.trim()) return {};
+                return parseJsonc(text);
+            };
+
             // 默认值
             let posterUrl = url.searchParams.get('poster');
             let skyboxUrl = url.searchParams.get('skybox');
@@ -172,7 +247,7 @@
 
             window.sse = {
                 config: sseConfig,
-                settings: fetch(settingsUrl).then(response => response.ok ? response.json() : {})
+                settings: loadSettings(settingsUrl)
             };
         </script>
     </head>
