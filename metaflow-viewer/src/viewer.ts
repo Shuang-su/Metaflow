@@ -127,6 +127,13 @@ const anyPostEffectEnabled = (settings: PostEffectSettings): boolean => {
         (settings.fringing.enabled && settings.fringing.intensity > 0);
 };
 
+const clamp01 = (value: number) => Math.max(0, Math.min(1, value));
+
+const toCssRgb = (color: [number, number, number]) => {
+    const [r, g, b] = color.map((channel) => Math.round(clamp01(channel) * 255));
+    return `rgb(${r}, ${g}, ${b})`;
+};
+
 const vec = new Vec3();
 
 class Viewer {
@@ -143,6 +150,27 @@ class Viewer {
     forceRenderNextFrame = false;
 
     walkCursor: WalkCursor | null = null;
+
+    applyBackground(settings: ExperienceSettings) {
+        const { background } = settings;
+        const rootStyle = document.documentElement.style;
+        const solidColor = toCssRgb(background.color);
+
+        rootStyle.setProperty('--viewer-background-color', solidColor);
+
+        const gradient = background.gradient;
+        if (gradient) {
+            const topStop = 0;
+            const horizonStop = clamp01(gradient.horizonStop) * 100;
+            const bottomStop = clamp01(gradient.bottomStop) * 100;
+            const cssGradient = `linear-gradient(180deg, ${toCssRgb(gradient.topColor)} ${topStop}%, ${toCssRgb(gradient.horizonColor)} ${horizonStop}%, ${toCssRgb(gradient.bottomColor)} ${bottomStop}%)`;
+            rootStyle.setProperty('--viewer-background-image', cssGradient);
+            return true;
+        }
+
+        rootStyle.setProperty('--viewer-background-image', 'none');
+        return false;
+    }
 
     constructor(global: Global, gsplatLoad: Promise<Entity>, skyboxLoad: Promise<void>, voxelLoadFactory: (() => Promise<VoxelCollider | null>) | null) {
         this.global = global;
@@ -599,6 +627,10 @@ class Viewer {
         const { app, camera } = global;
         const { postEffectSettings } = settings;
         const { background } = settings;
+        const hasGradientBackground = this.applyBackground(settings);
+        const clearColor = hasGradientBackground
+            ? new Color(background.color[0], background.color[1], background.color[2], 0)
+            : new Color(background.color);
 
         const enableCameraFrame = !app.xr.active && (anyPostEffectEnabled(postEffectSettings) || settings.highPrecisionRendering);
 
@@ -624,7 +656,7 @@ class Viewer {
                 return true;
             };
 
-            camera.camera.clearColor = new Color(background.color);
+            camera.camera.clearColor = clearColor;
         } else {
             // no post effects needed, destroy camera frame if it exists
             if (this.cameraFrame) {
@@ -634,7 +666,7 @@ class Viewer {
 
             if (!app.xr.active) {
                 camera.camera.toneMapping = tonemapTable[settings.tonemapping];
-                camera.camera.clearColor = new Color(background.color);
+                camera.camera.clearColor = clearColor;
             }
         }
     }

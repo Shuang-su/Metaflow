@@ -70,7 +70,14 @@ type ExperienceSettings = {
     soundUrl?: string,
     background: {
         color: [number, number, number],
-        skyboxUrl?: string
+        skyboxUrl?: string,
+        gradient?: {
+            topColor: [number, number, number],
+            horizonColor: [number, number, number],
+            bottomColor: [number, number, number],
+            horizonStop: number,
+            bottomStop: number
+        }
     },
     postEffectSettings: PostEffectSettings,
 

@@ -50,13 +50,16 @@ const migrateAnimTrackV2 = (animTrackV1: AnimTrackV1, fov: number): AnimTrackV2 
 const migrateV2 = (v1: V1): V2 => {
     // Preserve tonemapping from v1 if it exists, otherwise default to 'none'
     const tonemapping = (v1 as any).tonemapping || 'none';
+    const background = (v1 as any).background || {};
     
     return {
         version: 2,
         tonemapping,
         highPrecisionRendering: false,
         background: {
-            color: v1.background.color as [number, number, number] || [0, 0, 0]
+            color: background.color as [number, number, number] || [0, 0, 0],
+            skyboxUrl: background.skyboxUrl,
+            gradient: background.gradient
         },
         postEffectSettings: {
             sharpness: {
