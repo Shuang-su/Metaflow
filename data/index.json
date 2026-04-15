@@ -1,7 +1,7 @@
 {
   "version": "1.0",
-  "lastUpdated": "2026-03-23",
-  "totalResources": 44,
+  "lastUpdated": "2026-04-14",
+  "totalResources": 48,
   "categories": {
     "acg": {
       "name": "二次元",
@@ -40,6 +40,10 @@
     "yzx": {
       "name": "YZX 项目",
       "device": "YZX"
+    },
+    "phoenixfes26": {
+      "name": "PhoenixFes26",
+      "device": "PhoenixFes26"
     }
   },
   "resources": [
@@ -62,7 +66,8 @@
       "fileSize": {
         "model": 33032995,
         "environment": 172703,
-        "total": 33205698
+        "thumbnail": 701090,
+        "total": 33906788
       },
       "meta": {
         "date": null,
@@ -94,7 +99,8 @@
       "fileSize": {
         "model": 39172964,
         "environment": 1075716,
-        "total": 40248680
+        "thumbnail": 377539,
+        "total": 40626219
       },
       "meta": {
         "date": "2026-01-02",
@@ -126,7 +132,8 @@
       "fileSize": {
         "model": 20273636,
         "environment": 2112101,
-        "total": 22385737
+        "thumbnail": 344344,
+        "total": 22730081
       },
       "meta": {
         "date": "2026-01-02",
@@ -158,7 +165,8 @@
       "fileSize": {
         "model": 24231237,
         "environment": 881848,
-        "total": 25113085
+        "thumbnail": 301408,
+        "total": 25414493
       },
       "meta": {
         "date": "2026-01-02",
@@ -190,7 +198,8 @@
       "fileSize": {
         "model": 35013526,
         "environment": 1464378,
-        "total": 36477904
+        "thumbnail": 453336,
+        "total": 36931240
       },
       "meta": {
         "date": "2026-01-02",
@@ -222,7 +231,8 @@
       "fileSize": {
         "model": 26989439,
         "environment": 2071930,
-        "total": 29061369
+        "thumbnail": 348263,
+        "total": 29409632
       },
       "meta": {
         "date": "2026-01-02",
@@ -254,7 +264,8 @@
       "fileSize": {
         "model": 26901829,
         "environment": 470287,
-        "total": 27372116
+        "thumbnail": 278332,
+        "total": 27650448
       },
       "meta": {
         "date": "2026-01-02",
@@ -286,7 +297,8 @@
       "fileSize": {
         "model": 20777477,
         "environment": 1827826,
-        "total": 22605303
+        "thumbnail": 384230,
+        "total": 22989533
       },
       "meta": {
         "date": "2026-01-02",
@@ -318,7 +330,8 @@
       "fileSize": {
         "model": 19788148,
         "environment": 322141,
-        "total": 20110289
+        "thumbnail": 517138,
+        "total": 20627427
       },
       "meta": {
         "date": "2026-01-18",
@@ -350,7 +363,8 @@
       "fileSize": {
         "model": 19355282,
         "environment": 95848,
-        "total": 19451130
+        "thumbnail": 386079,
+        "total": 19837209
       },
       "meta": {
         "date": "2026-01-18",
@@ -382,7 +396,8 @@
       "fileSize": {
         "model": 16757050,
         "environment": 108913,
-        "total": 16865963
+        "thumbnail": 335158,
+        "total": 17201121
       },
       "meta": {
         "date": "2026-01-18",
@@ -414,7 +429,8 @@
       "fileSize": {
         "model": 18892298,
         "environment": 101166,
-        "total": 18993464
+        "thumbnail": 356927,
+        "total": 19350391
       },
       "meta": {
         "date": "2026-01-18",
@@ -446,7 +462,8 @@
       "fileSize": {
         "model": 22470023,
         "environment": 72718,
-        "total": 22542741
+        "thumbnail": 322085,
+        "total": 22864826
       },
       "meta": {
         "date": "2026-01-18",
@@ -478,6 +495,7 @@
       "fileSize": {
         "model": 193190726,
         "environment": 0,
+        "thumbnail": 0,
         "total": 193190726
       },
       "meta": {
@@ -517,7 +535,8 @@
       "fileSize": {
         "model": 112692221,
         "environment": 2039456,
-        "total": 114731677,
+        "thumbnail": 758250,
+        "total": 115489927,
         "recommended": "lod1"
       },
       "meta": {
@@ -550,7 +569,8 @@
       "fileSize": {
         "model": 33660304,
         "environment": 4570725,
-        "total": 38231029
+        "thumbnail": 448136,
+        "total": 38679165
       },
       "meta": {
         "date": "2026-01-18",
@@ -582,7 +602,8 @@
       "fileSize": {
         "model": 32298195,
         "environment": 4448149,
-        "total": 36746344
+        "thumbnail": 504943,
+        "total": 37251287
       },
       "meta": {
         "date": "2026-01-18",
@@ -609,7 +630,8 @@
       "fileSize": {
         "model": 23473776,
         "environment": 99580,
-        "total": 23573356
+        "thumbnail": 433180,
+        "total": 24006536
       },
       "meta": {
         "date": "2026-01-18",
@@ -641,7 +663,8 @@
       "fileSize": {
         "model": 19788589,
         "environment": 101959,
-        "total": 19890548
+        "thumbnail": 386829,
+        "total": 20277377
       },
       "meta": {
         "date": "2026-01-18",
@@ -673,7 +696,8 @@
       "fileSize": {
         "model": 19527161,
         "environment": 92249,
-        "total": 19619410
+        "thumbnail": 333116,
+        "total": 19952526
       },
       "meta": {
         "date": "2026-01-18",
@@ -705,7 +729,8 @@
       "fileSize": {
         "model": 22552206,
         "environment": 124967,
-        "total": 22677173
+        "thumbnail": 411090,
+        "total": 23088263
       },
       "meta": {
         "date": "2026-01-18",
@@ -737,7 +762,8 @@
       "fileSize": {
         "model": 30797647,
         "environment": 4357437,
-        "total": 35155084
+        "thumbnail": 555338,
+        "total": 35710422
       },
       "meta": {
         "date": "2026-01-18",
@@ -769,7 +795,8 @@
       "fileSize": {
         "model": 27259034,
         "environment": 5082379,
-        "total": 32341413
+        "thumbnail": 555287,
+        "total": 32896700
       },
       "meta": {
         "date": "2026-01-18",
@@ -801,7 +828,8 @@
       "fileSize": {
         "model": 18940464,
         "environment": 90297,
-        "total": 19030761
+        "thumbnail": 301355,
+        "total": 19332116
       },
       "meta": {
         "date": "2026-01-18",
@@ -833,7 +861,8 @@
       "fileSize": {
         "model": 26922889,
         "environment": 7226879,
-        "total": 34149768
+        "thumbnail": 350711,
+        "total": 34500479
       },
       "meta": {
         "date": "2026-01-18",
@@ -865,7 +894,8 @@
       "fileSize": {
         "model": 26671221,
         "environment": 6347863,
-        "total": 33019084
+        "thumbnail": 347842,
+        "total": 33366926
       },
       "meta": {
         "date": "2026-01-18",
@@ -897,7 +927,8 @@
       "fileSize": {
         "model": 25551692,
         "environment": 164712,
-        "total": 25716404
+        "thumbnail": 597126,
+        "total": 26313530
       },
       "meta": {
         "date": "2026-03-15",
@@ -929,7 +960,8 @@
       "fileSize": {
         "model": 22782243,
         "environment": 114109,
-        "total": 22896352
+        "thumbnail": 586786,
+        "total": 23483138
       },
       "meta": {
         "date": "2026-03-15",
@@ -961,7 +993,8 @@
       "fileSize": {
         "model": 32001679,
         "environment": 4800239,
-        "total": 36801918
+        "thumbnail": 437074,
+        "total": 37238992
       },
       "meta": {
         "date": "2026-03-15",
@@ -993,7 +1026,8 @@
       "fileSize": {
         "model": 26558800,
         "environment": 57577,
-        "total": 26616377
+        "thumbnail": 674036,
+        "total": 27290413
       },
       "meta": {
         "date": "2026-03-15",
@@ -1025,7 +1059,8 @@
       "fileSize": {
         "model": 26244529,
         "environment": 56967,
-        "total": 26301496
+        "thumbnail": 501558,
+        "total": 26803054
       },
       "meta": {
         "date": "2026-03-15",
@@ -1057,7 +1092,8 @@
       "fileSize": {
         "model": 23469823,
         "environment": 89288980,
-        "total": 112758803
+        "thumbnail": 443673,
+        "total": 113202476
       },
       "meta": {
         "date": "2026-03-15",
@@ -1089,7 +1125,8 @@
       "fileSize": {
         "model": 21189116,
         "environment": 61359,
-        "total": 21250475
+        "thumbnail": 408886,
+        "total": 21659361
       },
       "meta": {
         "date": "2026-03-15",
@@ -1121,7 +1158,8 @@
       "fileSize": {
         "model": 34732454,
         "environment": 2826673,
-        "total": 37559127
+        "thumbnail": 480272,
+        "total": 38039399
       },
       "meta": {
         "date": "2026-03-15",
@@ -1135,18 +1173,15 @@
       }
     },
     {
-      "id": "xunyangpai",
+      "id": "寻洋派",
       "title": "08 寻洋派",
-      "titleEn": "Xunyangpai",
+      "titleEn": "寻洋派",
       "category": [
         "acg",
         "j05"
       ],
-      "route": "/acg/j05/xunyangpai",
+      "route": "/acg/j05/寻洋派",
       "source": "scanner",
-      "viewer": {
-        "defaultCameraMode": "fly"
-      },
       "files": {
         "model": "ACG/J05/260315 184701 J05 08 寻洋派/lod-meta.json",
         "environment": "ACG/J05/260315 184701 J05 08 寻洋派/260315 184701 J05 08 xunyangpai_environment.compressed.ply",
@@ -1155,19 +1190,158 @@
         "voxel": "ACG/J05/260315 184701 J05 08 寻洋派/260315 184701 J05 08 xunyangpai_collision.voxel.json"
       },
       "fileSize": {
-        "model": 113820161,
+        "model": 113820142,
         "environment": 330972,
-        "voxel": 28667052,
         "thumbnail": 379368,
-        "total": 143197553
+        "total": 143197534,
+        "voxel": 28667052
       },
       "meta": {
         "date": "2026-03-15",
         "device": "J05",
         "folderName": "260315 184701 J05 08 寻洋派"
       },
+      "viewer": {
+        "defaultCameraMode": "fly"
+      },
       "animation": {
         "duration": 75,
+        "frameRate": 60,
+        "loopMode": "repeat"
+      }
+    },
+    {
+      "id": "huaijiao",
+      "title": "怀娇",
+      "titleEn": "Huaijiao",
+      "category": [
+        "acg",
+        "phoenixfes26"
+      ],
+      "route": "/acg/phoenixfes26/huaijiao",
+      "source": "photogrammetry",
+      "files": {
+        "model": "ACG/PhoenixFes26/260328 172013 huaijiao/260328 172013 huaijiao.sog",
+        "environment": "ACG/PhoenixFes26/260328 172013 huaijiao/260328 172013 huaijiao_environment.compressed.ply",
+        "settings": "ACG/PhoenixFes26/260328 172013 huaijiao/settings-v2.json",
+        "thumbnail": null,
+        "voxel": "ACG/PhoenixFes26/260328 172013 huaijiao/voxel_lod0_r0.08_a0.20_rot90_0_0/meta.voxel.json"
+      },
+      "fileSize": {
+        "model": 13543792,
+        "environment": 125699,
+        "thumbnail": 0,
+        "total": 15785476,
+        "voxel": 2115985
+      },
+      "meta": {
+        "date": "2026-03-28",
+        "device": "PHOENIXFES26",
+        "folderName": "260328 172013 huaijiao"
+      }
+    },
+    {
+      "id": "itasha",
+      "title": "痛车",
+      "titleEn": "Itasha",
+      "category": [
+        "acg",
+        "phoenixfes26"
+      ],
+      "route": "/acg/phoenixfes26/itasha",
+      "source": "photogrammetry",
+      "files": {
+        "model": "ACG/PhoenixFes26/260328 154958 痛车/supersplat_lod_rot90_0_0/lod-meta.json",
+        "environment": null,
+        "settings": "ACG/PhoenixFes26/260328 154958 痛车/settings-merged.json",
+        "thumbnail": "ACG/PhoenixFes26/260328 154958 痛车/260328 154958 itasha.jpg",
+        "voxel": "ACG/PhoenixFes26/260328 154958 痛车/voxel_lod0_r0.08_a0.20_rot90_0_0/meta.voxel.json"
+      },
+      "fileSize": {
+        "model": 605605322,
+        "environment": 0,
+        "thumbnail": 1056083,
+        "total": 620272471,
+        "voxel": 13611066
+      },
+      "meta": {
+        "date": "2026-03-28",
+        "device": "PHOENIXFES26",
+        "folderName": "260328 154958 痛车"
+      },
+      "viewer": {
+        "defaultCameraMode": "fly"
+      },
+      "animation": {
+        "duration": 66.66666666666667,
+        "frameRate": 60,
+        "loopMode": "repeat"
+      }
+    },
+    {
+      "id": "silver-wolf",
+      "title": "崩铁 银狼",
+      "titleEn": "Silver Wolf",
+      "category": [
+        "acg",
+        "phoenixfes26"
+      ],
+      "route": "/acg/phoenixfes26/silver-wolf",
+      "source": "photogrammetry",
+      "files": {
+        "model": "ACG/PhoenixFes26/260328 171625 崩铁 银狼/260328 171625 Silver Wolf.sog",
+        "environment": "ACG/PhoenixFes26/260328 171625 崩铁 银狼/260328 171625 Silver Wolf_environment.compressed.ply",
+        "settings": "ACG/PhoenixFes26/260328 171625 崩铁 银狼/settings-v2.json",
+        "thumbnail": null,
+        "voxel": "ACG/PhoenixFes26/260328 171625 崩铁 银狼/voxel_lod0_r0.08_a0.20_rot90_0_0/meta.voxel.json"
+      },
+      "fileSize": {
+        "model": 34940378,
+        "environment": 1166855,
+        "thumbnail": 0,
+        "total": 41666169,
+        "voxel": 5558936
+      },
+      "meta": {
+        "date": "2026-03-28",
+        "device": "PHOENIXFES26",
+        "folderName": "260328 171625 崩铁 银狼"
+      }
+    },
+    {
+      "id": "stage",
+      "title": "舞台",
+      "titleEn": "Stage",
+      "category": [
+        "acg",
+        "phoenixfes26"
+      ],
+      "route": "/acg/phoenixfes26/stage",
+      "source": "photogrammetry",
+      "files": {
+        "model": "ACG/PhoenixFes26/260328 172811 舞台/supersplat_lod_rot90_0_0/lod-meta.json",
+        "environment": null,
+        "settings": "ACG/PhoenixFes26/260328 172811 舞台/settings-merged.json",
+        "thumbnail": "ACG/PhoenixFes26/260328 172811 舞台/260328 172811 stage.jpg",
+        "voxel": "ACG/PhoenixFes26/260328 172811 舞台/voxel_lod0_r0.08_a0.20_rot90_0_0/meta.voxel.json"
+      },
+      "fileSize": {
+        "model": 106340666,
+        "environment": 0,
+        "thumbnail": 1062546,
+        "total": 117014864,
+        "voxel": 9611652
+      },
+      "meta": {
+        "date": "2026-03-28",
+        "device": "PHOENIXFES26",
+        "folderName": "260328 172811 舞台"
+      },
+      "viewer": {
+        "defaultCameraMode": "fly"
+      },
+      "animation": {
+        "duration": 50,
         "frameRate": 60,
         "loopMode": "repeat"
       }
@@ -1181,9 +1355,6 @@
       ],
       "route": "/shenzhen/dayun",
       "source": "photogrammetry",
-      "viewer": {
-        "defaultCameraMode": "fly"
-      },
       "files": {
         "model": "Shenzhen/250917 Dayun/lod-meta.json",
         "environment": null,
@@ -1194,14 +1365,17 @@
       "fileSize": {
         "model": 5203432324,
         "environment": 0,
-        "voxel": 170348287,
         "thumbnail": 10782680,
-        "total": 5384563291
+        "total": 5384563291,
+        "voxel": 170348287
       },
       "meta": {
         "date": "2025-09-17",
         "device": null,
         "folderName": "250917 Dayun"
+      },
+      "viewer": {
+        "defaultCameraMode": "fly"
       },
       "animation": {
         "duration": 48,
@@ -1227,7 +1401,8 @@
       "fileSize": {
         "model": 36251198,
         "environment": 0,
-        "total": 36251198
+        "thumbnail": 264077,
+        "total": 36515275
       },
       "meta": {
         "date": "2026-01-12",
@@ -1258,7 +1433,8 @@
       "fileSize": {
         "model": 19569923,
         "environment": 0,
-        "total": 19569923
+        "thumbnail": 72671,
+        "total": 19642594
       },
       "meta": {
         "date": "2026-01-12",
@@ -1289,7 +1465,8 @@
       "fileSize": {
         "model": 42676396,
         "environment": 0,
-        "total": 42676396
+        "thumbnail": 103299,
+        "total": 42779695
       },
       "meta": {
         "date": "2026-01-13",
@@ -1320,7 +1497,8 @@
       "fileSize": {
         "model": 54533945,
         "environment": 0,
-        "total": 54533945
+        "thumbnail": 344695,
+        "total": 54878640
       },
       "meta": {
         "date": "2025-12-17",
@@ -1351,7 +1529,8 @@
       "fileSize": {
         "model": 45200899,
         "environment": 0,
-        "total": 45200899
+        "thumbnail": 366883,
+        "total": 45567782
       },
       "meta": {
         "date": "2025-03-24",
@@ -1382,7 +1561,8 @@
       "fileSize": {
         "model": 73111603,
         "environment": 0,
-        "total": 73111603
+        "thumbnail": 697720,
+        "total": 73809323
       },
       "meta": {
         "date": "2025-04-24",
@@ -1420,7 +1600,8 @@
       "fileSize": {
         "model": 154380940,
         "environment": 575213,
-        "total": 154956153,
+        "thumbnail": 307334,
+        "total": 155263487,
         "recommended": "lod1"
       },
       "meta": {
@@ -1452,7 +1633,8 @@
       "fileSize": {
         "model": 203322144,
         "environment": 89867,
-        "total": 203412011
+        "thumbnail": 575343,
+        "total": 203987354
       },
       "meta": {
         "date": "2025-12-25",

@@ -8,6 +8,13 @@ metaflow-viewer/public/index.js
 metaflow-viewer/public/index.js.map
 metaflow-viewer/public/index.css
 metaflow-viewer/public/assets/
+.netlify-preview*/
+.netlify-production-deploy*/
+.playwright-cli/
+metaflow-viewer/.netlify/
+data/**/*.mp4
+data/**/*.mov
+data/**/*.mkv
 
 # Data files (large assets, stored separately)
 data_sample/

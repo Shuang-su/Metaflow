@@ -3,13 +3,13 @@
 自动扫描 data 目录，生成 index.json 资源索引
 """
 
-import os
 import json
 import re
-from pathlib import Path
 from datetime import datetime
+from pathlib import Path
 
-DATA_DIR = Path("/Volumes/Prism/Metaflow/data")
+REPO_ROOT = Path(__file__).resolve().parent.parent
+DATA_DIR = REPO_ROOT / "data"
 OUTPUT_FILE = DATA_DIR / "index.json"
 
 # 类别配置
@@ -26,7 +26,18 @@ SUBCATEGORIES = {
     "j04": {"name": "J04 扫描", "device": "J04"},
     "j05": {"name": "J05 扫描", "device": "J05"},
     "ad05": {"name": "AD05 扫描", "device": "AD05"},
-    "yzx": {"name": "YZX 项目", "device": "YZX"}
+    "yzx": {"name": "YZX 项目", "device": "YZX"},
+    "phoenixfes26": {"name": "PhoenixFes26", "device": "PhoenixFes26"},
+}
+
+STREAMING_SUBDIR_GLOB = "*/lod-meta.json"
+NESTED_VOXEL_GLOB = "*/*.voxel.json"
+SCANNER_SUBCATEGORIES = {"j04", "j05", "ad05"}
+RESOURCE_METADATA_OVERRIDES = {
+    ("acg", "phoenixfes26", "huaijiao"): {
+        "title": "怀娇",
+        "titleEn": "Huaijiao",
+    },
 }
 
 def slugify(text):
@@ -64,6 +75,8 @@ def slugify(text):
         "重返未來1999 贝丽尔": "beryl",
         "第五人格 红夫人 小女孩": "bloodyqueen",
         "原神 娜维娅": "navia",
+        "崩铁 银狼": "silver-wolf",
+        "舞台": "stage",
     }
     
     for cn, en in name_map.items():
@@ -152,7 +165,14 @@ def find_voxel_file(folder_path):
         file for file in folder_path.glob("*.voxel.json")
         if file.is_file()
     )
-    return voxel_candidates[0] if voxel_candidates else None
+    if voxel_candidates:
+        return voxel_candidates[0]
+
+    nested_candidates = sorted(
+        file for file in folder_path.glob(NESTED_VOXEL_GLOB)
+        if file.is_file()
+    )
+    return nested_candidates[0] if nested_candidates else None
 
 
 def find_streaming_model_file(folder_path):
@@ -160,7 +180,28 @@ def find_streaming_model_file(folder_path):
         candidate = folder_path / name
         if candidate.exists():
             return candidate
+
+    nested_candidates = sorted(
+        file for file in folder_path.glob(STREAMING_SUBDIR_GLOB)
+        if file.is_file()
+    )
+    if nested_candidates:
+        return nested_candidates[0]
     return None
+
+
+def normalize_subcategory_key(name):
+    lowered = name.strip().lower()
+    if lowered in SUBCATEGORIES:
+        return lowered
+    return re.sub(r'[^a-z0-9]+', '', lowered)
+
+
+def has_direct_resource_files(folder_path):
+    if list(folder_path.glob("*.sog")):
+        return True
+
+    return any((folder_path / name).exists() for name in ("lod-meta.json", "meta.json"))
 
 
 def strip_json_comments(text):
@@ -309,7 +350,6 @@ def scan_resource_folder(folder_path, category, subcategory=None):
             return None
     
     # 查找对应的环境 PLY
-    model_base = main_model.stem  # 不含扩展名
     environment_ply = None
     for ply in ply_files:
         if "environment" in ply.name.lower() or "point_cloud" in ply.name.lower():
@@ -351,7 +391,7 @@ def scan_resource_folder(folder_path, category, subcategory=None):
         "titleEn": slug.replace("-", " ").title(),
         "category": [category] + ([subcategory] if subcategory else []),
         "route": route,
-        "source": "scanner" if subcategory in ["j04", "j05", "ad05"] else "photogrammetry",
+        "source": "scanner" if subcategory in SCANNER_SUBCATEGORIES else "photogrammetry",
         "files": {
             "model": str(main_model.relative_to(DATA_DIR)) if main_model.exists() else None,
             "environment": str(environment_ply.relative_to(DATA_DIR)) if environment_ply else None,
@@ -371,10 +411,19 @@ def scan_resource_folder(folder_path, category, subcategory=None):
         }
     }
 
+    metadata_override = RESOURCE_METADATA_OVERRIDES.get((category, subcategory, slug))
+    if metadata_override:
+        resource.update(metadata_override)
+
     if voxel_file:
         resource["files"]["voxel"] = str(voxel_file.relative_to(DATA_DIR))
         resource["fileSize"]["voxel"] = voxel_size
         resource["fileSize"]["total"] += voxel_size
+
+    if model_mode == "streaming-json" and voxel_file:
+        resource["viewer"] = {
+            "defaultCameraMode": "fly"
+        }
     
     # 添加 LOD 信息
     if lod_files:
@@ -411,15 +460,13 @@ def scan_data_directory():
                 if not subcategory_dir.is_dir() or subcategory_dir.name.startswith('.'):
                     continue
                 
-                subcategory = subcategory_dir.name.lower()
-                
-                # yzx 是特殊情况，直接包含文件
-                if subcategory == "yzx":
-                    # 检查是否直接包含 sog 文件
-                    if list(subcategory_dir.glob("*.sog")):
-                        resource = scan_resource_folder(subcategory_dir, category, subcategory)
-                        if resource:
-                            resources.append(resource)
+                subcategory = normalize_subcategory_key(subcategory_dir.name)
+
+                # 直接包含资源文件的目录，例如 yzx
+                if has_direct_resource_files(subcategory_dir):
+                    resource = scan_resource_folder(subcategory_dir, category, subcategory)
+                    if resource:
+                        resources.append(resource)
                     continue
                 
                 # 正常的子目录结构
