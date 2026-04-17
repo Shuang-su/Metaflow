@@ -21,6 +21,19 @@ declare module 'playcanvas/scripts/esm/xr-navigation.mjs' {
     export { XrNavigation };
 }
 
+declare module './animation/create-figure8-track.js' {
+    const createFigure8Track: any;
+    export default createFigure8Track;
+}
+
+declare module './animation/resolve-animation-policy.js' {
+    const policyUtils: {
+        resolveAnimationPolicy: any,
+        resolvePreferredCameraMode: any
+    };
+    export default policyUtils;
+}
+
 declare module '*.html' {
     const content: string;
     export default content;
