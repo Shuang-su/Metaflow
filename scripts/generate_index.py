@@ -28,6 +28,7 @@ SUBCATEGORIES = {
     "ad05": {"name": "AD05 扫描", "device": "AD05"},
     "yzx": {"name": "YZX 项目", "device": "YZX"},
     "phoenixfes26": {"name": "PhoenixFes26", "device": "PhoenixFes26"},
+    "fes": {"name": "FES", "device": "FES"},
 }
 
 STREAMING_SUBDIR_GLOB = "*/lod-meta.json"
@@ -486,6 +487,17 @@ def scan_data_directory():
                 resource = scan_resource_folder(resource_dir, category)
                 if resource:
                     resources.append(resource)
+                    continue
+
+                # 支持类似 SZTU/FES/<resource> 的命名分组目录
+                subcategory = normalize_subcategory_key(resource_dir.name)
+                for nested_resource_dir in resource_dir.iterdir():
+                    if not nested_resource_dir.is_dir() or nested_resource_dir.name.startswith('.'):
+                        continue
+
+                    resource = scan_resource_folder(nested_resource_dir, category, subcategory)
+                    if resource:
+                        resources.append(resource)
     
     return resources
 

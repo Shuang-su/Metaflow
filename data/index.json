@@ -1,7 +1,7 @@
 {
   "version": "1.0",
-  "lastUpdated": "2026-04-14",
-  "totalResources": 48,
+  "lastUpdated": "2026-04-23",
+  "totalResources": 50,
   "categories": {
     "acg": {
       "name": "二次元",
@@ -44,6 +44,10 @@
     "phoenixfes26": {
       "name": "PhoenixFes26",
       "device": "PhoenixFes26"
+    },
+    "fes": {
+      "name": "FES",
+      "device": "FES"
     }
   },
   "resources": [
@@ -1645,6 +1649,73 @@
         "duration": 90,
         "frameRate": 60,
         "loopMode": "repeat"
+      }
+    },
+    {
+      "id": "c1-bdi-206",
+      "title": "C1-BDI-206",
+      "titleEn": "C1 Bdi 206",
+      "category": [
+        "sztu"
+      ],
+      "route": "/sztu/c1-bdi-206",
+      "source": "photogrammetry",
+      "files": {
+        "model": "SZTU/260418 SZTU C1-BDI-206/supersplat_lod_noenv_rot90_0_0/lod-meta.json",
+        "environment": "SZTU/260418 SZTU C1-BDI-206/260418 182725 uava_environment.compressed.ply",
+        "settings": "SZTU/260418 SZTU C1-BDI-206/settings-merged.json",
+        "thumbnail": "SZTU/260418 SZTU C1-BDI-206/260418 182725 uava.jpg",
+        "voxel": "SZTU/260418 SZTU C1-BDI-206/voxel_lod0_r0.08_a0.20_rot90_0_0/uava.voxel.json"
+      },
+      "fileSize": {
+        "model": 393660275,
+        "environment": 285988,
+        "thumbnail": 766746,
+        "total": 400544125,
+        "voxel": 5831116
+      },
+      "meta": {
+        "date": "2026-04-18",
+        "device": "SZTU",
+        "folderName": "260418 SZTU C1-BDI-206"
+      },
+      "viewer": {
+        "defaultCameraMode": "fly"
+      },
+      "animation": {
+        "duration": 175,
+        "frameRate": 60,
+        "loopMode": "repeat"
+      }
+    },
+    {
+      "id": "top10-26",
+      "title": "Top10_26",
+      "titleEn": "Top10 26",
+      "category": [
+        "sztu",
+        "fes"
+      ],
+      "route": "/sztu/fes/top10-26",
+      "source": "photogrammetry",
+      "files": {
+        "model": "SZTU/FES/260418 Top10_26/scene.sog",
+        "environment": "SZTU/FES/260418 Top10_26/environment.compressed.ply",
+        "settings": "SZTU/FES/260418 Top10_26/settings-merged.json",
+        "thumbnail": "SZTU/FES/260418 Top10_26/260418 215346 top10_26.jpg",
+        "voxel": "SZTU/FES/260418 Top10_26/voxel_lod0_r0.08_a0.20_rot90_0_0/walk.voxel.json"
+      },
+      "fileSize": {
+        "model": 11489463,
+        "environment": 69191,
+        "thumbnail": 580170,
+        "total": 15247920,
+        "voxel": 3109096
+      },
+      "meta": {
+        "date": "2026-04-18",
+        "device": "FES",
+        "folderName": "260418 Top10_26"
       }
     }
   ]
