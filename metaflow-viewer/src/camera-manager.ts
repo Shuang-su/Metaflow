@@ -3,7 +3,9 @@ import {
     Vec3
 } from 'playcanvas';
 
+import createFigure8Track from './animation/create-figure8-track.js';
 import { createRotateTrack } from './animation/create-rotate-track';
+import policyUtils from './animation/resolve-animation-policy.js';
 import { AnimController } from './cameras/anim-controller';
 import { Camera, type CameraFrame, type CameraController } from './cameras/camera';
 import { FlyController } from './cameras/fly-controller';
@@ -17,6 +19,7 @@ import type { VoxelCollider } from './voxel-collider';
 
 const tmpCamera = new Camera();
 const tmpv = new Vec3();
+const { resolveAnimationPolicy, resolvePreferredCameraMode } = policyUtils;
 
 const createCamera = (position: Vec3, target: Vec3, fov: number) => {
     const result = new Camera();
@@ -33,41 +36,6 @@ const createFrameCamera = (bbox: BoundingBox, fov: number) => {
         bbox.center,
         fov
     );
-};
-
-const resolvePreferredCameraMode = (
-    preferred: CameraMode | undefined,
-    isObjectExperience: boolean,
-    hasCollider: boolean
-): CameraMode => {
-    switch (preferred) {
-        case 'orbit':
-            return 'orbit';
-        case 'fly':
-            return 'fly';
-        case 'walk':
-            return hasCollider ? 'walk' : 'fly';
-        default:
-            return isObjectExperience ? 'orbit' : 'fly';
-    }
-};
-
-const resolveInitialCameraMode = (
-    preferred: CameraMode | undefined,
-    hasAnimation: boolean,
-    startInAnimation: boolean,
-    isObjectExperience: boolean,
-    hasCollider: boolean
-): CameraMode => {
-    if (preferred === 'anim') {
-        return hasAnimation ? 'anim' : resolvePreferredCameraMode(undefined, isObjectExperience, hasCollider);
-    }
-
-    if (hasAnimation && startInAnimation) {
-        return 'anim';
-    }
-
-    return resolvePreferredCameraMode(preferred, isObjectExperience, hasCollider);
 };
 
 class CameraManager {
@@ -92,28 +60,36 @@ class CameraManager {
         const frameCamera = createFrameCamera(bbox, camera0.fov);
         const resetCamera = createCamera(new Vec3(camera0.position), new Vec3(camera0.target), camera0.fov);
 
-        const getAnimTrack = (initial: Camera, isObjectExperience: boolean) => {
+        // object experience starts outside the bounding box
+        const isObjectExperience = !bbox.containsPoint(resetCamera.position);
+        let currentCollider = collider;
+        let pendingDefaultWalk = config.defaultCameraMode === 'walk' && !currentCollider;
+        const animationPolicy = resolveAnimationPolicy({
+            hasExplicitAnimTrack: settings.animTracks?.length > 0,
+            startMode: settings.startMode,
+            isObjectExperience,
+            hasExplicitStartPose: settings.hasStartPose,
+            hasCollider: !!currentCollider,
+            preferredCameraMode: config.defaultCameraMode
+        });
+
+        const getAnimTrack = (initial: Camera, trackKind: string) => {
             const { animTracks } = settings;
 
-            // extract the camera animation track from settings
-            if (animTracks?.length > 0 && settings.startMode === 'animTrack') {
-                // use the first animTrack
+            if (trackKind === 'explicit') {
                 return animTracks[0];
-            } else if (isObjectExperience) {
-                // create basic rotation animation if no anim track is specified
+            } else if (trackKind === 'rotate') {
                 initial.calcFocusPoint(tmpv);
                 return createRotateTrack(initial.position, tmpv, initial.fov);
+            } else if (trackKind === 'figure8') {
+                initial.calcFocusPoint(tmpv);
+                return createFigure8Track(initial.position, tmpv, initial.fov);
             }
+
             return null;
         };
 
-        // object experience starts outside the bounding box
-        const isObjectExperience = !bbox.containsPoint(resetCamera.position);
-        const animTrack = getAnimTrack(settings.hasStartPose ? resetCamera : frameCamera, isObjectExperience);
-        const startInAnimation = settings.startMode === 'animTrack';
-
-        let currentCollider = collider;
-        let pendingDefaultWalk = config.defaultCameraMode === 'walk' && !currentCollider;
+        const animTrack = getAnimTrack(settings.hasStartPose ? resetCamera : frameCamera, animationPolicy.trackKind);
 
         const controllers = {
             orbit: new OrbitController(),
@@ -145,13 +121,7 @@ class CameraManager {
         );
 
         // initialize camera mode and initial camera position
-        state.cameraMode = resolveInitialCameraMode(
-            config.defaultCameraMode,
-            state.hasAnimation,
-            startInAnimation,
-            isObjectExperience,
-            !!currentCollider
-        );
+        state.cameraMode = animationPolicy.initialCameraMode;
         this.camera.copy(resetCamera);
 
         const target = new Camera(this.camera);             // the active controller updates this
