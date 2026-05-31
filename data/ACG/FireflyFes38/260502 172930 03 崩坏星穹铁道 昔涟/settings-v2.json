@@ -1,0 +1,38 @@
+{
+  "version": 2,
+  "startMode": "default",
+  "hasStartPose": true,
+  "animTracks": [],
+  "annotations": [],
+  "cameras": [
+    {
+      "initial": {
+        "position": [
+          0,
+          0,
+          1
+        ],
+        "target": [
+          0,
+          0,
+          0
+        ],
+        "fov": 53.13010235415599
+      }
+    }
+  ],
+  "background": {
+    "type": "color",
+    "color": [
+      0.04,
+      0.045,
+      0.055,
+      1
+    ]
+  },
+  "postEffectSettings": {
+    "enabled": false
+  },
+  "tonemapping": "linear",
+  "highPrecisionRendering": true
+}

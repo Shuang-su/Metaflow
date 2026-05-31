@@ -28,6 +28,7 @@ SUBCATEGORIES = {
     "ad05": {"name": "AD05 扫描", "device": "AD05"},
     "yzx": {"name": "YZX 项目", "device": "YZX"},
     "phoenixfes26": {"name": "PhoenixFes26", "device": "PhoenixFes26"},
+    "fireflyfes38": {"name": "FireflyFes38", "device": "FireflyFes38"},
     "fes": {"name": "FES", "device": "FES"},
 }
 
@@ -39,6 +40,58 @@ RESOURCE_METADATA_OVERRIDES = {
         "title": "怀娇",
         "titleEn": "Huaijiao",
     },
+    ("acg", "fireflyfes38", "nangong-yu"): {
+        "title": "绝区零 南宫羽",
+        "titleEn": "Nangong Yu",
+        "viewer": {"syntheticAnimation": "figure8"},
+    },
+    ("acg", "fireflyfes38", "remielle-dan-b"): {
+        "title": "绝区零 拉米尔",
+        "titleEn": "Remielle Dan_B",
+        "viewer": {"syntheticAnimation": "figure8"},
+    },
+    ("acg", "fireflyfes38", "remielle-dan"): {
+        "title": "绝区零 拉米尔",
+        "titleEn": "Remielle Dan",
+        "viewer": {"syntheticAnimation": "figure8"},
+    },
+    ("acg", "fireflyfes38", "cyrene"): {
+        "title": "崩坏星穹铁道 昔涟",
+        "titleEn": "Cyrene",
+        "viewer": {"syntheticAnimation": "figure8"},
+    },
+    ("acg", "fireflyfes38", "fursuit"): {
+        "title": "国风兽装",
+        "titleEn": "Fursuit",
+        "viewer": {"syntheticAnimation": "figure8"},
+    },
+    ("acg", "fireflyfes38", "diaochan"): {
+        "title": "王者荣耀 貂蝉 馥梦繁花",
+        "titleEn": "Diaochan",
+        "viewer": {"syntheticAnimation": "figure8"},
+    },
+    ("acg", "fireflyfes38", "fireflyfes38"): {
+        "title": "FireflyFes38",
+        "titleEn": "FireflyFes38",
+    },
+    ("acg", "fireflyfes38", "azur-lane"): {
+        "title": "Azur Lane",
+        "titleEn": "Azur Lane",
+    },
+}
+RESOURCE_SLUG_OVERRIDES = {
+    ("acg", "fireflyfes38", "260502 160157 01 绝区零 南宫羽"): "nangong-yu",
+    ("acg", "fireflyfes38", "260502 160903 02b 绝区零 拉米尔"): "remielle-dan-b",
+    ("acg", "fireflyfes38", "260502 161428 02 绝区零 拉米尔"): "remielle-dan",
+    ("acg", "fireflyfes38", "260502 162735 scene 01"): "fireflyfes38",
+    ("acg", "fireflyfes38", "260502 165708 scene 02 碧蓝航线"): "azur-lane",
+    ("acg", "fireflyfes38", "260502 172930 03 崩坏星穹铁道 昔涟"): "cyrene",
+    ("acg", "fireflyfes38", "260502 180249 04 国风兽装"): "fursuit",
+    ("acg", "fireflyfes38", "260502 184535 05 王者荣耀 貂蝉 馥梦繁花"): "diaochan",
+}
+STREAMING_MODEL_OVERRIDES = {
+    ("acg", "fireflyfes38", "260502 162735 scene 01"): "streamed_noenv/lod-meta.json",
+    ("acg", "fireflyfes38", "260502 165708 scene 02 碧蓝航线"): "streamed_noenv/lod-meta.json",
 }
 
 def slugify(text):
@@ -281,12 +334,18 @@ def get_voxel_size(voxel_file):
     return total
 
 
-def get_streaming_model_size(folder_path, settings_file=None, thumbnail_file=None, voxel_file=None, environment_file=None):
+def get_streaming_model_size(folder_path, settings_file=None, thumbnail_file=None, voxel_file=None, environment_file=None, extra_excluded_paths=None):
     excluded_paths = {
         path.resolve()
         for path in (settings_file, thumbnail_file, voxel_file, environment_file)
         if path is not None and path.exists()
     }
+    if extra_excluded_paths:
+        excluded_paths.update(
+            path.resolve()
+            for path in extra_excluded_paths
+            if path is not None and path.exists()
+        )
 
     if voxel_file:
         voxel_bin = voxel_file.with_suffix(".bin")
@@ -312,6 +371,9 @@ def scan_resource_folder(folder_path, category, subcategory=None):
     sog_files = list(folder_path.glob("*.sog"))
     ply_files = list(folder_path.glob("*.compressed.ply"))
     streaming_model_file = find_streaming_model_file(folder_path)
+    streaming_model_override = STREAMING_MODEL_OVERRIDES.get((category, subcategory, folder_name))
+    if streaming_model_override:
+        streaming_model_file = folder_path / streaming_model_override
     settings_file = find_settings_file(folder_path)
     thumbnail_file = find_thumbnail_file(folder_path)
     voxel_file = find_voxel_file(folder_path)
@@ -334,10 +396,13 @@ def scan_resource_folder(folder_path, category, subcategory=None):
                 "file": str(sog.relative_to(DATA_DIR)),
                 "size": sog.stat().st_size
             })
-        else:
+        elif not streaming_model_override:
             main_model = sog
     
-    if not main_model and streaming_model_file:
+    if streaming_model_override and streaming_model_file and streaming_model_file.exists():
+        main_model = streaming_model_file
+        model_mode = "streaming-json"
+    elif not main_model and streaming_model_file:
         main_model = streaming_model_file
         model_mode = "streaming-json"
     elif not main_model:
@@ -359,7 +424,10 @@ def scan_resource_folder(folder_path, category, subcategory=None):
     
     # 生成 ID 和路由
     title = parsed["title"]
-    slug = slugify(title)
+    slug = RESOURCE_SLUG_OVERRIDES.get(
+        (category, subcategory, folder_name),
+        slugify(title)
+    )
     
     # 构建路由
     route_parts = [category]
@@ -378,7 +446,8 @@ def scan_resource_folder(folder_path, category, subcategory=None):
             settings_file=settings_file,
             thumbnail_file=thumbnail_file,
             voxel_file=voxel_file,
-            environment_file=environment_ply
+            environment_file=environment_ply,
+            extra_excluded_paths=sog_files if streaming_model_override else None
         )
     else:
         model_size = main_model.stat().st_size if main_model.exists() else 0
@@ -414,7 +483,17 @@ def scan_resource_folder(folder_path, category, subcategory=None):
 
     metadata_override = RESOURCE_METADATA_OVERRIDES.get((category, subcategory, slug))
     if metadata_override:
-        resource.update(metadata_override)
+        viewer_override = metadata_override.get("viewer")
+        resource.update({
+            key: value
+            for key, value in metadata_override.items()
+            if key != "viewer"
+        })
+        if viewer_override:
+            resource["viewer"] = {
+                **resource.get("viewer", {}),
+                **viewer_override,
+            }
 
     if voxel_file:
         resource["files"]["voxel"] = str(voxel_file.relative_to(DATA_DIR))
@@ -423,6 +502,7 @@ def scan_resource_folder(folder_path, category, subcategory=None):
 
     if model_mode == "streaming-json" and voxel_file:
         resource["viewer"] = {
+            **resource.get("viewer", {}),
             "defaultCameraMode": "fly"
         }
     

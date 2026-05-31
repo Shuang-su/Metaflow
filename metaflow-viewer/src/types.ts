@@ -40,6 +40,7 @@ type Config = {
     environmentUrl?: string;
     environmentContents?: Promise<Response>;
     defaultCameraMode?: CameraMode;
+    syntheticAnimation?: 'figure8';
 
     noui: boolean;
     noanim: boolean;

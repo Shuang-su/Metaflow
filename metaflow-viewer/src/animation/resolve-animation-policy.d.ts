@@ -10,7 +10,8 @@ declare const policyUtils: {
         isObjectExperience: boolean,
         hasExplicitStartPose: boolean,
         hasCollider: boolean,
-        preferredCameraMode?: CameraMode
+        preferredCameraMode?: CameraMode,
+        syntheticAnimation?: 'figure8'
     }): {
         trackKind: AnimationTrackKind,
         hasAnimation: boolean,

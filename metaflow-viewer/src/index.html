@@ -181,6 +181,7 @@
             let voxelUrl = url.searchParams.get('voxel');
             let environmentUrl = url.searchParams.get('environment');
             let defaultCameraMode = null;
+            let syntheticAnimation = null;
             let resourceTitle = '川流Metaflow';
 
             // 路由解析：从路径获取资源信息
@@ -205,6 +206,7 @@
                             voxelUrl = voxelUrl || dataUrl(resource?.files?.voxel);
                             environmentUrl = environmentUrl || dataUrl(resource?.files?.environment);
                             defaultCameraMode = resource?.viewer?.defaultCameraMode || null;
+                            syntheticAnimation = resource?.viewer?.syntheticAnimation || null;
                             // resourceTitle = '川流Metaflow - ' + resource.title;
                             // document.title = resourceTitle;
                         }
@@ -234,6 +236,7 @@
                     environmentUrl,
                     environmentContents: environmentUrl ? fetch(environmentUrl) : null,
                     defaultCameraMode: ['anim', 'orbit', 'fly', 'walk'].includes(defaultCameraMode) ? defaultCameraMode : undefined,
+                    syntheticAnimation: syntheticAnimation === 'figure8' ? syntheticAnimation : undefined,
                     noui: url.searchParams.has('noui'),
                     noanim: url.searchParams.has('noanim'),
                     ministats: url.searchParams.has('ministats'),

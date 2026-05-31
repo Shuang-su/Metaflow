@@ -2,6 +2,7 @@
 # Smaller .sog/.ply/.voxel.bin files stay in regular Git.
 "data/ACG/J04/260118 150402 J04 痛车/260118 150402 J04 Itasha.sog" filter=lfs diff=lfs merge=lfs -text
 "data/ACG/J04/260118 190943 J04 场景 ggc高谷仓/260118 190943 J04 ggc.sog" filter=lfs diff=lfs merge=lfs -text
+"data/ACG/FireflyFes38/260502 162735 scene 01/260502 162735 scene 01.sog" filter=lfs diff=lfs merge=lfs -text
 "data/SZTU/251220 SZTU B1-SDI-206/251220 SZTU B1-SDI-206 zhan_20500.sog" filter=lfs diff=lfs merge=lfs -text
 "data/SZTU/251225 SZTU D1-UTL-107/SZTURacingCarStudio_260206.sog" filter=lfs diff=lfs merge=lfs -text
 "data/Shenzhen/250917 Dayun/**" filter=lfs diff=lfs merge=lfs -text

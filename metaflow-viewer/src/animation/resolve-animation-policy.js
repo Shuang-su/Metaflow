@@ -30,7 +30,8 @@ const resolvePreferredCameraMode = (preferred, isObjectExperience, hasCollider) 
  *   isObjectExperience: boolean,
  *   hasExplicitStartPose: boolean,
  *   hasCollider: boolean,
- *   preferredCameraMode?: CameraMode
+ *   preferredCameraMode?: CameraMode,
+ *   syntheticAnimation?: 'figure8'
  * }} options
  * @returns {{
  *   trackKind: AnimationTrackKind,
@@ -45,7 +46,8 @@ const resolveAnimationPolicy = (options) => {
         isObjectExperience,
         hasExplicitStartPose,
         hasCollider,
-        preferredCameraMode
+        preferredCameraMode,
+        syntheticAnimation
     } = options;
 
     /** @type {AnimationTrackKind} */
@@ -53,6 +55,8 @@ const resolveAnimationPolicy = (options) => {
 
     if (hasExplicitAnimTrack && startMode === 'animTrack') {
         trackKind = 'explicit';
+    } else if (syntheticAnimation === 'figure8' && hasExplicitStartPose) {
+        trackKind = 'figure8';
     } else if (isObjectExperience) {
         trackKind = 'rotate';
     } else if (hasExplicitStartPose) {

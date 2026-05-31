@@ -37,6 +37,24 @@ test('explicit animTrack still wins and starts in animation', () => {
     });
 });
 
+test('synthetic figure-8 wins over object rotate when explicitly requested', () => {
+    const result = resolveAnimationPolicy({
+        hasExplicitAnimTrack: false,
+        startMode: 'default',
+        isObjectExperience: true,
+        hasExplicitStartPose: true,
+        hasCollider: false,
+        preferredCameraMode: undefined,
+        syntheticAnimation: 'figure8'
+    });
+
+    assert.deepEqual(result, {
+        trackKind: 'figure8',
+        hasAnimation: true,
+        initialCameraMode: 'anim'
+    });
+});
+
 test('object experience keeps rotate auto-track and does not auto-enter animation', () => {
     const result = resolveAnimationPolicy({
         hasExplicitAnimTrack: false,

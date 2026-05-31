@@ -1,7 +1,7 @@
 {
   "version": "1.0",
-  "lastUpdated": "2026-04-23",
-  "totalResources": 50,
+  "lastUpdated": "2026-06-01",
+  "totalResources": 58,
   "categories": {
     "acg": {
       "name": "二次元",
@@ -44,6 +44,10 @@
     "phoenixfes26": {
       "name": "PhoenixFes26",
       "device": "PhoenixFes26"
+    },
+    "fireflyfes38": {
+      "name": "FireflyFes38",
+      "device": "FireflyFes38"
     },
     "fes": {
       "name": "FES",
@@ -1348,6 +1352,280 @@
         "duration": 50,
         "frameRate": 60,
         "loopMode": "repeat"
+      }
+    },
+    {
+      "id": "azur-lane",
+      "title": "Azur Lane",
+      "titleEn": "Azur Lane",
+      "category": [
+        "acg",
+        "fireflyfes38"
+      ],
+      "route": "/acg/fireflyfes38/azur-lane",
+      "source": "photogrammetry",
+      "files": {
+        "model": "ACG/FireflyFes38/260502 165708 scene 02 碧蓝航线/streamed_noenv/lod-meta.json",
+        "environment": "ACG/FireflyFes38/260502 165708 scene 02 碧蓝航线/260502 165708 scene 02 Azur Lane_environment.compressed.ply",
+        "settings": "ACG/FireflyFes38/260502 165708 scene 02 碧蓝航线/settings-v2.json",
+        "thumbnail": "ACG/FireflyFes38/260502 165708 scene 02 碧蓝航线/260502 165708 scene 02 Azur Lane.jpg",
+        "voxel": "ACG/FireflyFes38/260502 165708 scene 02 碧蓝航线/voxel_ply_lod0_r0.08_a0.20/meta.voxel.json"
+      },
+      "fileSize": {
+        "model": 148705399,
+        "environment": 461202,
+        "thumbnail": 573929,
+        "total": 160638762,
+        "voxel": 10898232
+      },
+      "meta": {
+        "date": "2026-05-02",
+        "device": "FIREFLYFES38",
+        "folderName": "260502 165708 scene 02 碧蓝航线"
+      },
+      "viewer": {
+        "defaultCameraMode": "fly"
+      },
+      "animation": {
+        "duration": 56.666666666666664,
+        "frameRate": 60,
+        "loopMode": "repeat"
+      }
+    },
+    {
+      "id": "cyrene",
+      "title": "崩坏星穹铁道 昔涟",
+      "titleEn": "Cyrene",
+      "category": [
+        "acg",
+        "fireflyfes38"
+      ],
+      "route": "/acg/fireflyfes38/cyrene",
+      "source": "photogrammetry",
+      "files": {
+        "model": "ACG/FireflyFes38/260502 172930 03 崩坏星穹铁道 昔涟/260502 172930 03 Cyrene.sog",
+        "environment": "ACG/FireflyFes38/260502 172930 03 崩坏星穹铁道 昔涟/260502 172930 03 Cyrene_environment.compressed.ply",
+        "settings": "ACG/FireflyFes38/260502 172930 03 崩坏星穹铁道 昔涟/settings-v2.json",
+        "thumbnail": "ACG/FireflyFes38/260502 172930 03 崩坏星穹铁道 昔涟/260502 172930 03 Cyrene.jpg",
+        "voxel": "ACG/FireflyFes38/260502 172930 03 崩坏星穹铁道 昔涟/voxel_ply_lod0_r0.08_a0.20/meta.voxel.json"
+      },
+      "fileSize": {
+        "model": 25014364,
+        "environment": 468461,
+        "thumbnail": 508371,
+        "total": 29816551,
+        "voxel": 3825355
+      },
+      "meta": {
+        "date": "2026-05-02",
+        "device": "03",
+        "folderName": "260502 172930 03 崩坏星穹铁道 昔涟"
+      },
+      "viewer": {
+        "syntheticAnimation": "figure8"
+      }
+    },
+    {
+      "id": "diaochan",
+      "title": "王者荣耀 貂蝉 馥梦繁花",
+      "titleEn": "Diaochan",
+      "category": [
+        "acg",
+        "fireflyfes38"
+      ],
+      "route": "/acg/fireflyfes38/diaochan",
+      "source": "photogrammetry",
+      "files": {
+        "model": "ACG/FireflyFes38/260502 184535 05 王者荣耀 貂蝉 馥梦繁花/260502 184535 05 diaochan.sog",
+        "environment": "ACG/FireflyFes38/260502 184535 05 王者荣耀 貂蝉 馥梦繁花/260502 184535 05 diaochan_environment.compressed.ply",
+        "settings": "ACG/FireflyFes38/260502 184535 05 王者荣耀 貂蝉 馥梦繁花/settings-v2.json",
+        "thumbnail": "ACG/FireflyFes38/260502 184535 05 王者荣耀 貂蝉 馥梦繁花/260502 184535 05 diaochan.jpg",
+        "voxel": "ACG/FireflyFes38/260502 184535 05 王者荣耀 貂蝉 馥梦繁花/voxel_ply_lod0_r0.08_a0.20/meta.voxel.json"
+      },
+      "fileSize": {
+        "model": 16460597,
+        "environment": 1429152,
+        "thumbnail": 298122,
+        "total": 22078501,
+        "voxel": 3890630
+      },
+      "meta": {
+        "date": "2026-05-02",
+        "device": "05",
+        "folderName": "260502 184535 05 王者荣耀 貂蝉 馥梦繁花"
+      },
+      "viewer": {
+        "syntheticAnimation": "figure8"
+      }
+    },
+    {
+      "id": "fireflyfes38",
+      "title": "FireflyFes38",
+      "titleEn": "FireflyFes38",
+      "category": [
+        "acg",
+        "fireflyfes38"
+      ],
+      "route": "/acg/fireflyfes38/fireflyfes38",
+      "source": "photogrammetry",
+      "files": {
+        "model": "ACG/FireflyFes38/260502 162735 scene 01/streamed_noenv/lod-meta.json",
+        "environment": "ACG/FireflyFes38/260502 162735 scene 01/260502 162735 scene 01_environment.compressed.ply",
+        "settings": "ACG/FireflyFes38/260502 162735 scene 01/settings-v2.json",
+        "thumbnail": "ACG/FireflyFes38/260502 162735 scene 01/260502 162735 scene 01.jpg",
+        "voxel": "ACG/FireflyFes38/260502 162735 scene 01/voxel_ply_lod0_r0.08_a0.20/meta.voxel.json"
+      },
+      "fileSize": {
+        "model": 309694917,
+        "environment": 1314090,
+        "thumbnail": 485150,
+        "total": 334203670,
+        "voxel": 22709513
+      },
+      "meta": {
+        "date": "2026-05-02",
+        "device": "FIREFLYFES38",
+        "folderName": "260502 162735 scene 01"
+      },
+      "viewer": {
+        "defaultCameraMode": "fly"
+      },
+      "animation": {
+        "duration": 113.33333333333333,
+        "frameRate": 60,
+        "loopMode": "repeat"
+      }
+    },
+    {
+      "id": "fursuit",
+      "title": "国风兽装",
+      "titleEn": "Fursuit",
+      "category": [
+        "acg",
+        "fireflyfes38"
+      ],
+      "route": "/acg/fireflyfes38/fursuit",
+      "source": "photogrammetry",
+      "files": {
+        "model": "ACG/FireflyFes38/260502 180249 04 国风兽装/260502 180249 04 Fursuit.sog",
+        "environment": "ACG/FireflyFes38/260502 180249 04 国风兽装/260502 180249 04 Fursuit_environment.compressed.ply",
+        "settings": "ACG/FireflyFes38/260502 180249 04 国风兽装/settings-v2-micro.json",
+        "thumbnail": "ACG/FireflyFes38/260502 180249 04 国风兽装/260502 180249 04 Fursuit.jpg",
+        "voxel": "ACG/FireflyFes38/260502 180249 04 国风兽装/voxel_ply_lod0_r0.08_a0.20/meta.voxel.json"
+      },
+      "fileSize": {
+        "model": 28886114,
+        "environment": 424813,
+        "thumbnail": 533384,
+        "total": 36363174,
+        "voxel": 6518863
+      },
+      "meta": {
+        "date": "2026-05-02",
+        "device": "04",
+        "folderName": "260502 180249 04 国风兽装"
+      },
+      "viewer": {
+        "syntheticAnimation": "figure8"
+      }
+    },
+    {
+      "id": "nangong-yu",
+      "title": "绝区零 南宫羽",
+      "titleEn": "Nangong Yu",
+      "category": [
+        "acg",
+        "fireflyfes38"
+      ],
+      "route": "/acg/fireflyfes38/nangong-yu",
+      "source": "photogrammetry",
+      "files": {
+        "model": "ACG/FireflyFes38/260502 160157 01 绝区零 南宫羽/260502 160157 01 NangongYu.sog",
+        "environment": "ACG/FireflyFes38/260502 160157 01 绝区零 南宫羽/260502 160157 01 Nangong Yu_environment.compressed.ply",
+        "settings": "ACG/FireflyFes38/260502 160157 01 绝区零 南宫羽/settings-v2.json",
+        "thumbnail": "ACG/FireflyFes38/260502 160157 01 绝区零 南宫羽/260502 160157 01 NangongYu.jpg",
+        "voxel": "ACG/FireflyFes38/260502 160157 01 绝区零 南宫羽/voxel_ply_lod0_r0.08_a0.20/meta.voxel.json"
+      },
+      "fileSize": {
+        "model": 22584368,
+        "environment": 5463481,
+        "thumbnail": 360372,
+        "total": 35238877,
+        "voxel": 6830656
+      },
+      "meta": {
+        "date": "2026-05-02",
+        "device": "01",
+        "folderName": "260502 160157 01 绝区零 南宫羽"
+      },
+      "viewer": {
+        "syntheticAnimation": "figure8"
+      }
+    },
+    {
+      "id": "remielle-dan",
+      "title": "绝区零 拉米尔",
+      "titleEn": "Remielle Dan",
+      "category": [
+        "acg",
+        "fireflyfes38"
+      ],
+      "route": "/acg/fireflyfes38/remielle-dan",
+      "source": "photogrammetry",
+      "files": {
+        "model": "ACG/FireflyFes38/260502 161428 02 绝区零 拉米尔/260502 161428 02 Remielle Dan.sog",
+        "environment": "ACG/FireflyFes38/260502 161428 02 绝区零 拉米尔/260502 161428 02 Remielle Dan_environment.compressed.ply",
+        "settings": "ACG/FireflyFes38/260502 161428 02 绝区零 拉米尔/settings-v2.json",
+        "thumbnail": "ACG/FireflyFes38/260502 161428 02 绝区零 拉米尔/260502 161428 02 Remielle Dan.jpg",
+        "voxel": "ACG/FireflyFes38/260502 161428 02 绝区零 拉米尔/voxel_ply_lod0_r0.08_a0.20/meta.voxel.json"
+      },
+      "fileSize": {
+        "model": 24436880,
+        "environment": 7456896,
+        "thumbnail": 411091,
+        "total": 38822795,
+        "voxel": 6517928
+      },
+      "meta": {
+        "date": "2026-05-02",
+        "device": "02",
+        "folderName": "260502 161428 02 绝区零 拉米尔"
+      },
+      "viewer": {
+        "syntheticAnimation": "figure8"
+      }
+    },
+    {
+      "id": "remielle-dan-b",
+      "title": "绝区零 拉米尔",
+      "titleEn": "Remielle Dan_B",
+      "category": [
+        "acg",
+        "fireflyfes38"
+      ],
+      "route": "/acg/fireflyfes38/remielle-dan-b",
+      "source": "photogrammetry",
+      "files": {
+        "model": "ACG/FireflyFes38/260502 160903 02b 绝区零 拉米尔/260502 160903 02b Remielle Dan.sog",
+        "environment": "ACG/FireflyFes38/260502 160903 02b 绝区零 拉米尔/260502 160903 02b Remielle Dan_environment.compressed.ply",
+        "settings": "ACG/FireflyFes38/260502 160903 02b 绝区零 拉米尔/settings-v2.json",
+        "thumbnail": "ACG/FireflyFes38/260502 160903 02b 绝区零 拉米尔/260502 160903 02b Remielle Dan.jpg",
+        "voxel": "ACG/FireflyFes38/260502 160903 02b 绝区零 拉米尔/voxel_ply_lod0_r0.08_a0.20/meta.voxel.json"
+      },
+      "fileSize": {
+        "model": 21956595,
+        "environment": 12724892,
+        "thumbnail": 411091,
+        "total": 36770676,
+        "voxel": 1678098
+      },
+      "meta": {
+        "date": "2026-05-02",
+        "device": "FIREFLYFES38",
+        "folderName": "260502 160903 02b 绝区零 拉米尔"
+      },
+      "viewer": {
+        "syntheticAnimation": "figure8"
       }
     },
     {

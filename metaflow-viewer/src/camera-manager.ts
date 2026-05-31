@@ -70,7 +70,8 @@ class CameraManager {
             isObjectExperience,
             hasExplicitStartPose: settings.hasStartPose,
             hasCollider: !!currentCollider,
-            preferredCameraMode: config.defaultCameraMode
+            preferredCameraMode: config.defaultCameraMode,
+            syntheticAnimation: config.syntheticAnimation
         });
 
         const getAnimTrack = (initial: Camera, trackKind: string) => {
