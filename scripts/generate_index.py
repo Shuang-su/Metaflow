@@ -93,6 +93,9 @@ STREAMING_MODEL_OVERRIDES = {
     ("acg", "fireflyfes38", "260502 162735 scene 01"): "streamed_noenv/lod-meta.json",
     ("acg", "fireflyfes38", "260502 165708 scene 02 碧蓝航线"): "streamed_noenv/lod-meta.json",
 }
+SETTINGS_FILE_OVERRIDES = {
+    ("acg", "fireflyfes38", "260502 165708 scene 02 碧蓝航线"): "settings-merged.json",
+}
 
 def slugify(text):
     """将中文名称转换为 URL slug"""
@@ -375,6 +378,9 @@ def scan_resource_folder(folder_path, category, subcategory=None):
     if streaming_model_override:
         streaming_model_file = folder_path / streaming_model_override
     settings_file = find_settings_file(folder_path)
+    settings_file_override = SETTINGS_FILE_OVERRIDES.get((category, subcategory, folder_name))
+    if settings_file_override:
+        settings_file = folder_path / settings_file_override
     thumbnail_file = find_thumbnail_file(folder_path)
     voxel_file = find_voxel_file(folder_path)
 

@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "lastUpdated": "2026-06-01",
+  "lastUpdated": "2026-06-03",
   "totalResources": 58,
   "categories": {
     "acg": {
@@ -1367,15 +1367,15 @@
       "files": {
         "model": "ACG/FireflyFes38/260502 165708 scene 02 碧蓝航线/streamed_noenv/lod-meta.json",
         "environment": "ACG/FireflyFes38/260502 165708 scene 02 碧蓝航线/260502 165708 scene 02 Azur Lane_environment.compressed.ply",
-        "settings": "ACG/FireflyFes38/260502 165708 scene 02 碧蓝航线/settings-v2.json",
+        "settings": "ACG/FireflyFes38/260502 165708 scene 02 碧蓝航线/settings-merged.json",
         "thumbnail": "ACG/FireflyFes38/260502 165708 scene 02 碧蓝航线/260502 165708 scene 02 Azur Lane.jpg",
         "voxel": "ACG/FireflyFes38/260502 165708 scene 02 碧蓝航线/voxel_ply_lod0_r0.08_a0.20/meta.voxel.json"
       },
       "fileSize": {
-        "model": 148705399,
+        "model": 148710227,
         "environment": 461202,
-        "thumbnail": 573929,
-        "total": 160638762,
+        "thumbnail": 615985,
+        "total": 160685646,
         "voxel": 10898232
       },
       "meta": {
@@ -1445,8 +1445,8 @@
       "fileSize": {
         "model": 16460597,
         "environment": 1429152,
-        "thumbnail": 298122,
-        "total": 22078501,
+        "thumbnail": 296646,
+        "total": 22077025,
         "voxel": 3890630
       },
       "meta": {
@@ -1478,8 +1478,8 @@
       "fileSize": {
         "model": 309694917,
         "environment": 1314090,
-        "thumbnail": 485150,
-        "total": 334203670,
+        "thumbnail": 429492,
+        "total": 334148012,
         "voxel": 22709513
       },
       "meta": {
@@ -1516,8 +1516,8 @@
       "fileSize": {
         "model": 28886114,
         "environment": 424813,
-        "thumbnail": 533384,
-        "total": 36363174,
+        "thumbnail": 502116,
+        "total": 36331906,
         "voxel": 6518863
       },
       "meta": {
@@ -1549,8 +1549,8 @@
       "fileSize": {
         "model": 22584368,
         "environment": 5463481,
-        "thumbnail": 360372,
-        "total": 35238877,
+        "thumbnail": 353067,
+        "total": 35231572,
         "voxel": 6830656
       },
       "meta": {
@@ -1582,8 +1582,8 @@
       "fileSize": {
         "model": 24436880,
         "environment": 7456896,
-        "thumbnail": 411091,
-        "total": 38822795,
+        "thumbnail": 405635,
+        "total": 38817339,
         "voxel": 6517928
       },
       "meta": {
@@ -1615,8 +1615,8 @@
       "fileSize": {
         "model": 21956595,
         "environment": 12724892,
-        "thumbnail": 411091,
-        "total": 36770676,
+        "thumbnail": 405635,
+        "total": 36765220,
         "voxel": 1678098
       },
       "meta": {
