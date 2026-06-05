@@ -1,7 +1,7 @@
 {
   "version": "1.0",
-  "lastUpdated": "2026-06-03",
-  "totalResources": 58,
+  "lastUpdated": "2026-06-06",
+  "totalResources": 59,
   "categories": {
     "acg": {
       "name": "二次元",
@@ -41,6 +41,10 @@
       "name": "YZX 项目",
       "device": "YZX"
     },
+    "2568": {
+      "name": "2568",
+      "device": "2568"
+    },
     "phoenixfes26": {
       "name": "PhoenixFes26",
       "device": "PhoenixFes26"
@@ -55,6 +59,39 @@
     }
   },
   "resources": [
+    {
+      "id": "2026",
+      "title": "2026",
+      "titleEn": "2026",
+      "category": [
+        "acg",
+        "2568"
+      ],
+      "route": "/acg/2568/2026",
+      "source": "photogrammetry",
+      "files": {
+        "model": "ACG/2568/2026/streamed/lod-meta.json",
+        "environment": null,
+        "settings": "ACG/2568/2026/settings.json",
+        "thumbnail": "ACG/2568/2026/loading.jpg",
+        "voxel": "ACG/2568/2026/voxel/walk.voxel.json"
+      },
+      "fileSize": {
+        "model": 244452179,
+        "environment": 0,
+        "thumbnail": 448081,
+        "total": 288731821,
+        "voxel": 43831561
+      },
+      "meta": {
+        "date": null,
+        "device": "2568",
+        "folderName": "2026"
+      },
+      "viewer": {
+        "defaultCameraMode": "fly"
+      }
+    },
     {
       "id": "yzx",
       "title": "yzx",

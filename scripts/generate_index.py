@@ -27,6 +27,7 @@ SUBCATEGORIES = {
     "j05": {"name": "J05 扫描", "device": "J05"},
     "ad05": {"name": "AD05 扫描", "device": "AD05"},
     "yzx": {"name": "YZX 项目", "device": "YZX"},
+    "2568": {"name": "2568", "device": "2568"},
     "phoenixfes26": {"name": "PhoenixFes26", "device": "PhoenixFes26"},
     "fireflyfes38": {"name": "FireflyFes38", "device": "FireflyFes38"},
     "fes": {"name": "FES", "device": "FES"},
