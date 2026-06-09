@@ -43,7 +43,7 @@ SCANNER_SUBCATEGORIES = {"j04", "j05", "ad05"}
 LEGACY_VOXEL_COORDINATE_SPACE = "metaflow-rz180"
 LEGACY_VOXEL_RZ180_ROUTES = {
     "/acg/2568/2026",
-    "/acg/j05/寻洋派",
+    "/acg/j05/xunyangpai",
     "/acg/phoenixfes26/huaijiao",
     "/acg/phoenixfes26/itasha",
     "/acg/phoenixfes26/silver-wolf",
@@ -105,6 +105,7 @@ RESOURCE_METADATA_OVERRIDES = {
     },
 }
 RESOURCE_SLUG_OVERRIDES = {
+    ("acg", "j05", "260315 184701 J05 08 寻洋派"): "xunyangpai",
     ("acg", "fireflyfes38", "260502 160157 01 绝区零 南宫羽"): "nangong-yu",
     ("acg", "fireflyfes38", "260502 160903 02b 绝区零 拉米尔"): "remielle-dan-b",
     ("acg", "fireflyfes38", "260502 161428 02 绝区零 拉米尔"): "remielle-dan",
@@ -113,6 +114,9 @@ RESOURCE_SLUG_OVERRIDES = {
     ("acg", "fireflyfes38", "260502 172930 03 崩坏星穹铁道 昔涟"): "cyrene",
     ("acg", "fireflyfes38", "260502 180249 04 国风兽装"): "fursuit",
     ("acg", "fireflyfes38", "260502 184535 05 王者荣耀 貂蝉 馥梦繁花"): "diaochan",
+}
+RESOURCE_ROUTE_ALIASES = {
+    ("acg", "j05", "xunyangpai"): ["/acg/j05/寻洋派"],
 }
 STREAMING_MODEL_OVERRIDES = {
     ("acg", "fireflyfes38", "260502 162735 scene 01"): "streamed_noenv/lod-meta.json",
@@ -651,6 +655,10 @@ def scan_resource_folder(folder_path, category, subcategory=None):
                 **resource.get("viewer", {}),
                 **viewer_override,
             }
+
+    route_aliases = RESOURCE_ROUTE_ALIASES.get((category, subcategory, slug))
+    if route_aliases:
+        resource["aliases"] = route_aliases
 
     if voxel_file:
         resource["files"]["voxel"] = str(voxel_file.relative_to(DATA_DIR))

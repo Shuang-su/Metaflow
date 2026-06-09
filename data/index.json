@@ -1368,14 +1368,14 @@
       }
     },
     {
-      "id": "寻洋派",
+      "id": "xunyangpai",
       "title": "08 寻洋派",
-      "titleEn": "寻洋派",
+      "titleEn": "Xunyangpai",
       "category": [
         "acg",
         "j05"
       ],
-      "route": "/acg/j05/寻洋派",
+      "route": "/acg/j05/xunyangpai",
       "source": "scanner",
       "files": {
         "model": "ACG/J05/260315 184701 J05 08 寻洋派/lod-meta.json",
@@ -1396,6 +1396,9 @@
         "device": "J05",
         "folderName": "260315 184701 J05 08 寻洋派"
       },
+      "aliases": [
+        "/acg/j05/寻洋派"
+      ],
       "viewer": {
         "voxelCoordinateSpace": "metaflow-rz180",
         "defaultCameraMode": "fly"

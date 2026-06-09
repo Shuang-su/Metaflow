@@ -6,7 +6,7 @@ const readJson = async (path) => JSON.parse(await readFile(path, 'utf8'));
 
 const LEGACY_VOXEL_RZ180_ROUTES = [
     '/acg/2568/2026',
-    '/acg/j05/寻洋派',
+    '/acg/j05/xunyangpai',
     '/acg/phoenixfes26/huaijiao',
     '/acg/phoenixfes26/itasha',
     '/acg/phoenixfes26/silver-wolf',
@@ -36,6 +36,32 @@ test('Dayun index exposes tiled voxel manifest without legacy single-voxel fallb
     assert.equal(dayun.files.voxel, undefined);
     assert.equal(dayun.fileSize.voxel, undefined);
     assert.ok(dayun.fileSize.voxelManifest > 0);
+});
+
+test('Xunyangpai keeps the public English route and the previous Chinese route alias', async () => {
+    const index = await readJson(new URL('../../data/index.json', import.meta.url));
+    const resource = index.resources.find((entry) => entry.id === 'xunyangpai');
+
+    assert.ok(resource, 'xunyangpai resource should exist');
+    assert.equal(resource.route, '/acg/j05/xunyangpai');
+    assert.deepEqual(resource.aliases, ['/acg/j05/寻洋派']);
+    assert.equal(resource.viewer?.voxelCoordinateSpace, 'metaflow-rz180');
+});
+
+test('legacy partial v2 post effects are normalized before Viewer construction', async () => {
+    const settings = await readJson(new URL(
+        '../../data/ACG/FireflyFes38/260502 172930 03 崩坏星穹铁道 昔涟/settings-v2.json',
+        import.meta.url
+    ));
+    const source = await readFile(new URL('../src/settings.ts', import.meta.url), 'utf8');
+    const viewer = await readFile(new URL('../src/viewer.ts', import.meta.url), 'utf8');
+
+    assert.deepEqual(settings.postEffectSettings, { enabled: false });
+    assert.match(source, /normalizePostEffectSettings/);
+    assert.match(source, /rootDisabled = source\.enabled === false/);
+    assert.match(source, /postEffectSettings: normalizePostEffectSettings/);
+    assert.match(viewer, /Standard SOG resources use the per-instance sorter/);
+    assert.match(viewer, /SOG sorter timeout - forcing first frame/);
 });
 
 test('published legacy voxel resources are explicitly marked for Metaflow Rz180 coordinates', async () => {

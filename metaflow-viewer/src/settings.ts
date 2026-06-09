@@ -1,6 +1,64 @@
 import { ExperienceSettings as V1, AnimTrack as AnimTrackV1, validateV1 } from './schemas/v1';
-import { ExperienceSettings as V2, AnimTrack as AnimTrackV2, validateV2 } from './schemas/v2';
+import {
+    ExperienceSettings as V2,
+    AnimTrack as AnimTrackV2,
+    PostEffectSettings,
+    validateV2
+} from './schemas/v2';
 import { assertObject } from './schemas/validate-utils';
+
+const defaultPostEffectSettings = (): PostEffectSettings => ({
+    sharpness: {
+        enabled: false,
+        amount: 0
+    },
+    bloom: {
+        enabled: false,
+        intensity: 1,
+        blurLevel: 2
+    },
+    grading: {
+        enabled: false,
+        brightness: 0,
+        contrast: 1,
+        saturation: 1,
+        tint: [1, 1, 1]
+    },
+    vignette: {
+        enabled: false,
+        intensity: 0.5,
+        inner: 0.3,
+        outer: 0.75,
+        curvature: 1
+    },
+    fringing: {
+        enabled: false,
+        intensity: 0.5
+    }
+});
+
+const normalizePostEffectSettings = (input: any): PostEffectSettings => {
+    const defaults = defaultPostEffectSettings();
+    const source = input && typeof input === 'object' ? input : {};
+    const rootDisabled = source.enabled === false;
+
+    // Some Metaflow v2 settings predate the expanded upstream schema and only
+    // contain `{ enabled: false }`. Keep those scenes valid by filling each
+    // effect from current defaults while preserving any explicit child values.
+    const mergeEffect = <T extends { enabled: boolean }>(fallback: T, value: any): T => ({
+        ...fallback,
+        ...(value && typeof value === 'object' ? value : {}),
+        enabled: rootDisabled ? false : value?.enabled === true
+    });
+
+    return {
+        sharpness: mergeEffect(defaults.sharpness, source.sharpness),
+        bloom: mergeEffect(defaults.bloom, source.bloom),
+        grading: mergeEffect(defaults.grading, source.grading),
+        vignette: mergeEffect(defaults.vignette, source.vignette),
+        fringing: mergeEffect(defaults.fringing, source.fringing)
+    };
+};
 
 const migrateV1 = (settings: V1): V1 => {
     if (settings.animTracks) {
@@ -116,8 +174,12 @@ const importSettings = (settings: any): V2 => {
         // v1 -> v2
         result = migrateV2(migrateV1(settings as V1));
     } else if (version === 2) {
-        // already v2
-        result = settings as V2;
+        // Metaflow has published partial v2 post-effect objects. Normalize
+        // them at the compatibility boundary instead of weakening render code.
+        result = {
+            ...settings,
+            postEffectSettings: normalizePostEffectSettings(settings.postEffectSettings)
+        } as V2;
     } else {
         throw new Error(`Unsupported experience settings version: ${version}`);
     }

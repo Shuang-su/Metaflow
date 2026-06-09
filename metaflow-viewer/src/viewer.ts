@@ -671,6 +671,71 @@ class Viewer {
 
             const { gsplat } = app.scene;
 
+            const instance = gsplatComponent.instance;
+            if (instance) {
+                // Standard SOG resources use the per-instance sorter and do
+                // not participate in the octree system's `frame:ready` event.
+                // Metaflow still publishes both formats, so preserve this
+                // dedicated first-frame path alongside upstream LOD loading.
+                const numSplats = instance.resource?.numSplats ?? 0;
+                const splatLabel = numSplats >= 10000
+                    ? `${(numSplats / 10000).toFixed(1)} 万`
+                    : `${numSplats}`;
+                let firstFrameScheduled = false;
+                let sortTimeout: ReturnType<typeof setTimeout> | null = null;
+
+                const scheduleFirstFrame = () => {
+                    if (firstFrameScheduled) {
+                        return;
+                    }
+                    firstFrameScheduled = true;
+                    if (sortTimeout) {
+                        clearTimeout(sortTimeout);
+                    }
+
+                    state.readyToRender = true;
+                    state.loadingStage = 'prepare';
+                    state.loadingStatus = '高斯点排序就绪，正在准备首帧...';
+                    state.progress = 100;
+                    app.renderNextFrame = true;
+                    app.once('frameend', () => {
+                        events.fire('firstFrame');
+                        window.firstFrame?.();
+                    });
+                };
+
+                state.loadingStage = 'sort';
+                state.loadingStatus = numSplats > 0
+                    ? `正在排序 ${splatLabel} 个高斯点...`
+                    : '正在排序高斯点...';
+                state.progress = -1;
+
+                if (instance.sorter) {
+                    const onSorterUpdated = () => {
+                        instance.sorter.off('updated', onSorterUpdated);
+                        scheduleFirstFrame();
+                    };
+                    instance.sorter.on('updated', onSorterUpdated);
+                    instance.sort(camera);
+
+                    // A few legacy SOG files do not emit sorter updates on
+                    // newer PlayCanvas builds. Rendering their latest sorted
+                    // state is preferable to leaving the loading UI forever.
+                    sortTimeout = setTimeout(() => {
+                        if (!firstFrameScheduled) {
+                            console.warn('[Viewer] SOG sorter timeout - forcing first frame');
+                            instance.sorter.off('updated', onSorterUpdated);
+                            scheduleFirstFrame();
+                        }
+                    }, 3000);
+                } else {
+                    instance.sort(camera);
+                    scheduleFirstFrame();
+                }
+
+                return;
+            }
+
             // quality budget
             const budgets = {
                 mobile: {
