@@ -1,6 +1,15 @@
 {
   "version": "1.0",
-  "lastUpdated": "2026-06-06",
+  "schemaVersion": "1.1",
+  "release": {
+    "displayVersion": "4.2b",
+    "appSemver": "4.2.0",
+    "schemaVersion": "1.1",
+    "historyUrl": "/data/version-history.json",
+    "updatedAt": "2026-06-06",
+    "gitRef": "66e4311"
+  },
+  "lastUpdated": "2026-06-09",
   "totalResources": 59,
   "categories": {
     "acg": {
@@ -89,7 +98,12 @@
         "folderName": "2026"
       },
       "viewer": {
+        "voxelCoordinateSpace": "metaflow-rz180",
         "defaultCameraMode": "fly"
+      },
+      "version": {
+        "addedIn": "4.2b",
+        "updatedIn": "4.2b"
       }
     },
     {
@@ -123,6 +137,10 @@
         "duration": 11.666666666666666,
         "frameRate": 60,
         "loopMode": "repeat"
+      },
+      "version": {
+        "addedIn": "1.0a",
+        "updatedIn": "1.0a"
       }
     },
     {
@@ -156,6 +174,10 @@
         "duration": 50,
         "frameRate": 60,
         "loopMode": "repeat"
+      },
+      "version": {
+        "addedIn": "1.0a",
+        "updatedIn": "1.0a"
       }
     },
     {
@@ -189,6 +211,10 @@
         "duration": 25,
         "frameRate": 60,
         "loopMode": "repeat"
+      },
+      "version": {
+        "addedIn": "1.0a",
+        "updatedIn": "1.0a"
       }
     },
     {
@@ -222,6 +248,10 @@
         "duration": 28.333333333333332,
         "frameRate": 60,
         "loopMode": "repeat"
+      },
+      "version": {
+        "addedIn": "1.0a",
+        "updatedIn": "1.0a"
       }
     },
     {
@@ -255,6 +285,10 @@
         "duration": 16.666666666666668,
         "frameRate": 60,
         "loopMode": "repeat"
+      },
+      "version": {
+        "addedIn": "1.0a",
+        "updatedIn": "1.0a"
       }
     },
     {
@@ -288,6 +322,10 @@
         "duration": 25,
         "frameRate": 60,
         "loopMode": "repeat"
+      },
+      "version": {
+        "addedIn": "1.0a",
+        "updatedIn": "1.0a"
       }
     },
     {
@@ -321,6 +359,10 @@
         "duration": 38.333333333333336,
         "frameRate": 60,
         "loopMode": "repeat"
+      },
+      "version": {
+        "addedIn": "1.0a",
+        "updatedIn": "1.0a"
       }
     },
     {
@@ -354,6 +396,10 @@
         "duration": 16.666666666666668,
         "frameRate": 60,
         "loopMode": "repeat"
+      },
+      "version": {
+        "addedIn": "1.0a",
+        "updatedIn": "1.0a"
       }
     },
     {
@@ -387,6 +433,10 @@
         "duration": 17.5,
         "frameRate": 60,
         "loopMode": "repeat"
+      },
+      "version": {
+        "addedIn": "1.0a",
+        "updatedIn": "1.0a"
       }
     },
     {
@@ -420,6 +470,10 @@
         "duration": 13.333333333333334,
         "frameRate": 30,
         "loopMode": "repeat"
+      },
+      "version": {
+        "addedIn": "1.0a",
+        "updatedIn": "1.0a"
       }
     },
     {
@@ -453,6 +507,10 @@
         "duration": 20,
         "frameRate": 60,
         "loopMode": "repeat"
+      },
+      "version": {
+        "addedIn": "1.0a",
+        "updatedIn": "1.0a"
       }
     },
     {
@@ -486,6 +544,10 @@
         "duration": 14.166666666666666,
         "frameRate": 60,
         "loopMode": "repeat"
+      },
+      "version": {
+        "addedIn": "1.0a",
+        "updatedIn": "1.0a"
       }
     },
     {
@@ -519,6 +581,10 @@
         "duration": 26.666666666666668,
         "frameRate": 60,
         "loopMode": "repeat"
+      },
+      "version": {
+        "addedIn": "1.0a",
+        "updatedIn": "1.0a"
       }
     },
     {
@@ -552,6 +618,10 @@
         "duration": 131.66666666666666,
         "frameRate": 60,
         "loopMode": "repeat"
+      },
+      "version": {
+        "addedIn": "1.0a",
+        "updatedIn": "1.0a"
       }
     },
     {
@@ -593,6 +663,10 @@
         "duration": 66.68333333333334,
         "frameRate": 60,
         "loopMode": "repeat"
+      },
+      "version": {
+        "addedIn": "1.0a",
+        "updatedIn": "1.0a"
       }
     },
     {
@@ -626,6 +700,10 @@
         "duration": 13.316666666666666,
         "frameRate": 60,
         "loopMode": "repeat"
+      },
+      "version": {
+        "addedIn": "1.0a",
+        "updatedIn": "1.0a"
       }
     },
     {
@@ -654,6 +732,10 @@
         "date": "2026-01-18",
         "device": "J04",
         "folderName": "260118 155718 J04 赛博朋克边缘行者 露西"
+      },
+      "version": {
+        "addedIn": "1.0a",
+        "updatedIn": "1.0a"
       }
     },
     {
@@ -687,6 +769,10 @@
         "duration": 8.333333333333334,
         "frameRate": 60,
         "loopMode": "repeat"
+      },
+      "version": {
+        "addedIn": "1.0a",
+        "updatedIn": "1.0a"
       }
     },
     {
@@ -720,6 +806,10 @@
         "duration": 11.666666666666666,
         "frameRate": 60,
         "loopMode": "repeat"
+      },
+      "version": {
+        "addedIn": "1.0a",
+        "updatedIn": "1.0a"
       }
     },
     {
@@ -753,6 +843,10 @@
         "duration": 5,
         "frameRate": 60,
         "loopMode": "repeat"
+      },
+      "version": {
+        "addedIn": "1.0a",
+        "updatedIn": "1.0a"
       }
     },
     {
@@ -786,6 +880,10 @@
         "duration": 10,
         "frameRate": 30,
         "loopMode": "repeat"
+      },
+      "version": {
+        "addedIn": "1.0a",
+        "updatedIn": "1.0a"
       }
     },
     {
@@ -819,6 +917,10 @@
         "duration": 3,
         "frameRate": 60,
         "loopMode": "repeat"
+      },
+      "version": {
+        "addedIn": "1.0a",
+        "updatedIn": "1.14a"
       }
     },
     {
@@ -852,6 +954,10 @@
         "duration": 6.75,
         "frameRate": 60,
         "loopMode": "repeat"
+      },
+      "version": {
+        "addedIn": "1.0a",
+        "updatedIn": "1.0a"
       }
     },
     {
@@ -885,6 +991,10 @@
         "duration": 16.666666666666668,
         "frameRate": 60,
         "loopMode": "repeat"
+      },
+      "version": {
+        "addedIn": "1.0a",
+        "updatedIn": "1.0a"
       }
     },
     {
@@ -918,6 +1028,10 @@
         "duration": 16.666666666666668,
         "frameRate": 60,
         "loopMode": "repeat"
+      },
+      "version": {
+        "addedIn": "1.0a",
+        "updatedIn": "1.0a"
       }
     },
     {
@@ -951,6 +1065,10 @@
         "duration": 25,
         "frameRate": 60,
         "loopMode": "repeat"
+      },
+      "version": {
+        "addedIn": "1.0a",
+        "updatedIn": "1.0a"
       }
     },
     {
@@ -984,6 +1102,10 @@
         "duration": 16.666666666666668,
         "frameRate": 60,
         "loopMode": "repeat"
+      },
+      "version": {
+        "addedIn": "2.10a",
+        "updatedIn": "3.4"
       }
     },
     {
@@ -1017,6 +1139,10 @@
         "duration": 17.5,
         "frameRate": 60,
         "loopMode": "repeat"
+      },
+      "version": {
+        "addedIn": "2.10a",
+        "updatedIn": "3.4"
       }
     },
     {
@@ -1050,6 +1176,10 @@
         "duration": 41.666666666666664,
         "frameRate": 60,
         "loopMode": "repeat"
+      },
+      "version": {
+        "addedIn": "2.10a",
+        "updatedIn": "3.4"
       }
     },
     {
@@ -1083,6 +1213,10 @@
         "duration": 10,
         "frameRate": 60,
         "loopMode": "repeat"
+      },
+      "version": {
+        "addedIn": "2.10a",
+        "updatedIn": "3.4"
       }
     },
     {
@@ -1116,6 +1250,10 @@
         "duration": 16.666666666666668,
         "frameRate": 60,
         "loopMode": "repeat"
+      },
+      "version": {
+        "addedIn": "2.10a",
+        "updatedIn": "3.4"
       }
     },
     {
@@ -1149,6 +1287,10 @@
         "duration": 20,
         "frameRate": 60,
         "loopMode": "repeat"
+      },
+      "version": {
+        "addedIn": "2.10a",
+        "updatedIn": "3.4"
       }
     },
     {
@@ -1182,6 +1324,10 @@
         "duration": 28.333333333333332,
         "frameRate": 60,
         "loopMode": "repeat"
+      },
+      "version": {
+        "addedIn": "2.10a",
+        "updatedIn": "3.4"
       }
     },
     {
@@ -1215,6 +1361,10 @@
         "duration": 30,
         "frameRate": 60,
         "loopMode": "repeat"
+      },
+      "version": {
+        "addedIn": "2.10a",
+        "updatedIn": "3.4"
       }
     },
     {
@@ -1247,12 +1397,17 @@
         "folderName": "260315 184701 J05 08 寻洋派"
       },
       "viewer": {
+        "voxelCoordinateSpace": "metaflow-rz180",
         "defaultCameraMode": "fly"
       },
       "animation": {
         "duration": 75,
         "frameRate": 60,
         "loopMode": "repeat"
+      },
+      "version": {
+        "addedIn": "2.10a",
+        "updatedIn": "3.4"
       }
     },
     {
@@ -1283,6 +1438,13 @@
         "date": "2026-03-28",
         "device": "PHOENIXFES26",
         "folderName": "260328 172013 huaijiao"
+      },
+      "viewer": {
+        "voxelCoordinateSpace": "metaflow-rz180"
+      },
+      "version": {
+        "addedIn": "3.20a",
+        "updatedIn": "3.20a"
       }
     },
     {
@@ -1315,12 +1477,17 @@
         "folderName": "260328 154958 痛车"
       },
       "viewer": {
+        "voxelCoordinateSpace": "metaflow-rz180",
         "defaultCameraMode": "fly"
       },
       "animation": {
         "duration": 66.66666666666667,
         "frameRate": 60,
         "loopMode": "repeat"
+      },
+      "version": {
+        "addedIn": "3.20a",
+        "updatedIn": "3.20a"
       }
     },
     {
@@ -1351,6 +1518,13 @@
         "date": "2026-03-28",
         "device": "PHOENIXFES26",
         "folderName": "260328 171625 崩铁 银狼"
+      },
+      "viewer": {
+        "voxelCoordinateSpace": "metaflow-rz180"
+      },
+      "version": {
+        "addedIn": "3.20a",
+        "updatedIn": "3.20a"
       }
     },
     {
@@ -1383,12 +1557,17 @@
         "folderName": "260328 172811 舞台"
       },
       "viewer": {
+        "voxelCoordinateSpace": "metaflow-rz180",
         "defaultCameraMode": "fly"
       },
       "animation": {
         "duration": 50,
         "frameRate": 60,
         "loopMode": "repeat"
+      },
+      "version": {
+        "addedIn": "3.20a",
+        "updatedIn": "3.20a"
       }
     },
     {
@@ -1421,12 +1600,17 @@
         "folderName": "260502 165708 scene 02 碧蓝航线"
       },
       "viewer": {
+        "voxelCoordinateSpace": "metaflow-rz180",
         "defaultCameraMode": "fly"
       },
       "animation": {
         "duration": 56.666666666666664,
         "frameRate": 60,
         "loopMode": "repeat"
+      },
+      "version": {
+        "addedIn": "4.2",
+        "updatedIn": "4.2b"
       }
     },
     {
@@ -1459,7 +1643,12 @@
         "folderName": "260502 172930 03 崩坏星穹铁道 昔涟"
       },
       "viewer": {
-        "syntheticAnimation": "figure8"
+        "syntheticAnimation": "figure8",
+        "voxelCoordinateSpace": "metaflow-rz180"
+      },
+      "version": {
+        "addedIn": "4.2",
+        "updatedIn": "4.2b"
       }
     },
     {
@@ -1492,7 +1681,12 @@
         "folderName": "260502 184535 05 王者荣耀 貂蝉 馥梦繁花"
       },
       "viewer": {
-        "syntheticAnimation": "figure8"
+        "syntheticAnimation": "figure8",
+        "voxelCoordinateSpace": "metaflow-rz180"
+      },
+      "version": {
+        "addedIn": "4.2",
+        "updatedIn": "4.2b"
       }
     },
     {
@@ -1525,12 +1719,17 @@
         "folderName": "260502 162735 scene 01"
       },
       "viewer": {
+        "voxelCoordinateSpace": "metaflow-rz180",
         "defaultCameraMode": "fly"
       },
       "animation": {
         "duration": 113.33333333333333,
         "frameRate": 60,
         "loopMode": "repeat"
+      },
+      "version": {
+        "addedIn": "4.2",
+        "updatedIn": "4.2b"
       }
     },
     {
@@ -1563,7 +1762,12 @@
         "folderName": "260502 180249 04 国风兽装"
       },
       "viewer": {
-        "syntheticAnimation": "figure8"
+        "syntheticAnimation": "figure8",
+        "voxelCoordinateSpace": "metaflow-rz180"
+      },
+      "version": {
+        "addedIn": "4.2",
+        "updatedIn": "4.2b"
       }
     },
     {
@@ -1596,7 +1800,12 @@
         "folderName": "260502 160157 01 绝区零 南宫羽"
       },
       "viewer": {
-        "syntheticAnimation": "figure8"
+        "syntheticAnimation": "figure8",
+        "voxelCoordinateSpace": "metaflow-rz180"
+      },
+      "version": {
+        "addedIn": "4.2",
+        "updatedIn": "4.2b"
       }
     },
     {
@@ -1629,7 +1838,12 @@
         "folderName": "260502 161428 02 绝区零 拉米尔"
       },
       "viewer": {
-        "syntheticAnimation": "figure8"
+        "syntheticAnimation": "figure8",
+        "voxelCoordinateSpace": "metaflow-rz180"
+      },
+      "version": {
+        "addedIn": "4.2",
+        "updatedIn": "4.2b"
       }
     },
     {
@@ -1662,7 +1876,12 @@
         "folderName": "260502 160903 02b 绝区零 拉米尔"
       },
       "viewer": {
-        "syntheticAnimation": "figure8"
+        "syntheticAnimation": "figure8",
+        "voxelCoordinateSpace": "metaflow-rz180"
+      },
+      "version": {
+        "addedIn": "4.2",
+        "updatedIn": "4.2b"
       }
     },
     {
@@ -1679,14 +1898,14 @@
         "environment": null,
         "settings": "Shenzhen/250917 Dayun/settings-rx90-close.json",
         "thumbnail": "Shenzhen/250917 Dayun/250917 dayun.jpg",
-        "voxel": "Shenzhen/250917 Dayun/walk.voxel.json"
+        "voxelManifest": "Shenzhen/250917 Dayun/tiled-voxel/voxel-tiles.json"
       },
       "fileSize": {
         "model": 5203432324,
         "environment": 0,
-        "thumbnail": 10782680,
-        "total": 5384563291,
-        "voxel": 170348287
+        "thumbnail": 1238503,
+        "total": 6383790154,
+        "voxelManifest": 1179119327
       },
       "meta": {
         "date": "2025-09-17",
@@ -1694,12 +1913,17 @@
         "folderName": "250917 Dayun"
       },
       "viewer": {
+        "voxelCoordinateSpace": "metaflow-rz180",
         "defaultCameraMode": "fly"
       },
       "animation": {
         "duration": 48,
         "frameRate": 1,
         "loopMode": "repeat"
+      },
+      "version": {
+        "addedIn": "3.14a",
+        "updatedIn": "3.20a"
       }
     },
     {
@@ -1732,6 +1956,10 @@
         "duration": 30,
         "frameRate": 30,
         "loopMode": "repeat"
+      },
+      "version": {
+        "addedIn": "1.0a",
+        "updatedIn": "1.0a"
       }
     },
     {
@@ -1764,6 +1992,10 @@
         "duration": 13.333333333333334,
         "frameRate": 60,
         "loopMode": "repeat"
+      },
+      "version": {
+        "addedIn": "1.0a",
+        "updatedIn": "1.0a"
       }
     },
     {
@@ -1796,6 +2028,10 @@
         "duration": 13.333333333333334,
         "frameRate": 60,
         "loopMode": "repeat"
+      },
+      "version": {
+        "addedIn": "1.0a",
+        "updatedIn": "1.0a"
       }
     },
     {
@@ -1828,6 +2064,10 @@
         "duration": 33.333333333333336,
         "frameRate": 60,
         "loopMode": "repeat"
+      },
+      "version": {
+        "addedIn": "1.0a",
+        "updatedIn": "1.0a"
       }
     },
     {
@@ -1860,6 +2100,10 @@
         "duration": 20,
         "frameRate": 60,
         "loopMode": "repeat"
+      },
+      "version": {
+        "addedIn": "1.36a",
+        "updatedIn": "1.36a"
       }
     },
     {
@@ -1892,6 +2136,10 @@
         "duration": 40,
         "frameRate": 60,
         "loopMode": "repeat"
+      },
+      "version": {
+        "addedIn": "1.0a",
+        "updatedIn": "1.12c"
       }
     },
     {
@@ -1932,6 +2180,10 @@
         "duration": 341.6666666666667,
         "frameRate": 60,
         "loopMode": "repeat"
+      },
+      "version": {
+        "addedIn": "1.5a",
+        "updatedIn": "1.12b"
       }
     },
     {
@@ -1964,6 +2216,10 @@
         "duration": 90,
         "frameRate": 60,
         "loopMode": "repeat"
+      },
+      "version": {
+        "addedIn": "1.36a",
+        "updatedIn": "1.36a"
       }
     },
     {
@@ -1995,12 +2251,17 @@
         "folderName": "260418 SZTU C1-BDI-206"
       },
       "viewer": {
+        "voxelCoordinateSpace": "metaflow-rz180",
         "defaultCameraMode": "fly"
       },
       "animation": {
         "duration": 175,
         "frameRate": 60,
         "loopMode": "repeat"
+      },
+      "version": {
+        "addedIn": "4.0a",
+        "updatedIn": "4.0a"
       }
     },
     {
@@ -2031,6 +2292,13 @@
         "date": "2026-04-18",
         "device": "FES",
         "folderName": "260418 Top10_26"
+      },
+      "viewer": {
+        "voxelCoordinateSpace": "metaflow-rz180"
+      },
+      "version": {
+        "addedIn": "4.0a",
+        "updatedIn": "4.0a"
       }
     }
   ]

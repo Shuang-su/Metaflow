@@ -11,6 +11,9 @@ from pathlib import Path
 REPO_ROOT = Path(__file__).resolve().parent.parent
 DATA_DIR = REPO_ROOT / "data"
 OUTPUT_FILE = DATA_DIR / "index.json"
+VERSION_HISTORY_FILE = REPO_ROOT / "metadata" / "version-history.json"
+OUTPUT_VERSION_HISTORY_FILE = DATA_DIR / "version-history.json"
+INDEX_SCHEMA_VERSION = "1.1"
 
 # 类别配置
 CATEGORIES = {
@@ -35,7 +38,28 @@ SUBCATEGORIES = {
 
 STREAMING_SUBDIR_GLOB = "*/lod-meta.json"
 NESTED_VOXEL_GLOB = "*/*.voxel.json"
+TILED_VOXEL_MANIFEST = "tiled-voxel/voxel-tiles.json"
 SCANNER_SUBCATEGORIES = {"j04", "j05", "ad05"}
+LEGACY_VOXEL_COORDINATE_SPACE = "metaflow-rz180"
+LEGACY_VOXEL_RZ180_ROUTES = {
+    "/acg/2568/2026",
+    "/acg/j05/寻洋派",
+    "/acg/phoenixfes26/huaijiao",
+    "/acg/phoenixfes26/itasha",
+    "/acg/phoenixfes26/silver-wolf",
+    "/acg/phoenixfes26/stage",
+    "/acg/fireflyfes38/azur-lane",
+    "/acg/fireflyfes38/cyrene",
+    "/acg/fireflyfes38/diaochan",
+    "/acg/fireflyfes38/fireflyfes38",
+    "/acg/fireflyfes38/fursuit",
+    "/acg/fireflyfes38/nangong-yu",
+    "/acg/fireflyfes38/remielle-dan",
+    "/acg/fireflyfes38/remielle-dan-b",
+    "/shenzhen/dayun",
+    "/sztu/c1-bdi-206",
+    "/sztu/fes/top10-26",
+}
 RESOURCE_METADATA_OVERRIDES = {
     ("acg", "phoenixfes26", "huaijiao"): {
         "title": "怀娇",
@@ -97,6 +121,86 @@ STREAMING_MODEL_OVERRIDES = {
 SETTINGS_FILE_OVERRIDES = {
     ("acg", "fireflyfes38", "260502 165708 scene 02 碧蓝航线"): "settings-merged.json",
 }
+
+
+def load_version_history():
+    if not VERSION_HISTORY_FILE.exists():
+        return {
+            "current": {
+                "displayVersion": "1.0",
+                "appSemver": "1.0.0",
+                "indexSchemaVersion": INDEX_SCHEMA_VERSION,
+                "date": datetime.now().strftime("%Y-%m-%d"),
+                "gitRef": None,
+                "historyUrl": "/data/version-history.json",
+            },
+            "defaultResourceVersion": "1.0",
+            "entries": [],
+        }
+
+    return json.loads(VERSION_HISTORY_FILE.read_text(encoding="utf-8"))
+
+
+def route_matches_pattern(route, pattern):
+    if pattern == "*":
+        return True
+    if pattern.endswith("*"):
+        return route.startswith(pattern[:-1])
+    return route == pattern
+
+
+def resource_matches_change(resource, change):
+    route = resource.get("route")
+    if not route:
+        return False
+
+    routes = change.get("routes") or []
+    if route in routes:
+        return True
+
+    return any(
+        route_matches_pattern(route, pattern)
+        for pattern in (change.get("routePatterns") or [])
+    )
+
+
+def apply_resource_versions(resources, version_history):
+    default_version = version_history.get("defaultResourceVersion") or "1.0"
+
+    for resource in resources:
+        resource["version"] = {
+            "addedIn": default_version,
+            "updatedIn": default_version,
+        }
+
+    for entry in version_history.get("entries", []):
+        display_version = entry.get("displayVersion")
+        if not display_version:
+            continue
+
+        for change in entry.get("resourceChanges", []):
+            action = change.get("action", "update")
+            for resource in resources:
+                if not resource_matches_change(resource, change):
+                    continue
+
+                if action == "add":
+                    resource["version"]["addedIn"] = display_version
+                    resource["version"]["updatedIn"] = display_version
+                else:
+                    resource["version"]["updatedIn"] = display_version
+
+
+def build_release_metadata(version_history):
+    current = version_history.get("current", {})
+    return {
+        "displayVersion": current.get("displayVersion", "1.0"),
+        "appSemver": current.get("appSemver", "1.0.0"),
+        "schemaVersion": current.get("indexSchemaVersion", INDEX_SCHEMA_VERSION),
+        "historyUrl": current.get("historyUrl", "/data/version-history.json"),
+        "updatedAt": current.get("date"),
+        "gitRef": current.get("gitRef"),
+    }
 
 def slugify(text):
     """将中文名称转换为 URL slug"""
@@ -233,6 +337,13 @@ def find_voxel_file(folder_path):
     return nested_candidates[0] if nested_candidates else None
 
 
+def find_voxel_manifest_file(folder_path):
+    preferred = folder_path / TILED_VOXEL_MANIFEST
+    if preferred.exists():
+        return preferred
+    return None
+
+
 def find_streaming_model_file(folder_path):
     for name in ("lod-meta.json", "meta.json"):
         candidate = folder_path / name
@@ -338,10 +449,41 @@ def get_voxel_size(voxel_file):
     return total
 
 
-def get_streaming_model_size(folder_path, settings_file=None, thumbnail_file=None, voxel_file=None, environment_file=None, extra_excluded_paths=None):
+def get_voxel_manifest_size(manifest_file):
+    if not manifest_file:
+        return 0
+
+    total = manifest_file.stat().st_size
+    try:
+        manifest = json.loads(manifest_file.read_text(encoding="utf-8"))
+    except Exception:
+        return total
+
+    manifest_dir = manifest_file.parent
+    for tile in manifest.get("tiles", []):
+        url = tile.get("url")
+        if not isinstance(url, str):
+            continue
+        if url.startswith("/") or "://" in url:
+            continue
+        tile_json = (manifest_dir / url).resolve()
+        try:
+            tile_json.relative_to(manifest_dir.resolve())
+        except ValueError:
+            continue
+        if not tile_json.exists() or not tile_json.is_file():
+            continue
+        total += tile_json.stat().st_size
+        tile_bin = tile_json.with_suffix(".bin")
+        if tile_bin.exists() and tile_bin.is_file():
+            total += tile_bin.stat().st_size
+    return total
+
+
+def get_streaming_model_size(folder_path, settings_file=None, thumbnail_file=None, voxel_file=None, voxel_manifest_file=None, environment_file=None, extra_excluded_paths=None):
     excluded_paths = {
         path.resolve()
-        for path in (settings_file, thumbnail_file, voxel_file, environment_file)
+        for path in (settings_file, thumbnail_file, voxel_file, voxel_manifest_file, environment_file)
         if path is not None and path.exists()
     }
     if extra_excluded_paths:
@@ -356,9 +498,14 @@ def get_streaming_model_size(folder_path, settings_file=None, thumbnail_file=Non
         if voxel_bin.exists():
             excluded_paths.add(voxel_bin.resolve())
 
+    if voxel_manifest_file:
+        excluded_paths.add(voxel_manifest_file.parent.resolve())
+
     total = 0
     for file in folder_path.rglob("*"):
         if not file.is_file() or file.name.startswith('.'):
+            continue
+        if any(parent.resolve() in excluded_paths for parent in file.parents):
             continue
         if file.resolve() in excluded_paths:
             continue
@@ -384,6 +531,7 @@ def scan_resource_folder(folder_path, category, subcategory=None):
         settings_file = folder_path / settings_file_override
     thumbnail_file = find_thumbnail_file(folder_path)
     voxel_file = find_voxel_file(folder_path)
+    voxel_manifest_file = find_voxel_manifest_file(folder_path)
 
     if not sog_files and not streaming_model_file:
         return None  # 没有模型文件，跳过
@@ -453,6 +601,7 @@ def scan_resource_folder(folder_path, category, subcategory=None):
             settings_file=settings_file,
             thumbnail_file=thumbnail_file,
             voxel_file=voxel_file,
+            voxel_manifest_file=voxel_manifest_file,
             environment_file=environment_ply,
             extra_excluded_paths=sog_files if streaming_model_override else None
         )
@@ -461,6 +610,7 @@ def scan_resource_folder(folder_path, category, subcategory=None):
     env_size = environment_ply.stat().st_size if environment_ply else 0
     thumbnail_size = thumbnail_file.stat().st_size if thumbnail_file else 0
     voxel_size = get_voxel_size(voxel_file)
+    voxel_manifest_size = get_voxel_manifest_size(voxel_manifest_file)
     
     resource = {
         "id": slug,
@@ -507,7 +657,18 @@ def scan_resource_folder(folder_path, category, subcategory=None):
         resource["fileSize"]["voxel"] = voxel_size
         resource["fileSize"]["total"] += voxel_size
 
-    if model_mode == "streaming-json" and voxel_file:
+    if voxel_manifest_file:
+        resource["files"]["voxelManifest"] = str(voxel_manifest_file.relative_to(DATA_DIR))
+        resource["fileSize"]["voxelManifest"] = voxel_manifest_size
+        resource["fileSize"]["total"] += voxel_manifest_size
+
+    if (voxel_file or voxel_manifest_file) and route in LEGACY_VOXEL_RZ180_ROUTES:
+        resource["viewer"] = {
+            **resource.get("viewer", {}),
+            "voxelCoordinateSpace": LEGACY_VOXEL_COORDINATE_SPACE
+        }
+
+    if model_mode == "streaming-json" and (voxel_file or voxel_manifest_file):
         resource["viewer"] = {
             **resource.get("viewer", {}),
             "defaultCameraMode": "fly"
@@ -590,14 +751,18 @@ def scan_data_directory():
 
 def main():
     print("🔍 扫描 data 目录...")
+    version_history = load_version_history()
     resources = scan_data_directory()
     
     # 按类别和日期排序
     resources.sort(key=lambda x: (x["category"][0], x["meta"]["date"] or "", x["id"]))
+    apply_resource_versions(resources, version_history)
     
     # 生成索引
     index = {
         "version": "1.0",
+        "schemaVersion": version_history.get("current", {}).get("indexSchemaVersion", INDEX_SCHEMA_VERSION),
+        "release": build_release_metadata(version_history),
         "lastUpdated": datetime.now().strftime("%Y-%m-%d"),
         "totalResources": len(resources),
         "categories": CATEGORIES,
@@ -623,8 +788,13 @@ def main():
     # 写入文件
     with open(OUTPUT_FILE, 'w', encoding='utf-8') as f:
         json.dump(index, f, ensure_ascii=False, indent=2)
+
+    with open(OUTPUT_VERSION_HISTORY_FILE, 'w', encoding='utf-8') as f:
+        json.dump(version_history, f, ensure_ascii=False, indent=2)
     
     print(f"\n✅ 已生成: {OUTPUT_FILE}")
+    print(f"✅ 已生成: {OUTPUT_VERSION_HISTORY_FILE}")
+    print(f"   当前版本: {index['release']['displayVersion']} / {index['release']['appSemver']}")
     
     # 输出部分资源预览
     print(f"\n📋 资源列表预览:")
