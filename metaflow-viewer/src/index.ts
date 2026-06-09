@@ -1,26 +1,35 @@
-import '@playcanvas/web-components';
 import {
     Asset,
+    Color,
+    createGraphicsDevice,
     Entity,
     EventHandler,
-    type Texture,
-    type AppBase,
+    Keyboard,
+    Mouse,
     platform,
+    TouchDevice,
+    type Texture,
+    type TextureHandler,
+    type AppBase,
     revision as engineRevision,
     version as engineVersion
 } from 'playcanvas';
 
+import { App } from './app';
+import { MeshCollision, loadTiledVoxelCollision, loadVoxelCollision } from './collision';
+import type { Collision } from './collision';
 import { observe } from './core/observe';
+import { initLocalization } from './localization';
 import { importSettings } from './settings';
 import type { Config, Global, LoadMode, LoadingStage } from './types';
 import { initPoster, initUI } from './ui';
 import { Viewer } from './viewer';
-import { VoxelCollider } from './voxel-collider';
 import { initXr } from './xr';
+import versionHistory from '../../metadata/version-history.json';
 import { version as appVersion } from '../package.json';
 
 interface LoadCallbacks {
-    onProgress: (progress: number) => void;  // 0-99 for determinate, -1 for indeterminate
+    onProgress: (progress: number) => void;
     onStatus: (status: string) => void;
     onMode: (mode: LoadMode) => void;
     onStage: (stage: LoadingStage) => void;
@@ -71,21 +80,19 @@ const detectStreamingLodByStructure = (data: any) => {
         )
     );
 
-    // Additional weak hints are only used when paired with stronger signals.
     const hasWeakHints = (
         typeof root.chunkCount === 'number' ||
         Array.isArray(root.chunks) ||
         Array.isArray(root.nodes)
     );
 
-    // Structure-first, but conservative to avoid false positives on generic JSON payloads.
     if (hasCoreLodArrays || hasStrongStreamingShape) return true;
     if (hasCoreNumericHints && hasWeakHints) return true;
     return false;
 };
 
-const loadGsplat = async (app: AppBase, config: Config, callbacks: LoadCallbacks, forceUnified = false) => {
-    const { contents, contentUrl, unified, aa } = config;
+const loadGsplat = async (app: AppBase, config: Config, callbacks: LoadCallbacks) => {
+    const { contents, contentUrl, aa } = config;
     const c = contents as unknown as ArrayBuffer;
     const filename = new URL(contentUrl, location.href).pathname.split('/').pop() || '';
     const lowerFilename = filename.toLowerCase();
@@ -97,9 +104,8 @@ const loadGsplat = async (app: AppBase, config: Config, callbacks: LoadCallbacks
     const loadMode: LoadMode = streamingByName
         ? 'streaming-json'
         : (hasStructurePayload && streamingByStructure ? 'streaming-json' : 'legacy-sog');
-    callbacks.onConflict(false);
 
-    // Known LOD index filenames are authoritative. Structure probing is kept as diagnostics only.
+    callbacks.onConflict(false);
     if (isJsonFile && streamingByName && !streamingByStructure) {
         console.info('[Loader] 已按文件名强制使用流式 LOD 入口', {
             filename,
@@ -129,57 +135,44 @@ const loadGsplat = async (app: AppBase, config: Config, callbacks: LoadCallbacks
             callbacks.onStage('gpu');
             const entity = new Entity('gsplat');
             entity.setLocalEulerAngles(0, 0, 180);
-            // Use unified mode when: explicitly set, LOD file, or forced (when environment exists)
-            const useUnified = forceUnified || unified || lowerFilename.endsWith('lod-meta.json');
             entity.addComponent('gsplat', {
-                unified: useUnified,
+                unified: true,
                 asset
             });
-            const material = useUnified ? app.scene.gsplat.material : entity.gsplat.material;
-            material.setDefine('GSPLAT_AA', aa);
-            material.setParameter('alphaClip', 1 / 255);
             app.root.addChild(entity);
+            app.scene.gsplat.antiAlias = aa;
             callbacks.onStatus('模型 GPU 资源已就绪，等待渲染准备...');
             resolve(entity);
         });
 
-        // PLY parsing milestone: fires when data is parsed, before GPU resource creation
         asset.on('load:data', (data: any) => {
             callbacks.onStage('parse');
             const numSplats = data?.numSplats;
-            if (numSplats) {
-                callbacks.onStatus(`已解析 ${formatSplats(numSplats)} 个高斯点，正在创建 GPU 资源...`);
-            } else {
-                callbacks.onStatus('正在解析模型结构数据...');
-            }
+            callbacks.onStatus(numSplats ?
+                `已解析 ${formatSplats(numSplats)} 个高斯点，正在创建 GPU 资源...` :
+                '正在解析模型结构数据...');
         });
 
         let watermark = 0;
         let isCached = false;
-        let progressEventCount = 0;
         asset.on('progress', (received, length) => {
-            progressEventCount++;
             callbacks.onStage('download');
 
-            // Detect cached content: length is 0 or undefined
             if (!length || length <= 0) {
                 if (!isCached) {
                     isCached = true;
-                    callbacks.onProgress(-1); // indeterminate
+                    callbacks.onProgress(-1);
                 }
-                // Still show received bytes even when cached
                 callbacks.onStatus(`正在解析模型数据 ${formatSize(received)}`);
                 return;
             }
 
-            // Determinate progress: cap at 99%, 100% reserved for post-processing
             const progress = Math.min(0.99, received / length) * 100;
             if (progress > watermark) {
                 watermark = progress;
                 callbacks.onProgress(Math.trunc(watermark));
             }
 
-            // Update status with download size details
             callbacks.onStatus(`正在下载模型 ${formatSize(received)} / ${formatSize(length)}`);
         });
 
@@ -193,26 +186,22 @@ const loadGsplat = async (app: AppBase, config: Config, callbacks: LoadCallbacks
     });
 };
 
-// Load environment gsplat (background/scene)
 const loadEnvironment = async (app: AppBase, config: Config) => {
-    const { environmentContents, environmentUrl, aa, unified } = config;
+    const { environmentContents, environmentUrl } = config;
     if (!environmentUrl || !environmentContents) return null;
 
     const c = environmentContents as unknown as ArrayBuffer;
     const filename = new URL(environmentUrl, location.href).pathname.split('/').pop();
     const asset = new Asset(filename, 'gsplat', { url: environmentUrl, filename, contents: c });
 
-    return new Promise<Entity>((resolve, reject) => {
+    return new Promise<Entity | null>((resolve) => {
         asset.on('load', () => {
             const entity = new Entity('environment');
             entity.setLocalEulerAngles(0, 0, 180);
             entity.addComponent('gsplat', {
-                // Use unified mode for global sorting with main model
                 unified: true,
                 asset
             });
-            // In unified mode, material is shared via app.scene.gsplat.material
-            // No need to set material here as it's set by the main model
             app.root.addChild(entity);
             app.renderNextFrame = true;
             resolve(entity);
@@ -220,7 +209,7 @@ const loadEnvironment = async (app: AppBase, config: Config) => {
 
         asset.on('error', (err) => {
             console.error('Environment load error:', err);
-            resolve(null); // Don't reject, environment is optional
+            resolve(null);
         });
 
         app.assets.add(asset);
@@ -239,40 +228,174 @@ const loadSkybox = (app: AppBase, url: string) => {
             addressv: 'clamp'
         });
 
-        asset.on('load', () => {
-            resolve(asset);
-        });
-
-        asset.on('error', (err) => {
-            console.error(err);
-            reject(err);
-        });
+        asset.on('load', () => resolve(asset));
+        asset.on('error', (err) => reject(err));
 
         app.assets.add(asset);
         app.assets.load(asset);
     });
 };
 
-const main = (app: AppBase, camera: Entity, settingsJson: any, config: Config) => {
+const createApp = async (canvas: HTMLCanvasElement, config: Config) => {
+    const useWebGPU = config.renderer === 'webgpu';
+
+    const device = await createGraphicsDevice(canvas, {
+        deviceTypes: useWebGPU ? ['webgpu'] : [],
+        // Metaflow gradient backgrounds are composited behind the transparent
+        // canvas. Keep requesting an alpha backbuffer when using the newer
+        // createGraphicsDevice path.
+        alpha: true,
+        antialias: false,
+        depth: true,
+        stencil: false,
+        xrCompatible: true,
+        powerPreference: 'high-performance'
+    } as Parameters<typeof createGraphicsDevice>[1] & { alpha: boolean });
+
+    console.log(`Renderer: ${device.deviceType}`);
+
+    const renderer: 'webgl' | 'webgpu' = device.deviceType === 'webgpu' ? 'webgpu' : 'webgl';
+    device.maxPixelRatio = window.devicePixelRatio;
+
+    const app = new App(canvas, {
+        graphicsDevice: device,
+        mouse: new Mouse(canvas),
+        touch: new TouchDevice(canvas),
+        keyboard: new Keyboard(window)
+    });
+
+    (app.loader.getHandler('texture') as TextureHandler).imgParser.crossOrigin = 'anonymous';
+
+    const cameraRoot = new Entity('camera root');
+    app.root.addChild(cameraRoot);
+
+    const camera = new Entity('camera');
+    cameraRoot.addChild(camera);
+
+    const light = new Entity('light');
+    light.setEulerAngles(35, 45, 0);
+    light.addComponent('light', {
+        color: new Color(1.0, 0.98, 0.957),
+        intensity: 1
+    });
+    app.root.addChild(light);
+
+    app.scene.ambientLight.set(0.51, 0.55, 0.65);
+
+    return { app, camera, renderer };
+};
+
+const initCanvas = (global: Global) => {
+    const { app, events, state } = global;
+    const { canvas } = app.graphicsDevice;
+
+    const maxPixelDim = platform.mobile ? 1080 : 2160;
+    const calcPixelRatio = () => Math.min(maxPixelDim / Math.min(screen.width, screen.height), window.devicePixelRatio);
+    const deviceSize = { width: 0, height: 0 };
+
+    const set = (width: number, height: number) => {
+        const ratio = calcPixelRatio();
+        deviceSize.width = width * ratio;
+        deviceSize.height = height * ratio;
+    };
+
+    const apply = () => {
+        if (app.xr?.active) return;
+
+        const s = state.performanceMode ? 0.5 : 1.0;
+        const w = Math.ceil(deviceSize.width * s);
+        const h = Math.ceil(deviceSize.height * s);
+        if (w !== canvas.width || h !== canvas.height) {
+            canvas.width = w;
+            canvas.height = h;
+        }
+    };
+
+    const resizeObserver = new ResizeObserver((entries: ResizeObserverEntry[]) => {
+        const e = entries[0]?.contentBoxSize?.[0];
+        if (e) {
+            set(e.inlineSize, e.blockSize);
+            app.renderNextFrame = true;
+        }
+    });
+    resizeObserver.observe(canvas);
+
+    events.on('performanceMode:changed', () => {
+        app.renderNextFrame = true;
+    });
+
+    app.on('framerender', apply);
+
+    // @ts-ignore
+    app._allowResize = false;
+    set(canvas.clientWidth, canvas.clientHeight);
+    apply();
+};
+
+const loadCollision = (app: AppBase, config: Config, state: Global['state']): Promise<Collision | null> | undefined => {
+    const voxelOptions = {
+        coordinateSpace: config.voxelCoordinateSpace ?? 'world'
+    };
+
+    if (config.voxelManifestUrl) {
+        state.loadingStage = 'voxel-manifest';
+        state.loadingStatus = '正在解析 tiled voxel 清单...';
+        state.progress = -1;
+        return loadTiledVoxelCollision(config.voxelManifestUrl, voxelOptions).catch((err: Error): null => {
+            console.warn('Failed to load tiled voxel manifest:', err);
+            state.loadingStage = 'prepare';
+            state.loadingStatus = 'tiled voxel 清单加载失败，继续以无碰撞模式准备渲染...';
+            return null;
+        });
+    }
+
+    const collisionUrl = config.collisionUrl ?? config.voxelUrl;
+    if (!collisionUrl) {
+        return undefined;
+    }
+
+    state.loadingStage = 'collision';
+    state.loadingStatus = '正在准备碰撞数据...';
+    const ext = new URL(collisionUrl, location.href).pathname.split('.').pop()?.toLowerCase();
+    if (ext === 'glb') {
+        return MeshCollision.fromGlb(app, collisionUrl).catch((err: Error): null => {
+            console.warn('Failed to load mesh collision:', err);
+            return null;
+        });
+    }
+
+    state.loadingStage = 'voxel-meta';
+    state.loadingStatus = '正在加载单体碰撞体素...';
+    return loadVoxelCollision(collisionUrl, voxelOptions).catch((err: Error): null => {
+        console.warn('Failed to load voxel data:', err);
+        state.loadingStage = 'prepare';
+        state.loadingStatus = '碰撞体素加载失败，继续以无碰撞模式准备渲染...';
+        return null;
+    });
+};
+
+const main = async (canvas: HTMLCanvasElement, settingsJson: any, config: Config) => {
+    const { app, camera, renderer } = await createApp(canvas, config);
     const events = new EventHandler();
+
+    const legacyRetina = localStorage.getItem('retinaDisplay');
+    if (legacyRetina !== null && localStorage.getItem('performanceMode') === null) {
+        localStorage.setItem('performanceMode', String(legacyRetina === 'false'));
+        localStorage.removeItem('retinaDisplay');
+    }
+    const storedPerformanceMode = localStorage.getItem('performanceMode');
 
     const state = observe(events, {
         loaded: false,
         readyToRender: false,
-        retinaDisplay: platform.mobile ? localStorage.getItem('retinaDisplay') === 'true' : localStorage.getItem('retinaDisplay') !== 'false',
-        gamingControls: false,
-        hqMode: true,
+        performanceMode: storedPerformanceMode !== null ? storedPerformanceMode === 'true' : platform.mobile,
+        progress: 0,
         loadingMode: 'legacy-sog',
         loadingStage: 'init',
         loadingConflict: false,
-        progress: 0,
         loadingStatus: '',
         inputMode: platform.mobile ? 'touch' : 'desktop',
         cameraMode: 'orbit',
-        flyInputMode: 'none',
-        flyInputLocked: false,
-        walkInputMode: 'none',
-        walkInputLocked: false,
         hasAnimation: false,
         animationDuration: 0,
         animationTime: 0,
@@ -280,10 +403,13 @@ const main = (app: AppBase, camera: Entity, settingsJson: any, config: Config) =
         hasAR: false,
         hasVR: false,
         hasCollision: false,
-        hasVoxelOverlay: false,
-        voxelOverlayEnabled: false,
+        hasCollisionOverlay: false,
+        walkCapability: !!(config.voxelManifestUrl || config.voxelUrl || config.collisionUrl),
+        walkAllowed: false,
+        collisionOverlayEnabled: false,
         isFullscreen: false,
-        controlsHidden: false
+        controlsHidden: false,
+        gamingControls: localStorage.getItem('gamingControls') === 'true'
     });
 
     const global: Global = {
@@ -292,33 +418,37 @@ const main = (app: AppBase, camera: Entity, settingsJson: any, config: Config) =
         config,
         state,
         events,
-        camera
+        camera,
+        renderer
     };
 
-    // Initialize the load-time poster
+    initCanvas(global);
+    app.start();
+
     if (config.poster) {
         initPoster(events);
     }
 
     camera.addComponent('camera');
-
-    // Initialize XR support
     initXr(global);
-
-    // Initialize user interface
+    initLocalization();
     initUI(global);
 
-    // Set initial loading status after UI is ready
-    state.loadingStage = 'init';
-    state.loadingStatus = '正在初始化...';
+    state.loadingStage = 'renderer';
+    state.loadingStatus = renderer === 'webgpu' ? '渲染器已初始化：WebGPU' : '渲染器已初始化：WebGL';
 
-    // Determine if we need unified mode (required when loading multiple gsplats)
     const hasEnvironment = !!config.environmentUrl;
-
-    // Start environment load in parallel so late arrivals can attach after first frame.
     const environmentLoad = hasEnvironment ? loadEnvironment(app, config) : null;
+    if (environmentLoad) {
+        state.loadingStage = 'environment';
+        state.loadingStatus = '正在加载环境模型...';
+        environmentLoad.then((entity) => {
+            if (entity) {
+                console.info('[Environment] 环境模型已并行挂载');
+            }
+        });
+    }
 
-    // Load main model without blocking on the environment.
     const gsplatLoad = (async () => {
         state.loadingStage = 'detect';
         state.loadingStatus = '正在识别资源结构...';
@@ -342,31 +472,23 @@ const main = (app: AppBase, camera: Entity, settingsJson: any, config: Config) =
                 onConflict: (conflict: boolean) => {
                     state.loadingConflict = conflict;
                 }
-            },
-            hasEnvironment  // Force unified mode when environment exists
+            }
         );
-        // Model data downloaded and parsed by engine
         state.loadingStage = 'prepare';
         state.loadingStatus = '主体模型已就绪，正在准备首帧...';
-        state.progress = -1; // indeterminate while waiting for sorting
+        state.progress = -1;
         return entity;
     })();
 
-    if (environmentLoad) {
-        environmentLoad.then((entity) => {
-            if (entity) {
-                console.info('[Environment] 环境模型已并行挂载');
-            }
-        });
-    }
-
-    // Load skybox
     const skyboxLoad = config.skyboxUrl &&
         loadSkybox(app, config.skyboxUrl).then((asset) => {
             app.scene.envAtlas = asset.resource as Texture;
+        }).catch((err: Error) => {
+            console.warn('Failed to load skybox:', err);
         });
 
-    // Load and play sound
+    const collisionLoad = loadCollision(app, config, state);
+
     if (global.settings.soundUrl) {
         const sound = new Audio(global.settings.soundUrl);
         sound.crossOrigin = 'anonymous';
@@ -380,40 +502,13 @@ const main = (app: AppBase, camera: Entity, settingsJson: any, config: Config) =
         });
     }
 
-    // Load collision voxel data (optional)
-    const voxelLoadFactory = config.voxelUrl
-        ? () => VoxelCollider.load(config.voxelUrl, {
-            onStage: (stage, status) => {
-                state.loadingStage = stage;
-                state.loadingStatus = status;
-            },
-            onProgress: (progress) => {
-                state.progress = progress;
-            },
-            onBinaryProgress: (receivedBytes, totalBytes) => {
-                state.loadingStatus = totalBytes && totalBytes > 0
-                    ? `正在下载碰撞体素 ${formatSize(receivedBytes)} / ${formatSize(totalBytes)}`
-                    : `正在下载碰撞体素 ${formatSize(receivedBytes)}`;
-            }
-        }).catch((err: unknown): null => {
-            console.warn('[Voxel] Failed to load collision data:', err);
-            if (!state.loaded) {
-                state.loadingStage = 'prepare';
-                state.loadingStatus = '碰撞体素加载失败，继续以无碰撞模式准备渲染...';
-                state.progress = -1;
-            }
-            return null;
-        })
-        : null;
-
-    // Create the viewer
-    return new Viewer(global, gsplatLoad, skyboxLoad, voxelLoadFactory);
+    return new Viewer(global, gsplatLoad, skyboxLoad, collisionLoad);
 };
 
 console.log(
-    `Metaflow Viewer v${appVersion} | ` +
-    `Metaflow fork (PlayCanvas 2.17.1) | ` +
-    `Upstream SSV v1.18.2 (PlayCanvas 2.17.1) | ` +
+    `Metaflow Viewer ${versionHistory.current.displayVersion} ` +
+    `(semver ${appVersion}, index schema ${versionHistory.current.indexSchemaVersion}) | ` +
+    `Metaflow fork synced toward SSV v1.26.2 (PlayCanvas 2.19.2) | ` +
     `Engine v${engineVersion} (${engineRevision})`
 );
 

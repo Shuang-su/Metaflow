@@ -9,7 +9,6 @@ import {
     Mat4,
     MiniStats,
     ShaderChunks,
-    type TextureHandler,
     PIXELFORMAT_RGBA16F,
     PIXELFORMAT_RGBA32F,
     TONEMAP_NONE,
@@ -20,50 +19,61 @@ import {
     TONEMAP_ACES2,
     TONEMAP_NEUTRAL,
     Vec3,
+    GSPLAT_DEBUG_LOD,
+    GSPLAT_DEBUG_NONE,
+    GSPLAT_RENDERER_RASTER_CPU_SORT,
+    GSPLAT_RENDERER_RASTER_GPU_SORT,
     GSplatComponent,
     platform
 } from 'playcanvas';
 
 import { Annotations } from './annotations';
-import { CameraManager } from './camera-manager';
+import { CameraManager, isWalkAllowed } from './camera-manager';
 import { Camera } from './cameras/camera';
+import type { Collision } from './collision';
+import { MeshCollision, TiledVoxelCollision, VoxelCollision } from './collision';
 import { nearlyEquals } from './core/math';
+import { DebugPanel } from './debug';
 import { InputController } from './input-controller';
+import { MeshDebugOverlay } from './mesh-debug-overlay';
+import { NavCursor } from './nav-cursor';
+import { Picker } from './picker';
 import type { ExperienceSettings, PostEffectSettings } from './settings';
-import type { Global } from './types';
-import type { VoxelCollider } from './voxel-collider';
-import { WalkCursor } from './walk-cursor';
+import type { Config, Global } from './types';
+import { TiledVoxelDebugOverlay, VoxelDebugOverlay } from './voxel-debug-overlay';
 
-// override global pick to pack depth instead of meshInstance id
-const pickDepthGlsl = /* glsl */ `
-uniform vec4 camera_params;     // 1/far, far, near, isOrtho
-vec4 getPickOutput() {
-    float linearDepth = 1.0 / gl_FragCoord.w;
-    float normalizedDepth = (linearDepth - camera_params.z) / (camera_params.y - camera_params.z);
-    return vec4(gaussianColor.a * normalizedDepth, 0.0, 0.0, gaussianColor.a);
-}
-`;
-
-const gammaChunk = `
-vec3 prepareOutputFromGamma(vec3 gammaColor) {
-    return gammaColor;
-}
-`;
-
-const gammaChunkWgsl = /* wgsl */ `
-fn prepareOutputFromGamma(gammaColor: vec3f) -> vec3f {
-    return gammaColor;
-}
-`;
-
-const pickDepthWgsl = /* wgsl */ `
-    uniform camera_params: vec4f;       // 1/far, far, near, isOrtho
-    fn getPickOutput() -> vec4f {
-        let linearDepth = 1.0 / pcPosition.w;
-        let normalizedDepth = (linearDepth - uniform.camera_params.z) / (uniform.camera_params.y - uniform.camera_params.z);
-        return vec4f(gaussianColor.a * normalizedDepth, 0.0, 0.0, gaussianColor.a);
+// String.replace wrapper that warns when the source substring is missing, so
+// shader chunk patches against the engine fail loudly instead of silently
+// producing the original chunk.
+const patchChunk = (source: string, search: string, replacement: string, name: string): string => {
+    if (!source.includes(search)) {
+        console.warn(`patchChunk: substring not found in '${name}', shader chunk patch may be out of sync with the engine.`);
     }
+    return source.replace(search, replacement);
+};
+
+const gammaChunkGlsl = `
+vec3 prepareOutputFromGamma(vec3 gammaColor, float depth) {
+    return gammaColor;
+}
 `;
+
+const gammaChunkWgsl = `
+fn prepareOutputFromGamma(gammaColor: vec3f, depth: f32) -> vec3f {
+    return gammaColor;
+}
+`;
+
+const rendererTable: Record<Config['renderer'], number> = {
+    'webgl': GSPLAT_RENDERER_RASTER_CPU_SORT,
+    'webgpu': GSPLAT_RENDERER_RASTER_GPU_SORT
+};
+
+type GSplatOctreeResourceLike = {
+    octree?: {
+        lodLevels: number;
+    } | null;
+};
 
 const tonemapTable: Record<string, number> = {
     none: TONEMAP_NONE,
@@ -129,6 +139,17 @@ const anyPostEffectEnabled = (settings: PostEffectSettings): boolean => {
 
 const clamp01 = (value: number) => Math.max(0, Math.min(1, value));
 const toCssColor = (color: [number, number, number]) => `rgb(${color.map((v) => Math.round(clamp01(v) * 255)).join(' ')})`;
+const toShaderFloat = (value: number) => clamp01(value).toFixed(8);
+const toShaderVec3 = (color: [number, number, number]) => {
+    // Compose runs before gamma output. Convert CSS/sRGB colors to linear so
+    // the displayed gradient matches the Metaflow CSS background semantics.
+    const channels = color.map((v) => Math.pow(clamp01(v), 2.2).toFixed(8));
+    return `vec3(${channels.join(', ')})`;
+};
+const toShaderVec3Wgsl = (color: [number, number, number]) => {
+    const channels = color.map((v) => Math.pow(clamp01(v), 2.2).toFixed(8));
+    return `vec3f(${channels.join(', ')})`;
+};
 const backgroundColor = new Color();
 const gradientCss = (gradient: NonNullable<ExperienceSettings['background']['gradient']>) => {
     const horizonStop = `${Math.round(clamp01(gradient.horizonStop ?? 0.55) * 100)}%`;
@@ -140,9 +161,58 @@ const gradientCss = (gradient: NonNullable<ExperienceSettings['background']['gra
     ];
     return `linear-gradient(180deg, ${stops.join(', ')})`;
 };
-const origIsColorBufferSrgb = RenderTarget.prototype.isColorBufferSrgb;
+
+const composeGradientGlsl = (gradient: NonNullable<ExperienceSettings['background']['gradient']>) => {
+    const horizonStop = toShaderFloat(gradient.horizonStop ?? 0.55);
+    const bottomStop = toShaderFloat(gradient.bottomStop ?? 1);
+    const horizonColor = gradient.horizonColor ?? gradient.bottomColor;
+
+    return /* glsl */ `
+        // Metaflow scene gradients live behind a transparent splat render.
+        // CameraFrame composes through an offscreen texture, so we recreate the
+        // CSS gradient here instead of letting transparent pixels become black.
+        float metaflowGradientY = clamp(1.0 - uv.y, 0.0, 1.0);
+        float metaflowGradientTopToHorizon = max(${horizonStop}, 0.00001);
+        float metaflowGradientHorizonToBottom = max(${bottomStop} - ${horizonStop}, 0.00001);
+        vec3 metaflowGradientTop = ${toShaderVec3(gradient.topColor)};
+        vec3 metaflowGradientHorizon = ${toShaderVec3(horizonColor)};
+        vec3 metaflowGradientBottom = ${toShaderVec3(gradient.bottomColor)};
+        vec3 metaflowGradientFirst = mix(metaflowGradientTop, metaflowGradientHorizon, clamp(metaflowGradientY / metaflowGradientTopToHorizon, 0.0, 1.0));
+        vec3 metaflowGradientSecond = mix(metaflowGradientHorizon, metaflowGradientBottom, clamp((metaflowGradientY - ${horizonStop}) / metaflowGradientHorizonToBottom, 0.0, 1.0));
+        vec3 metaflowGradient = mix(metaflowGradientFirst, metaflowGradientSecond, step(${horizonStop}, metaflowGradientY));
+        result = mix(metaflowGradient, result, scene.a);
+    `;
+};
+
+const composeGradientWgsl = (gradient: NonNullable<ExperienceSettings['background']['gradient']>) => {
+    const horizonStop = toShaderFloat(gradient.horizonStop ?? 0.55);
+    const bottomStop = toShaderFloat(gradient.bottomStop ?? 1);
+    const horizonColor = gradient.horizonColor ?? gradient.bottomColor;
+
+    return /* wgsl */ `
+        // Metaflow scene gradients live behind a transparent splat render.
+        // CameraFrame composes through an offscreen texture, so we recreate the
+        // CSS gradient here instead of letting transparent pixels become black.
+        let metaflowGradientY = clamp(1.0 - uv.y, 0.0, 1.0);
+        let metaflowGradientTopToHorizon = max(${horizonStop}, 0.00001);
+        let metaflowGradientHorizonToBottom = max(${bottomStop} - ${horizonStop}, 0.00001);
+        let metaflowGradientTop = ${toShaderVec3Wgsl(gradient.topColor)};
+        let metaflowGradientHorizon = ${toShaderVec3Wgsl(horizonColor)};
+        let metaflowGradientBottom = ${toShaderVec3Wgsl(gradient.bottomColor)};
+        let metaflowGradientFirst = mix(metaflowGradientTop, metaflowGradientHorizon, clamp(metaflowGradientY / metaflowGradientTopToHorizon, 0.0, 1.0));
+        let metaflowGradientSecond = mix(metaflowGradientHorizon, metaflowGradientBottom, clamp((metaflowGradientY - ${horizonStop}) / metaflowGradientHorizonToBottom, 0.0, 1.0));
+        let metaflowGradient = mix(metaflowGradientFirst, metaflowGradientSecond, step(${horizonStop}, metaflowGradientY));
+        result = mix(metaflowGradient, result, scene.a);
+    `;
+};
 
 const vec = new Vec3();
+const focusPoint = new Vec3();
+
+const round6 = (value: number) => Math.round(value * 1000000) / 1000000;
+
+// store the original isColorBufferSrgb so the override in updatePostEffects is idempotent
+const origIsColorBufferSrgb = RenderTarget.prototype.isColorBufferSrgb;
 
 class Viewer {
     global: Global;
@@ -153,62 +223,156 @@ class Viewer {
 
     cameraManager: CameraManager;
 
+    picker: Picker;
+
     annotations: Annotations;
 
     forceRenderNextFrame = false;
 
-    walkCursor: WalkCursor | null = null;
+    voxelOverlay: VoxelDebugOverlay | TiledVoxelDebugOverlay | null = null;
+
+    tiledVoxelCollision: TiledVoxelCollision | null = null;
+
+    meshOverlay: MeshDebugOverlay | null = null;
+
+    navCursor: NavCursor | null = null;
+
+    debugPanel: DebugPanel | null = null;
+
+    sceneBackgroundCss: string | null = null;
+
+    sceneBackgroundGradient: NonNullable<ExperienceSettings['background']['gradient']> | null = null;
+
+    sceneBackgroundRevealed = false;
+
+    origChunks: {
+        glsl: {
+            gsplatOutputVS: string,
+            skyboxPS: string,
+            composePS: string,
+            composeMainEndPS: string
+        },
+        wgsl: {
+            gsplatOutputVS: string,
+            skyboxPS: string,
+            composePS: string,
+            composeMainEndPS: string
+        }
+    };
 
     applyBackground(settings: ExperienceSettings) {
         const { app, camera } = this.global;
         const { background } = settings;
-        const rootStyle = document.documentElement.style;
-        const backgroundCss = background.gradient ? gradientCss(background.gradient) : toCssColor(background.color);
+        this.sceneBackgroundCss = background.gradient ? gradientCss(background.gradient) : toCssColor(background.color);
+        this.sceneBackgroundGradient = background.gradient ?? null;
 
-        const gradient = background.gradient;
-        rootStyle.setProperty('--app-background', backgroundCss);
-        rootStyle.setProperty('--canvas-background', backgroundCss);
-
-        if (gradient) {
-            // Keep the render target transparent black so semi-transparent splats do not
-            // pre-blend against a bright sky color, which creates white fringes.
+        if (background.gradient) {
+            // Metaflow gradients are composited behind transparent splats. Keep
+            // the clear color transparent black so splat edges do not pre-blend
+            // with a bright sky and produce white fringes.
             backgroundColor.set(0, 0, 0, 0);
         } else {
-            backgroundColor.set(
-                background.color[0],
-                background.color[1],
-                background.color[2],
-                1
-            );
+            backgroundColor.set(background.color[0], background.color[1], background.color[2], 1);
         }
 
         camera.camera.clearColor = backgroundColor;
         app.renderNextFrame = true;
+
+        if (this.global.state.loaded) {
+            this.revealSceneBackground();
+        }
     }
 
-    constructor(global: Global, gsplatLoad: Promise<Entity>, skyboxLoad: Promise<void>, voxelLoadFactory: (() => Promise<VoxelCollider | null>) | null) {
+    revealSceneBackground() {
+        if (!this.sceneBackgroundCss) {
+            return;
+        }
+
+        const rootStyle = document.documentElement.style;
+        rootStyle.setProperty('--app-background', this.sceneBackgroundCss);
+        rootStyle.setProperty('--canvas-background', this.sceneBackgroundCss);
+        this.sceneBackgroundRevealed = true;
+        this.updateComposeBackgroundPatch();
+        this.global.app.renderNextFrame = true;
+    }
+
+    updateComposeBackgroundPatch() {
+        const { app } = this.global;
+        const glsl = ShaderChunks.get(app.graphicsDevice, 'glsl');
+        const wgsl = ShaderChunks.get(app.graphicsDevice, 'wgsl');
+        const gradient = this.sceneBackgroundRevealed ? this.sceneBackgroundGradient : null;
+        const glslComposePS = this.origChunks.glsl.composePS || glsl.get('composePS');
+        const wgslComposePS = this.origChunks.wgsl.composePS || wgsl.get('composePS');
+        const glslComposeMainEndPS = this.origChunks.glsl.composeMainEndPS || glsl.get('composeMainEndPS') || '';
+        const wgslComposeMainEndPS = this.origChunks.wgsl.composeMainEndPS || wgsl.get('composeMainEndPS') || '';
+
+        this.origChunks.glsl.composePS = glslComposePS;
+        this.origChunks.wgsl.composePS = wgslComposePS;
+        this.origChunks.glsl.composeMainEndPS = glslComposeMainEndPS;
+        this.origChunks.wgsl.composeMainEndPS = wgslComposeMainEndPS;
+
+        if (!glslComposePS || !wgslComposePS) {
+            return;
+        }
+
+        if (this.cameraFrame && gradient) {
+            glsl.set('composeMainEndPS', `${glslComposeMainEndPS}\n${composeGradientGlsl(gradient)}`);
+            wgsl.set('composeMainEndPS', `${wgslComposeMainEndPS}\n${composeGradientWgsl(gradient)}`);
+            glsl.set('composePS',
+                patchChunk(
+                    glslComposePS,
+                    'gl_FragColor = vec4(result, scene.a);',
+                    'gl_FragColor = vec4(result, 1.0);',
+                    'glsl composePS Metaflow gradient alpha'
+                )
+            );
+            wgsl.set('composePS',
+                patchChunk(
+                    wgslComposePS,
+                    'output.color = vec4f(result, scene.a);',
+                    'output.color = vec4f(result, 1.0);',
+                    'wgsl composePS Metaflow gradient alpha'
+                )
+            );
+            return;
+        }
+
+        glsl.set('composeMainEndPS', glslComposeMainEndPS);
+        wgsl.set('composeMainEndPS', wgslComposeMainEndPS);
+        glsl.set('composePS', glslComposePS);
+        wgsl.set('composePS', wgslComposePS);
+    }
+
+    constructor(global: Global, gsplatLoad: Promise<Entity>, skyboxLoad: Promise<void> | undefined, collisionLoad: Promise<Collision | null> | undefined) {
         this.global = global;
 
-        const { app, settings, config, events, state, camera } = global;
+        const { app, settings, config, events, state, camera, renderer } = global;
         const { graphicsDevice } = app;
-
-        // enable anonymous CORS for image loading in safari
-        (app.loader.getHandler('texture') as TextureHandler).imgParser.crossOrigin = 'anonymous';
 
         // render skybox as plain equirect
         const glsl = ShaderChunks.get(graphicsDevice, 'glsl');
-        glsl.set('skyboxPS', glsl.get('skyboxPS').replace('mapRoughnessUv(uv, mipLevel)', 'uv'));
-        glsl.set('pickPS', pickDepthGlsl);
+        glsl.set('skyboxPS', patchChunk(glsl.get('skyboxPS'), 'mapRoughnessUv(uv, mipLevel)', 'uv', 'glsl skyboxPS'));
 
         const wgsl = ShaderChunks.get(graphicsDevice, 'wgsl');
-        wgsl.set('skyboxPS', wgsl.get('skyboxPS').replace('mapRoughnessUv(uv, uniform.mipLevel)', 'uv'));
-        wgsl.set('pickPS', pickDepthWgsl);
+        wgsl.set('skyboxPS', patchChunk(wgsl.get('skyboxPS'), 'mapRoughnessUv(uv, uniform.mipLevel)', 'uv', 'wgsl skyboxPS'));
+
+        this.origChunks = {
+            glsl: {
+                gsplatOutputVS: glsl.get('gsplatOutputVS'),
+                skyboxPS: glsl.get('skyboxPS'),
+                composePS: glsl.get('composePS'),
+                composeMainEndPS: glsl.get('composeMainEndPS')
+            },
+            wgsl: {
+                gsplatOutputVS: wgsl.get('gsplatOutputVS'),
+                skyboxPS: wgsl.get('skyboxPS'),
+                composePS: wgsl.get('composePS'),
+                composeMainEndPS: wgsl.get('composeMainEndPS')
+            }
+        };
 
         // disable auto render, we'll render only when camera changes
         app.autoRender = false;
-
-        // apply camera animation settings
-        camera.camera.aspectRatio = graphicsDevice.width / graphicsDevice.height;
 
         // configure the camera
         this.configureCamera(settings);
@@ -216,35 +380,6 @@ class Viewer {
         // reconfigure camera when entering/exiting XR
         app.xr.on('start', () => this.configureCamera(settings));
         app.xr.on('end', () => this.configureCamera(settings));
-
-        // handle horizontal fov on canvas resize
-        const updateHorizontalFov = () => {
-            camera.camera.horizontalFov = graphicsDevice.width > graphicsDevice.height;
-            app.renderNextFrame = true;
-        };
-        graphicsDevice.on('resizecanvas', updateHorizontalFov);
-        updateHorizontalFov();
-
-        // handle canvas pixel density through retinaDisplay (hqMode is reserved for splat budget)
-        const updatePixelRatio = () => {
-            // During XR sessions, the XR system manages framebuffers.
-            // Avoid changing pixel ratio to prevent XR layer instability.
-            if (app.xr?.active) {
-                return;
-            }
-
-            // limit the backbuffer to 4k on desktop and HD on mobile
-            // we use the shorter dimension so ultra-wide (or high) monitors still work correctly.
-            const maxRatio = (platform.mobile ? 1080 : 2160) / Math.min(screen.width, screen.height);
-
-            // retinaDisplay controls pixel resolution scaling independently from quality budget.
-            const densityScale = state.retinaDisplay ? 1.0 : 0.5;
-            graphicsDevice.maxPixelRatio = densityScale * Math.min(maxRatio, window.devicePixelRatio);
-
-            app.renderNextFrame = true;
-        };
-        events.on('retinaDisplay:changed', updatePixelRatio);
-        updatePixelRatio();
 
         // construct debug ministats
         if (config.ministats) {
@@ -288,7 +423,7 @@ class Viewer {
                 }
             }
 
-            // suppress rendering till we're ready (but always render during XR sessions)
+            // suppress rendering till we're ready, but let XR manage its own frame loop
             if (!state.readyToRender && !app.xr.active) {
                 app.renderNextFrame = false;
             }
@@ -309,6 +444,8 @@ class Viewer {
             cameraEntity.setPosition(camera.position);
             cameraEntity.setEulerAngles(camera.angles);
             cameraEntity.camera.fov = camera.fov;
+
+            cameraEntity.camera.horizontalFov = graphicsDevice.width > graphicsDevice.height;
 
             // fit clipping planes to bounding box
             const boundRadius = sceneBound.halfExtents.length();
@@ -340,21 +477,104 @@ class Viewer {
 
                 // apply to the camera entity
                 applyCamera(this.cameraManager.camera);
+
+                if (this.tiledVoxelCollision) {
+                    const p = camera.getPosition();
+                    this.tiledVoxelCollision.updateForQueryPosition(-p.x, p.z);
+                }
             }
+
         });
 
-        // unpause the animation on first frame
+        // Render voxel debug overlay
+        app.on('prerender', () => {
+            this.voxelOverlay?.update();
+        });
+
+        // update state on first frame
         events.on('firstFrame', () => {
+            state.loaded = true;
+            this.revealSceneBackground();
             state.animationPaused = !!config.noanim;
+            state.loadingStage = 'complete';
+            state.progress = 100;
+            state.loadingStatus = '加载完成';
+
+            const getCameraPose = () => {
+                if (!this.cameraManager) {
+                    return null;
+                }
+
+                const activeCamera = this.cameraManager.camera;
+                activeCamera.calcFocusPoint(focusPoint);
+
+                return {
+                    mode: state.cameraMode,
+                    position: [
+                        round6(activeCamera.position.x),
+                        round6(activeCamera.position.y),
+                        round6(activeCamera.position.z)
+                    ] as [number, number, number],
+                    target: [
+                        round6(focusPoint.x),
+                        round6(focusPoint.y),
+                        round6(focusPoint.z)
+                    ] as [number, number, number],
+                    angles: [
+                        round6(activeCamera.angles.x),
+                        round6(activeCamera.angles.y),
+                        round6(activeCamera.angles.z)
+                    ] as [number, number, number],
+                    distance: round6(activeCamera.distance),
+                    fov: round6(activeCamera.fov)
+                };
+            };
+
+            window.scrubTo = (time: number) => {
+                if (!state.hasAnimation) {
+                    return Promise.reject(new Error('No animation track'));
+                }
+
+                state.animationPaused = true;
+                return new Promise<void>((resolve) => {
+                    events.fire('scrubAnim', time);
+                    app.renderNextFrame = true;
+                    app.once('frameend', () => resolve());
+                });
+            };
+
+            window.animationDuration = state.animationDuration;
+            window.getCameraPose = getCameraPose;
+            window.logCameraPose = () => {
+                const pose = getCameraPose();
+                if (!pose) {
+                    console.warn('Camera is not ready yet.');
+                    return null;
+                }
+
+                console.log('Current camera pose:', pose);
+                console.log('Settings snippet:\n' + JSON.stringify({
+                    initial: {
+                        position: pose.position,
+                        target: pose.target,
+                        fov: pose.fov
+                    }
+                }, null, 2));
+                return pose;
+            };
+            console.info('Camera debug helpers ready: logCameraPose() / getCameraPose()');
         });
 
-        // wait for the renderable scene to load first; collision is attached lazily after first frame
-        Promise.all([gsplatLoad, skyboxLoad]).then((results) => {
-            const gsplat = results[0].gsplat as GSplatComponent;
-            let voxelLoadStarted = false;
+        // wait for the model to load
+        Promise.all([gsplatLoad, skyboxLoad, collisionLoad]).then((results) => {
+            const gsplatComponent = results[0].gsplat as GSplatComponent;
+            const collision = results[2];
+            if (collision instanceof TiledVoxelCollision) {
+                this.tiledVoxelCollision = collision;
+            }
 
             // get scene bounding box
-            const gsplatBbox = gsplat.customAabb;
+            const gsplatBbox = gsplatComponent.customAabb;
             if (gsplatBbox) {
                 sceneBound.setFromTransformedAabb(gsplatBbox, results[0].getWorldTransform());
             }
@@ -363,286 +583,233 @@ class Viewer {
                 this.annotations = new Annotations(global, this.cameraFrame != null);
             }
 
-            this.inputController = new InputController(global);
+            this.picker = new Picker(app, camera);
+            this.inputController = new InputController(global, this.picker);
+            this.inputController.collision = collision ?? null;
 
-            state.hasCollision = false;
-            state.hasVoxelOverlay = false;
-
-            this.cameraManager = new CameraManager(global, sceneBound, null);
-            applyCamera(this.cameraManager.camera);
-
-            const attachCollider = (collider: VoxelCollider | null) => {
-                if (!collider) {
-                    return;
+            // hasCollision = a collision provider exists. walkCapability was
+            // set from the resource declaration before loading so the UI can
+            // show walk mode early; walkAllowed is stricter and only flips true
+            // once the collision needed under the user is ready. For tiled
+            // voxel this waits for the foot tile, not the full 3x3 neighborhood.
+            state.hasCollision = !!collision;
+            const hasWalkArea = isWalkAllowed(sceneBound, collision ?? null);
+            const updateWalkReadiness = () => {
+                let ready = hasWalkArea;
+                if (collision instanceof TiledVoxelCollision) {
+                    const p = camera.getPosition();
+                    collision.updateForQueryPosition(-p.x, p.z);
+                    ready = ready && collision.isCurrentTileLoaded();
                 }
-
-                this.inputController.collider = collider;
-                this.cameraManager.setCollider(collider);
-                state.hasCollision = true;
-
-                if (!this.walkCursor) {
-                    this.walkCursor = new WalkCursor(app, camera, collider, events, state);
-                }
-
-                app.renderNextFrame = true;
+                state.walkAllowed = ready;
             };
+            updateWalkReadiness();
 
-            const startVoxelLoad = () => {
-                if (voxelLoadStarted || !voxelLoadFactory) {
-                    return;
-                }
-                voxelLoadStarted = true;
-
-                voxelLoadFactory()
-                    .then((collider) => {
-                        attachCollider(collider);
-                    })
-                    .catch((err) => {
-                        console.warn('[Voxel] Failed to attach collision data:', err);
-                    });
-            };
-
-            // Shared first-frame trigger: marks render ready, updates loading UI, fires event
-            let firstFrameFired = false;
-            const fireFirstFrame = (onReady?: () => void) => {
-                if (firstFrameFired) return;
-                firstFrameFired = true;
-                state.loaded = true;
-                state.readyToRender = true;
-                state.loadingStage = 'complete';
-                state.progress = 100;
-                state.loadingStatus = '加载完成';
-                onReady?.();
-                app.once('frameend', () => {
-                    events.fire('firstFrame');
-                    window.firstFrame?.();
-                    startVoxelLoad();
-                });
-            };
-
-            const { instance } = gsplat;
-            if (instance) {
-                // Get splat count from resource
-                const numSplats = instance.resource?.numSplats ?? 0;
-                const splatLabel = numSplats >= 10000
-                    ? `${(numSplats / 10000).toFixed(1)} 万`
-                    : `${numSplats}`;
-
-                state.loadingStatus = numSplats > 0
-                    ? `正在排序 ${splatLabel} 个高斯点...`
-                    : '正在排序高斯点...';
-                state.loadingStage = 'sort';
-                state.progress = -1; // indeterminate during sorting
-
-                // kick off gsplat sorting immediately now that camera is in position
-                instance.sort(camera);
-
-                if (instance.sorter) {
-                    // listen for sorting updates to trigger first frame events
-                    instance.sorter.on('updated', (count: number) => {
-                        // request frame render when sorting changes
-                        app.renderNextFrame = true;
-
-                        if (!state.readyToRender) {
-                            // we're ready to render once the first sort has completed
-                            fireFirstFrame();
-                        }
-                    });
-
-                    // fallback in case sorter doesn't emit updates
-                    setTimeout(() => {
-                        if (!firstFrameFired) {
-                            console.warn('[Viewer] Sorter timeout - forcing firstFrame');
-                            state.loadingStage = 'timeout';
-                            fireFirstFrame();
-                        }
-                    }, 3000);
-                } else {
-                    // no sorter available; allow render immediately
-                    fireFirstFrame();
-                }
-            } else {
-
-                const { gsplat } = app.scene;
-                const isStreamingJson = state.loadingMode === 'streaming-json';
-
-                // Keep two budget/range profiles to support both legacy SOG LOD and streaming JSON LOD.
-                const ranges = isStreamingJson ? {
-                    mobile: {
-                        low: {
-                            range: [0, 1000],
-                            splatBudget: 1
-                        },
-                        high: {
-                            range: [0, 1000],
-                            splatBudget: 2
-                        }
-                    },
-                    desktop: {
-                        low: {
-                            range: [0, 1000],
-                            splatBudget: 2
-                        },
-                        high: {
-                            range: [0, 1000],
-                            splatBudget: 4
-                        }
+            if (collision instanceof TiledVoxelCollision) {
+                collision.onTilesChanged = () => {
+                    if (!state.loaded) {
+                        state.loadingStage = 'voxel-tile-switch';
+                        state.loadingStatus = '正在切换活动体素分块...';
                     }
-                } : {
-                    mobile: {
-                        low: {
-                            range: [2, 8],
-                            splatBudget: 1
-                        },
-                        high: {
-                            range: [1, 8],
-                            splatBudget: 2
-                        }
-                    },
-                    desktop: {
-                        low: {
-                            range: [1, 8],
-                            splatBudget: 3
-                        },
-                        high: {
-                            range: [0, 8],
-                            splatBudget: 6
-                        }
-                    }
+                    updateWalkReadiness();
+                    app.renderNextFrame = true;
                 };
-
-                const quality = platform.mobile ? ranges.mobile : ranges.desktop;
-
-                // start in low quality mode so we can get user interacting asap
-                if (isStreamingJson) {
-                    const lodLevels = (results[0].gsplat as any)?.resource?.octree?.lodLevels;
-                    if (lodLevels) {
-                        gsplat.lodRangeMax = gsplat.lodRangeMin = lodLevels - 1;
-                    }
-                } else {
-                    gsplat.lodRangeMin = quality.low.range[0];
-                    gsplat.lodRangeMax = quality.low.range[1];
-                }
-                results[0].gsplat.splatBudget = quality.low.splatBudget * 1000000;
-
-                // these two allow LOD behind camera to drop, saves lots of splats
-                gsplat.lodUpdateAngle = 90;
-                gsplat.lodBehindPenalty = 5;
-
-                // same performance, but rotating on slow devices does not give us unsorted splats on sides
-                gsplat.radialSorting = true;
-
-                const eventHandler = app.systems.gsplat;
-
-                // idle timer: force continuous rendering until 4s of inactivity
-                let idleTime = 0;
-                this.forceRenderNextFrame = true;
-
-                app.on('update', (dt: number) => {
-                    idleTime += dt;
-                    this.forceRenderNextFrame = idleTime < 4;
-                });
-
-                events.on('inputEvent', (type: string) => {
-                    if (type !== 'interact') {
-                        idleTime = 0;
-                    }
-                });
-
-                eventHandler.on('frame:ready', (_camera: CameraComponent, _layer: Layer, ready: boolean, loading: number) => {
-                    if (loading > 0 || !ready) {
-                        idleTime = 0;
-                    }
-                });
-
-                let current = 0;
-                let watermark = 1;
-                let lodConfigured = false;
-
-                state.loadingStatus = isStreamingJson
-                    ? '正在建立流式 LOD 调度...'
-                    : '正在加载 LOD 数据...';
-                state.loadingStage = isStreamingJson ? 'stream-schedule' : 'legacy-lod-loading';
-                state.progress = 0;
-
-                const updateLod = () => {
-                    const settings = state.hqMode ? quality.high : quality.low;
-
-                    if (isStreamingJson) {
-                        const retinaFactor = state.retinaDisplay ? 1.1 : 0.9;
-                        const budget = Math.round(settings.splatBudget * retinaFactor * 1000000);
-                        const clampedBudget = Math.max(500000, Math.min(10000000, budget));
-
-                        gsplat.lodRangeMin = settings.range[0];
-                        gsplat.lodRangeMax = settings.range[1];
-                        results[0].gsplat.splatBudget = clampedBudget;
-                        return;
-                    }
-
-                    gsplat.lodRangeMin = settings.range[0];
-                    gsplat.lodRangeMax = settings.range[1];
-                    results[0].gsplat.splatBudget = settings.splatBudget * 1000000;
-                };
-
-                const configureReadyLod = () => {
-                    if (lodConfigured) {
-                        return;
-                    }
-                    lodConfigured = true;
-
-                    state.loadingStatus = isStreamingJson
-                        ? '流式 LOD 数据就绪，正在准备首帧...'
-                        : 'LOD 数据就绪，正在准备首帧...';
-                    state.loadingStage = 'prepare';
-                    state.progress = 100;
-                    state.readyToRender = true;
-
-                    events.on('hqMode:changed', updateLod);
-                    if (isStreamingJson) {
-                        events.on('retinaDisplay:changed', updateLod);
-                    }
-                    updateLod();
-
-                    gsplat.colorizeLod = config.colorize;
-                };
-
-                const readyHandler = (camera: CameraComponent, layer: Layer, ready: boolean, loading: number) => {
-                    if (ready && loading === 0) {
-                        eventHandler.off('frame:ready', readyHandler);
-                        configureReadyLod();
-                        app.once('frameend', () => {
-                            fireFirstFrame();
-                        });
-                    }
-
-                    // update loading status with file count
-                    if (loading !== current) {
-                        watermark = Math.max(watermark, loading);
-                        current = watermark - loading;
-                        state.progress = Math.trunc(current / watermark * 100);
-                        if (loading > 0) {
-                            state.loadingStage = isStreamingJson ? 'stream-loading' : 'legacy-lod-loading';
-                            state.loadingStatus = isStreamingJson
-                                ? `流式 LOD 拉取中 (剩余 ${loading} 个分块)`
-                                : `正在加载 LOD 数据 (剩余 ${loading} 个文件)`;
-                        }
-                    }
-                };
-                eventHandler.on('frame:ready', readyHandler);
             }
-        }).catch((err) => {
-            console.error('[Viewer] Failed to load model:', err);
+
+            // Create collision debug overlay (voxel uses a compute shader, mesh
+            // uses standard line rendering). The voxel path requires WebGPU.
+            if (collision instanceof VoxelCollision && renderer !== 'webgl') {
+                state.loadingStage = 'overlay';
+                state.loadingStatus = '正在准备体素调试叠层...';
+                this.voxelOverlay = new VoxelDebugOverlay(app, collision, camera);
+                this.voxelOverlay.mode = config.heatmap ? 'heatmap' : 'overlay';
+                state.hasCollisionOverlay = true;
+
+                events.on('collisionOverlayEnabled:changed', (value: boolean) => {
+                    this.voxelOverlay.enabled = value;
+                    app.renderNextFrame = true;
+                });
+            } else if (collision instanceof TiledVoxelCollision && renderer !== 'webgl') {
+                state.loadingStage = 'overlay';
+                state.loadingStatus = '正在准备 tiled voxel 调试叠层...';
+                this.voxelOverlay = new TiledVoxelDebugOverlay(app, collision, camera);
+                this.voxelOverlay.mode = config.heatmap ? 'heatmap' : 'overlay';
+                state.hasCollisionOverlay = true;
+
+                events.on('collisionOverlayEnabled:changed', (value: boolean) => {
+                    this.voxelOverlay.enabled = value;
+                    app.renderNextFrame = true;
+                });
+            } else if (collision instanceof MeshCollision) {
+                state.loadingStage = 'overlay';
+                state.loadingStatus = '正在准备网格碰撞叠层...';
+                this.meshOverlay = new MeshDebugOverlay(app, collision, camera, !!this.cameraFrame);
+                state.hasCollisionOverlay = true;
+
+                events.on('collisionOverlayEnabled:changed', (value: boolean) => {
+                    this.meshOverlay.enabled = value;
+                    app.renderNextFrame = true;
+                });
+            }
+
+            this.cameraManager = new CameraManager(global, sceneBound, collision);
+            applyCamera(this.cameraManager.camera);
+            if (this.tiledVoxelCollision) {
+                const p = camera.getPosition();
+                this.tiledVoxelCollision.updateForQueryPosition(-p.x, p.z);
+            }
+            updateWalkReadiness();
+            if (state.cameraMode === 'walk' && !state.walkAllowed) {
+                state.cameraMode = 'fly';
+            }
+
+            if (!config.noui) {
+                this.navCursor = new NavCursor(app, camera, collision ?? null, events, state);
+            }
+
+            this.debugPanel = new DebugPanel(global, this.cameraManager);
+
+            const { gsplat } = app.scene;
+
+            // quality budget
+            const budgets = {
+                mobile: {
+                    low: 1,
+                    high: 2
+                },
+                desktop: {
+                    low: 2,
+                    high: 4
+                }
+            };
+
+            const applyPerfSettings = () => {
+                const budget = () => {
+                    if (config.budget !== undefined && Number.isFinite(config.budget) && config.budget > 0) {
+                        return config.budget;
+                    }
+                    const quality = platform.mobile ? budgets.mobile : budgets.desktop;
+                    return state.performanceMode ? quality.low : quality.high;
+                };
+
+                gsplat.splatBudget = budget() * 1000000;
+                gsplat.lodRangeMin = 0;
+                gsplat.lodRangeMax = 1000;
+                gsplat.colorUpdateAngle = state.performanceMode ? 4 : 2;
+                gsplat.minContribution = 1;
+                gsplat.alphaClip = 1 / 255;
+                gsplat.antiAlias = config.aa;
+            };
+
+            if (config.fullload) {
+                // reveal once full quality has finished loading (used for screenshots)
+                applyPerfSettings();
+            } else {
+                // reveal once low lod has loaded for fastest possible reveal
+                const resource = results[0].gsplat.resource as GSplatOctreeResourceLike | null;
+                const lodLevels = resource?.octree?.lodLevels;
+                if (lodLevels) {
+                    gsplat.lodRangeMax = gsplat.lodRangeMin = lodLevels - 1;
+                }
+            }
+
+            state.loadingStage = state.loadingMode === 'streaming-json' ? 'stream-schedule' : 'legacy-lod-loading';
+            state.loadingStatus = state.loadingMode === 'streaming-json'
+                ? '正在建立流式 LOD 调度...'
+                : '正在加载 LOD 数据...';
+            state.progress = 0;
+
+            // these two allow LOD behind camera to drop, saves lots of splats
+            gsplat.lodUpdateAngle = 90;
+            gsplat.lodBehindPenalty = 5;
+
+            // same performance, but rotating on slow devices does not give us unsorted splats on sides
+            gsplat.radialSorting = true;
+
+            const eventHandler = app.systems.gsplat;
+
+            // idle timer: force continuous rendering until 4s of inactivity
+            let idleTime = 0;
+            this.forceRenderNextFrame = true;
+
+            app.on('update', (dt: number) => {
+                idleTime += dt;
+                this.forceRenderNextFrame = idleTime < 4;
+            });
+
+            events.on('inputEvent', (type: string) => {
+                if (type !== 'interact') {
+                    idleTime = 0;
+                }
+            });
+
+            eventHandler.on('frame:ready', (_camera: CameraComponent, _layer: Layer, ready: boolean, loading: number) => {
+                if (loading > 0 || !ready) {
+                    idleTime = 0;
+                }
+            });
+
+            let current = 0;
+            let watermark = 1;
+            const readyHandler = (camera: CameraComponent, layer: Layer, ready: boolean, loading: number) => {
+                if (ready && loading === 0) {
+                    // scene is done loading
+                    eventHandler.off('frame:ready', readyHandler);
+
+                    state.readyToRender = true;
+                    state.loadingStage = 'prepare';
+                    state.loadingStatus = 'LOD 数据就绪，正在准备首帧...';
+                    state.progress = 100;
+
+                    // handle quality mode changes
+                    events.on('performanceMode:changed', applyPerfSettings);
+                    applyPerfSettings();
+
+                    // debug colorize lods
+                    gsplat.debug = config.colorize ? GSPLAT_DEBUG_LOD : GSPLAT_DEBUG_NONE;
+                    gsplat.renderer = rendererTable[renderer];
+
+                    // wait for the first valid frame to complete rendering
+                    app.once('frameend', () => {
+                        events.fire('firstFrame');
+
+                        // emit first frame event on window
+                        window.firstFrame?.();
+                    });
+                }
+
+                // update loading status
+                if (loading !== current) {
+                    watermark = Math.max(watermark, loading);
+                    current = watermark - loading;
+                    state.progress = Math.trunc(current / watermark * 100);
+                    if (loading > 0) {
+                        state.loadingStage = state.loadingMode === 'streaming-json' ? 'stream-loading' : 'legacy-lod-loading';
+                        state.loadingStatus = state.loadingMode === 'streaming-json'
+                            ? `流式 LOD 拉取中 (剩余 ${loading} 个分块)`
+                            : `正在加载 LOD 数据 (剩余 ${loading} 个文件)`;
+                    }
+                }
+            };
+
+            eventHandler.on('frame:ready', readyHandler);
         });
     }
 
     // configure camera based on application mode and post process settings
     configureCamera(settings: ExperienceSettings) {
         const { global } = this;
-        const { app, camera } = global;
+        const { app, config, camera } = global;
         const { postEffectSettings } = settings;
         this.applyBackground(settings);
 
-        const enableCameraFrame = !app.xr.active && (anyPostEffectEnabled(postEffectSettings) || settings.highPrecisionRendering);
+        // hpr override takes precedence over settings.highPrecisionRendering
+        const highPrecisionRendering = config.hpr ?? settings.highPrecisionRendering;
+
+        const postFxRequested = !config.nofx &&
+            (anyPostEffectEnabled(postEffectSettings) || highPrecisionRendering);
+
+        const enableCameraFrame = !app.xr.active && postFxRequested;
 
         if (enableCameraFrame) {
             // create instance
@@ -653,18 +820,40 @@ class Viewer {
             const { cameraFrame } = this;
             cameraFrame.enabled = true;
             cameraFrame.rendering.toneMapping = tonemapTable[settings.tonemapping];
-            cameraFrame.rendering.renderFormats = settings.highPrecisionRendering ? [PIXELFORMAT_RGBA16F, PIXELFORMAT_RGBA32F] : [];
+            cameraFrame.rendering.renderFormats = highPrecisionRendering ? [PIXELFORMAT_RGBA16F, PIXELFORMAT_RGBA32F] : [];
             applyPostEffectSettings(cameraFrame, postEffectSettings);
             cameraFrame.update();
 
-            // force gsplat shader to write gamma-space colors (GLSL for WebGL, WGSL for WebGPU)
-            ShaderChunks.get(app.graphicsDevice, 'glsl').set('gsplatOutputVS', gammaChunk);
+            // force gsplat shader to write gamma-space colors
+            ShaderChunks.get(app.graphicsDevice, 'glsl').set('gsplatOutputVS', gammaChunkGlsl);
             ShaderChunks.get(app.graphicsDevice, 'wgsl').set('gsplatOutputVS', gammaChunkWgsl);
 
-            // ensure the final blit doesn't perform linear->gamma conversion.
+            // force skybox shader to write gamma-space colors (inline pow replaces the
+            // gammaCorrectOutput call which is a no-op under CameraFrame's GAMMA_NONE)
+            ShaderChunks.get(app.graphicsDevice, 'glsl').set('skyboxPS',
+                patchChunk(
+                    this.origChunks.glsl.skyboxPS,
+                    'gammaCorrectOutput(toneMap(processEnvironment(linear)))',
+                    'pow(toneMap(processEnvironment(linear)) + 0.0000001, vec3(1.0 / 2.2))',
+                    'glsl skyboxPS gamma override'
+                )
+            );
+            ShaderChunks.get(app.graphicsDevice, 'wgsl').set('skyboxPS',
+                patchChunk(
+                    this.origChunks.wgsl.skyboxPS,
+                    'gammaCorrectOutput(toneMap(processEnvironment(linear)))',
+                    'pow(toneMap(processEnvironment(linear)) + 0.0000001, vec3f(1.0 / 2.2))',
+                    'wgsl skyboxPS gamma override'
+                )
+            );
+
+            this.updateComposeBackgroundPatch();
+
+            // ensure the final compose blit doesn't perform linear->gamma conversion.
             RenderTarget.prototype.isColorBufferSrgb = function (index) {
                 return this === app.graphicsDevice.backBuffer ? true : origIsColorBufferSrgb.call(this, index);
             };
+
         } else {
             // no post effects needed, destroy camera frame if it exists
             if (this.cameraFrame) {
@@ -672,10 +861,25 @@ class Viewer {
                 this.cameraFrame = null;
             }
 
+            // restore shader chunks to engine defaults
+            ShaderChunks.get(app.graphicsDevice, 'glsl').set('gsplatOutputVS', this.origChunks.glsl.gsplatOutputVS);
+            ShaderChunks.get(app.graphicsDevice, 'wgsl').set('gsplatOutputVS', this.origChunks.wgsl.gsplatOutputVS);
+            ShaderChunks.get(app.graphicsDevice, 'glsl').set('skyboxPS', this.origChunks.glsl.skyboxPS);
+            ShaderChunks.get(app.graphicsDevice, 'wgsl').set('skyboxPS', this.origChunks.wgsl.skyboxPS);
+            this.updateComposeBackgroundPatch();
+
+            // restore original isColorBufferSrgb behavior
+            RenderTarget.prototype.isColorBufferSrgb = origIsColorBufferSrgb;
+
             if (!app.xr.active) {
                 camera.camera.toneMapping = tonemapTable[settings.tonemapping];
             }
         }
+
+        // Mesh overlay bakes its vertex colors based on the current gamma
+        // path; reapply when CameraFrame is created/destroyed (e.g. on XR
+        // start/end) so the overlay tracks the new path.
+        this.meshOverlay?.setCameraFrameEnabled(!!this.cameraFrame);
     }
 }
 

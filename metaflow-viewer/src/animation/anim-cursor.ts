@@ -38,9 +38,7 @@ class AnimCursor {
     }
 
     set value(value: number) {
-        this.cursor = this.loopMode === 'pingpong'
-            ? mod(value, this.duration * 2)
-            : mod(value, this.duration);
+        this.cursor = mod(value, this.duration);
     }
 
     get value() {

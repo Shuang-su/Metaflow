@@ -4,46 +4,35 @@
         <title>川流Metaflow</title>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-        <!-- <meta name="description" content="川流Metaflow - 高斯泼溅3D资源浏览平台，沉浸式体验二次元角色、文化艺术展品的3D高斯泼溅重建"> -->
         <meta name="description" content="">
         <meta name="keywords" content="">
         <meta name="author" content="Metaflow">
-        
-        <!-- Favicon -->
         <link rel="icon" type="image/svg+xml" href="./assets/metaflow_logo.svg">
         <link rel="apple-touch-icon" href="./assets/metaflow_web-2.jpg">
-        
-        <!-- Open Graph / Facebook / 微信分享 -->
         <meta property="og:type" content="website">
         <meta property="og:url" content="https://metaflow.shuang-su.com/">
         <meta property="og:title" content="川流Metaflow">
-        <!-- <meta property="og:description" content="高斯泼溅3D资源浏览平台，沉浸式体验二次元角色、文化艺术展品的3D重建"> -->
-         <meta property="og:description" content="">
+        <meta property="og:description" content="">
         <meta property="og:image" content="https://metaflow.shuang-su.com/assets/metaflow_web-2.jpg">
         <meta property="og:image:width" content="1200">
         <meta property="og:image:height" content="630">
-        
-        <!-- Twitter -->
         <meta name="twitter:card" content="summary_large_image">
         <meta name="twitter:title" content="川流Metaflow">
         <meta name="twitter:description" content="">
         <meta name="twitter:image" content="https://metaflow.shuang-su.com/assets/metaflow_web-2.jpg">
-        
         <base href="/">
         <link rel="stylesheet" href="./index.css">
         <script type="module">
-            // Domain-based redirects (before any other logic)
             const domainRedirects = {
                 'xn--fes68bkzcz5lkjgrkl.com': '/c2-lib',
                 'www.xn--fes68bkzcz5lkjgrkl.com': '/c2-lib'
             };
-            
+
             const currentHost = location.hostname.toLowerCase();
             if (domainRedirects[currentHost] && location.pathname === '/') {
                 location.replace(domainRedirects[currentHost]);
             }
 
-            // Create image and start loading immediately
             const createImage = (url) => {
                 const img = new Image();
                 img.crossOrigin = 'anonymous';
@@ -101,6 +90,7 @@
             const stripJsonComments = (source) => {
                 let result = '';
                 let inString = false;
+                let stringQuote = '"';
                 let escapeNext = false;
                 let lineComment = false;
                 let blockComment = false;
@@ -110,7 +100,7 @@
                     const next = source[i + 1];
 
                     if (lineComment) {
-                        if (char === '\n') {
+                        if (char === '\n' || char === '\r') {
                             lineComment = false;
                             result += char;
                         }
@@ -121,6 +111,8 @@
                         if (char === '*' && next === '/') {
                             blockComment = false;
                             i++;
+                        } else if (char === '\n' || char === '\r') {
+                            result += char;
                         }
                         continue;
                     }
@@ -131,14 +123,15 @@
                             escapeNext = false;
                         } else if (char === '\\') {
                             escapeNext = true;
-                        } else if (char === '"') {
+                        } else if (char === stringQuote) {
                             inString = false;
                         }
                         continue;
                     }
 
-                    if (char === '"') {
+                    if (char === '"' || char === "'") {
                         inString = true;
+                        stringQuote = char;
                         result += char;
                         continue;
                     }
@@ -162,7 +155,6 @@
             };
 
             const stripTrailingCommas = (source) => source.replace(/,\s*([}\]])/g, '$1');
-
             const parseJsonc = (source) => JSON.parse(stripTrailingCommas(stripJsonComments(source)));
 
             const loadSettings = async (settingsUrl) => {
@@ -173,20 +165,19 @@
                 return parseJsonc(text);
             };
 
-            // 默认值
             let posterUrl = url.searchParams.get('poster');
             let skyboxUrl = url.searchParams.get('skybox');
             let settingsUrl = url.searchParams.has('settings') ? url.searchParams.get('settings') : null;
             let contentUrl = url.searchParams.has('content') ? url.searchParams.get('content') : null;
+            let collisionUrl = url.searchParams.get('collision') ?? null;
             let voxelUrl = url.searchParams.get('voxel');
+            let voxelManifestUrl = url.searchParams.get('voxelManifest');
+            let voxelCoordinateSpace = null;
             let environmentUrl = url.searchParams.get('environment');
             let defaultCameraMode = null;
             let syntheticAnimation = null;
-            let resourceTitle = '川流Metaflow';
 
-            // 路由解析：从路径获取资源信息
             const initConfig = async () => {
-                // 如果路径不是根目录，尝试从 index.json 查找资源
                 if (pathname !== '/' && pathname !== '/index.html' && !contentUrl) {
                     try {
                         const indexResponse = await fetch('/data/index.json');
@@ -198,98 +189,96 @@
                             const aliasMatch = Array.isArray(r?.aliases) && r.aliases.some((alias) => normalizeRoutePath(alias) === normalizedPath);
                             return routeMatch || aliasMatch;
                         });
-                        
+
                         if (resource) {
                             contentUrl = dataUrl(pickModelFile(resource));
                             settingsUrl = dataUrl(resource?.files?.settings);
                             posterUrl = posterUrl || dataUrl(resource?.files?.thumbnail);
+                            voxelManifestUrl = voxelManifestUrl || dataUrl(resource?.files?.voxelManifest);
                             voxelUrl = voxelUrl || dataUrl(resource?.files?.voxel);
+                            collisionUrl = collisionUrl || dataUrl(resource?.files?.collision);
                             environmentUrl = environmentUrl || dataUrl(resource?.files?.environment);
                             defaultCameraMode = resource?.viewer?.defaultCameraMode || null;
                             syntheticAnimation = resource?.viewer?.syntheticAnimation || null;
-                            // resourceTitle = '川流Metaflow - ' + resource.title;
-                            // document.title = resourceTitle;
+                            voxelCoordinateSpace = resource?.viewer?.voxelCoordinateSpace || null;
                         }
                     } catch (e) {
                         console.warn('Failed to load index.json:', e);
                     }
                 }
 
-                // 如果仍然没有内容，使用默认值或显示首页
                 if (!contentUrl) {
-                    // 检查是否有默认的场景文件
                     contentUrl = './scene.compressed.ply';
                 }
                 if (!settingsUrl) {
                     settingsUrl = './settings.json';
                 }
 
-                // Create poster image early to start loading
-                const posterImage = posterUrl ? createImage(posterUrl) : null;
+                const renderer = url.searchParams.has('webgl') ? 'webgl' : 'webgpu';
+                const budgetParam = url.searchParams.get('budget');
+                const budget = budgetParam !== null ? Number(budgetParam) : undefined;
 
                 return {
-                    poster: posterImage,
+                    poster: posterUrl && createImage(posterUrl),
                     skyboxUrl,
-                    contentUrl,
-                    contents: fetch(contentUrl),
+                    collisionUrl,
                     voxelUrl,
+                    voxelManifestUrl,
+                    voxelCoordinateSpace: ['world', 'metaflow-rz180'].includes(voxelCoordinateSpace) ? voxelCoordinateSpace : undefined,
                     environmentUrl,
                     environmentContents: environmentUrl ? fetch(environmentUrl) : null,
                     defaultCameraMode: ['anim', 'orbit', 'fly', 'walk'].includes(defaultCameraMode) ? defaultCameraMode : undefined,
                     syntheticAnimation: syntheticAnimation === 'figure8' ? syntheticAnimation : undefined,
+                    contentUrl,
+                    contents: fetch(contentUrl),
                     noui: url.searchParams.has('noui'),
                     noanim: url.searchParams.has('noanim'),
+                    nofx: url.searchParams.has('nofx'),
+                    hpr: url.searchParams.has('hpr') ? ['', '1', 'true', 'enable'].includes(url.searchParams.get('hpr')) : undefined,
                     ministats: url.searchParams.has('ministats'),
                     colorize: url.searchParams.has('colorize'),
                     unified: url.searchParams.has('unified'),
-                    aa: url.searchParams.has('aa')
+                    renderer,
+                    aa: url.searchParams.has('aa'),
+                    budget,
+                    heatmap: url.searchParams.has('heatmap'),
+                    fullload: url.searchParams.has('fullload'),
+                    debug: url.searchParams.has('debug')
                 };
             };
 
-            const sseConfig = await initConfig();
-
-            window.sse = {
-                config: sseConfig,
-                settings: loadSettings(settingsUrl)
-            };
+            window.sseReady = (async () => {
+                const sseConfig = await initConfig();
+                window.sse = {
+                    config: sseConfig,
+                    settings: loadSettings(settingsUrl)
+                };
+                return window.sse;
+            })();
         </script>
     </head>
     <body>
-        <pc-app antialias="false" depth="true" high-resolution="true" stencil="false">
-            <pc-scene>
-                <!-- Camera (with XR support) -->
-                <pc-entity name="camera root">
-                    <pc-entity name="camera"></pc-entity>
-                </pc-entity>
-                <!-- Light (for XR controllers) -->
-                <pc-entity name="light" rotation="35 45 0">
-                    <pc-light color="white" intensity="1.5"></pc-light>
-                </pc-entity>
-                <!-- Splat -->
-                <pc-entity name="splat" rotation="0 0 180">
-                </pc-entity>
-            </pc-scene>
-        </pc-app>
+        <canvas id="application-canvas"></canvas>
 
         <div id="ui">
-            <!-- Logo -->
-            <div id="logoWrap">
-                <div id="logoContainer">
-                    <img id="logoIcon" src="./assets/metaflow_logo.svg" alt="Metaflow Logo">
-                    <img id="logoWord" src="./assets/metaflow_word.svg" alt="Metaflow">
-                </div>
-            </div>
-
             <div id="poster"></div>
 
-            <!-- Loading Indicator - hidden until poster loads -->
-            <div id="loadingWrap" class="hidden">
+            <!-- Metaflow logo: visible fork branding, with route-link behavior for embeds. -->
+            <div id="logoWrap">
+                <a id="logoContainer" href="https://metaflow.shuang-su.com/" target="_blank" rel="noopener noreferrer" aria-label="Metaflow">
+                    <img id="logoIcon" src="./assets/metaflow_logo.svg" alt="Metaflow Logo">
+                    <img id="logoWord" src="./assets/metaflow_word.svg" alt="Metaflow">
+                </a>
+            </div>
+
+            <!-- Loading Indicator -->
+            <div id="loadingWrap">
                 <div id="loadingText"></div>
                 <div id="loadingBar"></div>
                 <div id="loadingStatus"></div>
             </div>
 
-            <div id="controlsWrap" class="faded-in">
+            <div id="controlsWrap" class="hidden">
 
                 <!-- Timeline Panel -->
                 <div id="timelineContainer" class="hidden">
@@ -314,94 +303,51 @@
                             </svg>
                         </button>
                     </div>
+
                     <div class="spacer"></div>
 
-                    <div id="cameraModeControls" class="buttonGroup modeStrip">
-                        <div id="orbitModeGroup" class="modeCluster">
-                            <button id="orbitCamera" class="controlButton modePrimary" aria-label="Orbit mode">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24">
-                                    <g class='stroke'><use href="#orbitIcon"/></g>
-                                    <g class='fill'><use href="#orbitIcon"/></g>
-                                </svg>
-                            </button>
-                        </div>
-                        <div id="flyModeGroup" class="modeCluster">
-                            <button id="flyCamera" class="controlButton modePrimary" aria-label="Fly mode">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24">
-                                    <g class='stroke'><use href="#flyIcon"/></g>
-                                    <g class='fill'><use href="#flyIcon"/></g>
-                                </svg>
-                            </button>
-                            <div id="flySubmodes" class="submodeCapsule hidden">
-                                <button id="flyGestureMode" class="controlButton submodeIcon hidden" aria-label="Fly gesture mode">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20">
-                                        <g class='stroke'><use href="#gestureIcon"/></g>
-                                        <g class='fill'><use href="#gestureIcon"/></g>
-                                    </svg>
-                                </button>
-                                <button id="flyGamepadMode" class="controlButton submodeIcon hidden" aria-label="Fly gamepad mode">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20">
-                                        <g class='stroke'><use href="#gamepadIcon"/></g>
-                                        <g class='fill'><use href="#gamepadIcon"/></g>
-                                    </svg>
-                                </button>
-                            </div>
-                        </div>
-                        <div id="walkModeGroup" class="modeCluster hidden">
-                            <button id="fpsCamera" class="controlButton modePrimary" aria-label="Walk mode">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24">
-                                    <g class='stroke'><use href="#walkIcon"/></g>
-                                    <g class='fill'><use href="#walkIcon"/></g>
-                                </svg>
-                            </button>
-                            <div id="walkSubmodes" class="submodeCapsule hidden">
-                                <button id="walkTouchMode" class="controlButton submodeIcon hidden" aria-label="Walk touch mode">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20">
-                                        <g class='stroke'><use href="#touchClickIcon"/></g>
-                                        <g class='fill'><use href="#touchClickIcon"/></g>
-                                    </svg>
-                                </button>
-                                <button id="walkGamepadMode" class="controlButton submodeIcon hidden" aria-label="Walk gamepad mode">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20">
-                                        <g class='stroke'><use href="#gamepadIcon"/></g>
-                                        <g class='fill'><use href="#gamepadIcon"/></g>
-                                    </svg>
-                                </button>
-                                <button id="walkClickMode" class="controlButton submodeIcon hidden" aria-label="Walk click mode">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20">
-                                        <g class='stroke'><use href="#mouseClickIcon"/></g>
-                                        <g class='fill'><use href="#mouseClickIcon"/></g>
-                                    </svg>
-                                </button>
-                                <button id="walkKeyboardMode" class="controlButton submodeIcon hidden" aria-label="Walk keyboard mode">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20">
-                                        <g class='stroke'><use href="#keyboardIcon"/></g>
-                                        <g class='fill'><use href="#keyboardIcon"/></g>
-                                    </svg>
-                                </button>
-                            </div>
-                        </div>
+                    <div class="buttonGroup">
+                        <button id="orbitCamera" class="controlButton toggle left">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24">
+                                <g class='stroke'><use href="#orbitIcon"/></g>
+                                <g class='fill'><use href="#orbitIcon"/></g>
+                            </svg>
+                        </button>
+                        <button id="flyCamera" class="controlButton toggle right">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24">
+                                <g class='stroke'><use href="#flyIcon"/></g>
+                                <g class='fill'><use href="#flyIcon"/></g>
+                            </svg>
+                        </button>
+                        <button id="fpsCamera" class="controlButton toggle right hidden">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24">
+                                <g class='stroke'><use href="#walkIcon"/></g>
+                                <g class='fill'><use href="#walkIcon"/></g>
+                            </svg>
+                        </button>
                     </div>
 
                     <div class="buttonGroup">
                         <button id="arMode" class="controlButton hidden">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24">
                                 <g class='stroke'><use href="#arIcon"/></g>
                                 <g class='fill'><use href="#arIcon"/></g>
                             </svg>
                         </button>
                         <button id="vrMode" class="controlButton hidden">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24">
                                 <g class='stroke'><use href="#vrIcon"/></g>
                                 <g class='fill'><use href="#vrIcon"/></g>
                             </svg>
                         </button>
-                        <button id="showVoxels" class="controlButton hidden">
+
+                        <button id="showCollision" class="controlButton hidden">
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24">
                                 <g class='stroke'><use href="#voxelIcon"/></g>
                                 <g class='fill'><use href="#voxelIcon"/></g>
                             </svg>
                         </button>
+
                         <button id="info" class="controlButton">
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24">
                                 <g class='stroke'><use href="#infoIcon"/></g>
@@ -414,6 +360,7 @@
                                 <g class='fill'><use href="#settingsIcon"/></g>
                             </svg>
                         </button>
+
                         <button id="enterFullscreen" class="controlButton">
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24">
                                 <g class='stroke'><use href="#enterFullscreenIcon"/></g>
@@ -430,201 +377,284 @@
                 </div>
             </div>
 
-            <div id="walkHint" class="hidden"></div>
+            <div id="walkHint" class="walkHint hidden"></div>
 
             <!-- Settings Panel -->
             <div id="settingsPanel" class="hidden">
-                <div class="settingsRow qualityRow" id="hqRow">
-                    <div id="hqOption">High Quality Render</div>
-                    <div id="hqCheck" class="toggleSwitch"><div class="toggleTrack"><div class="toggleThumb"></div></div></div>
+                <div id="performanceModeRow" class="settingsRow">
+                    <div id="performanceModeOption" data-i18n="settings.performance-mode">Performance Mode</div>
+                    <div id="performanceModeCheck" class="toggleSwitch"><div class="toggleTrack"><div class="toggleThumb"></div></div></div>
                 </div>
-                <div class="settingsRow qualityRow" id="lqRow">
-                    <div id="lqOption">Low Quality Render</div>
-                    <div id="lqCheck" class="toggleSwitch"><div class="toggleTrack"><div class="toggleThumb"></div></div></div>
-                </div>
-                <div id="retinaDisplayRow" class="settingsRow">
-                    <div id="retinaDisplayOption">Retina Display</div>
-                    <div id="retinaDisplayCheck" class="toggleSwitch"><div class="toggleTrack"><div class="toggleThumb"></div></div></div>
+                <div id="gamingControlsDivider" class="divider"></div>
+                <div id="gamingControlsRow" class="settingsRow">
+                    <div id="gamingControlsOption" data-i18n="settings.gaming-controls">Gaming Controls</div>
+                    <div id="gamingControlsCheck" class="toggleSwitch"><div class="toggleTrack"><div class="toggleThumb"></div></div></div>
                 </div>
                 <div class="divider"></div>
                 <div class="settingsRow">
-                    <button id="frame">Frame</button>
-                    <button id="reset">Reset</button>
+                    <button id="frame" data-i18n="settings.frame">Frame</button>
+                    <button id="reset" data-i18n="settings.reset">Reset</button>
                 </div>
             </div>
 
             <!-- Info Panel -->
             <div id="infoPanel" class="hidden">
-                <div id="infoPanelContent" onpointerdown="event.stopPropagation()">
-                    <div id="tabs">
-                        <div id="desktopTab" class="tab active">Desktop</div>
-                        <div id="touchTab" class="tab">Touch</div>
-                    </div>
+                <div id="infoPanelContent" onpointerdown="event.stopPropagation()" onwheel="event.stopPropagation()">
+                    <a id="viewerTitle" target="_blank" rel="noopener noreferrer">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 32 32">
+                            <g class='stroke'><use href="#supersplatIcon"/></g>
+                            <g class='fill'><use href="#supersplatIcon"/></g>
+                        </svg>
+                        <span class="title-name">川流Metaflow</span>
+                        <span class="title-version">v<span id="appVersionLabel"></span></span>
+                    </a>
                     <div id="infoPanels">
                         <div id="desktopInfoPanel">
                             <div class="control-spacer"></div>
-                            <h1>Orbit Mode</h1>
+                            <h1 data-i18n="help.section.orbit">Orbit Mode</h1>
                             <div class="control-item">
-                                <span class="control-action">Orbit</span>
-                                <span class="control-key">Left Mouse</span>
+                                <span class="control-action" data-i18n="help.action.orbit">Orbit</span>
+                                <span class="control-key" data-i18n="help.key.left-click-drag">Left Click + Drag</span>
                             </div>
                             <div class="control-item">
-                                <span class="control-action">Pan</span>
-                                <span class="control-key">Right Mouse</span>
+                                <span class="control-action" data-i18n="help.action.pan">Pan</span>
+                                <span class="control-key" data-i18n="help.key.right-click-drag">Right Click + Drag</span>
                             </div>
                             <div class="control-item">
-                                <span class="control-action">Zoom</span>
-                                <span class="control-key">Mouse Wheel</span>
+                                <span class="control-action" data-i18n="help.action.zoom">Zoom</span>
+                                <span class="control-key" data-i18n="help.key.mouse-wheel">Mouse Wheel</span>
                             </div>
                             <div class="control-item">
-                                <span class="control-action">Set Focus</span>
-                                <span class="control-key">Double Click</span>
+                                <span class="control-action" data-i18n="help.action.set-focus">Set Focus</span>
+                                <span class="control-key" data-i18n="help.key.left-click">Left Click</span>
                             </div>
                             <div class="control-item">
-                                <span class="control-action">Frame Scene</span>
+                                <span class="control-action" data-i18n="help.action.fly-to-point">Fly to Point</span>
+                                <span class="control-key" data-i18n="help.key.double-click">Double-click</span>
+                            </div>
+                            <div class="control-item">
+                                <span class="control-action" data-i18n="help.action.frame-scene">Frame Scene</span>
                                 <span class="control-key">F</span>
                             </div>
                             <div class="control-item">
-                                <span class="control-action">Reset Camera</span>
+                                <span class="control-action" data-i18n="help.action.reset-camera">Reset Camera</span>
                                 <span class="control-key">R</span>
                             </div>
                             <div class="control-spacer"></div>
-                            <h1>Fly Mode</h1>
-                            <div class="control-item">
-                                <span class="control-action">Look Around</span>
-                                <span class="control-key">Click + Drag</span>
+                            <h1 data-i18n="help.section.fly">Fly Mode</h1>
+                            <div id="desktopFlyClickToFly">
+                                <div class="control-item">
+                                    <span class="control-action" data-i18n="help.action.fly-to">Fly To</span>
+                                    <span class="control-key" data-i18n="help.key.left-click">Left Click</span>
+                                </div>
+                                <div class="control-item">
+                                    <span class="control-action" data-i18n="help.action.look-around">Look Around</span>
+                                    <span class="control-key" data-i18n="help.key.left-click-drag">Left Click + Drag</span>
+                                </div>
+                                <div class="control-item">
+                                    <span class="control-action" data-i18n="help.action.pan">Pan</span>
+                                    <span class="control-key" data-i18n="help.key.right-click-drag">Right Click + Drag</span>
+                                </div>
+                                <div class="control-item">
+                                    <span class="control-action" data-i18n="help.action.move">Move</span>
+                                    <span class="control-key">W,S,A,D</span>
+                                </div>
+                                <div class="control-item">
+                                    <span class="control-action" data-i18n="help.action.run-slow">Run / Slow</span>
+                                    <span class="control-key" data-i18n="help.key.shift-ctrl">Shift / Ctrl</span>
+                                </div>
+                                <div class="control-item">
+                                    <span class="control-action" data-i18n="help.action.focus-point">Focus Point</span>
+                                    <span class="control-key" data-i18n="help.key.double-click">Double-click</span>
+                                </div>
                             </div>
-                            <div class="control-item">
-                                <span class="control-action">Pan</span>
-                                <span class="control-key">Right Mouse</span>
-                            </div>
-                            <div class="control-item">
-                                <span class="control-action">Move</span>
-                                <span class="control-key">W,S,A,D</span>
+                            <div id="desktopFlyGamingControls" class="hidden">
+                                <div class="control-item">
+                                    <span class="control-action" data-i18n="help.action.look-around">Look Around</span>
+                                    <span class="control-key" data-i18n="help.key.mouse">Mouse</span>
+                                </div>
+                                <div class="control-item">
+                                    <span class="control-action" data-i18n="help.action.move">Move</span>
+                                    <span class="control-key">W,S,A,D</span>
+                                </div>
+                                <div class="control-item">
+                                    <span class="control-action" data-i18n="help.action.vertical">Vertical</span>
+                                    <span class="control-key">Q,E</span>
+                                </div>
+                                <div class="control-item">
+                                    <span class="control-action" data-i18n="help.action.run-slow">Run / Slow</span>
+                                    <span class="control-key" data-i18n="help.key.shift-ctrl">Shift / Ctrl</span>
+                                </div>
                             </div>
                             <div class="control-spacer"></div>
-                            <h1>Walk Mode</h1>
-                            <div class="control-item">
-                                <span class="control-action">Click Mode</span>
-                                <span class="control-key">Click / Drag</span>
+                            <h1 data-i18n="help.section.walk">Walk Mode</h1>
+                            <div id="desktopClickToWalk">
+                                <div class="control-item">
+                                    <span class="control-action" data-i18n="help.action.walk-to">Walk To</span>
+                                    <span class="control-key" data-i18n="help.key.left-click">Left Click</span>
+                                </div>
+                                <div class="control-item">
+                                    <span class="control-action" data-i18n="help.action.look-around">Look Around</span>
+                                    <span class="control-key" data-i18n="help.key.left-click-drag">Left Click + Drag</span>
+                                </div>
+                                <div class="control-item">
+                                    <span class="control-action" data-i18n="help.action.run-slow">Run / Slow</span>
+                                    <span class="control-key" data-i18n="help.key.shift-ctrl">Shift / Ctrl</span>
+                                </div>
+                                <div class="control-item">
+                                    <span class="control-action" data-i18n="help.action.fly-to-point">Fly to Point</span>
+                                    <span class="control-key" data-i18n="help.key.double-click">Double-click</span>
+                                </div>
                             </div>
-                            <div class="control-item">
-                                <span class="control-action">Keyboard Mode</span>
-                                <span class="control-key">Keyboard Button</span>
-                            </div>
-                            <div class="control-item">
-                                <span class="control-action">Auto Switch To Keyboard</span>
-                                <span class="control-key">W,S,A,D</span>
-                            </div>
-                            <div class="control-item">
-                                <span class="control-action">Jump</span>
-                                <span class="control-key">Space</span>
-                            </div>
-                            <div class="control-item">
-                                <span class="control-action">Back To Click Walk</span>
-                                <span class="control-key">Esc</span>
+                            <div id="desktopGamingControls">
+                                <div class="control-item">
+                                    <span class="control-action" data-i18n="help.action.look-around">Look Around</span>
+                                    <span class="control-key" data-i18n="help.key.mouse">Mouse</span>
+                                </div>
+                                <div class="control-item">
+                                    <span class="control-action" data-i18n="help.action.move">Move</span>
+                                    <span class="control-key">W,S,A,D</span>
+                                </div>
+                                <div class="control-item">
+                                    <span class="control-action" data-i18n="help.action.jump">Jump</span>
+                                    <span class="control-key" data-i18n="help.key.space">Space</span>
+                                </div>
+                                <div class="control-item">
+                                    <span class="control-action" data-i18n="help.action.run-slow">Run / Slow</span>
+                                    <span class="control-key" data-i18n="help.key.shift-ctrl">Shift / Ctrl</span>
+                                </div>
                             </div>
                             <div class="control-spacer"></div>
-                            <h1>Mode Switching</h1>
+                            <h1 data-i18n="help.section.modes">Mode Switching</h1>
                             <div class="control-item">
-                                <span class="control-action">Orbit Mode</span>
+                                <span class="control-action" data-i18n="help.action.orbit-mode">Orbit Mode</span>
                                 <span class="control-key">1</span>
                             </div>
                             <div class="control-item">
-                                <span class="control-action">Fly Mode</span>
+                                <span class="control-action" data-i18n="help.action.fly-mode">Fly Mode</span>
                                 <span class="control-key">2</span>
                             </div>
                             <div class="control-item">
-                                <span class="control-action">Walk Mode</span>
+                                <span class="control-action" data-i18n="help.action.toggle-walk">Toggle Walk</span>
                                 <span class="control-key">3</span>
                             </div>
                             <div class="control-item">
-                                <span class="control-action">Voxel Overlay (If Available)</span>
+                                <span class="control-action" data-i18n="help.action.toggle-gaming">Toggle Gaming Controls</span>
+                                <span class="control-key">G</span>
+                            </div>
+                            <div id="desktopShowCollisionHelp" class="control-item hidden">
+                                <span class="control-action" data-i18n="help.action.show-collision">Show Collision</span>
                                 <span class="control-key">V</span>
                             </div>
                             <div class="control-item">
-                                <span class="control-action">Play / Pause</span>
-                                <span class="control-key">Space</span>
+                                <span class="control-action" data-i18n="help.action.play-pause">Play / Pause</span>
+                                <span class="control-key" data-i18n="help.key.space">Space</span>
                             </div>
                             <div class="control-item">
-                                <span class="control-action">Toggle Help</span>
+                                <span class="control-action" data-i18n="help.action.toggle-help">Toggle Help</span>
                                 <span class="control-key">H</span>
+                            </div>
+                            <div class="control-item">
+                                <span class="control-action" data-i18n="help.action.exit-cancel">Exit / Cancel</span>
+                                <span class="control-key" data-i18n="help.key.esc">Esc</span>
                             </div>
                         </div>
                         <div id="touchInfoPanel" class="hidden">
                             <div class="control-spacer"></div>
-                            <h1>Orbit Mode</h1>
+                            <h1 data-i18n="help.section.orbit">Orbit Mode</h1>
                             <div class="control-item">
-                                <span class="control-action">Orbit</span>
-                                <span class="control-key">One Finger Drag</span>
+                                <span class="control-action" data-i18n="help.action.orbit">Orbit</span>
+                                <span class="control-key" data-i18n="help.key.one-finger-drag">One Finger Drag</span>
                             </div>
                             <div class="control-item">
-                                <span class="control-action">Pan</span>
-                                <span class="control-key">Two Finger Drag</span>
+                                <span class="control-action" data-i18n="help.action.pan">Pan</span>
+                                <span class="control-key" data-i18n="help.key.two-finger-drag">Two Finger Drag</span>
                             </div>
                             <div class="control-item">
-                                <span class="control-action">Zoom</span>
-                                <span class="control-key">Pinch</span>
+                                <span class="control-action" data-i18n="help.action.zoom">Zoom</span>
+                                <span class="control-key" data-i18n="help.key.pinch">Pinch</span>
                             </div>
                             <div class="control-item">
-                                <span class="control-action">Set Focus</span>
-                                <span class="control-key">Double Tap</span>
-                            </div>
-                            <div class="control-spacer"></div>
-                            <h1>Fly Mode</h1>
-                            <div class="control-item">
-                                <span class="control-action">Default</span>
-                                <span class="control-key">None</span>
+                                <span class="control-action" data-i18n="help.action.set-focus">Set Focus</span>
+                                <span class="control-key" data-i18n="help.key.tap">Tap</span>
                             </div>
                             <div class="control-item">
-                                <span class="control-action">Gesture Mode</span>
-                                <span class="control-key">Drag / Pinch / Two Finger Drag</span>
-                            </div>
-                            <div class="control-item">
-                                <span class="control-action">Gamepad Mode</span>
-                                <span class="control-key">Joystick</span>
-                            </div>
-                            <div class="control-item">
-                                <span class="control-action">Joystick 1D / 2D</span>
-                                <span class="control-key">Double Tap Joystick</span>
+                                <span class="control-action" data-i18n="help.action.fly-to-point">Fly to Point</span>
+                                <span class="control-key" data-i18n="help.key.double-tap">Double-tap</span>
                             </div>
                             <div class="control-spacer"></div>
-                            <h1>Walk Mode</h1>
-                            <div class="control-item">
-                                <span class="control-action">Default</span>
-                                <span class="control-key">None</span>
+                            <h1 data-i18n="help.section.fly">Fly Mode</h1>
+                            <div id="touchFlyClickToWalk">
+                                <div class="control-item">
+                                    <span class="control-action" data-i18n="help.action.fly-to">Fly To</span>
+                                    <span class="control-key" data-i18n="help.key.tap">Tap</span>
+                                </div>
+                                <div class="control-item">
+                                    <span class="control-action" data-i18n="help.action.look-around">Look Around</span>
+                                    <span class="control-key" data-i18n="help.key.touch-drag">Touch + Drag</span>
+                                </div>
+                                <div class="control-item">
+                                    <span class="control-action" data-i18n="help.action.move">Move</span>
+                                    <span class="control-key" data-i18n="help.key.pinch-two-finger">Pinch / Two Finger Drag</span>
+                                </div>
+                                <div class="control-item">
+                                    <span class="control-action" data-i18n="help.action.focus-point">Focus Point</span>
+                                    <span class="control-key" data-i18n="help.key.double-tap">Double-tap</span>
+                                </div>
                             </div>
-                            <div class="control-item">
-                                <span class="control-action">TouchClick Mode</span>
-                                <span class="control-key">Tap Ground / Drag View</span>
+                            <div id="touchFlyGamingControls" class="hidden">
+                                <div class="control-item">
+                                    <span class="control-action" data-i18n="help.action.look-around">Look Around</span>
+                                    <span class="control-key" data-i18n="help.key.touch-drag">Touch + Drag</span>
+                                </div>
+                                <div class="control-item">
+                                    <span class="control-action" data-i18n="help.action.move">Move</span>
+                                    <span class="control-key" data-i18n="help.key.joystick">Joystick</span>
+                                </div>
                             </div>
-                            <div class="control-item">
-                                <span class="control-action">Gamepad Mode</span>
-                                <span class="control-key">Joystick</span>
+                            <div class="control-spacer"></div>
+                            <h1 data-i18n="help.section.walk">Walk Mode</h1>
+                            <div id="touchClickToWalk">
+                                <div class="control-item">
+                                    <span class="control-action" data-i18n="help.action.walk-to">Walk To</span>
+                                    <span class="control-key" data-i18n="help.key.tap">Tap</span>
+                                </div>
+                                <div class="control-item">
+                                    <span class="control-action" data-i18n="help.action.look-around">Look Around</span>
+                                    <span class="control-key" data-i18n="help.key.touch-drag">Touch + Drag</span>
+                                </div>
+                                <div class="control-item">
+                                    <span class="control-action" data-i18n="help.action.fly-to-point">Fly to Point</span>
+                                    <span class="control-key" data-i18n="help.key.double-tap">Double-tap</span>
+                                </div>
                             </div>
-                            <div class="control-item">
-                                <span class="control-action">Jump</span>
-                                <span class="control-key">Jump Button</span>
+                            <div id="touchGamingControls" class="hidden">
+                                <div class="control-item">
+                                    <span class="control-action" data-i18n="help.action.look-around">Look Around</span>
+                                    <span class="control-key" data-i18n="help.key.touch-drag">Touch + Drag</span>
+                                </div>
+                                <div class="control-item">
+                                    <span class="control-action" data-i18n="help.action.move">Move</span>
+                                    <span class="control-key" data-i18n="help.key.joystick">Joystick</span>
+                                </div>
+                                <div class="control-item">
+                                    <span class="control-action" data-i18n="help.action.jump">Jump</span>
+                                    <span class="control-key" data-i18n="help.key.tap">Tap</span>
+                                </div>
                             </div>
                         </div>
                     </div>
+                    <div id="tabs">
+                        <div id="desktopTab" class="tab active" data-i18n="help.tab.desktop">Desktop</div>
+                        <div id="touchTab" class="tab" data-i18n="help.tab.touch">Touch</div>
+                    </div>
                 </div>
             </div>
-
-            <div id="joystickZone" class="hidden"></div>
-            <div id="jumpZone" class="hidden"></div>
 
             <!-- Touch Joystick -->
             <div id="joystickBase" class="hidden">
                 <div id="joystick"></div>
             </div>
-
-            <button id="walkJump" class="controlButton hidden" aria-label="Jump">
-                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22">
-                    <g class='stroke'><use href="#jumpIcon"/></g>
-                    <g class='fill'><use href="#jumpIcon"/></g>
-                </svg>
-            </button>
 
             <!-- Annotation Navigator -->
             <div id="annotationNav" class="hidden">
@@ -647,6 +677,18 @@
 
             <!-- Tooltip -->
             <div id="tooltip"></div>
+
+            <!-- XR WebGL-required modal -->
+            <div id="xrModal" class="hidden" onwheel="event.stopPropagation()">
+                <div id="xrModalContent" onpointerdown="event.stopPropagation()">
+                    <h2 data-i18n="xr-modal.title">WebGL Required</h2>
+                    <p data-i18n="xr-modal.message">AR and VR are not supported on the WebGPU renderer. Pressing OK will reload the viewer with WebGL.</p>
+                    <div id="xrModalButtons">
+                        <button id="xrModalCancel" data-i18n="xr-modal.cancel">Cancel</button>
+                        <button id="xrModalOk" data-i18n="xr-modal.ok">OK</button>
+                    </div>
+                </div>
+            </div>
         </div>
 
         <!-- SVG Icons -->
@@ -669,35 +711,11 @@
             <symbol id="walkIcon" viewBox="-2 -2 20 20">
                 <path d="M9.75 2a1.75 1.75 0 1 1-3.5 0 1.75 1.75 0 0 1 3.5 0zM5.25 4.75h5.5v4.5h-.5v5h-2v-5h-.5v5h-2v-5h-.5z"/>
             </symbol>
-            <symbol id="gestureIcon" viewBox="0 0 44 39">
-                <path d="M9.55078 4.98047L10.4297 7.38281C8.03385 8.93229 6.1263 11.0482 4.70703 13.7305C3.28776 16.4128 2.53906 19.5052 2.46094 23.0078C2.44792 23.3594 2.33073 23.6523 2.10938 23.8867C1.88802 24.1211 1.60807 24.2448 1.26953 24.2578C0.93099 24.2708 0.63151 24.1471 0.371094 23.8867C0.123698 23.6263 0 23.3203 0 22.9688C0 20.2995 0.397135 17.819 1.19141 15.5273C1.98568 13.2357 3.09896 11.1979 4.53125 9.41406C5.96354 7.61719 7.63672 6.13932 9.55078 4.98047ZM34.4922 37.2266C31.25 38.4115 28.1836 38.5417 25.293 37.6172C22.4154 36.7057 19.7396 34.7461 17.2656 31.7383L10.7227 23.8477C10.5013 23.5612 10.2995 23.2617 10.1172 22.9492C9.9349 22.6237 9.79818 22.3177 9.70703 22.0312C9.32943 21.0286 9.375 20.1302 9.84375 19.3359C10.3255 18.5417 11.0156 17.9818 11.9141 17.6562C12.5651 17.4219 13.2161 17.4023 13.8672 17.5977C14.5182 17.7799 15.1302 18.1706 15.7031 18.7695L17.9883 21.25C18.0534 21.3281 18.1185 21.3542 18.1836 21.3281C18.2878 21.3021 18.3138 21.2305 18.2617 21.1133L12.6953 5.80078C12.2786 4.64193 12.2917 3.58724 12.7344 2.63672C13.1771 1.67318 13.9453 0.989583 15.0391 0.585938C16.1198 0.195312 17.1354 0.227865 18.0859 0.683594C19.0365 1.1263 19.7201 1.93359 20.1367 3.10547L22.3633 9.19922C22.7409 8.92578 23.151 8.70443 23.5938 8.53516C24.388 8.2487 25.1497 8.21615 25.8789 8.4375C26.6211 8.64583 27.2461 9.07552 27.7539 9.72656C28.2227 9.34896 28.724 9.0625 29.2578 8.86719C30.013 8.59375 30.7292 8.55469 31.4062 8.75C32.0833 8.93229 32.6497 9.32292 33.1055 9.92188C34.8242 9.32292 36.3737 9.4401 37.7539 10.2734C39.1341 11.1068 40.2083 12.5846 40.9766 14.707L42.4219 18.7109C43.4635 21.5755 43.8151 24.2383 43.4766 26.6992C43.151 29.1471 42.2201 31.2826 40.6836 33.1055C39.1471 34.9154 37.0833 36.2891 34.4922 37.2266ZM33.6523 34.668C35.8268 33.8867 37.526 32.7604 38.75 31.2891C39.987 29.8177 40.7096 28.0664 40.918 26.0352C41.1393 24.0039 40.8008 21.7578 39.9023 19.2969L38.6914 15.957C38.1576 14.4987 37.5195 13.4505 36.7773 12.8125C36.0352 12.1615 35.2604 11.9857 34.4531 12.2852L35.2148 14.3945C35.332 14.7331 35.3125 15.0521 35.1562 15.3516C35 15.638 34.7721 15.8333 34.4727 15.9375C34.1602 16.0547 33.8477 16.0547 33.5352 15.9375C33.2227 15.8073 33.0078 15.5729 32.8906 15.2344L31.8359 12.3828C31.6667 11.901 31.3997 11.569 31.0352 11.3867C30.6706 11.1914 30.2604 11.1784 29.8047 11.3477C29.4271 11.4909 29.0951 11.7057 28.8086 11.9922L30.0586 15.4688C30.1888 15.8073 30.1758 16.1263 30.0195 16.4258C29.8633 16.7122 29.6354 16.9076 29.3359 17.0117C29.0234 17.1289 28.7044 17.1289 28.3789 17.0117C28.0664 16.8815 27.8516 16.6471 27.7344 16.3086L26.1719 12.0508C26.0026 11.569 25.7357 11.237 25.3711 11.0547C25.0065 10.8594 24.5964 10.8464 24.1406 11.0156C23.763 11.1589 23.431 11.3737 23.1445 11.6602L24.9219 16.5625C25.0391 16.875 25.0195 17.181 24.8633 17.4805C24.7201 17.7799 24.4922 17.9883 24.1797 18.1055C23.8542 18.2227 23.5352 18.2161 23.2227 18.0859C22.9102 17.9557 22.6953 17.7279 22.5781 17.4023L17.6367 3.82812C17.4935 3.4375 17.2591 3.16406 16.9336 3.00781C16.6211 2.83854 16.276 2.81901 15.8984 2.94922C15.5208 3.09245 15.2539 3.33333 15.0977 3.67188C14.9414 3.9974 14.9349 4.35547 15.0781 4.74609L22.0117 23.7695C22.1549 24.1992 22.1549 24.5964 22.0117 24.9609C21.8685 25.3125 21.6081 25.5599 21.2305 25.7031C20.8919 25.8203 20.5534 25.8464 20.2148 25.7812C19.8763 25.7031 19.5247 25.4688 19.1602 25.0781L14.6289 20.4102C14.1081 19.8503 13.5677 19.668 13.0078 19.8633C12.6432 20.0065 12.3893 20.2344 12.2461 20.5469C12.1159 20.8594 12.1094 21.1719 12.2266 21.4844C12.3307 21.7578 12.4805 22.0182 12.6758 22.2656L19.2188 30.1367C21.4844 32.8711 23.8151 34.5443 26.2109 35.1562C28.6198 35.7682 31.1003 35.6055 33.6523 34.668Z"/>
+            <symbol id="arIcon" viewBox="0 0 24 24">
+                <path fill-rule="evenodd" clip-rule="evenodd" d="M12 15.3994V6H16.9629C18.2109 6 19.1167 6.1089 19.6797 6.32715C20.248 6.53997 20.7021 6.92247 21.042 7.47363C21.3818 8.02476 21.5518 8.65491 21.5518 9.36426C21.5518 10.2645 21.2943 11.0093 20.7793 11.5986C20.2641 12.1825 19.4938 12.5513 18.4688 12.7041C18.9786 13.0097 19.3983 13.3453 19.7275 13.7109C20.0621 14.0766 20.5113 14.7261 21.0742 15.6592L22.5 18H19.6797L17.9746 15.3887C17.3694 14.4559 16.9555 13.8691 16.7324 13.6289C16.5095 13.3835 16.2729 13.2172 16.0234 13.1299C15.7738 13.0371 15.3777 12.9902 14.8359 12.9902H14.3584V18H10.4053L9.35742 15.2744H4.56055L3.57031 18H1L5.67383 6H8.23633L12 15.3994ZM5.30566 13.252H8.58008L6.92676 8.7998L5.30566 13.252ZM14.3584 11.0752H16.1025C17.2336 11.0752 17.9401 11.0259 18.2217 10.9277C18.5032 10.8295 18.7235 10.66 18.8828 10.4199C19.0421 10.1798 19.1221 9.87966 19.1221 9.51953C19.122 9.11597 19.016 8.79138 18.8037 8.5459C18.5966 8.29488 18.3013 8.13677 17.9189 8.07129C17.7276 8.04401 17.1541 8.03027 16.1982 8.03027H14.3584V11.0752Z"/>
             </symbol>
-            <symbol id="gamepadIcon" viewBox="0 0 43 43">
-                <path d="M9.00391 29.0234H4.10156C2.85156 29.0234 1.85547 28.6914 1.11328 28.0273C0.371094 27.3633 0 26.4779 0 25.3711V17.3242C0 16.2174 0.371094 15.332 1.11328 14.668C1.85547 13.9909 2.85156 13.6523 4.10156 13.6523H9.00391C9.70703 13.6523 10.2799 13.6914 10.7227 13.7695C11.1784 13.8477 11.582 14.0039 11.9336 14.2383C12.2982 14.4596 12.7083 14.7982 13.1641 15.2539L16.9531 19.043C17.6302 19.7201 17.9688 20.4883 17.9688 21.3477C17.9688 22.194 17.6302 22.9622 16.9531 23.6523L13.1641 27.4414C12.7083 27.8971 12.2982 28.2357 11.9336 28.457C11.582 28.6784 11.1784 28.8281 10.7227 28.9062C10.2799 28.9844 9.70703 29.0234 9.00391 29.0234ZM9.00391 26.2305C9.51172 26.2305 9.91536 26.1849 10.2148 26.0938C10.5273 26.0026 10.8529 25.7878 11.1914 25.4492L14.8438 21.7969C15.1432 21.4974 15.1497 21.1979 14.8633 20.8984L11.1914 17.2461C10.8529 16.9076 10.5273 16.6927 10.2148 16.6016C9.91536 16.4974 9.51172 16.4453 9.00391 16.4453H4.17969C3.73698 16.4453 3.39193 16.569 3.14453 16.8164C2.89714 17.0638 2.77344 17.4154 2.77344 17.8711V24.8242C2.77344 25.2669 2.89714 25.612 3.14453 25.8594C3.39193 26.1068 3.73698 26.2305 4.17969 26.2305H9.00391ZM13.6719 9.02344V4.10156C13.6719 2.85156 14.0039 1.85547 14.668 1.11328C15.3451 0.371094 16.237 0 17.3438 0H25.3711C26.4909 0 27.3828 0.371094 28.0469 1.11328C28.7109 1.85547 29.043 2.85156 29.043 4.10156V9.02344C29.043 9.72656 29.0039 10.2995 28.9258 10.7422C28.8477 11.1849 28.6914 11.5885 28.457 11.9531C28.2357 12.3177 27.9036 12.7214 27.4609 13.1641L23.6719 16.9531C22.9818 17.6432 22.207 17.9883 21.3477 17.9883C20.5013 17.9883 19.7396 17.6432 19.0625 16.9531L15.2734 13.1641C14.8177 12.7214 14.4727 12.3177 14.2383 11.9531C14.0169 11.5885 13.8672 11.1849 13.7891 10.7422C13.7109 10.2995 13.6719 9.72656 13.6719 9.02344ZM16.4648 9.02344C16.4648 9.51823 16.5104 9.92188 16.6016 10.2344C16.7057 10.5469 16.9271 10.8659 17.2656 11.1914L20.918 14.8633C21.2174 15.1497 21.5104 15.1497 21.7969 14.8633L25.4688 11.1914C25.8073 10.8659 26.0221 10.5469 26.1133 10.2344C26.2044 9.92188 26.25 9.51823 26.25 9.02344V4.17969C26.25 3.73698 26.1263 3.39193 25.8789 3.14453C25.6315 2.89714 25.2865 2.77344 24.8438 2.77344H17.8906C17.4349 2.77344 17.0833 2.89714 16.8359 3.14453C16.5885 3.39193 16.4648 3.73698 16.4648 4.17969V9.02344ZM33.6914 13.6719H38.5938C39.8438 13.6719 40.8398 14.0039 41.582 14.668C42.3242 15.332 42.6953 16.2174 42.6953 17.3242V25.3711C42.6953 26.4779 42.3242 27.3698 41.582 28.0469C40.8398 28.7109 39.8438 29.043 38.5938 29.043H33.6914C32.9883 29.043 32.4089 29.0039 31.9531 28.9258C31.5104 28.8477 31.1068 28.6979 30.7422 28.4766C30.3906 28.2422 29.987 27.8971 29.5312 27.4414L25.7422 23.6523C25.0651 22.9753 24.7266 22.2135 24.7266 21.3672C24.7266 20.5078 25.0651 19.7331 25.7422 19.043L29.5312 15.2539C29.987 14.7982 30.3906 14.4596 30.7422 14.2383C31.1068 14.0169 31.5104 13.8672 31.9531 13.7891C32.4089 13.7109 32.9883 13.6719 33.6914 13.6719ZM33.6914 16.4648C33.1836 16.4648 32.7734 16.5104 32.4609 16.6016C32.1615 16.6927 31.8424 16.9076 31.5039 17.2461L27.8516 20.8984C27.5521 21.1979 27.5456 21.4974 27.832 21.7969L31.5039 25.4492C31.8424 25.7878 32.1615 26.0091 32.4609 26.1133C32.7734 26.2044 33.1836 26.25 33.6914 26.25H38.5156C38.9583 26.25 39.3034 26.1263 39.5508 25.8789C39.7982 25.6315 39.9219 25.2799 39.9219 24.8242V17.8711C39.9219 17.4284 39.7982 17.0833 39.5508 16.8359C39.3034 16.5885 38.9583 16.4648 38.5156 16.4648H33.6914ZM29.043 33.6719V38.5938C29.043 39.8438 28.7044 40.8333 28.0273 41.5625C27.3633 42.3047 26.4779 42.6758 25.3711 42.6758H17.3438C16.224 42.6758 15.332 42.3047 14.668 41.5625C14.0039 40.8333 13.6719 39.8438 13.6719 38.5938V33.6719C13.6719 32.9688 13.7109 32.3958 13.7891 31.9531C13.8672 31.5104 14.0169 31.1068 14.2383 30.7422C14.4727 30.3776 14.8112 29.974 15.2539 29.5312L19.043 25.7227C19.7331 25.0456 20.5013 24.707 21.3477 24.707C22.207 24.707 22.9753 25.0456 23.6523 25.7227L27.4414 29.5312C27.8971 29.974 28.2357 30.3776 28.457 30.7422C28.6914 31.1068 28.8477 31.5104 28.9258 31.9531C29.0039 32.3958 29.043 32.9688 29.043 33.6719ZM26.25 33.6719C26.25 33.1641 26.1979 32.7604 26.0938 32.4609C26.0026 32.1484 25.7943 31.8294 25.4688 31.5039L21.7969 27.832C21.4974 27.5326 21.2044 27.5326 20.918 27.832L17.2461 31.5039C16.9206 31.8294 16.7057 32.1484 16.6016 32.4609C16.5104 32.7604 16.4648 33.1641 16.4648 33.6719V38.5156C16.4648 38.9583 16.5885 39.2969 16.8359 39.5312C17.0833 39.7786 17.4284 39.9023 17.8711 39.9023H24.8242C25.2799 39.9023 25.6315 39.7786 25.8789 39.5312C26.1263 39.2969 26.25 38.9583 26.25 38.5156V33.6719Z"/>
-            </symbol>
-            <symbol id="touchClickIcon" viewBox="0 0 38 45">
-                <path d="M9.76562 0C11.5625 0 13.1966 0.442708 14.668 1.32812C16.1523 2.20052 17.3307 3.37891 18.2031 4.86328C19.0755 6.33464 19.5117 7.96875 19.5117 9.76562C19.5117 9.88281 19.5117 9.98698 19.5117 10.0781C19.5117 10.1693 19.5052 10.2539 19.4922 10.332C19.4661 10.6706 19.3164 10.944 19.043 11.1523C18.7826 11.3477 18.5026 11.4453 18.2031 11.4453C17.8906 11.4453 17.6042 11.3477 17.3438 11.1523C17.0964 10.944 16.9661 10.6185 16.9531 10.1758C16.9531 10.0846 16.9531 10.0065 16.9531 9.94141C16.9531 9.8763 16.9531 9.81771 16.9531 9.76562C16.9531 8.4375 16.6276 7.23307 15.9766 6.15234C15.3385 5.05859 14.4727 4.1862 13.3789 3.53516C12.2982 2.88411 11.0938 2.55859 9.76562 2.55859C8.4375 2.55859 7.22656 2.88411 6.13281 3.53516C5.03906 4.1862 4.16667 5.05859 3.51562 6.15234C2.8776 7.23307 2.55859 8.4375 2.55859 9.76562C2.55859 10.638 2.70182 11.4714 2.98828 12.2656C3.28776 13.0469 3.69792 13.75 4.21875 14.375C4.49219 14.7005 4.60286 15.026 4.55078 15.3516C4.51172 15.6771 4.36849 15.9505 4.12109 16.1719C3.8737 16.3802 3.58724 16.4844 3.26172 16.4844C3.07943 16.4844 2.89062 16.4388 2.69531 16.3477C2.51302 16.2565 2.33724 16.1133 2.16797 15.918C1.49089 15.0716 0.957031 14.1276 0.566406 13.0859C0.188802 12.0312 0 10.9245 0 9.76562C0 8.41146 0.253906 7.14844 0.761719 5.97656C1.26953 4.79167 1.96615 3.75651 2.85156 2.87109C3.75 1.97266 4.79167 1.26953 5.97656 0.761719C7.16146 0.253906 8.42448 0 9.76562 0ZM28.0469 42.9102C24.8047 44.0951 21.7448 44.2253 18.8672 43.3008C15.9896 42.3893 13.3073 40.4297 10.8203 37.4219L4.27734 29.5117C4.06901 29.2513 3.86719 28.9583 3.67188 28.6328C3.48958 28.3073 3.35286 28.0013 3.26172 27.7148C2.88411 26.7122 2.92969 25.8138 3.39844 25.0195C3.88021 24.2253 4.57031 23.6719 5.46875 23.3594C6.11979 23.125 6.77083 23.099 7.42188 23.2812C8.07292 23.4505 8.6849 23.8411 9.25781 24.4531L11.543 26.9336C11.6081 27.0117 11.6732 27.0378 11.7383 27.0117C11.8294 26.9727 11.862 26.901 11.8359 26.7969L6.25 11.4844C5.83333 10.3255 5.84635 9.27083 6.28906 8.32031C6.73177 7.35677 7.5 6.67318 8.59375 6.26953C9.67448 5.87891 10.6901 5.91146 11.6406 6.36719C12.5911 6.82292 13.2812 7.63021 13.7109 8.78906L15.918 14.8828C16.3346 14.5964 16.7448 14.375 17.1484 14.2188C17.9557 13.9323 18.724 13.8997 19.4531 14.1211C20.1823 14.3294 20.7943 14.7591 21.2891 15.4102C21.7839 15.0326 22.2917 14.7526 22.8125 14.5703C23.5807 14.2839 24.3034 14.2383 24.9805 14.4336C25.6576 14.6159 26.224 15.0065 26.6797 15.6055C28.3854 15.0065 29.9284 15.1237 31.3086 15.957C32.6888 16.7904 33.763 18.2682 34.5312 20.3906L35.9961 24.3945C37.0378 27.2591 37.3893 29.9219 37.0508 32.3828C36.7253 34.8307 35.7878 36.9661 34.2383 38.7891C32.7018 40.599 30.638 41.9727 28.0469 42.9102ZM27.2266 40.3516C29.388 39.5573 31.0807 38.4245 32.3047 36.9531C33.5417 35.4818 34.2643 33.737 34.4727 31.7188C34.694 29.6875 34.3555 27.4414 33.457 24.9805L32.2461 21.6406C31.6992 20.1823 31.0612 19.1341 30.332 18.4961C29.6029 17.8451 28.8281 17.6693 28.0078 17.9688L28.7695 20.0781C28.8867 20.4167 28.8672 20.7357 28.7109 21.0352C28.5677 21.3216 28.3464 21.5169 28.0469 21.6211C27.7344 21.7383 27.4154 21.7383 27.0898 21.6211C26.7773 21.5039 26.5625 21.276 26.4453 20.9375L25.4102 18.0664C25.2279 17.5846 24.9544 17.2526 24.5898 17.0703C24.2253 16.875 23.8151 16.862 23.3594 17.0312C22.9688 17.1875 22.6367 17.4023 22.3633 17.6758L23.6133 21.1719C23.7435 21.4974 23.7305 21.8099 23.5742 22.1094C23.418 22.3958 23.1836 22.5977 22.8711 22.7148C22.5716 22.819 22.2591 22.8125 21.9336 22.6953C21.6211 22.5651 21.4062 22.3307 21.2891 21.9922L19.7266 17.7344C19.5573 17.2526 19.2904 16.9206 18.9258 16.7383C18.5612 16.556 18.1576 16.5495 17.7148 16.7188C17.5195 16.7708 17.3307 16.862 17.1484 16.9922C16.9792 17.1094 16.8229 17.2266 16.6797 17.3438L18.4766 22.2266C18.5938 22.5521 18.5742 22.8646 18.418 23.1641C18.2747 23.4635 18.0469 23.6654 17.7344 23.7695C17.4219 23.8997 17.1094 23.8997 16.7969 23.7695C16.4844 23.6393 16.2695 23.4115 16.1523 23.0859L11.1914 9.51172C11.0612 9.10807 10.8333 8.82812 10.5078 8.67188C10.1823 8.51562 9.83073 8.5026 9.45312 8.63281C9.07552 8.77604 8.80859 9.01693 8.65234 9.35547C8.49609 9.69401 8.48958 10.0521 8.63281 10.4297L15.5664 29.4531C15.7227 29.8828 15.7227 30.2799 15.5664 30.6445C15.4232 30.9961 15.1628 31.2435 14.7852 31.3867C14.4466 31.5039 14.1081 31.5299 13.7695 31.4648C13.431 31.3867 13.0729 31.1523 12.6953 30.7617L8.18359 26.0938C7.66276 25.5339 7.12891 25.3581 6.58203 25.5664C6.20443 25.6966 5.94401 25.918 5.80078 26.2305C5.67057 26.543 5.66406 26.862 5.78125 27.1875C5.88542 27.4609 6.04167 27.7148 6.25 27.9492L12.7734 35.8203C15.0391 38.5547 17.3698 40.2279 19.7656 40.8398C22.1745 41.4518 24.6615 41.2891 27.2266 40.3516Z"/>
-            </symbol>
-            <symbol id="mouseClickIcon" viewBox="0 0 40 41">
-                <path d="M0 19.9219C0 17.2005 0.520833 14.6419 1.5625 12.2461C2.60417 9.83724 4.03646 7.71484 5.85938 5.87891C7.69531 4.04297 9.8112 2.60417 12.207 1.5625C14.6159 0.520833 17.181 0 19.9023 0C22.6237 0 25.1888 0.520833 27.5977 1.5625C30.0065 2.60417 32.1289 4.04297 33.9648 5.87891C35.8008 7.71484 37.2396 9.83724 38.2812 12.2461C39.3229 14.6419 39.8438 17.2005 39.8438 19.9219C39.8438 20.4948 39.681 20.931 39.3555 21.2305C39.0299 21.5169 38.6719 21.6602 38.2812 21.6602C37.8516 21.6602 37.4479 21.5169 37.0703 21.2305C36.7057 20.944 36.5234 20.5078 36.5234 19.9219C36.5234 17.6172 36.0938 15.4622 35.2344 13.457C34.375 11.4518 33.1836 9.6875 31.6602 8.16406C30.1497 6.64062 28.3854 5.45573 26.3672 4.60938C24.362 3.75 22.207 3.32031 19.9023 3.32031C17.5977 3.32031 15.4427 3.75 13.4375 4.60938C11.4323 5.45573 9.67448 6.64062 8.16406 8.16406C6.65365 9.6875 5.46875 11.4518 4.60938 13.457C3.76302 15.4622 3.33984 17.6172 3.33984 19.9219C3.33984 22.0052 3.69141 23.9779 4.39453 25.8398C5.11068 27.6888 6.09375 29.3424 7.34375 30.8008C8.60677 32.2591 10.0586 33.444 11.6992 34.3555C12.1549 34.6159 12.4609 34.9154 12.6172 35.2539C12.7734 35.6055 12.8125 35.944 12.7344 36.2695C12.6693 36.5951 12.513 36.875 12.2656 37.1094C12.0312 37.3438 11.7318 37.4805 11.3672 37.5195C11.0026 37.5586 10.6185 37.4674 10.2148 37.2461C8.2487 36.1654 6.49089 34.7461 4.94141 32.9883C3.40495 31.2305 2.19401 29.2383 1.30859 27.0117C0.436198 24.7721 0 22.4089 0 19.9219ZM7.89062 19.9219C7.89062 18.2682 8.20312 16.7188 8.82812 15.2734C9.45312 13.8151 10.319 12.5326 11.4258 11.4258C12.5326 10.319 13.8086 9.45312 15.2539 8.82812C16.7122 8.1901 18.2617 7.87109 19.9023 7.87109C21.556 7.87109 23.1055 8.1901 24.5508 8.82812C26.0091 9.45312 27.2917 10.319 28.3984 11.4258C29.5182 12.5326 30.3906 13.8151 31.0156 15.2734C31.6406 16.7188 31.9531 18.2682 31.9531 19.9219C31.9531 20.3646 31.7969 20.7422 31.4844 21.0547C31.1719 21.3672 30.7943 21.5234 30.3516 21.5234C29.8958 21.5234 29.5182 21.3672 29.2188 21.0547C28.9193 20.7422 28.7565 20.3646 28.7305 19.9219C28.6914 18.6849 28.4375 17.5326 27.9688 16.4648C27.513 15.3971 26.888 14.4661 26.0938 13.6719C25.2995 12.8646 24.375 12.2331 23.3203 11.7773C22.2656 11.3216 21.1263 11.0938 19.9023 11.0938C18.6784 11.0938 17.5326 11.3216 16.4648 11.7773C15.4102 12.2331 14.4792 12.8646 13.6719 13.6719C12.8646 14.4792 12.2331 15.4167 11.7773 16.4844C11.3346 17.5391 11.1133 18.6849 11.1133 19.9219C11.1133 21.4714 11.4779 22.8971 12.207 24.1992C12.9492 25.4883 13.9258 26.5299 15.1367 27.3242C15.5534 27.6107 15.7747 27.9557 15.8008 28.3594C15.8398 28.763 15.7357 29.1341 15.4883 29.4727C15.2539 29.8112 14.9219 30.026 14.4922 30.1172C14.0755 30.2083 13.6198 30.0911 13.125 29.7656C12.1745 29.1536 11.3021 28.3529 10.5078 27.3633C9.71354 26.3737 9.07552 25.2474 8.59375 23.9844C8.125 22.7214 7.89062 21.3672 7.89062 19.9219ZM19.1797 34.1211L19.3555 18.5156C19.3555 18.1641 19.4987 17.9297 19.7852 17.8125C20.0846 17.6953 20.3581 17.7669 20.6055 18.0273L31.2891 28.9844C31.5495 29.2708 31.6081 29.5573 31.4648 29.8438C31.3346 30.1302 31.0872 30.2799 30.7227 30.293L26.5039 30.4688L29.9414 38.4375C30.0326 38.6198 30.0456 38.8021 29.9805 38.9844C29.9284 39.1667 29.8177 39.2969 29.6484 39.375L27.6953 40.1562C27.513 40.2214 27.3372 40.2148 27.168 40.1367C26.9987 40.0586 26.875 39.9284 26.7969 39.7461L23.5156 31.6406L20.5469 34.6289C20.2995 34.8763 20.0065 34.9479 19.668 34.8438C19.3294 34.7396 19.1667 34.4987 19.1797 34.1211Z"/>
-            </symbol>
-            <symbol id="keyboardIcon" viewBox="0 0 50 31">
-                <path d="M6.13281 30.8594C4.08854 30.8594 2.55208 30.3581 1.52344 29.3555C0.507812 28.3398 0 26.8229 0 24.8047V6.03516C0 4.02995 0.507812 2.52604 1.52344 1.52344C2.55208 0.507812 4.08854 0 6.13281 0H43.0273C45.0586 0 46.5885 0.507812 47.6172 1.52344C48.6458 2.52604 49.1602 4.02995 49.1602 6.03516V24.8047C49.1602 26.8099 48.6458 28.3203 47.6172 29.3359C46.5885 30.3516 45.0586 30.8594 43.0273 30.8594H6.13281ZM6.17188 27.7148H42.9688C43.9323 27.7148 44.681 27.4544 45.2148 26.9336C45.7487 26.4128 46.0156 25.6445 46.0156 24.6289V6.21094C46.0156 5.19531 45.7487 4.43359 45.2148 3.92578C44.681 3.40495 43.9323 3.14453 42.9688 3.14453H6.17188C5.19531 3.14453 4.44661 3.40495 3.92578 3.92578C3.40495 4.43359 3.14453 5.19531 3.14453 6.21094V24.6289C3.14453 25.6445 3.40495 26.4128 3.92578 26.9336C4.44661 27.4544 5.19531 27.7148 6.17188 27.7148ZM7.92969 10.8789C7.35677 10.8789 7.07031 10.5924 7.07031 10.0195V8.22266C7.07031 7.63672 7.35677 7.34375 7.92969 7.34375H9.72656C10.3125 7.34375 10.6055 7.63672 10.6055 8.22266V10.0195C10.6055 10.5924 10.3125 10.8789 9.72656 10.8789H7.92969ZM14.2188 10.8789C13.6328 10.8789 13.3398 10.5924 13.3398 10.0195V8.22266C13.3398 7.63672 13.6328 7.34375 14.2188 7.34375H16.0156C16.5885 7.34375 16.875 7.63672 16.875 8.22266V10.0195C16.875 10.5924 16.5885 10.8789 16.0156 10.8789H14.2188ZM20.5078 10.8789C19.9219 10.8789 19.6289 10.5924 19.6289 10.0195V8.22266C19.6289 7.63672 19.9219 7.34375 20.5078 7.34375H22.2852C22.8711 7.34375 23.1641 7.63672 23.1641 8.22266V10.0195C23.1641 10.5924 22.8711 10.8789 22.2852 10.8789H20.5078ZM26.7773 10.8789C26.2044 10.8789 25.918 10.5924 25.918 10.0195V8.22266C25.918 7.63672 26.2044 7.34375 26.7773 7.34375H28.5742C29.1602 7.34375 29.4531 7.63672 29.4531 8.22266V10.0195C29.4531 10.5924 29.1602 10.8789 28.5742 10.8789H26.7773ZM33.0664 10.8789C32.4805 10.8789 32.1875 10.5924 32.1875 10.0195V8.22266C32.1875 7.63672 32.4805 7.34375 33.0664 7.34375H34.8633C35.4362 7.34375 35.7227 7.63672 35.7227 8.22266V10.0195C35.7227 10.5924 35.4362 10.8789 34.8633 10.8789H33.0664ZM39.3555 10.8789C38.7695 10.8789 38.4766 10.5924 38.4766 10.0195V8.22266C38.4766 7.63672 38.7695 7.34375 39.3555 7.34375H41.1328C41.7188 7.34375 42.0117 7.63672 42.0117 8.22266V10.0195C42.0117 10.5924 41.7188 10.8789 41.1328 10.8789H39.3555ZM7.92969 17.168C7.35677 17.168 7.07031 16.875 7.07031 16.2891V14.5117C7.07031 13.9258 7.35677 13.6328 7.92969 13.6328H9.72656C10.3125 13.6328 10.6055 13.9258 10.6055 14.5117V16.2891C10.6055 16.875 10.3125 17.168 9.72656 17.168H7.92969ZM14.2188 17.168C13.6328 17.168 13.3398 16.875 13.3398 16.2891V14.5117C13.3398 13.9258 13.6328 13.6328 14.2188 13.6328H16.0156C16.5885 13.6328 16.875 13.9258 16.875 14.5117V16.2891C16.875 16.875 16.5885 17.168 16.0156 17.168H14.2188ZM20.5078 17.168C19.9219 17.168 19.6289 16.875 19.6289 16.2891V14.5117C19.6289 13.9258 19.9219 13.6328 20.5078 13.6328H22.2852C22.8711 13.6328 23.1641 13.9258 23.1641 14.5117V16.2891C23.1641 16.875 22.8711 17.168 22.2852 17.168H20.5078ZM26.7773 17.168C26.2044 17.168 25.918 16.875 25.918 16.2891V14.5117C25.918 13.9258 26.2044 13.6328 26.7773 13.6328H28.5742C29.1602 13.6328 29.4531 13.9258 29.4531 14.5117V16.2891C29.4531 16.875 29.1602 17.168 28.5742 17.168H26.7773ZM33.0664 17.168C32.4805 17.168 32.1875 16.875 32.1875 16.2891V14.5117C32.1875 13.9258 32.4805 13.6328 33.0664 13.6328H34.8633C35.4362 13.6328 35.7227 13.9258 35.7227 14.5117V16.2891C35.7227 16.875 35.4362 17.168 34.8633 17.168H33.0664ZM39.3555 17.168C38.7695 17.168 38.4766 16.875 38.4766 16.2891V14.5117C38.4766 13.9258 38.7695 13.6328 39.3555 13.6328H41.1328C41.7188 13.6328 42.0117 13.9258 42.0117 14.5117V16.2891C42.0117 16.875 41.7188 17.168 41.1328 17.168H39.3555ZM7.92969 23.457C7.35677 23.457 7.07031 23.1641 7.07031 22.5781V20.7812C7.07031 20.2083 7.35677 19.9219 7.92969 19.9219H9.72656C10.3125 19.9219 10.6055 20.2083 10.6055 20.7812V22.5781C10.6055 23.1641 10.3125 23.457 9.72656 23.457H7.92969ZM14.4141 23.457C13.6979 23.457 13.3398 23.099 13.3398 22.3828V20.9766C13.3398 20.2734 13.6979 19.9219 14.4141 19.9219H34.668C35.3711 19.9219 35.7227 20.2734 35.7227 20.9766V22.3828C35.7227 23.099 35.3711 23.457 34.668 23.457H14.4141ZM39.3555 23.457C38.7695 23.457 38.4766 23.1641 38.4766 22.5781V20.7812C38.4766 20.2083 38.7695 19.9219 39.3555 19.9219H41.1328C41.7188 19.9219 42.0117 20.2083 42.0117 20.7812V22.5781C42.0117 23.1641 41.7188 23.457 41.1328 23.457H39.3555Z"/>
-            </symbol>
-            <symbol id="jumpIcon" viewBox="0 0 24 24">
-                <path d="M12 4.5v12"/>
-                <path d="M7.5 9L12 4.5 16.5 9"/>
-                <path d="M6 18.5h12"/>
-            </symbol>
-            <symbol id="arIcon" viewBox="-2 -6 28 28">
-                <path d="M10.9482 16.9199C10.9799 16.9389 11.0201 16.9389 11.0518 16.9199L15.918 14H19.416L11.9775 18.4629C11.3758 18.8239 10.6242 18.8239 10.0225 18.4629L2.58398 14H6.08203L10.9482 16.9199Z"/>
-                <path fill-rule="evenodd" clip-rule="evenodd" d="M12.041 12H9.40527L8.35742 9.27441H3.56055L2.57031 12H0L4.67383 0H7.23633L12.041 12ZM4.30566 7.25195H7.58008L5.92676 2.7998L4.30566 7.25195Z"/>
-                <path fill-rule="evenodd" clip-rule="evenodd" d="M17.0039 0C18.2519 0 19.1577 0.108901 19.7207 0.327148C20.289 0.539972 20.7431 0.922473 21.083 1.47363C21.4229 2.02476 21.5928 2.65491 21.5928 3.36426C21.5928 4.26454 21.3353 5.00931 20.8203 5.59863C20.3051 6.18253 19.5348 6.5513 18.5098 6.7041C19.0196 7.00969 19.4393 7.34532 19.7686 7.71094C20.1031 8.07658 20.5523 8.72611 21.1152 9.65918L22.541 12H19.7207L18.0156 9.38867C17.4104 8.45586 16.9965 7.8691 16.7734 7.62891C16.5505 7.38348 16.3139 7.21724 16.0645 7.12988C15.8148 7.03711 15.4187 6.99023 14.877 6.99023H14.3994V12H12.041V0H17.0039ZM14.3994 5.0752H16.1436C17.2746 5.0752 17.9811 5.02592 18.2627 4.92773C18.5442 4.82951 18.7645 4.66003 18.9238 4.41992C19.0831 4.17982 19.1631 3.87966 19.1631 3.51953C19.163 3.11597 19.057 2.79138 18.8447 2.5459C18.6376 2.29488 18.3424 2.13677 17.96 2.07129C17.7687 2.04401 17.1951 2.03027 16.2393 2.03027H14.3994V5.0752Z"/>
-            </symbol>
-            <symbol id="vrIcon" viewBox="-2 -6 28 28">
-                <path d="M7.90039 16C7.90039 16.6075 8.39249 17.0996 9 17.0996H11V18.9004H9C7.39837 18.9004 6.09961 17.6016 6.09961 16V15H7.90039V16Z"/>
-                <path d="M16.9004 16C16.9004 17.6016 15.6016 18.9004 14 18.9004H12V17.0996H14C14.6075 17.0996 15.0996 16.6075 15.0996 16V15H16.9004V16Z"/>
-                <path fill-rule="evenodd" clip-rule="evenodd" d="M4.52148 4.70215L6.15918 9.11328L7.76465 4.70215L8.50195 2.7002L9.4834 0H15.9541C17.1903 0 18.0879 0.108014 18.6455 0.324219C19.2081 0.534989 19.6576 0.913398 19.9941 1.45898C20.3308 2.00484 20.499 2.62946 20.499 3.33203C20.499 4.22386 20.2446 4.96215 19.7344 5.5459C19.2241 6.12424 18.4606 6.48928 17.4453 6.64062C17.9503 6.94331 18.3662 7.27555 18.6924 7.6377C19.0238 7.99986 19.4688 8.64321 20.0264 9.56738L21.4385 11.8857H18.6455L16.9561 9.2998C16.3565 8.3758 15.9466 7.79459 15.7256 7.55664C15.5047 7.31345 15.2706 7.14802 15.0234 7.06152C14.7762 6.96965 14.3841 6.92384 13.8477 6.92383H13.374V11.8857H11.0381V2.54395L7.39941 11.8857H4.86133L0.102539 0H2.71289L4.52148 4.70215ZM13.374 5.02637H15.1025C16.2228 5.02636 16.9224 4.97814 17.2012 4.88086C17.4799 4.78356 17.6986 4.61574 17.8564 4.37793C18.0141 4.14017 18.0928 3.84288 18.0928 3.48633C18.0928 3.08641 17.9877 2.7647 17.7773 2.52148C17.5722 2.27286 17.2801 2.11565 16.9014 2.05078C16.712 2.02376 16.1439 2.01075 15.1973 2.01074H13.374V5.02637Z"/>
+            <symbol id="vrIcon" viewBox="0 0 24 24">
+                <path fill-rule="evenodd" clip-rule="evenodd" d="M5.52148 10.7021L7.15918 15.1133L8.76465 10.7021L9.50195 8.7002L10.4834 6H16.9541C18.1903 6 19.0879 6.10801 19.6455 6.32422C20.2081 6.53499 20.6576 6.9134 20.9941 7.45898C21.3308 8.00484 21.499 8.62946 21.499 9.33203C21.499 10.2239 21.2446 10.9622 20.7344 11.5459C20.2241 12.1242 19.4606 12.4893 18.4453 12.6406C18.9503 12.9433 19.3662 13.2756 19.6924 13.6377C20.0238 13.9999 20.4688 14.6432 21.0264 15.5674L22.4385 17.8857H19.6455L17.9561 15.2998C17.3565 14.3758 16.9466 13.7946 16.7256 13.5566C16.5047 13.3135 16.2706 13.148 16.0234 13.0615C15.7762 12.9696 15.3841 12.9238 14.8477 12.9238H14.374V17.8857H12.0381V8.54395L8.39941 17.8857H5.86133L1.10254 6H3.71289L5.52148 10.7021ZM14.374 11.0264H16.1025C17.2228 11.0264 17.9224 10.9781 18.2012 10.8809C18.4799 10.7836 17.6986 10.6157 18.8564 10.3779C19.0141 10.1402 19.0928 9.84288 19.0928 9.48633C19.0928 9.08641 18.9877 8.7647 18.7773 8.52148C18.5722 8.27286 18.2801 8.11565 17.9014 8.05078C17.712 8.02376 17.1439 8.01075 16.1973 8.01074H14.374V11.0264Z"/>
             </symbol>
             <symbol id="infoIcon" viewBox="-2 -2 24 24">
                 <path d="M9.98633 7.58301C10.2598 7.58301 10.4854 7.67643 10.6631 7.86328C10.8408 8.05013 10.9297 8.3099 10.9297 8.64258V14.0361C10.9297 14.4098 10.8408 14.6924 10.6631 14.8838C10.4854 15.0752 10.2598 15.1709 9.98633 15.1709C9.71289 15.1709 9.48958 15.0729 9.31641 14.877C9.14779 14.681 9.06348 14.4007 9.06348 14.0361V8.69727C9.06348 8.32812 9.14779 8.05013 9.31641 7.86328C9.48958 7.67643 9.71289 7.58301 9.98633 7.58301Z"/>
@@ -714,20 +732,20 @@
                 <path d="M8.40039 2.09961C8.89727 2.09982 9.2998 2.50307 9.2998 3C9.2998 3.49693 8.89727 3.90018 8.40039 3.90039H4C3.94477 3.90039 3.90039 3.94477 3.90039 4V8.40039C3.90018 8.89727 3.49693 9.2998 3 9.2998C2.50307 9.2998 2.09982 8.89727 2.09961 8.40039V4C2.09961 2.95066 2.95066 2.09961 4 2.09961H8.40039Z"/>
                 <path d="M20 2.09961C21.0493 2.09961 21.9004 2.95066 21.9004 4V8.40039C21.9002 8.89727 21.4969 9.2998 21 9.2998C20.5031 9.2998 20.0998 8.89727 20.0996 8.40039V4C20.0996 3.94477 20.0552 3.90039 20 3.90039H15.5996C15.1027 3.90018 14.7002 3.49693 14.7002 3C14.7002 2.50307 15.1027 2.09982 15.5996 2.09961H20Z"/>
             </symbol>
+            <symbol id="chevronLeftIcon" viewBox="0 0 24 24">
+                <path d="M15 19l-7-7 7-7"/>
+            </symbol>
+            <symbol id="chevronRightIcon" viewBox="0 0 24 24">
+                <path d="M9 5l7 7-7 7"/>
+            </symbol>
+            <symbol id="voxelIcon" viewBox="0 0 16 16">
+                <path d="M8 1L2 4.5v7L8 15l6-3.5v-7L8 1zm0 1.15L12.85 5 8 7.85 3.15 5 8 2.15zM3 5.85l4.5 2.6v5.1L3 10.95V5.85zm5.5 7.7v-5.1L13 5.85v5.1l-4.5 2.6z"/>
+            </symbol>
             <symbol id="exitFullscreenIcon" viewBox="0 0 24 24">
                 <path d="M8 15.0996C8.49706 15.0996 8.90039 15.5029 8.90039 16V21C8.90039 21.4971 8.49706 21.9004 8 21.9004C7.50294 21.9004 7.09961 21.4971 7.09961 21V16.9004H3C2.50294 16.9004 2.09961 16.4971 2.09961 16C2.09961 15.5029 2.50294 15.0996 3 15.0996H8Z" />
                 <path d="M21 15.0996C21.4971 15.0996 21.9004 15.5029 21.9004 16C21.9004 16.4971 21.4971 16.9004 21 16.9004H16.9004V21C16.9004 21.4971 16.4971 21.9004 16 21.9004C15.5029 21.9004 15.0996 21.4971 15.0996 21V16C15.0996 15.5029 15.5029 15.0996 16 15.0996H21Z" />
                 <path d="M8 2.09961C8.49706 2.09961 8.90039 2.50294 8.90039 3V8C8.90039 8.49706 8.49706 8.90039 8 8.90039H3C2.50294 8.90039 2.09961 8.49706 2.09961 8C2.09961 7.50294 2.50294 7.09961 3 7.09961H7.09961V3C7.09961 2.50294 7.50294 2.09961 8 2.09961Z" />
                 <path d="M16 2.09961C16.4971 2.09961 16.9004 2.50294 16.9004 3V7.09961H21C21.4971 7.09961 21.9004 7.50294 21.9004 8C21.9004 8.49706 21.4971 8.90039 21 8.90039H16C15.5029 8.90039 15.0996 8.49706 15.0996 8V3C15.0996 2.50294 15.5029 2.09961 16 2.09961Z" />
-            </symbol>
-            <symbol id="chevronLeftIcon" viewBox="0 0 20 20">
-                <path d="M12.5 4.5L7 10l5.5 5.5"/>
-            </symbol>
-            <symbol id="chevronRightIcon" viewBox="0 0 20 20">
-                <path d="M7.5 4.5L13 10l-5.5 5.5"/>
-            </symbol>
-            <symbol id="voxelIcon" viewBox="0 0 16 16">
-                <path d="M8 1L2 4.5v7L8 15l6-3.5v-7L8 1zm0 1.15L12.85 5 8 7.85 3.15 5 8 2.15zM3 5.85l4.5 2.6v5.1L3 10.95V5.85zm5.5 7.7v-5.1L13 5.85v5.1l-4.5 2.6z"/>
             </symbol>
         </svg>
 
@@ -735,98 +753,26 @@
         <script type="module">
             import { main } from './index.js';
 
-            const { config, settings } = window.sse;
-            const { poster } = config;
+            document.addEventListener('DOMContentLoaded', async () => {
+                const { config, settings } = await window.sseReady;
+                const { poster } = config;
 
-            // Show loading UI - called when poster is ready (or immediately if no poster)
-            const showLoadingUI = () => {
-                const loadingWrap = document.getElementById('loadingWrap');
-                if (loadingWrap) {
-                    loadingWrap.classList.remove('hidden');
-                }
-            };
-
-            // Show the poster image - wait for it to load first
-            const showPoster = () => {
+                // Show the poster image
                 if (poster) {
                     const element = document.getElementById('poster');
                     element.style.setProperty('--poster-url', `url(${poster.src})`);
                     element.style.display = 'block';
                     element.style.filter = 'blur(40px)';
 
-                    // hide the canvas until content loads
-                    document.documentElement.style.setProperty('--canvas-opacity', '0');
-
-                    // Show loading UI now that poster is visible
-                    showLoadingUI();
-                }
-            };
-
-            // Wait for poster image to load before showing it
-            if (poster) {
-                if (poster.complete) {
-                    showPoster();
-                } else {
-                    poster.onload = showPoster;
-                    // Also hide canvas immediately while poster loads
+                    // hide the canvas
                     document.documentElement.style.setProperty('--canvas-opacity', '0');
                 }
-            } else {
-                // No poster, show loading UI immediately
-                showLoadingUI();
-            }
 
-            document.addEventListener('DOMContentLoaded', async () => {
-                // Logo interaction setup
-                const logoContainer = document.getElementById('logoContainer');
-                if (logoContainer) {
-                    // Always enable tap/click toggle for mobile compatibility
-                    let touchStarted = false;
-                    
-                    // Track touch start to differentiate from scroll
-                    logoContainer.addEventListener('touchstart', (e) => {
-                        touchStarted = true;
-                    }, { passive: true });
-                    
-                    // Handle touch end
-                    logoContainer.addEventListener('touchend', (e) => {
-                        if (touchStarted) {
-                            e.preventDefault();
-                            e.stopPropagation();
-                            logoContainer.classList.toggle('expanded');
-                            touchStarted = false;
-                        }
-                    });
-                    
-                    // Also handle click for desktop
-                    logoContainer.addEventListener('click', (e) => {
-                        // Only handle if not a touch event (avoid double trigger)
-                        if (!touchStarted) {
-                            e.stopPropagation();
-                            logoContainer.classList.toggle('expanded');
-                        }
-                    });
-
-                    // Close when tapping/clicking outside
-                    document.addEventListener('touchend', (e) => {
-                        if (!logoContainer.contains(e.target)) {
-                            logoContainer.classList.remove('expanded');
-                        }
-                    });
-                    document.addEventListener('click', (e) => {
-                        if (!logoContainer.contains(e.target)) {
-                            logoContainer.classList.remove('expanded');
-                        }
-                    });
-                }
-
-                const [appElement, cameraElement, settingsJson] = await Promise.all([
-                    document.querySelector('pc-app').ready(),
-                    document.querySelector('pc-entity[name="camera"]').ready(),
-                    settings
-                ]);
-
-                const viewer = await main(appElement.app, cameraElement.entity, settingsJson, config);
+                const canvas = document.getElementById('application-canvas');
+                const settingsJson = await settings;
+                const viewer = await main(canvas, settingsJson, config);
+                window.sse.viewer = viewer;
+                window.viewer = viewer;
             });
         </script>
     </body>

@@ -1,14 +1,20 @@
 /* eslint-disable no-unused-vars */
 interface Window {
     sse: {
-        poster?: HTMLImageElement,
+        config: Record<string, unknown>,
         settings: Promise<object>,
-        contentUrl: string,
-        contents: ArrayBuffer,
-        params: Record<string, string>
+        viewer?: object,
     }
+    sseReady: Promise<Window['sse']>;
 
+    viewer?: object;
     firstFrame?: () => void;
+    scrubTo?: (time: number) => Promise<void>;
+    animationDuration?: number;
+    getCameraPose?: () => object | null;
+    logCameraPose?: () => object | null;
+    getCameraState?: () => object;
+    setCameraState?: (snapshot: any) => void;
 }
 
 declare module 'playcanvas/scripts/esm/xr-controllers.mjs' {
@@ -19,19 +25,6 @@ declare module 'playcanvas/scripts/esm/xr-controllers.mjs' {
 declare module 'playcanvas/scripts/esm/xr-navigation.mjs' {
     const XrNavigation: any;
     export { XrNavigation };
-}
-
-declare module './animation/create-figure8-track.js' {
-    const createFigure8Track: any;
-    export default createFigure8Track;
-}
-
-declare module './animation/resolve-animation-policy.js' {
-    const policyUtils: {
-        resolveAnimationPolicy: any,
-        resolvePreferredCameraMode: any
-    };
-    export default policyUtils;
 }
 
 declare module '*.html' {

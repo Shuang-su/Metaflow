@@ -4,24 +4,29 @@ import type { ExperienceSettings } from './settings';
 
 type CameraMode = 'orbit' | 'anim' | 'fly' | 'walk';
 
-type WalkInputMode = 'none' | 'gamepad' | 'touchclick' | 'keyboard' | 'mouseclick';
-
-type FlyInputMode = 'none' | 'gesture' | 'gamepad';
-
 type InputMode = 'desktop' | 'touch';
 
 type LoadMode = 'legacy-sog' | 'streaming-json';
 
+type VoxelCoordinateSpace = 'world' | 'metaflow-rz180';
+
 type LoadingStage =
     | 'init'
+    | 'renderer'
+    | 'index'
     | 'environment'
     | 'detect'
     | 'download'
     | 'parse'
     | 'gpu'
+    | 'collision'
     | 'voxel-meta'
     | 'voxel-bin'
     | 'voxel-build'
+    | 'voxel-manifest'
+    | 'voxel-tile'
+    | 'voxel-tile-switch'
+    | 'overlay'
     | 'prepare'
     | 'sort'
     | 'stream-schedule'
@@ -36,7 +41,10 @@ type Config = {
     skyboxUrl?: string;
     contentUrl?: string;
     contents?: Promise<Response>;
+    collisionUrl?: string;
     voxelUrl?: string;
+    voxelManifestUrl?: string;
+    voxelCoordinateSpace?: VoxelCoordinateSpace;
     environmentUrl?: string;
     environmentContents?: Promise<Response>;
     defaultCameraMode?: CameraMode;
@@ -44,30 +52,31 @@ type Config = {
 
     noui: boolean;
     noanim: boolean;
+    nofx: boolean;                              // disable post effects
+    hpr?: boolean;                              // override highPrecisionRendering (undefined = use settings)
     ministats: boolean;
     colorize: boolean;                          // render with LOD colorization
-    unified: boolean;                           // force unified rendering mode
+    unified: boolean;                           // preserved URL flag for Metaflow compatibility
+    fullload: boolean;                          // load all streaming LOD data before first frame
     aa: boolean;                                // render with antialiasing
+    budget?: number;                            // override splat budget in millions
+    renderer: 'webgl' | 'webgpu';               // requested renderer
+    heatmap: boolean;                           // render heatmap debug overlay
+    debug: boolean;                             // auto-open developer debug panel
 };
 
 // observable state that can change at runtime
 type State = {
     loaded: boolean;                            // true once first frame is rendered
     readyToRender: boolean;                     // don't render till this is set
-    retinaDisplay: boolean;                     // controls canvas pixel density
-    gamingControls: boolean;                    // shared runtime semantic for "direct-control" submodes
-    hqMode: boolean;
-    loadingMode: LoadMode;                      // current loading strategy
+    performanceMode: boolean;
+    progress: number;                           // content loading progress 0-100, -1 indeterminate
+    loadingMode: LoadMode;                      // current model loading strategy
     loadingStage: LoadingStage;                 // structured loading stage for UI/logging
     loadingConflict: boolean;                   // true when structure/name detection conflict occurs
-    progress: number;                           // content loading progress 0-100
-    loadingStatus: string;                      // current loading status text
+    loadingStatus: string;                      // current localized loading status
     inputMode: InputMode;
     cameraMode: CameraMode;
-    flyInputMode: FlyInputMode;                 // touch fly first-input lock mode
-    flyInputLocked: boolean;                    // true when fly submode was explicitly chosen
-    walkInputMode: WalkInputMode;               // first-input lock mode for walk
-    walkInputLocked: boolean;
     hasAnimation: boolean;
     animationDuration: number;
     animationTime: number;
@@ -75,10 +84,13 @@ type State = {
     hasAR: boolean;
     hasVR: boolean;
     hasCollision: boolean;
-    hasVoxelOverlay: boolean;
-    voxelOverlayEnabled: boolean;
+    hasCollisionOverlay: boolean;
+    walkCapability: boolean;                    // resource declares walk/collision data, so show the walk affordance
+    walkAllowed: boolean;                       // collision under the user is ready, so walk can be entered
+    collisionOverlayEnabled: boolean;
     isFullscreen: boolean;
     controlsHidden: boolean;
+    gamingControls: boolean;
 };
 
 type Global = {
@@ -88,6 +100,7 @@ type Global = {
     state: State;
     events: EventHandler;
     camera: Entity;
+    renderer: 'webgl' | 'webgpu';               // actual renderer after engine fallback
 };
 
-export { CameraMode, InputMode, WalkInputMode, FlyInputMode, LoadMode, LoadingStage, Config, State, Global };
+export { CameraMode, InputMode, LoadMode, VoxelCoordinateSpace, LoadingStage, Config, State, Global };
