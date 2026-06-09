@@ -1,6 +1,6 @@
 [build]
   base = "metaflow-viewer"
-  command = "npm install && python3 ../scripts/generate_index.py && npm run build && rm -rf public/data public/editor && mkdir -p public/data public/editor && rsync -a ../data/ public/data/ && cp -r ../metaflow-editor/. public/editor/"
+  command = "npm install && python3 ../scripts/generate_index.py && npm run build && mkdir -p public/data public/editor && rsync -a --delete ../data/ public/data/ && rsync -a --delete ../metaflow-editor/ public/editor/"
   publish = "public"
 
 # Custom domain redirects - 深圳技术大学.com → /c2-lib
