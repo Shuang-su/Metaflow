@@ -180,7 +180,12 @@
             const initConfig = async () => {
                 if (pathname !== '/' && pathname !== '/index.html' && !contentUrl) {
                     try {
-                        const indexResponse = await fetch('/data/index.json');
+                        // The route index changes independently of large scene
+                        // assets. Never reuse an immutable cached copy or newly
+                        // published aliases/routes will remain unreachable.
+                        const indexResponse = await fetch('/data/index.json', {
+                            cache: 'no-store'
+                        });
                         const indexData = await indexResponse.json();
                         const resources = Array.isArray(indexData?.resources) ? indexData.resources : [];
                         const normalizedPath = normalizeRoutePath(decodeURIComponent(pathname));

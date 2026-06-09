@@ -48,6 +48,17 @@ test('Xunyangpai keeps the public English route and the previous Chinese route a
     assert.equal(resource.viewer?.voxelCoordinateSpace, 'metaflow-rz180');
 });
 
+test('route index bypasses stale immutable browser caches', async () => {
+    const html = await readFile(new URL('../src/index.html', import.meta.url), 'utf8');
+    const netlify = await readFile(new URL('../../netlify.toml', import.meta.url), 'utf8');
+
+    assert.match(html, /fetch\('\/data\/index\.json',\s*\{\s*cache:\s*'no-store'\s*\}\)/s);
+    assert.match(
+        netlify,
+        /\[\[headers\]\]\s+for = "\/data\/index\.json"\s+\[headers\.values\]\s+Cache-Control = "public, max-age=0, must-revalidate"/s
+    );
+});
+
 test('legacy partial v2 post effects are normalized before Viewer construction', async () => {
     const settings = await readJson(new URL(
         '../../data/ACG/FireflyFes38/260502 172930 03 崩坏星穹铁道 昔涟/settings-v2.json',
