@@ -518,6 +518,7 @@ const main = async (canvas: HTMLCanvasElement, settingsJson: any, config: Config
     return new Viewer(
         global,
         gsplatLoad,
+        environmentLoad,
         skyboxLoad,
         collisionLoadPlan.immediate,
         collisionLoadPlan.deferred

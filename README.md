@@ -183,6 +183,7 @@ http://localhost:3000/?content=/data/model.sog&settings=/data/settings.json
 | `webgl` | 无 | 强制使用 WebGL；未设置时优先尝试 WebGPU |
 | `aa` | 无 | 启用 Gaussian Splat 抗锯齿 |
 | `nofx` | 无 | 禁用 CameraFrame 后处理 |
+| `noreveal` | 无 | 禁用高斯点首帧粒子揭示效果；不影响普通 loading UI |
 | `hpr` | `1`、`true`、`enable` 或空值 | 强制启用高精度渲染；其他显式值表示禁用 |
 | `budget` | 数字 | 覆盖 splat budget，单位为百万，例如 `budget=3` |
 | `fullload` | 无 | 等待完整 LOD 质量，适合截图或离线验收 |

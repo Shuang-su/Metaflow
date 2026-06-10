@@ -237,6 +237,7 @@
                     defaultCameraMode: ['anim', 'orbit', 'fly', 'walk'].includes(defaultCameraMode) ? defaultCameraMode : undefined,
                     syntheticAnimation: syntheticAnimation === 'figure8' ? syntheticAnimation : undefined,
                     animationFirstExitMode: ['orbit', 'default'].includes(animationFirstExitMode) ? animationFirstExitMode : undefined,
+                    revealEffect: url.searchParams.has('noreveal') ? 'none' : 'radial',
                     contentUrl,
                     contents: fetch(contentUrl),
                     noui: url.searchParams.has('noui'),

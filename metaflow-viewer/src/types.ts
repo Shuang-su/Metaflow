@@ -12,6 +12,8 @@ type VoxelCoordinateSpace = 'world' | 'metaflow-rz180';
 
 type AnimationFirstExitMode = 'orbit' | 'default';
 
+type RevealEffect = 'radial' | 'none';
+
 type LoadingStage =
     | 'init'
     | 'renderer'
@@ -52,6 +54,7 @@ type Config = {
     defaultCameraMode?: CameraMode;
     syntheticAnimation?: 'figure8';
     animationFirstExitMode?: AnimationFirstExitMode;
+    revealEffect?: RevealEffect;
 
     noui: boolean;
     noanim: boolean;
@@ -112,6 +115,7 @@ export {
     LoadMode,
     VoxelCoordinateSpace,
     AnimationFirstExitMode,
+    RevealEffect,
     LoadingStage,
     Config,
     State,

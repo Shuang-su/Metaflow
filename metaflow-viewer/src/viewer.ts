@@ -34,6 +34,7 @@ import type { Collision } from './collision';
 import { MeshCollision, TiledVoxelCollision, VoxelCollision } from './collision';
 import { nearlyEquals } from './core/math';
 import { DebugPanel } from './debug';
+import { GsplatRevealRadial } from './gsplat-reveal-radial';
 import { InputController } from './input-controller';
 import { MeshDebugOverlay } from './mesh-debug-overlay';
 import { NavCursor } from './nav-cursor';
@@ -235,6 +236,8 @@ class Viewer {
 
     meshOverlay: MeshDebugOverlay | null = null;
 
+    gsplatReveal: GsplatRevealRadial | null = null;
+
     navCursor: NavCursor | null = null;
 
     debugPanel: DebugPanel | null = null;
@@ -346,6 +349,7 @@ class Viewer {
     constructor(
         global: Global,
         gsplatLoad: Promise<Entity>,
+        environmentLoad: Promise<Entity | null> | null,
         skyboxLoad: Promise<void> | undefined,
         collisionLoad: Promise<Collision | null> | undefined,
         deferredCollisionLoad?: () => Promise<Collision | null>
@@ -497,10 +501,45 @@ class Viewer {
             this.voxelOverlay?.update();
         });
 
+        let revealPlaybackQueued = false;
+        const beginRevealWhenSceneVisible = () => {
+            if (revealPlaybackQueued || config.revealEffect === 'none') {
+                return;
+            }
+            revealPlaybackQueued = true;
+
+            window.requestAnimationFrame(() => {
+                const loadingWrap = document.getElementById('loadingWrap');
+                if (!loadingWrap) {
+                    this.gsplatReveal?.beginVisiblePlayback();
+                    return;
+                }
+
+                let done = false;
+                const begin = () => {
+                    if (done) {
+                        return;
+                    }
+                    done = true;
+                    loadingWrap.removeEventListener('transitionend', onTransitionEnd);
+                    this.gsplatReveal?.beginVisiblePlayback();
+                };
+                const onTransitionEnd = (event: TransitionEvent) => {
+                    if (event.propertyName === 'opacity') {
+                        begin();
+                    }
+                };
+
+                loadingWrap.addEventListener('transitionend', onTransitionEnd);
+                window.setTimeout(begin, 600);
+            });
+        };
+
         // update state on first frame
         events.on('firstFrame', () => {
             state.loaded = true;
             this.revealSceneBackground();
+            beginRevealWhenSceneVisible();
             state.animationPaused = !!config.noanim;
             state.loadingStage = 'complete';
             state.progress = 100;
@@ -574,9 +613,10 @@ class Viewer {
         // Wait only for render-critical resources. Tiled manifests and mesh
         // collision are lightweight/immediate; legacy single voxels are passed
         // through deferredCollisionLoad and begin after the first rendered frame.
-        Promise.all([gsplatLoad, skyboxLoad, collisionLoad]).then((results) => {
+        Promise.all([gsplatLoad, environmentLoad, skyboxLoad, collisionLoad]).then((results) => {
             const gsplatComponent = results[0].gsplat as GSplatComponent;
-            let collision = results[2] ?? null;
+            const environmentEntity = results[1];
+            let collision = results[3] ?? null;
 
             // get scene bounding box
             const gsplatBbox = gsplatComponent.customAabb;
@@ -702,6 +742,24 @@ class Viewer {
             this.debugPanel = new DebugPanel(global, this.cameraManager);
 
             const { gsplat } = app.scene;
+            const revealBounds = (gsplatComponent.customAabb ?? sceneBound).clone();
+            const environmentBbox = environmentEntity?.gsplat?.customAabb;
+            if (environmentBbox) {
+                const transformedEnvironmentBbox = new BoundingBox();
+                transformedEnvironmentBbox.setFromTransformedAabb(environmentBbox, environmentEntity.getWorldTransform());
+                revealBounds.add(transformedEnvironmentBbox);
+            }
+
+            const startGsplatReveal = () => {
+                if (config.revealEffect === 'none') {
+                    return;
+                }
+
+                this.cameraManager.camera.calcFocusPoint(focusPoint);
+                const revealEntities = environmentEntity ? [results[0], environmentEntity] : results[0];
+                this.gsplatReveal = new GsplatRevealRadial(app, revealEntities, revealBounds, focusPoint);
+                this.gsplatReveal.arm();
+            };
 
             const instance = gsplatComponent.instance;
             if (instance) {
@@ -725,6 +783,7 @@ class Viewer {
                         clearTimeout(sortTimeout);
                     }
 
+                    startGsplatReveal();
                     state.readyToRender = true;
                     state.loadingStage = 'prepare';
                     state.loadingStatus = '高斯点排序就绪，正在准备首帧...';
@@ -853,6 +912,7 @@ class Viewer {
                     // scene is done loading
                     eventHandler.off('frame:ready', readyHandler);
 
+                    startGsplatReveal();
                     state.readyToRender = true;
                     state.loadingStage = 'prepare';
                     state.loadingStatus = 'LOD 数据就绪，正在准备首帧...';

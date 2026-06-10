@@ -102,7 +102,7 @@ test('README documents every supported URL query parameter', async () => {
     const readme = await readFile(new URL('../../README.md', import.meta.url), 'utf8');
     const parameters = [
         'content', 'settings', 'poster', 'skybox', 'environment', 'collision',
-        'voxel', 'voxelManifest', 'noui', 'noanim', 'webgl', 'aa', 'nofx',
+        'voxel', 'voxelManifest', 'noui', 'noanim', 'webgl', 'aa', 'nofx', 'noreveal',
         'hpr', 'budget', 'fullload', 'colorize', 'unified', 'debug',
         'ministats', 'heatmap'
     ];
@@ -113,6 +113,59 @@ test('README documents every supported URL query parameter', async () => {
     assert.match(readme, /Ctrl\+Shift\+D/);
     assert.match(readme, /Cmd\+Shift\+D/);
     assert.match(readme, /cb=时间戳/);
+});
+
+test('global gsplat reveal is shader-based, color-neutral, and skippable by URL', async () => {
+    const reveal = await readFile(new URL('../src/gsplat-reveal-radial.ts', import.meta.url), 'utf8');
+    const viewer = await readFile(new URL('../src/viewer.ts', import.meta.url), 'utf8');
+    const html = await readFile(new URL('../src/index.html', import.meta.url), 'utf8');
+    const types = await readFile(new URL('../src/types.ts', import.meta.url), 'utf8');
+
+    assert.match(reveal, /modifySplatCenter/);
+    assert.match(reveal, /modifySplatRotationScale/);
+    assert.match(reveal, /modifySplatColor\(vec3 center, inout vec4 color\)\s*\{\s*\}/);
+    assert.match(reveal, /fn modifySplatColor\(center: vec3f, color: ptr<function, vec4f>\)\s*\{\s*\}/);
+    assert.match(reveal, /uRevealAcceleration/);
+    assert.match(reveal, /REVEAL_START_RADIUS = 0\.005/);
+    assert.match(reveal, /REVEAL_DOT_SCALE = 0\.035/);
+    assert.match(reveal, /REVEAL_DOT_SIZE = 0\.012/);
+    assert.match(reveal, /DEFAULT_REVEAL_DELAY = 2\.0/);
+    assert.match(reveal, /this\.speed \* this\.speed \+ 2 \* this\.acceleration \* this\.radius/);
+    assert.match(reveal, /fitMotionToMinimumDuration/);
+    assert.match(reveal, /DEFAULT_REVEAL_MIN_DURATION - this\.delay/);
+    assert.match(reveal, /this\.radius \* 0\.15 \/ liftTravelTime/);
+    assert.match(reveal, /MAX_REVEAL_DELTA_TIME = 1 \/ 30/);
+    assert.match(reveal, /this\.time \+= Math\.min\(Math\.max\(dt, 0\), MAX_REVEAL_DELTA_TIME\)/);
+    assert.doesNotMatch(reveal, /uDotTint|uWaveTint|color\.rgb|\(\*color\)\s*=\s*vec4f/);
+    assert.match(reveal, /delete\('gsplatModifyVS'\)/);
+    assert.match(reveal, /setWorkBufferModifier\(\{ glsl: shaderGLSL, wgsl: shaderWGSL \}\)/);
+    assert.match(reveal, /setWorkBufferModifier\?\.\(null\)/);
+    assert.match(reveal, /setParameter\?\.\(name, value\)/);
+    assert.match(reveal, /deleteParameter\?\.\(name\)/);
+    assert.match(reveal, /rootEntities: Entity\[\]/);
+    assert.match(reveal, /Array\.isArray\(rootEntity\)/);
+    assert.match(reveal, /gsplatDirector/);
+    assert.match(reveal, /camerasMap/);
+    assert.match(reveal, /gsplatManager\?\.material/);
+    assert.match(reveal, /gsplatManagerShadow\?\.material/);
+    assert.match(reveal, /material:created/);
+    assert.match(reveal, /shaderChunksVersion = SHADER_CHUNKS_VERSION/);
+
+    assert.equal((viewer.match(/startGsplatReveal\(\);\s+state\.readyToRender = true;/g) || []).length, 2);
+    assert.match(viewer, /environmentLoad: Promise<Entity \| null> \| null/);
+    assert.match(viewer, /environmentEntity = results\[1\]/);
+    assert.match(viewer, /revealEntities = environmentEntity \? \[results\[0\], environmentEntity\] : results\[0\]/);
+    assert.match(viewer, /revealBounds\.add\(transformedEnvironmentBbox\)/);
+    assert.match(viewer, /beginRevealWhenSceneVisible/);
+    assert.match(viewer, /loadingWrap\.addEventListener\('transitionend'/);
+    assert.match(viewer, /window\.setTimeout\(begin, 600\)/);
+    assert.match(viewer, /state\.loaded = true;[\s\S]*beginRevealWhenSceneVisible\(\);/);
+    assert.doesNotMatch(viewer, /gsplatReveal\?\.restart/);
+    assert.match(viewer, /gsplatReveal\.arm\(\)/);
+    assert.match(viewer, /beginVisiblePlayback\(\)/);
+    assert.match(viewer, /config\.revealEffect === 'none'/);
+    assert.match(html, /url\.searchParams\.has\('noreveal'\) \? 'none' : 'radial'/);
+    assert.match(types, /RevealEffect = 'radial' \| 'none'/);
 });
 
 test('Xunyangpai keeps the public English route and the previous Chinese route alias', async () => {
