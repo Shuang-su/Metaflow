@@ -228,12 +228,14 @@ flowchart TD
 | `5.3` · `7672825` | Netlify build 先删除再复制 `public/data` 时，链接/目录状态可能让新资源未进入最终 publish。 | 将数据同步改为 `mkdir -p` 后 `rsync -a --delete` 原位同步。 | 部署产物与仓库 `data/` 精确一致。 | `--delete` 只允许作用于 publish 副本，不得指向源数据目录。 |
 | `5.3a` · `74c04c0` | Cyrene 初始构图和 poster 不符合最新展示要求。 | 将给定 position/angles/distance 转换为 settings 的 position/target/fov；保留 figure8；新截图居中裁为 3108×1748 16:9，并更新 index 文件大小。 | Cyrene 首帧与 figure8 从新构图开始，加载封面同步更新。 | 纯资源更新，不改变 viewer、体素或 renderer 行为。 |
 | `5.4` · `23fb3ab` | 单体 voxel 再次参与首帧前的统一等待；动画退出仍依赖 ACG 路由猜测，无法区分人物、场景与用户重播动画前选择的模式；查询参数缺少完整维护文档。 | 将 legacy 单体 voxel 改为 `firstFrame` 后后台下载，并在完成后动态挂载到 InputController、CameraManager、NavCursor、Walk readiness 与 overlay；索引 schema 1.2 新增 `experienceType` 和 `viewer.animationFirstExitMode`；ACG 角色与 Dayun 首次主动退出动画进入 Orbit，后续退出恢复播放前 Orbit/Fly/Walk，Walk 不可用时回退 Fly；README 增补实际解析的资源、UI、渲染和调试参数。 | 主模型先出首帧，Walk 入口保持可见禁用并在碰撞就绪后启用；Cyrene/角色与 Dayun 首次交互进入焦点观察，用户重播动画后不再被强制改回 Orbit。 | Dayun tiled voxel 继续按脚底 tile 按需加载，不改为完整下载；五个历史 ACG 大场景显式标记为 scene；证据为 `scripts/generate_index.py`、`src/index.ts`、`src/viewer.ts`、`src/camera-manager.ts` 和策略测试。 |
+| `5.5` · `f4c4621` | PlayCanvas 官方 LOD streaming 示例有 shader 级 radial reveal，但 Metaflow 首版迁移的 reveal 在 loading 遮罩下消耗时间、未覆盖 unified workbuffer 和 environment gsplat，用户刷新时难以看到效果。 | 新增 `GsplatRevealRadial`：使用 PlayCanvas 2.19 的 `gsplatModifyVS`、`modifySplatCenter`、`modifySplatRotationScale`、`modifySplatColor`，去掉 `uDotTint/uWaveTint` 与所有颜色闪色；unified 资源通过 `setWorkBufferModifier` 注入，non-unified 保留 material chunk fallback；主体与 environment entity 共同 armed；`loadingWrap.hidden` 后才开始计时；小资源按半径反推速度/加速度并 clamp delta，避免首帧露出一片或一次大 delta 跳到结束；新增 `?noreveal`。 | 所有 Gaussian Splat 资源默认从相机焦点做小点 radial reveal，环境模型不再提前完整显示；截图/排查可用 `?noreveal` 关闭。 | Reveal 是 shader 材质/工作缓冲效果，不属于 DOM loading UI，也不影响 voxel overlay、annotation 和碰撞；证据为 `src/gsplat-reveal-radial.ts`、`src/viewer.ts`、`src/index.html`、README 参数文档和静态测试。 |
 
 ### 不产生产品版本的维护提交
 
 | commit | 具体改动 | 版本处理 |
 |---|---|---|
 | `ad641f4` | 完整恢复根 README 原始使用说明，建立逐提交详细变更总账，并补齐 4.3 至 5.3a 的结构化历史。 | 纯文档和版本基础设施维护，不创建独立展示版本；由 `maintenanceCommits` 显式登记。 |
+| `cce4059` | 将 5.4 的文档、结构化版本历史、公开版本文件和 README 摘要补齐。 | 纯发布文档维护，不创建独立展示版本；由 `maintenanceCommits` 显式登记。 |
 
 ## 能力到提交的反向索引
 

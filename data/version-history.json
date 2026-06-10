@@ -1,14 +1,14 @@
 {
   "schemaVersion": "1.0",
-  "cutoffGitRef": "23fb3ab",
-  "documentedThrough": "23fb3ab",
+  "cutoffGitRef": "f4c4621",
+  "documentedThrough": "f4c4621",
   "defaultResourceVersion": "1.0a",
   "current": {
-    "displayVersion": "5.4",
-    "appSemver": "5.4.0",
+    "displayVersion": "5.5",
+    "appSemver": "5.5.0",
     "indexSchemaVersion": "1.2",
     "date": "2026-06-10",
-    "gitRef": "23fb3ab",
+    "gitRef": "f4c4621",
     "historyUrl": "/data/version-history.json"
   },
   "versioning": {
@@ -49,6 +49,11 @@
       "gitRef": "ad641f4",
       "date": "2026-06-10",
       "summary": "docs: restore README and audit viewer history"
+    },
+    {
+      "gitRef": "cce4059",
+      "date": "2026-06-10",
+      "summary": "chore(release): document Metaflow Viewer 5.4"
     }
   ],
   "entries": [
@@ -1084,6 +1089,15 @@
       "date": "2026-06-10",
       "gitRef": "23fb3ab",
       "summary": "feat(viewer): restore deferred collision and animation exits"
+    },
+    {
+      "displayVersion": "5.5",
+      "appSemver": "5.5.0",
+      "type": "feature",
+      "scope": "viewer",
+      "date": "2026-06-10",
+      "gitRef": "f4c4621",
+      "summary": "feat(viewer): add color-neutral gsplat reveal effect"
     }
   ]
 }
