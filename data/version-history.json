@@ -1,14 +1,14 @@
 {
   "schemaVersion": "1.0",
-  "cutoffGitRef": "f4c4621",
-  "documentedThrough": "f4c4621",
+  "cutoffGitRef": "1a536f1",
+  "documentedThrough": "1a536f1",
   "defaultResourceVersion": "1.0a",
   "current": {
-    "displayVersion": "5.5",
-    "appSemver": "5.5.0",
+    "displayVersion": "5.6",
+    "appSemver": "5.6.0",
     "indexSchemaVersion": "1.2",
     "date": "2026-06-10",
-    "gitRef": "f4c4621",
+    "gitRef": "1a536f1",
     "historyUrl": "/data/version-history.json"
   },
   "versioning": {
@@ -54,6 +54,11 @@
       "gitRef": "cce4059",
       "date": "2026-06-10",
       "summary": "chore(release): document Metaflow Viewer 5.4"
+    },
+    {
+      "gitRef": "f624ce0",
+      "date": "2026-06-10",
+      "summary": "chore(release): document Metaflow Viewer 5.5"
     }
   ],
   "entries": [
@@ -1098,6 +1103,15 @@
       "date": "2026-06-10",
       "gitRef": "f4c4621",
       "summary": "feat(viewer): add color-neutral gsplat reveal effect"
+    },
+    {
+      "displayVersion": "5.6",
+      "appSemver": "5.6.0",
+      "type": "fix",
+      "scope": "viewer",
+      "date": "2026-06-10",
+      "gitRef": "1a536f1",
+      "summary": "fix(viewer): restore official gsplat reveal motion timing"
     }
   ]
 }
