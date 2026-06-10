@@ -129,7 +129,10 @@ test('global gsplat reveal is shader-based, color-neutral, and skippable by URL'
     assert.match(reveal, /REVEAL_START_RADIUS = 0\.005/);
     assert.match(reveal, /REVEAL_DOT_SCALE = 0\.035/);
     assert.match(reveal, /REVEAL_DOT_SIZE = 0\.012/);
-    assert.match(reveal, /DEFAULT_REVEAL_DELAY = 2\.4/);
+    assert.match(reveal, /DEFAULT_REVEAL_DELAY = 1\.0/);
+    assert.match(reveal, /wavesActive/);
+    assert.match(reveal, /uRevealOscillation \* 0\.25/);
+    assert.doesNotMatch(reveal, /REVEAL_LIFT_BUMP|liftAmount/);
     assert.match(reveal, /this\.speed \* this\.speed \+ 2 \* this\.acceleration \* this\.radius/);
     assert.match(reveal, /MAX_REVEAL_DELTA_TIME = 1 \/ 30/);
     assert.match(reveal, /this\.time \+= Math\.min\(Math\.max\(dt, 0\), MAX_REVEAL_DELTA_TIME\)/);

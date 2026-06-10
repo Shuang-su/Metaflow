@@ -40,12 +40,6 @@ void modifySplatCenter(inout vec3 center) {
         float phase = revealHash(center) * 6.28318;
         center.y += sin(uRevealTime * 3.0 + phase) * uRevealOscillation * 0.25;
     }
-
-    float distToLiftWave = abs(gRevealDist - gRevealLiftWave);
-    if (distToLiftWave < 1.0 && gRevealLiftTime > 0.0) {
-        float liftAmount = (1.0 - distToLiftWave) * sin(distToLiftWave * 3.14159);
-        center.y += liftAmount * uRevealOscillation * 0.9;
-    }
 }
 
 void modifySplatRotationScale(vec3 originalCenter, vec3 modifiedCenter, inout vec4 rotation, inout vec3 scale) {
@@ -134,12 +128,6 @@ fn modifySplatCenter(center: ptr<function, vec3f>) {
         let phase = revealHash(*center) * 6.28318;
         (*center).y += sin(uniform.uRevealTime * 3.0 + phase) * uniform.uRevealOscillation * 0.25;
     }
-
-    let distToLiftWave = abs(gRevealDist - gRevealLiftWave);
-    if (distToLiftWave < 1.0 && gRevealLiftTime > 0.0) {
-        let liftAmount = (1.0 - distToLiftWave) * sin(distToLiftWave * 3.14159);
-        (*center).y += liftAmount * uniform.uRevealOscillation * 0.9;
-    }
 }
 
 fn modifySplatRotationScale(originalCenter: vec3f, modifiedCenter: vec3f, rotation: ptr<function, vec4f>, scale: ptr<function, vec3f>) {
@@ -213,9 +201,9 @@ const tmpMax = new Vec3();
 const DEFAULT_REVEAL_MIN_DURATION = 5.0;
 const DEFAULT_REVEAL_SPEED = 0.75;
 const DEFAULT_REVEAL_ACCELERATION = 3.5;
-const DEFAULT_REVEAL_DELAY = 2.4;
+const DEFAULT_REVEAL_DELAY = 1.0;
 const MAX_REVEAL_DELTA_TIME = 1 / 30;
-const SHADER_CHUNKS_VERSION = '2.19';
+const SHADER_CHUNKS_VERSION = '2.21';
 const REVEAL_UNIFORMS = [
     'uRevealTime',
     'uRevealCenter',
