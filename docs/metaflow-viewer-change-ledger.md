@@ -1,6 +1,6 @@
 # Metaflow Viewer 逐提交详细变更总账
 
-本文档审计 `main` 从初始提交到 `74c04c0` 的 96 次产品提交。它不是提交标题的重排，而是用于回答：
+本文档审计 `main` 从初始提交到 `23fb3ab` 的 97 次产品提交，并单独记录 1 次不产生产品版本的纯文档维护提交。它不是提交标题的重排，而是用于回答：
 
 - 当时为什么改；
 - 改动前用户看到什么；
@@ -227,6 +227,13 @@ flowchart TD
 | `5.2` · `99ffe6c` | Netlify 对 `/data/*` 使用长缓存，客户端可能读到旧 index，导致新 route 找不到模型并回退黑屏。 | route 启动时以 `cache:'no-store'` 请求 `/data/index.json`；为 index 单独设置 `max-age=0, must-revalidate`，并加静态测试。 | 新部署的 route/alias 能立即被解析。 | 大模型仍可 immutable；只有 route authority index 必须重新验证。 |
 | `5.3` · `7672825` | Netlify build 先删除再复制 `public/data` 时，链接/目录状态可能让新资源未进入最终 publish。 | 将数据同步改为 `mkdir -p` 后 `rsync -a --delete` 原位同步。 | 部署产物与仓库 `data/` 精确一致。 | `--delete` 只允许作用于 publish 副本，不得指向源数据目录。 |
 | `5.3a` · `74c04c0` | Cyrene 初始构图和 poster 不符合最新展示要求。 | 将给定 position/angles/distance 转换为 settings 的 position/target/fov；保留 figure8；新截图居中裁为 3108×1748 16:9，并更新 index 文件大小。 | Cyrene 首帧与 figure8 从新构图开始，加载封面同步更新。 | 纯资源更新，不改变 viewer、体素或 renderer 行为。 |
+| `5.4` · `23fb3ab` | 单体 voxel 再次参与首帧前的统一等待；动画退出仍依赖 ACG 路由猜测，无法区分人物、场景与用户重播动画前选择的模式；查询参数缺少完整维护文档。 | 将 legacy 单体 voxel 改为 `firstFrame` 后后台下载，并在完成后动态挂载到 InputController、CameraManager、NavCursor、Walk readiness 与 overlay；索引 schema 1.2 新增 `experienceType` 和 `viewer.animationFirstExitMode`；ACG 角色与 Dayun 首次主动退出动画进入 Orbit，后续退出恢复播放前 Orbit/Fly/Walk，Walk 不可用时回退 Fly；README 增补实际解析的资源、UI、渲染和调试参数。 | 主模型先出首帧，Walk 入口保持可见禁用并在碰撞就绪后启用；Cyrene/角色与 Dayun 首次交互进入焦点观察，用户重播动画后不再被强制改回 Orbit。 | Dayun tiled voxel 继续按脚底 tile 按需加载，不改为完整下载；五个历史 ACG 大场景显式标记为 scene；证据为 `scripts/generate_index.py`、`src/index.ts`、`src/viewer.ts`、`src/camera-manager.ts` 和策略测试。 |
+
+### 不产生产品版本的维护提交
+
+| commit | 具体改动 | 版本处理 |
+|---|---|---|
+| `ad641f4` | 完整恢复根 README 原始使用说明，建立逐提交详细变更总账，并补齐 4.3 至 5.3a 的结构化历史。 | 纯文档和版本基础设施维护，不创建独立展示版本；由 `maintenanceCommits` 显式登记。 |
 
 ## 能力到提交的反向索引
 
@@ -236,10 +243,10 @@ flowchart TD
 | 首帧与超时 | `1.14`、`1.15`、`1.16`、`2.1`、`5.0`、`5.1` |
 | 短路由与索引 | `1.19`、`1.21`、`1.22`、`2.5`、`2.8`、`3.15`、`5.2` |
 | XR / PICO | `1.31`–`1.36`、`2.9`、`5.0` |
-| Walk / voxel | `3.0`、`3.5`–`3.7`、`4.4`、`5.0` |
+| Walk / voxel | `3.0`、`3.5`–`3.7`、`4.4`、`5.0`、`5.4` |
 | 移动端控制 | `2.7`、`3.2`–`3.3`、`3.8`–`3.16`、`5.0` |
 | 渐变天空 | `3.19`、`3.20`、`5.0` |
-| Figure8 / ACG | `2.11`、`3.14`、`4.0`、`4.1`、`4.2`、`5.3a` |
+| Figure8 / ACG | `2.11`、`3.14`、`4.0`、`4.1`、`4.2`、`5.3a`、`5.4` |
 | 部署 / LFS | `1.2`、`1.3`、`3.17`、`3.20a`、`4.4`、`5.2`、`5.3` |
 
 ## 后续提交维护模板

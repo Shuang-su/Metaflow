@@ -1,14 +1,14 @@
 {
   "schemaVersion": "1.0",
-  "cutoffGitRef": "74c04c0",
-  "documentedThrough": "74c04c0",
+  "cutoffGitRef": "23fb3ab",
+  "documentedThrough": "23fb3ab",
   "defaultResourceVersion": "1.0a",
   "current": {
-    "displayVersion": "5.3a",
-    "appSemver": "5.3.0",
-    "indexSchemaVersion": "1.1",
-    "date": "2026-06-09",
-    "gitRef": "74c04c0",
+    "displayVersion": "5.4",
+    "appSemver": "5.4.0",
+    "indexSchemaVersion": "1.2",
+    "date": "2026-06-10",
+    "gitRef": "23fb3ab",
     "historyUrl": "/data/version-history.json"
   },
   "versioning": {
@@ -44,6 +44,13 @@
       }
     ]
   },
+  "maintenanceCommits": [
+    {
+      "gitRef": "ad641f4",
+      "date": "2026-06-10",
+      "summary": "docs: restore README and audit viewer history"
+    }
+  ],
   "entries": [
     {
       "displayVersion": "1.0",
@@ -1025,6 +1032,15 @@
           "routes": ["/acg/fireflyfes38/cyrene"]
         }
       ]
+    },
+    {
+      "displayVersion": "5.4",
+      "appSemver": "5.4.0",
+      "type": "feature",
+      "scope": "viewer",
+      "date": "2026-06-10",
+      "gitRef": "23fb3ab",
+      "summary": "feat(viewer): restore deferred collision and animation exits"
     }
   ]
 }

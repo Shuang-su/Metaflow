@@ -29,7 +29,13 @@ test('version history backfills every commit through the cutoff ref', async () =
     assert.notEqual(cutoffIndex, -1, 'cutoffGitRef is missing from git log');
 
     const expectedRefs = log.slice(0, cutoffIndex + 1);
-    const actualRefs = manifest.entries.map((entry) => entry.gitRef);
+    const documentedRefs = [
+        ...manifest.entries.map((entry) => entry.gitRef),
+        ...(manifest.maintenanceCommits || []).map((entry) => entry.gitRef)
+    ];
+    assert.equal(new Set(documentedRefs).size, documentedRefs.length, 'each commit should be documented exactly once');
+    const logOrder = new Map(expectedRefs.map((ref, index) => [ref, index]));
+    const actualRefs = documentedRefs.toSorted((a, b) => logOrder.get(a) - logOrder.get(b));
     assert.deepEqual(actualRefs, expectedRefs);
     assert.equal(manifest.documentedThrough, manifest.cutoffGitRef);
 });
@@ -52,7 +58,6 @@ test('display versions are unique and resource suffixes are contiguous', async (
             suffixesByBase.set(base, suffixes);
         }
     }
-
     for (const [base, suffixes] of suffixesByBase.entries()) {
         const expected = suffixes.map((_, index) => String.fromCharCode('a'.charCodeAt(0) + index));
         assert.deepEqual(suffixes, expected, `${base} resource suffixes should be contiguous`);
@@ -90,6 +95,13 @@ test('change ledger contains every structured version and only main-history comm
             ledger,
             new RegExp(`\\\`${entry.displayVersion.replace('.', '\\.')}\\\`[^\\n]*\\\`${entry.gitRef}\\\``),
             `ledger is missing ${entry.displayVersion} / ${entry.gitRef}`
+        );
+    }
+    for (const entry of manifest.maintenanceCommits || []) {
+        assert.match(
+            ledger,
+            new RegExp(`\\\`${entry.gitRef}\\\``),
+            `ledger is missing maintenance commit ${entry.gitRef}`
         );
     }
 
@@ -161,6 +173,6 @@ test('package and public release versions match the structured current version',
     assert.equal(pkg.version, manifest.current.appSemver);
     assert.equal(lock.version, manifest.current.appSemver);
     assert.equal(lock.packages[''].version, manifest.current.appSemver);
-    assert.equal(manifest.current.displayVersion, '5.3a');
+    assert.equal(manifest.current.displayVersion, '5.4');
     assert.equal(manifest.current.gitRef, manifest.documentedThrough);
 });

@@ -1,6 +1,6 @@
 {
   "name": "metaflow-viewer",
-  "version": "5.3.0",
+  "version": "5.4.0",
   "description": "Gaussian Splatting Viewer for metaflow.shuang-su.com",
   "license": "MIT",
   "type": "module",
