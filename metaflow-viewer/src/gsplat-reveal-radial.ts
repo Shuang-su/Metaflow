@@ -211,9 +211,9 @@ const tmpExtents = new Vec3();
 const tmpMin = new Vec3();
 const tmpMax = new Vec3();
 const DEFAULT_REVEAL_MIN_DURATION = 5.0;
-const DEFAULT_REVEAL_SPEED = 1.0;
-const DEFAULT_REVEAL_ACCELERATION = 5.0;
-const DEFAULT_REVEAL_DELAY = 2.0;
+const DEFAULT_REVEAL_SPEED = 0.75;
+const DEFAULT_REVEAL_ACCELERATION = 3.5;
+const DEFAULT_REVEAL_DELAY = 2.4;
 const MAX_REVEAL_DELTA_TIME = 1 / 30;
 const SHADER_CHUNKS_VERSION = '2.19';
 const REVEAL_UNIFORMS = [
@@ -289,7 +289,6 @@ class GsplatRevealRadial {
 
         this.center = [tmpCenter.x, tmpCenter.y, tmpCenter.z];
         this.radius = this.calcFarthestCornerRadius(tmpCenter, tmpMin, tmpMax);
-        this.fitMotionToMinimumDuration();
         this.duration = Math.max(DEFAULT_REVEAL_MIN_DURATION, this.getCompletionTime());
     }
 
@@ -477,15 +476,6 @@ class GsplatRevealRadial {
 
         const discriminant = this.speed * this.speed + 2 * this.acceleration * this.radius;
         return this.delay + (-this.speed + Math.sqrt(Math.max(discriminant, 0))) / this.acceleration;
-    }
-
-    private fitMotionToMinimumDuration() {
-        const liftTravelTime = Math.max(DEFAULT_REVEAL_MIN_DURATION - this.delay, 0.1);
-        this.speed = Math.min(DEFAULT_REVEAL_SPEED, this.radius * 0.15 / liftTravelTime);
-        this.acceleration = Math.max(
-            0.0001,
-            2 * Math.max(this.radius - this.speed * liftTravelTime, 0.0001) / (liftTravelTime * liftTravelTime)
-        );
     }
 
     private calcFarthestCornerRadius(center: Vec3, min: Vec3, max: Vec3) {
