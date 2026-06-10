@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
+import { createHash } from 'node:crypto';
 import { readFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 
@@ -30,6 +31,7 @@ test('version history backfills every commit through the cutoff ref', async () =
     const expectedRefs = log.slice(0, cutoffIndex + 1);
     const actualRefs = manifest.entries.map((entry) => entry.gitRef);
     assert.deepEqual(actualRefs, expectedRefs);
+    assert.equal(manifest.documentedThrough, manifest.cutoffGitRef);
 });
 
 test('display versions are unique and resource suffixes are contiguous', async () => {
@@ -77,4 +79,88 @@ test('viewer console output is wired to the version history display version', as
     assert.match(source, /Metaflow Viewer/);
     assert.match(source, /versionHistory\.current\.displayVersion/);
     assert.match(source, /versionHistory\.current\.indexSchemaVersion/);
+});
+
+test('change ledger contains every structured version and only main-history commit refs', async () => {
+    const manifest = await readJson(new URL('../../metadata/version-history.json', import.meta.url));
+    const ledger = await readFile(new URL('../../docs/metaflow-viewer-change-ledger.md', import.meta.url), 'utf8');
+
+    for (const entry of manifest.entries) {
+        assert.match(
+            ledger,
+            new RegExp(`\\\`${entry.displayVersion.replace('.', '\\.')}\\\`[^\\n]*\\\`${entry.gitRef}\\\``),
+            `ledger is missing ${entry.displayVersion} / ${entry.gitRef}`
+        );
+    }
+
+    const ledgerRefs = new Set(
+        Array.from(ledger.matchAll(/`([0-9a-f]{7})`/g), (match) => match[1])
+    );
+    for (const ref of ledgerRefs) {
+        execFileSync('git', ['cat-file', '-e', `${ref}^{commit}`], {
+            cwd: repoRoot,
+            stdio: 'ignore'
+        });
+        execFileSync('git', ['merge-base', '--is-ancestor', ref, 'HEAD'], {
+            cwd: repoRoot,
+            stdio: 'ignore'
+        });
+    }
+});
+
+test('commits after documentedThrough are documentation/version maintenance only', async () => {
+    const manifest = await readJson(new URL('../../metadata/version-history.json', import.meta.url));
+    const refs = execFileSync('git', ['rev-list', '--reverse', `${manifest.documentedThrough}..HEAD`], {
+        cwd: repoRoot,
+        encoding: 'utf8'
+    }).trim();
+
+    if (!refs) {
+        return;
+    }
+
+    const allowedFiles = new Set([
+        'README.md',
+        'metaflow-viewer/README.md',
+        'docs/metaflow-viewer-change-ledger.md',
+        'metadata/version-history.json',
+        'data/version-history.json',
+        'data/index.json',
+        'metaflow-viewer/package.json',
+        'metaflow-viewer/package-lock.json',
+        'metaflow-viewer/tests/version-history.test.mjs'
+    ]);
+
+    for (const ref of refs.split('\n')) {
+        const files = execFileSync('git', ['diff-tree', '--no-commit-id', '--name-only', '-r', ref], {
+            cwd: repoRoot,
+            encoding: 'utf8'
+        }).trim().split('\n').filter(Boolean);
+        assert.ok(
+            files.every((file) => allowedFiles.has(file)),
+            `${ref.slice(0, 7)} changes product files without a version-history entry: ${files.join(', ')}`
+        );
+    }
+});
+
+test('root README preserves the original usage guide and exposes the audit entrypoint', async () => {
+    const readme = await readFile(new URL('../../README.md', import.meta.url), 'utf8');
+    const originalGuide = `${readme.split('\n## 当前版本\n')[0]}\n`;
+    const digest = createHash('sha256').update(originalGuide).digest('hex');
+
+    assert.equal(digest, '5650ea5179d57897d06d04b6f434429a083766154058ec6048c4518dedbb56f4');
+    assert.match(readme, /docs\/metaflow-viewer-change-ledger\.md/);
+    assert.match(readme, /metadata\/version-history\.json/);
+});
+
+test('package and public release versions match the structured current version', async () => {
+    const manifest = await readJson(new URL('../../metadata/version-history.json', import.meta.url));
+    const pkg = await readJson(new URL('../package.json', import.meta.url));
+    const lock = await readJson(new URL('../package-lock.json', import.meta.url));
+
+    assert.equal(pkg.version, manifest.current.appSemver);
+    assert.equal(lock.version, manifest.current.appSemver);
+    assert.equal(lock.packages[''].version, manifest.current.appSemver);
+    assert.equal(manifest.current.displayVersion, '5.3a');
+    assert.equal(manifest.current.gitRef, manifest.documentedThrough);
 });

@@ -1,13 +1,15 @@
 # Metaflow Viewer Package
 
-这是 Metaflow Viewer 的前端包。完整版本追踪、版本规则和最近发布记录见仓库根目录 `README.md` 与 `metadata/version-history.json`。
+这是 Metaflow Viewer 的前端包。完整使用说明见仓库根目录
+[`README.md`](../README.md)，逐提交审计见
+[`docs/metaflow-viewer-change-ledger.md`](../docs/metaflow-viewer-change-ledger.md)。
 
 ## 当前版本
 
-- 展示版本：`4.2b`
-- 包版本：`4.2.0`
-- 上游 SuperSplat Viewer：`v1.18.2`
-- PlayCanvas：`2.17.1`
+- 展示版本：`5.3a`
+- 包版本：`5.3.0`
+- 上游 SuperSplat Viewer：`v1.26.2`
+- PlayCanvas：`2.19.2`
 
 ## 本地运行
 

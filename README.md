@@ -1,71 +1,145 @@
 # Metaflow Viewer
 
-Metaflow Viewer 是基于 SuperSplat Viewer 定制的 3D Gaussian Splatting 浏览器，服务于 `metaflow.shuang-su.com` 的资源浏览、流式 LOD、漫游、体素碰撞和 ACG 资源发布。
+基于 [SuperSplat Viewer](https://github.com/playcanvas/supersplat-viewer) 构建的 3D Gaussian Splatting 浏览器。
+
+## 快速开始
+
+```bash
+# 安装依赖
+npm install
+
+# 构建项目
+npm run build
+
+# 启动服务器
+npm run serve
+# 或
+npm start
+```
+
+服务器将在 http://localhost:3000 启动。
+
+## 开发模式
+
+```bash
+# 开发模式（自动重新构建 + 服务器）
+npm run develop
+```
+
+## 使用方式
+
+### 1. URL 路由（推荐）
+
+直接访问路由路径即可加载对应资源：
+
+```
+http://localhost:3000/acg/ad05/delta-force
+http://localhost:3000/acg/ad05/frieren
+http://localhost:3000/acg/yzx/yzx
+```
+
+路由信息来自 `/data/index.json`。
+
+### 2. URL 参数
+
+也可以使用 URL 参数指定内容：
+
+```
+http://localhost:3000/?content=/data/path/to/model.sog&settings=/data/path/to/settings.json
+```
+
+支持的参数：
+| 参数 | 说明 |
+|------|------|
+| `content` | 模型文件路径 (.sog / .compressed.ply) |
+| `settings` | 设置文件路径 (.json) |
+| `poster` | 加载时显示的图片 |
+| `skybox` | 天空盒图片 |
+| `noui` | 隐藏 UI |
+| `noanim` | 禁用动画 |
+
+## 项目结构
+
+```
+metaflow-viewer/
+├── src/                    # 源代码
+│   ├── index.html          # HTML 模板（含路由配置）
+│   ├── index.scss          # 样式
+│   ├── index.ts            # 入口
+│   └── ...                 # 其他模块
+├── public/                 # 构建产物
+│   ├── index.html
+│   ├── index.css
+│   ├── index.js            # 打包后的 JS (含 PlayCanvas 引擎)
+│   ├── data -> ../../data  # 数据目录软链接
+│   └── serve.json          # 服务器配置（SPA 路由）
+├── package.json
+├── rollup.config.mjs
+└── tsconfig.json
+```
+
+## 数据目录
+
+`/data/index.json` 包含所有资源的索引信息：
+
+```json
+{
+  "resources": [
+    {
+      "id": "delta-force",
+      "title": "三角洲",
+      "route": "/acg/ad05/delta-force",
+      "files": {
+        "model": "ACG/AD05/.../Delta Force.sog",
+        "settings": "ACG/AD05/.../settings.json"
+      }
+    }
+  ]
+}
+```
+
+## 部署
+
+构建后的 `public/` 目录可以直接部署到任何静态服务器。
+
+**注意**：需要配置服务器支持 SPA 路由（将所有路径重定向到 index.html，除了 /data/ 等静态资源）。
+
+Nginx 配置示例：
+
+```nginx
+location / {
+    try_files $uri $uri/ /index.html;
+}
+```
 
 ## 当前版本
 
 | 字段 | 值 |
 |------|----|
-| 展示版本 | `4.2b` |
-| 包版本 | `4.2.0` |
+| 展示版本 | `5.3a` |
+| 包版本 | `5.3.0` |
 | 索引 schema | `1.1` |
-| 截止 commit | `66e4311` |
-| 更新时间 | `2026-06-06` |
-
-版本来源是 `metadata/version-history.json`。线上公开记录由 `scripts/generate_index.py` 同步到 `data/version-history.json`，`data/index.json.release` 会暴露当前版本。
-
-## 版本规则
-
-- `package.json` 使用合法 semver，例如 `4.2.0`。
-- 对外展示版本使用 `4.2b` 这样的双轨标签。
-- 大版本按功能线划分：
-  - `1.x`：初始 viewer、分享、加载体验、基础路由。
-  - `2.x`：LOD 迁移、流式识别、加载阶段、冲突提示。
-  - `3.x`：漫游、碰撞体素、移动端/第一人称控制。
-  - `4.x`：动画策略、figure8、Firefly/2568 等资源发布。
-- 小功能或修复递增数字小版本：`4.0`、`4.1`、`4.2`。
-- 纯资源更新在当前代码版本后追加字母：`4.2a`、`4.2b`。
+| 上游 SuperSplat Viewer | `v1.26.2` |
+| PlayCanvas | `2.19.2` |
+| 已审计至 commit | `74c04c0` |
 
 ## 最近版本
 
-| 版本 | 日期 | commit | 类型 | 摘要 |
-|------|------|--------|------|------|
-| `4.2b` | 2026-06-06 | `66e4311` | resource | add ACG 2568 route and Firefly thumbnails |
-| `4.2a` | 2026-06-03 | `f1d95ff` | resource | use merged settings for Firefly Azur Lane |
-| `4.2` | 2026-06-01 | `5df187a` | feature | add FireflyFes38 ACG resources |
-| `4.1` | 2026-04-23 | `e3eab5b` | feature | enable synthetic figure-eight animation |
-| `4.0a` | 2026-04-23 | `e67801c` | resource | add SZTU C1 and FES scenes |
-| `4.0` | 2026-04-17 | `fac8405` | chore | add animation policy helpers |
-| `3.20a` | 2026-04-15 | `4fe0e0f` | resource | restore Dayun to LFS while keeping Phoenix rollout |
+| 版本 | commit | 摘要 |
+|------|--------|------|
+| `5.3a` | `74c04c0` | 更新 Cyrene 初始构图和缩略图 |
+| `5.3` | `7672825` | 修复 Netlify 发布目录的数据同步方式 |
+| `5.2` | `99ffe6c` | 路由索引改为强制重新验证，避免旧缓存导致黑屏 |
+| `5.1` | `6558254` | 恢复旧 SOG 排序完成或超时后的首帧兜底 |
+| `5.0` | `f41f6de` | 同步 SuperSplat v1.26.2 架构并移植 Metaflow 定制 |
+| `4.4` | `e47067b` | 发布 Dayun tiled voxel 与版本历史基础设施 |
+| `4.3` | `8bc11d5` | 补充 Firefly 设置与包管理声明 |
 
-完整 commit 级版本记录见 `metadata/version-history.json`。
+完整审计资料：
 
-## 运行
+- [逐提交详细变更总账](docs/metaflow-viewer-change-ledger.md)
+- [结构化版本历史](metadata/version-history.json)
+- [当前同步差异审计](docs/metaflow-current-sync-diff-audit.md)
+- [SuperSplat 同步对比](docs/metaflow-viewer-sync-comparison.md)
 
-```bash
-cd metaflow-viewer
-npm install
-npm run build
-npm run serve
-```
-
-本地服务默认在 `http://localhost:3000`。
-
-## 生成索引
-
-```bash
-./scripts/generate_index.py
-```
-
-生成内容：
-
-- `data/index.json`
-- `data/version-history.json`
-
-## 验证
-
-```bash
-cd metaflow-viewer
-node --test tests/*.mjs
-npm run build
-```
+版本历史采用双轨规则：数字版本记录代码、行为、架构和部署变化；字母后缀记录当前数字版本上的纯资源更新。
