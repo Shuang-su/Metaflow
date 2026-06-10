@@ -1,14 +1,14 @@
 {
   "schemaVersion": "1.0",
-  "cutoffGitRef": "1a536f1",
-  "documentedThrough": "1a536f1",
+  "cutoffGitRef": "4114e8f",
+  "documentedThrough": "4114e8f",
   "defaultResourceVersion": "1.0a",
   "current": {
-    "displayVersion": "5.6",
-    "appSemver": "5.6.0",
+    "displayVersion": "5.7",
+    "appSemver": "5.7.0",
     "indexSchemaVersion": "1.2",
     "date": "2026-06-10",
-    "gitRef": "1a536f1",
+    "gitRef": "4114e8f",
     "historyUrl": "/data/version-history.json"
   },
   "versioning": {
@@ -59,6 +59,11 @@
       "gitRef": "f624ce0",
       "date": "2026-06-10",
       "summary": "chore(release): document Metaflow Viewer 5.5"
+    },
+    {
+      "gitRef": "a3ce142",
+      "date": "2026-06-10",
+      "summary": "chore(release): document Metaflow Viewer 5.6"
     }
   ],
   "entries": [
@@ -1112,6 +1117,15 @@
       "date": "2026-06-10",
       "gitRef": "1a536f1",
       "summary": "fix(viewer): restore official gsplat reveal motion timing"
+    },
+    {
+      "displayVersion": "5.7",
+      "appSemver": "5.7.0",
+      "type": "fix",
+      "scope": "viewer",
+      "date": "2026-06-10",
+      "gitRef": "4114e8f",
+      "summary": "fix(viewer): simplify gsplat reveal oscillation"
     }
   ]
 }

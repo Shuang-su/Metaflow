@@ -230,6 +230,7 @@ flowchart TD
 | `5.4` · `23fb3ab` | 单体 voxel 再次参与首帧前的统一等待；动画退出仍依赖 ACG 路由猜测，无法区分人物、场景与用户重播动画前选择的模式；查询参数缺少完整维护文档。 | 将 legacy 单体 voxel 改为 `firstFrame` 后后台下载，并在完成后动态挂载到 InputController、CameraManager、NavCursor、Walk readiness 与 overlay；索引 schema 1.2 新增 `experienceType` 和 `viewer.animationFirstExitMode`；ACG 角色与 Dayun 首次主动退出动画进入 Orbit，后续退出恢复播放前 Orbit/Fly/Walk，Walk 不可用时回退 Fly；README 增补实际解析的资源、UI、渲染和调试参数。 | 主模型先出首帧，Walk 入口保持可见禁用并在碰撞就绪后启用；Cyrene/角色与 Dayun 首次交互进入焦点观察，用户重播动画后不再被强制改回 Orbit。 | Dayun tiled voxel 继续按脚底 tile 按需加载，不改为完整下载；五个历史 ACG 大场景显式标记为 scene；证据为 `scripts/generate_index.py`、`src/index.ts`、`src/viewer.ts`、`src/camera-manager.ts` 和策略测试。 |
 | `5.5` · `f4c4621` | PlayCanvas 官方 LOD streaming 示例有 shader 级 radial reveal，但 Metaflow 首版迁移的 reveal 在 loading 遮罩下消耗时间、未覆盖 unified workbuffer 和 environment gsplat，用户刷新时难以看到效果。 | 新增 `GsplatRevealRadial`：使用 PlayCanvas 2.19 的 `gsplatModifyVS`、`modifySplatCenter`、`modifySplatRotationScale`、`modifySplatColor`，去掉 `uDotTint/uWaveTint` 与所有颜色闪色；unified 资源通过 `setWorkBufferModifier` 注入，non-unified 保留 material chunk fallback；主体与 environment entity 共同 armed；`loadingWrap.hidden` 后才开始计时；小资源按半径反推速度/加速度并 clamp delta，避免首帧露出一片或一次大 delta 跳到结束；新增 `?noreveal`。 | 所有 Gaussian Splat 资源默认从相机焦点做小点 radial reveal，环境模型不再提前完整显示；截图/排查可用 `?noreveal` 关闭。 | Reveal 是 shader 材质/工作缓冲效果，不属于 DOM loading UI，也不影响 voxel overlay、annotation 和碰撞；证据为 `src/gsplat-reveal-radial.ts`、`src/viewer.ts`、`src/index.html`、README 参数文档和静态测试。 |
 | `5.6` · `1a536f1` | 5.5 线上 reveal 观感偏快：`fitMotionToMinimumDuration` 扭曲官方运动曲线，且 loading 后首帧大 `dt` 仍可能让波瞬间扫完；用户希望两波间隔更短、整体更从容。 | 移除 `fitMotionToMinimumDuration`，保留 `MAX_REVEAL_DELTA_TIME = 1/30` 的 reveal 专用 delta 钳制；将 `DEFAULT_REVEAL_SPEED/ACCELERATION` 调到 `0.75/3.5`，`DEFAULT_REVEAL_DELAY` 调到 `1.0`，让 dot/lift 两波更贴近且整体略慢。 | Cyrene 等小模型不再“嗖一下”全显，起始小点扩散更缓和，lift 波更早跟随 dot 波。 | 仅调整 reveal shader 时间与运动参数，不影响 loading UI、碰撞或 `?noreveal`；证据为 `src/gsplat-reveal-radial.ts` 与静态测试。 |
+| `5.7` · `4114e8f` | 5.6 reveal 的 lift 波前局部隆起（`liftAmount * 0.9`）观感偏硬，用户希望去掉隆起、保留 dot/post-lift 的 sin 抖动，并进一步缩短两波间隔。 | 从 `modifySplatCenter` 移除 lift 波前 Y 轴隆起块；保留 `wavesActive` 的 `sin(time+phase) * 0.25` 抖动（dot 阶段与 lift 扫过后）；`DEFAULT_REVEAL_DELAY` 设为 `1.0`；`SHADER_CHUNKS_VERSION` 升到 `2.21`。 | reveal 抬升更干净，小点阶段仍有轻微起伏，lift 更早跟随；本地需 `npm run build` 后 `serve public` 才能看到 shader 变更。 | 纯 shader 行为微调；证据为 `src/gsplat-reveal-radial.ts` 与静态测试。 |
 
 ### 不产生产品版本的维护提交
 
@@ -238,6 +239,7 @@ flowchart TD
 | `ad641f4` | 完整恢复根 README 原始使用说明，建立逐提交详细变更总账，并补齐 4.3 至 5.3a 的结构化历史。 | 纯文档和版本基础设施维护，不创建独立展示版本；由 `maintenanceCommits` 显式登记。 |
 | `cce4059` | 将 5.4 的文档、结构化版本历史、公开版本文件和 README 摘要补齐。 | 纯发布文档维护，不创建独立展示版本；由 `maintenanceCommits` 显式登记。 |
 | `f624ce0` | 将 5.5 的文档、结构化版本历史、公开版本文件和 README 摘要补齐。 | 纯发布文档维护，不创建独立展示版本；由 `maintenanceCommits` 显式登记。 |
+| `a3ce142` | 将 5.6 的文档、结构化版本历史、公开版本文件和 README 摘要补齐。 | 纯发布文档维护，不创建独立展示版本；由 `maintenanceCommits` 显式登记。 |
 
 ## 能力到提交的反向索引
 
