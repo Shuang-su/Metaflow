@@ -13,7 +13,7 @@ DATA_DIR = REPO_ROOT / "data"
 OUTPUT_FILE = DATA_DIR / "index.json"
 VERSION_HISTORY_FILE = REPO_ROOT / "metadata" / "version-history.json"
 OUTPUT_VERSION_HISTORY_FILE = DATA_DIR / "version-history.json"
-INDEX_SCHEMA_VERSION = "1.1"
+INDEX_SCHEMA_VERSION = "1.2"
 
 # 类别配置
 CATEGORIES = {
@@ -41,6 +41,13 @@ NESTED_VOXEL_GLOB = "*/*.voxel.json"
 TILED_VOXEL_MANIFEST = "tiled-voxel/voxel-tiles.json"
 SCANNER_SUBCATEGORIES = {"j04", "j05", "ad05"}
 LEGACY_VOXEL_COORDINATE_SPACE = "metaflow-rz180"
+ACG_SCENE_ROUTES = {
+    "/acg/j04/itasha",
+    "/acg/j04/ggc",
+    "/acg/j05/xunyangpai",
+    "/acg/phoenixfes26/itasha",
+    "/acg/phoenixfes26/stage",
+}
 LEGACY_VOXEL_RZ180_ROUTES = {
     "/acg/2568/2026",
     "/acg/j05/xunyangpai",
@@ -118,6 +125,21 @@ RESOURCE_SLUG_OVERRIDES = {
 RESOURCE_ROUTE_ALIASES = {
     ("acg", "j05", "xunyangpai"): ["/acg/j05/寻洋派"],
 }
+
+
+def infer_experience_type(category, folder_name, route):
+    """Classify viewing behavior independently from capture source."""
+    if route == "/shenzhen/dayun":
+        return "scene"
+    if category == "acg":
+        if route in ACG_SCENE_ROUTES or re.search(r'(^|\s)scene(\s|$)', folder_name, re.IGNORECASE):
+            return "scene"
+        return "character"
+    if category == "szcaee":
+        return "object"
+    return "scene"
+
+
 STREAMING_MODEL_OVERRIDES = {
     ("acg", "fireflyfes38", "260502 162735 scene 01"): "streamed_noenv/lod-meta.json",
     ("acg", "fireflyfes38", "260502 165708 scene 02 碧蓝航线"): "streamed_noenv/lod-meta.json",
@@ -623,6 +645,7 @@ def scan_resource_folder(folder_path, category, subcategory=None):
         "category": [category] + ([subcategory] if subcategory else []),
         "route": route,
         "source": "scanner" if subcategory in SCANNER_SUBCATEGORIES else "photogrammetry",
+        "experienceType": infer_experience_type(category, folder_name, route),
         "files": {
             "model": str(main_model.relative_to(DATA_DIR)) if main_model.exists() else None,
             "environment": str(environment_ply.relative_to(DATA_DIR)) if environment_ply else None,
@@ -655,6 +678,12 @@ def scan_resource_folder(folder_path, category, subcategory=None):
                 **resource.get("viewer", {}),
                 **viewer_override,
             }
+
+    if resource["experienceType"] == "character" or route == "/shenzhen/dayun":
+        resource["viewer"] = {
+            **resource.get("viewer", {}),
+            "animationFirstExitMode": "orbit",
+        }
 
     route_aliases = RESOURCE_ROUTE_ALIASES.get((category, subcategory, slug))
     if route_aliases:

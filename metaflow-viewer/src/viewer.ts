@@ -343,7 +343,13 @@ class Viewer {
         wgsl.set('composePS', wgslComposePS);
     }
 
-    constructor(global: Global, gsplatLoad: Promise<Entity>, skyboxLoad: Promise<void> | undefined, collisionLoad: Promise<Collision | null> | undefined) {
+    constructor(
+        global: Global,
+        gsplatLoad: Promise<Entity>,
+        skyboxLoad: Promise<void> | undefined,
+        collisionLoad: Promise<Collision | null> | undefined,
+        deferredCollisionLoad?: () => Promise<Collision | null>
+    ) {
         this.global = global;
 
         const { app, settings, config, events, state, camera, renderer } = global;
@@ -565,13 +571,12 @@ class Viewer {
             console.info('Camera debug helpers ready: logCameraPose() / getCameraPose()');
         });
 
-        // wait for the model to load
+        // Wait only for render-critical resources. Tiled manifests and mesh
+        // collision are lightweight/immediate; legacy single voxels are passed
+        // through deferredCollisionLoad and begin after the first rendered frame.
         Promise.all([gsplatLoad, skyboxLoad, collisionLoad]).then((results) => {
             const gsplatComponent = results[0].gsplat as GSplatComponent;
-            const collision = results[2];
-            if (collision instanceof TiledVoxelCollision) {
-                this.tiledVoxelCollision = collision;
-            }
+            let collision = results[2] ?? null;
 
             // get scene bounding box
             const gsplatBbox = gsplatComponent.customAabb;
@@ -585,86 +590,113 @@ class Viewer {
 
             this.picker = new Picker(app, camera);
             this.inputController = new InputController(global, this.picker);
-            this.inputController.collision = collision ?? null;
+            this.cameraManager = new CameraManager(global, sceneBound, collision);
+            applyCamera(this.cameraManager.camera);
 
-            // hasCollision = a collision provider exists. walkCapability was
-            // set from the resource declaration before loading so the UI can
-            // show walk mode early; walkAllowed is stricter and only flips true
-            // once the collision needed under the user is ready. For tiled
-            // voxel this waits for the foot tile, not the full 3x3 neighborhood.
-            state.hasCollision = !!collision;
-            const hasWalkArea = isWalkAllowed(sceneBound, collision ?? null);
+            if (!config.noui) {
+                this.navCursor = new NavCursor(app, camera, collision, events, state);
+            }
+
+            const setOverlayLoadingStatus = (status: string) => {
+                if (!state.loaded) {
+                    state.loadingStage = 'overlay';
+                    state.loadingStatus = status;
+                }
+            };
+
+            const createCollisionOverlay = (nextCollision: Collision) => {
+                // Voxel overlays use compute shaders and therefore remain
+                // WebGPU-only; mesh collision uses standard line rendering.
+                if (nextCollision instanceof VoxelCollision && renderer !== 'webgl') {
+                    setOverlayLoadingStatus('正在准备体素调试叠层...');
+                    const overlay = new VoxelDebugOverlay(app, nextCollision, camera);
+                    overlay.mode = config.heatmap ? 'heatmap' : 'overlay';
+                    this.voxelOverlay = overlay;
+                    state.hasCollisionOverlay = true;
+                    events.on('collisionOverlayEnabled:changed', (value: boolean) => {
+                        overlay.enabled = value;
+                        app.renderNextFrame = true;
+                    });
+                } else if (nextCollision instanceof TiledVoxelCollision && renderer !== 'webgl') {
+                    setOverlayLoadingStatus('正在准备 tiled voxel 调试叠层...');
+                    const overlay = new TiledVoxelDebugOverlay(app, nextCollision, camera);
+                    overlay.mode = config.heatmap ? 'heatmap' : 'overlay';
+                    this.voxelOverlay = overlay;
+                    state.hasCollisionOverlay = true;
+                    events.on('collisionOverlayEnabled:changed', (value: boolean) => {
+                        overlay.enabled = value;
+                        app.renderNextFrame = true;
+                    });
+                } else if (nextCollision instanceof MeshCollision) {
+                    setOverlayLoadingStatus('正在准备网格碰撞叠层...');
+                    const overlay = new MeshDebugOverlay(app, nextCollision, camera, !!this.cameraFrame);
+                    this.meshOverlay = overlay;
+                    state.hasCollisionOverlay = true;
+                    events.on('collisionOverlayEnabled:changed', (value: boolean) => {
+                        overlay.enabled = value;
+                        app.renderNextFrame = true;
+                    });
+                }
+            };
+
             const updateWalkReadiness = () => {
-                let ready = hasWalkArea;
+                let ready = isWalkAllowed(sceneBound, collision);
                 if (collision instanceof TiledVoxelCollision) {
+                    // Walk waits for the foot tile, not the full 3x3 neighborhood.
+                    // Adjacent tiles continue loading in the background.
                     const p = camera.getPosition();
                     collision.updateForQueryPosition(-p.x, p.z);
                     ready = ready && collision.isCurrentTileLoaded();
                 }
                 state.walkAllowed = ready;
             };
-            updateWalkReadiness();
 
-            if (collision instanceof TiledVoxelCollision) {
-                collision.onTilesChanged = () => {
-                    if (!state.loaded) {
-                        state.loadingStage = 'voxel-tile-switch';
-                        state.loadingStatus = '正在切换活动体素分块...';
-                    }
-                    updateWalkReadiness();
-                    app.renderNextFrame = true;
-                };
-            }
+            const attachCollision = (nextCollision: Collision | null) => {
+                collision = nextCollision;
+                this.inputController.collision = nextCollision;
+                state.hasCollision = !!nextCollision;
+                updateWalkReadiness();
+                this.cameraManager.setCollision(nextCollision);
+                if (this.navCursor) {
+                    this.navCursor.collision = nextCollision;
+                }
 
-            // Create collision debug overlay (voxel uses a compute shader, mesh
-            // uses standard line rendering). The voxel path requires WebGPU.
-            if (collision instanceof VoxelCollision && renderer !== 'webgl') {
-                state.loadingStage = 'overlay';
-                state.loadingStatus = '正在准备体素调试叠层...';
-                this.voxelOverlay = new VoxelDebugOverlay(app, collision, camera);
-                this.voxelOverlay.mode = config.heatmap ? 'heatmap' : 'overlay';
-                state.hasCollisionOverlay = true;
+                if (nextCollision instanceof TiledVoxelCollision) {
+                    this.tiledVoxelCollision = nextCollision;
+                    nextCollision.onTilesChanged = () => {
+                        if (!state.loaded) {
+                            state.loadingStage = 'voxel-tile-switch';
+                            state.loadingStatus = '正在切换活动体素分块...';
+                        }
+                        updateWalkReadiness();
+                        app.renderNextFrame = true;
+                    };
+                }
 
-                events.on('collisionOverlayEnabled:changed', (value: boolean) => {
-                    this.voxelOverlay.enabled = value;
-                    app.renderNextFrame = true;
+                if (nextCollision) {
+                    createCollisionOverlay(nextCollision);
+                }
+
+                if (state.cameraMode === 'walk' && !state.walkAllowed) {
+                    state.cameraMode = 'fly';
+                }
+                app.renderNextFrame = true;
+            };
+
+            // walkCapability was set from the resource declaration before any
+            // collision work starts. Attach immediate collision now; legacy
+            // single voxel remains disabled until its post-first-frame load
+            // resolves and reaches this same attachment path.
+            attachCollision(collision);
+
+            if (deferredCollisionLoad) {
+                events.once('firstFrame', () => {
+                    deferredCollisionLoad()
+                    .then(attachCollision)
+                    .catch((err: Error) => {
+                        console.warn('[Collision] Failed to attach deferred collision:', err);
+                    });
                 });
-            } else if (collision instanceof TiledVoxelCollision && renderer !== 'webgl') {
-                state.loadingStage = 'overlay';
-                state.loadingStatus = '正在准备 tiled voxel 调试叠层...';
-                this.voxelOverlay = new TiledVoxelDebugOverlay(app, collision, camera);
-                this.voxelOverlay.mode = config.heatmap ? 'heatmap' : 'overlay';
-                state.hasCollisionOverlay = true;
-
-                events.on('collisionOverlayEnabled:changed', (value: boolean) => {
-                    this.voxelOverlay.enabled = value;
-                    app.renderNextFrame = true;
-                });
-            } else if (collision instanceof MeshCollision) {
-                state.loadingStage = 'overlay';
-                state.loadingStatus = '正在准备网格碰撞叠层...';
-                this.meshOverlay = new MeshDebugOverlay(app, collision, camera, !!this.cameraFrame);
-                state.hasCollisionOverlay = true;
-
-                events.on('collisionOverlayEnabled:changed', (value: boolean) => {
-                    this.meshOverlay.enabled = value;
-                    app.renderNextFrame = true;
-                });
-            }
-
-            this.cameraManager = new CameraManager(global, sceneBound, collision);
-            applyCamera(this.cameraManager.camera);
-            if (this.tiledVoxelCollision) {
-                const p = camera.getPosition();
-                this.tiledVoxelCollision.updateForQueryPosition(-p.x, p.z);
-            }
-            updateWalkReadiness();
-            if (state.cameraMode === 'walk' && !state.walkAllowed) {
-                state.cameraMode = 'fly';
-            }
-
-            if (!config.noui) {
-                this.navCursor = new NavCursor(app, camera, collision ?? null, events, state);
             }
 
             this.debugPanel = new DebugPanel(global, this.cameraManager);

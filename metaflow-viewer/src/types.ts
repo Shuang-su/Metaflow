@@ -10,6 +10,8 @@ type LoadMode = 'legacy-sog' | 'streaming-json';
 
 type VoxelCoordinateSpace = 'world' | 'metaflow-rz180';
 
+type AnimationFirstExitMode = 'orbit' | 'default';
+
 type LoadingStage =
     | 'init'
     | 'renderer'
@@ -49,6 +51,7 @@ type Config = {
     environmentContents?: Promise<Response>;
     defaultCameraMode?: CameraMode;
     syntheticAnimation?: 'figure8';
+    animationFirstExitMode?: AnimationFirstExitMode;
 
     noui: boolean;
     noanim: boolean;
@@ -103,4 +106,14 @@ type Global = {
     renderer: 'webgl' | 'webgpu';               // actual renderer after engine fallback
 };
 
-export { CameraMode, InputMode, LoadMode, VoxelCoordinateSpace, LoadingStage, Config, State, Global };
+export {
+    CameraMode,
+    InputMode,
+    LoadMode,
+    VoxelCoordinateSpace,
+    AnimationFirstExitMode,
+    LoadingStage,
+    Config,
+    State,
+    Global
+};

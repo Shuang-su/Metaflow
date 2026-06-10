@@ -21,9 +21,20 @@ declare const policyUtils: {
         preferred: CameraMode | undefined,
         isObjectExperience: boolean,
         hasCollider: boolean
-    ): CameraMode
+    ): CameraMode,
+    resolveAnimationExitMode(options: {
+        firstExitMode?: 'orbit' | 'default',
+        hasHandledFirstExit: boolean,
+        animationPaused: boolean,
+        previousMode: CameraMode,
+        walkAllowed: boolean
+    }): {
+        mode: CameraMode,
+        consumeFirstExit: boolean
+    }
 };
 
 export const resolveAnimationPolicy: typeof policyUtils.resolveAnimationPolicy;
 export const resolvePreferredCameraMode: typeof policyUtils.resolvePreferredCameraMode;
+export const resolveAnimationExitMode: typeof policyUtils.resolveAnimationExitMode;
 export default policyUtils;

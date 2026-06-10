@@ -24,6 +24,14 @@ const LEGACY_VOXEL_RZ180_ROUTES = [
     '/sztu/fes/top10-26'
 ];
 
+const HISTORICAL_ACG_SCENE_ROUTES = [
+    '/acg/j04/itasha',
+    '/acg/j04/ggc',
+    '/acg/j05/xunyangpai',
+    '/acg/phoenixfes26/itasha',
+    '/acg/phoenixfes26/stage'
+];
+
 test('Dayun index exposes tiled voxel manifest without legacy single-voxel fallback', async () => {
     const index = await readJson(new URL('../../data/index.json', import.meta.url));
     const dayun = index.resources.find((resource) => resource.id === 'dayun');
@@ -33,9 +41,78 @@ test('Dayun index exposes tiled voxel manifest without legacy single-voxel fallb
     assert.equal(dayun.files.voxelManifest, 'Shenzhen/250917 Dayun/tiled-voxel/voxel-tiles.json');
     assert.equal(dayun.viewer.defaultCameraMode, 'fly');
     assert.equal(dayun.viewer.voxelCoordinateSpace, 'metaflow-rz180');
+    assert.equal(dayun.experienceType, 'scene');
+    assert.equal(dayun.viewer.animationFirstExitMode, 'orbit');
     assert.equal(dayun.files.voxel, undefined);
     assert.equal(dayun.fileSize.voxel, undefined);
     assert.ok(dayun.fileSize.voxelManifest > 0);
+});
+
+test('resource index separates capture source from viewing experience type', async () => {
+    const index = await readJson(new URL('../../data/index.json', import.meta.url));
+    const allowedTypes = new Set(['character', 'scene', 'object']);
+
+    for (const resource of index.resources) {
+        assert.ok(allowedTypes.has(resource.experienceType), `${resource.route} has an invalid experienceType`);
+        assert.ok(['scanner', 'photogrammetry'].includes(resource.source), `${resource.route} has an invalid source`);
+    }
+
+    for (const route of HISTORICAL_ACG_SCENE_ROUTES) {
+        const resource = index.resources.find((entry) => entry.route === route);
+        assert.ok(resource, `${route} should exist`);
+        assert.equal(resource.experienceType, 'scene');
+        assert.notEqual(resource.viewer?.animationFirstExitMode, 'orbit');
+    }
+
+    const fireflyScene = index.resources.find((entry) => entry.route === '/acg/fireflyfes38/fireflyfes38');
+    assert.equal(fireflyScene?.experienceType, 'scene');
+
+    const cyrene = index.resources.find((entry) => entry.route === '/acg/fireflyfes38/cyrene');
+    assert.equal(cyrene?.experienceType, 'character');
+    assert.equal(cyrene?.viewer?.animationFirstExitMode, 'orbit');
+});
+
+test('route config forwards the structured first-animation-exit policy', async () => {
+    const html = await readFile(new URL('../src/index.html', import.meta.url), 'utf8');
+    const types = await readFile(new URL('../src/types.ts', import.meta.url), 'utf8');
+    const cameraManager = await readFile(new URL('../src/camera-manager.ts', import.meta.url), 'utf8');
+
+    assert.match(html, /resource\?\.viewer\?\.animationFirstExitMode/);
+    assert.match(types, /AnimationFirstExitMode = 'orbit' \| 'default'/);
+    assert.match(cameraManager, /config\.animationFirstExitMode === 'orbit'/);
+    assert.doesNotMatch(cameraManager, /location\.pathname|isAcgRoute|isSceneLikeRoute/);
+});
+
+test('legacy single voxel starts after first frame and attaches collision at runtime', async () => {
+    const indexSource = await readFile(new URL('../src/index.ts', import.meta.url), 'utf8');
+    const viewer = await readFile(new URL('../src/viewer.ts', import.meta.url), 'utf8');
+    const cameraManager = await readFile(new URL('../src/camera-manager.ts', import.meta.url), 'utf8');
+
+    assert.match(indexSource, /deferred:\s*\(\)\s*=>\s*\{/);
+    assert.match(indexSource, /loadVoxelCollision\(collisionUrl,\s*voxelOptions\)/);
+    assert.match(viewer, /events\.once\('firstFrame'/);
+    assert.match(viewer, /deferredCollisionLoad\(\)\s*\.then\(attachCollision\)/s);
+    assert.match(viewer, /this\.inputController\.collision = nextCollision/);
+    assert.match(viewer, /this\.cameraManager\.setCollision\(nextCollision\)/);
+    assert.match(cameraManager, /setCollision:\s*\(collision:\s*Collision \| null\) => void/);
+    assert.doesNotMatch(viewer, /Promise\.all\(\[gsplatLoad,\s*skyboxLoad,\s*deferredCollisionLoad/);
+});
+
+test('README documents every supported URL query parameter', async () => {
+    const readme = await readFile(new URL('../../README.md', import.meta.url), 'utf8');
+    const parameters = [
+        'content', 'settings', 'poster', 'skybox', 'environment', 'collision',
+        'voxel', 'voxelManifest', 'noui', 'noanim', 'webgl', 'aa', 'nofx',
+        'hpr', 'budget', 'fullload', 'colorize', 'unified', 'debug',
+        'ministats', 'heatmap'
+    ];
+
+    for (const parameter of parameters) {
+        assert.match(readme, new RegExp(`\\\`${parameter}\\\``), `${parameter} should be documented`);
+    }
+    assert.match(readme, /Ctrl\+Shift\+D/);
+    assert.match(readme, /Cmd\+Shift\+D/);
+    assert.match(readme, /cb=时间戳/);
 });
 
 test('Xunyangpai keeps the public English route and the previous Chinese route alias', async () => {

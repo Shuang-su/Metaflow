@@ -21,7 +21,7 @@ import { CameraMode, Global } from './types';
 
 const tmpCamera = new Camera();
 const tmpv = new Vec3();
-const { resolveAnimationPolicy, resolvePreferredCameraMode } = policyUtils;
+const { resolveAnimationPolicy, resolvePreferredCameraMode, resolveAnimationExitMode } = policyUtils;
 
 // Walk mode is only enabled when the scene's horizontal footprint is large
 // enough to walk around in. Vertical extent (Y) is irrelevant — a tall but
@@ -55,6 +55,8 @@ const createFrameCamera = (bbox: BoundingBox, fov: number) => {
 class CameraManager {
     update: (deltaTime: number, cameraFrame: CameraFrame) => void;
 
+    setCollision: (collision: Collision | null) => void;
+
     // Re-seed the active controller from the current camera pose and
     // cancel any in-progress transition lerp. Use after externally
     // mutating `camera` and/or `state.cameraMode` to make the change
@@ -68,13 +70,13 @@ class CameraManager {
         const { config, events, settings, state } = global;
 
         const walkAllowed = isWalkAllowed(bbox, collision);
+        let currentCollision = collision;
+        let pendingDefaultWalk = config.defaultCameraMode === 'walk' && !currentCollision;
 
-        // Character resources under /acg should exit animation to orbit on first cancel/interrupt,
-        // except known scene-like entries (itasha, ggc/gcc).
-        const pathname = (globalThis?.location?.pathname || '').toLowerCase();
-        const isAcgRoute = pathname.startsWith('/acg/');
-        const isSceneLikeRoute = /\/(itasha|ggc|gcc)\/?$/.test(pathname);
-        const shouldFirstExitAnimToOrbit = isAcgRoute && !isSceneLikeRoute;
+        // Metaflow resources opt into an orbit-focused first exit through the
+        // route index. Later animation exits return to the mode selected before
+        // replay, so scene classification stays out of runtime path matching.
+        const shouldFirstExitAnimToOrbit = config.animationFirstExitMode === 'orbit';
 
         const camera0 = settings.cameras[0]?.initial;
         const defaultFov = camera0?.fov ?? 75;
@@ -179,6 +181,20 @@ class CameraManager {
             global.app.renderNextFrame = true;
         };
 
+        this.setCollision = (nextCollision: Collision | null) => {
+            const hadCollision = !!currentCollision;
+            currentCollision = nextCollision;
+            controllers.fly.collision = nextCollision;
+            controllers.walk.collision = nextCollision;
+
+            if (!hadCollision && nextCollision && pendingDefaultWalk && state.walkAllowed && state.cameraMode === 'fly') {
+                pendingDefaultWalk = false;
+                state.cameraMode = 'walk';
+            } else if (nextCollision) {
+                pendingDefaultWalk = false;
+            }
+        };
+
         // application update
         this.update = (deltaTime: number, frame: CameraFrame) => {
 
@@ -268,23 +284,19 @@ class CameraManager {
                     }
                     break;
                 case 'cancel':
-                    if (state.cameraMode === 'anim') {
-                        if (shouldFirstExitAnimToOrbit && !hasHandledFirstAnimExit) {
-                            hasHandledFirstAnimExit = true;
-                            state.cameraMode = 'orbit';
-                        } else {
-                            state.cameraMode = fromMode;
-                        }
-                    }
-                    break;
                 case 'interrupt':
                     if (state.cameraMode === 'anim') {
-                        if (shouldFirstExitAnimToOrbit && !hasHandledFirstAnimExit) {
+                        const exit = resolveAnimationExitMode({
+                            firstExitMode: shouldFirstExitAnimToOrbit ? 'orbit' : 'default',
+                            hasHandledFirstExit: hasHandledFirstAnimExit,
+                            animationPaused: state.animationPaused,
+                            previousMode: fromMode,
+                            walkAllowed: state.walkAllowed
+                        });
+                        if (exit.consumeFirstExit) {
                             hasHandledFirstAnimExit = true;
-                            state.cameraMode = 'orbit';
-                        } else {
-                            state.cameraMode = fromMode;
                         }
+                        state.cameraMode = exit.mode;
                     }
                     break;
             }

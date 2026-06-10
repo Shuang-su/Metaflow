@@ -78,6 +78,7 @@
       ],
       "route": "/acg/2568/2026",
       "source": "photogrammetry",
+      "experienceType": "character",
       "files": {
         "model": "ACG/2568/2026/streamed/lod-meta.json",
         "environment": null,
@@ -98,6 +99,7 @@
         "folderName": "2026"
       },
       "viewer": {
+        "animationFirstExitMode": "orbit",
         "voxelCoordinateSpace": "metaflow-rz180",
         "defaultCameraMode": "fly"
       },
@@ -116,6 +118,7 @@
       ],
       "route": "/acg/yzx/yzx",
       "source": "photogrammetry",
+      "experienceType": "character",
       "files": {
         "model": "ACG/yzx/260124 yzx.sog",
         "environment": "ACG/yzx/260124 yzx_environment.compressed.ply",
@@ -132,6 +135,9 @@
         "date": null,
         "device": "YZX",
         "folderName": "yzx"
+      },
+      "viewer": {
+        "animationFirstExitMode": "orbit"
       },
       "animation": {
         "duration": 11.666666666666666,
@@ -153,6 +159,7 @@
       ],
       "route": "/acg/ad05/delta-force",
       "source": "scanner",
+      "experienceType": "character",
       "files": {
         "model": "ACG/AD05/260102 163416 AD05 三角洲/260102 163416 AD05 Delta Force.sog",
         "environment": "ACG/AD05/260102 163416 AD05 三角洲/260102 163416 AD05 Delta Force_environment.compressed.ply",
@@ -169,6 +176,9 @@
         "date": "2026-01-02",
         "device": "AD05",
         "folderName": "260102 163416 AD05 三角洲"
+      },
+      "viewer": {
+        "animationFirstExitMode": "orbit"
       },
       "animation": {
         "duration": 50,
@@ -190,6 +200,7 @@
       ],
       "route": "/acg/ad05/frieren",
       "source": "scanner",
+      "experienceType": "character",
       "files": {
         "model": "ACG/AD05/260102 165752 AD05 葬送的芙莉莲 芙莉莲辛美尔/260102 165752 AD05 Frieren.sog",
         "environment": "ACG/AD05/260102 165752 AD05 葬送的芙莉莲 芙莉莲辛美尔/260102 165752 AD05 Frieren_environment.compressed.ply",
@@ -206,6 +217,9 @@
         "date": "2026-01-02",
         "device": "AD05",
         "folderName": "260102 165752 AD05 葬送的芙莉莲 芙莉莲辛美尔"
+      },
+      "viewer": {
+        "animationFirstExitMode": "orbit"
       },
       "animation": {
         "duration": 25,
@@ -227,6 +241,7 @@
       ],
       "route": "/acg/ad05/gongsunli",
       "source": "scanner",
+      "experienceType": "character",
       "files": {
         "model": "ACG/AD05/260102 161941 AD05 王者荣耀 公孙离 花间舞/260102 161941 AD05 gongsunli_1024.sog",
         "environment": "ACG/AD05/260102 161941 AD05 王者荣耀 公孙离 花间舞/260102 161941 AD05 gongsunli_1024_environment.compressed.ply",
@@ -243,6 +258,9 @@
         "date": "2026-01-02",
         "device": "AD05",
         "folderName": "260102 161941 AD05 王者荣耀 公孙离 花间舞"
+      },
+      "viewer": {
+        "animationFirstExitMode": "orbit"
       },
       "animation": {
         "duration": 28.333333333333332,
@@ -264,6 +282,7 @@
       ],
       "route": "/acg/ad05/jiangyanli",
       "source": "scanner",
+      "experienceType": "character",
       "files": {
         "model": "ACG/AD05/260102 160304 AD05 魔道祖师 江厌离/260102 160304 AD05 jiangyanli.sog",
         "environment": "ACG/AD05/260102 160304 AD05 魔道祖师 江厌离/260102 160304 AD05 jiangyanli_environment.compressed.ply",
@@ -280,6 +299,9 @@
         "date": "2026-01-02",
         "device": "AD05",
         "folderName": "260102 160304 AD05 魔道祖师 江厌离"
+      },
+      "viewer": {
+        "animationFirstExitMode": "orbit"
       },
       "animation": {
         "duration": 16.666666666666668,
@@ -301,6 +323,7 @@
       ],
       "route": "/acg/ad05/sephiroth",
       "source": "scanner",
+      "experienceType": "character",
       "files": {
         "model": "ACG/AD05/260102 162440 AD05 最终幻想 萨菲罗斯/260102 162440 AD05 Sephiroth.sog",
         "environment": "ACG/AD05/260102 162440 AD05 最终幻想 萨菲罗斯/260102 162440 AD05 Sephiroth_environment.compressed.ply",
@@ -317,6 +340,9 @@
         "date": "2026-01-02",
         "device": "AD05",
         "folderName": "260102 162440 AD05 最终幻想 萨菲罗斯"
+      },
+      "viewer": {
+        "animationFirstExitMode": "orbit"
       },
       "animation": {
         "duration": 25,
@@ -338,6 +364,7 @@
       ],
       "route": "/acg/ad05/violet",
       "source": "scanner",
+      "experienceType": "character",
       "files": {
         "model": "ACG/AD05/260102 161509 AD05 紫罗兰永恒花园 薇尔莉特·伊芙加登/260102 161509 AD05 Violet Evergarden.sog",
         "environment": "ACG/AD05/260102 161509 AD05 紫罗兰永恒花园 薇尔莉特·伊芙加登/260102 161509 AD05 Violet Evergarden_environment.compressed.ply",
@@ -354,6 +381,9 @@
         "date": "2026-01-02",
         "device": "AD05",
         "folderName": "260102 161509 AD05 紫罗兰永恒花园 薇尔莉特·伊芙加登"
+      },
+      "viewer": {
+        "animationFirstExitMode": "orbit"
       },
       "animation": {
         "duration": 38.333333333333336,
@@ -375,6 +405,7 @@
       ],
       "route": "/acg/ad05/zhugeliang",
       "source": "scanner",
+      "experienceType": "character",
       "files": {
         "model": "ACG/AD05/260102 155010 AD05 如鸢 诸葛亮/260102 155010 AD05 yuan_zhugeliang.sog",
         "environment": "ACG/AD05/260102 155010 AD05 如鸢 诸葛亮/260102 155010 AD05 yuan_zhugeliang_environment.compressed.ply",
@@ -391,6 +422,9 @@
         "date": "2026-01-02",
         "device": "AD05",
         "folderName": "260102 155010 AD05 如鸢 诸葛亮"
+      },
+      "viewer": {
+        "animationFirstExitMode": "orbit"
       },
       "animation": {
         "duration": 16.666666666666668,
@@ -412,6 +446,7 @@
       ],
       "route": "/acg/j04/amu",
       "source": "scanner",
+      "experienceType": "character",
       "files": {
         "model": "ACG/J04/260118 153546 J04 守护甜心 日奈森亚梦/260118 153546 J04 Hinamori Amu.sog",
         "environment": "ACG/J04/260118 153546 J04 守护甜心 日奈森亚梦/260118 153546 J04 Hinamori Amu_environment.compressed.ply",
@@ -428,6 +463,9 @@
         "date": "2026-01-18",
         "device": "J04",
         "folderName": "260118 153546 J04 守护甜心 日奈森亚梦"
+      },
+      "viewer": {
+        "animationFirstExitMode": "orbit"
       },
       "animation": {
         "duration": 17.5,
@@ -449,6 +487,7 @@
       ],
       "route": "/acg/j04/denji",
       "source": "scanner",
+      "experienceType": "character",
       "files": {
         "model": "ACG/J04/260118 183217 J04 电锯人 电次/260118 183217 J04 Denji.sog",
         "environment": "ACG/J04/260118 183217 J04 电锯人 电次/260118 183217 J04 Denji_environment.compressed.ply",
@@ -465,6 +504,9 @@
         "date": "2026-01-18",
         "device": "J04",
         "folderName": "260118 183217 J04 电锯人 电次"
+      },
+      "viewer": {
+        "animationFirstExitMode": "orbit"
       },
       "animation": {
         "duration": 13.333333333333334,
@@ -486,6 +528,7 @@
       ],
       "route": "/acg/j04/dolia1",
       "source": "scanner",
+      "experienceType": "character",
       "files": {
         "model": "ACG/J04/260118 180245 J04 王者荣耀 朵莉亚1/260118_180245_J04_Dolia1-2.sog",
         "environment": "ACG/J04/260118 180245 J04 王者荣耀 朵莉亚1/260118_180245_J04_Dolia1-2_environment.compressed.ply",
@@ -502,6 +545,9 @@
         "date": "2026-01-18",
         "device": "J04",
         "folderName": "260118 180245 J04 王者荣耀 朵莉亚1"
+      },
+      "viewer": {
+        "animationFirstExitMode": "orbit"
       },
       "animation": {
         "duration": 20,
@@ -523,6 +569,7 @@
       ],
       "route": "/acg/j04/dolia2",
       "source": "scanner",
+      "experienceType": "character",
       "files": {
         "model": "ACG/J04/260118 181326 J04 王者荣耀 朵莉亚2/260118 181326 J04 Dolia2.sog",
         "environment": "ACG/J04/260118 181326 J04 王者荣耀 朵莉亚2/260118 181326 J04 Dolia2_environment.compressed.ply",
@@ -539,6 +586,9 @@
         "date": "2026-01-18",
         "device": "J04",
         "folderName": "260118 181326 J04 王者荣耀 朵莉亚2"
+      },
+      "viewer": {
+        "animationFirstExitMode": "orbit"
       },
       "animation": {
         "duration": 14.166666666666666,
@@ -560,6 +610,7 @@
       ],
       "route": "/acg/j04/furry",
       "source": "scanner",
+      "experienceType": "character",
       "files": {
         "model": "ACG/J04/260118 152808 J04 福瑞/260118 152808 J04 furry.sog",
         "environment": "ACG/J04/260118 152808 J04 福瑞/260118 152808 J04 furry_environment.compressed.ply",
@@ -576,6 +627,9 @@
         "date": "2026-01-18",
         "device": "J04",
         "folderName": "260118 152808 J04 福瑞"
+      },
+      "viewer": {
+        "animationFirstExitMode": "orbit"
       },
       "animation": {
         "duration": 26.666666666666668,
@@ -597,6 +651,7 @@
       ],
       "route": "/acg/j04/ggc",
       "source": "scanner",
+      "experienceType": "scene",
       "files": {
         "model": "ACG/J04/260118 190943 J04 场景 ggc高谷仓/260118 190943 J04 ggc.sog",
         "environment": null,
@@ -634,6 +689,7 @@
       ],
       "route": "/acg/j04/itasha",
       "source": "scanner",
+      "experienceType": "scene",
       "files": {
         "model": "ACG/J04/260118 150402 J04 痛车/260118 150402 J04 Itasha.sog",
         "environment": "ACG/J04/260118 150402 J04 痛车/260118 150402 J04 Itasha_environment.compressed.ply",
@@ -679,6 +735,7 @@
       ],
       "route": "/acg/j04/kamen-rider",
       "source": "scanner",
+      "experienceType": "character",
       "files": {
         "model": "ACG/J04/260118 161109 J04 假面骑士 build创骑 极狐 景和将军形态/260118 161109 J04 kamen rider.sog",
         "environment": "ACG/J04/260118 161109 J04 假面骑士 build创骑 极狐 景和将军形态/260118 161109 J04 kamen rider_environment.compressed.ply",
@@ -695,6 +752,9 @@
         "date": "2026-01-18",
         "device": "J04",
         "folderName": "260118 161109 J04 假面骑士 build创骑 极狐 景和将军形态"
+      },
+      "viewer": {
+        "animationFirstExitMode": "orbit"
       },
       "animation": {
         "duration": 13.316666666666666,
@@ -716,6 +776,7 @@
       ],
       "route": "/acg/j04/lucy",
       "source": "scanner",
+      "experienceType": "character",
       "files": {
         "model": "ACG/J04/260118 155718 J04 赛博朋克边缘行者 露西/260118 155718 J04 Lucyna.sog",
         "environment": "ACG/J04/260118 155718 J04 赛博朋克边缘行者 露西/260118 155718 J04 Lucyna_environment.compressed.ply",
@@ -733,6 +794,9 @@
         "device": "J04",
         "folderName": "260118 155718 J04 赛博朋克边缘行者 露西"
       },
+      "viewer": {
+        "animationFirstExitMode": "orbit"
+      },
       "version": {
         "addedIn": "1.0a",
         "updatedIn": "1.0a"
@@ -748,6 +812,7 @@
       ],
       "route": "/acg/j04/mirai",
       "source": "scanner",
+      "experienceType": "character",
       "files": {
         "model": "ACG/J04/260118 181757 J04 境界的彼方 栗山未来/260118 181757 J04 Kuriyama Mirai.sog",
         "environment": "ACG/J04/260118 181757 J04 境界的彼方 栗山未来/260118 181757 J04 Kuriyama Mirai_environment.compressed.ply",
@@ -764,6 +829,9 @@
         "date": "2026-01-18",
         "device": "J04",
         "folderName": "260118 181757 J04 境界的彼方 栗山未来"
+      },
+      "viewer": {
+        "animationFirstExitMode": "orbit"
       },
       "animation": {
         "duration": 8.333333333333334,
@@ -785,6 +853,7 @@
       ],
       "route": "/acg/j04/shaosiyuan",
       "source": "scanner",
+      "experienceType": "character",
       "files": {
         "model": "ACG/J04/260118 181014 J04 王者荣耀 少司缘/260118 181014 J04 shaosiyuan.sog",
         "environment": "ACG/J04/260118 181014 J04 王者荣耀 少司缘/260118 181014 J04 shaosiyuan_environment.compressed.ply",
@@ -801,6 +870,9 @@
         "date": "2026-01-18",
         "device": "J04",
         "folderName": "260118 181014 J04 王者荣耀 少司缘"
+      },
+      "viewer": {
+        "animationFirstExitMode": "orbit"
       },
       "animation": {
         "duration": 11.666666666666666,
@@ -822,6 +894,7 @@
       ],
       "route": "/acg/j04/surtr",
       "source": "scanner",
+      "experienceType": "character",
       "files": {
         "model": "ACG/J04/260118 182644 J04 明日方舟 史尔特尔/260118 182644 J04 Surtr.sog",
         "environment": "ACG/J04/260118 182644 J04 明日方舟 史尔特尔/260118 182644 J04 Surtr_environment.compressed.ply",
@@ -838,6 +911,9 @@
         "date": "2026-01-18",
         "device": "J04",
         "folderName": "260118 182644 J04 明日方舟 史尔特尔"
+      },
+      "viewer": {
+        "animationFirstExitMode": "orbit"
       },
       "animation": {
         "duration": 5,
@@ -859,6 +935,7 @@
       ],
       "route": "/acg/j04/tohru",
       "source": "scanner",
+      "experienceType": "character",
       "files": {
         "model": "ACG/J04/260118 190306 J04 小林家的龙女仆 托尔/260118 190306 J04 Tohru.sog",
         "environment": "ACG/J04/260118 190306 J04 小林家的龙女仆 托尔/260118 190306 J04 Tohru_environment.compressed.ply",
@@ -875,6 +952,9 @@
         "date": "2026-01-18",
         "device": "J04",
         "folderName": "260118 190306 J04 小林家的龙女仆 托尔"
+      },
+      "viewer": {
+        "animationFirstExitMode": "orbit"
       },
       "animation": {
         "duration": 10,
@@ -896,6 +976,7 @@
       ],
       "route": "/acg/j04/wanderer",
       "source": "scanner",
+      "experienceType": "character",
       "files": {
         "model": "ACG/J04/260118 155035 J04 原神 散兵/260118 155035 J04 GenshinImpact_Wanderer.sog",
         "environment": "ACG/J04/260118 155035 J04 原神 散兵/260118 155035 J04 GenshinImpact_Wanderer_environment.compressed.ply",
@@ -912,6 +993,9 @@
         "date": "2026-01-18",
         "device": "J04",
         "folderName": "260118 155035 J04 原神 散兵"
+      },
+      "viewer": {
+        "animationFirstExitMode": "orbit"
       },
       "animation": {
         "duration": 3,
@@ -933,6 +1017,7 @@
       ],
       "route": "/acg/j04/xiaoqiao",
       "source": "scanner",
+      "experienceType": "character",
       "files": {
         "model": "ACG/J04/260118 145218 J04 王者荣耀 小乔 纯白花嫁/260118 145218 J04 xiaoqiao.sog",
         "environment": "ACG/J04/260118 145218 J04 王者荣耀 小乔 纯白花嫁/260118 145218 J04 xiaoqiao_environment.compressed.ply",
@@ -949,6 +1034,9 @@
         "date": "2026-01-18",
         "device": "J04",
         "folderName": "260118 145218 J04 王者荣耀 小乔 纯白花嫁"
+      },
+      "viewer": {
+        "animationFirstExitMode": "orbit"
       },
       "animation": {
         "duration": 6.75,
@@ -970,6 +1058,7 @@
       ],
       "route": "/acg/j04/xishi",
       "source": "scanner",
+      "experienceType": "character",
       "files": {
         "model": "ACG/J04/260118 164325 J04 王者荣耀 西施 织梦人/260118 164325 J04 xishi.sog",
         "environment": "ACG/J04/260118 164325 J04 王者荣耀 西施 织梦人/260118 164325 J04 xishi_point_cloud.compressed.ply",
@@ -986,6 +1075,9 @@
         "date": "2026-01-18",
         "device": "J04",
         "folderName": "260118 164325 J04 王者荣耀 西施 织梦人"
+      },
+      "viewer": {
+        "animationFirstExitMode": "orbit"
       },
       "animation": {
         "duration": 16.666666666666668,
@@ -1007,6 +1099,7 @@
       ],
       "route": "/acg/j04/yor1",
       "source": "scanner",
+      "experienceType": "character",
       "files": {
         "model": "ACG/J04/260118 145712 J04 间谍过家家 约尔1/260118 145712 J04 Yor1.sog",
         "environment": "ACG/J04/260118 145712 J04 间谍过家家 约尔1/260118 145712 J04 Yor1_environment.compressed.ply",
@@ -1023,6 +1116,9 @@
         "date": "2026-01-18",
         "device": "J04",
         "folderName": "260118 145712 J04 间谍过家家 约尔1"
+      },
+      "viewer": {
+        "animationFirstExitMode": "orbit"
       },
       "animation": {
         "duration": 16.666666666666668,
@@ -1044,6 +1140,7 @@
       ],
       "route": "/acg/j04/yor2",
       "source": "scanner",
+      "experienceType": "character",
       "files": {
         "model": "ACG/J04/260118 150009 J04 间谍过家家 约尔2/260118 145712 J04 Yor2.sog",
         "environment": "ACG/J04/260118 150009 J04 间谍过家家 约尔2/260118 145712 J04 Yor2_environment.compressed.ply",
@@ -1060,6 +1157,9 @@
         "date": "2026-01-18",
         "device": "J04",
         "folderName": "260118 150009 J04 间谍过家家 约尔2"
+      },
+      "viewer": {
+        "animationFirstExitMode": "orbit"
       },
       "animation": {
         "duration": 25,
@@ -1081,6 +1181,7 @@
       ],
       "route": "/acg/j05/01",
       "source": "scanner",
+      "experienceType": "character",
       "files": {
         "model": "ACG/J05/260315 162919 J05 01/260315 162919 J05 01.sog",
         "environment": "ACG/J05/260315 162919 J05 01/260315 162919 J05 01_environment.compressed.ply",
@@ -1097,6 +1198,9 @@
         "date": "2026-03-15",
         "device": "J05",
         "folderName": "260315 162919 J05 01"
+      },
+      "viewer": {
+        "animationFirstExitMode": "orbit"
       },
       "animation": {
         "duration": 16.666666666666668,
@@ -1118,6 +1222,7 @@
       ],
       "route": "/acg/j05/beryl",
       "source": "scanner",
+      "experienceType": "character",
       "files": {
         "model": "ACG/J05/260315 165959 J05 05 重返未來1999 贝丽尔/260315 173745 J05 05 Beryl Bouanich.sog",
         "environment": "ACG/J05/260315 165959 J05 05 重返未來1999 贝丽尔/260315 173745 J05 05 Beryl Bouanich_environment.compressed.ply",
@@ -1134,6 +1239,9 @@
         "date": "2026-03-15",
         "device": "J05",
         "folderName": "260315 165959 J05 05 重返未來1999 贝丽尔"
+      },
+      "viewer": {
+        "animationFirstExitMode": "orbit"
       },
       "animation": {
         "duration": 17.5,
@@ -1155,6 +1263,7 @@
       ],
       "route": "/acg/j05/bloodyqueen",
       "source": "scanner",
+      "experienceType": "character",
       "files": {
         "model": "ACG/J05/260315 180620 J05 06 第五人格 红夫人 小女孩/260315 180620 J05 06 BloodyQueen.sog",
         "environment": "ACG/J05/260315 180620 J05 06 第五人格 红夫人 小女孩/260315 180620 J05 06 BloodyQueen_environment.compressed.ply",
@@ -1171,6 +1280,9 @@
         "date": "2026-03-15",
         "device": "J05",
         "folderName": "260315 180620 J05 06 第五人格 红夫人 小女孩"
+      },
+      "viewer": {
+        "animationFirstExitMode": "orbit"
       },
       "animation": {
         "duration": 41.666666666666664,
@@ -1192,6 +1304,7 @@
       ],
       "route": "/acg/j05/ciel",
       "source": "scanner",
+      "experienceType": "character",
       "files": {
         "model": "ACG/J05/260315 163519 J05 02 黑执事 夏尔/260315 163519 J05 02 Ciel Phantomhive.sog",
         "environment": "ACG/J05/260315 163519 J05 02 黑执事 夏尔/260315 163519 J05 02 Ciel Phantomhive_environment.compressed.ply",
@@ -1208,6 +1321,9 @@
         "date": "2026-03-15",
         "device": "J05",
         "folderName": "260315 163519 J05 02 黑执事 夏尔"
+      },
+      "viewer": {
+        "animationFirstExitMode": "orbit"
       },
       "animation": {
         "duration": 10,
@@ -1229,6 +1345,7 @@
       ],
       "route": "/acg/j05/lolita",
       "source": "scanner",
+      "experienceType": "character",
       "files": {
         "model": "ACG/J05/260315 165007 J05 03 lolita/260315 165007 J05 03 lolita.sog",
         "environment": "ACG/J05/260315 165007 J05 03 lolita/260315 165007 J05 03 lolita_environment.compressed.ply",
@@ -1245,6 +1362,9 @@
         "date": "2026-03-15",
         "device": "J05",
         "folderName": "260315 165007 J05 03 lolita"
+      },
+      "viewer": {
+        "animationFirstExitMode": "orbit"
       },
       "animation": {
         "duration": 16.666666666666668,
@@ -1266,6 +1386,7 @@
       ],
       "route": "/acg/j05/lolita2",
       "source": "scanner",
+      "experienceType": "character",
       "files": {
         "model": "ACG/J05/260315 165959 J05 04 lolita2/260315 165959 J05 04 lolita2.sog",
         "environment": "ACG/J05/260315 165959 J05 04 lolita2/260315 165959 J05 04 lolita2_environment.compressed.ply",
@@ -1282,6 +1403,9 @@
         "date": "2026-03-15",
         "device": "J05",
         "folderName": "260315 165959 J05 04 lolita2"
+      },
+      "viewer": {
+        "animationFirstExitMode": "orbit"
       },
       "animation": {
         "duration": 20,
@@ -1303,6 +1427,7 @@
       ],
       "route": "/acg/j05/lolita3",
       "source": "scanner",
+      "experienceType": "character",
       "files": {
         "model": "ACG/J05/260315 190259 J05 09 lolita3/260315 190259 J05 09 lolita3.sog",
         "environment": "ACG/J05/260315 190259 J05 09 lolita3/260315 190259 J05 09 lolita3_environment.compressed.ply",
@@ -1319,6 +1444,9 @@
         "date": "2026-03-15",
         "device": "J05",
         "folderName": "260315 190259 J05 09 lolita3"
+      },
+      "viewer": {
+        "animationFirstExitMode": "orbit"
       },
       "animation": {
         "duration": 28.333333333333332,
@@ -1340,6 +1468,7 @@
       ],
       "route": "/acg/j05/navia",
       "source": "scanner",
+      "experienceType": "character",
       "files": {
         "model": "ACG/J05/260315 183428 J05 07 原神 娜维娅/260315 183428 J05 07 Navia Caspar.sog",
         "environment": "ACG/J05/260315 183428 J05 07 原神 娜维娅/260315 183428 J05 07 Navia Caspar_environment.compressed.ply",
@@ -1356,6 +1485,9 @@
         "date": "2026-03-15",
         "device": "J05",
         "folderName": "260315 183428 J05 07 原神 娜维娅"
+      },
+      "viewer": {
+        "animationFirstExitMode": "orbit"
       },
       "animation": {
         "duration": 30,
@@ -1377,6 +1509,7 @@
       ],
       "route": "/acg/j05/xunyangpai",
       "source": "scanner",
+      "experienceType": "scene",
       "files": {
         "model": "ACG/J05/260315 184701 J05 08 寻洋派/lod-meta.json",
         "environment": "ACG/J05/260315 184701 J05 08 寻洋派/260315 184701 J05 08 xunyangpai_environment.compressed.ply",
@@ -1423,6 +1556,7 @@
       ],
       "route": "/acg/phoenixfes26/huaijiao",
       "source": "photogrammetry",
+      "experienceType": "character",
       "files": {
         "model": "ACG/PhoenixFes26/260328 172013 huaijiao/260328 172013 huaijiao.sog",
         "environment": "ACG/PhoenixFes26/260328 172013 huaijiao/260328 172013 huaijiao_environment.compressed.ply",
@@ -1443,6 +1577,7 @@
         "folderName": "260328 172013 huaijiao"
       },
       "viewer": {
+        "animationFirstExitMode": "orbit",
         "voxelCoordinateSpace": "metaflow-rz180"
       },
       "version": {
@@ -1460,6 +1595,7 @@
       ],
       "route": "/acg/phoenixfes26/itasha",
       "source": "photogrammetry",
+      "experienceType": "scene",
       "files": {
         "model": "ACG/PhoenixFes26/260328 154958 痛车/supersplat_lod_rot90_0_0/lod-meta.json",
         "environment": null,
@@ -1503,6 +1639,7 @@
       ],
       "route": "/acg/phoenixfes26/silver-wolf",
       "source": "photogrammetry",
+      "experienceType": "character",
       "files": {
         "model": "ACG/PhoenixFes26/260328 171625 崩铁 银狼/260328 171625 Silver Wolf.sog",
         "environment": "ACG/PhoenixFes26/260328 171625 崩铁 银狼/260328 171625 Silver Wolf_environment.compressed.ply",
@@ -1523,6 +1660,7 @@
         "folderName": "260328 171625 崩铁 银狼"
       },
       "viewer": {
+        "animationFirstExitMode": "orbit",
         "voxelCoordinateSpace": "metaflow-rz180"
       },
       "version": {
@@ -1540,6 +1678,7 @@
       ],
       "route": "/acg/phoenixfes26/stage",
       "source": "photogrammetry",
+      "experienceType": "scene",
       "files": {
         "model": "ACG/PhoenixFes26/260328 172811 舞台/supersplat_lod_rot90_0_0/lod-meta.json",
         "environment": null,
@@ -1583,6 +1722,7 @@
       ],
       "route": "/acg/fireflyfes38/azur-lane",
       "source": "photogrammetry",
+      "experienceType": "scene",
       "files": {
         "model": "ACG/FireflyFes38/260502 165708 scene 02 碧蓝航线/streamed_noenv/lod-meta.json",
         "environment": "ACG/FireflyFes38/260502 165708 scene 02 碧蓝航线/260502 165708 scene 02 Azur Lane_environment.compressed.ply",
@@ -1626,6 +1766,7 @@
       ],
       "route": "/acg/fireflyfes38/cyrene",
       "source": "photogrammetry",
+      "experienceType": "character",
       "files": {
         "model": "ACG/FireflyFes38/260502 172930 03 崩坏星穹铁道 昔涟/260502 172930 03 Cyrene.sog",
         "environment": "ACG/FireflyFes38/260502 172930 03 崩坏星穹铁道 昔涟/260502 172930 03 Cyrene_environment.compressed.ply",
@@ -1647,6 +1788,7 @@
       },
       "viewer": {
         "syntheticAnimation": "figure8",
+        "animationFirstExitMode": "orbit",
         "voxelCoordinateSpace": "metaflow-rz180"
       },
       "version": {
@@ -1664,6 +1806,7 @@
       ],
       "route": "/acg/fireflyfes38/diaochan",
       "source": "photogrammetry",
+      "experienceType": "character",
       "files": {
         "model": "ACG/FireflyFes38/260502 184535 05 王者荣耀 貂蝉 馥梦繁花/260502 184535 05 diaochan.sog",
         "environment": "ACG/FireflyFes38/260502 184535 05 王者荣耀 貂蝉 馥梦繁花/260502 184535 05 diaochan_environment.compressed.ply",
@@ -1685,6 +1828,7 @@
       },
       "viewer": {
         "syntheticAnimation": "figure8",
+        "animationFirstExitMode": "orbit",
         "voxelCoordinateSpace": "metaflow-rz180"
       },
       "version": {
@@ -1702,6 +1846,7 @@
       ],
       "route": "/acg/fireflyfes38/fireflyfes38",
       "source": "photogrammetry",
+      "experienceType": "scene",
       "files": {
         "model": "ACG/FireflyFes38/260502 162735 scene 01/streamed_noenv/lod-meta.json",
         "environment": "ACG/FireflyFes38/260502 162735 scene 01/260502 162735 scene 01_environment.compressed.ply",
@@ -1745,6 +1890,7 @@
       ],
       "route": "/acg/fireflyfes38/fursuit",
       "source": "photogrammetry",
+      "experienceType": "character",
       "files": {
         "model": "ACG/FireflyFes38/260502 180249 04 国风兽装/260502 180249 04 Fursuit.sog",
         "environment": "ACG/FireflyFes38/260502 180249 04 国风兽装/260502 180249 04 Fursuit_environment.compressed.ply",
@@ -1766,6 +1912,7 @@
       },
       "viewer": {
         "syntheticAnimation": "figure8",
+        "animationFirstExitMode": "orbit",
         "voxelCoordinateSpace": "metaflow-rz180"
       },
       "version": {
@@ -1783,6 +1930,7 @@
       ],
       "route": "/acg/fireflyfes38/nangong-yu",
       "source": "photogrammetry",
+      "experienceType": "character",
       "files": {
         "model": "ACG/FireflyFes38/260502 160157 01 绝区零 南宫羽/260502 160157 01 NangongYu.sog",
         "environment": "ACG/FireflyFes38/260502 160157 01 绝区零 南宫羽/260502 160157 01 Nangong Yu_environment.compressed.ply",
@@ -1804,6 +1952,7 @@
       },
       "viewer": {
         "syntheticAnimation": "figure8",
+        "animationFirstExitMode": "orbit",
         "voxelCoordinateSpace": "metaflow-rz180"
       },
       "version": {
@@ -1821,6 +1970,7 @@
       ],
       "route": "/acg/fireflyfes38/remielle-dan",
       "source": "photogrammetry",
+      "experienceType": "character",
       "files": {
         "model": "ACG/FireflyFes38/260502 161428 02 绝区零 拉米尔/260502 161428 02 Remielle Dan.sog",
         "environment": "ACG/FireflyFes38/260502 161428 02 绝区零 拉米尔/260502 161428 02 Remielle Dan_environment.compressed.ply",
@@ -1842,6 +1992,7 @@
       },
       "viewer": {
         "syntheticAnimation": "figure8",
+        "animationFirstExitMode": "orbit",
         "voxelCoordinateSpace": "metaflow-rz180"
       },
       "version": {
@@ -1859,6 +2010,7 @@
       ],
       "route": "/acg/fireflyfes38/remielle-dan-b",
       "source": "photogrammetry",
+      "experienceType": "character",
       "files": {
         "model": "ACG/FireflyFes38/260502 160903 02b 绝区零 拉米尔/260502 160903 02b Remielle Dan.sog",
         "environment": "ACG/FireflyFes38/260502 160903 02b 绝区零 拉米尔/260502 160903 02b Remielle Dan_environment.compressed.ply",
@@ -1880,6 +2032,7 @@
       },
       "viewer": {
         "syntheticAnimation": "figure8",
+        "animationFirstExitMode": "orbit",
         "voxelCoordinateSpace": "metaflow-rz180"
       },
       "version": {
@@ -1896,6 +2049,7 @@
       ],
       "route": "/shenzhen/dayun",
       "source": "photogrammetry",
+      "experienceType": "scene",
       "files": {
         "model": "Shenzhen/250917 Dayun/lod-meta.json",
         "environment": null,
@@ -1916,6 +2070,7 @@
         "folderName": "250917 Dayun"
       },
       "viewer": {
+        "animationFirstExitMode": "orbit",
         "voxelCoordinateSpace": "metaflow-rz180",
         "defaultCameraMode": "fly"
       },
@@ -1938,6 +2093,7 @@
       ],
       "route": "/szcaee/ciqi",
       "source": "photogrammetry",
+      "experienceType": "object",
       "files": {
         "model": "SZCAEE/ciqi_r2j-2_full_15MSplats_150kSteps_SSIM0.942_260112_clear/ciqi_r2j-2_full_15MSplats_150kSteps_SSIM0.942_260112_clear.sog",
         "environment": null,
@@ -1974,6 +2130,7 @@
       ],
       "route": "/szcaee/foxiang",
       "source": "photogrammetry",
+      "experienceType": "object",
       "files": {
         "model": "SZCAEE/foxiang_r2j-3-2_full_14.95MSplats_152kSteps_SSIM0.946_260112_crop/foxiang_r2j-3-2_full_14.95MSplats_152kSteps_SSIM0.946_260112_crop.sog",
         "environment": null,
@@ -2010,6 +2167,7 @@
       ],
       "route": "/szcaee/guanyin",
       "source": "photogrammetry",
+      "experienceType": "object",
       "files": {
         "model": "SZCAEE/guanyin_r2j-2_full_16MSplats_300kSteps_SSIM0.913_260113_clear-2/guanyin_r2j-2_full_16MSplats_300kSteps_SSIM0.913_260113_clear-2.sog",
         "environment": null,
@@ -2046,6 +2204,7 @@
       ],
       "route": "/szmg/广电大厦6楼演播室",
       "source": "photogrammetry",
+      "experienceType": "scene",
       "files": {
         "model": "SZMG/251217 广电大厦6楼演播室/SZMG6L.sog",
         "environment": null,
@@ -2082,6 +2241,7 @@
       ],
       "route": "/sztu/c4-hangpai",
       "source": "photogrammetry",
+      "experienceType": "scene",
       "files": {
         "model": "SZTU/250324 SZTU C4-HangPai/250324 C4hangpai.sog",
         "environment": null,
@@ -2118,6 +2278,7 @@
       ],
       "route": "/sztu/c2-lib",
       "source": "photogrammetry",
+      "experienceType": "scene",
       "files": {
         "model": "SZTU/250424 SZTU C2-Lib/SZTU_C2-Lib_M3E_WU_5286px_5000ksplats_150kStep_5000ksplats_250508_Cleansky.sog",
         "environment": null,
@@ -2154,6 +2315,7 @@
       ],
       "route": "/sztu/b1-sdi-206",
       "source": "photogrammetry",
+      "experienceType": "scene",
       "files": {
         "model": "SZTU/251220 SZTU B1-SDI-206/251220 SZTU B1-SDI-206 zhan_20500.sog",
         "environment": "SZTU/251220 SZTU B1-SDI-206/251220 SZTU B1-SDI-206 zhan_20500_environment.compressed.ply",
@@ -2198,6 +2360,7 @@
       ],
       "route": "/sztu/d1-utl-107",
       "source": "photogrammetry",
+      "experienceType": "scene",
       "files": {
         "model": "SZTU/251225 SZTU D1-UTL-107/SZTURacingCarStudio_260206.sog",
         "environment": "SZTU/251225 SZTU D1-UTL-107/SZTURacingCarStudio_260206_environment.compressed.ply",
@@ -2234,6 +2397,7 @@
       ],
       "route": "/sztu/c1-bdi-206",
       "source": "photogrammetry",
+      "experienceType": "scene",
       "files": {
         "model": "SZTU/260418 SZTU C1-BDI-206/supersplat_lod_noenv_rot90_0_0/lod-meta.json",
         "environment": "SZTU/260418 SZTU C1-BDI-206/260418 182725 uava_environment.compressed.ply",
@@ -2277,6 +2441,7 @@
       ],
       "route": "/sztu/fes/top10-26",
       "source": "photogrammetry",
+      "experienceType": "scene",
       "files": {
         "model": "SZTU/FES/260418 Top10_26/scene.sog",
         "environment": "SZTU/FES/260418 Top10_26/environment.compressed.ply",

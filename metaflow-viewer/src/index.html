@@ -176,6 +176,7 @@
             let environmentUrl = url.searchParams.get('environment');
             let defaultCameraMode = null;
             let syntheticAnimation = null;
+            let animationFirstExitMode = null;
 
             const initConfig = async () => {
                 if (pathname !== '/' && pathname !== '/index.html' && !contentUrl) {
@@ -205,6 +206,7 @@
                             environmentUrl = environmentUrl || dataUrl(resource?.files?.environment);
                             defaultCameraMode = resource?.viewer?.defaultCameraMode || null;
                             syntheticAnimation = resource?.viewer?.syntheticAnimation || null;
+                            animationFirstExitMode = resource?.viewer?.animationFirstExitMode || null;
                             voxelCoordinateSpace = resource?.viewer?.voxelCoordinateSpace || null;
                         }
                     } catch (e) {
@@ -234,6 +236,7 @@
                     environmentContents: environmentUrl ? fetch(environmentUrl) : null,
                     defaultCameraMode: ['anim', 'orbit', 'fly', 'walk'].includes(defaultCameraMode) ? defaultCameraMode : undefined,
                     syntheticAnimation: syntheticAnimation === 'figure8' ? syntheticAnimation : undefined,
+                    animationFirstExitMode: ['orbit', 'default'].includes(animationFirstExitMode) ? animationFirstExitMode : undefined,
                     contentUrl,
                     contents: fetch(contentUrl),
                     noui: url.searchParams.has('noui'),

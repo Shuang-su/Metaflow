@@ -24,6 +24,40 @@ const resolvePreferredCameraMode = (preferred, isObjectExperience, hasCollider) 
 };
 
 /**
+ * Resolve where an animation should exit.
+ *
+ * @param {{
+ *   firstExitMode?: 'orbit' | 'default',
+ *   hasHandledFirstExit: boolean,
+ *   animationPaused: boolean,
+ *   previousMode: CameraMode,
+ *   walkAllowed: boolean
+ * }} options
+ * @returns {{ mode: CameraMode, consumeFirstExit: boolean }}
+ */
+const resolveAnimationExitMode = (options) => {
+    const {
+        firstExitMode,
+        hasHandledFirstExit,
+        animationPaused,
+        previousMode,
+        walkAllowed
+    } = options;
+
+    if (firstExitMode === 'orbit' && !hasHandledFirstExit && !animationPaused) {
+        return {
+            mode: 'orbit',
+            consumeFirstExit: true
+        };
+    }
+
+    return {
+        mode: previousMode === 'walk' && !walkAllowed ? 'fly' : previousMode,
+        consumeFirstExit: false
+    };
+};
+
+/**
  * @param {{
  *   hasExplicitAnimTrack: boolean,
  *   startMode: StartMode,
@@ -87,9 +121,11 @@ const resolveAnimationPolicy = (options) => {
 
 const policyUtils = {
     resolveAnimationPolicy,
-    resolvePreferredCameraMode
+    resolvePreferredCameraMode,
+    resolveAnimationExitMode
 };
 
 export { resolveAnimationPolicy };
 export { resolvePreferredCameraMode };
+export { resolveAnimationExitMode };
 export default policyUtils;

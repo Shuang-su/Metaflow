@@ -260,7 +260,7 @@ class NavCursor {
 
     private camera: Entity;
 
-    private collision: Collision | null;
+    collision: Collision | null;
 
     private canvas: HTMLCanvasElement;
 

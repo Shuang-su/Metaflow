@@ -332,7 +332,12 @@ const initCanvas = (global: Global) => {
     apply();
 };
 
-const loadCollision = (app: AppBase, config: Config, state: Global['state']): Promise<Collision | null> | undefined => {
+type CollisionLoadPlan = {
+    immediate?: Promise<Collision | null>;
+    deferred?: () => Promise<Collision | null>;
+};
+
+const createCollisionLoadPlan = (app: AppBase, config: Config, state: Global['state']): CollisionLoadPlan => {
     const voxelOptions = {
         coordinateSpace: config.voxelCoordinateSpace ?? 'world'
     };
@@ -341,37 +346,45 @@ const loadCollision = (app: AppBase, config: Config, state: Global['state']): Pr
         state.loadingStage = 'voxel-manifest';
         state.loadingStatus = '正在解析 tiled voxel 清单...';
         state.progress = -1;
-        return loadTiledVoxelCollision(config.voxelManifestUrl, voxelOptions).catch((err: Error): null => {
-            console.warn('Failed to load tiled voxel manifest:', err);
-            state.loadingStage = 'prepare';
-            state.loadingStatus = 'tiled voxel 清单加载失败，继续以无碰撞模式准备渲染...';
-            return null;
-        });
+        return {
+            immediate: loadTiledVoxelCollision(config.voxelManifestUrl, voxelOptions).catch((err: Error): null => {
+                console.warn('Failed to load tiled voxel manifest:', err);
+                state.loadingStage = 'prepare';
+                state.loadingStatus = 'tiled voxel 清单加载失败，继续以无碰撞模式准备渲染...';
+                return null;
+            })
+        };
     }
 
     const collisionUrl = config.collisionUrl ?? config.voxelUrl;
     if (!collisionUrl) {
-        return undefined;
+        return {};
     }
 
-    state.loadingStage = 'collision';
-    state.loadingStatus = '正在准备碰撞数据...';
     const ext = new URL(collisionUrl, location.href).pathname.split('.').pop()?.toLowerCase();
     if (ext === 'glb') {
-        return MeshCollision.fromGlb(app, collisionUrl).catch((err: Error): null => {
-            console.warn('Failed to load mesh collision:', err);
-            return null;
-        });
+        state.loadingStage = 'collision';
+        state.loadingStatus = '正在准备碰撞数据...';
+        return {
+            immediate: MeshCollision.fromGlb(app, collisionUrl).catch((err: Error): null => {
+                console.warn('Failed to load mesh collision:', err);
+                return null;
+            })
+        };
     }
 
-    state.loadingStage = 'voxel-meta';
-    state.loadingStatus = '正在加载单体碰撞体素...';
-    return loadVoxelCollision(collisionUrl, voxelOptions).catch((err: Error): null => {
-        console.warn('Failed to load voxel data:', err);
-        state.loadingStage = 'prepare';
-        state.loadingStatus = '碰撞体素加载失败，继续以无碰撞模式准备渲染...';
-        return null;
-    });
+    // Legacy single-voxel assets can be large. Preserve the Metaflow loading
+    // contract: reveal the scene first, then fetch and attach collision in the
+    // background without reopening the completed loading screen.
+    return {
+        deferred: () => {
+            console.info('[Collision] 首帧已完成，开始后台加载单体碰撞体素');
+            return loadVoxelCollision(collisionUrl, voxelOptions).catch((err: Error): null => {
+                console.warn('Failed to load voxel data in background:', err);
+                return null;
+            });
+        }
+    };
 };
 
 const main = async (canvas: HTMLCanvasElement, settingsJson: any, config: Config) => {
@@ -487,7 +500,7 @@ const main = async (canvas: HTMLCanvasElement, settingsJson: any, config: Config
             console.warn('Failed to load skybox:', err);
         });
 
-    const collisionLoad = loadCollision(app, config, state);
+    const collisionLoadPlan = createCollisionLoadPlan(app, config, state);
 
     if (global.settings.soundUrl) {
         const sound = new Audio(global.settings.soundUrl);
@@ -502,7 +515,13 @@ const main = async (canvas: HTMLCanvasElement, settingsJson: any, config: Config
         });
     }
 
-    return new Viewer(global, gsplatLoad, skyboxLoad, collisionLoad);
+    return new Viewer(
+        global,
+        gsplatLoad,
+        skyboxLoad,
+        collisionLoadPlan.immediate,
+        collisionLoadPlan.deferred
+    );
 };
 
 console.log(

@@ -143,3 +143,57 @@ location / {
 - [SuperSplat 同步对比](docs/metaflow-viewer-sync-comparison.md)
 
 版本历史采用双轨规则：数字版本记录代码、行为、架构和部署变化；字母后缀记录当前数字版本上的纯资源更新。
+
+## URL 查询参数详解
+
+查询参数可以追加在资源路由或根路径之后。第一个参数使用 `?`，后续参数使用 `&`：
+
+```text
+http://localhost:3000/acg/fireflyfes38/cyrene?debug&ministats
+http://localhost:3000/?content=/data/model.sog&settings=/data/settings.json
+```
+
+包含空格或中文的路径应进行 URL 编码。路由索引提供的资源配置会作为默认值，显式 URL 参数可覆盖对应的资源地址。
+
+### 资源参数
+
+| 参数 | 值 | 说明 |
+|------|----|------|
+| `content` | URL | 主模型地址，支持 SOG、压缩 PLY 或流式 LOD JSON |
+| `settings` | URL | Viewer 设置文件地址，支持 JSON 和现有 JSONC 兼容语法 |
+| `poster` | URL | 加载阶段显示的封面图片 |
+| `skybox` | URL | 环境天空盒图片 |
+| `environment` | URL | 独立环境 Gaussian Splat 模型 |
+| `collision` | URL | 碰撞资源地址；GLB 作为网格碰撞，voxel JSON 作为体素碰撞 |
+| `voxel` | URL | 单体 `walk.voxel.json` 地址；首帧后在后台加载对应 BIN |
+| `voxelManifest` | URL | tiled voxel 清单地址；分块按照用户位置按需加载 |
+
+### 界面与动画参数
+
+| 参数 | 说明 |
+|------|------|
+| `noui` | 隐藏 Viewer UI，适合嵌入或纯画面输出 |
+| `noanim` | 禁止默认动画自动播放；不会启动 figure8，也不会消耗首次动画退出策略 |
+
+### 渲染参数
+
+| 参数 | 值 | 说明 |
+|------|----|------|
+| `webgl` | 无 | 强制使用 WebGL；未设置时优先尝试 WebGPU |
+| `aa` | 无 | 启用 Gaussian Splat 抗锯齿 |
+| `nofx` | 无 | 禁用 CameraFrame 后处理 |
+| `hpr` | `1`、`true`、`enable` 或空值 | 强制启用高精度渲染；其他显式值表示禁用 |
+| `budget` | 数字 | 覆盖 splat budget，单位为百万，例如 `budget=3` |
+| `fullload` | 无 | 等待完整 LOD 质量，适合截图或离线验收 |
+| `colorize` | 无 | 使用颜色显示 LOD 层级 |
+| `unified` | 无 | 保留的统一渲染兼容参数；当前加载器默认使用 unified 语义 |
+
+### 调试参数
+
+| 参数 | 说明 |
+|------|------|
+| `debug` | 自动打开相机调试面板，可查看/编辑位置与焦点并截图；也可按 `Ctrl+Shift+D`，macOS 可按 `Cmd+Shift+D` |
+| `ministats` | 显示实时性能仪表盘，包括帧率、显存和 splat 数量 |
+| `heatmap` | 将可用的碰撞调试叠层初始化为热力图模式 |
+
+Viewer 会忽略未识别的查询参数。例如 `cb=时间戳` 可以用于生成不同 URL 或辅助缓存排查，但不会改变 Viewer 行为。
