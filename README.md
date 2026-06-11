@@ -116,17 +116,18 @@ location / {
 
 | 字段 | 值 |
 |------|----|
-| 展示版本 | `5.8` |
-| 包版本 | `5.8.0` |
+| 展示版本 | `5.9` |
+| 包版本 | `5.9.0` |
 | 索引 schema | `1.2` |
 | 上游 SuperSplat Viewer | `v1.26.2` |
 | PlayCanvas | `2.19.2` |
-| 已审计至 commit | `4e848ac` |
+| 已审计至 commit | `1d9ab2b` |
 
 ## 最近版本
 
 | 版本 | commit | 摘要 |
 |------|--------|------|
+| `5.9` | `1d9ab2b` | 调慢 SOG/流式 reveal、uRevealActive 藏点、流式主体提前高 LOD、环境不阻塞首帧、c2-lib 首次退出动画进 Orbit |
 | `5.8` | `4e848ac` | 按场景分档 reveal 点大小，修复流式 LOD 双波揭示，恢复 loading 后可见再播放 |
 | `5.7` | `4114e8f` | 简化 reveal 振荡：去掉 lift 波前隆起，保留 sin 抖动，delay 缩至 1.0s |
 | `5.6` | `1a536f1` | 修正 reveal 运动节奏：保留 dt 钳制防首帧跳变，移除 fitMotion 回到官方曲线，并放慢波速、缩短两波间隔 |

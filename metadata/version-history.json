@@ -1,14 +1,14 @@
 {
   "schemaVersion": "1.0",
-  "cutoffGitRef": "4e848ac",
-  "documentedThrough": "4e848ac",
+  "cutoffGitRef": "1d9ab2b",
+  "documentedThrough": "1d9ab2b",
   "defaultResourceVersion": "1.0a",
   "current": {
-    "displayVersion": "5.8",
-    "appSemver": "5.8.0",
+    "displayVersion": "5.9",
+    "appSemver": "5.9.0",
     "indexSchemaVersion": "1.2",
     "date": "2026-06-11",
-    "gitRef": "4e848ac",
+    "gitRef": "1d9ab2b",
     "historyUrl": "/data/version-history.json"
   },
   "versioning": {
@@ -69,6 +69,11 @@
       "gitRef": "e91b05a",
       "date": "2026-06-10",
       "summary": "chore(release): document Metaflow Viewer 5.7"
+    },
+    {
+      "gitRef": "1ef4308",
+      "date": "2026-06-11",
+      "summary": "chore(release): document Metaflow Viewer 5.8"
     }
   ],
   "entries": [
@@ -1097,6 +1102,15 @@
       "date": "2026-06-11",
       "gitRef": "4e848ac",
       "summary": "feat(viewer): tier gsplat reveal dots and fix streaming LOD waves"
+    },
+    {
+      "displayVersion": "5.9",
+      "appSemver": "5.9.0",
+      "type": "feature",
+      "scope": "viewer",
+      "date": "2026-06-11",
+      "gitRef": "1d9ab2b",
+      "summary": "feat(viewer): tune reveal pacing and early streaming subject LOD"
     }
   ]
 }

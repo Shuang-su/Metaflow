@@ -232,6 +232,7 @@ flowchart TD
 | `5.6` · `1a536f1` | 5.5 线上 reveal 观感偏快：`fitMotionToMinimumDuration` 扭曲官方运动曲线，且 loading 后首帧大 `dt` 仍可能让波瞬间扫完；用户希望两波间隔更短、整体更从容。 | 移除 `fitMotionToMinimumDuration`，保留 `MAX_REVEAL_DELTA_TIME = 1/30` 的 reveal 专用 delta 钳制；将 `DEFAULT_REVEAL_SPEED/ACCELERATION` 调到 `0.75/3.5`，`DEFAULT_REVEAL_DELAY` 调到 `1.0`，让 dot/lift 两波更贴近且整体略慢。 | Cyrene 等小模型不再“嗖一下”全显，起始小点扩散更缓和，lift 波更早跟随 dot 波。 | 仅调整 reveal shader 时间与运动参数，不影响 loading UI、碰撞或 `?noreveal`；证据为 `src/gsplat-reveal-radial.ts` 与静态测试。 |
 | `5.7` · `4114e8f` | 5.6 reveal 的 lift 波前局部隆起（`liftAmount * 0.9`）观感偏硬，用户希望去掉隆起、保留 dot/post-lift 的 sin 抖动，并进一步缩短两波间隔。 | 从 `modifySplatCenter` 移除 lift 波前 Y 轴隆起块；保留 `wavesActive` 的 `sin(time+phase) * 0.25` 抖动（dot 阶段与 lift 扫过后）；`DEFAULT_REVEAL_DELAY` 设为 `1.0`；`SHADER_CHUNKS_VERSION` 升到 `2.21`。 | reveal 抬升更干净，小点阶段仍有轻微起伏，lift 更早跟随；本地需 `npm run build` 后 `serve public` 才能看到 shader 变更。 | 纯 shader 行为微调；证据为 `src/gsplat-reveal-radial.ts` 与静态测试。 |
 | `5.8` · `4e848ac` | 5.7 线上 reveal 点大小统一，角色 SOG、c2-lib 流式场景和 Dayun 超大体素观感失衡；Dayun 流式 LOD 在 reveal 期间 workbuffer 不持续更新导致双波断裂；取消 loading 延迟后角色 SOG 又显得过快。 | 新增 `resolveRevealDotProfile` 与 `uRevealDotSize` 分档（`characterSog` 固定 `0.00084`、`streamingScene` 按半径 `0.000066` 钳制、`megaVoxel` 按半径 `0.00022` 钳制）；`experienceType` 从 index 透传；流式 octree placement 启用 `setWorkBufferAlwaysUpdate(true)`，`fitWaveToSceneSize` 不再 cap 波半径，reveal 完成后再开高细节 LOD；恢复 `beginRevealWhenSceneVisible`（rAF + transitionend/600ms）；reveal 期间 `minPixelSize=0.5`；`SHADER_CHUNKS_VERSION` 升到 `2.24`。 | Cyrene/角色点更小、Dayun 双波连贯、c2-lib 点略缩小；loading 遮罩退场后再开始 reveal，避免“嗖一下”全显。 | 分档系数集中在 `calcRevealDotSize` 与 `viewer.ts`；证据为 `src/gsplat-reveal-radial.ts`、`src/viewer.ts`、`src/types.ts`、`tests/tiled-voxel-index.test.mjs`。 |
+| `5.9` · `1d9ab2b` | 5.8 上线后 SOG/流式 reveal 仍偏快且在 loading 阶段露出点；Dayun 不宜沿用无 fitWave 的慢波；流式场景高细节 LOD 等到整段 reveal 结束才开，主体清晰过晚；远环境 PLY 阻塞首帧；c2-lib 首次退出动画未进 Orbit。 | 新增 `uRevealActive` 在播放前全隐藏 splat；SOG/流式固定 `REVEAL_PACE_SCALE=0.6` 且不再 fitWave，Dayun 保留 fitWave 后再乘 `MEGA_VOXEL_PACE_SCALE=0.85` 并同比拉长 delay；`characterSog` 点改为 `LEGACY_ONLINE_DOT×1.5`；去掉 600ms 改为单次 rAF；环境从 `Promise.all` 解耦并 `attachEntity` 补挂 reveal；`onSubjectRevealed` 在 lift 波扫完主体半径时 `openHighDetailLod`；`ANIM_FIRST_EXIT_ORBIT_ROUTES` 加入 `/sztu/c2-lib`；`SHADER_CHUNKS_VERSION` 升到 `2.25`。 | 角色 SOG 更接近 5.7 节奏且 loading 无点；Dayun 双波更从容；c1-bdi 等远环境场景主体更早变清晰；c2-lib 首次退出动画进入 Orbit。 | 高 LOD 仍为全局 `lodRange` 开关，未扫区域由 reveal shader 继续隐藏；证据为 `src/gsplat-reveal-radial.ts`、`src/viewer.ts`、`scripts/generate_index.py` 与静态测试。 |
 
 ### 不产生产品版本的维护提交
 
@@ -242,6 +243,7 @@ flowchart TD
 | `f624ce0` | 将 5.5 的文档、结构化版本历史、公开版本文件和 README 摘要补齐。 | 纯发布文档维护，不创建独立展示版本；由 `maintenanceCommits` 显式登记。 |
 | `a3ce142` | 将 5.6 的文档、结构化版本历史、公开版本文件和 README 摘要补齐。 | 纯发布文档维护，不创建独立展示版本；由 `maintenanceCommits` 显式登记。 |
 | `e91b05a` | 将 5.7 的文档、结构化版本历史、公开版本文件和 README 摘要补齐。 | 纯发布文档维护，不创建独立展示版本；由 `maintenanceCommits` 显式登记。 |
+| `1ef4308` | 将 5.8 的文档、结构化版本历史、公开版本文件和 README 摘要补齐。 | 纯发布文档维护，不创建独立展示版本；由 `maintenanceCommits` 显式登记。 |
 
 ## 能力到提交的反向索引
 
