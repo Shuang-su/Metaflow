@@ -518,30 +518,9 @@ class Viewer {
             }
             revealPlaybackQueued = true;
 
+            // uRevealActive hides splats until playback; one rAF after loading UI hides is enough.
             window.requestAnimationFrame(() => {
-                const loadingWrap = document.getElementById('loadingWrap');
-                if (!loadingWrap) {
-                    this.gsplatReveal?.beginVisiblePlayback();
-                    return;
-                }
-
-                let done = false;
-                const begin = () => {
-                    if (done) {
-                        return;
-                    }
-                    done = true;
-                    loadingWrap.removeEventListener('transitionend', onTransitionEnd);
-                    this.gsplatReveal?.beginVisiblePlayback();
-                };
-                const onTransitionEnd = (event: TransitionEvent) => {
-                    if (event.propertyName === 'opacity') {
-                        begin();
-                    }
-                };
-
-                loadingWrap.addEventListener('transitionend', onTransitionEnd);
-                window.setTimeout(begin, 600);
+                this.gsplatReveal?.beginVisiblePlayback();
             });
         };
 
@@ -623,15 +602,16 @@ class Viewer {
         // Wait only for render-critical resources. Tiled manifests and mesh
         // collision are lightweight/immediate; legacy single voxels are passed
         // through deferredCollisionLoad and begin after the first rendered frame.
-        Promise.all([gsplatLoad, environmentLoad, skyboxLoad, collisionLoad]).then((results) => {
-            const gsplatComponent = results[0].gsplat as GSplatComponent;
-            const environmentEntity = results[1];
-            let collision = results[3] ?? null;
+        Promise.all([gsplatLoad, skyboxLoad, collisionLoad]).then((results) => {
+            const gsplatEntity = results[0];
+            const gsplatComponent = gsplatEntity.gsplat as GSplatComponent;
+            let environmentEntity: Entity | null = null;
+            let collision = results[2] ?? null;
 
             // get scene bounding box
             const gsplatBbox = gsplatComponent.customAabb;
             if (gsplatBbox) {
-                sceneBound.setFromTransformedAabb(gsplatBbox, results[0].getWorldTransform());
+                sceneBound.setFromTransformedAabb(gsplatBbox, gsplatEntity.getWorldTransform());
             }
 
             if (!config.noui) {
@@ -752,15 +732,32 @@ class Viewer {
             this.debugPanel = new DebugPanel(global, this.cameraManager);
 
             const { gsplat } = app.scene;
-            const revealBounds = (gsplatComponent.customAabb ?? sceneBound).clone();
-            const environmentBbox = environmentEntity?.gsplat?.customAabb;
-            if (environmentBbox) {
-                const transformedEnvironmentBbox = new BoundingBox();
-                transformedEnvironmentBbox.setFromTransformedAabb(environmentBbox, environmentEntity.getWorldTransform());
-                revealBounds.add(transformedEnvironmentBbox);
-            }
+            const mainSubjectBounds = (gsplatComponent.customAabb ?? sceneBound).clone();
+            const revealBounds = mainSubjectBounds.clone();
 
-            const startGsplatReveal = (onComplete?: () => void) => {
+            const attachEnvironmentToReveal = (env: Entity) => {
+                environmentEntity = env;
+                const environmentBbox = env.gsplat?.customAabb;
+                if (environmentBbox) {
+                    const transformedEnvironmentBbox = new BoundingBox();
+                    transformedEnvironmentBbox.setFromTransformedAabb(environmentBbox, env.getWorldTransform());
+                    revealBounds.add(transformedEnvironmentBbox);
+                    this.gsplatReveal?.attachEntity(env, transformedEnvironmentBbox);
+                } else {
+                    this.gsplatReveal?.attachEntity(env);
+                }
+            };
+
+            environmentLoad?.then((env) => {
+                if (env) {
+                    attachEnvironmentToReveal(env);
+                }
+            });
+
+            const startGsplatReveal = (revealCallbacks?: {
+                onComplete?: () => void;
+                onSubjectRevealed?: () => void;
+            }) => {
                 if (config.revealEffect === 'none') {
                     return;
                 }
@@ -774,11 +771,13 @@ class Viewer {
                 }
 
                 this.cameraManager.camera.calcFocusPoint(focusPoint);
-                const revealEntities = environmentEntity ? [results[0], environmentEntity] : results[0];
+                const revealEntities = environmentEntity ? [gsplatEntity, environmentEntity] : gsplatEntity;
                 this.gsplatReveal = new GsplatRevealRadial(app, revealEntities, revealBounds, focusPoint, {
                     streamingLod: state.loadingMode === 'streaming-json',
                     dotProfile: resolveRevealDotProfile(config, state.loadingMode),
-                    onComplete
+                    subjectBounds: mainSubjectBounds,
+                    onComplete: revealCallbacks?.onComplete,
+                    onSubjectRevealed: revealCallbacks?.onSubjectRevealed
                 });
                 this.gsplatReveal.arm();
             };
@@ -886,7 +885,7 @@ class Viewer {
                 applyPerfSettings();
             } else {
                 // reveal once low lod has loaded for fastest possible reveal
-                const resource = results[0].gsplat.resource as GSplatOctreeResourceLike | null;
+                const resource = gsplatEntity.gsplat.resource as GSplatOctreeResourceLike | null;
                 const lodLevels = resource?.octree?.lodLevels;
                 if (lodLevels) {
                     gsplat.lodRangeMax = gsplat.lodRangeMin = lodLevels - 1;
@@ -936,16 +935,22 @@ class Viewer {
                     // scene is done loading
                     eventHandler.off('frame:ready', readyHandler);
 
-                    // Defer opening high-detail LOD until the reveal finishes. Streaming
-                    // scenes only have the lowest LOD (full coverage) resident here, so the
-                    // two-wave reveal sweeps the whole shape without per-chunk pop-in; detail
-                    // is streamed in afterward.
+                    // Keep lowest LOD through the dot wave; unlock high detail once the lift
+                    // wave clears the main subject (environment may still be revealing).
+                    let highDetailOpened = false;
                     const openHighDetailLod = () => {
+                        if (highDetailOpened) {
+                            return;
+                        }
+                        highDetailOpened = true;
                         events.on('performanceMode:changed', applyPerfSettings);
                         applyPerfSettings();
                     };
 
-                    startGsplatReveal(openHighDetailLod);
+                    startGsplatReveal({
+                        onSubjectRevealed: openHighDetailLod,
+                        onComplete: openHighDetailLod
+                    });
                     state.readyToRender = true;
                     state.loadingStage = 'prepare';
                     state.loadingStatus = 'LOD 数据就绪，正在准备首帧...';

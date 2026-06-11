@@ -70,6 +70,10 @@ test('resource index separates capture source from viewing experience type', asy
     const cyrene = index.resources.find((entry) => entry.route === '/acg/fireflyfes38/cyrene');
     assert.equal(cyrene?.experienceType, 'character');
     assert.equal(cyrene?.viewer?.animationFirstExitMode, 'orbit');
+
+    const c2Lib = index.resources.find((entry) => entry.route === '/sztu/c2-lib');
+    assert.equal(c2Lib?.experienceType, 'scene');
+    assert.equal(c2Lib?.viewer?.animationFirstExitMode, 'orbit');
 });
 
 test('route config forwards the structured first-animation-exit policy', async () => {
@@ -134,7 +138,7 @@ test('global gsplat reveal is shader-based, color-neutral, and skippable by URL'
     assert.match(reveal, /uRevealDotSize \* revealScale \/ REVEAL_DOT_SCALE/);
     assert.match(reveal, /type RevealDotProfile = 'characterSog' \| 'streamingScene' \| 'megaVoxel'/);
     assert.match(reveal, /function calcRevealDotSize\(profile: RevealDotProfile, radius: number\)/);
-    assert.match(reveal, /LEGACY_ONLINE_DOT \* 2/);
+    assert.match(reveal, /LEGACY_ONLINE_DOT \* 1\.5/);
     assert.match(reveal, /radius \* 0\.000066, 0\.0012\), 0\.015/);
     assert.match(reveal, /radius \* 0\.00022, 0\.004\), 0\.05/);
     assert.match(reveal, /calcRevealDotSize\(this\.dotProfile, this\.radius\)/);
@@ -143,13 +147,23 @@ test('global gsplat reveal is shader-based, color-neutral, and skippable by URL'
     assert.match(reveal, /wavesActive/);
     assert.match(reveal, /uRevealOscillation \* 0\.25/);
     assert.doesNotMatch(reveal, /REVEAL_LIFT_BUMP|liftAmount/);
-    assert.match(reveal, /this\.speed \* this\.speed \+ 2 \* this\.acceleration \* this\.waveRadius/);
-    assert.match(reveal, /REVEAL_REFERENCE_RADIUS = 20/);
+    assert.match(reveal, /this\.speed \* this\.speed \+ 2 \* this\.acceleration \* targetRadius/);
+    assert.match(reveal, /REVEAL_PACE_SCALE = 0\.6/);
+    assert.match(reveal, /MEGA_VOXEL_PACE_SCALE = 0\.85/);
+    assert.match(reveal, /applyMotionProfile/);
     assert.match(reveal, /fitWaveToSceneSize/);
+    assert.match(reveal, /REVEAL_REFERENCE_RADIUS = 20/);
+    assert.match(reveal, /this\.delay = DEFAULT_REVEAL_DELAY \/ MEGA_VOXEL_PACE_SCALE/);
     assert.match(reveal, /this\.waveRadius = this\.radius/);
     assert.match(reveal, /streamingLod/);
+    assert.match(reveal, /subjectBounds\?: BoundingBox/);
     assert.match(reveal, /onComplete\?: \(\) => void/);
+    assert.match(reveal, /onSubjectRevealed\?: \(\) => void/);
     assert.match(reveal, /this\.onComplete\?\.\(\)/);
+    assert.match(reveal, /this\.onSubjectRevealed\?\.\(\)/);
+    assert.match(reveal, /getLiftReachTime/);
+    assert.match(reveal, /subjectRevealTime/);
+    assert.match(reveal, /attachEntity\(entity: Entity/);
     assert.match(reveal, /WORKBUFFER_UPDATE_ALWAYS = 2/);
     assert.match(reveal, /setWorkBufferAlwaysUpdate\(true\)/);
     assert.match(reveal, /setWorkBufferAlwaysUpdate\(false\)/);
@@ -174,15 +188,26 @@ test('global gsplat reveal is shader-based, color-neutral, and skippable by URL'
     assert.match(reveal, /gsplatManager\?\.material/);
     assert.match(reveal, /gsplatManagerShadow\?\.material/);
     assert.match(reveal, /material:created/);
+    assert.match(reveal, /uniform float uRevealActive/);
+    assert.match(reveal, /uniform uRevealActive: f32/);
+    assert.match(reveal, /uRevealActive < 0\.5/);
+    assert.match(reveal, /SHADER_CHUNKS_VERSION = '2\.25'/);
     assert.match(reveal, /shaderChunksVersion = SHADER_CHUNKS_VERSION/);
 
     assert.equal((viewer.match(/startGsplatReveal\([^)]*\);\s+state\.readyToRender = true;/g) || []).length, 2);
-    assert.match(viewer, /startGsplatReveal = \(onComplete\?: \(\) => void\)/);
-    assert.match(viewer, /startGsplatReveal\(openHighDetailLod\)/);
+    assert.match(viewer, /startGsplatReveal = \(revealCallbacks\?:/);
+    assert.match(viewer, /onSubjectRevealed: openHighDetailLod/);
+    assert.match(viewer, /highDetailOpened/);
     assert.match(viewer, /events\.on\('performanceMode:changed', applyPerfSettings\);\s+applyPerfSettings\(\);/);
     assert.match(viewer, /environmentLoad: Promise<Entity \| null> \| null/);
-    assert.match(viewer, /environmentEntity = results\[1\]/);
-    assert.match(viewer, /revealEntities = environmentEntity \? \[results\[0\], environmentEntity\] : results\[0\]/);
+    assert.match(viewer, /Promise\.all\(\[gsplatLoad, skyboxLoad, collisionLoad\]\)/);
+    assert.doesNotMatch(viewer, /Promise\.all\(\[gsplatLoad, environmentLoad/);
+    assert.match(viewer, /environmentLoad\?\.then/);
+    assert.match(viewer, /attachEnvironmentToReveal/);
+    assert.match(viewer, /gsplatReveal\?\.attachEntity/);
+    assert.match(viewer, /mainSubjectBounds/);
+    assert.match(viewer, /subjectBounds: mainSubjectBounds/);
+    assert.match(viewer, /revealEntities = environmentEntity \? \[gsplatEntity, environmentEntity\] : gsplatEntity/);
     assert.match(viewer, /revealBounds\.add\(transformedEnvironmentBbox\)/);
     assert.match(viewer, /streamingLod: state\.loadingMode === 'streaming-json'/);
     assert.match(viewer, /dotProfile: resolveRevealDotProfile\(config, state\.loadingMode\)/);
@@ -194,8 +219,8 @@ test('global gsplat reveal is shader-based, color-neutral, and skippable by URL'
     assert.match(viewer, /app\.scene\.gsplat\.minPixelSize = 0\.5/);
     assert.match(viewer, /app\.scene\.gsplat\.minPixelSize = 2/);
     assert.match(viewer, /beginRevealWhenSceneVisible/);
-    assert.match(viewer, /loadingWrap\.addEventListener\('transitionend'/);
-    assert.match(viewer, /window\.setTimeout\(begin, 600\)/);
+    assert.doesNotMatch(viewer, /window\.setTimeout\(begin, 600\)/);
+    assert.doesNotMatch(viewer, /loadingWrap\.addEventListener\('transitionend'/);
     assert.doesNotMatch(viewer, /gsplatReveal\?\.restart/);
     assert.match(viewer, /gsplatReveal\.arm\(\)/);
     assert.doesNotMatch(viewer, /gsplatReveal\.arm\(\);\s+this\.gsplatReveal\.beginVisiblePlayback\(\)/);

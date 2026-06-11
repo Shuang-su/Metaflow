@@ -9,6 +9,7 @@ uniform float uRevealAcceleration;
 uniform float uRevealDelay;
 uniform float uRevealOscillation;
 uniform float uRevealDotSize;
+uniform float uRevealActive;
 
 float gRevealDist;
 float gRevealDotWave;
@@ -30,6 +31,10 @@ void initReveal(vec3 center) {
 }
 
 void modifySplatCenter(inout vec3 center) {
+    if (uRevealActive < 0.5) {
+        return;
+    }
+
     initReveal(center);
     if (gRevealDist > uRevealRadius) {
         return;
@@ -43,6 +48,11 @@ void modifySplatCenter(inout vec3 center) {
 }
 
 void modifySplatRotationScale(vec3 originalCenter, vec3 modifiedCenter, inout vec4 rotation, inout vec3 scale) {
+    if (uRevealActive < 0.5) {
+        scale = vec3(0.0);
+        return;
+    }
+
     if (gRevealDist > uRevealRadius) {
         scale = vec3(0.0);
         return;
@@ -97,6 +107,7 @@ uniform uRevealAcceleration: f32;
 uniform uRevealDelay: f32;
 uniform uRevealOscillation: f32;
 uniform uRevealDotSize: f32;
+uniform uRevealActive: f32;
 
 var<private> gRevealDist: f32;
 var<private> gRevealDotWave: f32;
@@ -118,6 +129,10 @@ fn initReveal(center: vec3f) {
 }
 
 fn modifySplatCenter(center: ptr<function, vec3f>) {
+    if (uniform.uRevealActive < 0.5) {
+        return;
+    }
+
     initReveal(*center);
     if (gRevealDist > uniform.uRevealRadius) {
         return;
@@ -131,6 +146,11 @@ fn modifySplatCenter(center: ptr<function, vec3f>) {
 }
 
 fn modifySplatRotationScale(originalCenter: vec3f, modifiedCenter: vec3f, rotation: ptr<function, vec4f>, scale: ptr<function, vec3f>) {
+    if (uniform.uRevealActive < 0.5) {
+        *scale = vec3f(0.0);
+        return;
+    }
+
     if (gRevealDist > uniform.uRevealRadius) {
         *scale = vec3f(0.0);
         return;
@@ -199,14 +219,16 @@ const tmpExtents = new Vec3();
 const tmpMin = new Vec3();
 const tmpMax = new Vec3();
 const DEFAULT_REVEAL_MIN_DURATION = 5.0;
-const DEFAULT_REVEAL_SPEED = 0.75;
+const DEFAULT_REVEAL_SPEED = 0.6;
 const DEFAULT_REVEAL_ACCELERATION = 3.5;
 const DEFAULT_REVEAL_DELAY = 1.0;
 const MAX_REVEAL_DELTA_TIME = 1 / 30;
+const REVEAL_PACE_SCALE = 0.6;
+const MEGA_VOXEL_PACE_SCALE = 0.85;
 const REVEAL_REFERENCE_RADIUS = 20;
 const WORKBUFFER_UPDATE_AUTO = 0;
 const WORKBUFFER_UPDATE_ALWAYS = 2;
-const SHADER_CHUNKS_VERSION = '2.24';
+const SHADER_CHUNKS_VERSION = '2.25';
 const LEGACY_ONLINE_DOT = 0.035 * 0.012;
 
 type RevealDotProfile = 'characterSog' | 'streamingScene' | 'megaVoxel';
@@ -217,8 +239,8 @@ function calcRevealDotSize(profile: RevealDotProfile, radius: number): number {
     switch (profile) {
         case 'characterSog':
             // legacy-sog + experienceType=character（cyrene、remielle-dan）
-            // 旧版线上 0.00042 的 2 倍；不随半径缩放 → 固定 0.00084
-            return LEGACY_ONLINE_DOT * 2;
+            // 旧版线上 0.00042 的 1.5 倍；不随半径缩放 → 固定 0.00063
+            return LEGACY_ONLINE_DOT * 1.5;
         case 'streamingScene':
             // 场景 SOG（c2-lib）与普通流式（无 voxelManifest）
             // clamp(radius * 系数, 下限, 上限)；r=30 → 0.00198
@@ -238,13 +260,16 @@ const REVEAL_UNIFORMS = [
     'uRevealAcceleration',
     'uRevealDelay',
     'uRevealOscillation',
-    'uRevealDotSize'
+    'uRevealDotSize',
+    'uRevealActive'
 ];
 
 type GsplatRevealRadialOptions = {
     streamingLod?: boolean;
     dotProfile?: RevealDotProfile;
+    subjectBounds?: BoundingBox;
     onComplete?: () => void;
+    onSubjectRevealed?: () => void;
 };
 
 class GsplatRevealRadial {
@@ -270,11 +295,21 @@ class GsplatRevealRadial {
 
     private waveRadius = 1;
 
+    private subjectRadius = 1;
+
+    private subjectRevealTime = 0;
+
+    private subjectRevealedNotified = false;
+
+    private readonly boundsMin = new Vec3();
+
+    private readonly boundsMax = new Vec3();
+
     private speed = DEFAULT_REVEAL_SPEED;
 
     private acceleration = DEFAULT_REVEAL_ACCELERATION;
 
-    private readonly delay = DEFAULT_REVEAL_DELAY;
+    private delay = DEFAULT_REVEAL_DELAY;
 
     private duration = DEFAULT_REVEAL_MIN_DURATION;
 
@@ -283,6 +318,8 @@ class GsplatRevealRadial {
     private readonly dotProfile: RevealDotProfile;
 
     private readonly onComplete?: () => void;
+
+    private readonly onSubjectRevealed?: () => void;
 
     private completed = false;
 
@@ -317,9 +354,12 @@ class GsplatRevealRadial {
         this.streamingLod = options?.streamingLod ?? false;
         this.dotProfile = options?.dotProfile ?? 'streamingScene';
         this.onComplete = options?.onComplete;
+        this.onSubjectRevealed = options?.onSubjectRevealed;
 
-        tmpMin.copy(bounds.getMin());
-        tmpMax.copy(bounds.getMax());
+        this.boundsMin.copy(bounds.getMin());
+        this.boundsMax.copy(bounds.getMax());
+        tmpMin.copy(this.boundsMin);
+        tmpMax.copy(this.boundsMax);
         tmpCenter.copy(tmpMin).add(tmpMax).mulScalar(0.5);
         tmpExtents.copy(tmpMax).sub(tmpCenter);
 
@@ -329,8 +369,44 @@ class GsplatRevealRadial {
 
         this.center = [tmpCenter.x, tmpCenter.y, tmpCenter.z];
         this.radius = this.calcFarthestCornerRadius(tmpCenter, tmpMin, tmpMax);
-        this.fitWaveToSceneSize();
+
+        if (options?.subjectBounds) {
+            tmpMin.copy(options.subjectBounds.getMin());
+            tmpMax.copy(options.subjectBounds.getMax());
+            this.subjectRadius = this.calcFarthestCornerRadius(tmpCenter, tmpMin, tmpMax);
+        } else {
+            this.subjectRadius = this.radius;
+        }
+
+        this.applyMotionProfile();
+        this.subjectRevealTime = this.getLiftReachTime(this.subjectRadius);
         this.duration = Math.max(DEFAULT_REVEAL_MIN_DURATION, this.getCompletionTime());
+    }
+
+    attachEntity(entity: Entity, expandBounds?: BoundingBox) {
+        if (this.rootEntities.includes(entity)) {
+            return;
+        }
+
+        this.rootEntities.push(entity);
+
+        if (expandBounds) {
+            this.mergeRevealBounds(expandBounds);
+        }
+
+        if (!this.armed) {
+            return;
+        }
+
+        const gsplat = entity.gsplat as RevealGsplatComponent | undefined;
+        if (gsplat?.unified && gsplat.setWorkBufferModifier) {
+            gsplat.setWorkBufferModifier({ glsl: shaderGLSL, wgsl: shaderWGSL });
+            this.workBufferModifierComponents.add(gsplat);
+        }
+
+        this.applyToKnownMaterials();
+        this.updateUniforms();
+        this.app.renderNextFrame = true;
     }
 
     arm() {
@@ -507,6 +583,11 @@ class GsplatRevealRadial {
 
         this.time += Math.min(Math.max(dt, 0), MAX_REVEAL_DELTA_TIME);
 
+        if (!this.subjectRevealedNotified && this.time >= this.subjectRevealTime) {
+            this.subjectRevealedNotified = true;
+            this.onSubjectRevealed?.();
+        }
+
         if (this.time >= this.duration) {
             if (!this.completed) {
                 this.completed = true;
@@ -539,7 +620,8 @@ class GsplatRevealRadial {
             ['uRevealAcceleration', this.acceleration],
             ['uRevealDelay', this.delay],
             ['uRevealOscillation', Math.min(Math.max(this.radius * 0.002, 0.025), 0.16)],
-            ['uRevealDotSize', calcRevealDotSize(this.dotProfile, this.radius)]
+            ['uRevealDotSize', calcRevealDotSize(this.dotProfile, this.radius)],
+            ['uRevealActive', this.playing ? 1 : 0]
         ];
 
         if (this.workBufferModifierComponents.size > 0) {
@@ -562,26 +644,56 @@ class GsplatRevealRadial {
         }
     }
 
-    private getCompletionTime() {
+    private getLiftReachTime(targetRadius: number) {
         if (this.acceleration === 0) {
-            return this.delay + this.waveRadius / Math.max(this.speed, 0.0001);
+            return this.delay + targetRadius / Math.max(this.speed, 0.0001);
         }
 
-        const discriminant = this.speed * this.speed + 2 * this.acceleration * this.waveRadius;
+        const discriminant = this.speed * this.speed + 2 * this.acceleration * targetRadius;
         return this.delay + (-this.speed + Math.sqrt(Math.max(discriminant, 0))) / this.acceleration;
     }
 
-    private fitWaveToSceneSize() {
-        // The wave must traverse the whole scene; uRevealRadius is also this.radius, so any
-        // capping here would leave the outer scene at scale 0 until the reveal ends (a pop).
+    private getCompletionTime() {
+        return this.getLiftReachTime(this.waveRadius);
+    }
+
+    private mergeRevealBounds(bounds: BoundingBox) {
+        const min = bounds.getMin();
+        const max = bounds.getMax();
+        this.boundsMin.x = Math.min(this.boundsMin.x, min.x);
+        this.boundsMin.y = Math.min(this.boundsMin.y, min.y);
+        this.boundsMin.z = Math.min(this.boundsMin.z, min.z);
+        this.boundsMax.x = Math.max(this.boundsMax.x, max.x);
+        this.boundsMax.y = Math.max(this.boundsMax.y, max.y);
+        this.boundsMax.z = Math.max(this.boundsMax.z, max.z);
+
+        tmpCenter.set(this.center[0], this.center[1], this.center[2]);
+        this.radius = this.calcFarthestCornerRadius(tmpCenter, this.boundsMin, this.boundsMax);
         this.waveRadius = this.radius;
+        this.duration = Math.max(DEFAULT_REVEAL_MIN_DURATION, this.getCompletionTime());
+    }
+
+    private applyMotionProfile() {
+        this.waveRadius = this.radius;
+        if (this.dotProfile === 'megaVoxel') {
+            this.fitWaveToSceneSize();
+            this.speed *= MEGA_VOXEL_PACE_SCALE;
+            this.acceleration *= MEGA_VOXEL_PACE_SCALE;
+            // Slower lift wave start tracks pace so dot/lift gap stays proportionally wider.
+            this.delay = DEFAULT_REVEAL_DELAY / MEGA_VOXEL_PACE_SCALE;
+            return;
+        }
+
+        this.speed = DEFAULT_REVEAL_SPEED * REVEAL_PACE_SCALE;
+        this.acceleration = DEFAULT_REVEAL_ACCELERATION * REVEAL_PACE_SCALE;
+        this.delay = DEFAULT_REVEAL_DELAY;
+    }
+
+    private fitWaveToSceneSize() {
         if (this.radius <= REVEAL_REFERENCE_RADIUS) {
             return;
         }
 
-        // Large scenes: scale motion up so the wave still sweeps the entire radius in roughly
-        // the time it takes to cross a reference-sized scene at the default pace. Keeps the
-        // overall reveal duration (~min duration) and visual cadence consistent across sizes.
         const refDiscriminant = DEFAULT_REVEAL_SPEED * DEFAULT_REVEAL_SPEED
             + 2 * DEFAULT_REVEAL_ACCELERATION * REVEAL_REFERENCE_RADIUS;
         const crossTime = Math.max(

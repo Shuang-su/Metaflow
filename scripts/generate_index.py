@@ -48,6 +48,10 @@ ACG_SCENE_ROUTES = {
     "/acg/phoenixfes26/itasha",
     "/acg/phoenixfes26/stage",
 }
+ANIM_FIRST_EXIT_ORBIT_ROUTES = {
+    "/shenzhen/dayun",
+    "/sztu/c2-lib",
+}
 LEGACY_VOXEL_RZ180_ROUTES = {
     "/acg/2568/2026",
     "/acg/j05/xunyangpai",
@@ -679,7 +683,7 @@ def scan_resource_folder(folder_path, category, subcategory=None):
                 **viewer_override,
             }
 
-    if resource["experienceType"] == "character" or route == "/shenzhen/dayun":
+    if resource["experienceType"] == "character" or route in ANIM_FIRST_EXIT_ORBIT_ROUTES:
         resource["viewer"] = {
             **resource.get("viewer", {}),
             "animationFirstExitMode": "orbit",

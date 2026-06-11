@@ -2296,6 +2296,9 @@
         "device": "SZTU",
         "folderName": "250424 SZTU C2-Lib"
       },
+      "viewer": {
+        "animationFirstExitMode": "orbit"
+      },
       "animation": {
         "duration": 40,
         "frameRate": 60,
