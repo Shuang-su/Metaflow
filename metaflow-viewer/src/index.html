@@ -177,6 +177,7 @@
             let defaultCameraMode = null;
             let syntheticAnimation = null;
             let animationFirstExitMode = null;
+            let experienceType = null;
 
             const initConfig = async () => {
                 if (pathname !== '/' && pathname !== '/index.html' && !contentUrl) {
@@ -208,6 +209,7 @@
                             syntheticAnimation = resource?.viewer?.syntheticAnimation || null;
                             animationFirstExitMode = resource?.viewer?.animationFirstExitMode || null;
                             voxelCoordinateSpace = resource?.viewer?.voxelCoordinateSpace || null;
+                            experienceType = resource?.experienceType || null;
                         }
                     } catch (e) {
                         console.warn('Failed to load index.json:', e);
@@ -237,6 +239,7 @@
                     defaultCameraMode: ['anim', 'orbit', 'fly', 'walk'].includes(defaultCameraMode) ? defaultCameraMode : undefined,
                     syntheticAnimation: syntheticAnimation === 'figure8' ? syntheticAnimation : undefined,
                     animationFirstExitMode: ['orbit', 'default'].includes(animationFirstExitMode) ? animationFirstExitMode : undefined,
+                    experienceType: ['character', 'scene'].includes(experienceType) ? experienceType : undefined,
                     revealEffect: url.searchParams.has('noreveal') ? 'none' : 'radial',
                     contentUrl,
                     contents: fetch(contentUrl),

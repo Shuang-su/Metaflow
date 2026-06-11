@@ -8,6 +8,7 @@ uniform float uRevealSpeed;
 uniform float uRevealAcceleration;
 uniform float uRevealDelay;
 uniform float uRevealOscillation;
+uniform float uRevealDotSize;
 
 float gRevealDist;
 float gRevealDotWave;
@@ -16,7 +17,6 @@ float gRevealLiftWave;
 const float REVEAL_START_RADIUS = 0.005;
 const float REVEAL_DOT_SCALE = 0.035;
 const float REVEAL_DOT_PEAK_SCALE = 0.07;
-const float REVEAL_DOT_SIZE = 0.012;
 
 float revealHash(vec3 p) {
     return fract(sin(dot(p, vec3(127.1, 311.7, 74.7))) * 43758.5453);
@@ -76,11 +76,11 @@ void modifySplatRotationScale(vec3 originalCenter, vec3 modifiedCenter, inout ve
 
     if (isLiftWave) {
         float t = (revealScale - REVEAL_DOT_SCALE) / (1.0 - REVEAL_DOT_SCALE);
-        float dotSize = revealScale * REVEAL_DOT_SIZE;
+        float dotSize = uRevealDotSize;
         float finalSize = mix(dotSize, originalSize * revealScale, t);
         gsplatMakeSpherical(scale, min(finalSize, originalSize));
     } else {
-        gsplatMakeSpherical(scale, min(revealScale * REVEAL_DOT_SIZE, originalSize));
+        gsplatMakeSpherical(scale, min(uRevealDotSize * revealScale / REVEAL_DOT_SCALE, originalSize));
     }
 }
 
@@ -96,6 +96,7 @@ uniform uRevealSpeed: f32;
 uniform uRevealAcceleration: f32;
 uniform uRevealDelay: f32;
 uniform uRevealOscillation: f32;
+uniform uRevealDotSize: f32;
 
 var<private> gRevealDist: f32;
 var<private> gRevealDotWave: f32;
@@ -104,7 +105,6 @@ var<private> gRevealLiftWave: f32;
 const REVEAL_START_RADIUS: f32 = 0.005;
 const REVEAL_DOT_SCALE: f32 = 0.035;
 const REVEAL_DOT_PEAK_SCALE: f32 = 0.07;
-const REVEAL_DOT_SIZE: f32 = 0.012;
 
 fn revealHash(p: vec3f) -> f32 {
     return fract(sin(dot(p, vec3f(127.1, 311.7, 74.7))) * 43758.5453);
@@ -164,11 +164,11 @@ fn modifySplatRotationScale(originalCenter: vec3f, modifiedCenter: vec3f, rotati
 
     if (isLiftWave) {
         let t = (revealScale - REVEAL_DOT_SCALE) / (1.0 - REVEAL_DOT_SCALE);
-        let dotSize = revealScale * REVEAL_DOT_SIZE;
+        let dotSize = uniform.uRevealDotSize;
         let finalSize = mix(dotSize, originalSize * revealScale, t);
         gsplatMakeSpherical(scale, min(finalSize, originalSize));
     } else {
-        gsplatMakeSpherical(scale, min(revealScale * REVEAL_DOT_SIZE, originalSize));
+        gsplatMakeSpherical(scale, min(uniform.uRevealDotSize * revealScale / REVEAL_DOT_SCALE, originalSize));
     }
 }
 
@@ -203,7 +203,33 @@ const DEFAULT_REVEAL_SPEED = 0.75;
 const DEFAULT_REVEAL_ACCELERATION = 3.5;
 const DEFAULT_REVEAL_DELAY = 1.0;
 const MAX_REVEAL_DELTA_TIME = 1 / 30;
-const SHADER_CHUNKS_VERSION = '2.21';
+const REVEAL_REFERENCE_RADIUS = 20;
+const WORKBUFFER_UPDATE_AUTO = 0;
+const WORKBUFFER_UPDATE_ALWAYS = 2;
+const SHADER_CHUNKS_VERSION = '2.24';
+const LEGACY_ONLINE_DOT = 0.035 * 0.012;
+
+type RevealDotProfile = 'characterSog' | 'streamingScene' | 'megaVoxel';
+
+// uRevealDotSize：第一波稳定区球半径（世界单位）；dot 波前峰值约为 2×。
+// 识别逻辑见 viewer.ts resolveRevealDotProfile。仅改数值无需 bump SHADER_CHUNKS_VERSION。
+function calcRevealDotSize(profile: RevealDotProfile, radius: number): number {
+    switch (profile) {
+        case 'characterSog':
+            // legacy-sog + experienceType=character（cyrene、remielle-dan）
+            // 旧版线上 0.00042 的 2 倍；不随半径缩放 → 固定 0.00084
+            return LEGACY_ONLINE_DOT * 2;
+        case 'streamingScene':
+            // 场景 SOG（c2-lib）与普通流式（无 voxelManifest）
+            // clamp(radius * 系数, 下限, 上限)；r=30 → 0.00198
+            // 调大：提高系数 / 下限 / 上限；调小：反向
+            return Math.min(Math.max(radius * 0.000066, 0.0012), 0.015);
+        case 'megaVoxel':
+            // 有 voxelManifestUrl（Dayun）；大场景高空相机可见；r=100 → 0.022
+            return Math.min(Math.max(radius * 0.00022, 0.004), 0.05);
+    }
+}
+
 const REVEAL_UNIFORMS = [
     'uRevealTime',
     'uRevealCenter',
@@ -211,8 +237,15 @@ const REVEAL_UNIFORMS = [
     'uRevealSpeed',
     'uRevealAcceleration',
     'uRevealDelay',
-    'uRevealOscillation'
+    'uRevealOscillation',
+    'uRevealDotSize'
 ];
+
+type GsplatRevealRadialOptions = {
+    streamingLod?: boolean;
+    dotProfile?: RevealDotProfile;
+    onComplete?: () => void;
+};
 
 class GsplatRevealRadial {
     private app: AppBase;
@@ -235,6 +268,8 @@ class GsplatRevealRadial {
 
     private radius = 1;
 
+    private waveRadius = 1;
+
     private speed = DEFAULT_REVEAL_SPEED;
 
     private acceleration = DEFAULT_REVEAL_ACCELERATION;
@@ -242,6 +277,14 @@ class GsplatRevealRadial {
     private readonly delay = DEFAULT_REVEAL_DELAY;
 
     private duration = DEFAULT_REVEAL_MIN_DURATION;
+
+    private readonly streamingLod: boolean;
+
+    private readonly dotProfile: RevealDotProfile;
+
+    private readonly onComplete?: () => void;
+
+    private completed = false;
 
     private readonly materialCreatedHandler = (material: RevealMaterial) => {
         if (!this.armed) {
@@ -261,10 +304,19 @@ class GsplatRevealRadial {
         this.update(dt);
     };
 
-    constructor(app: AppBase, rootEntity: Entity | Entity[], bounds: BoundingBox, focusPoint?: Vec3) {
+    constructor(
+        app: AppBase,
+        rootEntity: Entity | Entity[],
+        bounds: BoundingBox,
+        focusPoint?: Vec3,
+        options?: GsplatRevealRadialOptions
+    ) {
         this.app = app;
         this.rootEntities = Array.isArray(rootEntity) ? rootEntity : [rootEntity];
         this.language = app.graphicsDevice.isWebGPU ? 'wgsl' : 'glsl';
+        this.streamingLod = options?.streamingLod ?? false;
+        this.dotProfile = options?.dotProfile ?? 'streamingScene';
+        this.onComplete = options?.onComplete;
 
         tmpMin.copy(bounds.getMin());
         tmpMax.copy(bounds.getMax());
@@ -277,6 +329,7 @@ class GsplatRevealRadial {
 
         this.center = [tmpCenter.x, tmpCenter.y, tmpCenter.z];
         this.radius = this.calcFarthestCornerRadius(tmpCenter, tmpMin, tmpMax);
+        this.fitWaveToSceneSize();
         this.duration = Math.max(DEFAULT_REVEAL_MIN_DURATION, this.getCompletionTime());
     }
 
@@ -315,6 +368,7 @@ class GsplatRevealRadial {
     destroy() {
         this.app.off('update', this.updateHandler);
         (this.app.systems as any).gsplat?.off?.('material:created', this.materialCreatedHandler);
+        this.setWorkBufferAlwaysUpdate(false);
         this.clearUnifiedWorkBuffer();
         for (const material of this.materials) {
             material.getShaderChunks(this.language).delete('gsplatModifyVS');
@@ -378,6 +432,41 @@ class GsplatRevealRadial {
         this.workBufferModifierComponents.clear();
     }
 
+    private setWorkBufferAlwaysUpdate(enable: boolean) {
+        if (this.workBufferModifierComponents.size === 0) {
+            return;
+        }
+
+        const mode = enable ? WORKBUFFER_UPDATE_ALWAYS : WORKBUFFER_UPDATE_AUTO;
+
+        // Non-octree unified components render their own placement, so the component-level
+        // setter is enough for them.
+        for (const gsplat of this.workBufferModifierComponents) {
+            (gsplat as any).workBufferUpdate = mode;
+        }
+
+        // Octree (streaming LOD) renders per-file child placements that do not inherit the
+        // update mode. Reach them through the director and flag each active placement so the
+        // work buffer re-bakes with the live reveal uniforms every frame.
+        const director = (this.app.renderer as any).gsplatDirector;
+        const camerasMap = director?.camerasMap;
+        if (!camerasMap?.forEach) {
+            return;
+        }
+
+        camerasMap.forEach((cameraData: any) => {
+            cameraData?.layersMap?.forEach?.((layerData: any) => {
+                for (const manager of [layerData?.gsplatManager, layerData?.gsplatManagerShadow]) {
+                    manager?.octreeInstances?.forEach?.((instance: any) => {
+                        instance?.activePlacements?.forEach?.((placement: any) => {
+                            placement.workBufferUpdate = mode;
+                        });
+                    });
+                }
+            });
+        });
+    }
+
     private getGsplatComponents() {
         return this.rootEntities.map((entity) => entity.gsplat as RevealGsplatComponent | undefined);
     }
@@ -417,12 +506,27 @@ class GsplatRevealRadial {
         }
 
         this.time += Math.min(Math.max(dt, 0), MAX_REVEAL_DELTA_TIME);
+
         if (this.time >= this.duration) {
+            if (!this.completed) {
+                this.completed = true;
+                this.onComplete?.();
+            }
             this.destroy();
             return;
         }
 
         this.updateUniforms();
+
+        // Unified gsplat (streaming LOD) bakes the work buffer modifier only when a
+        // placement is first uploaded, so uRevealTime stays frozen per chunk. The
+        // engine re-bakes a placement when its workBufferUpdate is ALWAYS, but octree
+        // file placements never inherit that flag from the component. Set it directly on
+        // the rendered placements each frame so the modifier re-runs with the live time.
+        if (this.workBufferModifierComponents.size > 0) {
+            this.setWorkBufferAlwaysUpdate(true);
+        }
+
         this.app.renderNextFrame = true;
     }
 
@@ -434,7 +538,8 @@ class GsplatRevealRadial {
             ['uRevealSpeed', this.speed],
             ['uRevealAcceleration', this.acceleration],
             ['uRevealDelay', this.delay],
-            ['uRevealOscillation', Math.min(Math.max(this.radius * 0.002, 0.025), 0.16)]
+            ['uRevealOscillation', Math.min(Math.max(this.radius * 0.002, 0.025), 0.16)],
+            ['uRevealDotSize', calcRevealDotSize(this.dotProfile, this.radius)]
         ];
 
         if (this.workBufferModifierComponents.size > 0) {
@@ -459,11 +564,35 @@ class GsplatRevealRadial {
 
     private getCompletionTime() {
         if (this.acceleration === 0) {
-            return this.delay + this.radius / Math.max(this.speed, 0.0001);
+            return this.delay + this.waveRadius / Math.max(this.speed, 0.0001);
         }
 
-        const discriminant = this.speed * this.speed + 2 * this.acceleration * this.radius;
+        const discriminant = this.speed * this.speed + 2 * this.acceleration * this.waveRadius;
         return this.delay + (-this.speed + Math.sqrt(Math.max(discriminant, 0))) / this.acceleration;
+    }
+
+    private fitWaveToSceneSize() {
+        // The wave must traverse the whole scene; uRevealRadius is also this.radius, so any
+        // capping here would leave the outer scene at scale 0 until the reveal ends (a pop).
+        this.waveRadius = this.radius;
+        if (this.radius <= REVEAL_REFERENCE_RADIUS) {
+            return;
+        }
+
+        // Large scenes: scale motion up so the wave still sweeps the entire radius in roughly
+        // the time it takes to cross a reference-sized scene at the default pace. Keeps the
+        // overall reveal duration (~min duration) and visual cadence consistent across sizes.
+        const refDiscriminant = DEFAULT_REVEAL_SPEED * DEFAULT_REVEAL_SPEED
+            + 2 * DEFAULT_REVEAL_ACCELERATION * REVEAL_REFERENCE_RADIUS;
+        const crossTime = Math.max(
+            (-DEFAULT_REVEAL_SPEED + Math.sqrt(refDiscriminant)) / DEFAULT_REVEAL_ACCELERATION,
+            0.1
+        );
+        this.speed = DEFAULT_REVEAL_SPEED;
+        this.acceleration = Math.max(
+            0.0001,
+            2 * Math.max(this.radius - this.speed * crossTime, 0.0001) / (crossTime * crossTime)
+        );
     }
 
     private calcFarthestCornerRadius(center: Vec3, min: Vec3, max: Vec3) {
@@ -483,4 +612,11 @@ class GsplatRevealRadial {
     }
 }
 
-export { GsplatRevealRadial, shaderGLSL as gsplatRevealRadialGLSL, shaderWGSL as gsplatRevealRadialWGSL };
+export {
+    GsplatRevealRadial,
+    calcRevealDotSize,
+    shaderGLSL as gsplatRevealRadialGLSL,
+    shaderWGSL as gsplatRevealRadialWGSL,
+    type GsplatRevealRadialOptions,
+    type RevealDotProfile
+};

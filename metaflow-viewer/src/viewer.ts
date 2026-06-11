@@ -34,14 +34,24 @@ import type { Collision } from './collision';
 import { MeshCollision, TiledVoxelCollision, VoxelCollision } from './collision';
 import { nearlyEquals } from './core/math';
 import { DebugPanel } from './debug';
-import { GsplatRevealRadial } from './gsplat-reveal-radial';
+import { GsplatRevealRadial, type RevealDotProfile } from './gsplat-reveal-radial';
 import { InputController } from './input-controller';
 import { MeshDebugOverlay } from './mesh-debug-overlay';
 import { NavCursor } from './nav-cursor';
 import { Picker } from './picker';
 import type { ExperienceSettings, PostEffectSettings } from './settings';
-import type { Config, Global } from './types';
+import type { Config, Global, LoadMode } from './types';
 import { TiledVoxelDebugOverlay, VoxelDebugOverlay } from './voxel-debug-overlay';
+
+function resolveRevealDotProfile(config: Config, loadingMode: LoadMode): RevealDotProfile {
+    if (loadingMode === 'legacy-sog' && config.experienceType === 'character') {
+        return 'characterSog';
+    }
+    if (config.voxelManifestUrl) {
+        return 'megaVoxel';
+    }
+    return 'streamingScene';
+}
 
 // String.replace wrapper that warns when the source substring is missing, so
 // shader chunk patches against the engine fail loudly instead of silently
@@ -750,14 +760,26 @@ class Viewer {
                 revealBounds.add(transformedEnvironmentBbox);
             }
 
-            const startGsplatReveal = () => {
+            const startGsplatReveal = (onComplete?: () => void) => {
                 if (config.revealEffect === 'none') {
                     return;
                 }
 
+                // Streaming LOD dots scale with scene radius but a high/far camera can still
+                // project them below the default 2px cull threshold. Lower minPixelSize for the
+                // duration of the reveal so the first wave is not culled; applyPerfSettings
+                // restores it to 2 once high-detail LOD opens.
+                if (state.loadingMode === 'streaming-json') {
+                    app.scene.gsplat.minPixelSize = 0.5;
+                }
+
                 this.cameraManager.camera.calcFocusPoint(focusPoint);
                 const revealEntities = environmentEntity ? [results[0], environmentEntity] : results[0];
-                this.gsplatReveal = new GsplatRevealRadial(app, revealEntities, revealBounds, focusPoint);
+                this.gsplatReveal = new GsplatRevealRadial(app, revealEntities, revealBounds, focusPoint, {
+                    streamingLod: state.loadingMode === 'streaming-json',
+                    dotProfile: resolveRevealDotProfile(config, state.loadingMode),
+                    onComplete
+                });
                 this.gsplatReveal.arm();
             };
 
@@ -855,6 +877,8 @@ class Viewer {
                 gsplat.minContribution = 1;
                 gsplat.alphaClip = 1 / 255;
                 gsplat.antiAlias = config.aa;
+                // Restore the default cull threshold lowered during the streaming reveal.
+                app.scene.gsplat.minPixelSize = 2;
             };
 
             if (config.fullload) {
@@ -912,15 +936,25 @@ class Viewer {
                     // scene is done loading
                     eventHandler.off('frame:ready', readyHandler);
 
-                    startGsplatReveal();
+                    // Defer opening high-detail LOD until the reveal finishes. Streaming
+                    // scenes only have the lowest LOD (full coverage) resident here, so the
+                    // two-wave reveal sweeps the whole shape without per-chunk pop-in; detail
+                    // is streamed in afterward.
+                    const openHighDetailLod = () => {
+                        events.on('performanceMode:changed', applyPerfSettings);
+                        applyPerfSettings();
+                    };
+
+                    startGsplatReveal(openHighDetailLod);
                     state.readyToRender = true;
                     state.loadingStage = 'prepare';
                     state.loadingStatus = 'LOD 数据就绪，正在准备首帧...';
                     state.progress = 100;
 
-                    // handle quality mode changes
-                    events.on('performanceMode:changed', applyPerfSettings);
-                    applyPerfSettings();
+                    if (config.revealEffect === 'none') {
+                        // No reveal will fire onComplete, so load high detail immediately.
+                        openHighDetailLod();
+                    }
 
                     // debug colorize lods
                     gsplat.debug = config.colorize ? GSPLAT_DEBUG_LOD : GSPLAT_DEBUG_NONE;

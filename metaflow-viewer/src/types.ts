@@ -14,6 +14,8 @@ type AnimationFirstExitMode = 'orbit' | 'default';
 
 type RevealEffect = 'radial' | 'none';
 
+type ExperienceType = 'character' | 'scene';
+
 type LoadingStage =
     | 'init'
     | 'renderer'
@@ -55,6 +57,7 @@ type Config = {
     syntheticAnimation?: 'figure8';
     animationFirstExitMode?: AnimationFirstExitMode;
     revealEffect?: RevealEffect;
+    experienceType?: ExperienceType;
 
     noui: boolean;
     noanim: boolean;
@@ -116,6 +119,7 @@ export {
     VoxelCoordinateSpace,
     AnimationFirstExitMode,
     RevealEffect,
+    ExperienceType,
     LoadingStage,
     Config,
     State,
