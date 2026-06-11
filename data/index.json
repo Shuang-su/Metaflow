@@ -2,14 +2,14 @@
   "version": "1.0",
   "schemaVersion": "1.2",
   "release": {
-    "displayVersion": "5.7",
-    "appSemver": "5.7.0",
+    "displayVersion": "5.8",
+    "appSemver": "5.8.0",
     "schemaVersion": "1.2",
     "historyUrl": "/data/version-history.json",
-    "updatedAt": "2026-06-10",
-    "gitRef": "4114e8f"
+    "updatedAt": "2026-06-11",
+    "gitRef": "4e848ac"
   },
-  "lastUpdated": "2026-06-10",
+  "lastUpdated": "2026-06-11",
   "totalResources": 59,
   "categories": {
     "acg": {

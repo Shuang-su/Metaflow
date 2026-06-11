@@ -1,14 +1,14 @@
 {
   "schemaVersion": "1.0",
-  "cutoffGitRef": "4114e8f",
-  "documentedThrough": "4114e8f",
+  "cutoffGitRef": "4e848ac",
+  "documentedThrough": "4e848ac",
   "defaultResourceVersion": "1.0a",
   "current": {
-    "displayVersion": "5.7",
-    "appSemver": "5.7.0",
+    "displayVersion": "5.8",
+    "appSemver": "5.8.0",
     "indexSchemaVersion": "1.2",
-    "date": "2026-06-10",
-    "gitRef": "4114e8f",
+    "date": "2026-06-11",
+    "gitRef": "4e848ac",
     "historyUrl": "/data/version-history.json"
   },
   "versioning": {
@@ -64,6 +64,11 @@
       "gitRef": "a3ce142",
       "date": "2026-06-10",
       "summary": "chore(release): document Metaflow Viewer 5.6"
+    },
+    {
+      "gitRef": "e91b05a",
+      "date": "2026-06-10",
+      "summary": "chore(release): document Metaflow Viewer 5.7"
     }
   ],
   "entries": [
@@ -1083,6 +1088,15 @@
       "date": "2026-06-10",
       "gitRef": "4114e8f",
       "summary": "fix(viewer): simplify gsplat reveal oscillation"
+    },
+    {
+      "displayVersion": "5.8",
+      "appSemver": "5.8.0",
+      "type": "feature",
+      "scope": "viewer",
+      "date": "2026-06-11",
+      "gitRef": "4e848ac",
+      "summary": "feat(viewer): tier gsplat reveal dots and fix streaming LOD waves"
     }
   ]
 }
