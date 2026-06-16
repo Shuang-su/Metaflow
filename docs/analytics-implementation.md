@@ -21,6 +21,18 @@ mirror low-frequency product analytics events.
 - `page_hidden` and `session_ended` use `sendBeacon` when possible.
 - Replay uses rrweb only for sampled sessions, masks inputs, and does not record canvas.
 - `session_summary` is emitted best-effort on unload/stop for low-frequency rollups and optional PostHog mirroring.
+- Device context includes viewport, screen, DPR, language, timezone, touch points,
+  hardware concurrency, device memory, network information, User-Agent, and
+  Client Hints when available.
+- Acquisition context stores only privacy-safe attribution fields: referrer
+  without query string, referrer domain, entry path, query-presence flag, and
+  whitelisted UTM parameters.
+- Performance context records Web Vitals snapshots and sanitized Resource Timing
+  entries for key viewer assets. It stores paths, roles, durations, and byte
+  sizes, not full URLs with arbitrary query strings.
+- Interaction depth is aggregated into heartbeat/session fields. Pointer moves,
+  camera drags, wheel zooms, keyboard movement duration, joystick duration, and
+  annotation view counts are counters, not high-frequency raw streams.
 
 ## Supabase CLI
 
@@ -154,18 +166,35 @@ Point Metabase at Supabase Postgres and expose these datasets first:
 - `analytics.fact_page_views`
 - `analytics.fact_sessions`
 - `analytics.fact_resource_loads`
+- `analytics.fact_resource_stage_timings`
+- `analytics.fact_resource_timings`
+- `analytics.fact_web_vitals`
 - `analytics.fact_interactions`
 - `analytics.fact_collaboration`
+- `analytics.fact_users`
 - `analytics.daily_route_metrics`
 - `analytics.daily_resource_metrics`
 - `analytics.daily_device_metrics`
 - `analytics.daily_error_metrics`
 - `analytics.daily_collaboration_metrics`
+- `analytics.daily_performance_metrics`
+- `analytics.daily_user_metrics`
+- `analytics.daily_data_quality_metrics`
 
 Refresh rollups after ingestion batches:
 
 ```sql
 select analytics.refresh_rollups();
+```
+
+Suggested first SQL checks after a deploy:
+
+```sql
+select count(*) from analytics.dim_resource;
+select event_name, count(*) from analytics.events_raw group by 1 order by 2 desc;
+select browser, os, device_class, renderer, count(*) from analytics.fact_page_views group by 1, 2, 3, 4;
+select route, p95_ttf_ms, p95_lcp_ms, p95_inp_ms from analytics.daily_performance_metrics order by metric_date desc limit 20;
+select * from analytics.daily_data_quality_metrics order by metric_date desc limit 20;
 ```
 
 ## Privacy Defaults

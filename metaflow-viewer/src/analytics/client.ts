@@ -30,6 +30,14 @@ type AnalyticsResourceContext = {
     };
 };
 
+type AnalyticsResourceUrls = {
+    index?: string;
+    content?: string;
+    settings?: string;
+    poster?: string;
+    environment?: string;
+};
+
 type AnalyticsOptions = {
     endpoint?: string;
     enabled: boolean;
@@ -45,6 +53,7 @@ type AnalyticsOptions = {
     route: string;
     contentUrl?: string;
     resource?: AnalyticsResourceContext;
+    resourceUrls?: AnalyticsResourceUrls;
     renderer: string;
 };
 
@@ -74,6 +83,17 @@ type FlushOptions = {
     beacon?: boolean;
 };
 
+type InteractionDepthCounters = {
+    wheel_count: number;
+    pointer_down_count: number;
+    pointer_drag_count: number;
+    touch_interaction_count: number;
+    joystick_touch_ms: number;
+    keyboard_event_count: number;
+    keyboard_move_ms: number;
+    annotation_viewed_count: number;
+};
+
 const HEARTBEAT_INTERVAL_MS = trackingPlan.heartbeat_interval_ms;
 const SESSION_TIMEOUT_MS = trackingPlan.session_timeout_ms;
 const MAX_PROPERTY_DEPTH = 4;
@@ -83,6 +103,36 @@ const MAX_POSTHOG_PENDING_EVENTS = 50;
 const FLUSH_INTERVAL_MS = 5000;
 const STORAGE_PREFIX = 'metaflow.analytics';
 const POSTHOG_DEFAULT_HOST = 'https://us.i.posthog.com';
+const CLIENT_HINT_HIGH_ENTROPY_KEYS = [
+    'architecture',
+    'bitness',
+    'model',
+    'platformVersion',
+    'uaFullVersion'
+] as const;
+const UTM_KEYS = [
+    'utm_source',
+    'utm_medium',
+    'utm_campaign',
+    'utm_content',
+    'utm_term'
+] as const;
+const RESOURCE_TIMING_EXTENSIONS = /\.(json|sog|ply|png|jpe?g|webp|wasm)$/i;
+const KEYBOARD_INTERACTION_KEYS = new Set([
+    'ArrowUp',
+    'ArrowDown',
+    'ArrowLeft',
+    'ArrowRight',
+    'KeyW',
+    'KeyA',
+    'KeyS',
+    'KeyD',
+    'KeyQ',
+    'KeyE',
+    'Space',
+    'ShiftLeft',
+    'ShiftRight'
+]);
 
 const INTERACTION_EVENTS = new Set<AnalyticsEventName>([
     'ui_clicked',
@@ -141,6 +191,15 @@ const clampRate = (value: number | undefined, fallback: number) => {
 const truncate = (value: string) => value.length > MAX_STRING_LENGTH ?
     `${value.slice(0, MAX_STRING_LENGTH)}...` :
     value;
+
+const hashString = (value: string) => {
+    let hash = 2166136261;
+    for (let i = 0; i < value.length; i++) {
+        hash ^= value.charCodeAt(i);
+        hash = Math.imul(hash, 16777619);
+    }
+    return (hash >>> 0).toString(16).padStart(8, '0');
+};
 
 const sanitizeValue = (value: unknown, depth = 0): JsonValue | undefined => {
     if (value === undefined || typeof value === 'function' || typeof value === 'symbol') return undefined;
@@ -297,6 +356,54 @@ const getSessionState = () => {
     return next;
 };
 
+type UserAgentDataBrand = {
+    brand: string;
+    version: string;
+};
+
+type UserAgentDataLike = {
+    brands?: UserAgentDataBrand[];
+    mobile?: boolean;
+    platform?: string;
+    getHighEntropyValues?: (hints: string[]) => Promise<Record<string, unknown>>;
+};
+
+let highEntropyClientHints: Record<string, JsonValue> | null = null;
+let highEntropyClientHintsStarted = false;
+
+const readClientHints = () => {
+    const userAgentData = (navigator as Navigator & { userAgentData?: UserAgentDataLike }).userAgentData;
+    if (!userAgentData) return undefined;
+    return {
+        brands: userAgentData.brands?.slice(0, 5).map((brand) => ({
+            brand: truncate(brand.brand),
+            version: truncate(brand.version)
+        })),
+        mobile: userAgentData.mobile,
+        platform: userAgentData.platform ? truncate(userAgentData.platform) : undefined,
+        high_entropy: highEntropyClientHints ?? undefined
+    };
+};
+
+const warmClientHints = () => {
+    if (highEntropyClientHintsStarted) return;
+    highEntropyClientHintsStarted = true;
+    const userAgentData = (navigator as Navigator & { userAgentData?: UserAgentDataLike }).userAgentData;
+    if (!userAgentData?.getHighEntropyValues) return;
+
+    void userAgentData.getHighEntropyValues([...CLIENT_HINT_HIGH_ENTROPY_KEYS]).then((values) => {
+        highEntropyClientHints = sanitizeProperties({
+            architecture: values.architecture as JsonValue,
+            bitness: values.bitness as JsonValue,
+            model: values.model as JsonValue,
+            platform_version: values.platformVersion as JsonValue,
+            ua_full_version: values.uaFullVersion as JsonValue
+        });
+    }).catch(() => {
+        highEntropyClientHints = {};
+    });
+};
+
 const getDeviceContext = () => {
     const connection = (navigator as Navigator & {
         connection?: { effectiveType?: string; downlink?: number; rtt?: number; saveData?: boolean };
@@ -318,6 +425,8 @@ const getDeviceContext = () => {
         max_touch_points: navigator.maxTouchPoints,
         hardware_concurrency: navigator.hardwareConcurrency,
         device_memory_gb: (navigator as Navigator & { deviceMemory?: number }).deviceMemory,
+        user_agent: navigator.userAgent,
+        client_hints: readClientHints(),
         network: connection ? {
             effective_type: connection.effectiveType,
             downlink: connection.downlink,
@@ -325,6 +434,55 @@ const getDeviceContext = () => {
             save_data: connection.saveData
         } : undefined
     };
+};
+
+const sanitizeReferrer = (value: string) => {
+    if (!value) return undefined;
+    try {
+        const parsed = new URL(value);
+        return {
+            referrer: `${parsed.origin}${parsed.pathname}`,
+            referrer_domain: parsed.hostname.replace(/^www\./, '')
+        };
+    } catch (_e) {
+        return {
+            referrer: truncate(value),
+            referrer_domain: undefined
+        };
+    }
+};
+
+const getAcquisitionContext = () => {
+    const url = new URL(location.href);
+    const referrer = sanitizeReferrer(document.referrer);
+    const utm: Record<string, string> = {};
+    for (const key of UTM_KEYS) {
+        const value = url.searchParams.get(key);
+        if (value) {
+            utm[key] = truncate(value);
+        }
+    }
+
+    return sanitizeProperties({
+        ...referrer,
+        entry_path: url.pathname,
+        entry_has_query: url.search.length > 0,
+        utm_source: utm.utm_source,
+        utm_medium: utm.utm_medium,
+        utm_campaign: utm.utm_campaign,
+        utm_content: utm.utm_content,
+        utm_term: utm.utm_term
+    });
+};
+
+const pathWithoutQuery = (value: string | undefined) => {
+    if (!value) return undefined;
+    try {
+        const parsed = new URL(value, location.href);
+        return parsed.pathname;
+    } catch (_e) {
+        return value.split('?')[0] || undefined;
+    }
 };
 
 class AnalyticsClient {
@@ -390,6 +548,42 @@ class AnalyticsClient {
 
     private pageEndSent = false;
 
+    private webVitals: Record<string, number> = {};
+
+    private performanceObservers: PerformanceObserver[] = [];
+
+    private resourceTimingKeys = new Set<string>();
+
+    private pointerDownAt: number | null = null;
+
+    private pointerDragRecorded = false;
+
+    private joystickStartedAt: number | null = null;
+
+    private activeKeyboardStarts = new Map<string, number>();
+
+    private interactionDepthTotal: InteractionDepthCounters = {
+        wheel_count: 0,
+        pointer_down_count: 0,
+        pointer_drag_count: 0,
+        touch_interaction_count: 0,
+        joystick_touch_ms: 0,
+        keyboard_event_count: 0,
+        keyboard_move_ms: 0,
+        annotation_viewed_count: 0
+    };
+
+    private interactionDepthSinceLast: InteractionDepthCounters = {
+        wheel_count: 0,
+        pointer_down_count: 0,
+        pointer_drag_count: 0,
+        touch_interaction_count: 0,
+        joystick_touch_ms: 0,
+        keyboard_event_count: 0,
+        keyboard_move_ms: 0,
+        annotation_viewed_count: 0
+    };
+
     constructor(private options: AnalyticsOptions) {
         this.endpoint = resolveEndpoint(options.endpoint);
         this.sink = resolveAnalyticsSink(options.sink);
@@ -431,6 +625,9 @@ class AnalyticsClient {
     start() {
         if (!this.enabled) return;
 
+        warmClientHints();
+        this.observePerformance();
+
         if (this.posthogEnabled) {
             void this.ensurePostHog();
         }
@@ -460,6 +657,13 @@ class AnalyticsClient {
         window.addEventListener('error', this.handleError);
         window.addEventListener('unhandledrejection', this.handleRejection);
         window.addEventListener('resize', this.handleResize, { passive: true });
+        window.addEventListener('wheel', this.handleWheel, { passive: true });
+        window.addEventListener('pointerdown', this.handlePointerDown, { passive: true });
+        window.addEventListener('pointermove', this.handlePointerMove, { passive: true });
+        window.addEventListener('pointerup', this.handlePointerUp, { passive: true });
+        window.addEventListener('pointercancel', this.handlePointerUp, { passive: true });
+        window.addEventListener('keydown', this.handleKeyDown);
+        window.addEventListener('keyup', this.handleKeyUp);
 
         void this.maybeStartReplay();
     }
@@ -485,6 +689,17 @@ class AnalyticsClient {
         window.removeEventListener('error', this.handleError);
         window.removeEventListener('unhandledrejection', this.handleRejection);
         window.removeEventListener('resize', this.handleResize);
+        window.removeEventListener('wheel', this.handleWheel);
+        window.removeEventListener('pointerdown', this.handlePointerDown);
+        window.removeEventListener('pointermove', this.handlePointerMove);
+        window.removeEventListener('pointerup', this.handlePointerUp);
+        window.removeEventListener('pointercancel', this.handlePointerUp);
+        window.removeEventListener('keydown', this.handleKeyDown);
+        window.removeEventListener('keyup', this.handleKeyUp);
+        for (const observer of this.performanceObservers) {
+            observer.disconnect();
+        }
+        this.performanceObservers = [];
     }
 
     track(name: AnalyticsEventName, properties: AnalyticsProperties = {}, options: FlushOptions = {}) {
@@ -495,6 +710,9 @@ class AnalyticsClient {
             this.interactionsSinceLastHeartbeat++;
             this.lastInteractionAt = Date.now();
             this.lastInteractionType = name;
+            if (name === 'annotation_opened') {
+                this.addInteractionDepth('annotation_viewed_count', 1);
+            }
         }
 
         if (name === 'first_frame_ready') {
@@ -528,6 +746,8 @@ class AnalyticsClient {
         this.track('first_frame_ready', {
             time_to_first_frame_ms: elapsed
         });
+        this.trackWebVitals('first_frame');
+        this.trackResourceTimings('first_frame');
     }
 
     flush(options: FlushOptions = {}) {
@@ -568,6 +788,7 @@ class AnalyticsClient {
 
     private trackHeartbeat(name: 'session_heartbeat' | 'page_hidden' | 'page_restored' | 'session_ended', options: FlushOptions = {}) {
         this.updateVisibleMs();
+        this.finalizeKeyboardDurations();
         const snapshot = this.stateProvider?.();
         const metrics = this.buildSessionMetrics(snapshot);
 
@@ -577,12 +798,14 @@ class AnalyticsClient {
             last_interaction_type: this.lastInteractionType
         }, options);
         this.interactionsSinceLastHeartbeat = 0;
+        this.resetInteractionDepthSinceLast();
     }
 
     private trackSessionSummary(options: FlushOptions = {}) {
         if (this.sessionSummarySent) return;
         this.sessionSummarySent = true;
         this.updateVisibleMs();
+        this.finalizeKeyboardDurations();
         const snapshot = this.stateProvider?.();
         const metrics = this.buildSessionMetrics(snapshot);
 
@@ -592,8 +815,12 @@ class AnalyticsClient {
             heartbeat_interval_ms: HEARTBEAT_INTERVAL_MS,
             first_frame_ready: !!this.firstFrameAt,
             replay_sampled: !!this.replayId,
-            active_sinks: this.activeSinks
+            active_sinks: this.activeSinks,
+            web_vitals: this.webVitals,
+            interaction_depth_total: this.interactionDepthTotal
         }, options);
+        this.trackWebVitals('session_summary', options);
+        this.trackResourceTimings('session_summary', options);
     }
 
     private buildSessionMetrics(snapshot?: AnalyticsStateSnapshot) {
@@ -611,6 +838,8 @@ class AnalyticsClient {
             engaged_ms: Math.max(0, engagedMs),
             idle_ms: idleMs,
             interactions_total: this.interactions,
+            interaction_depth_since_last: { ...this.interactionDepthSinceLast },
+            interaction_depth_total: { ...this.interactionDepthTotal },
             camera_mode: snapshot?.cameraMode ?? 'orbit',
             input_mode: snapshot?.inputMode ?? 'desktop'
         };
@@ -637,13 +866,15 @@ class AnalyticsClient {
             camera_mode: snapshot?.cameraMode,
             loading_stage: snapshot?.loadingStage,
             loaded: snapshot?.loaded,
-            device: getDeviceContext()
+            device: getDeviceContext(),
+            acquisition: getAcquisitionContext()
         });
     }
 
     private buildPostHogContext() {
         const snapshot = this.stateProvider?.();
         const device = getDeviceContext();
+        const acquisition = getAcquisitionContext();
         return sanitizeProperties({
             source_app: this.options.sourceApp,
             app_version: this.options.appVersion,
@@ -667,9 +898,185 @@ class AnalyticsClient {
             viewport_height: device.viewport.height,
             device_pixel_ratio: device.device_pixel_ratio,
             language: device.language,
-            network_effective_type: device.network?.effective_type
+            network_effective_type: device.network?.effective_type,
+            referrer_domain: acquisition.referrer_domain,
+            utm_source: acquisition.utm_source,
+            utm_medium: acquisition.utm_medium,
+            utm_campaign: acquisition.utm_campaign
         });
     }
+
+    private observePerformance() {
+        const navigation = performance.getEntriesByType('navigation')[0] as PerformanceNavigationTiming | undefined;
+        if (navigation) {
+            this.webVitals.ttfb_ms = Math.max(0, Math.round(navigation.responseStart - navigation.requestStart));
+            this.webVitals.dom_content_loaded_ms = Math.max(0, Math.round(navigation.domContentLoadedEventEnd - navigation.startTime));
+            this.webVitals.load_event_ms = Math.max(0, Math.round(navigation.loadEventEnd - navigation.startTime));
+        }
+
+        this.observePerformanceEntry('largest-contentful-paint', (entry) => {
+            this.webVitals.lcp_ms = Math.max(0, Math.round(entry.startTime));
+        });
+        this.observePerformanceEntry('layout-shift', (entry: PerformanceEntry & { value?: number; hadRecentInput?: boolean }) => {
+            if (!entry.hadRecentInput && typeof entry.value === 'number') {
+                this.webVitals.cls = Number(((this.webVitals.cls ?? 0) + entry.value).toFixed(4));
+            }
+        });
+        this.observePerformanceEntry('first-input', (entry: PerformanceEntry & { processingStart?: number }) => {
+            if (typeof entry.processingStart === 'number') {
+                this.webVitals.fid_ms = Math.max(0, Math.round(entry.processingStart - entry.startTime));
+            }
+        });
+        this.observePerformanceEntry('event', (entry: PerformanceEntry & { duration?: number; interactionId?: number }) => {
+            if (entry.interactionId && typeof entry.duration === 'number') {
+                this.webVitals.inp_ms = Math.max(this.webVitals.inp_ms ?? 0, Math.round(entry.duration));
+            }
+        });
+    }
+
+    private observePerformanceEntry(type: string, callback: (entry: PerformanceEntry) => void) {
+        if (!('PerformanceObserver' in window) || !PerformanceObserver.supportedEntryTypes?.includes(type)) return;
+        try {
+            const observer = new PerformanceObserver((list) => {
+                for (const entry of list.getEntries()) {
+                    callback(entry);
+                }
+            });
+            observer.observe({ type, buffered: true } as PerformanceObserverInit);
+            this.performanceObservers.push(observer);
+        } catch (_e) {
+            // Some browsers expose a type in supportedEntryTypes but still reject buffered observation.
+        }
+    }
+
+    private trackWebVitals(source: string, options: FlushOptions = {}) {
+        if (!Object.keys(this.webVitals).length) return;
+        this.track('web_vitals_observed', {
+            source,
+            ...this.webVitals
+        }, options);
+    }
+
+    private classifyResourceTiming(entryUrl: URL) {
+        const urls = this.options.resourceUrls ?? {};
+        const path = entryUrl.pathname;
+        const matches = (value: string | undefined) => pathWithoutQuery(value) === path;
+
+        if (matches(urls.index) || path === '/data/index.json') return 'index';
+        if (matches(urls.content) || pathWithoutQuery(this.options.contentUrl) === path) return 'model';
+        if (matches(urls.settings)) return 'settings';
+        if (matches(urls.poster)) return 'poster';
+        if (matches(urls.environment)) return 'environment';
+        if (path.startsWith('/data/') && RESOURCE_TIMING_EXTENSIONS.test(path)) return 'data_asset';
+        return null;
+    }
+
+    private trackResourceTimings(source: string, options: FlushOptions = {}) {
+        const entries = performance.getEntriesByType('resource') as PerformanceResourceTiming[];
+        const timings = [];
+
+        for (const entry of entries) {
+            let url: URL;
+            try {
+                url = new URL(entry.name, location.href);
+            } catch (_e) {
+                continue;
+            }
+            const resource_role = this.classifyResourceTiming(url);
+            if (!resource_role) continue;
+            const key = `${url.pathname}:${Math.round(entry.startTime)}`;
+            if (this.resourceTimingKeys.has(key)) continue;
+            this.resourceTimingKeys.add(key);
+            timings.push({
+                resource_role,
+                path: url.pathname,
+                initiator_type: entry.initiatorType,
+                start_time_ms: Math.round(entry.startTime),
+                duration_ms: Math.round(entry.duration),
+                transfer_size_bytes: entry.transferSize,
+                encoded_body_size_bytes: entry.encodedBodySize,
+                decoded_body_size_bytes: entry.decodedBodySize,
+                cache_result: entry.transferSize === 0 && entry.encodedBodySize > 0 ? 'cache_or_cross_origin' : 'network'
+            });
+        }
+
+        if (!timings.length) return;
+        this.track('resource_timing_collected', {
+            source,
+            entry_count: timings.length,
+            transfer_size_bytes_total: timings.reduce((sum, entry) => sum + (entry.transfer_size_bytes || 0), 0),
+            entries: timings.slice(0, 50)
+        }, options);
+    }
+
+    private addInteractionDepth(key: keyof InteractionDepthCounters, value: number) {
+        this.interactionDepthTotal[key] += value;
+        this.interactionDepthSinceLast[key] += value;
+    }
+
+    private resetInteractionDepthSinceLast() {
+        for (const key of Object.keys(this.interactionDepthSinceLast) as Array<keyof InteractionDepthCounters>) {
+            this.interactionDepthSinceLast[key] = 0;
+        }
+    }
+
+    private finalizeKeyboardDurations() {
+        const now = Date.now();
+        for (const [code, startedAt] of this.activeKeyboardStarts.entries()) {
+            if (KEYBOARD_INTERACTION_KEYS.has(code)) {
+                this.addInteractionDepth('keyboard_move_ms', Math.max(0, now - startedAt));
+            }
+        }
+        this.activeKeyboardStarts.clear();
+    }
+
+    private handleWheel = () => {
+        this.addInteractionDepth('wheel_count', 1);
+    };
+
+    private handlePointerDown = (event: PointerEvent) => {
+        this.pointerDownAt = Date.now();
+        this.pointerDragRecorded = false;
+        this.addInteractionDepth('pointer_down_count', 1);
+        if (event.pointerType === 'touch') {
+            this.addInteractionDepth('touch_interaction_count', 1);
+        }
+        const target = event.target as Element | null;
+        if (target?.closest?.('#joystickBase,#joystick')) {
+            this.joystickStartedAt = Date.now();
+        }
+    };
+
+    private handlePointerMove = (event: PointerEvent) => {
+        if (this.pointerDownAt === null || this.pointerDragRecorded) return;
+        if (event.buttons === 0) return;
+        if (Date.now() - this.pointerDownAt < 120) return;
+        this.pointerDragRecorded = true;
+        this.addInteractionDepth('pointer_drag_count', 1);
+    };
+
+    private handlePointerUp = () => {
+        if (this.joystickStartedAt !== null) {
+            this.addInteractionDepth('joystick_touch_ms', Math.max(0, Date.now() - this.joystickStartedAt));
+            this.joystickStartedAt = null;
+        }
+        this.pointerDownAt = null;
+        this.pointerDragRecorded = false;
+    };
+
+    private handleKeyDown = (event: KeyboardEvent) => {
+        if (event.repeat) return;
+        if (!KEYBOARD_INTERACTION_KEYS.has(event.code)) return;
+        this.addInteractionDepth('keyboard_event_count', 1);
+        this.activeKeyboardStarts.set(event.code, Date.now());
+    };
+
+    private handleKeyUp = (event: KeyboardEvent) => {
+        const startedAt = this.activeKeyboardStarts.get(event.code);
+        if (startedAt === undefined) return;
+        this.activeKeyboardStarts.delete(event.code);
+        this.addInteractionDepth('keyboard_move_ms', Math.max(0, Date.now() - startedAt));
+    };
 
     private async ensurePostHog() {
         if (!this.posthogEnabled || this.posthog) return;
@@ -776,20 +1183,36 @@ class AnalyticsClient {
     };
 
     private handleError = (event: ErrorEvent) => {
+        const snapshot = this.stateProvider?.();
+        const stack = event.error?.stack ?? event.message;
         this.track('client_error', {
             error_name: event.error?.name ?? 'Error',
             error_message: event.message,
+            error_stack_hash: stack ? hashString(String(stack)) : undefined,
+            severity: 'error',
             source: event.filename ? new URL(event.filename, location.href).pathname : undefined,
             line: event.lineno,
-            column: event.colno
+            column: event.colno,
+            renderer: this.options.renderer,
+            input_mode: snapshot?.inputMode,
+            camera_mode: snapshot?.cameraMode,
+            loading_stage: snapshot?.loadingStage
         }, { beacon: true });
     };
 
     private handleRejection = (event: PromiseRejectionEvent) => {
         const reason = event.reason;
+        const snapshot = this.stateProvider?.();
+        const stack = reason?.stack ?? reason?.message ?? String(reason);
         this.track('client_error', {
             error_name: reason?.name ?? 'UnhandledRejection',
-            error_message: reason?.message ?? String(reason)
+            error_message: reason?.message ?? String(reason),
+            error_stack_hash: stack ? hashString(String(stack)) : undefined,
+            severity: 'error',
+            renderer: this.options.renderer,
+            input_mode: snapshot?.inputMode,
+            camera_mode: snapshot?.cameraMode,
+            loading_stage: snapshot?.loadingStage
         }, { beacon: true });
     };
 

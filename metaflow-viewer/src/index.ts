@@ -454,6 +454,7 @@ const main = async (canvas: HTMLCanvasElement, settingsJson: any, config: Config
         route: location.pathname,
         contentUrl: config.contentUrl,
         resource: config.analyticsResource,
+        resourceUrls: config.analyticsResourceUrls,
         renderer: config.renderer
     });
 
@@ -483,13 +484,19 @@ const main = async (canvas: HTMLCanvasElement, settingsJson: any, config: Config
         requested_renderer: config.renderer
     });
 
+    const analyticsPageStartedAt = Date.now();
+    let analyticsLoadingStageStartedAt = analyticsPageStartedAt;
     events.on('loadingStage:changed', (stage: LoadingStage, previousStage: LoadingStage) => {
+        const now = Date.now();
         analytics.track('loading_stage_changed', {
             stage,
             previous_stage: previousStage,
+            stage_elapsed_ms: Math.max(0, now - analyticsLoadingStageStartedAt),
+            page_elapsed_ms: Math.max(0, now - analyticsPageStartedAt),
             progress: state.progress,
             loading_mode: state.loadingMode
         });
+        analyticsLoadingStageStartedAt = now;
     });
     events.on('firstFrame', () => {
         analytics.markFirstFrame();

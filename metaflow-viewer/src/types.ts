@@ -66,6 +66,13 @@ type Config = {
     posthogHost?: string;
     posthogReplay?: boolean;
     analyticsResource?: AnalyticsResourceContext;
+    analyticsResourceUrls?: {
+        index?: string;
+        content?: string;
+        settings?: string;
+        poster?: string;
+        environment?: string;
+    };
     analyticsRouteMatched?: boolean;
 
     noui: boolean;

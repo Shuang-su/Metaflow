@@ -39,6 +39,7 @@
   [headers.values]
     Access-Control-Allow-Origin = "*"
     Permissions-Policy = "xr-spatial-tracking=*"
+    Accept-CH = "Sec-CH-UA, Sec-CH-UA-Mobile, Sec-CH-UA-Platform, Sec-CH-UA-Model, Sec-CH-UA-Platform-Version, Sec-CH-UA-Arch, Sec-CH-UA-Bitness"
 
 [[headers]]
   for = "/editor/static/*"

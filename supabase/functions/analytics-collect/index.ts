@@ -13,6 +13,8 @@ const EVENT_NAMES = new Set([
   'loading_stage_changed',
   'first_frame_ready',
   'resource_load_failed',
+  'web_vitals_observed',
+  'resource_timing_collected',
   'ui_clicked',
   'settings_changed',
   'camera_mode_changed',
@@ -105,6 +107,12 @@ const safeJson = (value: unknown): JsonRecord => {
   return isRecord(value) ? value : {};
 };
 
+const safeBool = (value: unknown) => {
+  if (typeof value === 'boolean') return value;
+  if (typeof value === 'string') return value === '?1' || value.toLowerCase() === 'true';
+  return false;
+};
+
 const safeSegment = (value: string) => {
   return value.replace(/[^a-zA-Z0-9_.-]/g, '_').slice(0, 160);
 };
@@ -116,6 +124,106 @@ const hashAnonymousId = async (anonymousId: string) => {
   return Array.from(new Uint8Array(digest))
     .map((byte) => byte.toString(16).padStart(2, '0'))
     .join('');
+};
+
+const parseStructuredHeaderString = (value: string | null) => {
+  if (!value) return '';
+  return value.trim().replace(/^"|"$/g, '').slice(0, 256);
+};
+
+const parseClientHintBrands = (value: string | null) => {
+  if (!value) return [];
+  return value.split(',').map((part) => {
+    const brand = part.match(/"([^"]+)"/)?.[1] ?? '';
+    const version = part.match(/v="([^"]+)"/)?.[1] ?? '';
+    return brand ? { brand: brand.slice(0, 128), version: version.slice(0, 32) } : null;
+  }).filter(Boolean);
+};
+
+const parseBrowser = (userAgent: string, brands: JsonRecord[] = []) => {
+  const brandNames = brands.map((brand) => safeString(brand.brand).toLowerCase()).filter(Boolean);
+  if (brandNames.some((brand) => brand.includes('edge'))) return 'Edge';
+  if (brandNames.some((brand) => brand.includes('chrome') || brand.includes('chromium'))) return 'Chrome';
+  if (brandNames.some((brand) => brand.includes('opera'))) return 'Opera';
+  if (/Edg\//.test(userAgent)) return 'Edge';
+  if (/OPR\//.test(userAgent)) return 'Opera';
+  if (/Firefox\//.test(userAgent)) return 'Firefox';
+  if (/Chrome\//.test(userAgent) || /CriOS\//.test(userAgent)) return 'Chrome';
+  if (/Safari\//.test(userAgent)) return 'Safari';
+  return 'Unknown';
+};
+
+const parseBrowserVersion = (userAgent: string, browser: string, brands: JsonRecord[] = []) => {
+  const brand = brands.find((entry) => safeString(entry.brand).toLowerCase().includes(browser.toLowerCase()));
+  if (brand) return safeString(brand.version);
+  const patterns: Record<string, RegExp> = {
+    Edge: /Edg\/([0-9.]+)/,
+    Opera: /OPR\/([0-9.]+)/,
+    Firefox: /Firefox\/([0-9.]+)/,
+    Chrome: /(?:Chrome|CriOS)\/([0-9.]+)/,
+    Safari: /Version\/([0-9.]+)/
+  };
+  return userAgent.match(patterns[browser])?.[1]?.slice(0, 64) ?? '';
+};
+
+const parseOs = (userAgent: string, platformHint = '') => {
+  const platform = platformHint || '';
+  if (/iPhone|iPad|iPod/i.test(userAgent) || /iOS/i.test(platform)) return 'iOS';
+  if (/Android/i.test(userAgent) || /Android/i.test(platform)) return 'Android';
+  if (/Macintosh|Mac OS X/i.test(userAgent) || /macOS/i.test(platform)) return 'macOS';
+  if (/Windows/i.test(userAgent) || /Windows/i.test(platform)) return 'Windows';
+  if (/Linux/i.test(userAgent) || /Linux/i.test(platform)) return 'Linux';
+  return platform ? platform.slice(0, 128) : 'Unknown';
+};
+
+const parseDeviceClass = (userAgent: string, mobileHint: boolean, maxTouchPoints = 0) => {
+  if (/iPad|Tablet/i.test(userAgent)) return 'tablet';
+  if (/Mobile|iPhone|Android/i.test(userAgent) || mobileHint) return 'mobile';
+  if (maxTouchPoints > 1 && /Macintosh/i.test(userAgent)) return 'tablet';
+  return 'desktop';
+};
+
+const enrichDeviceContext = (request: Request, clientDevice: JsonRecord) => {
+  const headers = request.headers;
+  const userAgent = safeString(clientDevice.user_agent || headers.get('user-agent'), '');
+  const clientHints = safeJson(clientDevice.client_hints);
+  const headerBrands = parseClientHintBrands(headers.get('sec-ch-ua')) as JsonRecord[];
+  const lowEntropyBrands = Array.isArray(clientHints.brands) ? clientHints.brands.filter(isRecord) : [];
+  const brands = lowEntropyBrands.length ? lowEntropyBrands : headerBrands;
+  const highEntropy = safeJson(clientHints.high_entropy);
+  const platform = safeString(clientHints.platform || headers.get('sec-ch-ua-platform'));
+  const mobile = safeBool(clientHints.mobile ?? headers.get('sec-ch-ua-mobile'));
+  const model = safeString(highEntropy.model || headers.get('sec-ch-ua-model'));
+  const browser = parseBrowser(userAgent, brands);
+  const os = parseOs(userAgent, platform);
+  const maxTouchPoints = safeInt(clientDevice.max_touch_points, 0);
+  const deviceClass = parseDeviceClass(userAgent, mobile, maxTouchPoints);
+
+  return {
+    ...clientDevice,
+    user_agent: userAgent,
+    client_hints: {
+      ...clientHints,
+      brands,
+      mobile,
+      platform,
+      high_entropy: {
+        ...highEntropy,
+        model: model || undefined,
+        platform_version: safeString(highEntropy.platform_version || headers.get('sec-ch-ua-platform-version')),
+        architecture: safeString(highEntropy.architecture || headers.get('sec-ch-ua-arch')),
+        bitness: safeString(highEntropy.bitness || headers.get('sec-ch-ua-bitness'))
+      }
+    },
+    browser,
+    browser_version: parseBrowserVersion(userAgent, browser, brands),
+    os,
+    os_version: safeString(highEntropy.platform_version || headers.get('sec-ch-ua-platform-version')),
+    device_class: deviceClass,
+    device_model: model,
+    is_mobile: deviceClass === 'mobile',
+    is_tablet: deviceClass === 'tablet'
+  };
 };
 
 const rejectBatch = async (
@@ -192,7 +300,8 @@ Deno.serve(async (request) => {
 
   const anonymousUserIdHash = await hashAnonymousId(anonymousId);
   const context = safeJson(payload.context);
-  const device = safeJson(context.device);
+  const device = enrichDeviceContext(request, safeJson(context.device));
+  const enrichedContext = { ...context, device };
   const route = safeString(context.route);
   const resourceId = safeString(context.resource_id);
   const validRows = [];
@@ -227,7 +336,7 @@ Deno.serve(async (request) => {
       app_version: safeString(context.app_version),
       release_display_version: safeString(context.release_display_version),
       git_ref: safeString(context.git_ref),
-      context,
+      context: enrichedContext,
       device,
       properties,
       sampling_rate: typeof properties.sample_rate === 'number' ? properties.sample_rate : null

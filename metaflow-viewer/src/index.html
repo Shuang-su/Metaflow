@@ -294,6 +294,13 @@
                     posthogHost,
                     posthogReplay,
                     analyticsResource,
+                    analyticsResourceUrls: {
+                        index: dataUrl('index.json'),
+                        content: contentUrl,
+                        settings: settingsUrl,
+                        poster: posterUrl || undefined,
+                        environment: environmentUrl || undefined
+                    },
                     analyticsRouteMatched,
                     revealEffect: url.searchParams.has('noreveal') ? 'none' : 'radial',
                     contentUrl,

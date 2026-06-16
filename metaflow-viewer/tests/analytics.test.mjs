@@ -18,6 +18,8 @@ const requiredEvents = [
     'loading_stage_changed',
     'first_frame_ready',
     'resource_load_failed',
+    'web_vitals_observed',
+    'resource_timing_collected',
     'ui_clicked',
     'settings_changed',
     'camera_mode_changed',
@@ -45,7 +47,7 @@ const requiredEvents = [
 test('tracking plan defines the v1 event contract', async () => {
     const plan = await readJson(new URL('../../analytics/tracking-plan.json', import.meta.url));
 
-    assert.equal(plan.schema_version, 'analytics.v1');
+    assert.equal(plan.schema_version, 'analytics.v1.1');
     assert.equal(plan.source_app, 'metaflow-viewer');
     assert.equal(plan.heartbeat_interval_ms, 15000);
     assert.equal(plan.session_timeout_ms, 1800000);
@@ -56,7 +58,10 @@ test('tracking plan defines the v1 event contract', async () => {
     assert.deepEqual(plan.sinks.allowed, ['supabase', 'posthog', 'dual']);
     assert.ok(plan.sinks.posthog_allowlist.includes('session_summary'));
     assert.ok(!plan.sinks.posthog_allowlist.includes('session_heartbeat'));
+    assert.ok(plan.sinks.posthog_excluded.includes('web_vitals_observed'));
+    assert.ok(plan.sinks.posthog_excluded.includes('resource_timing_collected'));
     assert.ok(plan.sinks.posthog_excluded.includes('collab_presence_changed'));
+    assert.ok(plan.common_context.includes('acquisition'));
 
     for (const eventName of requiredEvents) {
         assert.ok(plan.events[eventName], `missing event ${eventName}`);
@@ -90,6 +95,25 @@ test('frontend SDK implements heartbeat, beacon flushing, and replay privacy def
     assert.match(source, /maskTextClass: 'rr-mask'/);
 });
 
+test('frontend SDK captures device hints, acquisition, performance, and aggregate interaction depth', async () => {
+    const source = await readText(new URL('../src/analytics/client.ts', import.meta.url));
+
+    assert.match(source, /navigator\.userAgent/);
+    assert.match(source, /userAgentData/);
+    assert.match(source, /getHighEntropyValues/);
+    assert.match(source, /getAcquisitionContext/);
+    assert.match(source, /utm_source/);
+    assert.match(source, /PerformanceObserver/);
+    assert.match(source, /largest-contentful-paint/);
+    assert.match(source, /layout-shift/);
+    assert.match(source, /first-input/);
+    assert.match(source, /resource_timing_collected/);
+    assert.match(source, /web_vitals_observed/);
+    assert.match(source, /interaction_depth_since_last/);
+    assert.match(source, /joystick_touch_ms/);
+    assert.match(source, /error_stack_hash/);
+});
+
 test('viewer wires analytics into route, load, UI, navigation, and XR surfaces', async () => {
     const index = await readText(new URL('../src/index.ts', import.meta.url));
     const html = await readText(new URL('../src/index.html', import.meta.url));
@@ -101,7 +125,10 @@ test('viewer wires analytics into route, load, UI, navigation, and XR surfaces',
     assert.match(html, /metaflow-posthog-key/);
     assert.match(html, /analyticsSink/);
     assert.match(index, /posthogKey: config\.posthogKey/);
+    assert.match(index, /resourceUrls: config\.analyticsResourceUrls/);
+    assert.match(index, /stage_elapsed_ms/);
     assert.match(html, /analyticsResource = \{/);
+    assert.match(html, /analyticsResourceUrls/);
     assert.match(html, /noanalytics:/);
     assert.match(index, /createAnalyticsClient/);
     assert.match(index, /analytics\.track\('resource_load_started'/);
@@ -117,6 +144,7 @@ test('viewer wires analytics into route, load, UI, navigation, and XR surfaces',
 
 test('supabase migration exposes metabase-ready analytics models', async () => {
     const sql = await readText(new URL('../../supabase/migrations/20260616000000_analytics_v1.sql', import.meta.url));
+    const v11 = await readText(new URL('../../supabase/migrations/20260616103041_analytics_v11_device_acquisition_performance.sql', import.meta.url));
     const grants = await readText(new URL('../../supabase/migrations/20260616092508_analytics_service_role_grants.sql', import.meta.url));
 
     for (const tableName of ['events_raw', 'events_rejected', 'replay_chunks', 'dim_resource']) {
@@ -132,6 +160,19 @@ test('supabase migration exposes metabase-ready analytics models', async () => {
     for (const rollupName of ['daily_route_metrics', 'daily_resource_metrics', 'daily_device_metrics', 'daily_error_metrics', 'daily_collaboration_metrics']) {
         assert.match(sql, new RegExp(`analytics\\.${rollupName}`), `missing ${rollupName}`);
     }
+
+    for (const viewName of ['fact_web_vitals', 'fact_resource_timings', 'fact_resource_stage_timings', 'fact_users']) {
+        assert.match(v11, new RegExp(`analytics\\.${viewName}`), `missing ${viewName}`);
+        assert.match(v11, /security_invoker = true/);
+    }
+
+    for (const rollupName of ['daily_performance_metrics', 'daily_user_metrics', 'daily_data_quality_metrics']) {
+        assert.match(v11, new RegExp(`analytics\\.${rollupName}`), `missing ${rollupName}`);
+    }
+
+    assert.match(v11, /browser/);
+    assert.match(v11, /utm_source/);
+    assert.match(v11, /heartbeat_coverage_rate/);
 
     assert.match(sql, /analytics_reader/);
     assert.match(sql, /analytics-replays/);
@@ -151,6 +192,11 @@ test('collector validates origins, schema, anonymous hashing, and service-role w
     assert.match(source, /MAX_EVENTS_PER_BATCH/);
     assert.match(source, /EVENT_NAMES/);
     assert.match(source, /collab_session_summary/);
+    assert.match(source, /web_vitals_observed/);
+    assert.match(source, /resource_timing_collected/);
+    assert.match(source, /sec-ch-ua/);
+    assert.match(source, /parseBrowser/);
+    assert.match(source, /device_class/);
     assert.match(source, /session_summary/);
     assert.match(source, /events_rejected/);
     assert.match(source, /from\('events_raw'\)/);

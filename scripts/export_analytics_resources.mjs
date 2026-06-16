@@ -19,8 +19,9 @@ const numberLiteral = (value) => {
 
 const index = JSON.parse(await readFile(new URL('../data/index.json', import.meta.url), 'utf8'));
 const resources = Array.isArray(index.resources) ? index.resources : [];
+const uniqueResources = Array.from(new Map(resources.map((resource) => [resource.id, resource])).values());
 
-const rows = resources.map((resource) => {
+const rows = uniqueResources.map((resource) => {
   const files = resource.files ?? {};
   const fileSize = resource.fileSize ?? {};
   const viewer = resource.viewer ?? {};
