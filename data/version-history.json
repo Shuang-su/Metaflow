@@ -1,14 +1,14 @@
 {
   "schemaVersion": "1.0",
-  "cutoffGitRef": "1d9ab2b",
-  "documentedThrough": "1d9ab2b",
+  "cutoffGitRef": "8b37760",
+  "documentedThrough": "8b37760",
   "defaultResourceVersion": "1.0a",
   "current": {
-    "displayVersion": "5.9",
-    "appSemver": "5.9.0",
+    "displayVersion": "5.10",
+    "appSemver": "5.10.0",
     "indexSchemaVersion": "1.2",
-    "date": "2026-06-11",
-    "gitRef": "1d9ab2b",
+    "date": "2026-06-16",
+    "gitRef": "8b37760",
     "historyUrl": "/data/version-history.json"
   },
   "versioning": {
@@ -74,6 +74,11 @@
       "gitRef": "1ef4308",
       "date": "2026-06-11",
       "summary": "chore(release): document Metaflow Viewer 5.8"
+    },
+    {
+      "gitRef": "01ecdcb",
+      "date": "2026-06-11",
+      "summary": "chore(release): document Metaflow Viewer 5.9"
     }
   ],
   "entries": [
@@ -1154,6 +1159,15 @@
       "date": "2026-06-11",
       "gitRef": "1d9ab2b",
       "summary": "feat(viewer): tune reveal pacing and early streaming subject LOD"
+    },
+    {
+      "displayVersion": "5.10",
+      "appSemver": "5.10.0",
+      "type": "feature",
+      "scope": "analytics",
+      "date": "2026-06-16",
+      "gitRef": "8b37760",
+      "summary": "feat(analytics): add Supabase behavior telemetry pipeline"
     }
   ]
 }
