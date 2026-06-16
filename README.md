@@ -116,17 +116,18 @@ location / {
 
 | 字段 | 值 |
 |------|----|
-| 展示版本 | `5.10` |
-| 包版本 | `5.10.0` |
+| 展示版本 | `5.11` |
+| 包版本 | `5.11.0` |
 | 索引 schema | `1.2` |
 | 上游 SuperSplat Viewer | `v1.26.2` |
 | PlayCanvas | `2.19.2` |
-| 已审计至 commit | `8b37760` |
+| 已审计至 commit | `b06b13c` |
 
 ## 最近版本
 
 | 版本 | commit | 摘要 |
 |------|--------|------|
+| `5.11` | `b06b13c` | 补充 UA/Client Hints、来源归因、Web Vitals、Resource Timing、聚合交互深度和设备/性能/用户/数据质量建模 |
 | `5.10` | `8b37760` | 新增 Supabase 权威埋点链路、15 秒可见心跳、Metabase 建模表、可选 PostHog 精简镜像和多人同屏分析事件预留 |
 | `5.9` | `1d9ab2b` | 调慢 SOG/流式 reveal、uRevealActive 藏点、流式主体提前高 LOD、环境不阻塞首帧、c2-lib 首次退出动画进 Orbit |
 | `5.8` | `4e848ac` | 按场景分档 reveal 点大小，修复流式 LOD 双波揭示，恢复 loading 后可见再播放 |

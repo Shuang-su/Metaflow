@@ -1,14 +1,14 @@
 {
   "schemaVersion": "1.0",
-  "cutoffGitRef": "8b37760",
-  "documentedThrough": "8b37760",
+  "cutoffGitRef": "b06b13c",
+  "documentedThrough": "b06b13c",
   "defaultResourceVersion": "1.0a",
   "current": {
-    "displayVersion": "5.10",
-    "appSemver": "5.10.0",
+    "displayVersion": "5.11",
+    "appSemver": "5.11.0",
     "indexSchemaVersion": "1.2",
     "date": "2026-06-16",
-    "gitRef": "8b37760",
+    "gitRef": "b06b13c",
     "historyUrl": "/data/version-history.json"
   },
   "versioning": {
@@ -79,6 +79,11 @@
       "gitRef": "01ecdcb",
       "date": "2026-06-11",
       "summary": "chore(release): document Metaflow Viewer 5.9"
+    },
+    {
+      "gitRef": "e01b004",
+      "date": "2026-06-16",
+      "summary": "chore(release): document Metaflow Viewer 5.10"
     }
   ],
   "entries": [
@@ -1125,6 +1130,15 @@
       "date": "2026-06-16",
       "gitRef": "8b37760",
       "summary": "feat(analytics): add Supabase behavior telemetry pipeline"
+    },
+    {
+      "displayVersion": "5.11",
+      "appSemver": "5.11.0",
+      "type": "feature",
+      "scope": "analytics",
+      "date": "2026-06-16",
+      "gitRef": "b06b13c",
+      "summary": "feat(analytics): enrich device acquisition and performance telemetry"
     }
   ]
 }
