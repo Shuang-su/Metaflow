@@ -185,6 +185,7 @@ test('collector validates origins, schema, anonymous hashing, and service-role w
     const source = await readText(new URL('../../supabase/functions/analytics-collect/index.ts', import.meta.url));
 
     assert.match(source, /ANALYTICS_ALLOWED_ORIGINS/);
+    assert.match(source, /Access-Control-Allow-Credentials': 'true'/);
     assert.match(source, /SUPABASE_SERVICE_ROLE_KEY/);
     assert.match(source, /ANALYTICS_HASH_SALT/);
     assert.match(source, /crypto\.subtle\.digest\('SHA-256'/);

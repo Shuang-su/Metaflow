@@ -76,6 +76,7 @@ const corsHeadersFor = (request: Request) => {
     allowed,
     headers: {
       'Access-Control-Allow-Origin': allowed ? origin : 'null',
+      'Access-Control-Allow-Credentials': 'true',
       'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
       'Access-Control-Allow-Methods': 'POST, OPTIONS',
       'Vary': 'Origin'

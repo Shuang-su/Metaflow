@@ -44,7 +44,7 @@ const buildCss = {
         scss({
             exclude: ['static/**/*'],
             fileName: 'index.css',
-            sourceMap: true,
+            sourceMap: false,
             runtime: sass,
             processor: (css) => {
                 return postcss([autoprefixer])
