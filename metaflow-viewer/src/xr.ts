@@ -54,6 +54,9 @@ const initXr = (global: Global) => {
     parent.script.create(XrVrNavigation);
 
     app.xr.on('start', () => {
+        global.analytics.track('xr_started', {
+            xr_mode: app.xr.type === 'immersive-ar' ? 'AR' : 'VR'
+        });
         app.autoRender = true;
 
         // cache original camera rig positions and rotations
@@ -106,6 +109,10 @@ const initXr = (global: Global) => {
 
     app.xr.on('error', (err: Error) => {
         console.warn('[XR] Session error:', err.message);
+        global.analytics.track('xr_failed', {
+            xr_mode: app.xr.type === 'immersive-ar' ? 'AR' : 'VR',
+            reason: err.message
+        });
     });
 
     const start = (type: 'immersive-ar' | 'immersive-vr') => {

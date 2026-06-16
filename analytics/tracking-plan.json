@@ -1,0 +1,266 @@
+{
+  "schema_version": "analytics.v1",
+  "source_app": "metaflow-viewer",
+  "heartbeat_interval_ms": 15000,
+  "session_timeout_ms": 1800000,
+  "privacy": {
+    "input_text_policy": "never_collect",
+    "record_canvas": false,
+    "mask_all_inputs": true,
+    "replay_sample_rate": 0.05
+  },
+  "sinks": {
+    "default": "supabase",
+    "allowed": ["supabase", "posthog", "dual"],
+    "posthog_mirror_policy": "allowlist_only",
+    "posthog_allowlist": [
+      "page_viewed",
+      "first_frame_ready",
+      "resource_load_failed",
+      "ui_clicked",
+      "settings_changed",
+      "camera_mode_changed",
+      "navigation_completed",
+      "fullscreen_changed",
+      "xr_started",
+      "xr_failed",
+      "client_error",
+      "session_summary"
+    ],
+    "posthog_excluded": [
+      "session_heartbeat",
+      "loading_stage_changed",
+      "replay_uploaded",
+      "collab_presence_changed"
+    ]
+  },
+  "common_context": [
+    "app_version",
+    "release_display_version",
+    "git_ref",
+    "analytics_sink",
+    "route",
+    "resource_id",
+    "session_id",
+    "page_view_id",
+    "renderer",
+    "input_mode",
+    "camera_mode",
+    "viewport",
+    "device_pixel_ratio"
+  ],
+  "events": {
+    "session_started": {
+      "version": 1,
+      "owner": "viewer",
+      "description": "A browser session starts or resumes after the inactivity timeout.",
+      "required_properties": ["session_timeout_ms"]
+    },
+    "page_viewed": {
+      "version": 1,
+      "owner": "viewer",
+      "description": "A route or direct content URL is ready to be analyzed as a page view.",
+      "required_properties": ["route", "content_url"]
+    },
+    "session_heartbeat": {
+      "version": 1,
+      "owner": "viewer",
+      "description": "Periodic visible-page heartbeat used for duration and engagement metrics.",
+      "required_properties": [
+        "visible",
+        "loaded",
+        "loading_stage",
+        "active_ms",
+        "engaged_ms",
+        "idle_ms",
+        "interactions_since_last",
+        "camera_mode",
+        "input_mode"
+      ]
+    },
+    "page_hidden": {
+      "version": 1,
+      "owner": "viewer",
+      "description": "The page becomes hidden; emitted as a final visible-state snapshot."
+    },
+    "page_restored": {
+      "version": 1,
+      "owner": "viewer",
+      "description": "The page becomes visible again after being hidden."
+    },
+    "session_ended": {
+      "version": 1,
+      "owner": "viewer",
+      "description": "Best-effort unload/pagehide flush. Analysis should prefer last heartbeat."
+    },
+    "session_summary": {
+      "version": 1,
+      "owner": "viewer",
+      "description": "Best-effort low-frequency session summary intended for warehouse rollups and optional PostHog mirroring.",
+      "required_properties": [
+        "session_duration_ms",
+        "active_ms",
+        "engaged_ms",
+        "interactions_total",
+        "first_frame_ready"
+      ]
+    },
+    "route_resolved": {
+      "version": 1,
+      "owner": "viewer",
+      "description": "The public route was matched to a data/index.json resource or fell back to URL parameters.",
+      "required_properties": ["matched", "route"]
+    },
+    "resource_load_started": {
+      "version": 1,
+      "owner": "viewer",
+      "description": "Primary model loading begins.",
+      "required_properties": ["content_url"]
+    },
+    "loading_stage_changed": {
+      "version": 1,
+      "owner": "viewer",
+      "description": "Structured loading stage changes.",
+      "required_properties": ["stage"]
+    },
+    "first_frame_ready": {
+      "version": 1,
+      "owner": "viewer",
+      "description": "The first renderable frame is available.",
+      "required_properties": ["time_to_first_frame_ms"]
+    },
+    "resource_load_failed": {
+      "version": 1,
+      "owner": "viewer",
+      "description": "Primary resource loading failed before first frame.",
+      "required_properties": ["loading_stage", "error_name"]
+    },
+    "ui_clicked": {
+      "version": 1,
+      "owner": "viewer-ui",
+      "description": "A whitelisted UI control was clicked.",
+      "required_properties": ["element_id", "action"]
+    },
+    "settings_changed": {
+      "version": 1,
+      "owner": "viewer-ui",
+      "description": "A persistent viewer setting changed.",
+      "required_properties": ["setting", "value"]
+    },
+    "camera_mode_changed": {
+      "version": 1,
+      "owner": "viewer-camera",
+      "description": "The active camera mode changed.",
+      "required_properties": ["camera_mode", "previous_camera_mode"]
+    },
+    "navigation_requested": {
+      "version": 1,
+      "owner": "viewer-camera",
+      "description": "Click/tap navigation to a scene target was requested."
+    },
+    "navigation_completed": {
+      "version": 1,
+      "owner": "viewer-camera",
+      "description": "Automatic navigation completed."
+    },
+    "navigation_cancelled": {
+      "version": 1,
+      "owner": "viewer-camera",
+      "description": "Automatic navigation was cancelled."
+    },
+    "annotation_opened": {
+      "version": 1,
+      "owner": "viewer-ui",
+      "description": "An annotation was opened via hotspot or navigator."
+    },
+    "fullscreen_changed": {
+      "version": 1,
+      "owner": "viewer-ui",
+      "description": "Fullscreen state changed.",
+      "required_properties": ["is_fullscreen"]
+    },
+    "xr_requested": {
+      "version": 1,
+      "owner": "viewer-xr",
+      "description": "AR or VR was requested from the UI.",
+      "required_properties": ["xr_mode"]
+    },
+    "xr_started": {
+      "version": 1,
+      "owner": "viewer-xr",
+      "description": "An AR or VR session started.",
+      "required_properties": ["xr_mode"]
+    },
+    "xr_failed": {
+      "version": 1,
+      "owner": "viewer-xr",
+      "description": "An AR or VR request failed or required a renderer switch.",
+      "required_properties": ["xr_mode", "reason"]
+    },
+    "client_error": {
+      "version": 1,
+      "owner": "viewer",
+      "description": "A handled or unhandled client-side error was observed.",
+      "required_properties": ["error_name", "error_message"]
+    },
+    "replay_started": {
+      "version": 1,
+      "owner": "viewer-replay",
+      "description": "A sampled rrweb behavior replay started."
+    },
+    "replay_uploaded": {
+      "version": 1,
+      "owner": "viewer-replay",
+      "description": "A behavior replay chunk was queued for upload.",
+      "required_properties": ["chunk_id", "event_count"]
+    },
+    "replay_failed": {
+      "version": 1,
+      "owner": "viewer-replay",
+      "description": "Replay capture or upload failed.",
+      "required_properties": ["reason"]
+    },
+    "collab_room_created": {
+      "version": 1,
+      "owner": "viewer-collab",
+      "description": "A future collaborative viewing room was created. Reserved for aggregate collaboration analytics.",
+      "required_properties": ["room_id"]
+    },
+    "collab_room_joined": {
+      "version": 1,
+      "owner": "viewer-collab",
+      "description": "A participant joined a collaborative viewing room.",
+      "required_properties": ["room_id", "participant_role"]
+    },
+    "collab_room_left": {
+      "version": 1,
+      "owner": "viewer-collab",
+      "description": "A participant left a collaborative viewing room.",
+      "required_properties": ["room_id", "duration_ms"]
+    },
+    "collab_presence_changed": {
+      "version": 1,
+      "owner": "viewer-collab",
+      "description": "Low-frequency collaborative presence count changed. High-frequency cursor/camera state must not use analytics raw events.",
+      "required_properties": ["room_id", "participant_count"]
+    },
+    "shared_camera_started": {
+      "version": 1,
+      "owner": "viewer-collab",
+      "description": "A participant started sharing camera state in a collaborative room.",
+      "required_properties": ["room_id"]
+    },
+    "shared_camera_stopped": {
+      "version": 1,
+      "owner": "viewer-collab",
+      "description": "A participant stopped sharing camera state in a collaborative room.",
+      "required_properties": ["room_id"]
+    },
+    "collab_session_summary": {
+      "version": 1,
+      "owner": "viewer-collab",
+      "description": "Aggregate collaboration session summary. Use this instead of storing high-frequency cursor or camera broadcasts.",
+      "required_properties": ["room_id", "duration_ms", "participant_peak_count"]
+    }
+  }
+}

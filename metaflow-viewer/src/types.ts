@@ -1,5 +1,6 @@
 import type { Entity, EventHandler, AppBase } from 'playcanvas';
 
+import type { AnalyticsClient, AnalyticsResourceContext, AnalyticsSink } from './analytics/client';
 import type { ExperienceSettings } from './settings';
 
 type CameraMode = 'orbit' | 'anim' | 'fly' | 'walk';
@@ -58,8 +59,17 @@ type Config = {
     animationFirstExitMode?: AnimationFirstExitMode;
     revealEffect?: RevealEffect;
     experienceType?: ExperienceType;
+    analyticsSink?: AnalyticsSink;
+    analyticsEndpoint?: string;
+    analyticsReplayRate?: number;
+    posthogKey?: string;
+    posthogHost?: string;
+    posthogReplay?: boolean;
+    analyticsResource?: AnalyticsResourceContext;
+    analyticsRouteMatched?: boolean;
 
     noui: boolean;
+    noanalytics?: boolean;
     noanim: boolean;
     nofx: boolean;                              // disable post effects
     hpr?: boolean;                              // override highPrecisionRendering (undefined = use settings)
@@ -108,6 +118,7 @@ type Global = {
     config: Config;
     state: State;
     events: EventHandler;
+    analytics: AnalyticsClient;
     camera: Entity;
     renderer: 'webgl' | 'webgpu';               // actual renderer after engine fallback
 };

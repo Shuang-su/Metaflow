@@ -9,6 +9,12 @@
         <meta name="author" content="Metaflow">
         <link rel="icon" type="image/svg+xml" href="./assets/metaflow_logo.svg">
         <link rel="apple-touch-icon" href="./assets/metaflow_web-2.jpg">
+        <meta name="metaflow-analytics-sink" content="%METAFLOW_ANALYTICS_SINK%">
+        <meta name="metaflow-analytics-endpoint" content="%METAFLOW_ANALYTICS_ENDPOINT%">
+        <meta name="metaflow-analytics-replay-rate" content="%METAFLOW_ANALYTICS_REPLAY_RATE%">
+        <meta name="metaflow-posthog-key" content="%METAFLOW_POSTHOG_KEY%">
+        <meta name="metaflow-posthog-host" content="%METAFLOW_POSTHOG_HOST%">
+        <meta name="metaflow-posthog-replay" content="%METAFLOW_POSTHOG_REPLAY%">
         <meta property="og:type" content="website">
         <meta property="og:url" content="https://metaflow.shuang-su.com/">
         <meta property="og:title" content="川流Metaflow">
@@ -178,6 +184,8 @@
             let syntheticAnimation = null;
             let animationFirstExitMode = null;
             let experienceType = null;
+            let analyticsResource = null;
+            let analyticsRouteMatched = false;
 
             const initConfig = async () => {
                 if (pathname !== '/' && pathname !== '/index.html' && !contentUrl) {
@@ -198,6 +206,17 @@
                         });
 
                         if (resource) {
+                            analyticsRouteMatched = true;
+                            analyticsResource = {
+                                id: resource?.id,
+                                route: resource?.route,
+                                title: resource?.title,
+                                category: Array.isArray(resource?.category) ? resource.category : [],
+                                experienceType: resource?.experienceType,
+                                fileSize: resource?.fileSize,
+                                viewer: resource?.viewer,
+                                version: resource?.version
+                            };
                             contentUrl = dataUrl(pickModelFile(resource));
                             settingsUrl = dataUrl(resource?.files?.settings);
                             posterUrl = posterUrl || dataUrl(resource?.files?.thumbnail);
@@ -226,6 +245,34 @@
                 const renderer = url.searchParams.has('webgl') ? 'webgl' : 'webgpu';
                 const budgetParam = url.searchParams.get('budget');
                 const budget = budgetParam !== null ? Number(budgetParam) : undefined;
+                const analyticsReplayRateParam = url.searchParams.get('analyticsReplayRate');
+                const analyticsReplayRate = analyticsReplayRateParam !== null ? Number(analyticsReplayRateParam) : undefined;
+                const analyticsSink =
+                    url.searchParams.get('analyticsSink') ||
+                    url.searchParams.get('analytics_sink') ||
+                    document.querySelector('meta[name="metaflow-analytics-sink"]')?.content ||
+                    'supabase';
+                const analyticsEndpoint =
+                    url.searchParams.get('analyticsEndpoint') ||
+                    document.querySelector('meta[name="metaflow-analytics-endpoint"]')?.content ||
+                    undefined;
+                const posthogKey =
+                    url.searchParams.get('posthogKey') ||
+                    url.searchParams.get('posthog_key') ||
+                    document.querySelector('meta[name="metaflow-posthog-key"]')?.content ||
+                    undefined;
+                const posthogHost =
+                    url.searchParams.get('posthogHost') ||
+                    url.searchParams.get('posthog_host') ||
+                    document.querySelector('meta[name="metaflow-posthog-host"]')?.content ||
+                    undefined;
+                const posthogReplayRaw =
+                    url.searchParams.get('posthogReplay') ||
+                    url.searchParams.get('posthog_replay') ||
+                    document.querySelector('meta[name="metaflow-posthog-replay"]')?.content ||
+                    '';
+                const posthogReplay = ['1', 'true', 'yes', 'on', 'enable', 'enabled'].includes(posthogReplayRaw.trim().toLowerCase());
+                const normalizedAnalyticsSink = analyticsSink.trim().toLowerCase();
 
                 return {
                     poster: posterUrl && createImage(posterUrl),
@@ -240,10 +287,19 @@
                     syntheticAnimation: syntheticAnimation === 'figure8' ? syntheticAnimation : undefined,
                     animationFirstExitMode: ['orbit', 'default'].includes(animationFirstExitMode) ? animationFirstExitMode : undefined,
                     experienceType: ['character', 'scene'].includes(experienceType) ? experienceType : undefined,
+                    analyticsSink: ['supabase', 'posthog', 'dual'].includes(normalizedAnalyticsSink) ? normalizedAnalyticsSink : 'supabase',
+                    analyticsEndpoint,
+                    analyticsReplayRate: Number.isFinite(analyticsReplayRate) ? analyticsReplayRate : undefined,
+                    posthogKey,
+                    posthogHost,
+                    posthogReplay,
+                    analyticsResource,
+                    analyticsRouteMatched,
                     revealEffect: url.searchParams.has('noreveal') ? 'none' : 'radial',
                     contentUrl,
                     contents: fetch(contentUrl),
                     noui: url.searchParams.has('noui'),
+                    noanalytics: url.searchParams.has('noanalytics') || url.searchParams.get('analytics') === '0',
                     noanim: url.searchParams.has('noanim'),
                     nofx: url.searchParams.has('nofx'),
                     hpr: url.searchParams.has('hpr') ? ['', '1', 'true', 'enable'].includes(url.searchParams.get('hpr')) : undefined,

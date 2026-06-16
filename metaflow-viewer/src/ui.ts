@@ -8,6 +8,34 @@ import { Global } from './types';
 
 const METAFLOW_ACCENT = '#42d2f6';
 
+const TRACKED_UI_ACTIONS: Record<string, string> = {
+    play: 'animation_play',
+    pause: 'animation_pause',
+    orbitCamera: 'camera_orbit',
+    flyCamera: 'camera_fly',
+    fpsCamera: 'camera_walk',
+    arMode: 'xr_ar',
+    vrMode: 'xr_vr',
+    showCollision: 'show_collision',
+    info: 'help_toggle',
+    settings: 'settings_toggle',
+    enterFullscreen: 'fullscreen_enter',
+    exitFullscreen: 'fullscreen_exit',
+    performanceModeRow: 'performance_mode_toggle',
+    gamingControlsRow: 'gaming_controls_toggle',
+    frame: 'frame_scene',
+    reset: 'reset_camera',
+    desktopTab: 'help_desktop_tab',
+    touchTab: 'help_touch_tab',
+    annotationPrev: 'annotation_previous',
+    annotationNext: 'annotation_next',
+    logoContainer: 'logo_link',
+    viewerTitle: 'viewer_title_link',
+    xrModalOk: 'xr_reload_webgl',
+    xrModalCancel: 'xr_modal_cancel',
+    walkHint: 'walk_hint_dismiss'
+};
+
 // Initialize the touch joystick for fly mode camera control
 const initJoystick = (
     dom: Record<string, HTMLElement>,
@@ -313,6 +341,18 @@ const initUI = (global: Global) => {
         (document.activeElement as HTMLElement)?.blur();
     });
 
+    dom.ui.addEventListener('click', (event: MouseEvent) => {
+        const target = (event.target as Element | null)?.closest<HTMLElement>('button,a,.settingsRow,#walkHint');
+        if (!target?.id) return;
+        const action = TRACKED_UI_ACTIONS[target.id];
+        if (!action) return;
+        global.analytics.track('ui_clicked', {
+            element_id: target.id,
+            action,
+            element_role: target.tagName.toLowerCase()
+        });
+    });
+
     // Forward wheel events from UI overlays to the canvas so the camera zooms
     // instead of the page scrolling (e.g. annotation nav, tooltips, hotspots).
     // The non-standard wheelDelta{X,Y} properties aren't part of WheelEventInit,
@@ -524,7 +564,15 @@ const initUI = (global: Global) => {
     dom.xrModal.addEventListener('pointerdown', hideXrModal);
 
     const handleXrClick = (type: 'AR' | 'VR') => {
+        global.analytics.track('xr_requested', {
+            xr_mode: type,
+            renderer: global.renderer
+        });
         if (global.renderer !== 'webgl') {
+            global.analytics.track('xr_failed', {
+                xr_mode: type,
+                reason: 'webgpu_requires_reload'
+            });
             showXrModal();
         } else {
             events.fire(type === 'AR' ? 'startAR' : 'startVR');

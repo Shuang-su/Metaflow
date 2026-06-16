@@ -1,0 +1,158 @@
+import assert from 'node:assert/strict';
+import { readFile } from 'node:fs/promises';
+import { test } from 'node:test';
+
+const readJson = async (url) => JSON.parse(await readFile(url, 'utf8'));
+const readText = (url) => readFile(url, 'utf8');
+
+const requiredEvents = [
+    'session_started',
+    'page_viewed',
+    'session_heartbeat',
+    'page_hidden',
+    'page_restored',
+    'session_ended',
+    'session_summary',
+    'route_resolved',
+    'resource_load_started',
+    'loading_stage_changed',
+    'first_frame_ready',
+    'resource_load_failed',
+    'ui_clicked',
+    'settings_changed',
+    'camera_mode_changed',
+    'navigation_requested',
+    'navigation_completed',
+    'navigation_cancelled',
+    'annotation_opened',
+    'fullscreen_changed',
+    'xr_requested',
+    'xr_started',
+    'xr_failed',
+    'client_error',
+    'replay_started',
+    'replay_uploaded',
+    'replay_failed',
+    'collab_room_created',
+    'collab_room_joined',
+    'collab_room_left',
+    'collab_presence_changed',
+    'shared_camera_started',
+    'shared_camera_stopped',
+    'collab_session_summary'
+];
+
+test('tracking plan defines the v1 event contract', async () => {
+    const plan = await readJson(new URL('../../analytics/tracking-plan.json', import.meta.url));
+
+    assert.equal(plan.schema_version, 'analytics.v1');
+    assert.equal(plan.source_app, 'metaflow-viewer');
+    assert.equal(plan.heartbeat_interval_ms, 15000);
+    assert.equal(plan.session_timeout_ms, 1800000);
+    assert.equal(plan.privacy.input_text_policy, 'never_collect');
+    assert.equal(plan.privacy.record_canvas, false);
+    assert.equal(plan.privacy.mask_all_inputs, true);
+    assert.equal(plan.sinks.default, 'supabase');
+    assert.deepEqual(plan.sinks.allowed, ['supabase', 'posthog', 'dual']);
+    assert.ok(plan.sinks.posthog_allowlist.includes('session_summary'));
+    assert.ok(!plan.sinks.posthog_allowlist.includes('session_heartbeat'));
+    assert.ok(plan.sinks.posthog_excluded.includes('collab_presence_changed'));
+
+    for (const eventName of requiredEvents) {
+        assert.ok(plan.events[eventName], `missing event ${eventName}`);
+        assert.equal(plan.events[eventName].version, 1, `${eventName} should start at v1`);
+        assert.ok(plan.events[eventName].owner, `${eventName} should have an owner`);
+    }
+});
+
+test('frontend SDK implements heartbeat, beacon flushing, and replay privacy defaults', async () => {
+    const source = await readText(new URL('../src/analytics/client.ts', import.meta.url));
+
+    assert.match(source, /const HEARTBEAT_INTERVAL_MS = trackingPlan\.heartbeat_interval_ms/);
+    assert.match(source, /setInterval\(\(\) => \{/);
+    assert.match(source, /document\.addEventListener\('visibilitychange'/);
+    assert.match(source, /window\.addEventListener\('pagehide'/);
+    assert.match(source, /navigator\.sendBeacon/);
+    assert.match(source, /keepalive: options\.beacon/);
+    assert.match(source, /POSTHOG_ALLOWED_EVENTS/);
+    assert.match(source, /import\('posthog-js'\)/);
+    assert.match(source, /autocapture: false/);
+    assert.match(source, /capture_pageview: false/);
+    assert.match(source, /capture_pageleave: false/);
+    assert.match(source, /disable_session_recording: !this\.posthogReplay/);
+    assert.match(source, /ip: false/);
+    assert.match(source, /if \(!this\.supabaseEnabled \|\| rate <= 0/);
+    assert.match(source, /maskAllInputs: true/);
+    assert.match(source, /maskTextSelector: '\*'/);
+    assert.match(source, /recordCanvas: false/);
+    assert.match(source, /blockClass: 'rr-block'/);
+    assert.match(source, /ignoreClass: 'rr-ignore'/);
+    assert.match(source, /maskTextClass: 'rr-mask'/);
+});
+
+test('viewer wires analytics into route, load, UI, navigation, and XR surfaces', async () => {
+    const index = await readText(new URL('../src/index.ts', import.meta.url));
+    const html = await readText(new URL('../src/index.html', import.meta.url));
+    const ui = await readText(new URL('../src/ui.ts', import.meta.url));
+    const xr = await readText(new URL('../src/xr.ts', import.meta.url));
+
+    assert.match(html, /metaflow-analytics-endpoint/);
+    assert.match(html, /metaflow-analytics-sink/);
+    assert.match(html, /metaflow-posthog-key/);
+    assert.match(html, /analyticsSink/);
+    assert.match(index, /posthogKey: config\.posthogKey/);
+    assert.match(html, /analyticsResource = \{/);
+    assert.match(html, /noanalytics:/);
+    assert.match(index, /createAnalyticsClient/);
+    assert.match(index, /analytics\.track\('resource_load_started'/);
+    assert.match(index, /analytics\.track\('loading_stage_changed'/);
+    assert.match(index, /analytics\.markFirstFrame\(\)/);
+    assert.match(index, /analytics\.track\('navigation_requested'/);
+    assert.match(ui, /TRACKED_UI_ACTIONS/);
+    assert.match(ui, /analytics\.track\('ui_clicked'/);
+    assert.match(ui, /analytics\.track\('xr_requested'/);
+    assert.match(xr, /analytics\.track\('xr_started'/);
+    assert.match(xr, /analytics\.track\('xr_failed'/);
+});
+
+test('supabase migration exposes metabase-ready analytics models', async () => {
+    const sql = await readText(new URL('../../supabase/migrations/20260616000000_analytics_v1.sql', import.meta.url));
+    const grants = await readText(new URL('../../supabase/migrations/20260616092508_analytics_service_role_grants.sql', import.meta.url));
+
+    for (const tableName of ['events_raw', 'events_rejected', 'replay_chunks', 'dim_resource']) {
+        assert.match(sql, new RegExp(`analytics\\.${tableName}`), `missing ${tableName}`);
+        assert.match(sql, new RegExp(`alter table analytics\\.${tableName} enable row level security`), `${tableName} should enable RLS`);
+    }
+
+    for (const viewName of ['fact_page_views', 'fact_sessions', 'fact_resource_loads', 'fact_interactions', 'fact_collaboration']) {
+        assert.match(sql, new RegExp(`analytics\\.${viewName}`), `missing ${viewName}`);
+        assert.match(sql, /security_invoker = true/);
+    }
+
+    for (const rollupName of ['daily_route_metrics', 'daily_resource_metrics', 'daily_device_metrics', 'daily_error_metrics', 'daily_collaboration_metrics']) {
+        assert.match(sql, new RegExp(`analytics\\.${rollupName}`), `missing ${rollupName}`);
+    }
+
+    assert.match(sql, /analytics_reader/);
+    assert.match(sql, /analytics-replays/);
+    assert.match(sql, /refresh materialized view analytics\.daily_route_metrics/);
+    assert.match(grants, /grant usage on schema analytics to service_role/);
+    assert.match(grants, /grant select, insert, update, delete on all tables in schema analytics to service_role/);
+});
+
+test('collector validates origins, schema, anonymous hashing, and service-role writes', async () => {
+    const source = await readText(new URL('../../supabase/functions/analytics-collect/index.ts', import.meta.url));
+
+    assert.match(source, /ANALYTICS_ALLOWED_ORIGINS/);
+    assert.match(source, /SUPABASE_SERVICE_ROLE_KEY/);
+    assert.match(source, /ANALYTICS_HASH_SALT/);
+    assert.match(source, /crypto\.subtle\.digest\('SHA-256'/);
+    assert.match(source, /MAX_BODY_BYTES/);
+    assert.match(source, /MAX_EVENTS_PER_BATCH/);
+    assert.match(source, /EVENT_NAMES/);
+    assert.match(source, /collab_session_summary/);
+    assert.match(source, /session_summary/);
+    assert.match(source, /events_rejected/);
+    assert.match(source, /from\('events_raw'\)/);
+    assert.match(source, /from\(REPLAY_BUCKET\)/);
+});

@@ -16,6 +16,7 @@ import {
 } from 'playcanvas';
 
 import { App } from './app';
+import { createAnalyticsClient } from './analytics/client';
 import { MeshCollision, loadTiledVoxelCollision, loadVoxelCollision } from './collision';
 import type { Collision } from './collision';
 import { observe } from './core/observe';
@@ -42,6 +43,19 @@ const formatSize = (bytes: number) => {
 };
 
 const formatSplats = (n: number) => n >= 10000 ? `${(n / 10000).toFixed(1)} 万` : `${n}`;
+
+const formatError = (err: unknown) => {
+    if (err instanceof Error) {
+        return {
+            error_name: err.name,
+            error_message: err.message
+        };
+    }
+    return {
+        error_name: 'Error',
+        error_message: String(err)
+    };
+};
 
 const detectStreamingLodByStructure = (data: any) => {
     if (!data || typeof data !== 'object') return false;
@@ -425,15 +439,113 @@ const main = async (canvas: HTMLCanvasElement, settingsJson: any, config: Config
         gamingControls: localStorage.getItem('gamingControls') === 'true'
     });
 
+    const analytics = createAnalyticsClient({
+        endpoint: config.analyticsEndpoint,
+        enabled: !config.noanalytics,
+        sink: config.analyticsSink,
+        replaySampleRate: config.analyticsReplayRate,
+        posthogKey: config.posthogKey,
+        posthogHost: config.posthogHost,
+        posthogReplay: config.posthogReplay,
+        sourceApp: 'metaflow-viewer',
+        appVersion,
+        releaseDisplayVersion: versionHistory.current.displayVersion,
+        gitRef: versionHistory.current.gitRef,
+        route: location.pathname,
+        contentUrl: config.contentUrl,
+        resource: config.analyticsResource,
+        renderer: config.renderer
+    });
+
     const global: Global = {
         app,
         settings: importSettings(settingsJson),
         config,
         state,
         events,
+        analytics,
         camera,
         renderer
     };
+
+    analytics.setStateProvider(() => ({
+        loaded: state.loaded,
+        loadingStage: state.loadingStage,
+        inputMode: state.inputMode,
+        cameraMode: state.cameraMode
+    }));
+    analytics.start();
+    analytics.track('resource_load_started', {
+        content_url: config.contentUrl,
+        route_matched: config.analyticsRouteMatched,
+        has_environment: !!config.environmentUrl,
+        has_collision: !!(config.voxelManifestUrl || config.voxelUrl || config.collisionUrl),
+        requested_renderer: config.renderer
+    });
+
+    events.on('loadingStage:changed', (stage: LoadingStage, previousStage: LoadingStage) => {
+        analytics.track('loading_stage_changed', {
+            stage,
+            previous_stage: previousStage,
+            progress: state.progress,
+            loading_mode: state.loadingMode
+        });
+    });
+    events.on('firstFrame', () => {
+        analytics.markFirstFrame();
+        void analytics.flush();
+    });
+    events.on('cameraMode:changed', (cameraMode: string, previousCameraMode: string) => {
+        analytics.track('camera_mode_changed', {
+            camera_mode: cameraMode,
+            previous_camera_mode: previousCameraMode
+        });
+    });
+    events.on('performanceMode:changed', (value: boolean) => {
+        analytics.track('settings_changed', {
+            setting: 'performance_mode',
+            value
+        });
+    });
+    events.on('gamingControls:changed', (value: boolean) => {
+        analytics.track('settings_changed', {
+            setting: 'gaming_controls',
+            value
+        });
+    });
+    events.on('collisionOverlayEnabled:changed', (value: boolean) => {
+        analytics.track('settings_changed', {
+            setting: 'collision_overlay',
+            value
+        });
+    });
+    events.on('isFullscreen:changed', (value: boolean) => {
+        analytics.track('fullscreen_changed', {
+            is_fullscreen: value
+        });
+    });
+    events.on('navigateTo', (_position, _normal, speedMul = 1) => {
+        analytics.track('navigation_requested', {
+            camera_mode: state.cameraMode,
+            speed_multiplier: speedMul
+        });
+    });
+    events.on('navigateCancel', () => {
+        analytics.track('navigation_cancelled', {
+            camera_mode: state.cameraMode
+        });
+    });
+    events.on('navigateComplete', () => {
+        analytics.track('navigation_completed', {
+            camera_mode: state.cameraMode
+        });
+    });
+    events.on('annotation.activate', (annotation) => {
+        analytics.track('annotation_opened', {
+            has_title: !!annotation?.title,
+            has_text: !!annotation?.text
+        });
+    });
 
     initCanvas(global);
     app.start();
@@ -466,31 +578,40 @@ const main = async (canvas: HTMLCanvasElement, settingsJson: any, config: Config
         state.loadingStage = 'detect';
         state.loadingStatus = '正在识别资源结构...';
         state.progress = 0;
-        const entity = await loadGsplat(
-            app,
-            config,
-            {
-                onProgress: (progress: number) => {
-                    state.progress = progress;
-                },
-                onStatus: (status: string) => {
-                    state.loadingStatus = status;
-                },
-                onMode: (mode: LoadMode) => {
-                    state.loadingMode = mode;
-                },
-                onStage: (stage: LoadingStage) => {
-                    state.loadingStage = stage;
-                },
-                onConflict: (conflict: boolean) => {
-                    state.loadingConflict = conflict;
+        try {
+            const entity = await loadGsplat(
+                app,
+                config,
+                {
+                    onProgress: (progress: number) => {
+                        state.progress = progress;
+                    },
+                    onStatus: (status: string) => {
+                        state.loadingStatus = status;
+                    },
+                    onMode: (mode: LoadMode) => {
+                        state.loadingMode = mode;
+                    },
+                    onStage: (stage: LoadingStage) => {
+                        state.loadingStage = stage;
+                    },
+                    onConflict: (conflict: boolean) => {
+                        state.loadingConflict = conflict;
+                    }
                 }
-            }
-        );
-        state.loadingStage = 'prepare';
-        state.loadingStatus = '主体模型已就绪，正在准备首帧...';
-        state.progress = -1;
-        return entity;
+            );
+            state.loadingStage = 'prepare';
+            state.loadingStatus = '主体模型已就绪，正在准备首帧...';
+            state.progress = -1;
+            return entity;
+        } catch (err) {
+            analytics.track('resource_load_failed', {
+                loading_stage: state.loadingStage,
+                loading_mode: state.loadingMode,
+                ...formatError(err)
+            }, { beacon: true });
+            throw err;
+        }
     })();
 
     const skyboxLoad = config.skyboxUrl &&

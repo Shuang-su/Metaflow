@@ -9,7 +9,8 @@
         "noImplicitAny": true,
         "inlineSources": true,
         "resolveJsonModule": true,
+        "skipLibCheck": true,
     },
-    "includes": ["src", "module", "types.d.ts"],
+    "include": ["src", "module", "types.d.ts"],
     "exclude": ["dist", "public"]
 }

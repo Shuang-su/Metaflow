@@ -17,6 +17,10 @@
       "import": "./dist/settings.js"
     }
   },
+  "dependencies": {
+    "posthog-js": "^1.386.8",
+    "rrweb": "^2.0.1"
+  },
   "devDependencies": {
     "@rollup/plugin-json": "6.1.0",
     "@rollup/plugin-node-resolve": "16.0.3",
@@ -38,6 +42,7 @@
     "develop": "concurrently --kill-others \"npm run watch\" \"npm run serve\"",
     "serve": "serve public -l 3000",
     "start": "npm run serve",
+    "test": "node --test tests/*.mjs",
     "type:check": "tsc --noEmit",
     "watch": "rollup -c -w"
   },

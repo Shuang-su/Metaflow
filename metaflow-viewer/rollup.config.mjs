@@ -18,7 +18,14 @@ function htmlPlugin() {
         },
         generateBundle() {
             const contents = readFileSync('src/index.html', 'utf-8');
-            const transformed = contents.replace('<base href="">', `<base href="${process.env.BASE_HREF ?? ''}">`);
+            const transformed = contents
+                .replace('<base href="/">', `<base href="${process.env.BASE_HREF ?? '/'}">`)
+                .replace('%METAFLOW_ANALYTICS_SINK%', process.env.METAFLOW_ANALYTICS_SINK ?? 'supabase')
+                .replace('%METAFLOW_ANALYTICS_ENDPOINT%', process.env.METAFLOW_ANALYTICS_ENDPOINT ?? '')
+                .replace('%METAFLOW_ANALYTICS_REPLAY_RATE%', process.env.METAFLOW_ANALYTICS_REPLAY_RATE ?? '0.05')
+                .replace('%METAFLOW_POSTHOG_KEY%', process.env.METAFLOW_POSTHOG_KEY ?? '')
+                .replace('%METAFLOW_POSTHOG_HOST%', process.env.METAFLOW_POSTHOG_HOST ?? 'https://us.i.posthog.com')
+                .replace('%METAFLOW_POSTHOG_REPLAY%', process.env.METAFLOW_POSTHOG_REPLAY ?? 'false');
             this.emitFile({
                 type: 'asset',
                 fileName: 'index.html',
