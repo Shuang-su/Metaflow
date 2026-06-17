@@ -1,14 +1,14 @@
 {
   "schemaVersion": "1.0",
-  "cutoffGitRef": "b06b13c",
-  "documentedThrough": "b06b13c",
+  "cutoffGitRef": "de75ce5",
+  "documentedThrough": "de75ce5",
   "defaultResourceVersion": "1.0a",
   "current": {
-    "displayVersion": "5.11",
-    "appSemver": "5.11.0",
+    "displayVersion": "5.12",
+    "appSemver": "5.12.0",
     "indexSchemaVersion": "1.2",
     "date": "2026-06-16",
-    "gitRef": "b06b13c",
+    "gitRef": "de75ce5",
     "historyUrl": "/data/version-history.json"
   },
   "versioning": {
@@ -84,6 +84,11 @@
       "gitRef": "e01b004",
       "date": "2026-06-16",
       "summary": "chore(release): document Metaflow Viewer 5.10"
+    },
+    {
+      "gitRef": "532c6ba",
+      "date": "2026-06-16",
+      "summary": "chore(release): document Metaflow Viewer 5.11"
     }
   ],
   "entries": [
@@ -1182,6 +1187,15 @@
       "date": "2026-06-16",
       "gitRef": "b06b13c",
       "summary": "feat(analytics): enrich device acquisition and performance telemetry"
+    },
+    {
+      "displayVersion": "5.12",
+      "appSemver": "5.12.0",
+      "type": "fix",
+      "scope": "analytics",
+      "date": "2026-06-16",
+      "gitRef": "de75ce5",
+      "summary": "fix(analytics): allow beacon credentialed CORS"
     }
   ]
 }

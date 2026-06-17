@@ -173,6 +173,6 @@ test('package and public release versions match the structured current version',
     assert.equal(pkg.version, manifest.current.appSemver);
     assert.equal(lock.version, manifest.current.appSemver);
     assert.equal(lock.packages[''].version, manifest.current.appSemver);
-    assert.equal(manifest.current.displayVersion, '5.11');
+    assert.equal(manifest.current.displayVersion, '5.12');
     assert.equal(manifest.current.gitRef, manifest.documentedThrough);
 });
