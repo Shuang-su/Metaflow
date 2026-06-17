@@ -28,6 +28,19 @@
   to = "/editor/:splat"
   status = 200
 
+# Analytics dashboard - keep Metabase on a login-protected subdomain.
+[[redirects]]
+  from = "/dashboard"
+  to = "https://dashboard.metaflow.shuang-su.com/"
+  status = 302
+  force = true
+
+[[redirects]]
+  from = "/dashboard/*"
+  to = "https://dashboard.metaflow.shuang-su.com/dashboard/:splat"
+  status = 302
+  force = true
+
 [[redirects]]
   from = "/*"
   to = "/index.html"
