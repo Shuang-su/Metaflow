@@ -1,14 +1,14 @@
 {
   "schemaVersion": "1.0",
-  "cutoffGitRef": "de75ce5",
-  "documentedThrough": "de75ce5",
+  "cutoffGitRef": "7c52315",
+  "documentedThrough": "7c52315",
   "defaultResourceVersion": "1.0a",
   "current": {
-    "displayVersion": "5.12",
-    "appSemver": "5.12.0",
+    "displayVersion": "5.14",
+    "appSemver": "5.14.0",
     "indexSchemaVersion": "1.2",
-    "date": "2026-06-16",
-    "gitRef": "de75ce5",
+    "date": "2026-06-22",
+    "gitRef": "7c52315",
     "historyUrl": "/data/version-history.json"
   },
   "versioning": {
@@ -89,6 +89,11 @@
       "gitRef": "532c6ba",
       "date": "2026-06-16",
       "summary": "chore(release): document Metaflow Viewer 5.11"
+    },
+    {
+      "gitRef": "8b6898b",
+      "date": "2026-06-17",
+      "summary": "chore(release): document Metaflow Viewer 5.12"
     }
   ],
   "entries": [
@@ -1153,6 +1158,24 @@
       "date": "2026-06-16",
       "gitRef": "de75ce5",
       "summary": "fix(analytics): allow beacon credentialed CORS"
+    },
+    {
+      "displayVersion": "5.13",
+      "appSemver": "5.13.0",
+      "type": "feature",
+      "scope": "dashboard",
+      "date": "2026-06-17",
+      "gitRef": "4031c46",
+      "summary": "chore(dashboard): add analytics dashboard redirect"
+    },
+    {
+      "displayVersion": "5.14",
+      "appSemver": "5.14.0",
+      "type": "fix",
+      "scope": "routing",
+      "date": "2026-06-22",
+      "gitRef": "7c52315",
+      "summary": "fix(routing): restore SZTU domain redirect"
     }
   ]
 }

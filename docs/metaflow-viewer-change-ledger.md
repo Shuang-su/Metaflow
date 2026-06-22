@@ -1,6 +1,6 @@
 # Metaflow Viewer 逐提交详细变更总账
 
-本文档审计 `main` 从初始提交到 `de75ce5` 的产品提交，并单独记录不产生产品版本的纯文档维护提交。它不是提交标题的重排，而是用于回答：
+本文档审计 `main` 从初始提交到 `7c52315` 的产品提交，并单独记录不产生产品版本的纯文档维护提交。它不是提交标题的重排，而是用于回答：
 
 - 当时为什么改；
 - 改动前用户看到什么；
@@ -236,6 +236,8 @@ flowchart TD
 | `5.10` · `8b37760` | 需要从只看 PV/UV 升级到可解释用户行为、加载质量、设备兼容、错误和未来多人同屏效果的分析体系；同时成本优先，不能把 15 秒心跳、loading 高频阶段和协同 cursor/camera 流全部送入 PostHog。 | 新增 `analytics/tracking-plan.json` 作为事件契约；前端加入 `createAnalyticsClient`，支持 Supabase 批量上报、`sendBeacon`/`keepalive` flush、15 秒可见心跳、`page_hidden/restored/session_summary`、首帧/加载失败/UI/设置/相机/导航/注释/全屏/XR/错误事件；引入 rrweb 低比例回放且默认 mask inputs、禁 canvas；Rollup/HTML 支持 `METAFLOW_ANALYTICS_*` 与 PostHog 配置；新增 Supabase Edge Function `analytics-collect`、`analytics.events_raw/events_rejected/replay_chunks/dim_resource`、Metabase 用事实视图和 daily rollup、service_role grant migration；PostHog 只允许镜像低频语义事件；多人同屏只预留 `collab_*` 聚合事件，不记录高频 presence payload。 | 线上可用 Supabase 作为权威数据层计算 session、page duration、engaged session、bounce、loading abandonment、设备分布和错误 Top N；Metabase 可以直接消费 fact/daily 表，不需要扫 raw JSON；未来要接 PostHog 或多人同屏时已有 sink/事件边界。 | 原始事件保留与 rollup 刷新策略仍需随流量调优；PostHog 默认未启用且只做可选镜像；`.netlify` 本地状态不进入版本；证据为 `src/analytics/client.ts`、`supabase/functions/analytics-collect/index.ts`、`supabase/migrations/20260616000000_analytics_v1.sql`、`docs/analytics-implementation.md`、`tests/analytics.test.mjs`、TypeScript 检查、Node 测试、生产 smoke 与 Supabase migration list。 |
 | `5.11` · `b06b13c` | 5.10 已经打通核心行为采集，但资源维度未填充、设备只能看 viewport/DPR/语言/renderer，缺 UA/Client Hints、来源归因、阶段耗时、Web Vitals、Resource Timing、聚合交互深度和用户留存/数据质量建模。 | Tracking plan 升到 `analytics.v1.1` 并新增 `web_vitals_observed`、`resource_timing_collected`；SDK 采 UA/User-Agent Client Hints、referrer/UTM、Web Vitals、Resource Timing、heartbeat 聚合交互计数和错误 stack hash；Netlify 加 `Accept-CH`；collector 合并请求头和客户端 device context，派生 browser/os/device_class/device_model；v1.1 migration 重建 `fact_page_views` 并新增 `fact_web_vitals`、`fact_resource_timings`、`fact_resource_stage_timings`、`fact_users`、performance/user/data-quality daily rollup；资源维度同步脚本按 resource id 去重。 | Metabase 可按 browser/OS/device class/referrer/UTM/renderer 分析 page view，可看 Web Vitals、资源 timing、阶段耗时、用户新老和数据质量；`dim_resource` 已同步 58 行。 | 不记录输入文本、完整 query、高频 pointer/camera 流或完整 IP；Client Hints high entropy 仅在浏览器允许时有值；证据为 analytics 测试、typecheck、build、远端 migration list、Edge Function deploy、v1.1 smoke 查询。 |
 | `5.12` · `de75ce5` | Safari/Beacon 等真实浏览器路径会以带 credentials 的跨域请求发送 analytics beacon，而 collector 只返回 `Access-Control-Allow-Origin`，导致 `Beacon API cannot load ... Access-Control-Allow-Credentials is not "true"`；同时 CSS 构建引用了不存在的 `index.css.map`，刷新时出现 sourcemap JSON parse 噪音。 | Edge Function 对允许 origin 补充 `Access-Control-Allow-Credentials: true`；SCSS 构建关闭 `sourceMap`，让生产 `index.css` 不再引用缺失 map；analytics 测试增加 credentials header 断言。 | 生产浏览器中的 analytics beacon 不再被 CORS 拦截，page/session/error 等事件可以进入 Supabase；控制台不再出现 `index.css.map` HTML 解析成 sourcemap 的 warning。 | 不改变 analytics schema、PostHog 开关或资源加载逻辑；模型/voxel 的 `网络连接已中断` 仍按资源网络问题单独排查；证据为 analytics 测试、typecheck、build、CSS tail 检查和生产 CORS smoke。 |
+| `5.13` · `4031c46` | 分析看板需要通过主站固定入口访问，但 Metabase 仍应留在受登录保护的子域。 | 在 Netlify 增加 `/dashboard` 与 `/dashboard/*` 的 302 redirect，目标为 `https://dashboard.metaflow.shuang-su.com/` 及其 dashboard 路径。 | 主站获得稳定 dashboard 入口，不把 Metabase 静态内容并入 viewer 发布目录。 | 仍依赖 dashboard 子域的登录保护和可用性；此提交未改变 viewer runtime。 |
+| `5.14` · `7c52315` | `深圳技术大学.com` 曾被改成短路径 `/c2-lib`，但后续数据整理删除了 C2-Lib 的短链 alias，导致入口无法匹配 `data/index.json` 中的 `/sztu/c2-lib`，并回退加载不存在的默认场景资源。 | 将 Netlify host redirect 与 HTML `domainRedirects` 恢复到 `/sztu/c2-lib`；在 `scripts/generate_index.py` 的 `RESOURCE_ROUTE_ALIASES` 恢复 `("sztu", None, "c2-lib"): ["/c2-lib"]`；新增 domain redirect 测试，要求中文域名目标可被索引 route/alias 匹配。 | 中文域名根路径回到 canonical C2-Lib route；已经分享出去的 `/c2-lib` 短链继续可用。 | alias 必须保留在生成脚本源头，不能只手工改 `data/index.json`；证据为新增 route invariant 测试与重新生成索引。 |
 
 ### 不产生产品版本的维护提交
 
@@ -250,6 +252,7 @@ flowchart TD
 | `01ecdcb` | 将 5.9 的文档、结构化版本历史、公开版本文件和 README 摘要补齐。 | 纯发布文档维护，不创建独立展示版本；由 `maintenanceCommits` 显式登记。 |
 | `e01b004` | 将 5.10 的文档、结构化版本历史、公开版本文件和 README 摘要补齐。 | 纯发布文档维护，不创建独立展示版本；由 `maintenanceCommits` 显式登记。 |
 | `532c6ba` | 将 5.11 的文档、结构化版本历史、公开版本文件和 README 摘要补齐。 | 纯发布文档维护，不创建独立展示版本；由 `maintenanceCommits` 显式登记。 |
+| `8b6898b` | 将 5.12 的文档、结构化版本历史、公开版本文件和 README 摘要补齐。 | 纯发布文档维护，不创建独立展示版本；由 `maintenanceCommits` 显式登记。 |
 
 ## 能力到提交的反向索引
 
@@ -257,13 +260,13 @@ flowchart TD
 |---|---|
 | Poster / 加载 reveal | `1.5`、`1.6`、`1.18`、`3.19`、`3.20`、`5.0` |
 | 首帧与超时 | `1.14`、`1.15`、`1.16`、`2.1`、`5.0`、`5.1` |
-| 短路由与索引 | `1.19`、`1.21`、`1.22`、`2.5`、`2.8`、`3.15`、`5.2` |
+| 短路由与索引 | `1.19`、`1.21`、`1.22`、`2.5`、`2.8`、`3.15`、`5.2`、`5.14` |
 | XR / PICO | `1.31`–`1.36`、`2.9`、`5.0` |
 | Walk / voxel | `3.0`、`3.5`–`3.7`、`4.4`、`5.0`、`5.4` |
 | 移动端控制 | `2.7`、`3.2`–`3.3`、`3.8`–`3.16`、`5.0` |
 | 渐变天空 | `3.19`、`3.20`、`5.0` |
 | Figure8 / ACG | `2.11`、`3.14`、`4.0`、`4.1`、`4.2`、`5.3a`、`5.4` |
-| 部署 / LFS | `1.2`、`1.3`、`3.17`、`3.20a`、`4.4`、`5.2`、`5.3` |
+| 部署 / LFS | `1.2`、`1.3`、`3.17`、`3.20a`、`4.4`、`5.2`、`5.3`、`5.13` |
 
 ## 后续提交维护模板
 

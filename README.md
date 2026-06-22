@@ -116,17 +116,19 @@ location / {
 
 | 字段 | 值 |
 |------|----|
-| 展示版本 | `5.12` |
-| 包版本 | `5.12.0` |
+| 展示版本 | `5.14` |
+| 包版本 | `5.14.0` |
 | 索引 schema | `1.2` |
 | 上游 SuperSplat Viewer | `v1.26.2` |
 | PlayCanvas | `2.19.2` |
-| 已审计至 commit | `de75ce5` |
+| 已审计至 commit | `7c52315` |
 
 ## 最近版本
 
 | 版本 | commit | 摘要 |
 |------|--------|------|
+| `5.14` | `7c52315` | 修复 深圳技术大学.com 根域跳转到 `/sztu/c2-lib`，并恢复 `/c2-lib` 短链 alias |
+| `5.13` | `4031c46` | 新增 `/dashboard` 和 `/dashboard/*` 到 Metabase 仪表盘子域的重定向 |
 | `5.12` | `de75ce5` | 修复 analytics sendBeacon 跨域 credentials 上报失败，并关闭缺失 CSS sourcemap 引用 |
 | `5.11` | `b06b13c` | 补充 UA/Client Hints、来源归因、Web Vitals、Resource Timing、聚合交互深度和设备/性能/用户/数据质量建模 |
 | `5.10` | `8b37760` | 新增 Supabase 权威埋点链路、15 秒可见心跳、Metabase 建模表、可选 PostHog 精简镜像和多人同屏分析事件预留 |
@@ -135,7 +137,6 @@ location / {
 | `5.7` | `4114e8f` | 简化 reveal 振荡：去掉 lift 波前隆起，保留 sin 抖动，delay 缩至 1.0s |
 | `5.6` | `1a536f1` | 修正 reveal 运动节奏：保留 dt 钳制防首帧跳变，移除 fitMotion 回到官方曲线，并放慢波速、缩短两波间隔 |
 | `5.5` | `f4c4621` | 新增全站高斯点 reveal 粒子揭示效果，支持环境模型并提供 `?noreveal` 逃生参数 |
-| `5.4` | `23fb3ab` | 恢复单体碰撞首帧后后台加载、结构化体验类型和首次动画退出策略 |
 | `5.3a` | `74c04c0` | 更新 Cyrene 初始构图和缩略图 |
 | `5.3` | `7672825` | 修复 Netlify 发布目录的数据同步方式 |
 | `5.2` | `99ffe6c` | 路由索引改为强制重新验证，避免旧缓存导致黑屏 |
