@@ -3,10 +3,10 @@
   command = "npm install && python3 ../scripts/generate_index.py && npm run build && mkdir -p public/data public/editor && rsync -a --delete ../data/ public/data/ && rsync -a --delete ../metaflow-editor/ public/editor/"
   publish = "public"
 
-# Custom domain redirects - 深圳技术大学.com → /c2-lib
+# Custom domain redirects - 深圳技术大学.com → /sztu/c2-lib
 [[redirects]]
   from = "/"
-  to = "/c2-lib"
+  to = "/sztu/c2-lib"
   status = 302
   force = true
   conditions = {Host = ["xn--fes68bkzcz5lkjgrkl.com", "www.xn--fes68bkzcz5lkjgrkl.com"]}

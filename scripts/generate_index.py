@@ -128,6 +128,7 @@ RESOURCE_SLUG_OVERRIDES = {
 }
 RESOURCE_ROUTE_ALIASES = {
     ("acg", "j05", "xunyangpai"): ["/acg/j05/寻洋派"],
+    ("sztu", None, "c2-lib"): ["/c2-lib"],
 }
 
 
