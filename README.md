@@ -116,17 +116,18 @@ location / {
 
 | 字段 | 值 |
 |------|----|
-| 展示版本 | `5.14` |
-| 包版本 | `5.14.0` |
+| 展示版本 | `5.15` |
+| 包版本 | `5.15.0` |
 | 索引 schema | `1.2` |
 | 上游 SuperSplat Viewer | `v1.26.2` |
 | PlayCanvas | `2.19.2` |
-| 已审计至 commit | `7c52315` |
+| 已审计至 commit | `46b4ec2` |
 
 ## 最近版本
 
 | 版本 | commit | 摘要 |
 |------|--------|------|
+| `5.15` | `46b4ec2` | 为 SZTU 全部资源补齐中文域名短链 alias，包括 `/top10-26` 和 `/fes/top10-26` |
 | `5.14` | `7c52315` | 修复 深圳技术大学.com 根域跳转到 `/sztu/c2-lib`，并恢复 `/c2-lib` 短链 alias |
 | `5.13` | `4031c46` | 新增 `/dashboard` 和 `/dashboard/*` 到 Metabase 仪表盘子域的重定向 |
 | `5.12` | `de75ce5` | 修复 analytics sendBeacon 跨域 credentials 上报失败，并关闭缺失 CSS sourcemap 引用 |
@@ -135,7 +136,6 @@ location / {
 | `5.9` | `1d9ab2b` | 调慢 SOG/流式 reveal、uRevealActive 藏点、流式主体提前高 LOD、环境不阻塞首帧、c2-lib 首次退出动画进 Orbit |
 | `5.8` | `4e848ac` | 按场景分档 reveal 点大小，修复流式 LOD 双波揭示，恢复 loading 后可见再播放 |
 | `5.7` | `4114e8f` | 简化 reveal 振荡：去掉 lift 波前隆起，保留 sin 抖动，delay 缩至 1.0s |
-| `5.6` | `1a536f1` | 修正 reveal 运动节奏：保留 dt 钳制防首帧跳变，移除 fitMotion 回到官方曲线，并放慢波速、缩短两波间隔 |
 | `5.5` | `f4c4621` | 新增全站高斯点 reveal 粒子揭示效果，支持环境模型并提供 `?noreveal` 逃生参数 |
 | `5.3a` | `74c04c0` | 更新 Cyrene 初始构图和缩略图 |
 | `5.3` | `7672825` | 修复 Netlify 发布目录的数据同步方式 |

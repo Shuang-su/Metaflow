@@ -1,14 +1,14 @@
 {
   "schemaVersion": "1.0",
-  "cutoffGitRef": "7c52315",
-  "documentedThrough": "7c52315",
+  "cutoffGitRef": "46b4ec2",
+  "documentedThrough": "46b4ec2",
   "defaultResourceVersion": "1.0a",
   "current": {
-    "displayVersion": "5.14",
-    "appSemver": "5.14.0",
+    "displayVersion": "5.15",
+    "appSemver": "5.15.0",
     "indexSchemaVersion": "1.2",
     "date": "2026-06-22",
-    "gitRef": "7c52315",
+    "gitRef": "46b4ec2",
     "historyUrl": "/data/version-history.json"
   },
   "versioning": {
@@ -94,6 +94,11 @@
       "gitRef": "8b6898b",
       "date": "2026-06-17",
       "summary": "chore(release): document Metaflow Viewer 5.12"
+    },
+    {
+      "gitRef": "3697ff8",
+      "date": "2026-06-22",
+      "summary": "chore(release): document Metaflow Viewer 5.14"
     }
   ],
   "entries": [
@@ -1176,6 +1181,15 @@
       "date": "2026-06-22",
       "gitRef": "7c52315",
       "summary": "fix(routing): restore SZTU domain redirect"
+    },
+    {
+      "displayVersion": "5.15",
+      "appSemver": "5.15.0",
+      "type": "fix",
+      "scope": "routing",
+      "date": "2026-06-22",
+      "gitRef": "46b4ec2",
+      "summary": "fix(routing): add SZTU short route aliases"
     }
   ]
 }

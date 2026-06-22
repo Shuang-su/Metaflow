@@ -1,6 +1,6 @@
 # Metaflow Viewer 逐提交详细变更总账
 
-本文档审计 `main` 从初始提交到 `7c52315` 的产品提交，并单独记录不产生产品版本的纯文档维护提交。它不是提交标题的重排，而是用于回答：
+本文档审计 `main` 从初始提交到 `46b4ec2` 的产品提交，并单独记录不产生产品版本的纯文档维护提交。它不是提交标题的重排，而是用于回答：
 
 - 当时为什么改；
 - 改动前用户看到什么；
@@ -238,6 +238,7 @@ flowchart TD
 | `5.12` · `de75ce5` | Safari/Beacon 等真实浏览器路径会以带 credentials 的跨域请求发送 analytics beacon，而 collector 只返回 `Access-Control-Allow-Origin`，导致 `Beacon API cannot load ... Access-Control-Allow-Credentials is not "true"`；同时 CSS 构建引用了不存在的 `index.css.map`，刷新时出现 sourcemap JSON parse 噪音。 | Edge Function 对允许 origin 补充 `Access-Control-Allow-Credentials: true`；SCSS 构建关闭 `sourceMap`，让生产 `index.css` 不再引用缺失 map；analytics 测试增加 credentials header 断言。 | 生产浏览器中的 analytics beacon 不再被 CORS 拦截，page/session/error 等事件可以进入 Supabase；控制台不再出现 `index.css.map` HTML 解析成 sourcemap 的 warning。 | 不改变 analytics schema、PostHog 开关或资源加载逻辑；模型/voxel 的 `网络连接已中断` 仍按资源网络问题单独排查；证据为 analytics 测试、typecheck、build、CSS tail 检查和生产 CORS smoke。 |
 | `5.13` · `4031c46` | 分析看板需要通过主站固定入口访问，但 Metabase 仍应留在受登录保护的子域。 | 在 Netlify 增加 `/dashboard` 与 `/dashboard/*` 的 302 redirect，目标为 `https://dashboard.metaflow.shuang-su.com/` 及其 dashboard 路径。 | 主站获得稳定 dashboard 入口，不把 Metabase 静态内容并入 viewer 发布目录。 | 仍依赖 dashboard 子域的登录保护和可用性；此提交未改变 viewer runtime。 |
 | `5.14` · `7c52315` | `深圳技术大学.com` 曾被改成短路径 `/c2-lib`，但后续数据整理删除了 C2-Lib 的短链 alias，导致入口无法匹配 `data/index.json` 中的 `/sztu/c2-lib`，并回退加载不存在的默认场景资源。 | 将 Netlify host redirect 与 HTML `domainRedirects` 恢复到 `/sztu/c2-lib`；在 `scripts/generate_index.py` 的 `RESOURCE_ROUTE_ALIASES` 恢复 `("sztu", None, "c2-lib"): ["/c2-lib"]`；新增 domain redirect 测试，要求中文域名目标可被索引 route/alias 匹配。 | 中文域名根路径回到 canonical C2-Lib route；已经分享出去的 `/c2-lib` 短链继续可用。 | alias 必须保留在生成脚本源头，不能只手工改 `data/index.json`；证据为新增 route invariant 测试与重新生成索引。 |
+| `5.15` · `46b4ec2` | 中文域名下除 C2-Lib 外的 SZTU 资源只能通过 `/sztu/...` canonical route 打开，短路径如 `/c4-hangpai`、`/b1-sdi-206`、`/top10-26` 会落入 SPA fallback 后匹配不到资源。 | 在 `RESOURCE_ROUTE_ALIASES` 为 SZTU 资源补齐短链：`/c4-hangpai`、`/b1-sdi-206`、`/d1-utl-107`、`/c1-bdi-206`、`/top10-26`、`/fes/top10-26`，并扩展路由测试确保 canonical route 和短链都映射到同一资源。 | `深圳技术大学.com` 下所有 SZTU 资源都可用短链访问，同时保留 `/sztu/...` 正式路由和既有 `/c2-lib`。 | 短链仍由 `data/index.json` alias 解析，不新增服务端 redirect；证据为 route alias 测试与重新生成索引。 |
 
 ### 不产生产品版本的维护提交
 
@@ -253,6 +254,7 @@ flowchart TD
 | `e01b004` | 将 5.10 的文档、结构化版本历史、公开版本文件和 README 摘要补齐。 | 纯发布文档维护，不创建独立展示版本；由 `maintenanceCommits` 显式登记。 |
 | `532c6ba` | 将 5.11 的文档、结构化版本历史、公开版本文件和 README 摘要补齐。 | 纯发布文档维护，不创建独立展示版本；由 `maintenanceCommits` 显式登记。 |
 | `8b6898b` | 将 5.12 的文档、结构化版本历史、公开版本文件和 README 摘要补齐。 | 纯发布文档维护，不创建独立展示版本；由 `maintenanceCommits` 显式登记。 |
+| `3697ff8` | 将 5.14 的文档、结构化版本历史、公开版本文件和 README 摘要补齐。 | 纯发布文档维护，不创建独立展示版本；由 `maintenanceCommits` 显式登记。 |
 
 ## 能力到提交的反向索引
 
@@ -260,7 +262,7 @@ flowchart TD
 |---|---|
 | Poster / 加载 reveal | `1.5`、`1.6`、`1.18`、`3.19`、`3.20`、`5.0` |
 | 首帧与超时 | `1.14`、`1.15`、`1.16`、`2.1`、`5.0`、`5.1` |
-| 短路由与索引 | `1.19`、`1.21`、`1.22`、`2.5`、`2.8`、`3.15`、`5.2`、`5.14` |
+| 短路由与索引 | `1.19`、`1.21`、`1.22`、`2.5`、`2.8`、`3.15`、`5.2`、`5.14`、`5.15` |
 | XR / PICO | `1.31`–`1.36`、`2.9`、`5.0` |
 | Walk / voxel | `3.0`、`3.5`–`3.7`、`4.4`、`5.0`、`5.4` |
 | 移动端控制 | `2.7`、`3.2`–`3.3`、`3.8`–`3.16`、`5.0` |
