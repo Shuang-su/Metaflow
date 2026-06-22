@@ -47,7 +47,7 @@ const requiredEvents = [
 test('tracking plan defines the v1 event contract', async () => {
     const plan = await readJson(new URL('../../analytics/tracking-plan.json', import.meta.url));
 
-    assert.equal(plan.schema_version, 'analytics.v1.1');
+    assert.equal(plan.schema_version, 'analytics.v1.2');
     assert.equal(plan.source_app, 'metaflow-viewer');
     assert.equal(plan.heartbeat_interval_ms, 15000);
     assert.equal(plan.session_timeout_ms, 1800000);
@@ -62,6 +62,13 @@ test('tracking plan defines the v1 event contract', async () => {
     assert.ok(plan.sinks.posthog_excluded.includes('resource_timing_collected'));
     assert.ok(plan.sinks.posthog_excluded.includes('collab_presence_changed'));
     assert.ok(plan.common_context.includes('acquisition'));
+    assert.ok(plan.common_context.includes('device_model_raw'));
+    assert.ok(plan.common_context.includes('device_model_source'));
+    assert.ok(plan.common_context.includes('device_model_confidence'));
+    assert.ok(plan.device_model_policy.exact_model_sources.includes('alipay_mini_program'));
+    assert.equal(plan.device_model_policy.ios_web_policy, 'do_not_infer_exact_model_from_viewport_or_dpr');
+    assert.ok(plan.dashboard_controls.parameters.includes('source'));
+    assert.ok(plan.conversion_goals.includes('first_frame_ready'));
 
     for (const eventName of requiredEvents) {
         assert.ok(plan.events[eventName], `missing event ${eventName}`);
@@ -112,6 +119,9 @@ test('frontend SDK captures device hints, acquisition, performance, and aggregat
     assert.match(source, /interaction_depth_since_last/);
     assert.match(source, /joystick_touch_ms/);
     assert.match(source, /error_stack_hash/);
+    assert.match(source, /MetaflowDeviceInfo/);
+    assert.match(source, /HOST_DEVICE_MODEL_SOURCES/);
+    assert.match(source, /device_model_raw/);
 });
 
 test('viewer wires analytics into route, load, UI, navigation, and XR surfaces', async () => {
@@ -146,6 +156,8 @@ test('supabase migration exposes metabase-ready analytics models', async () => {
     const sql = await readText(new URL('../../supabase/migrations/20260616000000_analytics_v1.sql', import.meta.url));
     const v11 = await readText(new URL('../../supabase/migrations/20260616103041_analytics_v11_device_acquisition_performance.sql', import.meta.url));
     const v12 = await readText(new URL('../../supabase/migrations/20260622072037_analytics_v12_dashboard_visualizations.sql', import.meta.url));
+    const v13 = await readText(new URL('../../supabase/migrations/20260622104126_analytics_v13_dashboard_controls_device_goals.sql', import.meta.url));
+    const v14 = await readText(new URL('../../supabase/migrations/20260622110812_analytics_v14_device_model_exact_flag.sql', import.meta.url));
     const grants = await readText(new URL('../../supabase/migrations/20260616092508_analytics_service_role_grants.sql', import.meta.url));
 
     for (const tableName of ['events_raw', 'events_rejected', 'replay_chunks', 'dim_resource']) {
@@ -184,6 +196,31 @@ test('supabase migration exposes metabase-ready analytics models', async () => {
     assert.match(v12, /then 'iPad'/);
     assert.doesNotMatch(v12, /iPhone\s+\d/);
 
+    for (const rollupName of [
+        'daily_kpi_metrics',
+        'daily_retention_cohorts',
+        'daily_session_duration_metrics',
+        'daily_hourly_profile_metrics',
+        'daily_acquisition_metrics',
+        'daily_device_model_metrics',
+        'daily_goal_conversion_metrics',
+        'daily_dashboard_freshness_metrics'
+    ]) {
+        assert.match(v13, new RegExp(`analytics\\.${rollupName}`), `missing ${rollupName}`);
+        assert.match(v13, new RegExp(`refresh materialized view analytics\\.${rollupName}`), `${rollupName} should refresh in refresh_rollups`);
+    }
+
+    assert.match(v13, /analytics\.dim_device_model/);
+    assert.match(v13, /generate_series\(0, 30\)/);
+    assert.match(v13, /device_model_raw/);
+    assert.match(v13, /device_model_source/);
+    assert.match(v13, /daily_goal_conversion_metrics/);
+    assert.match(v13, /page_errors/);
+    assert.doesNotMatch(v13, /iPhone\s+\d/);
+    assert.match(v14, /drop materialized view if exists analytics\.daily_device_model_metrics/);
+    assert.match(v14, /coalesce\(\(\s*dp\.device_model_raw is not null/);
+    assert.match(v14, /grant select on analytics\.daily_device_model_metrics to analytics_reader/);
+
     assert.match(sql, /analytics_reader/);
     assert.match(sql, /analytics-replays/);
     assert.match(sql, /refresh materialized view analytics\.daily_route_metrics/);
@@ -208,6 +245,9 @@ test('collector validates origins, schema, anonymous hashing, and service-role w
     assert.match(source, /sec-ch-ua/);
     assert.match(source, /parseBrowser/);
     assert.match(source, /device_class/);
+    assert.match(source, /DEVICE_MODEL_SOURCES/);
+    assert.match(source, /device_model_raw/);
+    assert.match(source, /device_model_source/);
     assert.match(source, /session_summary/);
     assert.match(source, /events_rejected/);
     assert.match(source, /from\('events_raw'\)/);
@@ -219,15 +259,33 @@ test('metabase dashboard automation uses aggregated models for bilingual visuali
 
     for (const cardName of [
         '我关注的数据',
+        '数据新鲜度',
         '今日小时数据',
-        '留存分析',
+        '访问时段画像',
+        '留存热力表',
+        '留存摘要 D1/D7/D30',
         '来源明细',
-        '机型 Top',
+        '机型明细',
+        '精确机型覆盖率',
+        '机型质量排行',
+        '机型 × Renderer',
+        '访问时长分布',
+        '转化目标',
+        '指标口径',
         'Renderer 质量',
         'Metaflow Focus Metrics',
+        'Metaflow Data Freshness',
         'Metaflow Today vs Yesterday By Hour',
+        'Metaflow Visit Hour Profile',
         'Metaflow Retention Cohorts',
-        'Metaflow Device Model Top'
+        'Metaflow Retention Summary',
+        'Metaflow Device Model Detail',
+        'Metaflow Device Model Coverage',
+        'Metaflow Device Quality Ranking',
+        'Metaflow Device Renderer Matrix',
+        'Metaflow Duration Distribution',
+        'Metaflow Conversion Goals',
+        'Metaflow Metric Definitions'
     ]) {
         assert.match(source, new RegExp(cardName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')), `missing dashboard card ${cardName}`);
     }
@@ -237,6 +295,11 @@ test('metabase dashboard automation uses aggregated models for bilingual visuali
         'analytics.daily_retention_cohorts',
         'analytics.daily_acquisition_metrics',
         'analytics.daily_device_model_metrics',
+        'analytics.daily_kpi_metrics',
+        'analytics.daily_session_duration_metrics',
+        'analytics.daily_hourly_profile_metrics',
+        'analytics.daily_goal_conversion_metrics',
+        'analytics.daily_dashboard_freshness_metrics',
         'analytics.daily_route_metrics',
         'analytics.daily_resource_metrics',
         'analytics.daily_data_quality_metrics'
@@ -244,5 +307,12 @@ test('metabase dashboard automation uses aggregated models for bilingual visuali
         assert.match(source, new RegExp(modelName.replace('.', '\\.')), `dashboard should query ${modelName}`);
     }
 
+    assert.match(source, /DASHBOARD_PARAMETERS/);
+    assert.match(source, /template-tags/);
+    assert.match(source, /\{\{start_date\}\}/);
+    assert.match(source, /\{\{route\}\}/);
+    assert.match(source, /\{\{device_class\}\}/);
+    assert.match(source, /\{\{renderer\}\}/);
+    assert.match(source, /\{\{source\}\}/);
     assert.doesNotMatch(source, /spec\([^)]*events_raw/i);
 });

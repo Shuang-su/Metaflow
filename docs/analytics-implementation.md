@@ -24,6 +24,13 @@ mirror low-frequency product analytics events.
 - Device context includes viewport, screen, DPR, language, timezone, touch points,
   hardware concurrency, device memory, network information, User-Agent, and
   Client Hints when available.
+- Trusted host device context can additionally provide `device_model_raw`,
+  `device_model_source`, and `device_model_confidence`. Supported exact-model
+  sources are User-Agent Client Hints, Alipay Mini Program, WeChat Mini Program,
+  native WebView, and manual test injection through `window.MetaflowDeviceInfo`.
+  Ordinary mobile Safari/Chrome web traffic does not expose exact iPhone model
+  identifiers, so the pipeline reports iOS as `iPhone` or `iPad` unless a
+  trusted host injects a raw identifier such as `iPhone17,3`.
 - Acquisition context stores only privacy-safe attribution fields: referrer
   without query string, referrer domain, entry path, query-presence flag, and
   whitelisted UTM parameters.
@@ -200,15 +207,26 @@ summary layers:
 - `analytics.hourly_usage_metrics` powers "today vs yesterday" hourly bars and
   cumulative curves for PV, UV, sessions, engaged sessions, load failures,
   client errors, and p50/p95 first-frame timing.
-- `analytics.daily_retention_cohorts` stores anonymous-user D0-D7 retention by
+- `analytics.daily_kpi_metrics` stores daily dashboard KPI inputs for dense
+  metric grids and period comparison.
+- `analytics.daily_retention_cohorts` stores anonymous-user D0-D30 retention by
   first-visit date for cohort heat-table style analysis.
+- `analytics.daily_session_duration_metrics` stores session-duration buckets for
+  access-depth profiling.
+- `analytics.daily_hourly_profile_metrics` stores hour-of-day usage distribution
+  across the selected period.
 - `analytics.daily_acquisition_metrics` groups visits by privacy-safe source
   dimensions: channel group, referrer domain, UTM source, UTM medium, and UTM
   campaign. It includes share, new users, returning users, engaged sessions,
   and first-frame success.
 - `analytics.daily_device_model_metrics` groups browser, OS, device class,
-  renderer, privacy-safe device model display, viewport bucket, and DPR with
-  visit and load-quality metrics.
+  renderer, trusted raw model code/source/confidence, privacy-safe device model
+  display, viewport bucket, and DPR with visit, load-quality, and error metrics.
+- `analytics.daily_goal_conversion_metrics` stores Metaflow-native conversion
+  goals: `first_frame_ready`, `engaged_session`, `annotation_opened`,
+  `fullscreen_changed`, `xr_started`, and `navigation_completed`.
+- `analytics.daily_dashboard_freshness_metrics` exposes latest event timestamps
+  and 24-hour raw/page-view volume for the top-of-dashboard freshness card.
 
 Device model display is intentionally conservative:
 
@@ -216,8 +234,16 @@ Device model display is intentionally conservative:
   reports `Android unknown`.
 - iOS is reported as `iPhone` or `iPad`; the pipeline does not infer exact
   iPhone models from viewport and DPR.
+- Apple raw identifiers such as `iPhone17,3` are stored as raw codes when a
+  trusted host provides them. Marketing names are intentionally optional because
+  those mappings can drift and are not required for compatibility diagnosis.
 - Desktop uses OS, browser, and renderer dimensions rather than trying to infer
   hardware model.
+
+The dashboard intentionally does not include age, gender, province/city, trade
+amount, repeat purchase, search-to-transaction, or collection-to-transaction
+metrics. Those either have no trustworthy Metaflow source today or would require
+additional consent, account data, or commerce features.
 
 Suggested first SQL checks after a deploy:
 
@@ -230,7 +256,9 @@ select * from analytics.daily_data_quality_metrics order by metric_date desc lim
 select metric_date, hour_of_day, page_views from analytics.hourly_usage_metrics order by metric_hour desc limit 24;
 select cohort_date, day_number, retention_rate from analytics.daily_retention_cohorts order by cohort_date desc, day_number limit 32;
 select channel_group, referrer_domain, unique_users from analytics.daily_acquisition_metrics order by metric_date desc, unique_users desc limit 20;
-select device_model_display, os, browser, unique_users from analytics.daily_device_model_metrics order by metric_date desc, unique_users desc limit 20;
+select device_model_display, device_model_raw, device_model_source, exact_model_available, unique_users from analytics.daily_device_model_metrics order by metric_date desc, unique_users desc limit 20;
+select duration_bucket, sessions from analytics.daily_session_duration_metrics order by metric_date desc, bucket_sort limit 20;
+select goal_name, channel_group, route, goal_sessions, session_conversion_rate from analytics.daily_goal_conversion_metrics order by metric_date desc, goal_sessions desc limit 20;
 ```
 
 ## Metabase Dashboard Entry
@@ -273,8 +301,11 @@ The dashboard follows product-analytics visualization patterns rather than a
 separate business-domain information architecture. The first version includes
 dense focus-metric tables with previous-period deltas, today/yesterday hourly
 comparison, multi-metric trend charts, route/resource detail tables, retention
-cohorts, source TOP/detail views, device model tables, renderer quality tables,
-data-quality trends, and bottom-of-page diagnostic sessions.
+cohorts, D1/D7/D30 retention summary, source TOP/detail views, visit-duration
+and hour-of-day profiles, trusted device model detail, exact-model coverage,
+device quality rankings, device-by-renderer comparison, renderer quality tables,
+conversion goals, metric definitions, data-quality trends, and bottom-of-page
+diagnostic sessions.
 
 ## Privacy Defaults
 

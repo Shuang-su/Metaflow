@@ -117,6 +117,12 @@ const UTM_KEYS = [
     'utm_content',
     'utm_term'
 ] as const;
+const HOST_DEVICE_MODEL_SOURCES = new Set([
+    'alipay_mini_program',
+    'wechat_mini_program',
+    'native_webview',
+    'manual_test'
+]);
 const RESOURCE_TIMING_EXTENSIONS = /\.(json|sog|ply|png|jpe?g|webp|wasm)$/i;
 const KEYBOARD_INTERACTION_KEYS = new Set([
     'ArrowUp',
@@ -368,6 +374,13 @@ type UserAgentDataLike = {
     getHighEntropyValues?: (hints: string[]) => Promise<Record<string, unknown>>;
 };
 
+type HostDeviceInfo = {
+    source?: string;
+    model?: string;
+    brand?: string;
+    confidence?: string;
+};
+
 let highEntropyClientHints: Record<string, JsonValue> | null = null;
 let highEntropyClientHintsStarted = false;
 
@@ -404,11 +417,41 @@ const warmClientHints = () => {
     });
 };
 
+const readHostDeviceInfo = (): HostDeviceInfo | undefined => {
+    const info = (globalThis as typeof globalThis & {
+        MetaflowDeviceInfo?: unknown;
+    }).MetaflowDeviceInfo;
+    if (!info || typeof info !== 'object' || Array.isArray(info)) return undefined;
+
+    const record = info as Record<string, unknown>;
+    const source = typeof record.source === 'string' ? record.source.trim() : '';
+    if (!HOST_DEVICE_MODEL_SOURCES.has(source)) return undefined;
+
+    const model = typeof record.model === 'string' ? record.model.trim() :
+        typeof record.device_model_raw === 'string' ? record.device_model_raw.trim() :
+        typeof record.deviceModel === 'string' ? record.deviceModel.trim() :
+        '';
+    const brand = typeof record.brand === 'string' ? record.brand.trim() :
+        typeof record.device_brand_raw === 'string' ? record.device_brand_raw.trim() :
+        typeof record.deviceBrand === 'string' ? record.deviceBrand.trim() :
+        '';
+    const confidence = typeof record.confidence === 'string' ? record.confidence.trim() : 'host';
+
+    if (!model && !brand) return undefined;
+    return {
+        source,
+        model: model ? truncate(model) : undefined,
+        brand: brand ? truncate(brand) : undefined,
+        confidence: confidence ? truncate(confidence) : 'host'
+    };
+};
+
 const getDeviceContext = () => {
     const connection = (navigator as Navigator & {
         connection?: { effectiveType?: string; downlink?: number; rtt?: number; saveData?: boolean };
         deviceMemory?: number;
     }).connection;
+    const hostDevice = readHostDeviceInfo();
     return {
         language: navigator.language,
         languages: navigator.languages?.slice(0, 5) ?? [],
@@ -427,6 +470,11 @@ const getDeviceContext = () => {
         device_memory_gb: (navigator as Navigator & { deviceMemory?: number }).deviceMemory,
         user_agent: navigator.userAgent,
         client_hints: readClientHints(),
+        host_device: hostDevice,
+        device_model_raw: hostDevice?.model,
+        device_brand_raw: hostDevice?.brand,
+        device_model_source: hostDevice?.source,
+        device_model_confidence: hostDevice?.confidence,
         network: connection ? {
             effective_type: connection.effectiveType,
             downlink: connection.downlink,

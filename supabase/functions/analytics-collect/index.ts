@@ -43,6 +43,13 @@ const MAX_BODY_BYTES = 256 * 1024;
 const MAX_EVENTS_PER_BATCH = 100;
 const MAX_REPLAY_CHUNKS_PER_BATCH = 20;
 const REPLAY_BUCKET = 'analytics-replays';
+const DEVICE_MODEL_SOURCES = new Set([
+  'ua_ch',
+  'alipay_mini_program',
+  'wechat_mini_program',
+  'native_webview',
+  'manual_test'
+]);
 
 type JsonRecord = Record<string, unknown>;
 
@@ -98,6 +105,16 @@ const isRecord = (value: unknown): value is JsonRecord => {
 
 const safeString = (value: unknown, fallback = '') => {
   return typeof value === 'string' ? value.slice(0, 512) : fallback;
+};
+
+const safeDeviceModelCode = (value: unknown) => {
+  if (typeof value !== 'string') return '';
+  return value.trim().replace(/[^a-zA-Z0-9 .,_+/\-()]/g, '').slice(0, 128);
+};
+
+const safeDeviceModelSource = (value: unknown) => {
+  const source = safeString(value).trim();
+  return DEVICE_MODEL_SOURCES.has(source) ? source : '';
 };
 
 const safeInt = (value: unknown, fallback = 1) => {
@@ -192,9 +209,21 @@ const enrichDeviceContext = (request: Request, clientDevice: JsonRecord) => {
   const lowEntropyBrands = Array.isArray(clientHints.brands) ? clientHints.brands.filter(isRecord) : [];
   const brands = lowEntropyBrands.length ? lowEntropyBrands : headerBrands;
   const highEntropy = safeJson(clientHints.high_entropy);
+  const hostDevice = safeJson(clientDevice.host_device);
   const platform = safeString(clientHints.platform || headers.get('sec-ch-ua-platform'));
   const mobile = safeBool(clientHints.mobile ?? headers.get('sec-ch-ua-mobile'));
-  const model = safeString(highEntropy.model || headers.get('sec-ch-ua-model'));
+  const hostSource = safeDeviceModelSource(hostDevice.source || clientDevice.device_model_source);
+  const hostModelCandidate = safeDeviceModelCode(
+    hostDevice.model ||
+    hostDevice.device_model_raw ||
+    clientDevice.device_model_raw
+  );
+  const hostModel = hostSource ? hostModelCandidate : '';
+  const uaModel = safeDeviceModelCode(highEntropy.model || headers.get('sec-ch-ua-model'));
+  const model = hostModel || uaModel;
+  const modelSource = hostModel ? hostSource : (uaModel ? 'ua_ch' : '');
+  const brand = safeString(hostDevice.brand || hostDevice.device_brand_raw || clientDevice.device_brand_raw);
+  const confidence = safeString(hostDevice.confidence || clientDevice.device_model_confidence || (modelSource ? modelSource : ''));
   const browser = parseBrowser(userAgent, brands);
   const os = parseOs(userAgent, platform);
   const maxTouchPoints = safeInt(clientDevice.max_touch_points, 0);
@@ -222,6 +251,10 @@ const enrichDeviceContext = (request: Request, clientDevice: JsonRecord) => {
     os_version: safeString(highEntropy.platform_version || headers.get('sec-ch-ua-platform-version')),
     device_class: deviceClass,
     device_model: model,
+    device_model_raw: model || undefined,
+    device_brand_raw: brand || undefined,
+    device_model_source: modelSource || undefined,
+    device_model_confidence: confidence || undefined,
     is_mobile: deviceClass === 'mobile',
     is_tablet: deviceClass === 'tablet'
   };

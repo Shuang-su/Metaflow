@@ -152,6 +152,45 @@ def database_id():
 
 db_id = database_id()
 
+COMMON_TEMPLATE_TAGS = {
+    "start_date": {"name": "start_date", "display-name": "Start date", "type": "date", "required": False},
+    "end_date": {"name": "end_date", "display-name": "End date", "type": "date", "required": False},
+    "route": {"name": "route", "display-name": "Route", "type": "text", "required": False},
+    "device_class": {"name": "device_class", "display-name": "Device class", "type": "text", "required": False},
+    "renderer": {"name": "renderer", "display-name": "Renderer", "type": "text", "required": False},
+    "source": {"name": "source", "display-name": "Source", "type": "text", "required": False},
+}
+
+DASHBOARD_PARAMETERS = [
+    {"id": "start_date", "name": "Start date", "slug": "start_date", "type": "date/single", "sectionId": "date"},
+    {"id": "end_date", "name": "End date", "slug": "end_date", "type": "date/single", "sectionId": "date"},
+    {"id": "route", "name": "Route", "slug": "route", "type": "category", "sectionId": "location"},
+    {"id": "device_class", "name": "Device class", "slug": "device_class", "type": "category", "sectionId": "location"},
+    {"id": "renderer", "name": "Renderer", "slug": "renderer", "type": "category", "sectionId": "location"},
+    {"id": "source", "name": "Source", "slug": "source", "type": "category", "sectionId": "location"},
+]
+
+
+def template_tags_for_sql(sql):
+    return {
+        key: dict(value, id=key)
+        for key, value in COMMON_TEMPLATE_TAGS.items()
+        if "{{%s}}" % key in sql
+    }
+
+
+def parameter_mappings_for_card(card_id, sql):
+    mappings = []
+    for key in template_tags_for_sql(sql):
+        mappings.append(
+            {
+                "parameter_id": key,
+                "card_id": card_id,
+                "target": ["variable", ["template-tag", key]],
+            }
+        )
+    return mappings
+
 
 def dataset(sql):
     return api(
@@ -243,7 +282,7 @@ def make_card(spec):
         "dataset_query": {
             "database": db_id,
             "type": "native",
-            "native": {"query": spec["sql"], "template-tags": {}},
+            "native": {"query": spec["sql"], "template-tags": template_tags_for_sql(spec["sql"])},
         },
         "visualization_settings": spec.get("viz") or {},
         "parameters": [],
@@ -274,6 +313,11 @@ VIZ_HOURLY_USAGE = {
     "graph.dimensions": ["hour_of_day"],
     "graph.metrics": ["today_page_views", "yesterday_page_views", "today_cumulative", "yesterday_cumulative"],
 }
+VIZ_HOURLY_PROFILE = {
+    "graph.dimensions": ["hour_of_day"],
+    "graph.metrics": ["page_views", "unique_users", "engaged_sessions"],
+}
+VIZ_DURATION_BAR = {"graph.dimensions": ["duration_bucket"], "graph.metrics": ["sessions", "unique_users"]}
 VIZ_SOURCE_BAR = {"graph.dimensions": ["source"], "graph.metrics": ["unique_users"]}
 VIZ_SOURCE_TREND = {
     "graph.dimensions": ["metric_date"],
@@ -281,6 +325,9 @@ VIZ_SOURCE_TREND = {
 }
 VIZ_DEVICE_BAR = {"graph.dimensions": ["device_class"], "graph.metrics": ["page_views", "sessions", "unique_users"]}
 VIZ_OS_BAR = {"graph.dimensions": ["os"], "graph.metrics": ["unique_users"]}
+VIZ_DEVICE_COVERAGE = {"graph.dimensions": ["coverage_status"], "graph.metrics": ["unique_users", "page_views"]}
+VIZ_DEVICE_QUALITY = {"graph.dimensions": ["device_model_display"], "graph.metrics": ["load_failure_pct", "avg_p95_ttf_ms", "errors"]}
+VIZ_GOAL_BAR = {"graph.dimensions": ["goal_name"], "graph.metrics": ["goal_sessions", "session_conversion_pct"]}
 VIZ_INTERACTION_BAR = {"graph.dimensions": ["target"], "graph.metrics": ["interactions"]}
 VIZ_QUALITY_LINE = {
     "graph.dimensions": ["metric_date"],
@@ -290,80 +337,40 @@ VIZ_QUALITY_LINE = {
 COMMON_SQL = {
     "focus_metrics": q("""
         with periods as (
-            select 'current' as period, now() - interval '30 days' as start_at, now() as end_at
+            select 'current' as period, current_date - interval '30 days' as start_date, current_date as end_date
             union all
-            select 'previous', now() - interval '60 days', now() - interval '30 days'
-        ),
-        page_period as (
-            select
-                p.period,
-                count(*) as page_views,
-                count(distinct pv.anonymous_user_id_hash) as unique_users,
-                count(distinct pv.anonymous_user_id_hash) filter (where u.first_seen_at >= p.start_at and u.first_seen_at < p.end_at) as new_users,
-                count(distinct pv.anonymous_user_id_hash) filter (where u.first_seen_at < p.start_at) as returning_users
-            from periods p
-            left join analytics.fact_page_views pv
-                on pv.page_viewed_at >= p.start_at and pv.page_viewed_at < p.end_at
-            left join analytics.fact_users u using (anonymous_user_id_hash)
-            group by p.period
-        ),
-        session_period as (
-            select
-                p.period,
-                count(*) as sessions,
-                count(*) filter (where s.engaged_session) as engaged_sessions,
-                count(*) filter (where s.bounce) as bounces,
-                avg(s.duration_seconds)::numeric as avg_duration_seconds
-            from periods p
-            left join analytics.fact_sessions s
-                on s.session_started_at >= p.start_at and s.session_started_at < p.end_at
-            group by p.period
-        ),
-        load_period as (
-            select
-                p.period,
-                count(*) as load_attempts,
-                count(*) filter (where l.load_result = 'loaded') as first_frame_ready,
-                percentile_disc(0.95) within group (order by l.time_to_first_frame_ms)
-                    filter (where l.time_to_first_frame_ms is not null) as p95_ttf_ms
-            from periods p
-            left join analytics.fact_resource_loads l
-                on l.started_at >= p.start_at and l.started_at < p.end_at
-            group by p.period
-        ),
-        error_period as (
-            select
-                p.period,
-                coalesce(sum(e.error_count), 0) as errors,
-                coalesce(sum(e.affected_sessions), 0) as error_sessions
-            from periods p
-            left join analytics.daily_error_metrics e
-                on e.metric_date >= p.start_at::date and e.metric_date < p.end_at::date
-            group by p.period
+            select 'previous', current_date - interval '60 days', current_date - interval '30 days'
         ),
         wide as (
             select
-                pp.period,
-                pp.page_views,
-                pp.unique_users,
-                pp.new_users,
-                pp.returning_users,
-                sp.sessions,
-                sp.engaged_sessions,
-                sp.bounces,
-                round(sp.avg_duration_seconds, 1) as avg_duration_seconds,
-                lp.load_attempts,
-                lp.first_frame_ready,
-                lp.p95_ttf_ms,
-                ep.errors,
-                ep.error_sessions,
-                case when sp.sessions > 0 then sp.engaged_sessions::numeric / sp.sessions end as engaged_rate,
-                case when sp.sessions > 0 then sp.bounces::numeric / sp.sessions end as bounce_rate,
-                case when lp.load_attempts > 0 then lp.first_frame_ready::numeric / lp.load_attempts end as first_frame_rate
-            from page_period pp
-            join session_period sp using (period)
-            join load_period lp using (period)
-            join error_period ep using (period)
+                p.period,
+                coalesce(sum(k.page_views), 0) as page_views,
+                coalesce(sum(k.active_users), 0) as unique_users,
+                coalesce(sum(k.new_users), 0) as new_users,
+                coalesce(sum(k.returning_users), 0) as returning_users,
+                coalesce(sum(k.sessions), 0) as sessions,
+                coalesce(sum(k.engaged_sessions), 0) as engaged_sessions,
+                coalesce(sum(k.bounces), 0) as bounces,
+                round(avg(k.avg_duration_seconds) filter (where k.avg_duration_seconds is not null), 1) as avg_duration_seconds,
+                coalesce(sum(k.load_attempts), 0) as load_attempts,
+                coalesce(sum(k.first_frame_ready), 0) as first_frame_ready,
+                round(avg(k.p95_ttf_ms) filter (where k.p95_ttf_ms is not null), 0) as p95_ttf_ms,
+                coalesce(sum(k.errors), 0) as errors,
+                coalesce(sum(k.error_sessions), 0) as error_sessions,
+                case when coalesce(sum(k.sessions), 0) > 0
+                    then sum(k.engaged_sessions)::numeric / sum(k.sessions)
+                end as engaged_rate,
+                case when coalesce(sum(k.sessions), 0) > 0
+                    then sum(k.bounces)::numeric / sum(k.sessions)
+                end as bounce_rate,
+                case when coalesce(sum(k.load_attempts), 0) > 0
+                    then sum(k.first_frame_ready)::numeric / sum(k.load_attempts)
+                end as first_frame_rate
+            from periods p
+            left join analytics.daily_kpi_metrics k
+                on k.metric_date >= p.start_date::date
+                and k.metric_date < p.end_date::date
+            group by p.period
         ),
         metric_rows as (
             select 'PV' as metric, page_views::numeric as current_value from wide where period = 'current'
@@ -425,6 +432,75 @@ COMMON_SQL = {
         left join by_hour b using (hour_of_day)
         order by h.hour_of_day
     """),
+    "data_freshness": q("""
+        select
+            metric_date,
+            latest_event_received_at,
+            latest_event_occurred_at,
+            latest_page_view_received_at,
+            raw_events_24h,
+            page_views_24h,
+            round(extract(epoch from (now() - latest_event_received_at)) / 60, 1) as event_lag_minutes
+        from analytics.daily_dashboard_freshness_metrics
+        order by metric_date desc
+        limit 1
+    """),
+    "metric_definitions": q("""
+        select
+            metric,
+            title,
+            definition,
+            calculation,
+            unit
+        from analytics.metric_definitions
+        order by metric
+    """),
+    "retention_summary": q("""
+        select
+            concat('D', day_number) as retention_day,
+            sum(cohort_users) as cohort_users,
+            sum(retained_users) as retained_users,
+            round(sum(retained_users)::numeric * 100 / nullif(sum(cohort_users), 0), 1) as retention_pct
+        from analytics.daily_retention_cohorts
+        where cohort_date >= current_date - interval '60 days'
+            and day_number in (1, 7, 30)
+        [[and cohort_date >= {{start_date}}]]
+        [[and cohort_date <= {{end_date}}]]
+        group by day_number
+        order by day_number
+    """),
+    "duration_distribution": q("""
+        select
+            duration_bucket,
+            bucket_sort,
+            sum(sessions) as sessions,
+            sum(unique_users) as unique_users,
+            round(sum(sessions)::numeric * 100 / nullif(sum(sum(sessions)) over (), 0), 1) as session_share_pct,
+            round(sum(engaged_sessions)::numeric * 100 / nullif(sum(sessions), 0), 1) as engaged_pct
+        from analytics.daily_session_duration_metrics
+        where metric_date >= current_date - interval '30 days'
+        [[and metric_date >= {{start_date}}]]
+        [[and metric_date <= {{end_date}}]]
+        group by duration_bucket, bucket_sort
+        order by bucket_sort
+    """),
+    "hourly_profile": q("""
+        select
+            hour_of_day,
+            sum(page_views) as page_views,
+            sum(unique_users) as unique_users,
+            sum(sessions) as sessions,
+            sum(engaged_sessions) as engaged_sessions,
+            sum(load_failures) as load_failures,
+            sum(client_errors) as client_errors,
+            round(sum(page_views)::numeric * 100 / nullif(sum(sum(page_views)) over (), 0), 1) as page_view_share_pct
+        from analytics.daily_hourly_profile_metrics
+        where metric_date >= current_date - interval '30 days'
+        [[and metric_date >= {{start_date}}]]
+        [[and metric_date <= {{end_date}}]]
+        group by hour_of_day
+        order by hour_of_day
+    """),
     "daily_usage": q("""
         with sessions as (
             select
@@ -445,6 +521,8 @@ COMMON_SQL = {
         from analytics.daily_user_metrics u
         left join sessions s using (metric_date)
         where u.metric_date >= current_date - interval '30 days'
+        [[and u.metric_date >= {{start_date}}]]
+        [[and u.metric_date <= {{end_date}}]]
         order by u.metric_date
     """),
     "route_detail": q("""
@@ -456,6 +534,9 @@ COMMON_SQL = {
                 sum(sessions) as sessions
             from analytics.daily_route_metrics
             where metric_date >= current_date - interval '30 days'
+            [[and metric_date >= {{start_date}}]]
+            [[and metric_date <= {{end_date}}]]
+            [[and route = {{route}}]]
             group by route
         ),
         resources as (
@@ -467,12 +548,18 @@ COMMON_SQL = {
                 round(avg(p95_ttf_ms)::numeric, 0) as p95_ttf_ms
             from analytics.daily_resource_metrics
             where metric_date >= current_date - interval '30 days'
+            [[and metric_date >= {{start_date}}]]
+            [[and metric_date <= {{end_date}}]]
+            [[and route = {{route}}]]
             group by route
         ),
         errors as (
             select route, sum(error_count) as errors
             from analytics.daily_error_metrics
             where metric_date >= current_date - interval '30 days'
+            [[and metric_date >= {{start_date}}]]
+            [[and metric_date <= {{end_date}}]]
+            [[and route = {{route}}]]
             group by route
         ),
         sessions as (
@@ -482,6 +569,9 @@ COMMON_SQL = {
                 count(*) as started_sessions
             from analytics.fact_sessions
             where session_started_at >= now() - interval '30 days'
+            [[and session_started_at::date >= {{start_date}}]]
+            [[and session_started_at::date <= {{end_date}}]]
+            [[and entry_route = {{route}}]]
             group by entry_route
         )
         select
@@ -519,6 +609,9 @@ COMMON_SQL = {
             round(avg(p95_ttf_ms)::numeric, 0) as avg_p95_ttf_ms
         from analytics.daily_resource_metrics
         where metric_date >= current_date - interval '30 days'
+        [[and metric_date >= {{start_date}}]]
+        [[and metric_date <= {{end_date}}]]
+        [[and route = {{route}}]]
         group by resource_id, route
         order by load_attempts desc
         limit 20
@@ -537,6 +630,8 @@ COMMON_SQL = {
             round(max(retention_rate) filter (where day_number = 7) * 100, 1) as d7_pct
         from analytics.daily_retention_cohorts
         where cohort_date >= current_date - interval '14 days'
+        [[and cohort_date >= {{start_date}}]]
+        [[and cohort_date <= {{end_date}}]]
         group by cohort_date
         order by cohort_date desc
     """),
@@ -553,6 +648,9 @@ COMMON_SQL = {
             round(sum(unique_users * unique_user_share)::numeric / nullif(sum(unique_users), 0) * 100, 1) as avg_share_pct
         from analytics.daily_acquisition_metrics
         where metric_date >= current_date - interval '30 days'
+        [[and metric_date >= {{start_date}}]]
+        [[and metric_date <= {{end_date}}]]
+        [[and (channel_group = {{source}} or referrer_domain = {{source}} or utm_source = {{source}})]]
         group by 1
         order by unique_users desc
         limit 8
@@ -566,6 +664,9 @@ COMMON_SQL = {
             sum(unique_users) filter (where channel_group = 'utm') as utm_users
         from analytics.daily_acquisition_metrics
         where metric_date >= current_date - interval '30 days'
+        [[and metric_date >= {{start_date}}]]
+        [[and metric_date <= {{end_date}}]]
+        [[and (channel_group = {{source}} or referrer_domain = {{source}} or utm_source = {{source}})]]
         group by metric_date
         order by metric_date
     """),
@@ -585,6 +686,9 @@ COMMON_SQL = {
             round(sum(first_frame_ready)::numeric * 100 / nullif(sum(page_views), 0), 1) as first_frame_pct
         from analytics.daily_acquisition_metrics
         where metric_date >= current_date - interval '30 days'
+        [[and metric_date >= {{start_date}}]]
+        [[and metric_date <= {{end_date}}]]
+        [[and (channel_group = {{source}} or referrer_domain = {{source}} or utm_source = {{source}})]]
         group by channel_group, referrer_domain, utm_source, utm_medium
         order by unique_users desc
         limit 30
@@ -597,6 +701,10 @@ COMMON_SQL = {
             sum(sessions) as sessions
         from analytics.daily_device_metrics
         where metric_date >= current_date - interval '30 days'
+        [[and metric_date >= {{start_date}}]]
+        [[and metric_date <= {{end_date}}]]
+        [[and device_class = {{device_class}}]]
+        [[and renderer = {{renderer}}]]
         group by device_class
         order by page_views desc
     """),
@@ -610,6 +718,10 @@ COMMON_SQL = {
             sum(sessions) as sessions
         from analytics.daily_device_model_metrics
         where metric_date >= current_date - interval '30 days'
+        [[and metric_date >= {{start_date}}]]
+        [[and metric_date <= {{end_date}}]]
+        [[and device_class = {{device_class}}]]
+        [[and renderer = {{renderer}}]]
         group by os, browser, device_class
         order by unique_users desc
         limit 20
@@ -617,22 +729,108 @@ COMMON_SQL = {
     "device_models": q("""
         select
             device_model_display,
+            coalesce(device_model_raw, '') as raw_model_code,
+            coalesce(marketing_name, '') as marketing_name,
+            coalesce(device_model_source, 'none') as model_source,
+            coalesce(device_model_confidence, '') as model_confidence,
             os,
             browser,
             device_class,
+            renderer,
             viewport_bucket,
             device_pixel_ratio,
+            bool_or(exact_model_available) as exact_model_available,
             sum(unique_users) as unique_users,
             sum(page_views) as page_views,
             round(sum(unique_users)::numeric * 100 / nullif(sum(sum(unique_users)) over (), 0), 1) as user_share_pct,
             round(sum(first_frame_ready)::numeric * 100 / nullif(sum(page_views), 0), 1) as first_frame_pct,
-            round(avg(p95_ttf_ms)::numeric, 0) as avg_p95_ttf_ms
+            round(avg(p95_ttf_ms)::numeric, 0) as avg_p95_ttf_ms,
+            sum(errors) as errors
         from analytics.daily_device_model_metrics
         where metric_date >= current_date - interval '30 days'
             and device_class in ('mobile', 'tablet')
-        group by device_model_display, os, browser, device_class, viewport_bucket, device_pixel_ratio
+        [[and metric_date >= {{start_date}}]]
+        [[and metric_date <= {{end_date}}]]
+        [[and device_class = {{device_class}}]]
+        [[and renderer = {{renderer}}]]
+        group by
+            device_model_display,
+            device_model_raw,
+            marketing_name,
+            device_model_source,
+            device_model_confidence,
+            os,
+            browser,
+            device_class,
+            renderer,
+            viewport_bucket,
+            device_pixel_ratio
         order by unique_users desc
         limit 30
+    """),
+    "device_model_coverage": q("""
+        select
+            case when exact_model_available then 'exact model' else 'unknown / family only' end as coverage_status,
+            coalesce(device_model_source, 'none') as model_source,
+            sum(unique_users) as unique_users,
+            sum(page_views) as page_views,
+            round(sum(unique_users)::numeric * 100 / nullif(sum(sum(unique_users)) over (), 0), 1) as user_share_pct,
+            round(sum(page_views)::numeric * 100 / nullif(sum(sum(page_views)) over (), 0), 1) as page_view_share_pct
+        from analytics.daily_device_model_metrics
+        where metric_date >= current_date - interval '30 days'
+        [[and metric_date >= {{start_date}}]]
+        [[and metric_date <= {{end_date}}]]
+        [[and device_class = {{device_class}}]]
+        [[and renderer = {{renderer}}]]
+        group by coverage_status, model_source
+        order by unique_users desc
+    """),
+    "device_quality_ranking": q("""
+        select
+            device_model_display,
+            coalesce(device_model_raw, '') as raw_model_code,
+            os,
+            browser,
+            device_class,
+            renderer,
+            sum(unique_users) as unique_users,
+            sum(page_views) as page_views,
+            round(sum(first_frame_ready)::numeric * 100 / nullif(sum(page_views), 0), 1) as first_frame_pct,
+            round(sum(load_failures)::numeric * 100 / nullif(sum(page_views), 0), 1) as load_failure_pct,
+            round(avg(p95_ttf_ms)::numeric, 0) as avg_p95_ttf_ms,
+            sum(errors) as errors
+        from analytics.daily_device_model_metrics
+        where metric_date >= current_date - interval '30 days'
+        [[and metric_date >= {{start_date}}]]
+        [[and metric_date <= {{end_date}}]]
+        [[and device_class = {{device_class}}]]
+        [[and renderer = {{renderer}}]]
+        group by device_model_display, device_model_raw, os, browser, device_class, renderer
+        order by load_failure_pct desc nulls last, avg_p95_ttf_ms desc nulls last, errors desc
+        limit 30
+    """),
+    "device_renderer_matrix": q("""
+        select
+            device_model_display,
+            coalesce(device_model_raw, '') as raw_model_code,
+            renderer,
+            os,
+            browser,
+            sum(unique_users) as unique_users,
+            sum(page_views) as page_views,
+            round(sum(first_frame_ready)::numeric * 100 / nullif(sum(page_views), 0), 1) as first_frame_pct,
+            round(avg(p95_ttf_ms)::numeric, 0) as avg_p95_ttf_ms,
+            sum(load_failures) as load_failures,
+            sum(errors) as errors
+        from analytics.daily_device_model_metrics
+        where metric_date >= current_date - interval '30 days'
+        [[and metric_date >= {{start_date}}]]
+        [[and metric_date <= {{end_date}}]]
+        [[and device_class = {{device_class}}]]
+        [[and renderer = {{renderer}}]]
+        group by device_model_display, device_model_raw, renderer, os, browser
+        order by device_model_display, renderer
+        limit 50
     """),
     "renderer_quality": q("""
         select
@@ -643,11 +841,37 @@ COMMON_SQL = {
             sum(unique_users) as unique_users,
             round(sum(first_frame_ready)::numeric * 100 / nullif(sum(page_views), 0), 1) as first_frame_pct,
             sum(load_failures) as load_failures,
+            sum(errors) as errors,
             round(avg(p95_ttf_ms)::numeric, 0) as avg_p95_ttf_ms
         from analytics.daily_device_model_metrics
         where metric_date >= current_date - interval '30 days'
+        [[and metric_date >= {{start_date}}]]
+        [[and metric_date <= {{end_date}}]]
+        [[and device_class = {{device_class}}]]
+        [[and renderer = {{renderer}}]]
         group by renderer, os, browser
         order by page_views desc
+        limit 30
+    """),
+    "goal_conversion": q("""
+        select
+            goal_name,
+            channel_group,
+            route,
+            sum(goal_events) as goal_events,
+            sum(goal_sessions) as goal_sessions,
+            sum(goal_users) as goal_users,
+            sum(total_sessions) as total_sessions,
+            round(sum(goal_sessions)::numeric * 100 / nullif(sum(total_sessions), 0), 1) as session_conversion_pct,
+            round(sum(goal_users)::numeric * 100 / nullif(sum(total_users), 0), 1) as user_conversion_pct
+        from analytics.daily_goal_conversion_metrics
+        where metric_date >= current_date - interval '30 days'
+        [[and metric_date >= {{start_date}}]]
+        [[and metric_date <= {{end_date}}]]
+        [[and route = {{route}}]]
+        [[and channel_group = {{source}}]]
+        group by goal_name, channel_group, route
+        order by goal_sessions desc, goal_events desc
         limit 30
     """),
     "errors": q("""
@@ -660,6 +884,9 @@ COMMON_SQL = {
                 affected_sessions
             from analytics.daily_error_metrics
             where metric_date >= current_date - interval '30 days'
+            [[and metric_date >= {{start_date}}]]
+            [[and metric_date <= {{end_date}}]]
+            [[and route = {{route}}]]
             order by metric_date desc, error_count desc
             limit 30
         )
@@ -680,6 +907,8 @@ COMMON_SQL = {
             round(rejected_rate * 100, 2) as rejected_pct
         from analytics.daily_data_quality_metrics
         where metric_date >= current_date - interval '30 days'
+        [[and metric_date >= {{start_date}}]]
+        [[and metric_date <= {{end_date}}]]
         order by metric_date
     """),
     "interactions": q("""
@@ -690,6 +919,9 @@ COMMON_SQL = {
             count(distinct session_id) as sessions
         from analytics.fact_interactions
         where occurred_at >= now() - interval '30 days'
+        [[and occurred_at::date >= {{start_date}}]]
+        [[and occurred_at::date <= {{end_date}}]]
+        [[and route = {{route}}]]
         group by event_name, target
         order by interactions desc
         limit 20
@@ -711,6 +943,9 @@ COMMON_SQL = {
             exit_route
         from analytics.fact_sessions
         where session_started_at >= now() - interval '30 days'
+            [[and session_started_at::date >= {{start_date}}]]
+            [[and session_started_at::date <= {{end_date}}]]
+            [[and (entry_route = {{route}} or exit_route = {{route}})]]
             and (bounce or not first_frame_ready or heartbeat_count = 0 or duration_seconds >= 60)
         order by session_started_at desc
         limit 30
@@ -733,43 +968,61 @@ def spec(name, desc, display, sql_key, col, row, sx, sy, viz=None):
 
 
 EN_SPECS = [
-    spec("Metaflow Focus Metrics", "Current 30-day focus metrics with previous-period comparison.", "table", "focus_metrics", 0, 0, 18, 4),
-    spec("Metaflow Today vs Yesterday By Hour", "Hourly and cumulative page views for today compared with yesterday.", "bar", "hourly_usage", 0, 4, 18, 5, VIZ_HOURLY_USAGE),
+    spec("Metaflow Focus Metrics", "Current 30-day focus metrics with previous-period comparison.", "table", "focus_metrics", 0, 0, 12, 4),
+    spec("Metaflow Data Freshness", "Latest event arrival and 24-hour raw/page-view volume.", "table", "data_freshness", 12, 0, 6, 4),
+    spec("Metaflow Today vs Yesterday By Hour", "Hourly and cumulative page views for today compared with yesterday.", "bar", "hourly_usage", 0, 4, 12, 5, VIZ_HOURLY_USAGE),
+    spec("Metaflow Visit Hour Profile", "Typical visit volume by hour of day.", "bar", "hourly_profile", 12, 4, 6, 5, VIZ_HOURLY_PROFILE),
     spec("Metaflow Daily Usage Trend", "Daily page views, active users, new users, returning users, and engaged sessions.", "line", "daily_usage", 0, 9, 12, 5, VIZ_DAILY_USAGE),
     spec("Metaflow Route Visit Detail", "Route-level visits, load success, p95 first frame, errors, and bounce.", "table", "route_detail", 12, 9, 6, 5),
-    spec("Metaflow Retention Cohorts", "D0-D7 anonymous-user retention cohorts.", "table", "retention_matrix", 0, 14, 18, 5),
-    spec("Metaflow Source Top", "Top acquisition sources by unique users.", "bar", "source_top", 0, 19, 9, 4, VIZ_SOURCE_BAR),
-    spec("Metaflow Source Trend", "Daily acquisition source trend.", "line", "source_trend", 9, 19, 9, 4, VIZ_SOURCE_TREND),
-    spec("Metaflow Source Detail", "Acquisition source share, new/returning users, and first-frame quality.", "table", "source_detail", 0, 23, 18, 5),
-    spec("Metaflow Device Class Mix", "Device class mix with page views, sessions, and users.", "bar", "device_class", 0, 28, 6, 4, VIZ_DEVICE_BAR),
-    spec("Metaflow OS And Browser", "OS, browser, and device class mix.", "bar", "device_os", 6, 28, 6, 4, VIZ_OS_BAR),
-    spec("Metaflow Device Model Top", "Privacy-safe mobile and tablet model breakdown.", "table", "device_models", 12, 28, 6, 4),
-    spec("Metaflow Renderer Quality", "Renderer, browser, OS, load quality, and p95 first frame.", "table", "renderer_quality", 0, 32, 9, 5),
-    spec("Metaflow Resource Load Quality", "Resource load attempts, success, failures, abandonment, and first frame p95.", "table", "resource_quality", 9, 32, 9, 5),
-    spec("Metaflow Data Quality", "Raw events, rejection, heartbeat coverage, first-frame rate.", "line", "quality", 0, 37, 9, 4, VIZ_QUALITY_LINE),
-    spec("Metaflow Interaction Top N", "Whitelisted interaction volume.", "bar", "interactions", 9, 37, 9, 4, VIZ_INTERACTION_BAR),
-    spec("Metaflow Error Top N", "Client/load/XR/replay errors by route and error.", "table", "errors", 0, 41, 9, 4),
-    spec("Metaflow Recent Sessions Needing Review", "Long, failed, or unengaged sessions for diagnostics.", "table", "sessions_review", 9, 41, 9, 5),
+    spec("Metaflow Retention Cohorts", "D0-D7 anonymous-user retention cohorts.", "table", "retention_matrix", 0, 14, 12, 5),
+    spec("Metaflow Retention Summary", "D1, D7, and D30 retention summary.", "table", "retention_summary", 12, 14, 6, 5),
+    spec("Metaflow Source Top", "Top acquisition sources by unique users.", "bar", "source_top", 0, 19, 6, 4, VIZ_SOURCE_BAR),
+    spec("Metaflow Source Trend", "Daily acquisition source trend.", "line", "source_trend", 6, 19, 6, 4, VIZ_SOURCE_TREND),
+    spec("Metaflow Source Detail", "Acquisition source share, new/returning users, and first-frame quality.", "table", "source_detail", 12, 19, 6, 4),
+    spec("Metaflow Device Class Mix", "Device class mix with page views, sessions, and users.", "bar", "device_class", 0, 23, 6, 4, VIZ_DEVICE_BAR),
+    spec("Metaflow OS And Browser", "OS, browser, and device class mix.", "bar", "device_os", 6, 23, 6, 4, VIZ_OS_BAR),
+    spec("Metaflow Device Model Detail", "Trusted raw model code, readable family, OS, browser, renderer, visit share, quality, and errors.", "table", "device_models", 12, 23, 6, 4),
+    spec("Metaflow Device Model Coverage", "Exact model coverage and unknown/family-only share by source.", "bar", "device_model_coverage", 0, 27, 6, 4, VIZ_DEVICE_COVERAGE),
+    spec("Metaflow Device Quality Ranking", "Devices ranked by first-frame failures, p95 first frame, and errors.", "table", "device_quality_ranking", 6, 27, 6, 4),
+    spec("Metaflow Device Renderer Matrix", "Device model by renderer quality comparison.", "table", "device_renderer_matrix", 12, 27, 6, 4),
+    spec("Metaflow Renderer Quality", "Renderer, browser, OS, load quality, errors, and p95 first frame.", "table", "renderer_quality", 0, 31, 9, 5),
+    spec("Metaflow Resource Load Quality", "Resource load attempts, success, failures, abandonment, and first frame p95.", "table", "resource_quality", 9, 31, 9, 5),
+    spec("Metaflow Duration Distribution", "Session duration buckets and engaged share.", "bar", "duration_distribution", 0, 36, 9, 4, VIZ_DURATION_BAR),
+    spec("Metaflow Conversion Goals", "Metaflow goal conversion by channel and route.", "bar", "goal_conversion", 9, 36, 9, 4, VIZ_GOAL_BAR),
+    spec("Metaflow Data Quality", "Raw events, rejection, heartbeat coverage, first-frame rate.", "line", "quality", 0, 40, 9, 4, VIZ_QUALITY_LINE),
+    spec("Metaflow Interaction Top N", "Whitelisted interaction volume.", "bar", "interactions", 9, 40, 9, 4, VIZ_INTERACTION_BAR),
+    spec("Metaflow Error Top N", "Client/load/XR/replay errors by route and error.", "table", "errors", 0, 44, 9, 4),
+    spec("Metaflow Recent Sessions Needing Review", "Long, failed, or unengaged sessions for diagnostics.", "table", "sessions_review", 9, 44, 9, 5),
+    spec("Metaflow Metric Definitions", "KPI definitions, calculations, and units.", "table", "metric_definitions", 0, 49, 18, 4),
 ]
 
 ZH_SPECS = [
-    spec("我关注的数据", "最近 30 天核心指标及较前 30 天变化。", "table", "focus_metrics", 0, 0, 18, 4),
-    spec("今日小时数据", "今日与昨日的小时访问量和累计访问量。", "bar", "hourly_usage", 0, 4, 18, 5, VIZ_HOURLY_USAGE),
+    spec("我关注的数据", "最近 30 天核心指标及较前 30 天变化。", "table", "focus_metrics", 0, 0, 12, 4),
+    spec("数据新鲜度", "最新事件时间和近 24 小时原始事件/访问量。", "table", "data_freshness", 12, 0, 6, 4),
+    spec("今日小时数据", "今日与昨日的小时访问量和累计访问量。", "bar", "hourly_usage", 0, 4, 12, 5, VIZ_HOURLY_USAGE),
+    spec("访问时段画像", "按小时查看典型访问、访客和有效会话分布。", "bar", "hourly_profile", 12, 4, 6, 5, VIZ_HOURLY_PROFILE),
     spec("每日访问趋势", "每日 PV、活跃用户、新用户、回访用户和有效会话。", "line", "daily_usage", 0, 9, 12, 5, VIZ_DAILY_USAGE),
     spec("访问详情", "按 route 查看访问、首帧成功、p95 首帧、错误和跳出。", "table", "route_detail", 12, 9, 6, 5),
-    spec("留存分析", "匿名访问用户 D0-D7 留存 cohort。", "table", "retention_matrix", 0, 14, 18, 5),
-    spec("来源 Top", "按访客数排序的来源 Top。", "bar", "source_top", 0, 19, 9, 4, VIZ_SOURCE_BAR),
-    spec("来源趋势", "不同来源渠道的每日访客趋势。", "line", "source_trend", 9, 19, 9, 4, VIZ_SOURCE_TREND),
-    spec("来源明细", "来源占比、新访、回访、复访率和首帧成功率。", "table", "source_detail", 0, 23, 18, 5),
-    spec("设备类别", "按设备类别统计访问量、会话和用户。", "bar", "device_class", 0, 28, 6, 4, VIZ_DEVICE_BAR),
-    spec("OS 与浏览器", "OS、浏览器和设备类别分布。", "bar", "device_os", 6, 28, 6, 4, VIZ_OS_BAR),
-    spec("机型 Top", "隐私安全的移动端和平板机型统计。", "table", "device_models", 12, 28, 6, 4),
-    spec("Renderer 质量", "按 renderer、浏览器和 OS 查看加载质量。", "table", "renderer_quality", 0, 32, 9, 5),
-    spec("资源加载质量", "资源加载尝试、成功、失败、流失和首帧耗时。", "table", "resource_quality", 9, 32, 9, 5),
-    spec("数据质量", "事件量、拒收、心跳覆盖率、首帧转化率。", "line", "quality", 0, 37, 9, 4, VIZ_QUALITY_LINE),
-    spec("交互 Top N", "白名单交互事件量。", "bar", "interactions", 9, 37, 9, 4, VIZ_INTERACTION_BAR),
-    spec("错误 Top N", "前端、加载、XR、回放错误。", "table", "errors", 0, 41, 9, 4),
-    spec("需排查会话", "慢加载、错误、无首帧、心跳异常或跳出的会话。", "table", "sessions_review", 9, 41, 9, 5),
+    spec("留存热力表", "匿名访问用户 D0-D7 留存 cohort。", "table", "retention_matrix", 0, 14, 12, 5),
+    spec("留存摘要 D1/D7/D30", "访问用户 D1、D7、D30 留存摘要。", "table", "retention_summary", 12, 14, 6, 5),
+    spec("来源 Top", "按访客数排序的来源 Top。", "bar", "source_top", 0, 19, 6, 4, VIZ_SOURCE_BAR),
+    spec("来源趋势", "不同来源渠道的每日访客趋势。", "line", "source_trend", 6, 19, 6, 4, VIZ_SOURCE_TREND),
+    spec("来源明细", "来源占比、新访、回访、复访率和首帧成功率。", "table", "source_detail", 12, 19, 6, 4),
+    spec("设备类别", "按设备类别统计访问量、会话和用户。", "bar", "device_class", 0, 23, 6, 4, VIZ_DEVICE_BAR),
+    spec("OS 与浏览器", "OS、浏览器和设备类别分布。", "bar", "device_os", 6, 23, 6, 4, VIZ_OS_BAR),
+    spec("机型明细", "可信 raw code、可读名称、OS、浏览器、renderer、访问占比、首帧质量和错误。", "table", "device_models", 12, 23, 6, 4),
+    spec("精确机型覆盖率", "按来源查看 exact model 和 unknown/family-only 占比。", "bar", "device_model_coverage", 0, 27, 6, 4, VIZ_DEVICE_COVERAGE),
+    spec("机型质量排行", "按首帧失败率、p95 首帧和错误数排序。", "table", "device_quality_ranking", 6, 27, 6, 4),
+    spec("机型 × Renderer", "查看不同机型在不同 renderer 下的质量差异。", "table", "device_renderer_matrix", 12, 27, 6, 4),
+    spec("Renderer 质量", "按 renderer、浏览器和 OS 查看加载质量与错误。", "table", "renderer_quality", 0, 31, 9, 5),
+    spec("资源加载质量", "资源加载尝试、成功、失败、流失和首帧耗时。", "table", "resource_quality", 9, 31, 9, 5),
+    spec("访问时长分布", "按 session 时长分桶查看访问深度和有效会话占比。", "bar", "duration_distribution", 0, 36, 9, 4, VIZ_DURATION_BAR),
+    spec("转化目标", "Metaflow 目标转化：首帧、有效会话、注释、全屏、XR 和导航完成。", "bar", "goal_conversion", 9, 36, 9, 4, VIZ_GOAL_BAR),
+    spec("数据质量", "事件量、拒收、心跳覆盖率、首帧转化率。", "line", "quality", 0, 40, 9, 4, VIZ_QUALITY_LINE),
+    spec("交互 Top N", "白名单交互事件量。", "bar", "interactions", 9, 40, 9, 4, VIZ_INTERACTION_BAR),
+    spec("错误 Top N", "前端、加载、XR、回放错误。", "table", "errors", 0, 44, 9, 4),
+    spec("需排查会话", "慢加载、错误、无首帧、心跳异常或跳出的会话。", "table", "sessions_review", 9, 44, 9, 5),
+    spec("指标口径", "核心 KPI 的定义、计算口径和单位。", "table", "metric_definitions", 0, 49, 18, 4),
 ]
 
 
@@ -779,7 +1032,7 @@ def ensure_dashboard(name, description, specs):
         try:
             cid = make_card(card_spec)
             if cid:
-                card_layout.append((cid, card_spec["col"], card_spec["row"], card_spec["sx"], card_spec["sy"]))
+                card_layout.append((cid, card_spec["col"], card_spec["row"], card_spec["sx"], card_spec["sy"], card_spec["sql"]))
         except Exception as exc:
             print("__CARD_FAILED__ name=%s error=%s" % (card_spec["name"], str(exc)[:300]))
 
@@ -811,7 +1064,7 @@ def ensure_dashboard(name, description, specs):
 
     cards_payload = []
     temp_id = -1
-    for cid, col, row, sx, sy in card_layout:
+    for cid, col, row, sx, sy, sql in card_layout:
         existing = existing_by_card.get(int(cid))
         card_item = {
             "id": existing.get("id") if existing else temp_id,
@@ -823,7 +1076,7 @@ def ensure_dashboard(name, description, specs):
             "dashboard_tab_id": existing.get("dashboard_tab_id") if existing else None,
             "action_id": existing.get("action_id") if existing else None,
             "series": existing.get("series", []) if existing else [],
-            "parameter_mappings": existing.get("parameter_mappings", []) if existing else [],
+            "parameter_mappings": parameter_mappings_for_card(cid, sql),
             "visualization_settings": existing.get("visualization_settings", {}) if existing else {},
         }
         cards_payload.append(card_item)
@@ -854,7 +1107,7 @@ def ensure_dashboard(name, description, specs):
         api(
             "PUT",
             "/api/dashboard/%s" % dash_id,
-            {"name": name, "description": description, "collection_id": collection_id},
+            {"name": name, "description": description, "collection_id": collection_id, "parameters": DASHBOARD_PARAMETERS},
         )
     except Exception as exc:
         print("__DASHBOARD_UPDATE_WARN__ id=%s error=%s" % (dash_id, str(exc)[:220]))

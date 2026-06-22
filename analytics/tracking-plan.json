@@ -1,5 +1,5 @@
 {
-  "schema_version": "analytics.v1.1",
+  "schema_version": "analytics.v1.2",
   "source_app": "metaflow-viewer",
   "heartbeat_interval_ms": 15000,
   "session_timeout_ms": 1800000,
@@ -53,7 +53,28 @@
     "viewport",
     "device_pixel_ratio",
     "device",
-    "acquisition"
+    "acquisition",
+    "device_model_raw",
+    "device_model_source",
+    "device_model_confidence"
+  ],
+  "device_model_policy": {
+    "exact_model_sources": ["ua_ch", "alipay_mini_program", "wechat_mini_program", "native_webview", "manual_test"],
+    "ios_web_policy": "do_not_infer_exact_model_from_viewport_or_dpr",
+    "sensitive_identifiers": ["imei", "serial_number", "idfa", "android_id", "advertising_id"],
+    "display_policy": "show raw trusted model code first; optional marketing names are auxiliary only"
+  },
+  "dashboard_controls": {
+    "default_window_days": 30,
+    "parameters": ["start_date", "end_date", "route", "resource_id", "category", "device_class", "renderer", "source"]
+  },
+  "conversion_goals": [
+    "first_frame_ready",
+    "engaged_session",
+    "annotation_opened",
+    "fullscreen_changed",
+    "xr_started",
+    "navigation_completed"
   ],
   "events": {
     "session_started": {
