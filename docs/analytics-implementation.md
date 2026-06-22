@@ -180,12 +180,44 @@ Point Metabase at Supabase Postgres and expose these datasets first:
 - `analytics.daily_performance_metrics`
 - `analytics.daily_user_metrics`
 - `analytics.daily_data_quality_metrics`
+- `analytics.hourly_usage_metrics`
+- `analytics.daily_retention_cohorts`
+- `analytics.daily_acquisition_metrics`
+- `analytics.daily_device_model_metrics`
 
 Refresh rollups after ingestion batches:
 
 ```sql
 select analytics.refresh_rollups();
 ```
+
+### Dashboard Rollups
+
+Metabase dashboards should use facts and rollups instead of scanning
+`analytics.events_raw`. The current dashboard automation is built around these
+summary layers:
+
+- `analytics.hourly_usage_metrics` powers "today vs yesterday" hourly bars and
+  cumulative curves for PV, UV, sessions, engaged sessions, load failures,
+  client errors, and p50/p95 first-frame timing.
+- `analytics.daily_retention_cohorts` stores anonymous-user D0-D7 retention by
+  first-visit date for cohort heat-table style analysis.
+- `analytics.daily_acquisition_metrics` groups visits by privacy-safe source
+  dimensions: channel group, referrer domain, UTM source, UTM medium, and UTM
+  campaign. It includes share, new users, returning users, engaged sessions,
+  and first-frame success.
+- `analytics.daily_device_model_metrics` groups browser, OS, device class,
+  renderer, privacy-safe device model display, viewport bucket, and DPR with
+  visit and load-quality metrics.
+
+Device model display is intentionally conservative:
+
+- Android shows the Client Hints model only when it is available; otherwise it
+  reports `Android unknown`.
+- iOS is reported as `iPhone` or `iPad`; the pipeline does not infer exact
+  iPhone models from viewport and DPR.
+- Desktop uses OS, browser, and renderer dimensions rather than trying to infer
+  hardware model.
 
 Suggested first SQL checks after a deploy:
 
@@ -195,6 +227,10 @@ select event_name, count(*) from analytics.events_raw group by 1 order by 2 desc
 select browser, os, device_class, renderer, count(*) from analytics.fact_page_views group by 1, 2, 3, 4;
 select route, p95_ttf_ms, p95_lcp_ms, p95_inp_ms from analytics.daily_performance_metrics order by metric_date desc limit 20;
 select * from analytics.daily_data_quality_metrics order by metric_date desc limit 20;
+select metric_date, hour_of_day, page_views from analytics.hourly_usage_metrics order by metric_hour desc limit 24;
+select cohort_date, day_number, retention_rate from analytics.daily_retention_cohorts order by cohort_date desc, day_number limit 32;
+select channel_group, referrer_domain, unique_users from analytics.daily_acquisition_metrics order by metric_date desc, unique_users desc limit 20;
+select device_model_display, os, browser, unique_users from analytics.daily_device_model_metrics order by metric_date desc, unique_users desc limit 20;
 ```
 
 ## Metabase Dashboard Entry
@@ -232,6 +268,13 @@ The Metabase reverse proxy strips upstream `Content-Security-Policy` and
 `X-Frame-Options` response headers so the same-origin `/metaflow/` shell can
 embed the native dashboard. The dashboard is still protected by Metabase login;
 public sharing remains disabled.
+
+The dashboard follows product-analytics visualization patterns rather than a
+separate business-domain information architecture. The first version includes
+dense focus-metric tables with previous-period deltas, today/yesterday hourly
+comparison, multi-metric trend charts, route/resource detail tables, retention
+cohorts, source TOP/detail views, device model tables, renderer quality tables,
+data-quality trends, and bottom-of-page diagnostic sessions.
 
 ## Privacy Defaults
 

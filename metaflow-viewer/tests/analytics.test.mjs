@@ -145,6 +145,7 @@ test('viewer wires analytics into route, load, UI, navigation, and XR surfaces',
 test('supabase migration exposes metabase-ready analytics models', async () => {
     const sql = await readText(new URL('../../supabase/migrations/20260616000000_analytics_v1.sql', import.meta.url));
     const v11 = await readText(new URL('../../supabase/migrations/20260616103041_analytics_v11_device_acquisition_performance.sql', import.meta.url));
+    const v12 = await readText(new URL('../../supabase/migrations/20260622072037_analytics_v12_dashboard_visualizations.sql', import.meta.url));
     const grants = await readText(new URL('../../supabase/migrations/20260616092508_analytics_service_role_grants.sql', import.meta.url));
 
     for (const tableName of ['events_raw', 'events_rejected', 'replay_chunks', 'dim_resource']) {
@@ -170,9 +171,18 @@ test('supabase migration exposes metabase-ready analytics models', async () => {
         assert.match(v11, new RegExp(`analytics\\.${rollupName}`), `missing ${rollupName}`);
     }
 
+    for (const rollupName of ['hourly_usage_metrics', 'daily_retention_cohorts', 'daily_acquisition_metrics', 'daily_device_model_metrics']) {
+        assert.match(v12, new RegExp(`analytics\\.${rollupName}`), `missing ${rollupName}`);
+        assert.match(v12, new RegExp(`refresh materialized view analytics\\.${rollupName}`), `${rollupName} should refresh in refresh_rollups`);
+    }
+
     assert.match(v11, /browser/);
     assert.match(v11, /utm_source/);
     assert.match(v11, /heartbeat_coverage_rate/);
+    assert.match(v12, /Android unknown/);
+    assert.match(v12, /then 'iPhone'/);
+    assert.match(v12, /then 'iPad'/);
+    assert.doesNotMatch(v12, /iPhone\s+\d/);
 
     assert.match(sql, /analytics_reader/);
     assert.match(sql, /analytics-replays/);
@@ -202,4 +212,37 @@ test('collector validates origins, schema, anonymous hashing, and service-role w
     assert.match(source, /events_rejected/);
     assert.match(source, /from\('events_raw'\)/);
     assert.match(source, /from\(REPLAY_BUCKET\)/);
+});
+
+test('metabase dashboard automation uses aggregated models for bilingual visualizations', async () => {
+    const source = await readText(new URL('../../scripts/configure_metabase_bilingual_dashboard.sh', import.meta.url));
+
+    for (const cardName of [
+        '我关注的数据',
+        '今日小时数据',
+        '留存分析',
+        '来源明细',
+        '机型 Top',
+        'Renderer 质量',
+        'Metaflow Focus Metrics',
+        'Metaflow Today vs Yesterday By Hour',
+        'Metaflow Retention Cohorts',
+        'Metaflow Device Model Top'
+    ]) {
+        assert.match(source, new RegExp(cardName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')), `missing dashboard card ${cardName}`);
+    }
+
+    for (const modelName of [
+        'analytics.hourly_usage_metrics',
+        'analytics.daily_retention_cohorts',
+        'analytics.daily_acquisition_metrics',
+        'analytics.daily_device_model_metrics',
+        'analytics.daily_route_metrics',
+        'analytics.daily_resource_metrics',
+        'analytics.daily_data_quality_metrics'
+    ]) {
+        assert.match(source, new RegExp(modelName.replace('.', '\\.')), `dashboard should query ${modelName}`);
+    }
+
+    assert.doesNotMatch(source, /spec\([^)]*events_raw/i);
 });
