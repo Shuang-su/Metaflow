@@ -1,14 +1,14 @@
 {
   "schemaVersion": "1.0",
-  "cutoffGitRef": "e68d52b",
-  "documentedThrough": "e68d52b",
+  "cutoffGitRef": "f371f48",
+  "documentedThrough": "f371f48",
   "defaultResourceVersion": "1.0a",
   "current": {
-    "displayVersion": "5.16",
-    "appSemver": "5.16.0",
+    "displayVersion": "5.17",
+    "appSemver": "5.17.0",
     "indexSchemaVersion": "1.2",
     "date": "2026-06-22",
-    "gitRef": "e68d52b",
+    "gitRef": "f371f48",
     "historyUrl": "/data/version-history.json"
   },
   "versioning": {
@@ -114,6 +114,11 @@
       "gitRef": "c89aebf",
       "date": "2026-06-22",
       "summary": "fix(dashboard): allow Metabase iframe in shell"
+    },
+    {
+      "gitRef": "daacd13",
+      "date": "2026-06-22",
+      "summary": "chore(release): document Metaflow Viewer 5.16"
     }
   ],
   "entries": [
@@ -1257,6 +1262,15 @@
       "date": "2026-06-22",
       "gitRef": "e68d52b",
       "summary": "feat(dashboard): add analytics visualization rollups"
+    },
+    {
+      "displayVersion": "5.17",
+      "appSemver": "5.17.0",
+      "type": "feature",
+      "scope": "analytics",
+      "date": "2026-06-22",
+      "gitRef": "f371f48",
+      "summary": "feat(analytics): add dashboard controls and device goal rollups"
     }
   ]
 }

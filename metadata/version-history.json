@@ -1,14 +1,14 @@
 {
   "schemaVersion": "1.0",
-  "cutoffGitRef": "e68d52b",
-  "documentedThrough": "e68d52b",
+  "cutoffGitRef": "f371f48",
+  "documentedThrough": "f371f48",
   "defaultResourceVersion": "1.0a",
   "current": {
-    "displayVersion": "5.16",
-    "appSemver": "5.16.0",
+    "displayVersion": "5.17",
+    "appSemver": "5.17.0",
     "indexSchemaVersion": "1.2",
     "date": "2026-06-22",
-    "gitRef": "e68d52b",
+    "gitRef": "f371f48",
     "historyUrl": "/data/version-history.json"
   },
   "versioning": {
@@ -114,6 +114,11 @@
       "gitRef": "c89aebf",
       "date": "2026-06-22",
       "summary": "fix(dashboard): allow Metabase iframe in shell"
+    },
+    {
+      "gitRef": "daacd13",
+      "date": "2026-06-22",
+      "summary": "chore(release): document Metaflow Viewer 5.16"
     }
   ],
   "entries": [
@@ -191,7 +196,9 @@
       "resourceChanges": [
         {
           "action": "add",
-          "routes": ["/sztu/b1-sdi-206"]
+          "routes": [
+            "/sztu/b1-sdi-206"
+          ]
         }
       ]
     },
@@ -269,7 +276,9 @@
       "resourceChanges": [
         {
           "action": "update",
-          "routes": ["/sztu/b1-sdi-206"]
+          "routes": [
+            "/sztu/b1-sdi-206"
+          ]
         }
       ]
     },
@@ -284,7 +293,9 @@
       "resourceChanges": [
         {
           "action": "update",
-          "routes": ["/sztu/b1-sdi-206"]
+          "routes": [
+            "/sztu/b1-sdi-206"
+          ]
         }
       ]
     },
@@ -299,7 +310,9 @@
       "resourceChanges": [
         {
           "action": "update",
-          "routes": ["/sztu/c2-lib"]
+          "routes": [
+            "/sztu/c2-lib"
+          ]
         }
       ]
     },
@@ -332,7 +345,9 @@
       "resourceChanges": [
         {
           "action": "update",
-          "routes": ["/acg/j04/wanderer"]
+          "routes": [
+            "/acg/j04/wanderer"
+          ]
         }
       ]
     },
@@ -545,7 +560,10 @@
       "resourceChanges": [
         {
           "action": "add",
-          "routes": ["/sztu/c4-hangpai", "/sztu/d1-utl-107"]
+          "routes": [
+            "/sztu/c4-hangpai",
+            "/sztu/d1-utl-107"
+          ]
         }
       ]
     },
@@ -668,7 +686,9 @@
       "resourceChanges": [
         {
           "action": "add",
-          "routePatterns": ["/acg/j05/*"]
+          "routePatterns": [
+            "/acg/j05/*"
+          ]
         }
       ]
     },
@@ -683,7 +703,9 @@
       "resourceChanges": [
         {
           "action": "update",
-          "routePatterns": ["/acg/j05/*"]
+          "routePatterns": [
+            "/acg/j05/*"
+          ]
         }
       ]
     },
@@ -716,7 +738,9 @@
       "resourceChanges": [
         {
           "action": "update",
-          "routes": ["/acg/j05/寻洋派"]
+          "routes": [
+            "/acg/j05/寻洋派"
+          ]
         }
       ]
     },
@@ -758,7 +782,9 @@
       "resourceChanges": [
         {
           "action": "update",
-          "routePatterns": ["/acg/j05/*"]
+          "routePatterns": [
+            "/acg/j05/*"
+          ]
         }
       ]
     },
@@ -863,7 +889,9 @@
       "resourceChanges": [
         {
           "action": "add",
-          "routes": ["/shenzhen/dayun"]
+          "routes": [
+            "/shenzhen/dayun"
+          ]
         }
       ]
     },
@@ -932,11 +960,15 @@
       "resourceChanges": [
         {
           "action": "add",
-          "routePatterns": ["/acg/phoenixfes26/*"]
+          "routePatterns": [
+            "/acg/phoenixfes26/*"
+          ]
         },
         {
           "action": "update",
-          "routes": ["/shenzhen/dayun"]
+          "routes": [
+            "/shenzhen/dayun"
+          ]
         }
       ]
     },
@@ -960,8 +992,12 @@
       "resourceChanges": [
         {
           "action": "add",
-          "routes": ["/sztu/c1-bdi-206"],
-          "routePatterns": ["/sztu/fes/*"]
+          "routes": [
+            "/sztu/c1-bdi-206"
+          ],
+          "routePatterns": [
+            "/sztu/fes/*"
+          ]
         }
       ]
     },
@@ -985,7 +1021,9 @@
       "resourceChanges": [
         {
           "action": "add",
-          "routePatterns": ["/acg/fireflyfes38/*"]
+          "routePatterns": [
+            "/acg/fireflyfes38/*"
+          ]
         }
       ]
     },
@@ -1000,7 +1038,9 @@
       "resourceChanges": [
         {
           "action": "update",
-          "routes": ["/acg/fireflyfes38/azur-lane"]
+          "routes": [
+            "/acg/fireflyfes38/azur-lane"
+          ]
         }
       ]
     },
@@ -1015,11 +1055,15 @@
       "resourceChanges": [
         {
           "action": "add",
-          "routePatterns": ["/acg/2568/*"]
+          "routePatterns": [
+            "/acg/2568/*"
+          ]
         },
         {
           "action": "update",
-          "routePatterns": ["/acg/fireflyfes38/*"]
+          "routePatterns": [
+            "/acg/fireflyfes38/*"
+          ]
         }
       ]
     },
@@ -1043,7 +1087,9 @@
       "resourceChanges": [
         {
           "action": "update",
-          "routes": ["/shenzhen/dayun"]
+          "routes": [
+            "/shenzhen/dayun"
+          ]
         }
       ]
     },
@@ -1094,7 +1140,9 @@
       "resourceChanges": [
         {
           "action": "update",
-          "routes": ["/acg/fireflyfes38/cyrene"]
+          "routes": [
+            "/acg/fireflyfes38/cyrene"
+          ]
         }
       ]
     },
@@ -1214,6 +1262,15 @@
       "date": "2026-06-22",
       "gitRef": "e68d52b",
       "summary": "feat(dashboard): add analytics visualization rollups"
+    },
+    {
+      "displayVersion": "5.17",
+      "appSemver": "5.17.0",
+      "type": "feature",
+      "scope": "analytics",
+      "date": "2026-06-22",
+      "gitRef": "f371f48",
+      "summary": "feat(analytics): add dashboard controls and device goal rollups"
     }
   ]
 }
