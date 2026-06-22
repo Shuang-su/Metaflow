@@ -1,6 +1,6 @@
 # Metaflow Viewer 逐提交详细变更总账
 
-本文档审计 `main` 从初始提交到 `46b4ec2` 的产品提交，并单独记录不产生产品版本的纯文档维护提交。它不是提交标题的重排，而是用于回答：
+本文档审计 `main` 从初始提交到 `e68d52b` 的产品提交，并单独记录不产生产品版本的维护提交。它不是提交标题的重排，而是用于回答：
 
 - 当时为什么改；
 - 改动前用户看到什么；
@@ -239,6 +239,7 @@ flowchart TD
 | `5.13` · `4031c46` | 分析看板需要通过主站固定入口访问，但 Metabase 仍应留在受登录保护的子域。 | 在 Netlify 增加 `/dashboard` 与 `/dashboard/*` 的 302 redirect；后续 dashboard 入口固定为 `https://dashboard.metaflow.shuang-su.com/metaflow/` 双语 shell，原生 Metabase dashboard 深链继续走 `/dashboard/*`。 | 主站获得稳定 dashboard 入口，不把 Metabase 静态内容并入 viewer 发布目录；内部看板可在中文/英文之间切换。 | 仍依赖 dashboard 子域的登录保护和可用性；此提交未改变 viewer runtime。 |
 | `5.14` · `7c52315` | `深圳技术大学.com` 曾被改成短路径 `/c2-lib`，但后续数据整理删除了 C2-Lib 的短链 alias，导致入口无法匹配 `data/index.json` 中的 `/sztu/c2-lib`，并回退加载不存在的默认场景资源。 | 将 Netlify host redirect 与 HTML `domainRedirects` 恢复到 `/sztu/c2-lib`；在 `scripts/generate_index.py` 的 `RESOURCE_ROUTE_ALIASES` 恢复 `("sztu", None, "c2-lib"): ["/c2-lib"]`；新增 domain redirect 测试，要求中文域名目标可被索引 route/alias 匹配。 | 中文域名根路径回到 canonical C2-Lib route；已经分享出去的 `/c2-lib` 短链继续可用。 | alias 必须保留在生成脚本源头，不能只手工改 `data/index.json`；证据为新增 route invariant 测试与重新生成索引。 |
 | `5.15` · `46b4ec2` | 中文域名下除 C2-Lib 外的 SZTU 资源只能通过 `/sztu/...` canonical route 打开，短路径如 `/c4-hangpai`、`/b1-sdi-206`、`/top10-26` 会落入 SPA fallback 后匹配不到资源。 | 在 `RESOURCE_ROUTE_ALIASES` 为 SZTU 资源补齐短链：`/c4-hangpai`、`/b1-sdi-206`、`/d1-utl-107`、`/c1-bdi-206`、`/top10-26`、`/fes/top10-26`，并扩展路由测试确保 canonical route 和短链都映射到同一资源。 | `深圳技术大学.com` 下所有 SZTU 资源都可用短链访问，同时保留 `/sztu/...` 正式路由和既有 `/c2-lib`。 | 短链仍由 `data/index.json` alias 解析，不新增服务端 redirect；证据为 route alias 测试与重新生成索引。 |
+| `5.16` · `e68d52b` | Metabase 入口已经可访问，但首版看板仍偏“卡片堆叠”，缺少支付宝数据页那类高密度产品分析视图：今日/昨日小时对比、留存热力表、来源 Top/明细、设备画像和保守机型表；如果卡片直接堆临时 SQL 或扫 raw JSON，后续数据量上来会不稳定。 | 新增 `analytics.hourly_usage_metrics`、`daily_retention_cohorts`、`daily_acquisition_metrics`、`daily_device_model_metrics` 四个物化汇总，并纳入 `analytics.refresh_rollups()`；机型展示采用保守口径：Android 只用可靠 Client Hints model，缺失则 `Android unknown`，iOS 只显示 `iPhone`/`iPad`，desktop 按 OS/browser/renderer；重写双语 Metabase 自动化脚本，生成中英一致的 17 张卡片：关注指标、今日小时、趋势、访问详情、留存、来源、设备、资源质量、数据质量、交互、错误和需排查会话；补充 analytics 测试和文档。 | 看板可以按“我关注的数据 + 今日数据 + 趋势/来源/留存/设备/质量/诊断”回答运营问题；机型统计上线为可读但不做不可靠 iPhone 精确推断；核心卡片以事实表和汇总表为数据源，避免对 raw 事件做看板级全表扫描。 | 本轮仍使用 Metabase 原生视图，不做自研前端数据中心，也不公开分享；留存和来源口径受匿名用户 hash 与 UTM/referrer 完整度影响；证据为 v1.2 migration dry-run、analytics 单测、dashboard shell 脚本语法检查和重新生成的版本索引。 |
 
 ### 不产生产品版本的维护提交
 
@@ -255,6 +256,9 @@ flowchart TD
 | `532c6ba` | 将 5.11 的文档、结构化版本历史、公开版本文件和 README 摘要补齐。 | 纯发布文档维护，不创建独立展示版本；由 `maintenanceCommits` 显式登记。 |
 | `8b6898b` | 将 5.12 的文档、结构化版本历史、公开版本文件和 README 摘要补齐。 | 纯发布文档维护，不创建独立展示版本；由 `maintenanceCommits` 显式登记。 |
 | `3697ff8` | 将 5.14 的文档、结构化版本历史、公开版本文件和 README 摘要补齐。 | 纯发布文档维护，不创建独立展示版本；由 `maintenanceCommits` 显式登记。 |
+| `56da387` | 将 5.15 的文档、结构化版本历史、公开版本文件和 README 摘要补齐。 | 发布文档维护，不创建独立展示版本；由 `maintenanceCommits` 显式登记。 |
+| `28e8f02` | 增加受 Metabase 登录保护的双语 dashboard shell、`/dashboard` 入口说明和服务器自动化脚本基础。 | dashboard 接入维护，后续由 5.16 统一登记可视化能力；由 `maintenanceCommits` 显式登记。 |
+| `c89aebf` | 调整 dashboard 子域反代响应头，允许同源 `/metaflow/` shell 嵌入原生 Metabase dashboard。 | dashboard 入口修复，后续由 5.16 统一登记可视化能力；由 `maintenanceCommits` 显式登记。 |
 
 ## 能力到提交的反向索引
 
@@ -263,6 +267,7 @@ flowchart TD
 | Poster / 加载 reveal | `1.5`、`1.6`、`1.18`、`3.19`、`3.20`、`5.0` |
 | 首帧与超时 | `1.14`、`1.15`、`1.16`、`2.1`、`5.0`、`5.1` |
 | 短路由与索引 | `1.19`、`1.21`、`1.22`、`2.5`、`2.8`、`3.15`、`5.2`、`5.14`、`5.15` |
+| 埋点、分析与看板 | `5.10`、`5.11`、`5.12`、`5.13`、`5.16` |
 | XR / PICO | `1.31`–`1.36`、`2.9`、`5.0` |
 | Walk / voxel | `3.0`、`3.5`–`3.7`、`4.4`、`5.0`、`5.4` |
 | 移动端控制 | `2.7`、`3.2`–`3.3`、`3.8`–`3.16`、`5.0` |

@@ -1,14 +1,14 @@
 {
   "schemaVersion": "1.0",
-  "cutoffGitRef": "46b4ec2",
-  "documentedThrough": "46b4ec2",
+  "cutoffGitRef": "e68d52b",
+  "documentedThrough": "e68d52b",
   "defaultResourceVersion": "1.0a",
   "current": {
-    "displayVersion": "5.15",
-    "appSemver": "5.15.0",
+    "displayVersion": "5.16",
+    "appSemver": "5.16.0",
     "indexSchemaVersion": "1.2",
     "date": "2026-06-22",
-    "gitRef": "46b4ec2",
+    "gitRef": "e68d52b",
     "historyUrl": "/data/version-history.json"
   },
   "versioning": {
@@ -99,6 +99,21 @@
       "gitRef": "3697ff8",
       "date": "2026-06-22",
       "summary": "chore(release): document Metaflow Viewer 5.14"
+    },
+    {
+      "gitRef": "56da387",
+      "date": "2026-06-22",
+      "summary": "chore(release): document Metaflow Viewer 5.15"
+    },
+    {
+      "gitRef": "28e8f02",
+      "date": "2026-06-22",
+      "summary": "chore(dashboard): add bilingual Metabase entry shell"
+    },
+    {
+      "gitRef": "c89aebf",
+      "date": "2026-06-22",
+      "summary": "fix(dashboard): allow Metabase iframe in shell"
     }
   ],
   "entries": [
@@ -1233,6 +1248,15 @@
       "date": "2026-06-22",
       "gitRef": "46b4ec2",
       "summary": "fix(routing): add SZTU short route aliases"
+    },
+    {
+      "displayVersion": "5.16",
+      "appSemver": "5.16.0",
+      "type": "feature",
+      "scope": "dashboard",
+      "date": "2026-06-22",
+      "gitRef": "e68d52b",
+      "summary": "feat(dashboard): add analytics visualization rollups"
     }
   ]
 }
