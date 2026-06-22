@@ -128,7 +128,12 @@ RESOURCE_SLUG_OVERRIDES = {
 }
 RESOURCE_ROUTE_ALIASES = {
     ("acg", "j05", "xunyangpai"): ["/acg/j05/寻洋派"],
+    ("sztu", None, "c4-hangpai"): ["/c4-hangpai"],
     ("sztu", None, "c2-lib"): ["/c2-lib"],
+    ("sztu", None, "b1-sdi-206"): ["/b1-sdi-206"],
+    ("sztu", None, "d1-utl-107"): ["/d1-utl-107"],
+    ("sztu", None, "c1-bdi-206"): ["/c1-bdi-206"],
+    ("sztu", "fes", "top10-26"): ["/top10-26", "/fes/top10-26"],
 }
 
 

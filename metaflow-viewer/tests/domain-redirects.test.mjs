@@ -47,3 +47,33 @@ test('深圳技术大学.com redirects resolve to indexed C2-Lib routes', async 
     assert.equal(c2Lib?.route, '/sztu/c2-lib');
     assert.ok(c2Lib.aliases?.includes('/c2-lib'), 'legacy /c2-lib alias should remain available');
 });
+
+test('SZTU resources expose canonical routes and short aliases', async () => {
+    const index = await readFile(new URL('../../data/index.json', import.meta.url), 'utf8').then(JSON.parse);
+    const expectedRoutes = new Map([
+        ['c4-hangpai', {route: '/sztu/c4-hangpai', aliases: ['/c4-hangpai']}],
+        ['c2-lib', {route: '/sztu/c2-lib', aliases: ['/c2-lib']}],
+        ['b1-sdi-206', {route: '/sztu/b1-sdi-206', aliases: ['/b1-sdi-206']}],
+        ['d1-utl-107', {route: '/sztu/d1-utl-107', aliases: ['/d1-utl-107']}],
+        ['c1-bdi-206', {route: '/sztu/c1-bdi-206', aliases: ['/c1-bdi-206']}],
+        ['top10-26', {route: '/sztu/fes/top10-26', aliases: ['/top10-26', '/fes/top10-26']}]
+    ]);
+
+    const routeLookup = new Map();
+    for (const resource of index.resources || []) {
+        routeLookup.set(normalizePath(resource.route), resource);
+        for (const alias of resource.aliases || []) {
+            routeLookup.set(normalizePath(alias), resource);
+        }
+    }
+
+    for (const [id, {route, aliases}] of expectedRoutes.entries()) {
+        const resource = index.resources.find((entry) => entry.id === id);
+        assert.equal(resource?.route, route);
+        assert.deepEqual(resource?.aliases || [], aliases);
+        assert.equal(routeLookup.get(normalizePath(route))?.id, id);
+        for (const alias of aliases) {
+            assert.equal(routeLookup.get(normalizePath(alias))?.id, id);
+        }
+    }
+});

@@ -2259,6 +2259,9 @@
         "device": "SZTU",
         "folderName": "250324 SZTU C4-HangPai"
       },
+      "aliases": [
+        "/c4-hangpai"
+      ],
       "animation": {
         "duration": 20,
         "frameRate": 60,
@@ -2347,6 +2350,9 @@
         "device": "SZTU",
         "folderName": "251220 SZTU B1-SDI-206"
       },
+      "aliases": [
+        "/b1-sdi-206"
+      ],
       "animation": {
         "duration": 341.6666666666667,
         "frameRate": 60,
@@ -2384,6 +2390,9 @@
         "device": "SZTU",
         "folderName": "251225 SZTU D1-UTL-107"
       },
+      "aliases": [
+        "/d1-utl-107"
+      ],
       "animation": {
         "duration": 90,
         "frameRate": 60,
@@ -2423,6 +2432,9 @@
         "device": "SZTU",
         "folderName": "260418 SZTU C1-BDI-206"
       },
+      "aliases": [
+        "/c1-bdi-206"
+      ],
       "viewer": {
         "voxelCoordinateSpace": "metaflow-rz180",
         "defaultCameraMode": "fly"
@@ -2467,6 +2479,10 @@
         "device": "FES",
         "folderName": "260418 Top10_26"
       },
+      "aliases": [
+        "/top10-26",
+        "/fes/top10-26"
+      ],
       "viewer": {
         "voxelCoordinateSpace": "metaflow-rz180"
       },
