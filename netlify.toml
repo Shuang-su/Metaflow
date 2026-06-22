@@ -31,7 +31,7 @@
 # Analytics dashboard - keep Metabase on a login-protected subdomain.
 [[redirects]]
   from = "/dashboard"
-  to = "https://dashboard.metaflow.shuang-su.com/"
+  to = "https://dashboard.metaflow.shuang-su.com/metaflow/"
   status = 302
   force = true
 

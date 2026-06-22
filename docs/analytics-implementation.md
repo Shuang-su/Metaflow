@@ -197,6 +197,37 @@ select route, p95_ttf_ms, p95_lcp_ms, p95_inp_ms from analytics.daily_performanc
 select * from analytics.daily_data_quality_metrics order by metric_date desc limit 20;
 ```
 
+## Metabase Dashboard Entry
+
+The internal dashboard entry is:
+
+```text
+https://dashboard.metaflow.shuang-su.com/metaflow/
+```
+
+This page is a lightweight bilingual shell served by Caddy. Metabase remains the
+system of record for cards, SQL, filters, permissions, and login. The shell only
+stores the Chinese/English preference in `localStorage` and switches between:
+
+- `Metaflow 使用总览`
+- `Metaflow Usage Overview`
+
+The main site `/dashboard` redirect points to this shell. `/dashboard/*` remains
+a passthrough redirect to native Metabase dashboard paths for deep links.
+
+Run or rerun the dashboard automation on the Metabase server with:
+
+```bash
+sudo bash scripts/configure_metabase_bilingual_dashboard.sh
+```
+
+On the current server, Caddy is containerized. The script writes the shell to
+`/opt/metaflow-metabase/dashboard-shell`, syncs it into the Caddy data mount at
+`/opt/metaflow-metabase/caddy/data/dashboard-shell`, and configures
+`/opt/metaflow-metabase/caddy/Caddyfile` to serve `/metaflow/` from
+`/data/dashboard-shell`. It preserves the rest of the dashboard subdomain as a
+reverse proxy to Metabase on `127.0.0.1:3000`.
+
 ## Privacy Defaults
 
 - Input contents are not collected.
