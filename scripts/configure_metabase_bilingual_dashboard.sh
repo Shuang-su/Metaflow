@@ -658,7 +658,10 @@ block = """{domain} {{
     }}
 
     handle {{
-        reverse_proxy 127.0.0.1:3000
+        reverse_proxy 127.0.0.1:3000 {{
+            header_down -Content-Security-Policy
+            header_down -X-Frame-Options
+        }}
     }}
 }}
 """.format(domain=domain, container_page_dir=container_page_dir)

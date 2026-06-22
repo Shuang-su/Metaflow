@@ -228,6 +228,11 @@ On the current server, Caddy is containerized. The script writes the shell to
 `/data/dashboard-shell`. It preserves the rest of the dashboard subdomain as a
 reverse proxy to Metabase on `127.0.0.1:3000`.
 
+The Metabase reverse proxy strips upstream `Content-Security-Policy` and
+`X-Frame-Options` response headers so the same-origin `/metaflow/` shell can
+embed the native dashboard. The dashboard is still protected by Metabase login;
+public sharing remains disabled.
+
 ## Privacy Defaults
 
 - Input contents are not collected.
