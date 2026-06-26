@@ -20,7 +20,7 @@ const versionBase = (displayVersion) => {
 
 test('version history backfills every commit through the cutoff ref', async () => {
     const manifest = await readJson(new URL('../../metadata/version-history.json', import.meta.url));
-    const log = execFileSync('git', ['log', '--pretty=format:%h', '--reverse'], {
+    const log = execFileSync('git', ['log', '--abbrev=7', '--pretty=format:%h', '--reverse'], {
         cwd: repoRoot,
         encoding: 'utf8'
     }).trim().split('\n');
@@ -173,6 +173,6 @@ test('package and public release versions match the structured current version',
     assert.equal(pkg.version, manifest.current.appSemver);
     assert.equal(lock.version, manifest.current.appSemver);
     assert.equal(lock.packages[''].version, manifest.current.appSemver);
-    assert.equal(manifest.current.displayVersion, '5.17');
+    assert.equal(manifest.current.displayVersion, '5.18');
     assert.equal(manifest.current.gitRef, manifest.documentedThrough);
 });

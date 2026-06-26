@@ -1,14 +1,14 @@
 {
   "schemaVersion": "1.0",
-  "cutoffGitRef": "f371f48",
-  "documentedThrough": "f371f48",
+  "cutoffGitRef": "7ce294a",
+  "documentedThrough": "7ce294a",
   "defaultResourceVersion": "1.0a",
   "current": {
-    "displayVersion": "5.17",
-    "appSemver": "5.17.0",
+    "displayVersion": "5.18",
+    "appSemver": "5.18.0",
     "indexSchemaVersion": "1.2",
-    "date": "2026-06-22",
-    "gitRef": "f371f48",
+    "date": "2026-06-26",
+    "gitRef": "7ce294a",
     "historyUrl": "/data/version-history.json"
   },
   "versioning": {
@@ -119,6 +119,11 @@
       "gitRef": "daacd13",
       "date": "2026-06-22",
       "summary": "chore(release): document Metaflow Viewer 5.16"
+    },
+    {
+      "gitRef": "000c93b",
+      "date": "2026-06-25",
+      "summary": "chore(release): document Metaflow Viewer 5.17"
     }
   ],
   "entries": [
@@ -1271,6 +1276,15 @@
       "date": "2026-06-22",
       "gitRef": "f371f48",
       "summary": "feat(analytics): add dashboard controls and device goal rollups"
+    },
+    {
+      "displayVersion": "5.18",
+      "appSemver": "5.18.0",
+      "type": "feature",
+      "scope": "mobile-controls",
+      "date": "2026-06-26",
+      "gitRef": "7ce294a",
+      "summary": "feat(mobile): refine touch gaming controls"
     }
   ]
 }

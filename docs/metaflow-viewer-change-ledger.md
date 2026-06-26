@@ -241,6 +241,7 @@ flowchart TD
 | `5.15` · `46b4ec2` | 中文域名下除 C2-Lib 外的 SZTU 资源只能通过 `/sztu/...` canonical route 打开，短路径如 `/c4-hangpai`、`/b1-sdi-206`、`/top10-26` 会落入 SPA fallback 后匹配不到资源。 | 在 `RESOURCE_ROUTE_ALIASES` 为 SZTU 资源补齐短链：`/c4-hangpai`、`/b1-sdi-206`、`/d1-utl-107`、`/c1-bdi-206`、`/top10-26`、`/fes/top10-26`，并扩展路由测试确保 canonical route 和短链都映射到同一资源。 | `深圳技术大学.com` 下所有 SZTU 资源都可用短链访问，同时保留 `/sztu/...` 正式路由和既有 `/c2-lib`。 | 短链仍由 `data/index.json` alias 解析，不新增服务端 redirect；证据为 route alias 测试与重新生成索引。 |
 | `5.16` · `e68d52b` | Metabase 入口已经可访问，但首版看板仍偏“卡片堆叠”，缺少支付宝数据页那类高密度产品分析视图：今日/昨日小时对比、留存热力表、来源 Top/明细、设备画像和保守机型表；如果卡片直接堆临时 SQL 或扫 raw JSON，后续数据量上来会不稳定。 | 新增 `analytics.hourly_usage_metrics`、`daily_retention_cohorts`、`daily_acquisition_metrics`、`daily_device_model_metrics` 四个物化汇总，并纳入 `analytics.refresh_rollups()`；机型展示采用保守口径：Android 只用可靠 Client Hints model，缺失则 `Android unknown`，iOS 只显示 `iPhone`/`iPad`，desktop 按 OS/browser/renderer；重写双语 Metabase 自动化脚本，生成中英一致的 17 张卡片：关注指标、今日小时、趋势、访问详情、留存、来源、设备、资源质量、数据质量、交互、错误和需排查会话；补充 analytics 测试和文档。 | 看板可以按“我关注的数据 + 今日数据 + 趋势/来源/留存/设备/质量/诊断”回答运营问题；机型统计上线为可读但不做不可靠 iPhone 精确推断；核心卡片以事实表和汇总表为数据源，避免对 raw 事件做看板级全表扫描。 | 本轮仍使用 Metabase 原生视图，不做自研前端数据中心，也不公开分享；留存和来源口径受匿名用户 hash 与 UTM/referrer 完整度影响；证据为 v1.2 migration dry-run、analytics 单测、dashboard shell 脚本语法检查和重新生成的版本索引。 |
 | `5.17` · `f371f48` | 参考支付宝数据面板后，5.16 仍缺全局筛选、指标口径说明、KPI 详情支撑、D30 留存、访问时长/时段画像、可信 raw 机型来源、机型质量排行、机型与 renderer 交叉诊断，以及 Metaflow 自身的转化目标层；仅有“机型 Top”会把访问量和兼容性问题混在一起。 | Tracking plan 升到 `analytics.v1.2`，加入 dashboard controls、conversion goals 和 device model policy；SDK 支持可信宿主通过 `window.MetaflowDeviceInfo` 注入 Alipay/WeChat/Native WebView raw model，collector 记录 `device_model_raw/source/confidence`；新增 v13/v14 Supabase 迁移：`daily_kpi_metrics`、D0-D30 `daily_retention_cohorts`、`daily_session_duration_metrics`、`daily_hourly_profile_metrics`、增强 `daily_acquisition_metrics`、含 raw/source/confidence/errors 的 `daily_device_model_metrics`、`daily_goal_conversion_metrics`、`daily_dashboard_freshness_metrics` 和 `dim_device_model`；双语 Metabase 自动化脚本新增全局参数、指标口径、数据新鲜度、访问时段/时长、留存摘要、机型明细、精确机型覆盖率、机型质量排行、机型 × Renderer、转化目标等卡片。 | 看板能像成熟产品数据面板一样从“访问概况”继续钻到来源、留存、访问深度、设备覆盖率和兼容性风险；`iPhone17,3` 这类 Apple raw identifier 只有在小程序/原生壳或可信 Client Hints 提供时入库，普通 Web 不再伪造精确 iPhone 型号。 | 暂不实现交易、搜索/收藏/消息转化、年龄/性别/省市画像，也不记录高频鼠标/相机轨迹或输入内容；当前真实数据还没有可信 iOS raw code，`exact_model_available` 全为 false 属于预期；证据为 Supabase v13/v14 远端迁移、`analytics.refresh_rollups()` 行数检查、Edge Function deploy、analytics 测试、typecheck、build 和 diff check。 |
+| `5.18` · `7ce294a` | 移动端开启游戏控制后，fly 模式只有左摇杆导致用户不知道可升降，walk 模式缺少明显跳跃按钮；横屏控件相对参考站仍不够协调，Zoom/升降胶囊和摇杆底边没有统一，小屏横屏容易压近底部菜单。 | 参考 UnrealTwin 移动端横屏布局，横屏改成左 Zoom 胶囊、左移动摇杆、右环顾摇杆、右升降/跳跃控件；升降按钮改为世界空间高度移动；胶囊按下态复刻参考站的轻微下压动画；walk 跳跃改为无图标单格圆形胶囊；尺寸、间距和底部避让按视口自适应，设置/帮助等弹窗打开时隐藏触控游戏控件。 | 移动用户在游戏控制开启时能直接看到移动、环顾、Zoom、绝对升降和跳跃入口；横屏控件左右更均衡，小屏/平板布局更稳，关闭游戏控制、切到 orbit/anim 或打开二级菜单时仍隐藏。 | 桌面端、键盘、鼠标、物理 gamepad 和 pointer-lock 逻辑不变；Zoom 只在横屏 fly gaming controls 出现；证据为 typecheck、build、版本测试和本地真移动 Playwright fly/walk/竖屏/modal/默认关闭验证。 |
 
 ### 不产生产品版本的维护提交
 
@@ -261,6 +262,7 @@ flowchart TD
 | `28e8f02` | 增加受 Metabase 登录保护的双语 dashboard shell、`/dashboard` 入口说明和服务器自动化脚本基础。 | dashboard 接入维护，后续由 5.16 统一登记可视化能力；由 `maintenanceCommits` 显式登记。 |
 | `c89aebf` | 调整 dashboard 子域反代响应头，允许同源 `/metaflow/` shell 嵌入原生 Metabase dashboard。 | dashboard 入口修复，后续由 5.16 统一登记可视化能力；由 `maintenanceCommits` 显式登记。 |
 | `daacd13` | 将 5.16 的文档、结构化版本历史、公开版本文件和 README 摘要补齐。 | 发布文档维护，不创建独立展示版本；由 `maintenanceCommits` 显式登记。 |
+| `000c93b` | 将 5.17 的文档、结构化版本历史、公开版本文件和 README 摘要补齐。 | 发布文档维护，不创建独立展示版本；由 `maintenanceCommits` 显式登记。 |
 
 ## 能力到提交的反向索引
 
@@ -272,7 +274,7 @@ flowchart TD
 | 埋点、分析与看板 | `5.10`、`5.11`、`5.12`、`5.13`、`5.16`、`5.17` |
 | XR / PICO | `1.31`–`1.36`、`2.9`、`5.0` |
 | Walk / voxel | `3.0`、`3.5`–`3.7`、`4.4`、`5.0`、`5.4` |
-| 移动端控制 | `2.7`、`3.2`–`3.3`、`3.8`–`3.16`、`5.0` |
+| 移动端控制 | `2.7`、`3.2`–`3.3`、`3.8`–`3.16`、`5.0`、`5.18` |
 | 渐变天空 | `3.19`、`3.20`、`5.0` |
 | Figure8 / ACG | `2.11`、`3.14`、`4.0`、`4.1`、`4.2`、`5.3a`、`5.4` |
 | 部署 / LFS | `1.2`、`1.3`、`3.17`、`3.20a`、`4.4`、`5.2`、`5.3`、`5.13` |
