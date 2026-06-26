@@ -1,14 +1,14 @@
 {
   "schemaVersion": "1.0",
-  "cutoffGitRef": "f7e3883",
-  "documentedThrough": "f7e3883",
+  "cutoffGitRef": "c613a87",
+  "documentedThrough": "c613a87",
   "defaultResourceVersion": "1.0a",
   "current": {
     "displayVersion": "5.18a",
     "appSemver": "5.18.0",
     "indexSchemaVersion": "1.2",
-    "date": "2026-06-26",
-    "gitRef": "f7e3883",
+    "date": "2026-06-27",
+    "gitRef": "c613a87",
     "historyUrl": "/data/version-history.json"
   },
   "versioning": {
@@ -129,6 +129,16 @@
       "gitRef": "a1676ef",
       "date": "2026-06-26",
       "summary": "chore(release): document Metaflow Viewer 5.18"
+    },
+    {
+      "gitRef": "f7e3883",
+      "date": "2026-06-26",
+      "summary": "feat(data): stage Shenzhen Bijiashan dynamic voxel scene before final 5.18a alignment"
+    },
+    {
+      "gitRef": "bdf46c9",
+      "date": "2026-06-26",
+      "summary": "chore(release): document Bijiashan data release"
     }
   ],
   "entries": [
@@ -1296,9 +1306,9 @@
       "appSemver": "5.18.0",
       "type": "resource",
       "scope": "data",
-      "date": "2026-06-26",
-      "gitRef": "f7e3883",
-      "summary": "feat(data): add Shenzhen Bijiashan dynamic voxel scene",
+      "date": "2026-06-27",
+      "gitRef": "c613a87",
+      "summary": "feat(data): add and align Shenzhen Bijiashan dynamic voxel scene",
       "resourceChanges": [
         {
           "action": "add",
