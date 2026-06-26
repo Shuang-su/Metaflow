@@ -116,6 +116,7 @@ RESOURCE_METADATA_OVERRIDES = {
     },
 }
 RESOURCE_SLUG_OVERRIDES = {
+    ("shenzhen", None, "260326 Bijiashan Park"): "bijiashan",
     ("acg", "j05", "260315 184701 J05 08 寻洋派"): "xunyangpai",
     ("acg", "fireflyfes38", "260502 160157 01 绝区零 南宫羽"): "nangong-yu",
     ("acg", "fireflyfes38", "260502 160903 02b 绝区零 拉米尔"): "remielle-dan-b",
@@ -127,6 +128,7 @@ RESOURCE_SLUG_OVERRIDES = {
     ("acg", "fireflyfes38", "260502 184535 05 王者荣耀 貂蝉 馥梦繁花"): "diaochan",
 }
 RESOURCE_ROUTE_ALIASES = {
+    ("shenzhen", None, "bijiashan"): ["/shenzhen/bijiashanpark", "/shenzhen/bijiashan-park"],
     ("acg", "j05", "xunyangpai"): ["/acg/j05/寻洋派"],
     ("sztu", None, "c4-hangpai"): ["/c4-hangpai"],
     ("sztu", None, "c2-lib"): ["/c2-lib"],
@@ -377,6 +379,14 @@ def find_voxel_manifest_file(folder_path):
     preferred = folder_path / TILED_VOXEL_MANIFEST
     if preferred.exists():
         return preferred
+
+    nested_candidates = sorted(
+        file for file in folder_path.glob("*/voxel-tiles.json")
+        if file.is_file()
+    )
+    if nested_candidates:
+        return nested_candidates[0]
+
     return None
 
 

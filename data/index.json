@@ -10,7 +10,7 @@
     "gitRef": "7ce294a"
   },
   "lastUpdated": "2026-06-26",
-  "totalResources": 59,
+  "totalResources": 60,
   "categories": {
     "acg": {
       "name": "二次元",
@@ -2082,6 +2082,52 @@
       "version": {
         "addedIn": "3.14a",
         "updatedIn": "4.4"
+      }
+    },
+    {
+      "id": "bijiashan",
+      "title": "Bijiashan Park",
+      "titleEn": "Bijiashan",
+      "category": [
+        "shenzhen"
+      ],
+      "route": "/shenzhen/bijiashan",
+      "source": "photogrammetry",
+      "experienceType": "scene",
+      "files": {
+        "model": "Shenzhen/260326 Bijiashan Park/supersplat_lod_noenv_rot90_0_0/lod-meta.json",
+        "environment": null,
+        "settings": "Shenzhen/260326 Bijiashan Park/settings-merged-2.json",
+        "thumbnail": "Shenzhen/260326 Bijiashan Park/260326 quanjin futian43.jpg",
+        "voxelManifest": "Shenzhen/260326 Bijiashan Park/derived_lcc_tiled_full_rot0_0_m180_xz_v2.4.0_lod1_r0.08_a0.20_tile64_o8/voxel-tiles.json"
+      },
+      "fileSize": {
+        "model": 1833627158,
+        "environment": 0,
+        "thumbnail": 1288766,
+        "total": 2355809886,
+        "voxelManifest": 520893962
+      },
+      "meta": {
+        "date": "2026-03-26",
+        "device": null,
+        "folderName": "260326 Bijiashan Park"
+      },
+      "aliases": [
+        "/shenzhen/bijiashanpark",
+        "/shenzhen/bijiashan-park"
+      ],
+      "viewer": {
+        "defaultCameraMode": "fly"
+      },
+      "animation": {
+        "duration": 46.666666666666664,
+        "frameRate": 60,
+        "loopMode": "repeat"
+      },
+      "version": {
+        "addedIn": "1.0a",
+        "updatedIn": "1.0a"
       }
     },
     {
