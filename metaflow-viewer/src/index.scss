@@ -753,6 +753,11 @@ button {
         background-color: rgba(204, 204, 204, 0.2);
         box-sizing: border-box;
         pointer-events: auto;
+        transition: background-color 0.15s;
+
+        &.is-pressed {
+            background-color: rgba(204, 204, 204, 0.4);
+        }
     }
 
     .touchActionButton {
@@ -780,7 +785,7 @@ button {
             transform 0.2s;
 
         &.active {
-            background-color: rgba(161, 161, 161, 0.16);
+            background-color: rgba(161, 161, 161, 0.5);
             border-color: rgba(255, 255, 255, 0.1);
             transform: translateY(1px);
         }
@@ -815,6 +820,11 @@ button {
         box-sizing: border-box;
         pointer-events: auto;
         touch-action: none;
+        transition: background-color 0.15s;
+
+        &.is-pressed {
+            background-color: rgba(204, 204, 204, 0.4);
+        }
     }
 
     .touchJumpButton {

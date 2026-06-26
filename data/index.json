@@ -9,7 +9,7 @@
     "updatedAt": "2026-06-26",
     "gitRef": "f7e3883"
   },
-  "lastUpdated": "2026-06-26",
+  "lastUpdated": "2026-06-27",
   "totalResources": 60,
   "categories": {
     "acg": {
@@ -2118,6 +2118,7 @@
         "/shenzhen/bijiashan-park"
       ],
       "viewer": {
+        "voxelCoordinateSpace": "metaflow-rz180",
         "defaultCameraMode": "fly"
       },
       "animation": {

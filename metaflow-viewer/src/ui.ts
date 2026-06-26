@@ -209,6 +209,9 @@ const initJoystick = (
         dom.touchZoomIn.classList.remove('active');
         dom.touchZoomOut.classList.remove('active');
         dom.touchJumpButton.classList.remove('active');
+        dom.touchFlyVerticalControls.classList.remove('is-pressed');
+        dom.touchZoomControls.classList.remove('is-pressed');
+        dom.touchJumpControls.classList.remove('is-pressed');
 
         events.fire('joystickInput', { x: 0, y: 0 });
         events.fire('touchLookInput', { x: 0, y: 0 });
@@ -262,6 +265,7 @@ const initJoystick = (
             zoomPointerId = null;
             dom.touchZoomIn.classList.remove('active');
             dom.touchZoomOut.classList.remove('active');
+            dom.touchZoomControls.classList.remove('is-pressed');
             events.fire('touchZoomInput', { z: 0 });
         }
         if (!visible || state.cameraMode !== 'fly') {
@@ -270,12 +274,14 @@ const initJoystick = (
             verticalPointerId = null;
             dom.touchMoveUp.classList.remove('active');
             dom.touchMoveDown.classList.remove('active');
+            dom.touchFlyVerticalControls.classList.remove('is-pressed');
             events.fire('touchVerticalInput', { y: 0 });
         }
         if (!visible || state.cameraMode !== 'walk') {
             releasePointerCapture(dom.touchJumpButton, jumpPointerId);
             jumpPointerId = null;
             dom.touchJumpButton.classList.remove('active');
+            dom.touchJumpControls.classList.remove('is-pressed');
         }
         if (!visible) {
             resetTouchControlInputs(layout);
@@ -456,6 +462,7 @@ const initJoystick = (
     const setVerticalInput = (y: number) => {
         dom.touchMoveUp.classList.toggle('active', y > 0);
         dom.touchMoveDown.classList.toggle('active', y < 0);
+        dom.touchFlyVerticalControls.classList.toggle('is-pressed', y !== 0);
         events.fire('touchVerticalInput', { y });
     };
 
@@ -488,10 +495,18 @@ const initJoystick = (
     dom.touchMoveDown.addEventListener('pointerup', endVerticalInput);
     dom.touchMoveUp.addEventListener('pointercancel', endVerticalInput);
     dom.touchMoveDown.addEventListener('pointercancel', endVerticalInput);
+    [dom.touchMoveUp, dom.touchMoveDown].forEach((element) => {
+        element.addEventListener('lostpointercapture', (event: PointerEvent) => {
+            if (event.pointerId !== verticalPointerId) return;
+            verticalPointerId = null;
+            setVerticalInput(0);
+        });
+    });
 
     const setZoomInput = (z: number) => {
         dom.touchZoomIn.classList.toggle('active', z > 0);
         dom.touchZoomOut.classList.toggle('active', z < 0);
+        dom.touchZoomControls.classList.toggle('is-pressed', z !== 0);
         events.fire('touchZoomInput', { z });
     };
 
@@ -524,6 +539,18 @@ const initJoystick = (
     dom.touchZoomOut.addEventListener('pointerup', endZoomInput);
     dom.touchZoomIn.addEventListener('pointercancel', endZoomInput);
     dom.touchZoomOut.addEventListener('pointercancel', endZoomInput);
+    [dom.touchZoomIn, dom.touchZoomOut].forEach((element) => {
+        element.addEventListener('lostpointercapture', (event: PointerEvent) => {
+            if (event.pointerId !== zoomPointerId) return;
+            zoomPointerId = null;
+            setZoomInput(0);
+        });
+    });
+
+    const setJumpPressed = (pressed: boolean) => {
+        dom.touchJumpButton.classList.toggle('active', pressed);
+        dom.touchJumpControls.classList.toggle('is-pressed', pressed);
+    };
 
     const endJumpInput = (event: PointerEvent) => {
         event.preventDefault();
@@ -531,7 +558,7 @@ const initJoystick = (
         if (event.pointerId !== jumpPointerId) return;
 
         jumpPointerId = null;
-        dom.touchJumpButton.classList.remove('active');
+        setJumpPressed(false);
         if (dom.touchJumpButton.hasPointerCapture(event.pointerId)) {
             dom.touchJumpButton.releasePointerCapture(event.pointerId);
         }
@@ -544,11 +571,16 @@ const initJoystick = (
 
         jumpPointerId = event.pointerId;
         dom.touchJumpButton.setPointerCapture(event.pointerId);
-        dom.touchJumpButton.classList.add('active');
+        setJumpPressed(true);
         events.fire('touchJumpInput');
     });
     dom.touchJumpButton.addEventListener('pointerup', endJumpInput);
     dom.touchJumpButton.addEventListener('pointercancel', endJumpInput);
+    dom.touchJumpButton.addEventListener('lostpointercapture', (event: PointerEvent) => {
+        if (event.pointerId !== jumpPointerId) return;
+        jumpPointerId = null;
+        setJumpPressed(false);
+    });
 
     updateJoystickVisibility();
 };

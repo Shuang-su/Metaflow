@@ -67,6 +67,7 @@ LEGACY_VOXEL_RZ180_ROUTES = {
     "/acg/fireflyfes38/nangong-yu",
     "/acg/fireflyfes38/remielle-dan",
     "/acg/fireflyfes38/remielle-dan-b",
+    "/shenzhen/bijiashan",
     "/shenzhen/dayun",
     "/sztu/c1-bdi-206",
     "/sztu/fes/top10-26",
