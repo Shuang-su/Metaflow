@@ -1,14 +1,14 @@
 {
   "schemaVersion": "1.0",
-  "cutoffGitRef": "7ce294a",
-  "documentedThrough": "7ce294a",
+  "cutoffGitRef": "f7e3883",
+  "documentedThrough": "f7e3883",
   "defaultResourceVersion": "1.0a",
   "current": {
-    "displayVersion": "5.18",
+    "displayVersion": "5.18a",
     "appSemver": "5.18.0",
     "indexSchemaVersion": "1.2",
     "date": "2026-06-26",
-    "gitRef": "7ce294a",
+    "gitRef": "f7e3883",
     "historyUrl": "/data/version-history.json"
   },
   "versioning": {
@@ -124,6 +124,11 @@
       "gitRef": "000c93b",
       "date": "2026-06-25",
       "summary": "chore(release): document Metaflow Viewer 5.17"
+    },
+    {
+      "gitRef": "a1676ef",
+      "date": "2026-06-26",
+      "summary": "chore(release): document Metaflow Viewer 5.18"
     }
   ],
   "entries": [
@@ -1285,6 +1290,23 @@
       "date": "2026-06-26",
       "gitRef": "7ce294a",
       "summary": "feat(mobile): refine touch gaming controls"
+    },
+    {
+      "displayVersion": "5.18a",
+      "appSemver": "5.18.0",
+      "type": "resource",
+      "scope": "data",
+      "date": "2026-06-26",
+      "gitRef": "f7e3883",
+      "summary": "feat(data): add Shenzhen Bijiashan dynamic voxel scene",
+      "resourceChanges": [
+        {
+          "action": "add",
+          "routes": [
+            "/shenzhen/bijiashan"
+          ]
+        }
+      ]
     }
   ]
 }

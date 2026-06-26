@@ -2,12 +2,12 @@
   "version": "1.0",
   "schemaVersion": "1.2",
   "release": {
-    "displayVersion": "5.18",
+    "displayVersion": "5.18a",
     "appSemver": "5.18.0",
     "schemaVersion": "1.2",
     "historyUrl": "/data/version-history.json",
     "updatedAt": "2026-06-26",
-    "gitRef": "7ce294a"
+    "gitRef": "f7e3883"
   },
   "lastUpdated": "2026-06-26",
   "totalResources": 60,
@@ -2126,8 +2126,8 @@
         "loopMode": "repeat"
       },
       "version": {
-        "addedIn": "1.0a",
-        "updatedIn": "1.0a"
+        "addedIn": "5.18a",
+        "updatedIn": "5.18a"
       }
     },
     {
