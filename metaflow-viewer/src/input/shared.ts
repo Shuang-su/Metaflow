@@ -6,8 +6,8 @@ import type { CameraMode, Global } from '../types';
 type CameraMove = [number, number, number];
 type CameraRotate = [number, number, number];
 
-/** The shape of every device's input frame: world-space move + euler rotate deltas. */
-type CameraInputFrame = InputFrame<{ move: CameraMove; rotate: CameraRotate }>;
+/** The shape of every device's input frame: local move + world move + euler rotate deltas. */
+type CameraInputFrame = InputFrame<{ move: CameraMove; rotate: CameraRotate; worldMove: CameraMove }>;
 
 /**
  * Displacement-based inputs (mouse, touch, wheel, pinch) return accumulated

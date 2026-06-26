@@ -11,9 +11,11 @@ import type { CameraInputFrame, InputDevice, UpdateContext } from '../shared';
 const tmpV = new Vec3();
 const orbitMove = new Vec3();
 const flyMoveTmp = new Vec3();
+const flyWorldMoveTmp = new Vec3();
 const pinchMoveTmp = new Vec3();
 const orbitRotate = new Vec3();
 const flyRotate = new Vec3();
+const lookJoystickRotate = new Vec3();
 
 class TouchDevice implements InputDevice {
     orbitSpeed: number = 18;
@@ -24,6 +26,8 @@ class TouchDevice implements InputDevice {
 
     touchRotateSensitivity: number = 1.5;
 
+    touchLookJoystickSensitivity: number = 1.0;
+
     private _source = new MultiTouchSource();
 
     private _global: Global | null = null;
@@ -33,6 +37,18 @@ class TouchDevice implements InputDevice {
 
     /** UI joystick value [x, y], -1..1. */
     private _joystick: [number, number] = [0, 0];
+
+    /** UI vertical value for fly mode, -1..1. */
+    private _vertical = 0;
+
+    /** UI right-look joystick value [x, y], -1..1. */
+    private _look: [number, number] = [0, 0];
+
+    /** UI zoom value for fly mode, -1..1. */
+    private _zoom = 0;
+
+    /** True for one frame after the jump button is pressed. */
+    private _buttonJump = false;
 
     /** Tap-detection state — touch count, max touches, and accumulated movement. */
     private _tapTouches = 0;
@@ -49,6 +65,23 @@ class TouchDevice implements InputDevice {
         this._joystick[1] = value.y;
     };
 
+    private _onTouchVerticalInput = (value: { y: number }) => {
+        this._vertical = Math.max(-1, Math.min(1, value.y));
+    };
+
+    private _onTouchLookInput = (value: { x: number; y: number }) => {
+        this._look[0] = Math.max(-1, Math.min(1, value.x));
+        this._look[1] = Math.max(-1, Math.min(1, value.y));
+    };
+
+    private _onTouchZoomInput = (value: { z: number }) => {
+        this._zoom = Math.max(-1, Math.min(1, value.z));
+    };
+
+    private _onTouchJumpInput = () => {
+        this._buttonJump = true;
+    };
+
     get touchCount(): number {
         return this._touchCount;
     }
@@ -57,12 +90,20 @@ class TouchDevice implements InputDevice {
         this._global = global;
         this._source.attach(canvas);
         global.events.on('joystickInput', this._onJoystickInput);
+        global.events.on('touchVerticalInput', this._onTouchVerticalInput);
+        global.events.on('touchLookInput', this._onTouchLookInput);
+        global.events.on('touchZoomInput', this._onTouchZoomInput);
+        global.events.on('touchJumpInput', this._onTouchJumpInput);
     }
 
     detach(): void {
         // MultiTouchSource doesn't expose a detach.
         if (this._global) {
             this._global.events.off('joystickInput', this._onJoystickInput);
+            this._global.events.off('touchVerticalInput', this._onTouchVerticalInput);
+            this._global.events.off('touchLookInput', this._onTouchLookInput);
+            this._global.events.off('touchZoomInput', this._onTouchZoomInput);
+            this._global.events.off('touchJumpInput', this._onTouchJumpInput);
             this._global = null;
         }
     }
@@ -70,11 +111,18 @@ class TouchDevice implements InputDevice {
     update(ctx: UpdateContext, frame: CameraInputFrame): void {
         const { touch, pinch, count } = this._source.read();
         const { isFly, isWalk, isFirstPerson, isOrbit, gamingControls, dt, distance, cameraComponent } = ctx;
+        const isLandscape = window.innerWidth > window.innerHeight;
 
         // running touch count
         this._touchCount += count[0];
 
         if (isFly && gamingControls && (this._joystick[0] !== 0 || this._joystick[1] !== 0)) {
+            this._global!.events.fire('navigateCancel');
+        }
+        if (isFly && gamingControls && this._vertical !== 0) {
+            this._global!.events.fire('navigateCancel');
+        }
+        if (isFly && gamingControls && isLandscape && (this._look[0] !== 0 || this._look[1] !== 0 || this._zoom !== 0)) {
             this._global!.events.fire('navigateCancel');
         }
 
@@ -150,8 +198,13 @@ class TouchDevice implements InputDevice {
         v.add(orbitMove.mulScalar((orbit + directFirstPerson) * double));
         if (gamingControls) {
             // joystick UI drives strafe + forward/back in fly/walk
-            flyMoveTmp.set(this._joystick[0], 0, -this._joystick[1]);
+            const zoomZ = isFly && isLandscape ? this._zoom : 0;
+            flyMoveTmp.set(this._joystick[0], 0, -this._joystick[1] + zoomZ);
             v.add(flyMoveTmp.mulScalar(fly * this.moveSpeed * dt));
+            if (isFly && this._vertical !== 0) {
+                flyWorldMoveTmp.set(0, this._vertical * this.moveSpeed * dt, 0);
+                deltas.worldMove.append([flyWorldMoveTmp.x, flyWorldMoveTmp.y, flyWorldMoveTmp.z]);
+            }
         }
         // Two-finger pinch z: orbit interprets +z as "farther from target"
         // (close-pinch = +pinch[0] = zoom out). First-person modes interpret
@@ -160,9 +213,10 @@ class TouchDevice implements InputDevice {
         pinchMoveTmp.set(0, 0, (orbit - directFirstPerson) * pinch[0]);
         v.add(pinchMoveTmp.mulScalar(double * this.pinchSpeed * DISPLACEMENT_SCALE));
         // tap-to-jump in walk + gaming controls
-        if (isWalk && this._tapJump) {
+        if (isWalk && (this._tapJump || this._buttonJump)) {
             v.y = 1;
             this._tapJump = false;
+            this._buttonJump = false;
         }
         deltas.move.append([v.x, v.y, v.z]);
 
@@ -174,6 +228,10 @@ class TouchDevice implements InputDevice {
         // single-touch fly look (inverted in non-gaming first-person)
         flyRotate.set(touch[0] * dragInvert, touch[1] * dragInvert, 0);
         v.add(flyRotate.mulScalar(fly * (1 - double) * this.orbitSpeed * orbitFactor * this.touchRotateSensitivity * DISPLACEMENT_SCALE));
+        if (gamingControls && isLandscape) {
+            lookJoystickRotate.set(this._look[0], this._look[1], 0);
+            v.add(lookJoystickRotate.mulScalar(fly * this.orbitSpeed * orbitFactor * this.touchLookJoystickSensitivity * dt));
+        }
         deltas.rotate.append([v.x, v.y, v.z]);
     }
 }

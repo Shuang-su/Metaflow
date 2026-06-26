@@ -64,6 +64,13 @@
     "help.key.pinch": "Pincer",
     "help.key.pinch-two-finger": "Pincer / Glisser à deux doigts",
     "help.key.joystick": "Joystick",
+    "help.key.vertical-buttons": "Boutons haut / bas",
+    "help.key.jump-button": "Bouton de saut",
+    "help.key.left-joystick": "Joystick gauche",
+    "help.key.right-joystick-or-drag": "Joystick droit / glisser",
+    "help.key.left-zoom-buttons": "Boutons de zoom gauche",
+    "help.key.right-vertical-buttons": "Boutons haut / bas à droite",
+    "help.key.right-jump-button": "Bouton de saut droit",
     "help.key.shift-ctrl": "Maj / Ctrl",
     "help.key.space": "Espace",
     "help.key.esc": "Échap",
@@ -75,5 +82,5 @@
 
     "walk-hint.desktop": "Cliquez pour marcher. WASD pour vous déplacer librement.",
     "walk-hint.touch-tap": "Tapez pour marcher. Glissez pour regarder autour.",
-    "walk-hint.touch-gaming": "Utilisez le joystick pour vous déplacer. Glissez pour regarder. Tapez pour sauter."
+    "walk-hint.touch-gaming": "Utilisez le joystick gauche pour vous déplacer. Utilisez le joystick droit ou glissez pour regarder. Utilisez le bouton de saut pour sauter."
 }

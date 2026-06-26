@@ -64,6 +64,13 @@
     "help.key.pinch": "捏合",
     "help.key.pinch-two-finger": "捏合 / 双指拖动",
     "help.key.joystick": "摇杆",
+    "help.key.vertical-buttons": "上 / 下按钮",
+    "help.key.jump-button": "跳跃按钮",
+    "help.key.left-joystick": "左摇杆",
+    "help.key.right-joystick-or-drag": "右摇杆 / 拖动",
+    "help.key.left-zoom-buttons": "左侧缩放按钮",
+    "help.key.right-vertical-buttons": "右侧上 / 下按钮",
+    "help.key.right-jump-button": "右侧跳跃按钮",
     "help.key.shift-ctrl": "Shift / Ctrl",
     "help.key.space": "空格",
     "help.key.esc": "Esc",
@@ -99,5 +106,5 @@
 
     "walk-hint.desktop": "点击行走。WASD 自由移动。",
     "walk-hint.touch-tap": "点击行走。拖动环顾四周。",
-    "walk-hint.touch-gaming": "使用摇杆移动。拖动环顾四周。点击跳跃。"
+    "walk-hint.touch-gaming": "使用左摇杆移动。使用右摇杆或拖动环顾。按跳跃按钮跳跃。"
 }

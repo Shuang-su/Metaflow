@@ -64,6 +64,13 @@
     "help.key.pinch": "Щипок",
     "help.key.pinch-two-finger": "Щипок / Перетаскивание двумя пальцами",
     "help.key.joystick": "Джойстик",
+    "help.key.vertical-buttons": "Кнопки вверх / вниз",
+    "help.key.jump-button": "Кнопка прыжка",
+    "help.key.left-joystick": "Левый джойстик",
+    "help.key.right-joystick-or-drag": "Правый джойстик / перетаскивание",
+    "help.key.left-zoom-buttons": "Левые кнопки масштаба",
+    "help.key.right-vertical-buttons": "Правые кнопки вверх / вниз",
+    "help.key.right-jump-button": "Правая кнопка прыжка",
     "help.key.shift-ctrl": "Shift / Ctrl",
     "help.key.space": "Пробел",
     "help.key.esc": "Esc",
@@ -75,5 +82,5 @@
 
     "walk-hint.desktop": "Кликните для ходьбы. WASD для свободного движения.",
     "walk-hint.touch-tap": "Тапните для ходьбы. Перетаскивайте, чтобы осмотреться.",
-    "walk-hint.touch-gaming": "Используйте джойстик для движения. Перетаскивайте, чтобы осмотреться. Тапните для прыжка."
+    "walk-hint.touch-gaming": "Используйте левый джойстик для движения. Используйте правый джойстик или перетаскивание для обзора. Используйте кнопку прыжка."
 }

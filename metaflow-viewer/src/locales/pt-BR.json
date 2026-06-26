@@ -64,6 +64,13 @@
     "help.key.pinch": "Pinçar",
     "help.key.pinch-two-finger": "Pinçar / Arrastar com dois dedos",
     "help.key.joystick": "Joystick",
+    "help.key.vertical-buttons": "Botões para cima / baixo",
+    "help.key.jump-button": "Botão de pulo",
+    "help.key.left-joystick": "Joystick esquerdo",
+    "help.key.right-joystick-or-drag": "Joystick direito / arrastar",
+    "help.key.left-zoom-buttons": "Botões de zoom esquerdos",
+    "help.key.right-vertical-buttons": "Botões direitos para cima / baixo",
+    "help.key.right-jump-button": "Botão de pulo direito",
     "help.key.shift-ctrl": "Shift / Ctrl",
     "help.key.space": "Espaço",
     "help.key.esc": "Esc",
@@ -75,5 +82,5 @@
 
     "walk-hint.desktop": "Clique para caminhar. WASD para se mover livremente.",
     "walk-hint.touch-tap": "Toque para caminhar. Arraste para olhar em volta.",
-    "walk-hint.touch-gaming": "Use o joystick para se mover. Arraste para olhar. Toque para pular."
+    "walk-hint.touch-gaming": "Use o joystick esquerdo para se mover. Use o joystick direito ou arraste para olhar. Use o botão de pulo para pular."
 }

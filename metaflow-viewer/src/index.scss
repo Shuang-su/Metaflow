@@ -667,12 +667,20 @@ button {
     }
 }
 
-#joystickBase {
+#joystickBase,
+#lookJoystickBase {
+    --joystick-size: 100px;
+    --joystick-stick-size: 40px;
+    --joystick-stick-offset: 30px;
+    --joystick-rail-width: 56px;
+    --joystick-rail-stick-offset: 8px;
+
     position: absolute;
-    width: 56px;
-    height: 100px;
+    width: var(--joystick-rail-width);
+    height: var(--joystick-size);
+    box-sizing: border-box;
     transform: translate(-50%, -50%);
-    border-radius: 28px;
+    border-radius: calc(var(--joystick-rail-width) / 2);
     touch-action: none;
 
     background: linear-gradient(180deg, #0004 0%, #0000 30%, #0000 70%, #0004 100%);
@@ -681,11 +689,12 @@ button {
 
     transition: width 0.2s ease, height 0.2s ease, border-radius 0.2s ease;
 
-    > #joystick {
+    > #joystick,
+    > #lookJoystick {
         position: absolute;
-        left: 8px;  // (56 - 40) / 2 = 8px to center horizontally
-        width: 40px;
-        height: 40px;
+        left: var(--joystick-rail-stick-offset);
+        width: var(--joystick-stick-size);
+        height: var(--joystick-stick-size);
         border-radius: 50%;
         touch-action: none;
 
@@ -697,15 +706,119 @@ button {
 
     // 2D mode: square joystick with full directional movement
     &.mode-2d {
-        width: 100px;
-        height: 100px;
-        border-radius: 50px;
+        width: var(--joystick-size);
+        height: var(--joystick-size);
+        border-radius: 50%;
         background: radial-gradient(circle, #0000 40%, #0004 100%);
         background-color: #0003;
 
-        > #joystick {
-            left: 30px;  // (100 - 40) / 2 = 30px to center horizontally
+        > #joystick,
+        > #lookJoystick {
+            left: var(--joystick-stick-offset);
         }
+    }
+}
+
+#touchGameControls {
+    --touch-action-width: 46px;
+    --touch-action-height: 100px;
+    --touch-action-padding: 4px;
+    --touch-action-gap: 16px;
+    --touch-action-button-size: 38px;
+    --touch-jump-wrapper-size: 46px;
+    --touch-arrow-icon-size: 15px;
+    --touch-zoom-icon-size: 20px;
+
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    touch-action: none;
+
+    #touchZoomControls,
+    #touchActionControls {
+        position: absolute;
+        transform: translate(-50%, -50%);
+        pointer-events: auto;
+        touch-action: none;
+    }
+
+    .touchActionStack {
+        display: flex;
+        flex-direction: column;
+        gap: var(--touch-action-gap);
+        width: var(--touch-action-width);
+        height: var(--touch-action-height);
+        padding: var(--touch-action-padding);
+        border-radius: 32px;
+        background-color: rgba(204, 204, 204, 0.2);
+        box-sizing: border-box;
+        pointer-events: auto;
+    }
+
+    .touchActionButton {
+        width: var(--touch-action-button-size);
+        height: var(--touch-action-button-size);
+        padding: 0;
+        border-radius: 50%;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        cursor: pointer;
+        touch-action: none;
+        flex-shrink: 0;
+        pointer-events: auto;
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        color: rgba(32, 32, 32, 0.7);
+        background-color: rgba(161, 161, 161, 0.16);
+        box-shadow: none;
+        transition:
+            background-color 0.2s,
+            border-color 0.2s,
+            color 0.2s,
+            transform 0.2s;
+
+        &.active {
+            background-color: rgba(161, 161, 161, 0.16);
+            border-color: rgba(255, 255, 255, 0.1);
+            transform: translateY(1px);
+        }
+
+        > .touchArrowIcon,
+        > .touchZoomIcon {
+            width: var(--touch-zoom-icon-size);
+            height: var(--touch-zoom-icon-size);
+            display: block;
+
+            > svg {
+                width: 100%;
+                height: 100%;
+                display: block;
+            }
+        }
+    }
+
+    .touchVerticalButton {
+        > .touchArrowIcon {
+            width: var(--touch-arrow-icon-size);
+            height: var(--touch-arrow-icon-size);
+        }
+    }
+
+    .touchJumpControl {
+        width: var(--touch-jump-wrapper-size);
+        height: var(--touch-jump-wrapper-size);
+        padding: var(--touch-action-padding);
+        border-radius: 50%;
+        background-color: rgba(204, 204, 204, 0.2);
+        box-sizing: border-box;
+        pointer-events: auto;
+        touch-action: none;
+    }
+
+    .touchJumpButton {
+        display: block;
     }
 }
 

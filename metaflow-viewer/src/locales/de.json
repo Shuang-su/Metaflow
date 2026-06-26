@@ -64,6 +64,13 @@
     "help.key.pinch": "Zwei-Finger-Zoom",
     "help.key.pinch-two-finger": "Zwei-Finger-Zoom / Ziehen",
     "help.key.joystick": "Joystick",
+    "help.key.vertical-buttons": "Auf / Ab Tasten",
+    "help.key.jump-button": "Sprungtaste",
+    "help.key.left-joystick": "Linker Joystick",
+    "help.key.right-joystick-or-drag": "Rechter Joystick / Ziehen",
+    "help.key.left-zoom-buttons": "Linke Zoomtasten",
+    "help.key.right-vertical-buttons": "Rechte Auf / Ab Tasten",
+    "help.key.right-jump-button": "Rechte Sprungtaste",
     "help.key.shift-ctrl": "Umschalt / Strg",
     "help.key.space": "Leertaste",
     "help.key.esc": "Esc",
@@ -75,5 +82,5 @@
 
     "walk-hint.desktop": "Zum Gehen klicken. WASD für freie Bewegung.",
     "walk-hint.touch-tap": "Zum Gehen tippen. Ziehen, um sich umzusehen.",
-    "walk-hint.touch-gaming": "Mit dem Joystick bewegen. Ziehen, um sich umzusehen. Zum Springen tippen."
+    "walk-hint.touch-gaming": "Mit dem linken Joystick bewegen. Mit dem rechten Joystick oder Ziehen umsehen. Mit der Sprungtaste springen."
 }

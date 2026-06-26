@@ -680,11 +680,19 @@
                             <div id="touchFlyGamingControls" class="hidden">
                                 <div class="control-item">
                                     <span class="control-action" data-i18n="help.action.look-around">Look Around</span>
-                                    <span class="control-key" data-i18n="help.key.touch-drag">Touch + Drag</span>
+                                    <span class="control-key" data-i18n="help.key.right-joystick-or-drag">Right Joystick / Drag</span>
                                 </div>
                                 <div class="control-item">
                                     <span class="control-action" data-i18n="help.action.move">Move</span>
-                                    <span class="control-key" data-i18n="help.key.joystick">Joystick</span>
+                                    <span class="control-key" data-i18n="help.key.left-joystick">Left Joystick</span>
+                                </div>
+                                <div class="control-item">
+                                    <span class="control-action" data-i18n="help.action.zoom">Zoom</span>
+                                    <span class="control-key" data-i18n="help.key.left-zoom-buttons">Left Zoom Buttons</span>
+                                </div>
+                                <div class="control-item">
+                                    <span class="control-action" data-i18n="help.action.vertical">Vertical</span>
+                                    <span class="control-key" data-i18n="help.key.right-vertical-buttons">Right Up / Down Buttons</span>
                                 </div>
                             </div>
                             <div class="control-spacer"></div>
@@ -706,15 +714,15 @@
                             <div id="touchGamingControls" class="hidden">
                                 <div class="control-item">
                                     <span class="control-action" data-i18n="help.action.look-around">Look Around</span>
-                                    <span class="control-key" data-i18n="help.key.touch-drag">Touch + Drag</span>
+                                    <span class="control-key" data-i18n="help.key.right-joystick-or-drag">Right Joystick / Drag</span>
                                 </div>
                                 <div class="control-item">
                                     <span class="control-action" data-i18n="help.action.move">Move</span>
-                                    <span class="control-key" data-i18n="help.key.joystick">Joystick</span>
+                                    <span class="control-key" data-i18n="help.key.left-joystick">Left Joystick</span>
                                 </div>
                                 <div class="control-item">
                                     <span class="control-action" data-i18n="help.action.jump">Jump</span>
-                                    <span class="control-key" data-i18n="help.key.tap">Tap</span>
+                                    <span class="control-key" data-i18n="help.key.right-jump-button">Right Jump Button</span>
                                 </div>
                             </div>
                         </div>
@@ -729,6 +737,52 @@
             <!-- Touch Joystick -->
             <div id="joystickBase" class="hidden">
                 <div id="joystick"></div>
+            </div>
+
+            <!-- Touch Look Joystick -->
+            <div id="lookJoystickBase" class="hidden mode-2d">
+                <div id="lookJoystick"></div>
+            </div>
+
+            <!-- Touch first-person action controls -->
+            <div id="touchGameControls" class="hidden" aria-hidden="true">
+                <div id="touchZoomControls" class="touchActionStack touchZoomStack hidden">
+                    <button id="touchZoomIn" class="touchActionButton touchZoomButton" aria-label="Zoom in">
+                        <span class="touchZoomIcon" aria-hidden="true">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none" focusable="false">
+                                <path d="M10 4.25V15.75M4.25 10H15.75" stroke="#262626" stroke-opacity="0.56" stroke-width="2" stroke-linecap="round"></path>
+                            </svg>
+                        </span>
+                    </button>
+                    <button id="touchZoomOut" class="touchActionButton touchZoomButton" aria-label="Zoom out">
+                        <span class="touchZoomIcon" aria-hidden="true">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none" focusable="false">
+                                <path d="M4.25 10H15.75" stroke="#262626" stroke-opacity="0.56" stroke-width="2" stroke-linecap="round"></path>
+                            </svg>
+                        </span>
+                    </button>
+                </div>
+                <div id="touchActionControls">
+                    <div id="touchFlyVerticalControls" class="touchActionStack hidden">
+                        <button id="touchMoveUp" class="touchActionButton touchVerticalButton" aria-label="Move up">
+                            <span class="touchArrowIcon" aria-hidden="true">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 15 14" fill="none" focusable="false">
+                                    <path d="M8.46469 0.63828C7.97333 -0.212784 6.74492 -0.212783 6.25356 0.638281L0.172956 11.1702C-0.318406 12.0213 0.295797 13.0851 1.27852 13.0851L13.4397 13.0851C14.4224 13.0851 15.0367 12.0213 14.5453 11.1702L8.46469 0.63828Z" fill="#262626" fill-opacity="0.56"></path>
+                                </svg>
+                            </span>
+                        </button>
+                        <button id="touchMoveDown" class="touchActionButton touchVerticalButton" aria-label="Move down">
+                            <span class="touchArrowIcon" aria-hidden="true">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 15 14" fill="none" focusable="false">
+                                    <path d="M6.25357 12.4468C6.74493 13.2979 7.97334 13.2979 8.4647 12.4468L14.5453 1.91489C15.0367 1.06382 14.4225 -6.6277e-06 13.4397 -6.79952e-06L1.27854 -8.92586e-06C0.295812 -9.09768e-06 -0.318392 1.06382 0.172969 1.91488L6.25357 12.4468Z" fill="#262626" fill-opacity="0.56"></path>
+                                </svg>
+                            </span>
+                        </button>
+                    </div>
+                    <div id="touchJumpControls" class="touchJumpControl hidden">
+                        <button id="touchJumpButton" class="touchActionButton touchJumpButton" aria-label="Jump"></button>
+                    </div>
+                </div>
             </div>
 
             <!-- Annotation Navigator -->

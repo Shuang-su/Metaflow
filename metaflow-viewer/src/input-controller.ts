@@ -22,7 +22,8 @@ import type { Global } from './types';
 class InputController {
     frame = new InputFrame({
         move: [0, 0, 0],
-        rotate: [0, 0, 0]
+        rotate: [0, 0, 0],
+        worldMove: [0, 0, 0]
     });
 
     private _global: Global;

@@ -55,12 +55,12 @@ class FlyController implements CameraController {
     }
 
     update(deltaTime: number, inputFrame: CameraFrame, camera: Camera) {
-        const { move, rotate } = inputFrame.read();
+        const { move, rotate, worldMove } = inputFrame.read();
 
         applyFrameRotation(this._targetAngles, rotate);
         dampAngles(this._angles, this._targetAngles, this.rotateDamping, deltaTime);
 
-        this._step(move);
+        this._step(move, worldMove);
 
         camera.position.copy(this._position);
         camera.angles.set(this._angles.x, this._angles.y, 0);
@@ -101,10 +101,13 @@ class FlyController implements CameraController {
         this._spawn.store(this._position, this._angles, this._distance);
     }
 
-    private _step(move: number[]) {
+    private _step(move: number[], worldMove: number[]) {
         setCameraBasis(this._angles, forward, right, up);
 
         setBasisOffset(offset, move[0], move[1], move[2], forward, right, up);
+        offset.x += worldMove[0];
+        offset.y += worldMove[1];
+        offset.z += worldMove[2];
         this._mover.move(this._position, offset);
     }
 }

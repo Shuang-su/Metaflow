@@ -64,6 +64,13 @@
     "help.key.pinch": "ピンチ",
     "help.key.pinch-two-finger": "ピンチ / 2本指でドラッグ",
     "help.key.joystick": "ジョイスティック",
+    "help.key.vertical-buttons": "上下ボタン",
+    "help.key.jump-button": "ジャンプボタン",
+    "help.key.left-joystick": "左ジョイスティック",
+    "help.key.right-joystick-or-drag": "右ジョイスティック / ドラッグ",
+    "help.key.left-zoom-buttons": "左ズームボタン",
+    "help.key.right-vertical-buttons": "右上下ボタン",
+    "help.key.right-jump-button": "右ジャンプボタン",
     "help.key.shift-ctrl": "Shift / Ctrl",
     "help.key.space": "スペース",
     "help.key.esc": "Esc",
@@ -75,5 +82,5 @@
 
     "walk-hint.desktop": "クリックで歩行。WASDで自由に移動。",
     "walk-hint.touch-tap": "タップで歩行。ドラッグで視点移動。",
-    "walk-hint.touch-gaming": "ジョイスティックで移動。ドラッグで視点移動。タップでジャンプ。"
+    "walk-hint.touch-gaming": "左ジョイスティックで移動。右ジョイスティックまたはドラッグで視点移動。ジャンプボタンでジャンプ。"
 }

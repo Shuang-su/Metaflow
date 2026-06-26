@@ -64,6 +64,13 @@
     "help.key.pinch": "Pinch",
     "help.key.pinch-two-finger": "Pinch / Two Finger Drag",
     "help.key.joystick": "Joystick",
+    "help.key.vertical-buttons": "Up / Down Buttons",
+    "help.key.jump-button": "Jump Button",
+    "help.key.left-joystick": "Left Joystick",
+    "help.key.right-joystick-or-drag": "Right Joystick / Drag",
+    "help.key.left-zoom-buttons": "Left Zoom Buttons",
+    "help.key.right-vertical-buttons": "Right Up / Down Buttons",
+    "help.key.right-jump-button": "Right Jump Button",
     "help.key.shift-ctrl": "Shift / Ctrl",
     "help.key.space": "Space",
     "help.key.esc": "Esc",
@@ -75,5 +82,5 @@
 
     "walk-hint.desktop": "Click to walk. WASD to move freely.",
     "walk-hint.touch-tap": "Tap to walk. Drag to look around.",
-    "walk-hint.touch-gaming": "Use the joystick to move. Drag to look around. Tap to jump."
+    "walk-hint.touch-gaming": "Use the left joystick to move. Use the right joystick or drag to look. Use the jump button to jump."
 }

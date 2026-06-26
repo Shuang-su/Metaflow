@@ -64,6 +64,13 @@
     "help.key.pinch": "핀치",
     "help.key.pinch-two-finger": "핀치 / 두 손가락 드래그",
     "help.key.joystick": "조이스틱",
+    "help.key.vertical-buttons": "위 / 아래 버튼",
+    "help.key.jump-button": "점프 버튼",
+    "help.key.left-joystick": "왼쪽 조이스틱",
+    "help.key.right-joystick-or-drag": "오른쪽 조이스틱 / 드래그",
+    "help.key.left-zoom-buttons": "왼쪽 줌 버튼",
+    "help.key.right-vertical-buttons": "오른쪽 위 / 아래 버튼",
+    "help.key.right-jump-button": "오른쪽 점프 버튼",
     "help.key.shift-ctrl": "Shift / Ctrl",
     "help.key.space": "스페이스",
     "help.key.esc": "Esc",
@@ -75,5 +82,5 @@
 
     "walk-hint.desktop": "클릭하여 걷기. WASD로 자유롭게 이동.",
     "walk-hint.touch-tap": "탭하여 걷기. 드래그하여 둘러보기.",
-    "walk-hint.touch-gaming": "조이스틱으로 이동. 드래그하여 둘러보기. 탭하여 점프."
+    "walk-hint.touch-gaming": "왼쪽 조이스틱으로 이동. 오른쪽 조이스틱 또는 드래그로 둘러보기. 점프 버튼으로 점프."
 }
