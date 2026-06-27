@@ -122,6 +122,7 @@ test('change ledger contains every structured version and only main-history comm
 
 test('commits after documentedThrough are documentation/version maintenance only', async () => {
     const manifest = await readJson(new URL('../../metadata/version-history.json', import.meta.url));
+    const editorManifest = await readJson(new URL('../../metadata/editor-version-history.json', import.meta.url));
     const refs = execFileSync('git', ['rev-list', '--reverse', `${manifest.documentedThrough}..HEAD`], {
         cwd: repoRoot,
         encoding: 'utf8'
@@ -142,15 +143,51 @@ test('commits after documentedThrough are documentation/version maintenance only
         'metaflow-viewer/package-lock.json',
         'metaflow-viewer/tests/version-history.test.mjs'
     ]);
+    const editorMaintenanceFiles = new Set([
+        '.gitignore',
+        'README.md',
+        'PROJECT_INDEX.md',
+        'docs/metaflow-editor-change-ledger.md',
+        'metadata/editor-version-history.json',
+        'data/editor-version-history.json',
+        'metaflow-editor/version.json',
+        'scripts/generate_editor_version.py',
+        'metaflow-viewer/tests/editor-version-history.test.mjs',
+        'metaflow-viewer/tests/tiled-voxel-index.test.mjs',
+        'metaflow-viewer/tests/version-history.test.mjs'
+    ]);
+    const editorSourcePrefixes = [
+        'metaflow-editor/',
+        'supersplat-v2.18.1/',
+        'supersplat-v2.28.0/'
+    ];
+    const documentedEditorReleaseRefs = new Set(
+        (editorManifest.entries || []).map((entry) => entry.gitRef).filter(Boolean)
+    );
+    const isEditorReleaseFile = (file) => (
+        editorMaintenanceFiles.has(file) ||
+        editorSourcePrefixes.some((prefix) => file.startsWith(prefix))
+    );
 
     for (const ref of refs.split('\n')) {
         const files = execFileSync('git', ['diff-tree', '--no-commit-id', '--name-only', '-r', ref], {
             cwd: repoRoot,
             encoding: 'utf8'
         }).trim().split('\n').filter(Boolean);
+        const shortRef = ref.slice(0, 7);
+        const isDocumentedEditorRelease = documentedEditorReleaseRefs.has(shortRef);
+        const unexpectedFiles = files.filter((file) => {
+            if (allowedFiles.has(file)) {
+                return false;
+            }
+            if (editorMaintenanceFiles.has(file)) {
+                return false;
+            }
+            return !(isDocumentedEditorRelease && isEditorReleaseFile(file));
+        });
         assert.ok(
-            files.every((file) => allowedFiles.has(file)),
-            `${ref.slice(0, 7)} changes product files without a version-history entry: ${files.join(', ')}`
+            unexpectedFiles.length === 0,
+            `${shortRef} changes product files without a version-history entry: ${unexpectedFiles.join(', ')}`
         );
     }
 });
