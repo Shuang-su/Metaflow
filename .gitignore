@@ -10,6 +10,7 @@ metaflow-viewer/public/index.css
 metaflow-viewer/public/assets/
 .netlify-preview*/
 .netlify-production-deploy*/
+.netlify/
 .playwright-cli/
 metaflow-viewer/.netlify/
 data/**/*.mp4
@@ -21,6 +22,7 @@ data_sample/
 
 # Cloned repos (can be re-cloned)
 supersplat/
+supersplat v*/
 supersplat-viewer/
 pcui/
 

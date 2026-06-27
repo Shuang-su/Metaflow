@@ -1,6 +1,12 @@
-var version = "2.18.1";
+const metaflowEditorVersion = {
+    productName: 'Metaflow Editor',
+    displayVersion: '1.1',
+    appSemver: '1.1.0',
+    upstreamVersion: '2.28.0'};
+const metaflowEditorLabel = `${metaflowEditorVersion.productName} v${metaflowEditorVersion.displayVersion}`;
+const serviceWorkerCacheName = `metaflow-editor-v${metaflowEditorVersion.appSemver}-ss${metaflowEditorVersion.upstreamVersion}`;
 
-const cacheName = `metaflow-editor-v${version}`;
+const cacheName = serviceWorkerCacheName;
 const cacheUrls = [
     './',
     './index.css',
@@ -8,6 +14,7 @@ const cacheUrls = [
     './index.js',
     './index.js.map',
     './manifest.json',
+    './version.json',
     './static/icons/logo-192.png',
     './static/icons/logo-512.png',
     './static/images/screenshot-narrow.jpg',
@@ -18,13 +25,16 @@ const cacheUrls = [
     './static/lib/webp/webp.wasm',
     './static/locales/de.json',
     './static/locales/en.json',
+    './static/locales/es.json',
     './static/locales/fr.json',
     './static/locales/ja.json',
     './static/locales/ko.json',
+    './static/locales/pt-BR.json',
+    './static/locales/ru.json',
     './static/locales/zh-CN.json'
 ];
 self.addEventListener('install', (event) => {
-    console.log(`installing v${version}`);
+    console.log(`installing ${metaflowEditorLabel} cache ${cacheName}`);
     // create cache for current version
     event.waitUntil(caches.open(cacheName)
         .then((cache) => {
@@ -32,7 +42,7 @@ self.addEventListener('install', (event) => {
     }));
 });
 self.addEventListener('activate', () => {
-    console.log(`activating v${version}`);
+    console.log(`activating ${metaflowEditorLabel} cache ${cacheName}`);
     // delete the old caches once this one is activated
     caches.keys().then((names) => {
         for (const name of names) {

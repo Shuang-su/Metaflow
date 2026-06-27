@@ -1,0 +1,115 @@
+{
+  "schemaVersion": "1.0",
+  "current": {
+    "productName": "Metaflow Editor",
+    "displayVersion": "1.1",
+    "appSemver": "1.1.0",
+    "date": "2026-06-27",
+    "gitRef": "working-tree",
+    "historyUrl": "/data/editor-version-history.json",
+    "runtimeUrl": "/editor/version.json",
+    "sourcePath": "supersplat-v2.28.0",
+    "upstream": {
+      "name": "SuperSplat Editor",
+      "version": "2.28.0",
+      "tag": "v2.28.0",
+      "gitRef": "9f4dfe1",
+      "releaseUrl": "https://github.com/playcanvas/supersplat/releases/tag/v2.28.0"
+    },
+    "dependencies": {
+      "@playcanvas/splat-transform": "2.5.1",
+      "@playcanvas/supersplat-viewer": "1.26.3",
+      "@playcanvas/pcui": "6.1.4",
+      "playcanvas": "2.19.2"
+    }
+  },
+  "versioning": {
+    "mode": "editor-fork",
+    "displayVersion": "major.minor for Metaflow Editor behavior and upstream sync milestones",
+    "upstreamVersion": "pinned SuperSplat Editor release tag",
+    "sourceDirectories": "versioned source directories use original repository name plus upstream tag, such as supersplat-v2.28.0",
+    "rules": [
+      "Every upstream editor sync records the SuperSplat tag, dependency set, and Metaflow customizations.",
+      "Versioned supersplat-v* source directories are the rebuild source of truth for metaflow-editor.",
+      "Generated /data/editor-version-history.json and /editor/version.json must match this metadata file."
+    ]
+  },
+  "entries": [
+    {
+      "displayVersion": "1.1",
+      "appSemver": "1.1.0",
+      "date": "2026-06-27",
+      "gitRef": "working-tree",
+      "type": "upstream-sync",
+      "scope": "editor",
+      "sourcePath": "supersplat-v2.28.0",
+      "summary": "Sync Metaflow Editor to SuperSplat Editor v2.28.0 and preserve Metaflow export, timeline, branding, and version surfaces",
+      "upstream": {
+        "version": "2.28.0",
+        "tag": "v2.28.0",
+        "gitRef": "9f4dfe1"
+      },
+      "changes": [
+        {
+          "area": "source",
+          "summary": "Version the active editor source as supersplat-v2.28.0 using the same original-repository plus version naming convention as the viewer baselines."
+        },
+        {
+          "area": "versioning",
+          "summary": "Expose Metaflow Editor 1.1 through source constants, console/About labels, runtime version JSON, structured history, and service worker cache naming."
+        },
+        {
+          "area": "timeline",
+          "summary": "Keep the Metaflow timeline frame cap at 100000 in src/ui/timeline-panel.ts."
+        },
+        {
+          "area": "export",
+          "summary": "Preserve upstream SOG HTML package export and add Metaflow legacy ZIP plus direct settings.json export."
+        },
+        {
+          "area": "large-project-load",
+          "summary": "Retain upstream BlobReadSource, BufferedReadStream 4MB buffering, and streaming zip project load behavior from v2.28.0."
+        }
+      ],
+      "files": [
+        "supersplat-v2.28.0/src/metaflow-editor-version.ts",
+        "supersplat-v2.28.0/src/ui/editor.ts",
+        "supersplat-v2.28.0/src/ui/about-popup.ts",
+        "supersplat-v2.28.0/src/ui/timeline-panel.ts",
+        "supersplat-v2.28.0/src/ui/export-popup.ts",
+        "supersplat-v2.28.0/src/file-handler.ts",
+        "supersplat-v2.28.0/src/splat-serialize.ts",
+        "supersplat-v2.28.0/src/sw.ts",
+        "metadata/editor-version-history.json",
+        "data/editor-version-history.json",
+        "metaflow-editor/version.json",
+        "docs/metaflow-editor-change-ledger.md"
+      ]
+    },
+    {
+      "displayVersion": "1.0",
+      "appSemver": "1.0.0",
+      "date": "2026-06-25",
+      "gitRef": "working-tree",
+      "type": "baseline",
+      "scope": "editor",
+      "sourcePath": "supersplat-v2.18.1",
+      "summary": "Preserve the previous Metaflow Editor source baseline from SuperSplat Editor v2.18.1",
+      "upstream": {
+        "version": "2.18.1",
+        "tag": "v2.18.1"
+      },
+      "changes": [
+        {
+          "area": "source",
+          "summary": "Rename the previous local editor source backup to supersplat-v2.18.1 for direct audit and rebuild comparison."
+        }
+      ],
+      "files": [
+        "supersplat-v2.18.1/src/ui/timeline-panel.ts",
+        "supersplat-v2.18.1/package.json",
+        "supersplat-v2.18.1/package-lock.json"
+      ]
+    }
+  ]
+}

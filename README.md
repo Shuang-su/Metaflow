@@ -123,6 +123,17 @@ location / {
 | PlayCanvas | `2.19.2` |
 | 已审计至 commit | `f371f48` |
 
+## 当前 Editor
+
+| 字段 | 值 |
+|------|----|
+| Metaflow Editor | `1.1` |
+| 上游 SuperSplat Editor | `v2.28.0` |
+| 当前源码目录 | [`supersplat-v2.28.0`](supersplat-v2.28.0) |
+| 基线源码目录 | [`supersplat-v2.18.1`](supersplat-v2.18.1) |
+| `/editor` 运行时版本 | [`metaflow-editor/version.json`](metaflow-editor/version.json) |
+| 版本历史 | [`metadata/editor-version-history.json`](metadata/editor-version-history.json) |
+
 ## 最近版本
 
 | 版本 | commit | 摘要 |
@@ -151,6 +162,8 @@ location / {
 
 - [逐提交详细变更总账](docs/metaflow-viewer-change-ledger.md)
 - [结构化版本历史](metadata/version-history.json)
+- [Editor 结构化版本历史](metadata/editor-version-history.json)
+- [Editor 变更总账](docs/metaflow-editor-change-ledger.md)
 - [当前同步差异审计](docs/metaflow-current-sync-diff-audit.md)
 - [SuperSplat 同步对比](docs/metaflow-viewer-sync-comparison.md)
 
