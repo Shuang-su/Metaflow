@@ -224,7 +224,7 @@ body {
   overflow-wrap: anywhere;
 }
 
-.study-source-section {
+.study-highlighted-source {
   --syntax-background: var(--bg-1, #f7f7f8);
   --syntax-foreground: var(--fg-3, #71717a);
   --syntax-token-comment: var(--fg-4, #9a9aa2);

@@ -39,7 +39,9 @@ Open:
 http://127.0.0.1:6006/
 ```
 
-The Storybook is a reader-facing implementation research guide. Its standard preview initializes the captured Aave Turbopack runtime once, blocks the original Next page entry, and mounts the exact original component export required by the current story. Each page then places the live component beside Chinese implementation notes, runtime metrics, and raw chunk excerpts. It does not hydrate the complete article, crop a page, create a nested iframe, or run a hand-written Liquid Glass substitute. `How It Works / Displacement Map` is the only parameter playground.
+The Storybook is a reader-facing guide to the principles and implementation of Web Liquid Glass. Its root README combines interactive Hero, DOM-control, Canvas, Video, and displacement-map examples with the shared rendering model. Every component then has a focused README and a deeper `构建与代码` page that explains data flow, readable TypeScript/GLSL, design reasons, failure modes, and acceptance checks.
+
+The locked Aave modules remain the visual and behavioral baseline. Alongside them, `storybook/src/implementation/` contains a readable teaching implementation of the same generated-map, SVG-filter, and WebGL paths; the code displayed in Storybook is generated from those running files rather than from pseudocode. This code is for study and reconstruction, not a production package or a Metaflow adapter. The Storybook does not hydrate the complete article, crop a page, or create a nested iframe.
 
 All npm, Storybook, TypeScript, and Playwright cache/temp paths are pinned under `storybook/.cache/` on this external volume. The project scripts do not use the system `/tmp` or the default home-directory npm cache.
 
@@ -50,7 +52,7 @@ All npm, Storybook, TypeScript, and Playwright cache/temp paths are pinned under
 - `reference/origin/`: raw capture, live DOM extraction, metrics, original screenshots and chunk copies.
 - `reference/origin-mirror/`: generated mirror source used to populate `design/`.
 - `reference/takram-storybook/`: pinned MIT-licensed Takram Storybook source and runtime-layout reference. It is not imported by the Liquid Glass runtime.
-- `storybook/`: independent Storybook research guide titled `Web Liquid Glass：原理与实现`. `scripts/generate-study-pages.mjs` extracts reader-facing prose, metrics, source excerpts, and the locked module manifest; `src/origin/runtime.ts` mounts the corresponding original Aave module in the standard Storybook preview.
+- `storybook/`: independent Storybook guide titled `Web Liquid Glass：原理与实现`. `src/implementation/` contains the readable Lens Map, SVG and WebGL teaching core; `src/origin/runtime.ts` mounts locked Aave modules as the runtime baseline; `scripts/generate-study-pages.mjs` generates highlighted source excerpts and research metrics from local files.
 - `AAVE_GLASS_IMPLEMENTATION_NOTES.md`: source research master note with chunk mapping, short source excerpts, runtime evidence, DOM/SVG path, WebGL path and component call layers.
 - `WEB_LIQUID_GLASS_SPEC.md`: Chinese Web Liquid Glass specification distilled from the source research notes, original bundle and live DOM evidence.
 - `流程与代码说明.md`: Chinese workflow notes for using the local mirror and research evidence.
@@ -67,8 +69,9 @@ Use the mirror and captured evidence as the oracle for any future implementation
 - Source research master note: `AAVE_GLASS_IMPLEMENTATION_NOTES.md`
 - Reproducible specification distilled from the notes: `WEB_LIQUID_GLASS_SPEC.md`
 - Reader-facing Storybook guide: `storybook/`
+- Independent implementation audit: `storybook/INDEPENDENT_IMPLEMENTATION_AUDIT.md`
 
-Do not use the deleted iframe slice, deleted article-copy runtime, or deleted early Playground approximation as implementation evidence. The current Storybook cases do not share a replacement glass implementation: they mount the retained original component modules directly. This direct bundle execution is research-only; future production code should still follow the readable specification rather than depend on minified module IDs. The mirror and reference evidence remain the acceptance oracle.
+Do not use the deleted iframe slice, deleted article-copy runtime, or deleted early Playground approximation as implementation evidence. The Storybook now separates two roles: locked modules provide the baseline, while the readable TypeScript/GLSL core teaches how to rebuild the behavior. Future production code should follow the specification and readable lifecycle rules rather than depend on minified module IDs. The mirror and reference evidence remain the acceptance oracle.
 
 ## Verified Local Mirror
 
@@ -95,30 +98,26 @@ Latest local checks:
 - Auxiliary `/design/careers/`: served as a static no-script helper route so article prefetch/link checks do not 404 offline. It is not the source of truth for Liquid Glass behavior.
 - Known console noise: the original bundle emits four `<path d="undefined">` SVG errors during these audits; they do not stop hydration, filters, canvas/video, or controls.
 
-Evidence file:
+Durable evidence:
 
 ```text
-/tmp/aave-glass-compare/local-v-origin-final-summary.json
-/tmp/aave-glass-compare/in-app-final-top.png
-/tmp/aave-glass-compare/in-app-final-top-scrolled.png
-/tmp/aave-glass-compare/in-app-final-slider.png
-/tmp/aave-glass-compare/default-raw-768-qa.json
-/tmp/aave-glass-compare/origin-same-timing-audit.json
-/tmp/aave-glass-compare/canvas-map-interaction-audit.json
-/tmp/aave-glass-compare/map-playground-state-audit.json
-/tmp/aave-glass-compare/mobile-offline-audit.json
+reference/comparison-ledger.md
+reference/comparison-4173-mirror-check.json
+reference/local-fixed-hero-motion-check.json
+reference/local-fixed-mobile-check.json
+reference/mobile-compare-768.json
+reference/mobile-scroll-compare.json
+reference/origin/runtime-metrics.json
+reference/origin/live-summary.json
+storybook/INDEPENDENT_IMPLEMENTATION_AUDIT.md
 ```
 
-Screenshots:
+Reference screenshots:
 
 ```text
-/tmp/aave-glass-compare/default-raw-768-top.png
-/tmp/aave-glass-compare/default-raw-768-slider.png
-/tmp/aave-glass-compare/default-raw-768-video.png
-/tmp/aave-glass-compare/qr-canvas-after-click.png
-/tmp/aave-glass-compare/map-playground-state-audit.png
-/tmp/aave-glass-compare/mobile-top-final.png
-/tmp/aave-glass-compare/mobile-menu-final.png
+reference/origin/reference-first-viewport.png
+reference/origin/reference-components.png
+reference/origin/reference-video.png
 ```
 
 ## Sources

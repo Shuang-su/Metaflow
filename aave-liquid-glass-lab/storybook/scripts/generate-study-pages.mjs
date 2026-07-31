@@ -14,6 +14,114 @@ const sourceTheme = createCssVariablesTheme({
   variablePrefix: '--syntax-'
 });
 
+const guideSources = [
+  {
+    id: 'lens-map',
+    title: '从镜片几何生成 displacement map',
+    path: 'src/implementation/lens-map.ts',
+    marker: 'lens-map',
+    language: 'ts'
+  },
+  {
+    id: 'svg-controller',
+    title: '创建并更新 DOM/SVG 折射控制器',
+    path: 'src/implementation/svg-glass.ts',
+    marker: 'svg-controller',
+    language: 'ts'
+  },
+  {
+    id: 'react-adapter',
+    title: 'React 适配层：创建一次，参数变化只更新',
+    path: 'src/implementation/react/AaveGlass.tsx',
+    marker: 'react-adapter',
+    language: 'tsx'
+  },
+  {
+    id: 'hero-example',
+    title: 'Hero Glass：移动镜片但复用 map',
+    path: 'src/implementation/examples/HeroGlassExample.tsx',
+    marker: 'hero-example',
+    language: 'tsx'
+  },
+  {
+    id: 'switch-example',
+    title: 'Switch：native checkbox 与镜片状态同步',
+    path: 'src/implementation/examples/SwitchExample.tsx',
+    marker: 'switch-example',
+    language: 'tsx'
+  },
+  {
+    id: 'slider-example',
+    title: 'Slider：native range 驱动 fill 与 lens',
+    path: 'src/implementation/examples/SliderExample.tsx',
+    marker: 'slider-example',
+    language: 'tsx'
+  },
+  {
+    id: 'toggle-example',
+    title: 'Segmented Toggle：按钮语义与 spring indicator',
+    path: 'src/implementation/examples/ToggleExample.tsx',
+    marker: 'toggle-example',
+    language: 'tsx'
+  },
+  {
+    id: 'webgl-shader',
+    title: 'WebGL shader：source、map、blur 与 RGB 色散',
+    path: 'src/implementation/webgl-shaders.ts',
+    marker: 'webgl-shader',
+    language: 'ts'
+  },
+  {
+    id: 'webgl-controller',
+    title: 'WebGL renderer：纹理与帧循环生命周期',
+    path: 'src/implementation/webgl-refraction.ts',
+    marker: 'webgl-controller',
+    language: 'ts'
+  },
+  {
+    id: 'qr-scene',
+    title: 'QR Scene：矩阵、finder eyes 与 occupancy texture',
+    path: 'src/implementation/qr-scene.ts',
+    marker: 'qr-scene',
+    language: 'ts'
+  },
+  {
+    id: 'qr-shader',
+    title: 'QR Shader：O(1) 点阵查询、SDF eyes 与色散采样',
+    path: 'src/implementation/qr-refraction.ts',
+    marker: 'qr-shader',
+    language: 'ts'
+  },
+  {
+    id: 'qr-example',
+    title: 'QR Canvas：五槽镜片动画与纹理更新',
+    path: 'src/implementation/examples/QRCanvasExample.tsx',
+    marker: 'qr-example',
+    language: 'tsx'
+  },
+  {
+    id: 'video-example',
+    title: 'Video Controls：live video texture 与多镜片',
+    path: 'src/implementation/examples/VideoControlsExample.tsx',
+    marker: 'video-example',
+    language: 'tsx'
+  },
+  {
+    id: 'playground-example',
+    title: 'Displacement Map Playground：结果与 map 同源',
+    path: 'src/implementation/examples/DisplacementPlayground.tsx',
+    marker: 'playground-example',
+    language: 'tsx'
+  },
+  {
+    id: 'origin-module-host',
+    title: '目标效果：挂载研究依据中的交互组件',
+    path: 'src/origin/OriginModuleHost.tsx',
+    marker: 'origin-module-host',
+    language: 'tsx'
+  }
+];
+
 const cases = {
   overview: {
     title: 'Web Liquid Glass：原理与实现',
@@ -682,6 +790,17 @@ function addResearchComments(code, source, language) {
   return `${comments}\n\n${code}`;
 }
 
+function extractGuideSource(file, marker) {
+  const startToken = `// [study:${marker}:start]`;
+  const endToken = `// [study:${marker}:end]`;
+  const start = file.indexOf(startToken);
+  const end = file.indexOf(endToken, start + startToken.length);
+  if (start < 0 || end < 0) {
+    throw new Error(`Guide source marker is missing: ${marker}`);
+  }
+  return file.slice(start + startToken.length, end).trim();
+}
+
 const template = await readFile(templatePath, 'utf8');
 const document = parse(template);
 const article = findFirst(document, node => node.tagName === 'article');
@@ -744,6 +863,20 @@ for (const [slug, entry] of Object.entries(cases)) {
   delete generatedCases[slug].target;
 }
 
+const generatedGuideSources = {};
+for (const guide of guideSources) {
+  const file = await readFile(resolve(storybookRoot, guide.path), 'utf8');
+  const code = extractGuideSource(file, guide.marker);
+  generatedGuideSources[guide.id] = {
+    ...guide,
+    code,
+    highlightedHtml: await codeToHtml(code, {
+      lang: guide.language,
+      theme: sourceTheme
+    })
+  };
+}
+
 const manifest = {
   runtimeUrl,
   scriptUrls,
@@ -767,6 +900,12 @@ const manifest = {
 
 await mkdir(generatedRoot, { recursive: true });
 await writeFile(resolve(generatedRoot, 'study-content.json'), `${JSON.stringify(generatedCases, null, 2)}\n`);
+await writeFile(
+  resolve(generatedRoot, 'guide-source-content.json'),
+  `${JSON.stringify(generatedGuideSources, null, 2)}\n`
+);
 await writeFile(resolve(generatedRoot, 'origin-manifest.json'), `${JSON.stringify(manifest, null, 2)}\n`);
 
-console.log(`Generated ${Object.keys(generatedCases).length} study entries and the origin module manifest.`);
+console.log(
+  `Generated ${Object.keys(generatedCases).length} study entries, ${Object.keys(generatedGuideSources).length} guide sources and the origin module manifest.`
+);

@@ -4,7 +4,11 @@
 
 源码级证据链见 `AAVE_GLASS_IMPLEMENTATION_NOTES.md`。本文件只保留规范结论，不重复嵌入大量 chunk 源码。
 
-交互式研究册见 `storybook/`，正式标题为 `Web Liquid Glass：原理与实现`。它在标准 Storybook preview 中一次性初始化本地 Aave Turbopack runtime，并按页面直接挂载原始组件模块；不会启动完整文章、运行裁切脚本或使用手写近似效果。组件演示之后的中文解释、运行态指标和 chunk 片段由构建脚本从本地证据中提取。唯一可调页面是 `How It Works / Displacement Map`。Storybook 不是新的事实来源，原站镜像和 reference 证据仍是 oracle。
+交互式研究册见 `storybook/`，正式标题为 `Web Liquid Glass：原理与实现`。根 README 用可操作的 Hero、DOM 控件、Canvas、Video 和 displacement map 串起统一原理；每个组件再用 README 与 `构建与代码` 说明数据流、实际 TypeScript/GLSL、设计理由、常见错误和验收方法。
+
+Storybook 同时保留两种角色明确的实现：锁定的 Aave 模块用于视觉与行为基准；`storybook/src/implementation/` 是按本规范重写的可读教学核心，页面展示的代码直接来自正在运行的文件，不是伪代码。教学核心不是新的事实来源，也不是生产 API；原站镜像和 reference 证据仍是 oracle。
+
+独立实现与锁定基准的逐项核验见 `storybook/INDEPENDENT_IMPLEMENTATION_AUDIT.md`。该审计把“算法/参数已经等价”和“仍需跨浏览器或全画面验证”的范围分开记录，不能用局部通过替代整体 1:1 验收。
 
 ## 1. 证据边界
 
@@ -26,7 +30,7 @@
 
 - 已移除的早期手写近似页。它和最终原站实现差距较大。
 - 纯 CSS `backdrop-filter` 玻璃外观。它只能模拟透明质感，不能复现 Aave 的像素折射。
-- 把 Storybook 的原始模块桥接当成生产 API。它只用于研究和行为验证；镜像是 oracle，不是生产代码。
+- 把 Storybook 的原始模块桥接或教学核心直接当成生产 API。前者只用于基准核对，后者只用于解释可复现路径；镜像是 oracle，两者都不是生产适配层。
 
 ## 2. 原理总览
 

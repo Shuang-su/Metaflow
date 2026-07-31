@@ -1,49 +1,74 @@
 import { Meta } from '@storybook/addon-docs/blocks';
-import * as ResearchStories from '../0-Research.stories';
-import { ReadmeHero } from '../docs/ReadmeHero';
-import { SourceSnippet } from '../docs/SourceSnippet';
+import { InteractiveOverview } from '../docs/InteractiveOverview';
+import { GuideCodeBlock } from '../docs/GuideCodeBlock';
 
-<Meta of={ResearchStories} />
+<Meta title="0. Web Liquid Glass：原理与实现/README" />
 
 # Web Liquid Glass：原理与实现
 
-这是一份面向 Web 设计与工程人员的实现研究册。它以 Aave 的公开文章和本地保存的运行证据为研究起点，解释液态玻璃如何在普通 DOM、Canvas 与 Video 表面上产生一致的折射行为。
+从镜片几何、generated displacement map 到 DOM/SVG 与 WebGL，这本研究册给出一套可以运行、阅读、测量和修改的 Web 液态玻璃实现。
 
-<ReadmeHero />
+<InteractiveOverview />
 
-## 研究目标
+## 先建立正确的模型
 
-这里关注的不是一层透明背景或模糊滤镜，而是一套可以复现、测量和验证的像素位移系统：
+玻璃不是盖在内容上的透明模糊层，也不是一张被裁切的背景截图。内容先正常绘制；镜片几何生成 displacement map；渲染器再根据 map 的 R/G 通道回到 source 中重新采样像素。B 通道保存方向性高光，A 通道在 WebGL 路径中限定镜片边界。
 
-- 镜片几何如何变成 displacement map。
-- 普通 DOM 如何通过 SVG filter 折射真实内容。
-- Canvas 和 Video 为什么必须进入 WebGL texture 管线。
-- 同一套镜片参数如何跨 Chromium、Safari 与 Firefox 工作。
-- 组件移动、形变和交互时，哪些数据需要更新，哪些资源必须复用。
-
-## 核心结论
-
-Web Liquid Glass 的核心输入是一张按镜片几何生成的 displacement map。中性区域保持像素不动，红绿通道描述水平与垂直位移，额外通道和派生数据用于色散、边缘高光与亮度修正。
-
-| 表面 | 正式路径 | 研究册案例 |
+| 阶段 | 输入 | 输出 |
 | --- | --- | --- |
-| 普通 DOM | SVG `feImage`、`feColorMatrix`、`feDisplacementMap` | Hero、Switch、Slider、Segmented Toggle |
-| Canvas | source/map/blur textures + WebGL shader | QR Code |
-| Video | live video texture + 多镜片 WebGL renderer | Video Controls |
+| Geometry | `lensW`、`lensH`、radius、depth、dome、splay | 镜片 SDF |
+| Lens Map | SDF 与曲面梯度 | R/G 位移、B 高光、中性灰外部 |
+| DOM | live DOM + map | SVG `feImage` + `feDisplacementMap` |
+| Canvas / Video | source + map + blur textures | WebGL output |
+| Interaction | native input / media events | position、geometry 或 uniforms 更新 |
 
-<SourceSnippet studyCase="overview" />
+这条数据流决定了最重要的性能边界：**位置变化不重建 map，形状或材料变化才重建 map。**
 
-## 阅读顺序
+## 1. 从镜片几何生成 Map
 
-1. 从 **0.1 原理总览** 观察完整 Hero Glass 和最小运行证据。
-2. 在 **1. 组件案例** 中依次查看 DOM 控件、Canvas 与 Video 的差异。
-3. 最后进入 **2. Playground**，同时观察折射结果、map 和参数变化。
+实现从 rounded-rect SDF 开始。每个像素先计算到镜片边界的有符号距离，再计算 dome gradient、edge falloff 与 splay。算法只写左上象限，然后镜像到另外三个象限，同时翻转 R/G 的符号。
+
+<GuideCodeBlock sourceId="lens-map" label="当前运行的 TypeScript Core" />
+
+必须保持以下编码契约：
+
+- `R = 128` 表示 X 不位移；大于 128 向一个方向采样，小于 128 向相反方向采样。
+- `G = 128` 对 Y 使用相同规则。
+- `B = 128` 表示没有额外高光；更高的值来自 glow 或 edge specular。
+- DOM map 的镜片外保持不透明中性灰；WebGL map 的镜片外使用透明中性灰。
+
+## 2. 把 Map 接到 DOM
+
+DOM 路径不复制整个页面。组件提供真实的 `data-refraction-target`，控制器为它建立五槽 SVG filter pool：一个 rich filter 与四个 target slots。`feImage` 载入 map，`feDisplacementMap` 消费 R/G，filter region 只覆盖镜片与 bleed。
+
+<GuideCodeBlock sourceId="svg-controller" label="当前运行的 SVG Filter 控制器" />
+
+移动镜片时只更新 filter region、mask 与 visual shell 坐标。`lensW`、`lensH`、radius、depth、curvature 或 splay 改变时，才让 map cache 失效。这样拖动不会持续编码 PNG，也不会反复创建 SVG 节点。
+
+## 3. 把同一模型接到 Canvas 与 Video
+
+Canvas 和 Video 已经是像素表面，内部内容不能再作为 live DOM 交给 SVG filter。WebGL renderer 因此维护 source、map 和可选 blur texture，并在 fragment shader 内执行相同的采样位移。
+
+<GuideCodeBlock sourceId="webgl-shader" label="当前运行的 WebGL shader" />
+
+视频按钮和进度条可以共享同一 source/blur texture，但各自保留 circle 或 bar lens。QR 则进一步把点阵矩阵上传为 occupancy texture，并在 shader 内解析 finder-eye SDF，避免把二维码先烘焙成低分辨率截图。
+
+## 4. 让交互保持原生语义
+
+玻璃层只负责派生视觉，不保存第二份业务状态：
+
+- Switch 继续由 native checkbox 管理 checked、focus 与键盘。
+- Slider 继续由 native range 管理 value、step 与方向键。
+- Segmented Toggle 使用真实 button 管理选择和焦点。
+- Video 使用真实 media events 管理 play、pause、seek 与进度。
+
+状态先变成规范化 progress，再同时驱动真实 fill、镜片位置和 filter bbox。按住或速度产生的 rubber deformation 属于镜片几何，结束后通过 spring 回到静止形状。
 
 ## 跨浏览器边界
 
 <div className="winner-table">
 
-| 实现路径 | Chromium | Safari | Firefox |
+| Approach | Chromium | Safari | Firefox |
 | --- | --- | --- | --- |
 | SVG `backdrop-filter` | ✓ | ✕ | ✕ |
 | HTML-in-Canvas API | 需开启实验 flag | ✕ | ✕ |
@@ -51,13 +76,28 @@ Web Liquid Glass 的核心输入是一张按镜片几何生成的 displacement m
 
 </div>
 
-Safari 上完整效果成立，是因为最终实现没有依赖 Chromium 独有的 SVG `backdrop-filter` 或 HTML-in-Canvas，而是让 DOM 使用 SVG displacement、Canvas 与 Video 使用 WebGL。Safari 还需要限制 filter region、刷新 filter 标识，并避免直接过滤 live video。
+Safari 可以呈现完整效果，是因为 DOM 使用 SVG displacement，Canvas 与 Video 使用 WebGL，而不是依赖 Chromium 独有的背景抓取能力。Safari 还需要 tight filter region、filter id refresh，并避免把 live video 直接交给 SVG filter。Firefox 走相同的最终数据模型，但仍需单独检查 SVG filter bbox 与色彩空间。
+
+## 实现完成的判据
+
+- DOM 组件必须出现真实 `feImage`、`feDisplacementMap`、filter pool 与 refraction target。
+- 相同几何和材料输入必须生成相同的 map 像素；位置变化不得改变 map signature。
+- Switch、Slider 与 Toggle 的 native state 必须和玻璃位置同步。
+- QR 点击、Video 播放和参数实验后，WebGL 或 Canvas 的像素签名必须变化。
+- 桌面与竖屏下 filter bbox 不裁切，圆形镜片不被拉成椭圆，页面没有横向溢出。
+
+## 阅读顺序
+
+1. 在 **1. 组件案例** 操作目标效果，再跟随“构建与代码”运行可修改实现。
+2. 从 Switch、Slider、Toggle 理解 DOM/SVG 路径与原生输入同步。
+3. 在 QR 与 Video 的 **WebGL 管线** 中理解 texture、DPR、frame loop 与资源释放。
+4. 最后进入 **2. Playground**，同时观察折射结果、map、粒子和参数变化。
 
 ## 研究依据
 
-- [Aave · Building Glass for the Web](https://aave.com/design/building-glass-for-the-web)
-- 本地 `design/` 运行镜像与 `reference/origin/` 原始 chunks
-- `AAVE_GLASS_IMPLEMENTATION_NOTES.md` 源码研究主文档
-- `WEB_LIQUID_GLASS_SPEC.md` 可复现规范
+- [Aave · Building Glass for the Web](https://aave.com/design/building-glass-for-the-web)：设计与工程依据。
+- 锁定的交互基准：用于视觉、参数与浏览器行为核对。
+- `AAVE_GLASS_IMPLEMENTATION_NOTES.md`：源码与运行态研究记录。
+- `WEB_LIQUID_GLASS_SPEC.md`：参数、生命周期与验收规范。
 
-本研究册不提供钱包、金融交互或 Metaflow 接入实现，也不把压缩 bundle 直接当作可维护的生产组件。
+案例中的 TypeScript、React 与 GLSL 和画面运行的是同一份文件；构建产物仅用于校核参数，不是读者需要复制的代码。

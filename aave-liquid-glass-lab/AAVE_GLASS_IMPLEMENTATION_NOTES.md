@@ -2,7 +2,9 @@
 
 本文档记录从 Aave `Building Glass for the Web` 原站 bundle、运行态 DOM 和对比审计中反推到的 Liquid Glass 实现模型。它是源码研究主文档；`WEB_LIQUID_GLASS_SPEC.md` 是在此基础上提炼出的可复现规范。
 
-配套 `storybook/` 的正式标题是 `Web Liquid Glass：原理与实现`。它按原理、组件案例和 Playground 组织研究内容。标准 Storybook preview 只初始化一次本地 Aave Turbopack runtime，拦截完整文章入口模块 `95395`，再按 story 直接挂载 Hero、Switch、Slider、Toggle、QR、Video 或 How It Works 的原始组件导出。页面不 hydrate 完整文章，不做运行时裁切，不创建嵌套 iframe，也不运行手写近似组件；原文说明、运行指标和真实 chunk 片段由构建脚本提取后放在组件演示之外。`How It Works / Displacement Map` 是唯一开放参数的案例。Storybook 是教学与验证界面，原站镜像、raw chunks、runtime metrics 和 comparison ledger 仍是验收 oracle。
+配套 `storybook/` 的正式标题是 `Web Liquid Glass：原理与实现`。它按统一原理、组件案例和 displacement-map Playground 组织内容。标准 Storybook preview 初始化本地 Aave Turbopack runtime，并直接挂载 Hero、Switch、Slider、Toggle、QR、Video 或 How It Works 的锁定组件导出，作为视觉和交互基准；页面不 hydrate 完整文章、不做运行时裁切，也不创建嵌套 iframe。
+
+为了让读者能够跟随实现，`storybook/src/implementation/` 还提供按本研究结论重写的可读 TypeScript/GLSL 教学核心。每个 `构建与代码` 页面并列呈现运行基准、可读实现、设计理由、失败模式和验收条件，展示源码直接来自实际运行文件。教学核心不替代原始证据，也不作为生产组件库；原站镜像、raw chunks、runtime metrics 和 comparison ledger 仍是验收 oracle。
 
 Storybook 的编排参考保存在 `reference/takram-storybook/`，锁定到 commit `b012ad06d858fc035d88aacfd73f092f93c994e4`。该快照只用于 README/MDX、story/example 分离、fullscreen layout 和 addon panel 配置研究，不作为 Web Liquid Glass 算法依据。
 
@@ -12,7 +14,7 @@ Storybook 的编排参考保存在 `reference/takram-storybook/`，锁定到 com
 
 1. 源码位置：本地保存的原站 chunk 或运行态证据文件。
 2. 关键源码片段：只摘录能证明实现模型的短片段；完整原始文件保留在 `reference/origin/scripts/`。
-3. 运行态证据：来自 `runtime-metrics.json`、`live-summary.json`、`comparison-ledger.md` 或 `/tmp/aave-glass-compare/`。
+3. 运行态证据：来自 `runtime-metrics.json`、`live-summary.json`、`comparison-ledger.md` 和 Storybook 独立实现审计。
 4. 行为解读：说明源码片段在页面中的真实行为。
 5. 可复现规则：后续重写实现时必须保持的工程约束。
 
@@ -29,7 +31,8 @@ Storybook 的编排参考保存在 `reference/takram-storybook/`，锁定到 com
 | 运行态指标 | `reference/origin/runtime-metrics.json` | glass container、filter、`feImage`、`feDisplacementMap`、canvas、video 数量和 bbox。 |
 | live DOM 摘要 | `reference/origin/live-summary.json` | 原站标题、段落、figure、视频、运行时 console 噪声。 |
 | 对比账本 | `reference/comparison-ledger.md` | 原站/本地双窗口行为对比、hydration 修复、QR/map/mobile 验收。 |
-| 最终审计截图/JSON | `/tmp/aave-glass-compare/` | 视觉、交互、canvas signature、mobile/offline 证据。 |
+| 镜像对比记录 | `reference/comparison-4173-mirror-check.json`、`reference/local-fixed-mobile-check.json` | 视觉、交互、mobile/offline 证据。 |
+| 独立实现审计 | `storybook/INDEPENDENT_IMPLEMENTATION_AUDIT.md` | 可读实现与锁定基准之间的 map、DOM、WebGL 和交互核验。 |
 
 ## 源码索引
 
@@ -769,12 +772,14 @@ let t = "/design/_next/";
 主要证据文件：
 
 ```text
-/tmp/aave-glass-compare/local-v-origin-final-summary.json
-/tmp/aave-glass-compare/default-raw-768-qa.json
-/tmp/aave-glass-compare/origin-same-timing-audit.json
-/tmp/aave-glass-compare/canvas-map-interaction-audit.json
-/tmp/aave-glass-compare/map-playground-state-audit.json
-/tmp/aave-glass-compare/mobile-offline-audit.json
+reference/comparison-ledger.md
+reference/comparison-4173-mirror-check.json
+reference/local-fixed-hero-motion-check.json
+reference/local-fixed-mobile-check.json
+reference/mobile-compare-768.json
+reference/mobile-scroll-compare.json
+reference/origin/runtime-metrics.json
+storybook/INDEPENDENT_IMPLEMENTATION_AUDIT.md
 ```
 
 ## 11. 研究边界

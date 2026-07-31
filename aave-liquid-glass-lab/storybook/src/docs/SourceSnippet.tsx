@@ -16,7 +16,7 @@ export function SourceSnippet({ studyCase, index = 0 }: SourceSnippetProps) {
     <figure className="study-readme-source" data-source-chunk={source.chunk}>
       <figcaption>
         <span>{source.anchor}</span>
-        <small>代码实现 · 含研究注释</small>
+        <small>参数与行为校核 · 含研究注释</small>
       </figcaption>
       <div
         className="study-highlighted-source"

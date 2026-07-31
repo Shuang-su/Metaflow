@@ -1,46 +1,9 @@
 import { Meta } from '@storybook/addon-docs/blocks';
 import * as VideoStories from '../VideoControls.stories';
-import { SourceSnippet } from '../../docs/SourceSnippet';
+import { ComponentReadme } from '../../guides/ComponentReadme';
 
 <Meta of={VideoStories} />
 
 # Video Controls
 
-Video Controls 把一个播放中的 video element 作为 source texture。播放、后退、前进三个圆形镜片与进度条 bar lens 共享同一视频源，但分别计算自己的 bbox、SDF 和折射参数。
-
-## Renderer 结构
-
-| 资源 | 作用 |
-| --- | --- |
-| source texture | 当前 video frame |
-| map texture | 镜片的 displacement 数据 |
-| blur texture | 高曲率区域的低频采样 |
-| circle lenses | 播放、后退和前进按钮 |
-| bar lens | 可拖动的进度轨道 |
-
-<SourceSnippet studyCase="video" />
-
-## 多镜片与紧凑 bbox
-
-Renderer 不对整个视频区域重复执行每个镜片的片元计算。每个 circle/bar lens 先得到紧凑 bbox，再在该区域内计算 signed-distance、RGB offset、specular 和 adaptive brightness。
-
-## 帧更新
-
-播放期间通过 `requestAnimationFrame` 上传当前 video frame 并重绘；暂停时只在交互、seek 或布局变化后更新。map texture 仍只在镜片几何变化时重建。
-
-## Safari、autoplay 与 CORS
-
-- Safari 不能依赖 SVG filter 处理 live video，因此 WebGL 是正式路径。
-- 视频保持 `muted` 与 `playsInline`，避免移动端自动进入全屏并满足 autoplay 约束。
-- 外部视频必须返回允许纹理采样的 CORS 响应，否则 WebGL texture 会被污染。
-- renderer 销毁时需要取消 animation frame、解绑媒体事件并释放 textures。
-
-## 验收要点
-
-- video、WebGL canvas 和四类镜片都存在且尺寸非零。
-- 点击后 `Pause` 与 `Play` 状态发生真实切换。
-- seek 后进度与画面同步，bar lens 位置随之更新。
-- 播放前后的 canvas pixel signature 不同。
-- Chromium 与 Safari 的控制区位置、圆形 lens 和 bar lens 保持一致。
-
-完整交互保留在同级 **交互演示** 页面。
+<ComponentReadme studyCase="video" />

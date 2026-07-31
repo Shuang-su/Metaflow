@@ -5,10 +5,7 @@ import rehypeWrapTables from './rehype-wrap-tables.mjs';
 const config: StorybookConfig = {
   stories: [
     '../src/**/*.mdx',
-    '../src/0-Research.stories.tsx',
-    '../src/1-Components.stories.tsx',
-    '../src/1-components/**/*.stories.tsx',
-    '../src/2-Playground.stories.tsx'
+    '../src/**/*.stories.tsx'
   ],
   addons: [
     {

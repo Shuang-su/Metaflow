@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { ensureOriginRuntime } from './runtime';
 import type { OriginCaseId } from './types';
 
+// [study:origin-module-host:start]
 export function OriginModuleHost({ caseId }: { caseId: OriginCaseId }) {
   const hostRef = useRef<HTMLDivElement>(null);
   const [ready, setReady] = useState(false);
@@ -40,3 +41,4 @@ export function OriginModuleHost({ caseId }: { caseId: OriginCaseId }) {
     </div>
   );
 }
+// [study:origin-module-host:end]

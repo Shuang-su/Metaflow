@@ -1,25 +1,23 @@
 import { Meta } from '@storybook/addon-docs/blocks';
-import * as ComponentStories from '../1-Components.stories';
 
-<Meta of={ComponentStories} />
+<Meta title="1. 组件案例/README" />
 
 # 组件案例
 
-这一组页面研究 Liquid Glass 如何成为真实界面组件的一部分。每个案例都保留原始 Aave 组件的运行逻辑，并在演示之后说明折射目标、状态变化、代码实现和浏览器边界。
+同一种玻璃材料会因宿主表面和交互契约不同而产生不同的组件结构。本章从最小的移动镜片开始，逐步进入 native input、同构 overlay、Canvas texture 与 live video renderer。
 
 ## 共同结构
 
-DOM 组件虽然形态不同，但都遵循相同的运行契约：
+每个组件都先回答四个问题：
 
-1. 正常渲染可访问、可交互的真实控件。
-2. 单独准备需要被折射的 `refraction target`。
-3. 使用 lens geometry 生成 displacement map。
-4. 只把 SVG filter 限制在镜片和 bleed 覆盖的紧凑区域。
-5. 位置变化只移动 filter region；形状变化才重建 map。
+1. 哪个元素是状态真源？
+2. 哪一层是 refraction target 或 source texture？
+3. 镜片移动时更新什么，形变时又更新什么？
+4. 如何证明视觉、语义和像素输出都真的变化？
 
-## 案例索引
+## 路径对照
 
-| 案例 | 表面与路径 | 折射目标 | 主要交互 |
+| 案例 | 表面 | 折射目标 | 关键交互 |
 | --- | --- | --- | --- |
 | 1.1 Hero Glass | DOM / SVG | 动态背景与 Aave 图标 | 自动移动镜片 |
 | 1.2 Switch | DOM / SVG | 同步的 track fill copy | 点击、按住、拖动、释放 |
@@ -39,4 +37,4 @@ DOM 组件虽然形态不同，但都遵循相同的运行契约：
 - resize 必须同步 CSS 尺寸、drawing buffer、viewport 和 lens 坐标。
 - 验收必须包含实际状态变化和像素签名，不能只检查元素是否存在。
 
-简单 DOM 案例直接在单页中显示演示和源码。QR 与 Video 的纹理路径更复杂，因此分别提供 README 和独立交互演示。
+每个组件的 README 提供完整交互与最小实现结构；**构建与代码** 深入解释为什么这样写，并展示实际运行文件。QR 与 Video 额外提供 **WebGL 管线**。
