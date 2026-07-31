@@ -1,0 +1,1889 @@
+[
+  {
+    "i": 0,
+    "tree": {
+      "tag": "figure",
+      "cls": "styles-module-scss-module__bjfybG__video",
+      "text": "We want to bring this same feeling to the experiences we build on the web.",
+      "rect": {
+        "x": 478,
+        "y": 788.41,
+        "w": 700,
+        "h": 570.8
+      },
+      "style": "",
+      "css": {
+        "display": "flex",
+        "position": "static",
+        "width": "700px",
+        "height": "570.797px",
+        "margin": "0px",
+        "padding": "48px 0px 16px",
+        "borderRadius": "0px",
+        "background": "rgba(0, 0, 0, 0) none repeat scroll 0% 0% / auto padding-box border-box",
+        "overflow": "visible",
+        "transform": "none",
+        "visibility": "visible",
+        "z": "auto",
+        "top": "auto",
+        "left": "auto"
+      },
+      "children": [
+        {
+          "tag": "div",
+          "cls": "styles-module-scss-module__bjfybG__videoContainer",
+          "text": "",
+          "rect": {
+            "x": 478,
+            "y": 836.41,
+            "w": 700,
+            "h": 466.8
+          },
+          "style": "aspect-ratio:3464 / 2310",
+          "css": {
+            "display": "block",
+            "position": "relative",
+            "width": "700px",
+            "height": "466.797px",
+            "margin": "0px",
+            "padding": "0px",
+            "borderRadius": "16px",
+            "background": "color(display-p3 0.980392 0.976471 0.976471) none repeat scroll 0% 0% / auto padding-box border-box",
+            "overflow": "hidden",
+            "transform": "none",
+            "visibility": "visible",
+            "z": "1",
+            "top": "0px",
+            "left": "0px"
+          },
+          "children": [
+            {
+              "tag": "div",
+              "cls": "",
+              "text": "",
+              "rect": {
+                "x": 478,
+                "y": 836.41,
+                "w": 700,
+                "h": 466.8
+              },
+              "style": "width:100%;height:100%",
+              "css": {
+                "display": "block",
+                "position": "static",
+                "width": "700px",
+                "height": "466.797px",
+                "margin": "0px",
+                "padding": "0px",
+                "borderRadius": "0px",
+                "background": "rgba(0, 0, 0, 0) none repeat scroll 0% 0% / auto padding-box border-box",
+                "overflow": "visible",
+                "transform": "none",
+                "visibility": "visible",
+                "z": "auto",
+                "top": "auto",
+                "left": "auto"
+              },
+              "children": [
+                {
+                  "tag": "div",
+                  "cls": "",
+                  "text": "",
+                  "rect": {
+                    "x": 478,
+                    "y": 836.41,
+                    "w": 700,
+                    "h": 466.8
+                  },
+                  "style": "background: url(\"/design/demo/videos/aave-glass/aave-glass-dark-new.jpg\") center center / cover no-repeat; width: 100%; height: 100%;",
+                  "css": {
+                    "display": "block",
+                    "position": "static",
+                    "width": "700px",
+                    "height": "466.797px",
+                    "margin": "0px",
+                    "padding": "0px",
+                    "borderRadius": "0px",
+                    "background": "rgba(0, 0, 0, 0) url(\"https://aave.com/design/demo/videos/aave-glass/aave-glass-dark-new.jpg\") no-repeat scroll 50% 50% / cover padding-box border-box",
+                    "overflow": "visible",
+                    "transform": "none",
+                    "visibility": "visible",
+                    "z": "auto",
+                    "top": "auto",
+                    "left": "auto"
+                  },
+                  "children": [
+                    {
+                      "tag": "video",
+                      "cls": "",
+                      "text": "",
+                      "rect": {
+                        "x": 478,
+                        "y": 836.41,
+                        "w": 700,
+                        "h": 466.8
+                      },
+                      "style": "width: 100%; height: 100%;",
+                      "css": {
+                        "display": "block",
+                        "position": "static",
+                        "width": "700px",
+                        "height": "466.797px",
+                        "margin": "0px",
+                        "padding": "0px",
+                        "borderRadius": "0px",
+                        "background": "rgba(0, 0, 0, 0) none repeat scroll 0% 0% / auto padding-box border-box",
+                        "overflow": "clip",
+                        "transform": "none",
+                        "visibility": "visible",
+                        "z": "auto",
+                        "top": "auto",
+                        "left": "auto"
+                      },
+                      "children": []
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "tag": "figcaption",
+          "cls": "styles-module-scss-module__bjfybG__caption",
+          "text": "We want to bring this same feeling to the experiences we build on the web.",
+          "rect": {
+            "x": 478,
+            "y": 1311.2,
+            "w": 700,
+            "h": 32
+          },
+          "style": "",
+          "css": {
+            "display": "block",
+            "position": "static",
+            "width": "700px",
+            "height": "32px",
+            "margin": "0px",
+            "padding": "10px 32px 0px",
+            "borderRadius": "0px",
+            "background": "rgba(0, 0, 0, 0) none repeat scroll 0% 0% / auto padding-box border-box",
+            "overflow": "visible",
+            "transform": "none",
+            "visibility": "visible",
+            "z": "auto",
+            "top": "auto",
+            "left": "auto"
+          },
+          "children": []
+        }
+      ]
+    }
+  },
+  {
+    "i": 1,
+    "tree": {
+      "tag": "figure",
+      "cls": "styles-module-scss-module__wHpXFq__container",
+      "text": "Even with a small component like this switch, the glass effect adds a sense of d",
+      "rect": {
+        "x": 478,
+        "y": 2198.2,
+        "w": 700,
+        "h": 513
+      },
+      "style": "--demo-bg:url(/design/demo/demo-bg.png);--demo-bg-dark:url(/design/demo/demo-bg-dark.png)",
+      "css": {
+        "display": "block",
+        "position": "static",
+        "width": "700px",
+        "height": "513px",
+        "margin": "0px",
+        "padding": "48px 0px",
+        "borderRadius": "0px",
+        "background": "rgba(0, 0, 0, 0) none repeat scroll 0% 0% / auto padding-box border-box",
+        "overflow": "visible",
+        "transform": "none",
+        "visibility": "visible",
+        "z": "auto",
+        "top": "auto",
+        "left": "auto"
+      },
+      "children": [
+        {
+          "tag": "div",
+          "cls": "styles-module-scss-module__wHpXFq__content",
+          "text": "",
+          "rect": {
+            "x": 478,
+            "y": 2246.2,
+            "w": 700,
+            "h": 380
+          },
+          "style": "visibility:hidden",
+          "css": {
+            "display": "flex",
+            "position": "relative",
+            "width": "700px",
+            "height": "380px",
+            "margin": "0px",
+            "padding": "48px",
+            "borderRadius": "12px",
+            "background": "color(display-p3 0.980392 0.976471 0.976471) url(\"https://aave.design/design/demo/demo-bg.png\") no-repeat scroll 50% 50% / cover padding-box border-box",
+            "overflow": "hidden",
+            "transform": "none",
+            "visibility": "hidden",
+            "z": "1",
+            "top": "0px",
+            "left": "0px"
+          },
+          "children": [
+            {
+              "tag": "div",
+              "cls": "styles-module-scss-module__ltd1Qq__stage",
+              "text": "",
+              "rect": {
+                "x": 749,
+                "y": 2395.2,
+                "w": 158,
+                "h": 82
+              },
+              "style": "border-radius:1.5625rem",
+              "css": {
+                "display": "flex",
+                "position": "relative",
+                "width": "158px",
+                "height": "82px",
+                "margin": "0px",
+                "padding": "27px 42px",
+                "borderRadius": "25px",
+                "background": "color(display-p3 1 1 1) none repeat scroll 0% 0% / auto padding-box border-box",
+                "overflow": "hidden",
+                "transform": "none",
+                "visibility": "hidden",
+                "z": "auto",
+                "top": "0px",
+                "left": "0px"
+              },
+              "children": [
+                {
+                  "tag": "label",
+                  "cls": "styles-module-scss-module__o679fG__wrapper",
+                  "text": "",
+                  "rect": {
+                    "x": 791,
+                    "y": 2422.2,
+                    "w": 74,
+                    "h": 28
+                  },
+                  "style": "flex-shrink: 0; width: 74px; height: 28px; overflow: visible; --switch-progress: 0;",
+                  "css": {
+                    "display": "block",
+                    "position": "relative",
+                    "width": "74px",
+                    "height": "28px",
+                    "margin": "0px",
+                    "padding": "0px",
+                    "borderRadius": "999px",
+                    "background": "rgba(0, 0, 0, 0) none repeat scroll 0% 0% / auto padding-box border-box",
+                    "overflow": "visible",
+                    "transform": "none",
+                    "visibility": "hidden",
+                    "z": "auto",
+                    "top": "0px",
+                    "left": "0px"
+                  },
+                  "children": [
+                    {
+                      "tag": "input",
+                      "cls": "styles-module-scss-module__o679fG__input",
+                      "text": "",
+                      "rect": {
+                        "x": 790,
+                        "y": 2421.2,
+                        "w": 1,
+                        "h": 1
+                      },
+                      "style": "",
+                      "css": {
+                        "display": "block",
+                        "position": "absolute",
+                        "width": "1px",
+                        "height": "1px",
+                        "margin": "-1px",
+                        "padding": "0px",
+                        "borderRadius": "4px",
+                        "background": "rgba(0, 0, 0, 0) none repeat scroll 0px 0px / auto padding-box border-box",
+                        "overflow": "hidden",
+                        "transform": "none",
+                        "visibility": "hidden",
+                        "z": "auto",
+                        "top": "0px",
+                        "left": "0px"
+                      },
+                      "children": []
+                    },
+                    {
+                      "tag": "div",
+                      "cls": "styles-module-scss-module__3yrmUG__container",
+                      "text": "",
+                      "rect": {
+                        "x": 770,
+                        "y": 2401.2,
+                        "w": 116,
+                        "h": 70
+                      },
+                      "style": "width:116px;height:70px;overflow:visible;margin:-21px",
+                      "css": {
+                        "display": "block",
+                        "position": "relative",
+                        "width": "116px",
+                        "height": "70px",
+                        "margin": "-21px",
+                        "padding": "0px",
+                        "borderRadius": "0px",
+                        "background": "rgba(0, 0, 0, 0) none repeat scroll 0% 0% / auto padding-box border-box",
+                        "overflow": "visible",
+                        "transform": "none",
+                        "visibility": "hidden",
+                        "z": "auto",
+                        "top": "0px",
+                        "left": "0px"
+                      },
+                      "children": [
+                        null,
+                        null,
+                        null,
+                        null,
+                        null
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "tag": "figcaption",
+          "cls": "styles-module-scss-module__wHpXFq__caption",
+          "text": "Even with a small component like this switch, the glass effect adds a sense of d",
+          "rect": {
+            "x": 478,
+            "y": 2626.2,
+            "w": 700,
+            "h": 37
+          },
+          "style": "",
+          "css": {
+            "display": "block",
+            "position": "static",
+            "width": "700px",
+            "height": "37px",
+            "margin": "0px",
+            "padding": "16px 0px 0px",
+            "borderRadius": "0px",
+            "background": "rgba(0, 0, 0, 0) none repeat scroll 0% 0% / auto padding-box border-box",
+            "overflow": "visible",
+            "transform": "none",
+            "visibility": "visible",
+            "z": "auto",
+            "top": "auto",
+            "left": "auto"
+          },
+          "children": [
+            {
+              "tag": "p",
+              "cls": "",
+              "text": "Even with a small component like this switch, the glass effect adds a sense of d",
+              "rect": {
+                "x": 478,
+                "y": 2642.2,
+                "w": 700,
+                "h": 21
+              },
+              "style": "",
+              "css": {
+                "display": "block",
+                "position": "static",
+                "width": "700px",
+                "height": "21px",
+                "margin": "0px",
+                "padding": "0px",
+                "borderRadius": "0px",
+                "background": "rgba(0, 0, 0, 0) none repeat scroll 0% 0% / auto padding-box border-box",
+                "overflow": "visible",
+                "transform": "none",
+                "visibility": "visible",
+                "z": "auto",
+                "top": "auto",
+                "left": "auto"
+              },
+              "children": []
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "i": 2,
+    "tree": {
+      "tag": "figure",
+      "cls": "styles-module-scss-module__wHpXFq__container",
+      "text": "Native <input type='range' /> elements are back-synced with our custom component",
+      "rect": {
+        "x": 478,
+        "y": 3174.2,
+        "w": 700,
+        "h": 514.59
+      },
+      "style": "--demo-bg:url(/design/demo/demo-bg.png);--demo-bg-dark:url(/design/demo/demo-bg-dark.png)",
+      "css": {
+        "display": "block",
+        "position": "static",
+        "width": "700px",
+        "height": "514.594px",
+        "margin": "0px",
+        "padding": "48px 0px",
+        "borderRadius": "0px",
+        "background": "rgba(0, 0, 0, 0) none repeat scroll 0% 0% / auto padding-box border-box",
+        "overflow": "visible",
+        "transform": "none",
+        "visibility": "visible",
+        "z": "auto",
+        "top": "auto",
+        "left": "auto"
+      },
+      "children": [
+        {
+          "tag": "div",
+          "cls": "styles-module-scss-module__wHpXFq__content",
+          "text": "",
+          "rect": {
+            "x": 478,
+            "y": 3222.2,
+            "w": 700,
+            "h": 380
+          },
+          "style": "visibility:hidden",
+          "css": {
+            "display": "flex",
+            "position": "relative",
+            "width": "700px",
+            "height": "380px",
+            "margin": "0px",
+            "padding": "48px",
+            "borderRadius": "12px",
+            "background": "color(display-p3 0.980392 0.976471 0.976471) url(\"https://aave.design/design/demo/demo-bg.png\") no-repeat scroll 50% 50% / cover padding-box border-box",
+            "overflow": "hidden",
+            "transform": "none",
+            "visibility": "hidden",
+            "z": "1",
+            "top": "0px",
+            "left": "0px"
+          },
+          "children": [
+            {
+              "tag": "div",
+              "cls": "styles-module-scss-module__ltd1Qq__stage",
+              "text": "",
+              "rect": {
+                "x": 666,
+                "y": 3374.2,
+                "w": 324,
+                "h": 76
+              },
+              "style": "border-radius:1.45669rem",
+              "css": {
+                "display": "flex",
+                "position": "relative",
+                "width": "324px",
+                "height": "76px",
+                "margin": "0px",
+                "padding": "27px 42px",
+                "borderRadius": "23.307px",
+                "background": "color(display-p3 1 1 1) none repeat scroll 0% 0% / auto padding-box border-box",
+                "overflow": "hidden",
+                "transform": "none",
+                "visibility": "hidden",
+                "z": "auto",
+                "top": "0px",
+                "left": "0px"
+              },
+              "children": [
+                {
+                  "tag": "div",
+                  "cls": "styles-module-scss-module__YDAIcG__wrapper",
+                  "text": "",
+                  "rect": {
+                    "x": 708,
+                    "y": 3401.2,
+                    "w": 240,
+                    "h": 22
+                  },
+                  "style": "flex-shrink: 0; width: 240px; height: 22px; overflow: visible; --slider-fill: 120px; --slider-progress: 0.5;",
+                  "css": {
+                    "display": "block",
+                    "position": "relative",
+                    "width": "240px",
+                    "height": "22px",
+                    "margin": "0px",
+                    "padding": "0px",
+                    "borderRadius": "999px",
+                    "background": "rgba(0, 0, 0, 0) none repeat scroll 0% 0% / auto padding-box border-box",
+                    "overflow": "visible",
+                    "transform": "none",
+                    "visibility": "hidden",
+                    "z": "auto",
+                    "top": "0px",
+                    "left": "0px"
+                  },
+                  "children": [
+                    {
+                      "tag": "div",
+                      "cls": "styles-module-scss-module__3yrmUG__container",
+                      "text": "",
+                      "rect": {
+                        "x": 683,
+                        "y": 3376.2,
+                        "w": 290,
+                        "h": 72
+                      },
+                      "style": "width:290px;height:72px;overflow:visible;margin:-25px",
+                      "css": {
+                        "display": "block",
+                        "position": "relative",
+                        "width": "290px",
+                        "height": "72px",
+                        "margin": "-25px",
+                        "padding": "0px",
+                        "borderRadius": "0px",
+                        "background": "rgba(0, 0, 0, 0) none repeat scroll 0% 0% / auto padding-box border-box",
+                        "overflow": "visible",
+                        "transform": "none",
+                        "visibility": "hidden",
+                        "z": "auto",
+                        "top": "0px",
+                        "left": "0px"
+                      },
+                      "children": [
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "tag": "figcaption",
+          "cls": "styles-module-scss-module__wHpXFq__caption",
+          "text": "Native <input type='range' /> elements are back-synced with our custom component",
+          "rect": {
+            "x": 478,
+            "y": 3602.2,
+            "w": 700,
+            "h": 38.59
+          },
+          "style": "",
+          "css": {
+            "display": "block",
+            "position": "static",
+            "width": "700px",
+            "height": "38.5938px",
+            "margin": "0px",
+            "padding": "16px 0px 0px",
+            "borderRadius": "0px",
+            "background": "rgba(0, 0, 0, 0) none repeat scroll 0% 0% / auto padding-box border-box",
+            "overflow": "visible",
+            "transform": "none",
+            "visibility": "visible",
+            "z": "auto",
+            "top": "auto",
+            "left": "auto"
+          },
+          "children": [
+            {
+              "tag": "p",
+              "cls": "",
+              "text": "Native <input type='range' /> elements are back-synced with our custom component",
+              "rect": {
+                "x": 478,
+                "y": 3618.2,
+                "w": 700,
+                "h": 22.59
+              },
+              "style": "",
+              "css": {
+                "display": "block",
+                "position": "static",
+                "width": "700px",
+                "height": "22.5938px",
+                "margin": "0px",
+                "padding": "0px",
+                "borderRadius": "0px",
+                "background": "rgba(0, 0, 0, 0) none repeat scroll 0% 0% / auto padding-box border-box",
+                "overflow": "visible",
+                "transform": "none",
+                "visibility": "visible",
+                "z": "auto",
+                "top": "auto",
+                "left": "auto"
+              },
+              "children": [
+                {
+                  "tag": "span",
+                  "cls": "",
+                  "text": "Native <input type='range' /> elements are back-synced with our custom component",
+                  "rect": {
+                    "x": 528.52,
+                    "y": 3620.2,
+                    "w": 598.97,
+                    "h": 17
+                  },
+                  "style": "",
+                  "css": {
+                    "display": "inline",
+                    "position": "static",
+                    "width": "auto",
+                    "height": "auto",
+                    "margin": "0px",
+                    "padding": "0px",
+                    "borderRadius": "0px",
+                    "background": "rgba(0, 0, 0, 0) none repeat scroll 0% 0% / auto padding-box border-box",
+                    "overflow": "visible",
+                    "transform": "none",
+                    "visibility": "visible",
+                    "z": "auto",
+                    "top": "auto",
+                    "left": "auto"
+                  },
+                  "children": [
+                    {
+                      "tag": "code",
+                      "cls": "",
+                      "text": "<input type='range' />",
+                      "rect": {
+                        "x": 575.31,
+                        "y": 3620.2,
+                        "w": 178.33,
+                        "h": 20.59
+                      },
+                      "style": "",
+                      "css": {
+                        "display": "inline-block",
+                        "position": "static",
+                        "width": "178.328px",
+                        "height": "20.5938px",
+                        "margin": "0px",
+                        "padding": "4px 6px",
+                        "borderRadius": "4px",
+                        "background": "color(display-p3 0.980392 0.976471 0.976471) none repeat scroll 0% 0% / auto padding-box border-box",
+                        "overflow": "visible",
+                        "transform": "none",
+                        "visibility": "visible",
+                        "z": "auto",
+                        "top": "auto",
+                        "left": "auto"
+                      },
+                      "children": []
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "i": 3,
+    "tree": {
+      "tag": "figure",
+      "cls": "styles-module-scss-module__wHpXFq__container",
+      "text": "The glass effect helps visually highlight the selected option.",
+      "rect": {
+        "x": 478,
+        "y": 4241.8,
+        "w": 700,
+        "h": 513
+      },
+      "style": "--demo-bg:url(/design/demo/demo-bg.png);--demo-bg-dark:url(/design/demo/demo-bg-dark.png)",
+      "css": {
+        "display": "block",
+        "position": "static",
+        "width": "700px",
+        "height": "513px",
+        "margin": "0px",
+        "padding": "48px 0px",
+        "borderRadius": "0px",
+        "background": "rgba(0, 0, 0, 0) none repeat scroll 0% 0% / auto padding-box border-box",
+        "overflow": "visible",
+        "transform": "none",
+        "visibility": "visible",
+        "z": "auto",
+        "top": "auto",
+        "left": "auto"
+      },
+      "children": [
+        {
+          "tag": "div",
+          "cls": "styles-module-scss-module__wHpXFq__content",
+          "text": "HubsSpokesReservesAssetsChainsHubsSpokesReservesAssetsChains",
+          "rect": {
+            "x": 478,
+            "y": 4289.8,
+            "w": 700,
+            "h": 380
+          },
+          "style": "visibility:hidden",
+          "css": {
+            "display": "flex",
+            "position": "relative",
+            "width": "700px",
+            "height": "380px",
+            "margin": "0px",
+            "padding": "48px",
+            "borderRadius": "12px",
+            "background": "color(display-p3 0.980392 0.976471 0.976471) url(\"https://aave.design/design/demo/demo-bg.png\") no-repeat scroll 50% 50% / cover padding-box border-box",
+            "overflow": "hidden",
+            "transform": "none",
+            "visibility": "hidden",
+            "z": "1",
+            "top": "0px",
+            "left": "0px"
+          },
+          "children": [
+            {
+              "tag": "div",
+              "cls": "styles-module-scss-module__ltd1Qq__stage",
+              "text": "HubsSpokesReservesAssetsChainsHubsSpokesReservesAssetsChains",
+              "rect": {
+                "x": 533.63,
+                "y": 4429.8,
+                "w": 588.73,
+                "h": 100
+              },
+              "style": "border-radius:1.5625rem",
+              "css": {
+                "display": "flex",
+                "position": "relative",
+                "width": "588.734px",
+                "height": "100px",
+                "margin": "0px",
+                "padding": "27px 42px",
+                "borderRadius": "25px",
+                "background": "color(display-p3 1 1 1) none repeat scroll 0% 0% / auto padding-box border-box",
+                "overflow": "hidden",
+                "transform": "none",
+                "visibility": "hidden",
+                "z": "auto",
+                "top": "0px",
+                "left": "0px"
+              },
+              "children": [
+                {
+                  "tag": "div",
+                  "cls": "",
+                  "text": "HubsSpokesReservesAssetsChainsHubsSpokesReservesAssetsChains",
+                  "rect": {
+                    "x": 575.63,
+                    "y": 4456.8,
+                    "w": 504.73,
+                    "h": 46
+                  },
+                  "style": "",
+                  "css": {
+                    "display": "block",
+                    "position": "static",
+                    "width": "504.734px",
+                    "height": "46px",
+                    "margin": "0px",
+                    "padding": "0px",
+                    "borderRadius": "0px",
+                    "background": "rgba(0, 0, 0, 0) none repeat scroll 0% 0% / auto padding-box border-box",
+                    "overflow": "visible",
+                    "transform": "none",
+                    "visibility": "hidden",
+                    "z": "auto",
+                    "top": "auto",
+                    "left": "auto"
+                  },
+                  "children": [
+                    {
+                      "tag": "div",
+                      "cls": "styles-module-scss-module__3yrmUG__container",
+                      "text": "HubsSpokesReservesAssetsChainsHubsSpokesReservesAssetsChains",
+                      "rect": {
+                        "x": 535.63,
+                        "y": 4376.8,
+                        "w": 584.73,
+                        "h": 206
+                      },
+                      "style": "padding:80px 40px;margin:-80px -40px;box-sizing:content-box",
+                      "css": {
+                        "display": "block",
+                        "position": "relative",
+                        "width": "504.734px",
+                        "height": "46px",
+                        "margin": "-80px -40px",
+                        "padding": "80px 40px",
+                        "borderRadius": "0px",
+                        "background": "rgba(0, 0, 0, 0) none repeat scroll 0% 0% / auto padding-box border-box",
+                        "overflow": "visible",
+                        "transform": "none",
+                        "visibility": "hidden",
+                        "z": "auto",
+                        "top": "0px",
+                        "left": "0px"
+                      },
+                      "children": [
+                        null,
+                        null,
+                        null,
+                        null
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "tag": "figcaption",
+          "cls": "styles-module-scss-module__wHpXFq__caption",
+          "text": "The glass effect helps visually highlight the selected option.",
+          "rect": {
+            "x": 478,
+            "y": 4669.8,
+            "w": 700,
+            "h": 37
+          },
+          "style": "",
+          "css": {
+            "display": "block",
+            "position": "static",
+            "width": "700px",
+            "height": "37px",
+            "margin": "0px",
+            "padding": "16px 0px 0px",
+            "borderRadius": "0px",
+            "background": "rgba(0, 0, 0, 0) none repeat scroll 0% 0% / auto padding-box border-box",
+            "overflow": "visible",
+            "transform": "none",
+            "visibility": "visible",
+            "z": "auto",
+            "top": "auto",
+            "left": "auto"
+          },
+          "children": [
+            {
+              "tag": "p",
+              "cls": "",
+              "text": "The glass effect helps visually highlight the selected option.",
+              "rect": {
+                "x": 478,
+                "y": 4685.8,
+                "w": 700,
+                "h": 21
+              },
+              "style": "",
+              "css": {
+                "display": "block",
+                "position": "static",
+                "width": "700px",
+                "height": "21px",
+                "margin": "0px",
+                "padding": "0px",
+                "borderRadius": "0px",
+                "background": "rgba(0, 0, 0, 0) none repeat scroll 0% 0% / auto padding-box border-box",
+                "overflow": "visible",
+                "transform": "none",
+                "visibility": "visible",
+                "z": "auto",
+                "top": "auto",
+                "left": "auto"
+              },
+              "children": []
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "i": 4,
+    "tree": {
+      "tag": "figure",
+      "cls": "styles-module-scss-module__wHpXFq__container",
+      "text": "The QR code is fully interactive. Click the Aave logo to see the glass effect in",
+      "rect": {
+        "x": 478,
+        "y": 5399.8,
+        "w": 700,
+        "h": 577
+      },
+      "style": "--demo-bg:url(/design/demo/demo-bg.png);--demo-bg-dark:url(/design/demo/demo-bg-dark.png)",
+      "css": {
+        "display": "block",
+        "position": "static",
+        "width": "700px",
+        "height": "577px",
+        "margin": "0px",
+        "padding": "48px 0px",
+        "borderRadius": "0px",
+        "background": "rgba(0, 0, 0, 0) none repeat scroll 0% 0% / auto padding-box border-box",
+        "overflow": "visible",
+        "transform": "none",
+        "visibility": "visible",
+        "z": "auto",
+        "top": "auto",
+        "left": "auto"
+      },
+      "children": [
+        {
+          "tag": "div",
+          "cls": "styles-module-scss-module__wHpXFq__content",
+          "text": "",
+          "rect": {
+            "x": 478,
+            "y": 5447.8,
+            "w": 700,
+            "h": 444
+          },
+          "style": "visibility:hidden",
+          "css": {
+            "display": "flex",
+            "position": "relative",
+            "width": "700px",
+            "height": "444px",
+            "margin": "0px",
+            "padding": "48px",
+            "borderRadius": "12px",
+            "background": "color(display-p3 0.980392 0.976471 0.976471) url(\"https://aave.design/design/demo/demo-bg.png\") no-repeat scroll 50% 50% / cover padding-box border-box",
+            "overflow": "hidden",
+            "transform": "none",
+            "visibility": "hidden",
+            "z": "1",
+            "top": "0px",
+            "left": "0px"
+          },
+          "children": [
+            {
+              "tag": "div",
+              "cls": "",
+              "text": "",
+              "rect": {
+                "x": 675.75,
+                "y": 5517.55,
+                "w": 304.5,
+                "h": 304.5
+              },
+              "style": "scale:0.875",
+              "css": {
+                "display": "block",
+                "position": "static",
+                "width": "348px",
+                "height": "348px",
+                "margin": "0px",
+                "padding": "0px",
+                "borderRadius": "0px",
+                "background": "rgba(0, 0, 0, 0) none repeat scroll 0% 0% / auto padding-box border-box",
+                "overflow": "visible",
+                "transform": "none",
+                "visibility": "hidden",
+                "z": "auto",
+                "top": "auto",
+                "left": "auto"
+              },
+              "children": [
+                {
+                  "tag": "div",
+                  "cls": "",
+                  "text": "",
+                  "rect": {
+                    "x": 675.75,
+                    "y": 5517.55,
+                    "w": 304.5,
+                    "h": 304.5
+                  },
+                  "style": "perspective:50rem;display:inline-block",
+                  "css": {
+                    "display": "inline-block",
+                    "position": "static",
+                    "width": "348px",
+                    "height": "348px",
+                    "margin": "0px",
+                    "padding": "0px",
+                    "borderRadius": "0px",
+                    "background": "rgba(0, 0, 0, 0) none repeat scroll 0% 0% / auto padding-box border-box",
+                    "overflow": "visible",
+                    "transform": "none",
+                    "visibility": "hidden",
+                    "z": "auto",
+                    "top": "auto",
+                    "left": "auto"
+                  },
+                  "children": [
+                    {
+                      "tag": "div",
+                      "cls": "",
+                      "text": "",
+                      "rect": {
+                        "x": 675.75,
+                        "y": 5517.55,
+                        "w": 304.5,
+                        "h": 304.5
+                      },
+                      "style": "transform-style:preserve-3d;transform:none",
+                      "css": {
+                        "display": "block",
+                        "position": "static",
+                        "width": "348px",
+                        "height": "348px",
+                        "margin": "0px",
+                        "padding": "0px",
+                        "borderRadius": "0px",
+                        "background": "rgba(0, 0, 0, 0) none repeat scroll 0% 0% / auto padding-box border-box",
+                        "overflow": "visible",
+                        "transform": "none",
+                        "visibility": "hidden",
+                        "z": "auto",
+                        "top": "auto",
+                        "left": "auto"
+                      },
+                      "children": [
+                        null
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "tag": "figcaption",
+          "cls": "styles-module-scss-module__wHpXFq__caption",
+          "text": "The QR code is fully interactive. Click the Aave logo to see the glass effect in",
+          "rect": {
+            "x": 478,
+            "y": 5891.8,
+            "w": 700,
+            "h": 37
+          },
+          "style": "",
+          "css": {
+            "display": "block",
+            "position": "static",
+            "width": "700px",
+            "height": "37px",
+            "margin": "0px",
+            "padding": "16px 0px 0px",
+            "borderRadius": "0px",
+            "background": "rgba(0, 0, 0, 0) none repeat scroll 0% 0% / auto padding-box border-box",
+            "overflow": "visible",
+            "transform": "none",
+            "visibility": "visible",
+            "z": "auto",
+            "top": "auto",
+            "left": "auto"
+          },
+          "children": [
+            {
+              "tag": "p",
+              "cls": "",
+              "text": "The QR code is fully interactive. Click the Aave logo to see the glass effect in",
+              "rect": {
+                "x": 478,
+                "y": 5907.8,
+                "w": 700,
+                "h": 21
+              },
+              "style": "",
+              "css": {
+                "display": "block",
+                "position": "static",
+                "width": "700px",
+                "height": "21px",
+                "margin": "0px",
+                "padding": "0px",
+                "borderRadius": "0px",
+                "background": "rgba(0, 0, 0, 0) none repeat scroll 0% 0% / auto padding-box border-box",
+                "overflow": "visible",
+                "transform": "none",
+                "visibility": "visible",
+                "z": "auto",
+                "top": "auto",
+                "left": "auto"
+              },
+              "children": []
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "i": 5,
+    "tree": {
+      "tag": "figure",
+      "cls": "styles-module-scss-module__wHpXFq__container",
+      "text": "The glass effect can be applied to complex, interactive content like this video ",
+      "rect": {
+        "x": 478,
+        "y": 6277.8,
+        "w": 700,
+        "h": 568.75
+      },
+      "style": "--demo-bg:url(/design/demo/demo-bg.png);--demo-bg-dark:url(/design/demo/demo-bg-dark.png)",
+      "css": {
+        "display": "block",
+        "position": "static",
+        "width": "700px",
+        "height": "568.75px",
+        "margin": "0px",
+        "padding": "48px 0px",
+        "borderRadius": "0px",
+        "background": "rgba(0, 0, 0, 0) none repeat scroll 0% 0% / auto padding-box border-box",
+        "overflow": "visible",
+        "transform": "none",
+        "visibility": "visible",
+        "z": "auto",
+        "top": "auto",
+        "left": "auto"
+      },
+      "children": [
+        {
+          "tag": "div",
+          "cls": "styles-module-scss-module__wHpXFq__content styles-module-scss-module__a2NGfG__container",
+          "text": "",
+          "rect": {
+            "x": 478,
+            "y": 6325.8,
+            "w": 700,
+            "h": 435.75
+          },
+          "style": "visibility:hidden",
+          "css": {
+            "display": "flex",
+            "position": "relative",
+            "width": "700px",
+            "height": "435.75px",
+            "margin": "0px",
+            "padding": "48px",
+            "borderRadius": "12px",
+            "background": "color(display-p3 0.980392 0.976471 0.976471) url(\"https://aave.design/design/demo/demo-bg.png\") no-repeat scroll 50% 50% / cover padding-box border-box",
+            "overflow": "hidden",
+            "transform": "none",
+            "visibility": "hidden",
+            "z": "1",
+            "top": "0px",
+            "left": "0px"
+          },
+          "children": [
+            {
+              "tag": "div",
+              "cls": "styles-module-scss-module__cMuLUa__player",
+              "text": "",
+              "rect": {
+                "x": 526,
+                "y": 6373.8,
+                "w": 604,
+                "h": 339.75
+              },
+              "style": "width:100%;height:100%",
+              "css": {
+                "display": "block",
+                "position": "relative",
+                "width": "604px",
+                "height": "339.75px",
+                "margin": "0px",
+                "padding": "0px",
+                "borderRadius": "12px",
+                "background": "rgba(0, 0, 0, 0) none repeat scroll 0% 0% / auto padding-box border-box",
+                "overflow": "hidden",
+                "transform": "none",
+                "visibility": "hidden",
+                "z": "auto",
+                "top": "0px",
+                "left": "0px"
+              },
+              "children": [
+                {
+                  "tag": "img",
+                  "cls": "styles-module-scss-module__cMuLUa__placeholder",
+                  "text": "",
+                  "rect": {
+                    "x": 526,
+                    "y": 6373.8,
+                    "w": 604,
+                    "h": 339.75
+                  },
+                  "style": "",
+                  "css": {
+                    "display": "block",
+                    "position": "static",
+                    "width": "604px",
+                    "height": "339.75px",
+                    "margin": "0px",
+                    "padding": "0px",
+                    "borderRadius": "12px",
+                    "background": "rgba(0, 0, 0, 0) none repeat scroll 0% 0% / auto padding-box border-box",
+                    "overflow": "clip",
+                    "transform": "none",
+                    "visibility": "hidden",
+                    "z": "auto",
+                    "top": "auto",
+                    "left": "auto"
+                  },
+                  "children": []
+                },
+                {
+                  "tag": "video",
+                  "cls": "styles-module-scss-module__cMuLUa__video",
+                  "text": "",
+                  "rect": {
+                    "x": 526,
+                    "y": 6373.8,
+                    "w": 604,
+                    "h": 339.75
+                  },
+                  "style": "opacity: 1;",
+                  "css": {
+                    "display": "block",
+                    "position": "absolute",
+                    "width": "604px",
+                    "height": "339.75px",
+                    "margin": "0px",
+                    "padding": "0px",
+                    "borderRadius": "12px",
+                    "background": "rgba(0, 0, 0, 0) none repeat scroll 0% 0% / auto padding-box border-box",
+                    "overflow": "clip",
+                    "transform": "none",
+                    "visibility": "hidden",
+                    "z": "auto",
+                    "top": "0px",
+                    "left": "0px"
+                  },
+                  "children": []
+                },
+                {
+                  "tag": "canvas",
+                  "cls": "styles-module-scss-module__cMuLUa__glCanvas",
+                  "text": "",
+                  "rect": {
+                    "x": 526,
+                    "y": 6373.8,
+                    "w": 604,
+                    "h": 339.75
+                  },
+                  "style": "opacity: 1;",
+                  "css": {
+                    "display": "block",
+                    "position": "absolute",
+                    "width": "604px",
+                    "height": "339.75px",
+                    "margin": "0px",
+                    "padding": "0px",
+                    "borderRadius": "12px",
+                    "background": "rgba(0, 0, 0, 0) none repeat scroll 0% 0% / auto padding-box border-box",
+                    "overflow": "clip",
+                    "transform": "none",
+                    "visibility": "hidden",
+                    "z": "auto",
+                    "top": "0px",
+                    "left": "0px"
+                  },
+                  "children": []
+                },
+                {
+                  "tag": "div",
+                  "cls": "styles-module-scss-module__cMuLUa__controls",
+                  "text": "",
+                  "rect": {
+                    "x": 526,
+                    "y": 6373.8,
+                    "w": 604,
+                    "h": 339.75
+                  },
+                  "style": "pointer-events: auto; gap: 24px; opacity: 1; filter: blur(0px);",
+                  "css": {
+                    "display": "flex",
+                    "position": "absolute",
+                    "width": "604px",
+                    "height": "339.75px",
+                    "margin": "0px",
+                    "padding": "0px",
+                    "borderRadius": "0px",
+                    "background": "rgba(0, 0, 0, 0) none repeat scroll 0% 0% / auto padding-box border-box",
+                    "overflow": "visible",
+                    "transform": "none",
+                    "visibility": "hidden",
+                    "z": "auto",
+                    "top": "0px",
+                    "left": "0px"
+                  },
+                  "children": [
+                    {
+                      "tag": "button",
+                      "cls": "styles-module-scss-module__cMuLUa__button styles-module-scss-module__cMuLUa__buttonSmall",
+                      "text": "",
+                      "rect": {
+                        "x": 683.5,
+                        "y": 6511.17,
+                        "w": 65,
+                        "h": 65
+                      },
+                      "style": "width:65px;height:65px",
+                      "css": {
+                        "display": "flex",
+                        "position": "static",
+                        "width": "65px",
+                        "height": "65px",
+                        "margin": "0px",
+                        "padding": "0px",
+                        "borderRadius": "50%",
+                        "background": "rgba(0, 0, 0, 0) none repeat scroll 0px 0px / auto padding-box border-box",
+                        "overflow": "visible",
+                        "transform": "none",
+                        "visibility": "hidden",
+                        "z": "auto",
+                        "top": "auto",
+                        "left": "auto"
+                      },
+                      "children": [
+                        null
+                      ]
+                    },
+                    {
+                      "tag": "button",
+                      "cls": "styles-module-scss-module__cMuLUa__button styles-module-scss-module__cMuLUa__buttonLarge",
+                      "text": "",
+                      "rect": {
+                        "x": 772.5,
+                        "y": 6488.17,
+                        "w": 111,
+                        "h": 111
+                      },
+                      "style": "width:111px;height:111px",
+                      "css": {
+                        "display": "flex",
+                        "position": "relative",
+                        "width": "111px",
+                        "height": "111px",
+                        "margin": "0px",
+                        "padding": "0px",
+                        "borderRadius": "50%",
+                        "background": "rgba(0, 0, 0, 0) none repeat scroll 0px 0px / auto padding-box border-box",
+                        "overflow": "visible",
+                        "transform": "none",
+                        "visibility": "hidden",
+                        "z": "auto",
+                        "top": "0px",
+                        "left": "0px"
+                      },
+                      "children": [
+                        null
+                      ]
+                    },
+                    {
+                      "tag": "button",
+                      "cls": "styles-module-scss-module__cMuLUa__button styles-module-scss-module__cMuLUa__buttonSmall",
+                      "text": "",
+                      "rect": {
+                        "x": 907.5,
+                        "y": 6511.17,
+                        "w": 65,
+                        "h": 65
+                      },
+                      "style": "width:65px;height:65px",
+                      "css": {
+                        "display": "flex",
+                        "position": "static",
+                        "width": "65px",
+                        "height": "65px",
+                        "margin": "0px",
+                        "padding": "0px",
+                        "borderRadius": "50%",
+                        "background": "rgba(0, 0, 0, 0) none repeat scroll 0px 0px / auto padding-box border-box",
+                        "overflow": "visible",
+                        "transform": "none",
+                        "visibility": "hidden",
+                        "z": "auto",
+                        "top": "auto",
+                        "left": "auto"
+                      },
+                      "children": [
+                        null
+                      ]
+                    },
+                    {
+                      "tag": "div",
+                      "cls": "styles-module-scss-module__cMuLUa__barControls",
+                      "text": "",
+                      "rect": {
+                        "x": 550,
+                        "y": 6659.55,
+                        "w": 556,
+                        "h": 30
+                      },
+                      "style": "bottom:24px;left:24px;right:24px;height:30px;padding-left:14px;padding-right:14px;transform:none;transform-origin:0% 50% 0",
+                      "css": {
+                        "display": "flex",
+                        "position": "absolute",
+                        "width": "556px",
+                        "height": "30px",
+                        "margin": "0px",
+                        "padding": "0px 14px",
+                        "borderRadius": "0px",
+                        "background": "rgba(0, 0, 0, 0) none repeat scroll 0% 0% / auto padding-box border-box",
+                        "overflow": "visible",
+                        "transform": "none",
+                        "visibility": "hidden",
+                        "z": "auto",
+                        "top": "285.75px",
+                        "left": "24px"
+                      },
+                      "children": [
+                        null
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "tag": "figcaption",
+          "cls": "styles-module-scss-module__wHpXFq__caption",
+          "text": "The glass effect can be applied to complex, interactive content like this video ",
+          "rect": {
+            "x": 478,
+            "y": 6761.55,
+            "w": 700,
+            "h": 37
+          },
+          "style": "",
+          "css": {
+            "display": "block",
+            "position": "static",
+            "width": "700px",
+            "height": "37px",
+            "margin": "0px",
+            "padding": "16px 0px 0px",
+            "borderRadius": "0px",
+            "background": "rgba(0, 0, 0, 0) none repeat scroll 0% 0% / auto padding-box border-box",
+            "overflow": "visible",
+            "transform": "none",
+            "visibility": "visible",
+            "z": "auto",
+            "top": "auto",
+            "left": "auto"
+          },
+          "children": [
+            {
+              "tag": "p",
+              "cls": "",
+              "text": "The glass effect can be applied to complex, interactive content like this video ",
+              "rect": {
+                "x": 478,
+                "y": 6777.55,
+                "w": 700,
+                "h": 21
+              },
+              "style": "",
+              "css": {
+                "display": "block",
+                "position": "static",
+                "width": "700px",
+                "height": "21px",
+                "margin": "0px",
+                "padding": "0px",
+                "borderRadius": "0px",
+                "background": "rgba(0, 0, 0, 0) none repeat scroll 0% 0% / auto padding-box border-box",
+                "overflow": "visible",
+                "transform": "none",
+                "visibility": "visible",
+                "z": "auto",
+                "top": "auto",
+                "left": "auto"
+              },
+              "children": []
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "i": 6,
+    "tree": {
+      "tag": "figure",
+      "cls": "",
+      "text": "On the left is the refracted result, on the right the map that drives it.",
+      "rect": {
+        "x": 478,
+        "y": 7980.55,
+        "w": 700,
+        "h": 358
+      },
+      "style": "",
+      "css": {
+        "display": "block",
+        "position": "static",
+        "width": "700px",
+        "height": "358px",
+        "margin": "0px",
+        "padding": "0px",
+        "borderRadius": "0px",
+        "background": "rgba(0, 0, 0, 0) none repeat scroll 0% 0% / auto padding-box border-box",
+        "overflow": "visible",
+        "transform": "none",
+        "visibility": "visible",
+        "z": "auto",
+        "top": "auto",
+        "left": "auto"
+      },
+      "children": [
+        {
+          "tag": "div",
+          "cls": "styles-module-scss-module__-HMO9q__playground",
+          "text": "",
+          "rect": {
+            "x": 478,
+            "y": 7980.55,
+            "w": 700,
+            "h": 336
+          },
+          "style": "--split:50%",
+          "css": {
+            "display": "grid",
+            "position": "static",
+            "width": "700px",
+            "height": "336px",
+            "margin": "0px",
+            "padding": "0px",
+            "borderRadius": "0px",
+            "background": "rgba(0, 0, 0, 0) none repeat scroll 0% 0% / auto padding-box border-box",
+            "overflow": "visible",
+            "transform": "none",
+            "visibility": "visible",
+            "z": "auto",
+            "top": "auto",
+            "left": "auto"
+          },
+          "children": [
+            {
+              "tag": "div",
+              "cls": "styles-module-scss-module__-HMO9q__stage",
+              "text": "",
+              "rect": {
+                "x": 478,
+                "y": 7980.55,
+                "w": 342,
+                "h": 320
+              },
+              "style": "",
+              "css": {
+                "display": "block",
+                "position": "relative",
+                "width": "342px",
+                "height": "320px",
+                "margin": "0px",
+                "padding": "0px",
+                "borderRadius": "32px",
+                "background": "rgba(0, 0, 0, 0) none repeat scroll 0% 0% / auto padding-box border-box",
+                "overflow": "hidden",
+                "transform": "none",
+                "visibility": "visible",
+                "z": "auto",
+                "top": "0px",
+                "left": "0px"
+              },
+              "children": [
+                {
+                  "tag": "div",
+                  "cls": "styles-module-scss-module__3yrmUG__container",
+                  "text": "",
+                  "rect": {
+                    "x": 478,
+                    "y": 7980.55,
+                    "w": 342,
+                    "h": 320
+                  },
+                  "style": "",
+                  "css": {
+                    "display": "block",
+                    "position": "relative",
+                    "width": "342px",
+                    "height": "320px",
+                    "margin": "0px",
+                    "padding": "0px",
+                    "borderRadius": "0px",
+                    "background": "rgba(0, 0, 0, 0) none repeat scroll 0% 0% / auto padding-box border-box",
+                    "overflow": "visible",
+                    "transform": "none",
+                    "visibility": "visible",
+                    "z": "auto",
+                    "top": "0px",
+                    "left": "0px"
+                  },
+                  "children": [
+                    {
+                      "tag": "div",
+                      "cls": "",
+                      "text": "",
+                      "rect": {
+                        "x": 478,
+                        "y": 7980.55,
+                        "w": 342,
+                        "h": 320
+                      },
+                      "style": "will-change: filter;",
+                      "css": {
+                        "display": "block",
+                        "position": "static",
+                        "width": "342px",
+                        "height": "320px",
+                        "margin": "0px",
+                        "padding": "0px",
+                        "borderRadius": "0px",
+                        "background": "rgba(0, 0, 0, 0) none repeat scroll 0% 0% / auto padding-box border-box",
+                        "overflow": "visible",
+                        "transform": "none",
+                        "visibility": "visible",
+                        "z": "auto",
+                        "top": "auto",
+                        "left": "auto"
+                      },
+                      "children": [
+                        null
+                      ]
+                    },
+                    {
+                      "tag": "div",
+                      "cls": "",
+                      "text": "",
+                      "rect": {
+                        "x": 478,
+                        "y": 7980.55,
+                        "w": 342,
+                        "h": 320
+                      },
+                      "style": "position:absolute;inset:0;pointer-events:none",
+                      "css": {
+                        "display": "block",
+                        "position": "absolute",
+                        "width": "342px",
+                        "height": "320px",
+                        "margin": "0px",
+                        "padding": "0px",
+                        "borderRadius": "0px",
+                        "background": "rgba(0, 0, 0, 0) none repeat scroll 0% 0% / auto padding-box border-box",
+                        "overflow": "visible",
+                        "transform": "none",
+                        "visibility": "visible",
+                        "z": "auto",
+                        "top": "0px",
+                        "left": "0px"
+                      },
+                      "children": [
+                        null
+                      ]
+                    },
+                    {
+                      "tag": "div",
+                      "cls": "",
+                      "text": "",
+                      "rect": {
+                        "x": 579,
+                        "y": 8080.55,
+                        "w": 140,
+                        "h": 120
+                      },
+                      "style": "position: absolute; top: 0px; left: 0px; pointer-events: none; will-change: backdrop-filter, transform; transform: translate3d(101px, 100px, 0px); width: 140px; height: 120px; border-radius: 28px; mask-image: url(\"data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20viewBox%3D'0%200%20140%20120'%20preserveAspectRatio%3D'none'%3E%3Crect%20x%3D'0.5'%20y%3D'0.5'%20width%3D'139'%20height%3D'119'%20rx%3D'27.5'%20ry%3D'27.5'%20fill%3D'black'%2F%3E%3C%2Fsvg%3E\"); mask-size: 100% 100%; backdrop-filter: none;",
+                      "css": {
+                        "display": "block",
+                        "position": "absolute",
+                        "width": "140px",
+                        "height": "120px",
+                        "margin": "0px",
+                        "padding": "0px",
+                        "borderRadius": "28px",
+                        "background": "rgba(0, 0, 0, 0) none repeat scroll 0% 0% / auto padding-box border-box",
+                        "overflow": "visible",
+                        "transform": "matrix(1, 0, 0, 1, 101, 100)",
+                        "visibility": "visible",
+                        "z": "auto",
+                        "top": "0px",
+                        "left": "0px"
+                      },
+                      "children": []
+                    },
+                    {
+                      "tag": "div",
+                      "cls": "",
+                      "text": "",
+                      "rect": {
+                        "x": 579,
+                        "y": 8080.55,
+                        "w": 140,
+                        "h": 120
+                      },
+                      "style": "position: absolute; top: 0px; left: 0px; pointer-events: none; will-change: transform; box-sizing: border-box; box-shadow: 0 0 0 1px var(--bg-max), 0 8px 24px rgba(0, 0, 0, 0.4); transform: translate(101px, 100px); width: 140px; height: 120px; border-radius: 28px; opacity: 1;",
+                      "css": {
+                        "display": "block",
+                        "position": "absolute",
+                        "width": "140px",
+                        "height": "120px",
+                        "margin": "0px",
+                        "padding": "0px",
+                        "borderRadius": "28px",
+                        "background": "rgba(0, 0, 0, 0) none repeat scroll 0% 0% / auto padding-box border-box",
+                        "overflow": "visible",
+                        "transform": "matrix(1, 0, 0, 1, 101, 100)",
+                        "visibility": "visible",
+                        "z": "auto",
+                        "top": "0px",
+                        "left": "0px"
+                      },
+                      "children": []
+                    }
+                  ]
+                },
+                {
+                  "tag": "canvas",
+                  "cls": "",
+                  "text": "",
+                  "rect": {
+                    "x": 478,
+                    "y": 7980.55,
+                    "w": 342,
+                    "h": 320
+                  },
+                  "style": "position: absolute; inset: 0px; width: 100%; height: 100%; pointer-events: none;",
+                  "css": {
+                    "display": "block",
+                    "position": "absolute",
+                    "width": "342px",
+                    "height": "320px",
+                    "margin": "0px",
+                    "padding": "0px",
+                    "borderRadius": "0px",
+                    "background": "rgba(0, 0, 0, 0) none repeat scroll 0% 0% / auto padding-box border-box",
+                    "overflow": "clip",
+                    "transform": "none",
+                    "visibility": "visible",
+                    "z": "auto",
+                    "top": "0px",
+                    "left": "0px"
+                  },
+                  "children": []
+                }
+              ]
+            },
+            {
+              "tag": "div",
+              "cls": "styles-module-scss-module__-HMO9q__mapStage",
+              "text": "",
+              "rect": {
+                "x": 836,
+                "y": 7980.55,
+                "w": 342,
+                "h": 320
+              },
+              "style": "",
+              "css": {
+                "display": "block",
+                "position": "relative",
+                "width": "342px",
+                "height": "320px",
+                "margin": "0px",
+                "padding": "0px",
+                "borderRadius": "32px",
+                "background": "rgb(128, 128, 128) none repeat scroll 0% 0% / auto padding-box border-box",
+                "overflow": "hidden",
+                "transform": "none",
+                "visibility": "visible",
+                "z": "auto",
+                "top": "0px",
+                "left": "0px"
+              },
+              "children": [
+                {
+                  "tag": "img",
+                  "cls": "styles-module-scss-module__-HMO9q__mapBlob",
+                  "text": "",
+                  "rect": {
+                    "x": 937,
+                    "y": 8080.55,
+                    "w": 140,
+                    "h": 120
+                  },
+                  "style": "left: 50%; top: 50%; width: 140px; height: 120px;",
+                  "css": {
+                    "display": "block",
+                    "position": "absolute",
+                    "width": "140px",
+                    "height": "120px",
+                    "margin": "0px",
+                    "padding": "0px",
+                    "borderRadius": "0px",
+                    "background": "rgba(0, 0, 0, 0) none repeat scroll 0% 0% / auto padding-box border-box",
+                    "overflow": "clip",
+                    "transform": "matrix(1, 0, 0, 1, -70, -60)",
+                    "visibility": "visible",
+                    "z": "auto",
+                    "top": "160px",
+                    "left": "171px"
+                  },
+                  "children": []
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "tag": "figcaption",
+          "cls": "styles-module-scss-module__-HMO9q__caption",
+          "text": "On the left is the refracted result, on the right the map that drives it.",
+          "rect": {
+            "x": 478,
+            "y": 8316.55,
+            "w": 700,
+            "h": 22
+          },
+          "style": "",
+          "css": {
+            "display": "block",
+            "position": "static",
+            "width": "700px",
+            "height": "22px",
+            "margin": "0px",
+            "padding": "0px 32px",
+            "borderRadius": "0px",
+            "background": "rgba(0, 0, 0, 0) none repeat scroll 0% 0% / auto padding-box border-box",
+            "overflow": "visible",
+            "transform": "none",
+            "visibility": "visible",
+            "z": "auto",
+            "top": "auto",
+            "left": "auto"
+          },
+          "children": []
+        }
+      ]
+    }
+  }
+]

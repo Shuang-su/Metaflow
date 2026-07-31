@@ -1,0 +1,147 @@
+[
+  {
+    "lens": {
+      "rect": {
+        "x": 284.98,
+        "y": 196.67,
+        "w": 160,
+        "h": 160
+      },
+      "style": "position: absolute; top: 0px; left: 0px; pointer-events: none; will-change: backdrop-filter, transform; transform: translate3d(292.979px, 62.268px, 0px); width: 160px; height: 160px; border-radius: 80px; mask-image: url(\"data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20viewBox%3D'0%200%20160%20160'%20preserveAspectRatio%3D'none'%3E%3Crect%20x%3D'0.5'%20y%3D'0.5'%20width%3D'159'%20height%3D'159'%20rx%3D'79.5'%20ry%3D'79.5'%20fill%3D'black'%2F%3E%3C%2Fsvg%3E\"); mask-size: 100% 100%; backdrop-filter: blur(0.5px);"
+    },
+    "iconWrap": {
+      "rect": {
+        "x": 181,
+        "y": 192.04,
+        "w": 406,
+        "h": 171.25
+      },
+      "style": "transform: translateY(-5.9899px);"
+    },
+    "icon": {
+      "rect": {
+        "x": 294.39,
+        "y": 191.7,
+        "w": 179.24,
+        "h": 164.33
+      },
+      "style": null
+    }
+  },
+  {
+    "lens": {
+      "rect": {
+        "x": 381,
+        "y": 171.67,
+        "w": 160,
+        "h": 160
+      },
+      "style": "position: absolute; top: 0px; left: 0px; pointer-events: none; will-change: backdrop-filter, transform; transform: translate3d(389px, 37.262px, 0px); width: 160px; height: 160px; border-radius: 80px; mask-image: url(\"data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20viewBox%3D'0%200%20160%20160'%20preserveAspectRatio%3D'none'%3E%3Crect%20x%3D'0.5'%20y%3D'0.5'%20width%3D'159'%20height%3D'159'%20rx%3D'79.5'%20ry%3D'79.5'%20fill%3D'black'%2F%3E%3C%2Fsvg%3E\"); mask-size: 100% 100%; backdrop-filter: blur(0.5px);"
+    },
+    "iconWrap": {
+      "rect": {
+        "x": 181,
+        "y": 203.98,
+        "w": 406,
+        "h": 171.25
+      },
+      "style": "transform: translateY(5.94846px);"
+    },
+    "icon": {
+      "rect": {
+        "x": 294.03,
+        "y": 203.23,
+        "w": 180,
+        "h": 165.16
+      },
+      "style": null
+    }
+  },
+  {
+    "lens": {
+      "rect": {
+        "x": 517.49,
+        "y": 234.17,
+        "w": 160,
+        "h": 160
+      },
+      "style": "position: absolute; top: 0px; left: 0px; pointer-events: none; will-change: backdrop-filter, transform; transform: translate3d(525.494px, 99.762px, 0px); width: 160px; height: 160px; border-radius: 80px; mask-image: url(\"data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20viewBox%3D'0%200%20160%20160'%20preserveAspectRatio%3D'none'%3E%3Crect%20x%3D'0.5'%20y%3D'0.5'%20width%3D'159'%20height%3D'159'%20rx%3D'79.5'%20ry%3D'79.5'%20fill%3D'black'%2F%3E%3C%2Fsvg%3E\"); mask-size: 100% 100%; backdrop-filter: blur(0.5px);"
+    },
+    "iconWrap": {
+      "rect": {
+        "x": 181,
+        "y": 199.32,
+        "w": 406,
+        "h": 171.25
+      },
+      "style": "transform: translateY(1.28742px);"
+    },
+    "icon": {
+      "rect": {
+        "x": 290.39,
+        "y": 194.83,
+        "w": 186.82,
+        "h": 172.64
+      },
+      "style": null
+    }
+  },
+  {
+    "lens": {
+      "rect": {
+        "x": 529.3,
+        "y": 219.61,
+        "w": 160,
+        "h": 160
+      },
+      "style": "position: absolute; top: 0px; left: 0px; pointer-events: none; will-change: backdrop-filter, transform; transform: translate3d(537.301px, 85.205px, 0px); width: 160px; height: 160px; border-radius: 80px; mask-image: url(\"data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20viewBox%3D'0%200%20160%20160'%20preserveAspectRatio%3D'none'%3E%3Crect%20x%3D'0.5'%20y%3D'0.5'%20width%3D'159'%20height%3D'159'%20rx%3D'79.5'%20ry%3D'79.5'%20fill%3D'black'%2F%3E%3C%2Fsvg%3E\"); mask-size: 100% 100%; backdrop-filter: blur(0.5px);"
+    },
+    "iconWrap": {
+      "rect": {
+        "x": 181,
+        "y": 199.64,
+        "w": 406,
+        "h": 171.25
+      },
+      "style": "transform: translateY(1.61254px);"
+    },
+    "icon": {
+      "rect": {
+        "x": 290.43,
+        "y": 195.2,
+        "w": 186.75,
+        "h": 172.56
+      },
+      "style": null
+    }
+  },
+  {
+    "lens": {
+      "rect": {
+        "x": 303.51,
+        "y": 175.41,
+        "w": 160,
+        "h": 160
+      },
+      "style": "position: absolute; top: 0px; left: 0px; pointer-events: none; will-change: backdrop-filter, transform; transform: translate3d(311.509px, 41.006px, 0px); width: 160px; height: 160px; border-radius: 80px; mask-image: url(\"data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20viewBox%3D'0%200%20160%20160'%20preserveAspectRatio%3D'none'%3E%3Crect%20x%3D'0.5'%20y%3D'0.5'%20width%3D'159'%20height%3D'159'%20rx%3D'79.5'%20ry%3D'79.5'%20fill%3D'black'%2F%3E%3C%2Fsvg%3E\"); mask-size: 100% 100%; backdrop-filter: blur(0.5px);"
+    },
+    "iconWrap": {
+      "rect": {
+        "x": 181,
+        "y": 203.85,
+        "w": 406,
+        "h": 171.25
+      },
+      "style": "transform: translateY(5.8175px);"
+    },
+    "icon": {
+      "rect": {
+        "x": 293.48,
+        "y": 202.47,
+        "w": 181.15,
+        "h": 166.41
+      },
+      "style": null
+    }
+  }
+]

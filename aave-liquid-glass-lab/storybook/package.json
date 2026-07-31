@@ -1,0 +1,32 @@
+{
+  "name": "aave-liquid-glass-storybook",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "generate-study-pages": "node scripts/run-local.mjs node scripts/generate-study-pages.mjs",
+    "prestorybook": "npm run generate-study-pages",
+    "prebuild-storybook": "npm run generate-study-pages",
+    "storybook": "node scripts/run-local.mjs storybook dev",
+    "build-storybook": "node scripts/run-local.mjs storybook build",
+    "typecheck": "node scripts/run-local.mjs tsc --noEmit",
+    "playwright": "node scripts/run-local.mjs npx --yes --package @playwright/cli playwright-cli"
+  },
+  "dependencies": {
+    "@storybook/addon-docs": "10.4.6",
+    "@storybook/react-vite": "10.4.6",
+    "@vitejs/plugin-react": "6.0.3",
+    "lucide-react": "0.561.0",
+    "react": "19.2.7",
+    "react-dom": "19.2.7",
+    "storybook": "10.4.6",
+    "typescript": "5.9.3",
+    "vite": "8.1.4"
+  },
+  "devDependencies": {
+    "js-beautify": "2.0.3",
+    "parse5": "^7.3.0",
+    "remark-gfm": "^4.0.1",
+    "shiki": "4.3.1"
+  }
+}

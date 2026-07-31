@@ -1,0 +1,1901 @@
+{
+  "capturedAt": "2026-07-09T03:59:01.330Z",
+  "sourceUrl": "https://aave.com/design/building-glass-for-the-web",
+  "articleRect": {
+    "x": 478,
+    "y": 186.41,
+    "left": 478,
+    "top": 186.41,
+    "width": 700,
+    "height": 9845.7,
+    "right": 1178,
+    "bottom": 10032.11
+  },
+  "mainRect": {
+    "x": 478,
+    "y": 0,
+    "left": 478,
+    "top": 0,
+    "width": 848,
+    "height": 10618.11,
+    "right": 1326,
+    "bottom": 10618.11
+  },
+  "originalConsoleErrors": [
+    "Error: <path> attribute d: Expected moveto path command ('M' or 'm'), \"undefined\".",
+    "Error: <path> attribute d: Expected moveto path command ('M' or 'm'), \"undefined\".",
+    "Error: <path> attribute d: Expected moveto path command ('M' or 'm'), \"undefined\".",
+    "Error: <path> attribute d: Expected moveto path command ('M' or 'm'), \"undefined\"."
+  ],
+  "headings": [
+    {
+      "tag": "h1",
+      "text": "Building Glass for the Web",
+      "rect": {
+        "x": 478,
+        "y": 100,
+        "left": 478,
+        "top": 100,
+        "width": 378.31,
+        "height": 38.41,
+        "right": 856.31,
+        "bottom": 138.41
+      },
+      "fontSize": "32px",
+      "fontWeight": "550",
+      "lineHeight": "38.4px"
+    },
+    {
+      "tag": "h2",
+      "text": "The challenge with the web",
+      "rect": {
+        "x": 478,
+        "y": 1359.2,
+        "left": 478,
+        "top": 1359.2,
+        "width": 700,
+        "height": 105,
+        "right": 1178,
+        "bottom": 1464.2
+      },
+      "fontSize": "22px",
+      "fontWeight": "550",
+      "lineHeight": "33px"
+    },
+    {
+      "tag": "h2",
+      "text": "A family of components",
+      "rect": {
+        "x": 478,
+        "y": 1949.2,
+        "left": 478,
+        "top": 1949.2,
+        "width": 700,
+        "height": 105,
+        "right": 1178,
+        "bottom": 2054.2
+      },
+      "fontSize": "22px",
+      "fontWeight": "550",
+      "lineHeight": "33px"
+    },
+    {
+      "tag": "h2",
+      "text": "How it works",
+      "rect": {
+        "x": 478,
+        "y": 7363.55,
+        "left": 478,
+        "top": 7363.55,
+        "width": 700,
+        "height": 105,
+        "right": 1178,
+        "bottom": 7468.55
+      },
+      "fontSize": "22px",
+      "fontWeight": "550",
+      "lineHeight": "33px"
+    },
+    {
+      "tag": "h2",
+      "text": "Making it work everywhere",
+      "rect": {
+        "x": 478,
+        "y": 8836.11,
+        "left": 478,
+        "top": 8836.11,
+        "width": 700,
+        "height": 105,
+        "right": 1178,
+        "bottom": 8941.11
+      },
+      "fontSize": "22px",
+      "fontWeight": "550",
+      "lineHeight": "33px"
+    },
+    {
+      "tag": "h2",
+      "text": "The future",
+      "rect": {
+        "x": 478,
+        "y": 9709.11,
+        "left": 478,
+        "top": 9709.11,
+        "width": 700,
+        "height": 105,
+        "right": 1178,
+        "bottom": 9814.11
+      },
+      "fontSize": "22px",
+      "fontWeight": "550",
+      "lineHeight": "33px"
+    },
+    {
+      "tag": "h1",
+      "text": "Aave Labs is hiring",
+      "rect": {
+        "x": 518,
+        "y": 10302.11,
+        "left": 518,
+        "top": 10302.11,
+        "width": 442.39,
+        "height": 24,
+        "right": 960.39,
+        "bottom": 10326.11
+      },
+      "fontSize": "24px",
+      "fontWeight": "500",
+      "lineHeight": "24px"
+    }
+  ],
+  "bodyParagraphs": [
+    "In June last year Apple announced Liquid Glass at WWDC, a fresh design language built around the physics of light bending through curved glass. It was a bold move that immediately captured the imagination of designers and developers alike.",
+    "We felt inspired to bring that same magic to our apps, starting by bringing our own version of the effect to our Aave App for iOS and Android, which we call Aave Glass.",
+    "This quickly became a defining part of the Aave App experience, making our interfaces feel more alive and tactile.",
+    "In the months that followed WWDC, we saw a wave of interest from others who also felt inspired to recreate the effect for the web. Most of the demos and experiments that surfaced only ran in Chromium browsers. They leaned on either an SVG backdrop-filter approach or the experimental HTML-in-Canvas API hidden behind a flag, and neither holds up in other browsers.",
+    "Before building our own, we worked through the approaches already going around.",
+    "Our technique runs in every modern browser, on desktop and on mobile, with no flags to turn on and no fallbacks to maintain. It just works.",
+    "Building a cross-browser effect that works on any content was only the first step. We wanted to make sure it could be used in real interfaces, and that it could bring the same sense of delight to our web experiences as it does in our mobile apps.",
+    "So we built a family of components that use the glass as a core part of their experience.",
+    "Mobile apps rely on switches for binary choices, and glass suits them well. The thumb of the switch is a small lens that creates a moving highlight as you toggle.",
+    "The content renders normally and stays visible everywhere outside the lens, the whole ideology behind our technique is that it refracts live HTML, the real rendered content.",
+    "To achieve the glass effect on the handle we give our glass component a copy of the track's fill that sits on its own layer and gets bent by the glass. The fill registers as a moving highlight that gives the switch a sense of depth and tactility.",
+    "A slider is also a natural home for the effect. The glass travels along the track, refracting the fill beneath it as it goes, and the value you're setting stays visible right through the glass.",
+    "Dragging is cheap to animate. As the handle moves, only the filter's region shifts along the track while the displacement map stays the same, so the motion holds a steady frame rate even on a phone. The map is regenerated only when the glass changes shape, never when it simply changes place.",
+    "The slider leans on a gentler bend than the switch, a fraction of the refraction strength, since the fill underneath has to stay readable as a value rather than just register as a moving highlight.",
+    "The toggle group uses the glass itself as the selection indicator, gliding between options and easing towards the one you pick.",
+    "As with the switch, the glass refracts a highlighted pill rather than the buttons behind it, so the selected option stays legible whichever label sits underneath. It eases between options with a spring rather than a straight slide, so the selection settles into place instead of snapping.",
+    "The switch, slider, and toggle group all lean on the same technique.",
+    "For a more complex effect that still feels at home on the web, we built a QR code component that wraps the code in a glass effect, bending the pixels of the code when tapped to create a satisfying tactile response. The refraction adds a sense of depth and physicality to the interaction.",
+    "The QR is painted to its own canvas, so there's no live DOM here for an SVG filter to bend. We generate the same displacement map the rest of the family uses and hand it to a WebGL shader that refracts the code's own pixels. The technique is identical, only the surface it runs on changes.",
+    "The video player wraps each control in its own small glass effect, bending the live video underneath. The effect keeps the controls legible while preserving the sense that they're part of the video itself.",
+    "Each control carries its own glass, and all of them read from the same playing video underneath. Moving footage is the hard case for legibility, so the controls lean on their highlight and rim light to stay crisp against whatever frame happens to be behind them.",
+    "A live <video> is the one surface Safari refuses to apply an SVG filter to. It composites the video on the GPU and never hands those pixels to the filter pipeline, a long-standing WebKit limitation. So the video player runs the same refraction in WebGL instead. One renderer reads the playing video as a texture and draws every control's lens from it, each with its own displacement map.",
+    "Our glass works directly on whatever you put inside it. The content renders normally, exactly as the browser would display it, and the glass bends those very pixels to recreate what light does through curved glass.",
+    "Because it works on the real rendered content rather than a copy of it, the glass can go on anything made of live DOM: text, images, cards, buttons, whole layouts.",
+    "The effect rests on a single SVG filter primitive, feDisplacementMap. It takes two inputs, the painted content and a map we generate, and for each pixel of the content it reads the matching pixel of the map and uses that color to decide which way to push. Nothing is sampled from underneath the glass. The content's own pixels are the ones moving, which is why text under the lens stays selectable and links stay clickable.",
+    "The map is a small PNG we build on the fly from the glass's shape and size. Its red and green channels say how far each pixel bends horizontally and vertically, and everywhere outside the lens it sits at a neutral value that leaves those pixels alone, so only the region under the glass moves. A few more passes finish the look, a faint color fringe along the edges and a specular highlight that keeps the glass legible, but the displacement is the heart of it.",
+    "The displacement map is the portable part. On ordinary DOM it drives an SVG filter, and the content underneath stays selectable, scrollable, and clickable on the same compositor as the rest of the page.",
+    "When there's no live DOM to bend, like a canvas-drawn QR code or a video Safari won't filter, the same map feeds a WebGL shader instead. The renderer changes with the medium, the refraction stays the same.",
+    "This is where most of the work went, and where the Chromium-only demos fall down. Getting the same glass to render correctly in Safari, on desktop and on iOS, meant working through a string of quirks that surface nowhere else.",
+    "Safari caches SVG filter output by its filter ID. When we change the displacement map but keep the same ID, Safari keeps serving the old output and the glass freezes mid-motion. To fix this, we give the filter a fresh ID on every update, forcing Safari to read the new map.",
+    "We regenerate the displacement map on every frame of a squish or resize, so computing it has to be cheap. Since the displacement map is essentially a rounded rectangle, it has four-fold symmetry. We compute only the top-left quadrant and write each pixel into all four, negating the X displacement across the vertical axis and the Y displacement across the horizontal one. That cuts the per-pixel work to a quarter, which is what keeps map generation inside the frame budget.",
+    "Safari has a ceiling on the size of the source graphic a filter can process, which is the input itself for the SVG filter. Past that size, Safari breaks the effect into mismatched blocks or drops it entirely, both on desktop and mobile. This limit varies between browser versions and platforms, so we stay conservative with the size and complexity of the DOM we refract.",
+    "The specular highlight runs as a separate pass in the filter, and by default that pass covers the entire filter region, not just the lens, so its cost scales with the whole area. Restricting it to just the lens is cheaper, but on Chromium browsers it produces sub-pixel artifacts that flicker along the lens's edge. Since Safari doesn't show those artifacts, we choose to read only a small lens-sized region, producing the same result at a fraction of the cost.",
+    "Now that we have the glass effect on the web, we're excited to explore how it can enhance more of our interfaces and bring a sense of delight to our users.",
+    "Our next step is to build out a wider family of components that use the glass as a core part of their experience and bring our web apps closer to the look and feel of Aave Glass.",
+    "Wherever someone meets Aave, the same glass effect helps the components feel like they belong to one family, and that family is unmistakably Aave."
+  ],
+  "figures": [
+    {
+      "index": 0,
+      "text": "We want to bring this same feeling to the experiences we build on the web.",
+      "caption": "We want to bring this same feeling to the experiences we build on the web.",
+      "rect": {
+        "x": 478,
+        "y": 788.41,
+        "left": 478,
+        "top": 788.41,
+        "width": 700,
+        "height": 570.8,
+        "right": 1178,
+        "bottom": 1359.2
+      },
+      "padding": "48px 0px 16px",
+      "display": "flex",
+      "images": [],
+      "videos": [
+        {
+          "src": "https://aave.com/design/demo/videos/aave-glass/aave-glass-dark-new.mp4",
+          "poster": "",
+          "rect": {
+            "x": 478,
+            "y": 836.41,
+            "left": 478,
+            "top": 836.41,
+            "width": 700,
+            "height": 466.8,
+            "right": 1178,
+            "bottom": 1303.2
+          },
+          "width": "700px",
+          "height": "466.797px",
+          "borderRadius": "0px",
+          "visibility": "visible",
+          "paused": false,
+          "duration": 3.983333
+        }
+      ],
+      "canvases": [],
+      "controls": []
+    },
+    {
+      "index": 1,
+      "text": "Even with a small component like this switch, the glass effect adds a sense of depth and tactility.",
+      "caption": "Even with a small component like this switch, the glass effect adds a sense of depth and tactility.",
+      "rect": {
+        "x": 478,
+        "y": 2198.2,
+        "left": 478,
+        "top": 2198.2,
+        "width": 700,
+        "height": 513,
+        "right": 1178,
+        "bottom": 2711.2
+      },
+      "padding": "48px 0px",
+      "display": "block",
+      "images": [],
+      "videos": [],
+      "canvases": [],
+      "controls": [
+        {
+          "tag": "input",
+          "text": "",
+          "rect": {
+            "x": 790,
+            "y": 2421.2,
+            "left": 790,
+            "top": 2421.2,
+            "width": 1,
+            "height": 1,
+            "right": 791,
+            "bottom": 2422.2
+          },
+          "style": "",
+          "value": "on",
+          "width": "1px",
+          "height": "1px",
+          "padding": "0px",
+          "borderRadius": "4px",
+          "transform": "none",
+          "opacity": "1"
+        }
+      ]
+    },
+    {
+      "index": 2,
+      "text": "Native <input type='range' /> elements are back-synced with our custom component.",
+      "caption": "Native <input type='range' /> elements are back-synced with our custom component.",
+      "rect": {
+        "x": 478,
+        "y": 3174.2,
+        "left": 478,
+        "top": 3174.2,
+        "width": 700,
+        "height": 514.59,
+        "right": 1178,
+        "bottom": 3688.8
+      },
+      "padding": "48px 0px",
+      "display": "block",
+      "images": [],
+      "videos": [],
+      "canvases": [],
+      "controls": [
+        {
+          "tag": "input",
+          "text": "",
+          "rect": {
+            "x": 707,
+            "y": 3400.2,
+            "left": 707,
+            "top": 3400.2,
+            "width": 1,
+            "height": 1,
+            "right": 708,
+            "bottom": 3401.2
+          },
+          "style": "",
+          "value": "50",
+          "width": "1px",
+          "height": "1px",
+          "padding": "0px",
+          "borderRadius": "4px",
+          "transform": "none",
+          "opacity": "1"
+        }
+      ]
+    },
+    {
+      "index": 3,
+      "text": "The glass effect helps visually highlight the selected option.",
+      "caption": "The glass effect helps visually highlight the selected option.",
+      "rect": {
+        "x": 478,
+        "y": 4241.8,
+        "left": 478,
+        "top": 4241.8,
+        "width": 700,
+        "height": 513,
+        "right": 1178,
+        "bottom": 4754.8
+      },
+      "padding": "48px 0px",
+      "display": "block",
+      "images": [],
+      "videos": [],
+      "canvases": [],
+      "controls": [
+        {
+          "tag": "button",
+          "text": "Hubs",
+          "rect": {
+            "x": 578.63,
+            "y": 4459.8,
+            "left": 578.63,
+            "top": 4459.8,
+            "width": 87.05,
+            "height": 40,
+            "right": 665.67,
+            "bottom": 4499.8
+          },
+          "style": "",
+          "value": "",
+          "width": "87.0469px",
+          "height": "40px",
+          "padding": "10px 13px",
+          "borderRadius": "9999px",
+          "transform": "none",
+          "opacity": "1"
+        },
+        {
+          "tag": "button",
+          "text": "Spokes",
+          "rect": {
+            "x": 665.67,
+            "y": 4459.8,
+            "left": 665.67,
+            "top": 4459.8,
+            "width": 101.44,
+            "height": 40,
+            "right": 767.11,
+            "bottom": 4499.8
+          },
+          "style": "",
+          "value": "",
+          "width": "101.438px",
+          "height": "40px",
+          "padding": "10px 13px",
+          "borderRadius": "9999px",
+          "transform": "none",
+          "opacity": "1"
+        },
+        {
+          "tag": "button",
+          "text": "Reserves",
+          "rect": {
+            "x": 767.11,
+            "y": 4459.8,
+            "left": 767.11,
+            "top": 4459.8,
+            "width": 114.05,
+            "height": 40,
+            "right": 881.16,
+            "bottom": 4499.8
+          },
+          "style": "",
+          "value": "",
+          "width": "114.047px",
+          "height": "40px",
+          "padding": "10px 13px",
+          "borderRadius": "9999px",
+          "transform": "none",
+          "opacity": "1"
+        },
+        {
+          "tag": "button",
+          "text": "Assets",
+          "rect": {
+            "x": 881.16,
+            "y": 4459.8,
+            "left": 881.16,
+            "top": 4459.8,
+            "width": 97.36,
+            "height": 40,
+            "right": 978.52,
+            "bottom": 4499.8
+          },
+          "style": "",
+          "value": "",
+          "width": "97.3594px",
+          "height": "40px",
+          "padding": "10px 13px",
+          "borderRadius": "9999px",
+          "transform": "none",
+          "opacity": "1"
+        },
+        {
+          "tag": "button",
+          "text": "Chains",
+          "rect": {
+            "x": 978.52,
+            "y": 4459.8,
+            "left": 978.52,
+            "top": 4459.8,
+            "width": 98.84,
+            "height": 40,
+            "right": 1077.36,
+            "bottom": 4499.8
+          },
+          "style": "",
+          "value": "",
+          "width": "98.8438px",
+          "height": "40px",
+          "padding": "10px 13px",
+          "borderRadius": "9999px",
+          "transform": "none",
+          "opacity": "1"
+        }
+      ]
+    },
+    {
+      "index": 4,
+      "text": "The QR code is fully interactive. Click the Aave logo to see the glass effect in action.",
+      "caption": "The QR code is fully interactive. Click the Aave logo to see the glass effect in action.",
+      "rect": {
+        "x": 478,
+        "y": 5399.8,
+        "left": 478,
+        "top": 5399.8,
+        "width": 700,
+        "height": 577,
+        "right": 1178,
+        "bottom": 5976.8
+      },
+      "padding": "48px 0px",
+      "display": "block",
+      "images": [],
+      "videos": [],
+      "canvases": [
+        {
+          "width": 14,
+          "height": 14,
+          "rect": {
+            "x": 686.25,
+            "y": 5528.05,
+            "left": 686.25,
+            "top": 5528.05,
+            "width": 283.5,
+            "height": 283.5,
+            "right": 969.75,
+            "bottom": 5811.55
+          },
+          "cssWidth": "324px",
+          "cssHeight": "324px",
+          "className": "",
+          "visibility": "hidden",
+          "zIndex": "10"
+        },
+        {
+          "width": 375,
+          "height": 375,
+          "rect": {
+            "x": 686.25,
+            "y": 5528.05,
+            "left": 686.25,
+            "top": 5528.05,
+            "width": 283.5,
+            "height": 283.5,
+            "right": 969.75,
+            "bottom": 5811.55
+          },
+          "cssWidth": "324px",
+          "cssHeight": "324px",
+          "className": "",
+          "visibility": "hidden",
+          "zIndex": "20"
+        }
+      ],
+      "controls": [
+        {
+          "tag": "button",
+          "text": "",
+          "rect": {
+            "x": 799.65,
+            "y": 5642.32,
+            "left": 799.65,
+            "top": 5642.32,
+            "width": 56.7,
+            "height": 54.95,
+            "right": 856.35,
+            "bottom": 5697.27
+          },
+          "style": "--qr-code-icon-scale:1",
+          "value": "",
+          "width": "64.7969px",
+          "height": "62.7969px",
+          "padding": "0px",
+          "borderRadius": "14px",
+          "transform": "matrix(1, 0, 0, 1, -32.3984, -31.3984)",
+          "opacity": "1"
+        }
+      ]
+    },
+    {
+      "index": 5,
+      "text": "The glass effect can be applied to complex, interactive content like this video player.",
+      "caption": "The glass effect can be applied to complex, interactive content like this video player.",
+      "rect": {
+        "x": 478,
+        "y": 6277.8,
+        "left": 478,
+        "top": 6277.8,
+        "width": 700,
+        "height": 568.75,
+        "right": 1178,
+        "bottom": 6846.55
+      },
+      "padding": "48px 0px",
+      "display": "block",
+      "images": [
+        {
+          "src": "https://aave.com/design/demo/videos/cosmos-flowers-in-the-field-18491376/placeholder.webp",
+          "rect": {
+            "x": 526,
+            "y": 6373.8,
+            "left": 526,
+            "top": 6373.8,
+            "width": 604,
+            "height": 339.75,
+            "right": 1130,
+            "bottom": 6713.55
+          },
+          "naturalWidth": 1920,
+          "naturalHeight": 1080,
+          "className": "styles-module-scss-module__cMuLUa__placeholder",
+          "width": "604px",
+          "height": "339.75px",
+          "filter": "blur(4px)"
+        }
+      ],
+      "videos": [
+        {
+          "src": "https://aave.com/design/demo/videos/cosmos-flowers-in-the-field-18491376/video.mp4",
+          "poster": "",
+          "rect": {
+            "x": 526,
+            "y": 6373.8,
+            "left": 526,
+            "top": 6373.8,
+            "width": 604,
+            "height": 339.75,
+            "right": 1130,
+            "bottom": 6713.55
+          },
+          "width": "604px",
+          "height": "339.75px",
+          "borderRadius": "12px",
+          "visibility": "hidden",
+          "paused": false,
+          "duration": 35.1351
+        }
+      ],
+      "canvases": [
+        {
+          "width": 755,
+          "height": 425,
+          "rect": {
+            "x": 526,
+            "y": 6373.8,
+            "left": 526,
+            "top": 6373.8,
+            "width": 604,
+            "height": 339.75,
+            "right": 1130,
+            "bottom": 6713.55
+          },
+          "cssWidth": "604px",
+          "cssHeight": "339.75px",
+          "className": "styles-module-scss-module__cMuLUa__glCanvas",
+          "visibility": "hidden",
+          "zIndex": "auto"
+        }
+      ],
+      "controls": [
+        {
+          "tag": "button",
+          "text": "",
+          "rect": {
+            "x": 683.5,
+            "y": 6511.17,
+            "left": 683.5,
+            "top": 6511.17,
+            "width": 65,
+            "height": 65,
+            "right": 748.5,
+            "bottom": 6576.17
+          },
+          "style": "width:65px;height:65px",
+          "value": "",
+          "width": "65px",
+          "height": "65px",
+          "padding": "0px",
+          "borderRadius": "50%",
+          "transform": "none",
+          "opacity": "1"
+        },
+        {
+          "tag": "button",
+          "text": "",
+          "rect": {
+            "x": 772.5,
+            "y": 6488.17,
+            "left": 772.5,
+            "top": 6488.17,
+            "width": 111,
+            "height": 111,
+            "right": 883.5,
+            "bottom": 6599.17
+          },
+          "style": "width:111px;height:111px",
+          "value": "",
+          "width": "111px",
+          "height": "111px",
+          "padding": "0px",
+          "borderRadius": "50%",
+          "transform": "none",
+          "opacity": "1"
+        },
+        {
+          "tag": "button",
+          "text": "",
+          "rect": {
+            "x": 907.5,
+            "y": 6511.17,
+            "left": 907.5,
+            "top": 6511.17,
+            "width": 65,
+            "height": 65,
+            "right": 972.5,
+            "bottom": 6576.17
+          },
+          "style": "width:65px;height:65px",
+          "value": "",
+          "width": "65px",
+          "height": "65px",
+          "padding": "0px",
+          "borderRadius": "50%",
+          "transform": "none",
+          "opacity": "1"
+        }
+      ]
+    },
+    {
+      "index": 6,
+      "text": "On the left is the refracted result, on the right the map that drives it.",
+      "caption": "On the left is the refracted result, on the right the map that drives it.",
+      "rect": {
+        "x": 478,
+        "y": 7980.55,
+        "left": 478,
+        "top": 7980.55,
+        "width": 700,
+        "height": 358,
+        "right": 1178,
+        "bottom": 8338.55
+      },
+      "padding": "0px",
+      "display": "block",
+      "images": [
+        {
+          "src": "data:image/png...",
+          "rect": {
+            "x": 937,
+            "y": 8080.55,
+            "left": 937,
+            "top": 8080.55,
+            "width": 140,
+            "height": 120,
+            "right": 1077,
+            "bottom": 8200.55
+          },
+          "naturalWidth": 512,
+          "naturalHeight": 512,
+          "className": "styles-module-scss-module__-HMO9q__mapBlob",
+          "width": "140px",
+          "height": "120px",
+          "filter": "none"
+        }
+      ],
+      "videos": [],
+      "canvases": [
+        {
+          "width": 342,
+          "height": 320,
+          "rect": {
+            "x": 478,
+            "y": 7980.55,
+            "left": 478,
+            "top": 7980.55,
+            "width": 342,
+            "height": 320,
+            "right": 820,
+            "bottom": 8300.55
+          },
+          "cssWidth": "342px",
+          "cssHeight": "320px",
+          "className": "",
+          "visibility": "visible",
+          "zIndex": "auto"
+        }
+      ],
+      "controls": []
+    }
+  ],
+  "glass": [
+    {
+      "index": 0,
+      "rect": {
+        "x": 446,
+        "y": 154.41,
+        "left": 446,
+        "top": 154.41,
+        "width": 764,
+        "height": 368,
+        "right": 1210,
+        "bottom": 522.41
+      },
+      "hostStyle": {
+        "width": "764px",
+        "height": "368px",
+        "margin": "0px",
+        "padding": "0px",
+        "visibility": "visible",
+        "overflow": "visible"
+      },
+      "parent": {
+        "tag": "div",
+        "className": "styles-module-scss-module__au3Y-G__container",
+        "rect": {
+          "x": 446,
+          "y": 154.41,
+          "left": 446,
+          "top": 154.41,
+          "width": 764,
+          "height": 368,
+          "right": 1210,
+          "bottom": 522.41
+        },
+        "style": "",
+        "text": ""
+      },
+      "children": [
+        {
+          "tag": "div",
+          "className": "",
+          "rect": {
+            "x": 446,
+            "y": 154.41,
+            "left": 446,
+            "top": 154.41,
+            "width": 764,
+            "height": 368,
+            "right": 1210,
+            "bottom": 522.41
+          },
+          "style": "will-change: filter; filter: url(\"#_R_g5bqivfqdb_-v7109\");",
+          "width": "764px",
+          "height": "368px",
+          "padding": "0px",
+          "background": "rgba(0, 0, 0, 0) none repeat scroll 0% 0% / auto padding-box border-box",
+          "filter": "url(\"#_R_g5bqivfqdb_-v7109\")",
+          "transform": "none",
+          "clipPath": "none"
+        },
+        {
+          "tag": "div",
+          "className": "",
+          "rect": {
+            "x": 446,
+            "y": 154.41,
+            "left": 446,
+            "top": 154.41,
+            "width": 764,
+            "height": 368,
+            "right": 1210,
+            "bottom": 522.41
+          },
+          "style": "position:absolute;inset:0;pointer-events:none",
+          "width": "764px",
+          "height": "368px",
+          "padding": "0px",
+          "background": "rgba(0, 0, 0, 0) none repeat scroll 0% 0% / auto padding-box border-box",
+          "filter": "none",
+          "transform": "none",
+          "clipPath": "none"
+        },
+        {
+          "tag": "div",
+          "className": "",
+          "rect": {
+            "x": 636.94,
+            "y": 263.59,
+            "left": 636.94,
+            "top": 263.59,
+            "width": 160,
+            "height": 160,
+            "right": 796.94,
+            "bottom": 423.59
+          },
+          "style": "position: absolute; top: 0px; left: 0px; pointer-events: none; will-change: backdrop-filter, transform; transform: translate3d(190.943px, 109.187px, 0px); width: 160px; height: 160px; border-radius: 80px; mask-image: url(\"data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20viewBox%3D'0%200%20160%20160'%20preserveAspectRatio%3D'none'%3E%3Crect%20x%3D'0.5'%20y%3D'0.5'%20width%3D'159'%20height%3D'159'%20rx%3D'79.5'%20ry%3D'79.5'%20fill%3D'black'%2F%3E%3C%2Fsvg%3E\"); mask-size: 100% 100%; backdrop-filter: blur(0.5px);",
+          "width": "160px",
+          "height": "160px",
+          "padding": "0px",
+          "background": "rgba(0, 0, 0, 0) none repeat scroll 0% 0% / auto padding-box border-box",
+          "filter": "none",
+          "transform": "matrix(1, 0, 0, 1, 190.943, 109.187)",
+          "clipPath": "none"
+        }
+      ],
+      "filtered": [
+        {
+          "tag": "div",
+          "className": "",
+          "rect": {
+            "x": 446,
+            "y": 154.41,
+            "left": 446,
+            "top": 154.41,
+            "width": 764,
+            "height": 368,
+            "right": 1210,
+            "bottom": 522.41
+          },
+          "style": "will-change: filter; filter: url(\"#_R_g5bqivfqdb_-v7109\");",
+          "width": "764px",
+          "height": "368px",
+          "background": "rgba(0, 0, 0, 0) none repeat scroll 0% 0% / auto padding-box border-box",
+          "filter": "url(\"#_R_g5bqivfqdb_-v7109\")",
+          "transform": "none",
+          "clipPath": "none"
+        }
+      ],
+      "mainFilter": {
+        "attrs": {
+          "filterUnits": "objectBoundingBox",
+          "primitiveUnits": "objectBoundingBox",
+          "color-interpolation-filters": "sRGB",
+          "x": "0",
+          "y": "0",
+          "width": "1",
+          "height": "1",
+          "id": "_R_g5bqivfqdb_-v7109"
+        },
+        "feImages": [
+          {
+            "x": "0.25057984293193825",
+            "y": "0.2980625000000013",
+            "width": "0.2081151832460733",
+            "height": "0.4320652173913043",
+            "result": "rawMap",
+            "hrefLength": 134822,
+            "hrefPrefix": "data:image/png;base64,iVBORw0KGgoAAAANSU"
+          }
+        ],
+        "matrices": [
+          {
+            "in": null,
+            "result": "dispR",
+            "type": "matrix",
+            "values": "1 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 1 0"
+          },
+          {
+            "in": null,
+            "result": "dispG",
+            "type": "matrix",
+            "values": "0 0 0 0 0  0 1 0 0 0  0 0 0 0 0  0 0 0 1 0"
+          },
+          {
+            "in": null,
+            "result": "dispB",
+            "type": "matrix",
+            "values": "0 0 0 0 0  0 0 0 0 0  0 0 1 0 0  0 0 0 1 0"
+          },
+          {
+            "in": "map",
+            "result": "specMask",
+            "type": "matrix",
+            "values": "0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 1 0 -0.5019607843137255"
+          }
+        ],
+        "displacements": [
+          {
+            "in": "blurred",
+            "in2": "map",
+            "result": null,
+            "scale": "0.07560000000000001",
+            "xChannelSelector": "R",
+            "yChannelSelector": "G"
+          },
+          {
+            "in": "blurred",
+            "in2": "map",
+            "result": null,
+            "scale": "0.0728",
+            "xChannelSelector": "R",
+            "yChannelSelector": "G"
+          },
+          {
+            "in": "blurred",
+            "in2": "map",
+            "result": null,
+            "scale": "0.07",
+            "xChannelSelector": "R",
+            "yChannelSelector": "G"
+          }
+        ]
+      }
+    },
+    {
+      "index": 1,
+      "rect": {
+        "x": 770,
+        "y": 2401.2,
+        "left": 770,
+        "top": 2401.2,
+        "width": 116,
+        "height": 70,
+        "right": 886,
+        "bottom": 2471.2
+      },
+      "hostStyle": {
+        "width": "116px",
+        "height": "70px",
+        "margin": "-21px",
+        "padding": "0px",
+        "visibility": "hidden",
+        "overflow": "visible"
+      },
+      "parent": {
+        "tag": "label",
+        "className": "styles-module-scss-module__o679fG__wrapper",
+        "rect": {
+          "x": 791,
+          "y": 2422.2,
+          "left": 791,
+          "top": 2422.2,
+          "width": 74,
+          "height": 28,
+          "right": 865,
+          "bottom": 2450.2
+        },
+        "style": "flex-shrink: 0; width: 74px; height: 28px; overflow: visible; --switch-progress: 0;",
+        "text": ""
+      },
+      "children": [
+        {
+          "tag": "div",
+          "className": "",
+          "rect": {
+            "x": 770,
+            "y": 2401.2,
+            "left": 770,
+            "top": 2401.2,
+            "width": 116,
+            "height": 70,
+            "right": 886,
+            "bottom": 2471.2
+          },
+          "style": "will-change:filter",
+          "width": "116px",
+          "height": "70px",
+          "padding": "0px",
+          "background": "rgba(0, 0, 0, 0) none repeat scroll 0% 0% / auto padding-box border-box",
+          "filter": "none",
+          "transform": "none",
+          "clipPath": "none"
+        },
+        {
+          "tag": "div",
+          "className": "",
+          "rect": {
+            "x": 770,
+            "y": 2401.2,
+            "left": 770,
+            "top": 2401.2,
+            "width": 116,
+            "height": 70,
+            "right": 886,
+            "bottom": 2471.2
+          },
+          "style": "position: absolute; pointer-events: none; will-change: filter, clip-path; background: var(--body-bg); clip-path: inset(48px 96px 48px 48px round 22px); filter: url(\"#_R_ajdbqivfqdb_-v11\"); top: 0px; left: 0px; width: 232px; height: 140px; transform: scale(0.5); transform-origin: left top;",
+          "width": "232px",
+          "height": "140px",
+          "padding": "0px",
+          "background": "color(display-p3 1 1 1) none repeat scroll 0% 0% / auto padding-box border-box",
+          "filter": "url(\"#_R_ajdbqivfqdb_-v11\")",
+          "transform": "matrix(0.5, 0, 0, 0.5, 0, 0)",
+          "clipPath": "inset(48px 96px 48px 48px round 22px)"
+        },
+        {
+          "tag": "div",
+          "className": "",
+          "rect": {
+            "x": 770,
+            "y": 2401.2,
+            "left": 770,
+            "top": 2401.2,
+            "width": 116,
+            "height": 70,
+            "right": 886,
+            "bottom": 2471.2
+          },
+          "style": "position:absolute;inset:0;pointer-events:none",
+          "width": "116px",
+          "height": "70px",
+          "padding": "0px",
+          "background": "rgba(0, 0, 0, 0) none repeat scroll 0% 0% / auto padding-box border-box",
+          "filter": "none",
+          "transform": "none",
+          "clipPath": "none"
+        },
+        {
+          "tag": "div",
+          "className": "",
+          "rect": {
+            "x": 794,
+            "y": 2425.2,
+            "left": 794,
+            "top": 2425.2,
+            "width": 44,
+            "height": 22,
+            "right": 838,
+            "bottom": 2447.2
+          },
+          "style": "position: absolute; top: 0px; left: 0px; pointer-events: none; will-change: backdrop-filter, transform; transform: translate3d(24px, 24px, 0px); width: 44px; height: 22px; border-radius: 11px; mask-image: url(\"data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20viewBox%3D'0%200%2044%2022'%20preserveAspectRatio%3D'none'%3E%3Crect%20x%3D'0.5'%20y%3D'0.5'%20width%3D'43'%20height%3D'21'%20rx%3D'10.5'%20ry%3D'10.5'%20fill%3D'black'%2F%3E%3C%2Fsvg%3E\"); mask-size: 100% 100%; backdrop-filter: none;",
+          "width": "44px",
+          "height": "22px",
+          "padding": "0px",
+          "background": "rgba(0, 0, 0, 0) none repeat scroll 0% 0% / auto padding-box border-box",
+          "filter": "none",
+          "transform": "matrix(1, 0, 0, 1, 24, 24)",
+          "clipPath": "none"
+        },
+        {
+          "tag": "div",
+          "className": "",
+          "rect": {
+            "x": 794,
+            "y": 2425.2,
+            "left": 794,
+            "top": 2425.2,
+            "width": 44,
+            "height": 22,
+            "right": 838,
+            "bottom": 2447.2
+          },
+          "style": "position: absolute; top: 0px; left: 0px; pointer-events: none; will-change: transform; box-sizing: border-box; box-shadow: rgba(0, 0, 0, 0.16) 0px 2px 6px, rgba(0, 0, 0, 0.12) 0px -4px 10px inset; transform: translate(24px, 24px); width: 44px; height: 22px; border-radius: 11px; opacity: 0;",
+          "width": "44px",
+          "height": "22px",
+          "padding": "0px",
+          "background": "rgba(0, 0, 0, 0) none repeat scroll 0% 0% / auto padding-box border-box",
+          "filter": "none",
+          "transform": "matrix(1, 0, 0, 1, 24, 24)",
+          "clipPath": "none"
+        }
+      ],
+      "filtered": [
+        {
+          "tag": "div",
+          "className": "",
+          "rect": {
+            "x": 770,
+            "y": 2401.2,
+            "left": 770,
+            "top": 2401.2,
+            "width": 116,
+            "height": 70,
+            "right": 886,
+            "bottom": 2471.2
+          },
+          "style": "position: absolute; pointer-events: none; will-change: filter, clip-path; background: var(--body-bg); clip-path: inset(48px 96px 48px 48px round 22px); filter: url(\"#_R_ajdbqivfqdb_-v11\"); top: 0px; left: 0px; width: 232px; height: 140px; transform: scale(0.5); transform-origin: left top;",
+          "width": "232px",
+          "height": "140px",
+          "background": "color(display-p3 1 1 1) none repeat scroll 0% 0% / auto padding-box border-box",
+          "filter": "url(\"#_R_ajdbqivfqdb_-v11\")",
+          "transform": "matrix(0.5, 0, 0, 0.5, 0, 0)",
+          "clipPath": "inset(48px 96px 48px 48px round 22px)"
+        }
+      ],
+      "mainFilter": {
+        "attrs": {
+          "filterUnits": "objectBoundingBox",
+          "primitiveUnits": "objectBoundingBox",
+          "color-interpolation-filters": "sRGB",
+          "x": "0",
+          "y": "0",
+          "width": "1",
+          "height": "1",
+          "id": "_R_ajdbqivfqdb_-v11"
+        },
+        "feImages": [
+          {
+            "x": "0.21120689655172414",
+            "y": "0.35",
+            "width": "0.3706896551724138",
+            "height": "0.3",
+            "result": "rawMap",
+            "hrefLength": 43226,
+            "hrefPrefix": "data:image/png;base64,iVBORw0KGgoAAAANSU"
+          }
+        ],
+        "matrices": [
+          {
+            "in": null,
+            "result": "dispR",
+            "type": "matrix",
+            "values": "1 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 1 0"
+          },
+          {
+            "in": null,
+            "result": "dispG",
+            "type": "matrix",
+            "values": "0 0 0 0 0  0 1 0 0 0  0 0 0 0 0  0 0 0 1 0"
+          },
+          {
+            "in": null,
+            "result": "dispB",
+            "type": "matrix",
+            "values": "0 0 0 0 0  0 0 0 0 0  0 0 1 0 0  0 0 0 1 0"
+          },
+          {
+            "in": "map",
+            "result": "specMask",
+            "type": "matrix",
+            "values": "0 0 -1.5 0 1.7529411764705882  0 0 -1.5 0 1.7529411764705882  0 0 -1.5 0 1.7529411764705882  0 0 0 0 1"
+          }
+        ],
+        "displacements": [
+          {
+            "in": "SourceGraphic",
+            "in2": "map",
+            "result": null,
+            "scale": "0.3",
+            "xChannelSelector": "R",
+            "yChannelSelector": "G"
+          },
+          {
+            "in": "SourceGraphic",
+            "in2": "map",
+            "result": null,
+            "scale": "0.275",
+            "xChannelSelector": "R",
+            "yChannelSelector": "G"
+          },
+          {
+            "in": "SourceGraphic",
+            "in2": "map",
+            "result": null,
+            "scale": "0.25",
+            "xChannelSelector": "R",
+            "yChannelSelector": "G"
+          }
+        ]
+      }
+    },
+    {
+      "index": 2,
+      "rect": {
+        "x": 683,
+        "y": 3376.2,
+        "left": 683,
+        "top": 3376.2,
+        "width": 290,
+        "height": 72,
+        "right": 973,
+        "bottom": 3448.2
+      },
+      "hostStyle": {
+        "width": "290px",
+        "height": "72px",
+        "margin": "-25px",
+        "padding": "0px",
+        "visibility": "hidden",
+        "overflow": "visible"
+      },
+      "parent": {
+        "tag": "div",
+        "className": "styles-module-scss-module__YDAIcG__wrapper",
+        "rect": {
+          "x": 708,
+          "y": 3401.2,
+          "left": 708,
+          "top": 3401.2,
+          "width": 240,
+          "height": 22,
+          "right": 948,
+          "bottom": 3423.2
+        },
+        "style": "flex-shrink: 0; width: 240px; height: 22px; overflow: visible; --slider-fill: 120px; --slider-progress: 0.5;",
+        "text": ""
+      },
+      "children": [
+        {
+          "tag": "div",
+          "className": "",
+          "rect": {
+            "x": 683,
+            "y": 3376.2,
+            "left": 683,
+            "top": 3376.2,
+            "width": 290,
+            "height": 72,
+            "right": 973,
+            "bottom": 3448.2
+          },
+          "style": "will-change:filter",
+          "width": "290px",
+          "height": "72px",
+          "padding": "0px",
+          "background": "rgba(0, 0, 0, 0) none repeat scroll 0% 0% / auto padding-box border-box",
+          "filter": "none",
+          "transform": "none",
+          "clipPath": "none"
+        },
+        {
+          "tag": "div",
+          "className": "",
+          "rect": {
+            "x": 683,
+            "y": 3376.2,
+            "left": 683,
+            "top": 3376.2,
+            "width": 290,
+            "height": 72,
+            "right": 973,
+            "bottom": 3448.2
+          },
+          "style": "position: absolute; pointer-events: none; will-change: filter, clip-path; background: var(--body-bg); clip-path: inset(50px 246px round 22px); filter: url(\"#_R_2ktbqivfqdb_-v12\"); top: 0px; left: 0px; width: 580px; height: 144px; transform: scale(0.5); transform-origin: left top;",
+          "width": "580px",
+          "height": "144px",
+          "padding": "0px",
+          "background": "color(display-p3 1 1 1) none repeat scroll 0% 0% / auto padding-box border-box",
+          "filter": "url(\"#_R_2ktbqivfqdb_-v12\")",
+          "transform": "matrix(0.5, 0, 0, 0.5, 0, 0)",
+          "clipPath": "inset(50px 246px round 22px)"
+        },
+        {
+          "tag": "div",
+          "className": "",
+          "rect": {
+            "x": 683,
+            "y": 3376.2,
+            "left": 683,
+            "top": 3376.2,
+            "width": 290,
+            "height": 72,
+            "right": 973,
+            "bottom": 3448.2
+          },
+          "style": "position:absolute;inset:0;pointer-events:none",
+          "width": "290px",
+          "height": "72px",
+          "padding": "0px",
+          "background": "rgba(0, 0, 0, 0) none repeat scroll 0% 0% / auto padding-box border-box",
+          "filter": "none",
+          "transform": "none",
+          "clipPath": "none"
+        },
+        {
+          "tag": "div",
+          "className": "",
+          "rect": {
+            "x": 806,
+            "y": 3401.2,
+            "left": 806,
+            "top": 3401.2,
+            "width": 44,
+            "height": 22,
+            "right": 850,
+            "bottom": 3423.2
+          },
+          "style": "position: absolute; top: 0px; left: 0px; pointer-events: none; will-change: backdrop-filter, transform; transform: translate3d(123px, 25px, 0px); width: 44px; height: 22px; border-radius: 11px; mask-image: url(\"data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20viewBox%3D'0%200%2044%2022'%20preserveAspectRatio%3D'none'%3E%3Crect%20x%3D'0.5'%20y%3D'0.5'%20width%3D'43'%20height%3D'21'%20rx%3D'10.5'%20ry%3D'10.5'%20fill%3D'black'%2F%3E%3C%2Fsvg%3E\"); mask-size: 100% 100%; backdrop-filter: none;",
+          "width": "44px",
+          "height": "22px",
+          "padding": "0px",
+          "background": "rgba(0, 0, 0, 0) none repeat scroll 0% 0% / auto padding-box border-box",
+          "filter": "none",
+          "transform": "matrix(1, 0, 0, 1, 123, 25)",
+          "clipPath": "none"
+        },
+        {
+          "tag": "div",
+          "className": "",
+          "rect": {
+            "x": 806,
+            "y": 3401.2,
+            "left": 806,
+            "top": 3401.2,
+            "width": 44,
+            "height": 22,
+            "right": 850,
+            "bottom": 3423.2
+          },
+          "style": "position: absolute; top: 0px; left: 0px; pointer-events: none; will-change: transform; box-sizing: border-box; box-shadow: rgba(0, 0, 0, 0.16) 0px 2px 6px, rgba(0, 0, 0, 0.12) 0px -4px 10px inset; transform: translate(123px, 25px); width: 44px; height: 22px; border-radius: 11px; opacity: 0;",
+          "width": "44px",
+          "height": "22px",
+          "padding": "0px",
+          "background": "rgba(0, 0, 0, 0) none repeat scroll 0% 0% / auto padding-box border-box",
+          "filter": "none",
+          "transform": "matrix(1, 0, 0, 1, 123, 25)",
+          "clipPath": "none"
+        },
+        {
+          "tag": "div",
+          "className": "",
+          "rect": {
+            "x": 806,
+            "y": 3401.2,
+            "left": 806,
+            "top": 3401.2,
+            "width": 44,
+            "height": 22,
+            "right": 850,
+            "bottom": 3423.2
+          },
+          "style": "position: absolute; top: 0px; left: 0px; pointer-events: none; will-change: transform; box-sizing: border-box; box-shadow: 0 1.333px 5.333px  var(--shadow-strong); transform: translate(123px, 25px); width: 44px; height: 22px; border-radius: 11px; opacity: 1;",
+          "width": "44px",
+          "height": "22px",
+          "padding": "0px",
+          "background": "rgba(0, 0, 0, 0) none repeat scroll 0% 0% / auto padding-box border-box",
+          "filter": "none",
+          "transform": "matrix(1, 0, 0, 1, 123, 25)",
+          "clipPath": "none"
+        }
+      ],
+      "filtered": [
+        {
+          "tag": "div",
+          "className": "",
+          "rect": {
+            "x": 683,
+            "y": 3376.2,
+            "left": 683,
+            "top": 3376.2,
+            "width": 290,
+            "height": 72,
+            "right": 973,
+            "bottom": 3448.2
+          },
+          "style": "position: absolute; pointer-events: none; will-change: filter, clip-path; background: var(--body-bg); clip-path: inset(50px 246px round 22px); filter: url(\"#_R_2ktbqivfqdb_-v12\"); top: 0px; left: 0px; width: 580px; height: 144px; transform: scale(0.5); transform-origin: left top;",
+          "width": "580px",
+          "height": "144px",
+          "background": "color(display-p3 1 1 1) none repeat scroll 0% 0% / auto padding-box border-box",
+          "filter": "url(\"#_R_2ktbqivfqdb_-v12\")",
+          "transform": "matrix(0.5, 0, 0, 0.5, 0, 0)",
+          "clipPath": "inset(50px 246px round 22px)"
+        }
+      ],
+      "mainFilter": {
+        "attrs": {
+          "filterUnits": "objectBoundingBox",
+          "primitiveUnits": "objectBoundingBox",
+          "color-interpolation-filters": "sRGB",
+          "x": "0",
+          "y": "0",
+          "width": "1",
+          "height": "1",
+          "id": "_R_2ktbqivfqdb_-v12"
+        },
+        "feImages": [
+          {
+            "x": "0.42586206896551726",
+            "y": "0.3541666666666667",
+            "width": "0.1482758620689655",
+            "height": "0.2916666666666667",
+            "result": "rawMap",
+            "hrefLength": 42730,
+            "hrefPrefix": "data:image/png;base64,iVBORw0KGgoAAAANSU"
+          }
+        ],
+        "matrices": [
+          {
+            "in": null,
+            "result": "dispR",
+            "type": "matrix",
+            "values": "1 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 1 0"
+          },
+          {
+            "in": null,
+            "result": "dispG",
+            "type": "matrix",
+            "values": "0 0 0 0 0  0 1 0 0 0  0 0 0 0 0  0 0 0 1 0"
+          },
+          {
+            "in": null,
+            "result": "dispB",
+            "type": "matrix",
+            "values": "0 0 0 0 0  0 0 0 0 0  0 0 1 0 0  0 0 0 1 0"
+          },
+          {
+            "in": "map",
+            "result": "specMask",
+            "type": "matrix",
+            "values": "0 0 -1.5 0 1.7529411764705882  0 0 -1.5 0 1.7529411764705882  0 0 -1.5 0 1.7529411764705882  0 0 0 0 1"
+          }
+        ],
+        "displacements": [
+          {
+            "in": "SourceGraphic",
+            "in2": "map",
+            "result": null,
+            "scale": "0.11299999999999999",
+            "xChannelSelector": "R",
+            "yChannelSelector": "G"
+          },
+          {
+            "in": "SourceGraphic",
+            "in2": "map",
+            "result": null,
+            "scale": "0.1065",
+            "xChannelSelector": "R",
+            "yChannelSelector": "G"
+          },
+          {
+            "in": "SourceGraphic",
+            "in2": "map",
+            "result": null,
+            "scale": "0.1",
+            "xChannelSelector": "R",
+            "yChannelSelector": "G"
+          }
+        ]
+      }
+    },
+    {
+      "index": 3,
+      "rect": {
+        "x": 535.63,
+        "y": 4376.8,
+        "left": 535.63,
+        "top": 4376.8,
+        "width": 584.73,
+        "height": 206,
+        "right": 1120.36,
+        "bottom": 4582.8
+      },
+      "hostStyle": {
+        "width": "504.734px",
+        "height": "46px",
+        "margin": "-80px -40px",
+        "padding": "80px 40px",
+        "visibility": "hidden",
+        "overflow": "visible"
+      },
+      "parent": {
+        "tag": "div",
+        "className": "",
+        "rect": {
+          "x": 575.63,
+          "y": 4456.8,
+          "left": 575.63,
+          "top": 4456.8,
+          "width": 504.73,
+          "height": 46,
+          "right": 1080.36,
+          "bottom": 4502.8
+        },
+        "style": "",
+        "text": "HubsSpokesReservesAssetsChainsHubsSpokesReservesAssetsChains"
+      },
+      "children": [
+        {
+          "tag": "div",
+          "className": "",
+          "rect": {
+            "x": 575.63,
+            "y": 4456.8,
+            "left": 575.63,
+            "top": 4456.8,
+            "width": 504.73,
+            "height": 46,
+            "right": 1080.36,
+            "bottom": 4502.8
+          },
+          "style": "will-change:filter",
+          "width": "504.734px",
+          "height": "46px",
+          "padding": "0px",
+          "background": "rgba(0, 0, 0, 0) none repeat scroll 0% 0% / auto padding-box border-box",
+          "filter": "none",
+          "transform": "none",
+          "clipPath": "none"
+        },
+        {
+          "tag": "div",
+          "className": "",
+          "rect": {
+            "x": 535.63,
+            "y": 4376.8,
+            "left": 535.63,
+            "top": 4376.8,
+            "width": 584.73,
+            "height": 206,
+            "right": 1120.36,
+            "bottom": 4582.8
+          },
+          "style": "position: absolute; inset: 0px; pointer-events: none; will-change: filter, clip-path; background: var(--body-bg); clip-path: inset(83px 454.688px 83px 43px round 20px); filter: url(\"#_R_2mdbqivfqdb_-v13\");",
+          "width": "584.734px",
+          "height": "206px",
+          "padding": "0px",
+          "background": "color(display-p3 1 1 1) none repeat scroll 0% 0% / auto padding-box border-box",
+          "filter": "url(\"#_R_2mdbqivfqdb_-v13\")",
+          "transform": "none",
+          "clipPath": "inset(83px 454.688px 83px 43px round 20px)"
+        },
+        {
+          "tag": "div",
+          "className": "",
+          "rect": {
+            "x": 535.63,
+            "y": 4376.8,
+            "left": 535.63,
+            "top": 4376.8,
+            "width": 584.73,
+            "height": 206,
+            "right": 1120.36,
+            "bottom": 4582.8
+          },
+          "style": "position:absolute;inset:0;pointer-events:none",
+          "width": "584.734px",
+          "height": "206px",
+          "padding": "0px",
+          "background": "rgba(0, 0, 0, 0) none repeat scroll 0% 0% / auto padding-box border-box",
+          "filter": "none",
+          "transform": "none",
+          "clipPath": "none"
+        },
+        {
+          "tag": "div",
+          "className": "",
+          "rect": {
+            "x": 578.63,
+            "y": 4459.8,
+            "left": 578.63,
+            "top": 4459.8,
+            "width": 87.05,
+            "height": 40,
+            "right": 665.67,
+            "bottom": 4499.8
+          },
+          "style": "position: absolute; top: 0px; left: 0px; pointer-events: none; will-change: backdrop-filter, transform; transform: translate3d(43px, 83px, 0px); width: 87.0469px; height: 40px; border-radius: 20px; mask-image: url(\"data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20viewBox%3D'0%200%2087%2040'%20preserveAspectRatio%3D'none'%3E%3Crect%20x%3D'0.5'%20y%3D'0.5'%20width%3D'86'%20height%3D'39'%20rx%3D'19.5'%20ry%3D'19.5'%20fill%3D'black'%2F%3E%3C%2Fsvg%3E\"); mask-size: 100% 100%; backdrop-filter: none;",
+          "width": "87.0469px",
+          "height": "40px",
+          "padding": "0px",
+          "background": "rgba(0, 0, 0, 0) none repeat scroll 0% 0% / auto padding-box border-box",
+          "filter": "none",
+          "transform": "matrix(1, 0, 0, 1, 43, 83)",
+          "clipPath": "none"
+        }
+      ],
+      "filtered": [
+        {
+          "tag": "div",
+          "className": "",
+          "rect": {
+            "x": 535.63,
+            "y": 4376.8,
+            "left": 535.63,
+            "top": 4376.8,
+            "width": 584.73,
+            "height": 206,
+            "right": 1120.36,
+            "bottom": 4582.8
+          },
+          "style": "position: absolute; inset: 0px; pointer-events: none; will-change: filter, clip-path; background: var(--body-bg); clip-path: inset(83px 454.688px 83px 43px round 20px); filter: url(\"#_R_2mdbqivfqdb_-v13\");",
+          "width": "584.734px",
+          "height": "206px",
+          "background": "color(display-p3 1 1 1) none repeat scroll 0% 0% / auto padding-box border-box",
+          "filter": "url(\"#_R_2mdbqivfqdb_-v13\")",
+          "transform": "none",
+          "clipPath": "inset(83px 454.688px 83px 43px round 20px)"
+        }
+      ],
+      "mainFilter": {
+        "attrs": {
+          "filterUnits": "objectBoundingBox",
+          "primitiveUnits": "objectBoundingBox",
+          "color-interpolation-filters": "sRGB",
+          "x": "0",
+          "y": "0",
+          "width": "1",
+          "height": "1",
+          "id": "_R_2mdbqivfqdb_-v13"
+        },
+        "feImages": [
+          {
+            "x": "0.0743927531197392",
+            "y": "0.4053398058252427",
+            "width": "0.1471554926114956",
+            "height": "0.18932038834951456",
+            "result": "rawMap",
+            "hrefLength": 32550,
+            "hrefPrefix": "data:image/png;base64,iVBORw0KGgoAAAANSU"
+          }
+        ],
+        "matrices": [
+          {
+            "in": "map",
+            "result": "scaledMap",
+            "type": "matrix",
+            "values": "1 0 0 0 0  0 0.5555555555555556 0 0 0.2222222222222222  0 0 1 0 0  0 0 0 1 0"
+          },
+          {
+            "in": null,
+            "result": "dispR",
+            "type": "matrix",
+            "values": "1 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 1 0"
+          },
+          {
+            "in": null,
+            "result": "dispG",
+            "type": "matrix",
+            "values": "0 0 0 0 0  0 1 0 0 0  0 0 0 0 0  0 0 0 1 0"
+          },
+          {
+            "in": null,
+            "result": "dispB",
+            "type": "matrix",
+            "values": "0 0 0 0 0  0 0 0 0 0  0 0 1 0 0  0 0 0 1 0"
+          },
+          {
+            "in": "map",
+            "result": "specMask",
+            "type": "matrix",
+            "values": "0 0 -1 0 1.5019607843137255  0 0 -1 0 1.5019607843137255  0 0 -1 0 1.5019607843137255  0 0 0 0 1"
+          }
+        ],
+        "displacements": [
+          {
+            "in": "SourceGraphic",
+            "in2": "scaledMap",
+            "result": null,
+            "scale": "0.045899999999999996",
+            "xChannelSelector": "R",
+            "yChannelSelector": "G"
+          },
+          {
+            "in": "SourceGraphic",
+            "in2": "scaledMap",
+            "result": null,
+            "scale": "0.04545",
+            "xChannelSelector": "R",
+            "yChannelSelector": "G"
+          },
+          {
+            "in": "SourceGraphic",
+            "in2": "scaledMap",
+            "result": null,
+            "scale": "0.045",
+            "xChannelSelector": "R",
+            "yChannelSelector": "G"
+          }
+        ]
+      }
+    },
+    {
+      "index": 4,
+      "rect": {
+        "x": 478,
+        "y": 7980.55,
+        "left": 478,
+        "top": 7980.55,
+        "width": 342,
+        "height": 320,
+        "right": 820,
+        "bottom": 8300.55
+      },
+      "hostStyle": {
+        "width": "342px",
+        "height": "320px",
+        "margin": "0px",
+        "padding": "0px",
+        "visibility": "visible",
+        "overflow": "visible"
+      },
+      "parent": {
+        "tag": "div",
+        "className": "styles-module-scss-module__-HMO9q__stage",
+        "rect": {
+          "x": 478,
+          "y": 7980.55,
+          "left": 478,
+          "top": 7980.55,
+          "width": 342,
+          "height": 320,
+          "right": 820,
+          "bottom": 8300.55
+        },
+        "style": "",
+        "text": ""
+      },
+      "children": [
+        {
+          "tag": "div",
+          "className": "",
+          "rect": {
+            "x": 478,
+            "y": 7980.55,
+            "left": 478,
+            "top": 7980.55,
+            "width": 342,
+            "height": 320,
+            "right": 820,
+            "bottom": 8300.55
+          },
+          "style": "will-change: filter;",
+          "width": "342px",
+          "height": "320px",
+          "padding": "0px",
+          "background": "rgba(0, 0, 0, 0) none repeat scroll 0% 0% / auto padding-box border-box",
+          "filter": "none",
+          "transform": "none",
+          "clipPath": "none"
+        },
+        {
+          "tag": "div",
+          "className": "",
+          "rect": {
+            "x": 478,
+            "y": 7980.55,
+            "left": 478,
+            "top": 7980.55,
+            "width": 342,
+            "height": 320,
+            "right": 820,
+            "bottom": 8300.55
+          },
+          "style": "position:absolute;inset:0;pointer-events:none",
+          "width": "342px",
+          "height": "320px",
+          "padding": "0px",
+          "background": "rgba(0, 0, 0, 0) none repeat scroll 0% 0% / auto padding-box border-box",
+          "filter": "none",
+          "transform": "none",
+          "clipPath": "none"
+        },
+        {
+          "tag": "div",
+          "className": "",
+          "rect": {
+            "x": 579,
+            "y": 8080.55,
+            "left": 579,
+            "top": 8080.55,
+            "width": 140,
+            "height": 120,
+            "right": 719,
+            "bottom": 8200.55
+          },
+          "style": "position: absolute; top: 0px; left: 0px; pointer-events: none; will-change: backdrop-filter, transform; transform: translate3d(101px, 100px, 0px); width: 140px; height: 120px; border-radius: 28px; mask-image: url(\"data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20viewBox%3D'0%200%20140%20120'%20preserveAspectRatio%3D'none'%3E%3Crect%20x%3D'0.5'%20y%3D'0.5'%20width%3D'139'%20height%3D'119'%20rx%3D'27.5'%20ry%3D'27.5'%20fill%3D'black'%2F%3E%3C%2Fsvg%3E\"); mask-size: 100% 100%; backdrop-filter: none;",
+          "width": "140px",
+          "height": "120px",
+          "padding": "0px",
+          "background": "rgba(0, 0, 0, 0) none repeat scroll 0% 0% / auto padding-box border-box",
+          "filter": "none",
+          "transform": "matrix(1, 0, 0, 1, 101, 100)",
+          "clipPath": "none"
+        },
+        {
+          "tag": "div",
+          "className": "",
+          "rect": {
+            "x": 579,
+            "y": 8080.55,
+            "left": 579,
+            "top": 8080.55,
+            "width": 140,
+            "height": 120,
+            "right": 719,
+            "bottom": 8200.55
+          },
+          "style": "position: absolute; top: 0px; left: 0px; pointer-events: none; will-change: transform; box-sizing: border-box; box-shadow: 0 0 0 1px var(--bg-max), 0 8px 24px rgba(0, 0, 0, 0.4); transform: translate(101px, 100px); width: 140px; height: 120px; border-radius: 28px; opacity: 1;",
+          "width": "140px",
+          "height": "120px",
+          "padding": "0px",
+          "background": "rgba(0, 0, 0, 0) none repeat scroll 0% 0% / auto padding-box border-box",
+          "filter": "none",
+          "transform": "matrix(1, 0, 0, 1, 101, 100)",
+          "clipPath": "none"
+        }
+      ],
+      "filtered": [],
+      "mainFilter": {
+        "attrs": {
+          "filterUnits": "objectBoundingBox",
+          "primitiveUnits": "objectBoundingBox",
+          "color-interpolation-filters": "sRGB",
+          "x": "0",
+          "y": "0",
+          "width": "1",
+          "height": "1",
+          "id": "_R_6arlbqivfqdb_-v9"
+        },
+        "feImages": [
+          {
+            "x": "0.29678362573099415",
+            "y": "0.3140625",
+            "width": "0.4064327485380117",
+            "height": "0.371875",
+            "result": "rawMap",
+            "hrefLength": 123162,
+            "hrefPrefix": "data:image/png;base64,iVBORw0KGgoAAAANSU"
+          }
+        ],
+        "matrices": [
+          {
+            "in": null,
+            "result": "dispR",
+            "type": "matrix",
+            "values": "1 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 1 0"
+          },
+          {
+            "in": null,
+            "result": "dispG",
+            "type": "matrix",
+            "values": "0 0 0 0 0  0 1 0 0 0  0 0 0 0 0  0 0 0 1 0"
+          },
+          {
+            "in": null,
+            "result": "dispB",
+            "type": "matrix",
+            "values": "0 0 0 0 0  0 0 0 0 0  0 0 1 0 0  0 0 0 1 0"
+          },
+          {
+            "in": "map",
+            "result": "specMask",
+            "type": "matrix",
+            "values": "0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 1 0 -0.5019607843137255"
+          }
+        ],
+        "displacements": [
+          {
+            "in": "SourceGraphic",
+            "in2": "map",
+            "result": null,
+            "scale": "0.10400000000000001",
+            "xChannelSelector": "R",
+            "yChannelSelector": "G"
+          },
+          {
+            "in": "SourceGraphic",
+            "in2": "map",
+            "result": null,
+            "scale": "0.10200000000000001",
+            "xChannelSelector": "R",
+            "yChannelSelector": "G"
+          },
+          {
+            "in": "SourceGraphic",
+            "in2": "map",
+            "result": null,
+            "scale": "0.1",
+            "xChannelSelector": "R",
+            "yChannelSelector": "G"
+          }
+        ]
+      }
+    }
+  ]
+}

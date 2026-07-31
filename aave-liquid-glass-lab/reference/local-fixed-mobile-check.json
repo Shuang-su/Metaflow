@@ -1,0 +1,232 @@
+{
+  "heroSamples": [
+    {
+      "x": 521.26,
+      "y": 266.15,
+      "w": 160,
+      "h": 160,
+      "style": "position: absolute; top: 0px; left: 0px; pointer-events: none; will-change: backdrop-filter, transform; transform: translate3d(529.256px, 131.741px, 0px); width: 160px; height: 160px; border-radius: 80px; mask-image: url(\"data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20viewBox%3D'0%200%20160%20160'%20preserveAspectRatio%3D'none'%3E%3Crect%20x%3D'0.5'%20y%3D'0.5'%20width%3D'159'%20height%3D'159'%20rx%3D'79.5'%20ry%3D'79.5'%20fill%3D'black'%2F%3E%3C%2Fsvg%3E\"); mask-size: 100% 100%; backdrop-filter: blur(0.5px);"
+    },
+    {
+      "x": 521.26,
+      "y": 266.15,
+      "w": 160,
+      "h": 160,
+      "style": "position: absolute; top: 0px; left: 0px; pointer-events: none; will-change: backdrop-filter, transform; transform: translate3d(529.256px, 131.741px, 0px); width: 160px; height: 160px; border-radius: 80px; mask-image: url(\"data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20viewBox%3D'0%200%20160%20160'%20preserveAspectRatio%3D'none'%3E%3Crect%20x%3D'0.5'%20y%3D'0.5'%20width%3D'159'%20height%3D'159'%20rx%3D'79.5'%20ry%3D'79.5'%20fill%3D'black'%2F%3E%3C%2Fsvg%3E\"); mask-size: 100% 100%; backdrop-filter: blur(0.5px);"
+    },
+    {
+      "x": 521.26,
+      "y": 266.15,
+      "w": 160,
+      "h": 160,
+      "style": "position: absolute; top: 0px; left: 0px; pointer-events: none; will-change: backdrop-filter, transform; transform: translate3d(529.256px, 131.741px, 0px); width: 160px; height: 160px; border-radius: 80px; mask-image: url(\"data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20viewBox%3D'0%200%20160%20160'%20preserveAspectRatio%3D'none'%3E%3Crect%20x%3D'0.5'%20y%3D'0.5'%20width%3D'159'%20height%3D'159'%20rx%3D'79.5'%20ry%3D'79.5'%20fill%3D'black'%2F%3E%3C%2Fsvg%3E\"); mask-size: 100% 100%; backdrop-filter: blur(0.5px);"
+    }
+  ],
+  "results": [
+    {
+      "file": "/tmp/aave-glass-compare/local-fixed-768-figure-1.png",
+      "metric": {
+        "idx": 1,
+        "caption": "Even with a small component like this switch, the glass effect adds a sense of depth and tactility.",
+        "content": {
+          "rect": {
+            "x": 24,
+            "y": 303.03,
+            "w": 720,
+            "h": 380
+          },
+          "css": {
+            "visibility": "visible",
+            "opacity": "1",
+            "display": "flex",
+            "filter": "none",
+            "width": "720px",
+            "height": "380px"
+          },
+          "style": "visibility: visible;"
+        },
+        "glass": [
+          {
+            "rect": {
+              "x": 326,
+              "y": 458.03,
+              "w": 116,
+              "h": 70
+            },
+            "css": {
+              "visibility": "visible",
+              "opacity": "1",
+              "display": "block",
+              "filter": "none",
+              "width": "116px",
+              "height": "70px"
+            },
+            "style": "width:116px;height:70px;overflow:visible;margin:-21px"
+          }
+        ],
+        "canvases": 0,
+        "videos": 0
+      }
+    },
+    {
+      "file": "/tmp/aave-glass-compare/local-fixed-768-figure-2.png",
+      "metric": {
+        "idx": 2,
+        "caption": "Native <input type='range' /> elements are back-synced with our custom component.",
+        "content": {
+          "rect": {
+            "x": 24,
+            "y": 303.03,
+            "w": 720,
+            "h": 380
+          },
+          "css": {
+            "visibility": "visible",
+            "opacity": "1",
+            "display": "flex",
+            "filter": "none",
+            "width": "720px",
+            "height": "380px"
+          },
+          "style": "visibility: visible;"
+        },
+        "glass": [
+          {
+            "rect": {
+              "x": 239,
+              "y": 457.03,
+              "w": 290,
+              "h": 72
+            },
+            "css": {
+              "visibility": "visible",
+              "opacity": "1",
+              "display": "block",
+              "filter": "none",
+              "width": "290px",
+              "height": "72px"
+            },
+            "style": "width:290px;height:72px;overflow:visible;margin:-25px"
+          }
+        ],
+        "canvases": 0,
+        "videos": 0
+      }
+    },
+    {
+      "file": "/tmp/aave-glass-compare/local-fixed-768-figure-3.png",
+      "metric": {
+        "idx": 3,
+        "caption": "The glass effect helps visually highlight the selected option.",
+        "content": {
+          "rect": {
+            "x": 24,
+            "y": 303.63,
+            "w": 720,
+            "h": 380
+          },
+          "css": {
+            "visibility": "visible",
+            "opacity": "1",
+            "display": "flex",
+            "filter": "none",
+            "width": "720px",
+            "height": "380px"
+          },
+          "style": "visibility: visible;"
+        },
+        "glass": [
+          {
+            "rect": {
+              "x": 91.63,
+              "y": 390.63,
+              "w": 584.73,
+              "h": 206
+            },
+            "css": {
+              "visibility": "visible",
+              "opacity": "1",
+              "display": "block",
+              "filter": "none",
+              "width": "504.734px",
+              "height": "46px"
+            },
+            "style": "padding:80px 40px;margin:-80px -40px;box-sizing:content-box"
+          }
+        ],
+        "canvases": 0,
+        "videos": 0
+      }
+    },
+    {
+      "file": "/tmp/aave-glass-compare/local-fixed-768-figure-4.png",
+      "metric": {
+        "idx": 4,
+        "caption": "The QR code is fully interactive. Click the Aave logo to see the glass effect in action.",
+        "content": {
+          "rect": {
+            "x": 24,
+            "y": 271.63,
+            "w": 720,
+            "h": 444
+          },
+          "css": {
+            "visibility": "visible",
+            "opacity": "1",
+            "display": "flex",
+            "filter": "none",
+            "width": "720px",
+            "height": "444px"
+          },
+          "style": "visibility: visible;"
+        },
+        "glass": [],
+        "canvases": 2,
+        "videos": 0
+      }
+    },
+    {
+      "file": "/tmp/aave-glass-compare/local-fixed-768-figure-5.png",
+      "metric": {
+        "idx": 5,
+        "caption": "The glass effect can be applied to complex, interactive content like this video player.",
+        "content": {
+          "rect": {
+            "x": 24,
+            "y": 269.63,
+            "w": 720,
+            "h": 447
+          },
+          "css": {
+            "visibility": "visible",
+            "opacity": "1",
+            "display": "flex",
+            "filter": "none",
+            "width": "720px",
+            "height": "447px"
+          },
+          "style": "visibility: visible;"
+        },
+        "glass": [],
+        "canvases": 1,
+        "videos": 1
+      }
+    }
+  ],
+  "errors": [],
+  "failed": [],
+  "metrics": {
+    "glassCount": 5,
+    "filters": 25,
+    "displacements": 35,
+    "visibleDemoContent": [
+      "visible",
+      "visible",
+      "visible",
+      "visible",
+      "visible",
+      "visible",
+      "visible"
+    ]
+  }
+}

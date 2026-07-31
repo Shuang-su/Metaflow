@@ -1,0 +1,26 @@
+{
+  "metrics": {
+    "title": "Building Glass for the Web",
+    "url": "http://127.0.0.1:4173/design/building-glass-for-the-web/#glass-lab",
+    "bodyText": "Back\nThe challenge with the web\nA family of components\nHow it works\nMaking it work everywhere\nThe future\nBuilding Glass for the Web\nShare\n\nIn June last year Apple announced Liquid Glass at WWDC, a fresh design language built around the physics of light bending through curved glass. It was a bold mov",
+    "glassCount": 5,
+    "filters": 25,
+    "displacements": 35,
+    "figures": 7,
+    "hero": {
+      "x": 446,
+      "y": 154.40625,
+      "w": 764,
+      "h": 368
+    },
+    "overflowX": 0
+  },
+  "failed": [
+    {
+      "url": "http://127.0.0.1:4173/design/demo/videos/cosmos-flowers-in-the-field-18491376/video.mp4",
+      "failure": "net::ERR_ABORTED"
+    }
+  ],
+  "errors": [],
+  "screenshot": "/tmp/aave-glass-compare/local-4173-mirror-top.png"
+}

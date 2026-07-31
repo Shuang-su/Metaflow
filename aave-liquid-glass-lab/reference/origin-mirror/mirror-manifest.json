@@ -1,0 +1,332 @@
+{
+  "source": "https://aave.com/design/building-glass-for-the-web",
+  "generatedAt": "2026-07-09T04:03:18.048Z",
+  "copiedCount": 54,
+  "skippedRsc": 13,
+  "copied": [
+    {
+      "url": "https://aave.com/design/_vercel/insights/script.js",
+      "src": "scripts/script.js",
+      "dest": "design/_vercel/insights/script.js",
+      "bytes": 2495
+    },
+    {
+      "url": "https://aave.com/design/demo/demo-bg.png",
+      "src": "assets/image/demo-bg.png",
+      "dest": "design/demo/demo-bg.png",
+      "bytes": 769899
+    },
+    {
+      "url": "https://aave.com/design/demo/photos/aave-glass-icon.png",
+      "src": "assets/image/aave-glass-icon.png",
+      "dest": "design/demo/photos/aave-glass-icon.png",
+      "bytes": 53505
+    },
+    {
+      "url": "https://aave.com/design/demo/videos/aave-glass/aave-glass-dark-new.jpg",
+      "src": "assets/image/aave-glass-dark-new.jpg",
+      "dest": "design/demo/videos/aave-glass/aave-glass-dark-new.jpg",
+      "bytes": 152690
+    },
+    {
+      "url": "https://aave.com/design/demo/videos/aave-glass/aave-glass-dark-new.mp4",
+      "src": "assets/video/aave-glass-dark-new.mp4",
+      "dest": "design/demo/videos/aave-glass/aave-glass-dark-new.mp4",
+      "bytes": 584315
+    },
+    {
+      "url": "https://aave.com/design/demo/videos/cosmos-flowers-in-the-field-18491376/placeholder.webp",
+      "src": "assets/image/placeholder.webp",
+      "dest": "design/demo/videos/cosmos-flowers-in-the-field-18491376/placeholder.webp",
+      "bytes": 105060
+    },
+    {
+      "url": "https://aave.com/design/demo/videos/cosmos-flowers-in-the-field-18491376/video.mp4",
+      "src": "assets/video/video.mp4",
+      "dest": "design/demo/videos/cosmos-flowers-in-the-field-18491376/video.mp4",
+      "bytes": 6575219
+    },
+    {
+      "url": "https://aave.com/design/icon.png?icon.60856dba.png",
+      "src": "assets/image/icon.png-P2ljb24uNj",
+      "dest": "design/icon.png",
+      "bytes": 21902
+    },
+    {
+      "url": "https://aave.com/design/images/team/abhijeet.jpg",
+      "src": "assets/image/abhijeet.jpg",
+      "dest": "design/images/team/abhijeet.jpg",
+      "bytes": 14530
+    },
+    {
+      "url": "https://aave.com/design/images/team/alex.png",
+      "src": "assets/image/alex.png",
+      "dest": "design/images/team/alex.png",
+      "bytes": 118754
+    },
+    {
+      "url": "https://aave.com/design/images/team/ana.png",
+      "src": "assets/image/ana.png",
+      "dest": "design/images/team/ana.png",
+      "bytes": 963930
+    },
+    {
+      "url": "https://aave.com/design/images/team/lochie.png",
+      "src": "assets/image/lochie.png",
+      "dest": "design/images/team/lochie.png",
+      "bytes": 1620053
+    },
+    {
+      "url": "https://aave.com/design/sounds/back.wav",
+      "src": "assets/other/back.wav",
+      "dest": "design/sounds/back.wav",
+      "bytes": 8148
+    },
+    {
+      "url": "https://aave.com/design/sounds/click.wav",
+      "src": "assets/other/click.wav",
+      "dest": "design/sounds/click.wav",
+      "bytes": 24044
+    },
+    {
+      "url": "https://aave.com/design/sounds/close.wav",
+      "src": "assets/other/close.wav",
+      "dest": "design/sounds/close.wav",
+      "bytes": 64572
+    },
+    {
+      "url": "https://aave.com/design/sounds/error.wav",
+      "src": "assets/other/error.wav",
+      "dest": "design/sounds/error.wav",
+      "bytes": 79548
+    },
+    {
+      "url": "https://aave.com/design/sounds/forward.wav",
+      "src": "assets/other/forward.wav",
+      "dest": "design/sounds/forward.wav",
+      "bytes": 8148
+    },
+    {
+      "url": "https://aave.com/design/sounds/open.wav",
+      "src": "assets/other/open.wav",
+      "dest": "design/sounds/open.wav",
+      "bytes": 64572
+    },
+    {
+      "url": "https://aave.com/design/sounds/release.wav",
+      "src": "assets/other/release.wav",
+      "dest": "design/sounds/release.wav",
+      "bytes": 42556
+    },
+    {
+      "url": "https://aave.com/design/sounds/tap.wav",
+      "src": "assets/other/tap.wav",
+      "dest": "design/sounds/tap.wav",
+      "bytes": 27272
+    },
+    {
+      "url": "https://aave.design/design/_next/static/chunks/1105ebac09c8489a.css?dpl=dpl_D2XtDjQLhVS3zZzzdNTzPBxB69Ds",
+      "src": "assets/stylesheet/1105ebac09c8489a.css-P2RwbD1kcG",
+      "dest": "design/_next/static/chunks/1105ebac09c8489a.css",
+      "bytes": 1071
+    },
+    {
+      "url": "https://aave.design/design/_next/static/chunks/20b0e2a7eb8d2365.js?dpl=dpl_D2XtDjQLhVS3zZzzdNTzPBxB69Ds",
+      "src": "scripts/20b0e2a7eb8d2365.js-P2RwbD1kcG",
+      "dest": "design/_next/static/chunks/20b0e2a7eb8d2365.js",
+      "bytes": 143994
+    },
+    {
+      "url": "https://aave.design/design/_next/static/chunks/25ef42f3c325a091.js?dpl=dpl_D2XtDjQLhVS3zZzzdNTzPBxB69Ds",
+      "src": "scripts/25ef42f3c325a091.js-P2RwbD1kcG",
+      "dest": "design/_next/static/chunks/25ef42f3c325a091.js",
+      "bytes": 46442
+    },
+    {
+      "url": "https://aave.design/design/_next/static/chunks/364aed98e9b5b704.js?dpl=dpl_D2XtDjQLhVS3zZzzdNTzPBxB69Ds",
+      "src": "scripts/364aed98e9b5b704.js-P2RwbD1kcG",
+      "dest": "design/_next/static/chunks/364aed98e9b5b704.js",
+      "bytes": 36318
+    },
+    {
+      "url": "https://aave.design/design/_next/static/chunks/36e75939a1c38671.js?dpl=dpl_D2XtDjQLhVS3zZzzdNTzPBxB69Ds",
+      "src": "scripts/36e75939a1c38671.js-P2RwbD1kcG",
+      "dest": "design/_next/static/chunks/36e75939a1c38671.js",
+      "bytes": 64328
+    },
+    {
+      "url": "https://aave.design/design/_next/static/chunks/3963356e871bc455.js?dpl=dpl_D2XtDjQLhVS3zZzzdNTzPBxB69Ds",
+      "src": "scripts/3963356e871bc455.js-P2RwbD1kcG",
+      "dest": "design/_next/static/chunks/3963356e871bc455.js",
+      "bytes": 40371
+    },
+    {
+      "url": "https://aave.design/design/_next/static/chunks/3e4a1175c4be6ee8.js?dpl=dpl_D2XtDjQLhVS3zZzzdNTzPBxB69Ds",
+      "src": "scripts/3e4a1175c4be6ee8.js-P2RwbD1kcG",
+      "dest": "design/_next/static/chunks/3e4a1175c4be6ee8.js",
+      "bytes": 58583
+    },
+    {
+      "url": "https://aave.design/design/_next/static/chunks/3f58956c977fefad.js?dpl=dpl_D2XtDjQLhVS3zZzzdNTzPBxB69Ds",
+      "src": "scripts/3f58956c977fefad.js-P2RwbD1kcG",
+      "dest": "design/_next/static/chunks/3f58956c977fefad.js",
+      "bytes": 70214
+    },
+    {
+      "url": "https://aave.design/design/_next/static/chunks/45f52371f14d4928.js?dpl=dpl_D2XtDjQLhVS3zZzzdNTzPBxB69Ds",
+      "src": "scripts/45f52371f14d4928.js-P2RwbD1kcG",
+      "dest": "design/_next/static/chunks/45f52371f14d4928.js",
+      "bytes": 60237
+    },
+    {
+      "url": "https://aave.design/design/_next/static/chunks/504982d42d3368e6.js?dpl=dpl_D2XtDjQLhVS3zZzzdNTzPBxB69Ds",
+      "src": "scripts/504982d42d3368e6.js-P2RwbD1kcG",
+      "dest": "design/_next/static/chunks/504982d42d3368e6.js",
+      "bytes": 48714
+    },
+    {
+      "url": "https://aave.design/design/_next/static/chunks/58ffe16bdbbd7cba.css?dpl=dpl_D2XtDjQLhVS3zZzzdNTzPBxB69Ds",
+      "src": "assets/stylesheet/58ffe16bdbbd7cba.css-P2RwbD1kcG",
+      "dest": "design/_next/static/chunks/58ffe16bdbbd7cba.css",
+      "bytes": 26572
+    },
+    {
+      "url": "https://aave.design/design/_next/static/chunks/6126faa3333ee75a.js?dpl=dpl_D2XtDjQLhVS3zZzzdNTzPBxB69Ds",
+      "src": "scripts/6126faa3333ee75a.js-P2RwbD1kcG",
+      "dest": "design/_next/static/chunks/6126faa3333ee75a.js",
+      "bytes": 36904
+    },
+    {
+      "url": "https://aave.design/design/_next/static/chunks/6b2154569d3a80d0.css?dpl=dpl_D2XtDjQLhVS3zZzzdNTzPBxB69Ds",
+      "src": "assets/stylesheet/6b2154569d3a80d0.css-P2RwbD1kcG",
+      "dest": "design/_next/static/chunks/6b2154569d3a80d0.css",
+      "bytes": 9568
+    },
+    {
+      "url": "https://aave.design/design/_next/static/chunks/6b39cc5ea402bad2.js?dpl=dpl_D2XtDjQLhVS3zZzzdNTzPBxB69Ds",
+      "src": "scripts/6b39cc5ea402bad2.js-P2RwbD1kcG",
+      "dest": "design/_next/static/chunks/6b39cc5ea402bad2.js",
+      "bytes": 33301
+    },
+    {
+      "url": "https://aave.design/design/_next/static/chunks/6b8d7c86691f8081.js?dpl=dpl_D2XtDjQLhVS3zZzzdNTzPBxB69Ds",
+      "src": "scripts/6b8d7c86691f8081.js-P2RwbD1kcG",
+      "dest": "design/_next/static/chunks/6b8d7c86691f8081.js",
+      "bytes": 9701
+    },
+    {
+      "url": "https://aave.design/design/_next/static/chunks/6cc497ddd4cdfc1d.js?dpl=dpl_D2XtDjQLhVS3zZzzdNTzPBxB69Ds",
+      "src": "scripts/6cc497ddd4cdfc1d.js-P2RwbD1kcG",
+      "dest": "design/_next/static/chunks/6cc497ddd4cdfc1d.js",
+      "bytes": 32245
+    },
+    {
+      "url": "https://aave.design/design/_next/static/chunks/71d732b23d95aecf.js?dpl=dpl_D2XtDjQLhVS3zZzzdNTzPBxB69Ds",
+      "src": "scripts/71d732b23d95aecf.js-P2RwbD1kcG",
+      "dest": "design/_next/static/chunks/71d732b23d95aecf.js",
+      "bytes": 282
+    },
+    {
+      "url": "https://aave.design/design/_next/static/chunks/761699a153de4843.js?dpl=dpl_D2XtDjQLhVS3zZzzdNTzPBxB69Ds",
+      "src": "scripts/761699a153de4843.js-P2RwbD1kcG",
+      "dest": "design/_next/static/chunks/761699a153de4843.js",
+      "bytes": 8656
+    },
+    {
+      "url": "https://aave.design/design/_next/static/chunks/7d08b58e318686d8.css?dpl=dpl_D2XtDjQLhVS3zZzzdNTzPBxB69Ds",
+      "src": "assets/stylesheet/7d08b58e318686d8.css-P2RwbD1kcG",
+      "dest": "design/_next/static/chunks/7d08b58e318686d8.css",
+      "bytes": 13024
+    },
+    {
+      "url": "https://aave.design/design/_next/static/chunks/a6dad97d9634a72d.js?dpl=dpl_D2XtDjQLhVS3zZzzdNTzPBxB69Ds",
+      "src": "scripts/a6dad97d9634a72d.js-P2RwbD1kcG",
+      "dest": "design/_next/static/chunks/a6dad97d9634a72d.js",
+      "bytes": 112594
+    },
+    {
+      "url": "https://aave.design/design/_next/static/chunks/af6bdabf7a14b570.js?dpl=dpl_D2XtDjQLhVS3zZzzdNTzPBxB69Ds",
+      "src": "scripts/af6bdabf7a14b570.js-P2RwbD1kcG",
+      "dest": "design/_next/static/chunks/af6bdabf7a14b570.js",
+      "bytes": 30681
+    },
+    {
+      "url": "https://aave.design/design/_next/static/chunks/b7d76adec832d628.js?dpl=dpl_D2XtDjQLhVS3zZzzdNTzPBxB69Ds",
+      "src": "scripts/b7d76adec832d628.js-P2RwbD1kcG",
+      "dest": "design/_next/static/chunks/b7d76adec832d628.js",
+      "bytes": 36290
+    },
+    {
+      "url": "https://aave.design/design/_next/static/chunks/c2af83def54aebba.js?dpl=dpl_D2XtDjQLhVS3zZzzdNTzPBxB69Ds",
+      "src": "scripts/c2af83def54aebba.js-P2RwbD1kcG",
+      "dest": "design/_next/static/chunks/c2af83def54aebba.js",
+      "bytes": 123267
+    },
+    {
+      "url": "https://aave.design/design/_next/static/chunks/dfa28de0220feb0d.css?dpl=dpl_D2XtDjQLhVS3zZzzdNTzPBxB69Ds",
+      "src": "assets/stylesheet/dfa28de0220feb0d.css-P2RwbD1kcG",
+      "dest": "design/_next/static/chunks/dfa28de0220feb0d.css",
+      "bytes": 1704
+    },
+    {
+      "url": "https://aave.design/design/_next/static/chunks/e296b7a9aa85491d.js?dpl=dpl_D2XtDjQLhVS3zZzzdNTzPBxB69Ds",
+      "src": "scripts/e296b7a9aa85491d.js-P2RwbD1kcG",
+      "dest": "design/_next/static/chunks/e296b7a9aa85491d.js",
+      "bytes": 18955
+    },
+    {
+      "url": "https://aave.design/design/_next/static/chunks/eacaaad61d90a86e.css?dpl=dpl_D2XtDjQLhVS3zZzzdNTzPBxB69Ds",
+      "src": "assets/stylesheet/eacaaad61d90a86e.css-P2RwbD1kcG",
+      "dest": "design/_next/static/chunks/eacaaad61d90a86e.css",
+      "bytes": 37868
+    },
+    {
+      "url": "https://aave.design/design/_next/static/chunks/f402ee53ea74b14e.js?dpl=dpl_D2XtDjQLhVS3zZzzdNTzPBxB69Ds",
+      "src": "scripts/f402ee53ea74b14e.js-P2RwbD1kcG",
+      "dest": "design/_next/static/chunks/f402ee53ea74b14e.js",
+      "bytes": 15659
+    },
+    {
+      "url": "https://aave.design/design/_next/static/chunks/f497c470c751011a.js?dpl=dpl_D2XtDjQLhVS3zZzzdNTzPBxB69Ds",
+      "src": "scripts/f497c470c751011a.js-P2RwbD1kcG",
+      "dest": "design/_next/static/chunks/f497c470c751011a.js",
+      "bytes": 22865
+    },
+    {
+      "url": "https://aave.design/design/_next/static/chunks/fa5f88fd49b57c1d.js?dpl=dpl_D2XtDjQLhVS3zZzzdNTzPBxB69Ds",
+      "src": "scripts/fa5f88fd49b57c1d.js-P2RwbD1kcG",
+      "dest": "design/_next/static/chunks/fa5f88fd49b57c1d.js",
+      "bytes": 224627
+    },
+    {
+      "url": "https://aave.design/design/_next/static/chunks/fc9f28cb893506e5.js?dpl=dpl_D2XtDjQLhVS3zZzzdNTzPBxB69Ds",
+      "src": "scripts/fc9f28cb893506e5.js-P2RwbD1kcG",
+      "dest": "design/_next/static/chunks/fc9f28cb893506e5.js",
+      "bytes": 66176
+    },
+    {
+      "url": "https://aave.design/design/_next/static/chunks/turbopack-5725b656aea77f16.js?dpl=dpl_D2XtDjQLhVS3zZzzdNTzPBxB69Ds",
+      "src": "scripts/turbopack-5725b656aea77f16.js-P2RwbD1kcG",
+      "dest": "design/_next/static/chunks/turbopack-5725b656aea77f16.js",
+      "bytes": 10697
+    },
+    {
+      "url": "https://aave.design/design/_next/static/media/797e433ab948586e-s.p.29207c2f.woff2",
+      "src": "assets/font/797e433ab948586e-s.p.29207c2f.woff2",
+      "dest": "design/_next/static/media/797e433ab948586e-s.p.29207c2f.woff2",
+      "bytes": 23108
+    },
+    {
+      "url": "https://aave.design/design/_next/static/media/AaveAguzzo-s.p.1a42fb91.woff2",
+      "src": "assets/font/AaveAguzzo-s.p.1a42fb91.woff2",
+      "dest": "design/_next/static/media/AaveAguzzo-s.p.1a42fb91.woff2",
+      "bytes": 75124
+    },
+    {
+      "url": "https://aave.design/design/_next/static/media/InterVariable-s.p.53d7b668.woff2",
+      "src": "assets/font/InterVariable-s.p.53d7b668.woff2",
+      "dest": "design/_next/static/media/InterVariable-s.p.53d7b668.woff2",
+      "bytes": 352240
+    }
+  ]
+}

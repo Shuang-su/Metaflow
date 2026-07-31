@@ -1,0 +1,24 @@
+{
+  "metrics": {
+    "glassCount": 5,
+    "filters": 25,
+    "displacements": 35,
+    "figures": 7,
+    "overflowX": 0
+  },
+  "made": [
+    "/tmp/aave-glass-compare/local-mirror-00-building-glass-for-the-web.png",
+    "/tmp/aave-glass-compare/local-mirror-01-we-want-to-bring-this-same-feeling-to-the-experiences-we-build-on-the-web.png",
+    "/tmp/aave-glass-compare/local-mirror-03-a-family-of-components.png",
+    "/tmp/aave-glass-compare/local-mirror-04-even-with-a-small-component-like-this-switch-the-glass-effect-adds-a-sense-of-d.png",
+    "/tmp/aave-glass-compare/local-mirror-05-native-input-type-range-elements-are-back-synced-with-our-custom-component.png",
+    "/tmp/aave-glass-compare/local-mirror-06-the-glass-effect-helps-visually-highlight-the-selected-option.png",
+    "/tmp/aave-glass-compare/local-mirror-07-the-qr-code-is-fully-interactive-click-the-aave-logo-to-see-the-glass-effect-in.png",
+    "/tmp/aave-glass-compare/local-mirror-08-the-glass-effect-can-be-applied-to-complex-interactive-content-like-this-video.png",
+    "/tmp/aave-glass-compare/local-mirror-09-how-it-works.png",
+    "/tmp/aave-glass-compare/local-mirror-10-on-the-left-is-the-refracted-result-on-the-right-the-map-that-drives-it.png",
+    "/tmp/aave-glass-compare/local-mirror-11-making-it-work-everywhere.png"
+  ],
+  "errors": [],
+  "failed": []
+}

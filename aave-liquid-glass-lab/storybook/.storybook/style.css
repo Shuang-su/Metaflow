@@ -1,0 +1,87 @@
+[role='switch'][aria-label='Review new stories'],
+button[aria-label='Create a new story'],
+button[aria-label^='Change status:'],
+button[aria-label='Show addon panel'],
+button[aria-label='Hide addon panel'],
+[aria-label='Addon panel resize handle'] {
+  display: none !important;
+}
+
+#web-liquid-glass-theme-control {
+  position: fixed;
+  z-index: 1000;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  min-height: 56px;
+  padding: 8px 0;
+  pointer-events: none;
+}
+
+#web-liquid-glass-theme-control button {
+  box-sizing: border-box;
+  display: grid;
+  width: 40px;
+  height: 40px;
+  padding: 6px;
+  border: 0;
+  border-radius: 999px;
+  background: color-mix(in srgb, currentColor 7%, transparent);
+  color: inherit;
+  cursor: pointer;
+  place-items: center;
+  pointer-events: auto;
+  transition:
+    background-color 160ms ease,
+    transform 180ms cubic-bezier(.22, 1, .36, 1);
+}
+
+#web-liquid-glass-theme-control button:hover {
+  background: color-mix(in srgb, currentColor 13%, transparent);
+}
+
+#web-liquid-glass-theme-control button:active {
+  transform: scale(.92);
+}
+
+#web-liquid-glass-theme-control button:focus-visible {
+  outline: 2px solid #8b7cff;
+  outline-offset: 2px;
+}
+
+#web-liquid-glass-theme-control button[data-animating='true'] {
+  animation: web-liquid-glass-theme-spring 420ms cubic-bezier(.22, 1.15, .36, 1.06);
+}
+
+#web-liquid-glass-theme-control svg {
+  width: 28px;
+  height: 28px;
+}
+
+@keyframes web-liquid-glass-theme-spring {
+  0% {
+    opacity: .55;
+    transform: scale(.72) rotate(-18deg);
+  }
+
+  55% {
+    opacity: 1;
+    transform: scale(1.1) rotate(4deg);
+  }
+
+  100% {
+    opacity: 1;
+    transform: scale(1) rotate(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #web-liquid-glass-theme-control button {
+    transition: none;
+  }
+
+  #web-liquid-glass-theme-control button[data-animating='true'] {
+    animation: none;
+  }
+}
+

@@ -1,0 +1,495 @@
+{
+  "origin": {
+    "name": "origin-live",
+    "errors": [
+      "Error: <path> attribute d: Expected moveto path command ('M' or 'm'), \"undefined\".",
+      "Error: <path> attribute d: Expected moveto path command ('M' or 'm'), \"undefined\".",
+      "Error: <path> attribute d: Expected moveto path command ('M' or 'm'), \"undefined\".",
+      "Error: <path> attribute d: Expected moveto path command ('M' or 'm'), \"undefined\"."
+    ],
+    "results": [
+      {
+        "file": "/tmp/aave-glass-compare/origin-live-768-figure-1.png",
+        "metric": {
+          "idx": 1,
+          "caption": "Even with a small component like this switch, the glass effect adds a sense of depth and tactility.",
+          "figure": {
+            "x": 24,
+            "y": 255.03,
+            "w": 720,
+            "h": 513
+          },
+          "scrollY": 1867,
+          "content": {
+            "rect": {
+              "x": 24,
+              "y": 303.03,
+              "w": 720,
+              "h": 380
+            },
+            "css": {
+              "visibility": "visible",
+              "opacity": "1",
+              "display": "flex",
+              "transform": "none",
+              "filter": "none",
+              "background": "color(display-p3 0.980392 0.976471 0.976471) url(\"https://aave.design/design/demo/demo-bg.png\") no-repeat scroll 50% 50% / cover padding-box border-box",
+              "width": "720px",
+              "height": "380px"
+            },
+            "style": "visibility: visible;"
+          },
+          "glass": [
+            {
+              "rect": {
+                "x": 326,
+                "y": 458.03,
+                "w": 116,
+                "h": 70
+              },
+              "css": {
+                "visibility": "visible",
+                "opacity": "1",
+                "display": "block",
+                "transform": "none",
+                "filter": "none",
+                "background": "rgba(0, 0, 0, 0) none repeat scroll 0% 0% / auto padding-box border-box",
+                "width": "116px",
+                "height": "70px"
+              },
+              "style": "width:116px;height:70px;overflow:visible;margin:-21px",
+              "hidden": "visible"
+            }
+          ],
+          "text": "Even with a small component like this switch, the glass effect adds a sense of depth and tactility."
+        }
+      },
+      {
+        "file": "/tmp/aave-glass-compare/origin-live-768-figure-2.png",
+        "metric": {
+          "idx": 2,
+          "caption": "Native <input type='range' /> elements are back-synced with our custom component.",
+          "figure": {
+            "x": 24,
+            "y": 255.03,
+            "w": 720,
+            "h": 514.59
+          },
+          "scrollY": 2843,
+          "content": {
+            "rect": {
+              "x": 24,
+              "y": 303.03,
+              "w": 720,
+              "h": 380
+            },
+            "css": {
+              "visibility": "visible",
+              "opacity": "1",
+              "display": "flex",
+              "transform": "none",
+              "filter": "none",
+              "background": "color(display-p3 0.980392 0.976471 0.976471) url(\"https://aave.design/design/demo/demo-bg.png\") no-repeat scroll 50% 50% / cover padding-box border-box",
+              "width": "720px",
+              "height": "380px"
+            },
+            "style": "visibility: visible;"
+          },
+          "glass": [
+            {
+              "rect": {
+                "x": 239,
+                "y": 457.03,
+                "w": 290,
+                "h": 72
+              },
+              "css": {
+                "visibility": "visible",
+                "opacity": "1",
+                "display": "block",
+                "transform": "none",
+                "filter": "none",
+                "background": "rgba(0, 0, 0, 0) none repeat scroll 0% 0% / auto padding-box border-box",
+                "width": "290px",
+                "height": "72px"
+              },
+              "style": "width:290px;height:72px;overflow:visible;margin:-25px",
+              "hidden": "visible"
+            }
+          ],
+          "text": "Native <input type='range' /> elements are back-synced with our custom component."
+        }
+      },
+      {
+        "file": "/tmp/aave-glass-compare/origin-live-768-figure-3.png",
+        "metric": {
+          "idx": 3,
+          "caption": "The glass effect helps visually highlight the selected option.",
+          "figure": {
+            "x": 24,
+            "y": 255.63,
+            "w": 720,
+            "h": 513
+          },
+          "scrollY": 3910,
+          "content": {
+            "rect": {
+              "x": 24,
+              "y": 303.63,
+              "w": 720,
+              "h": 380
+            },
+            "css": {
+              "visibility": "visible",
+              "opacity": "1",
+              "display": "flex",
+              "transform": "none",
+              "filter": "none",
+              "background": "color(display-p3 0.980392 0.976471 0.976471) url(\"https://aave.design/design/demo/demo-bg.png\") no-repeat scroll 50% 50% / cover padding-box border-box",
+              "width": "720px",
+              "height": "380px"
+            },
+            "style": "visibility: visible;"
+          },
+          "glass": [
+            {
+              "rect": {
+                "x": 91.63,
+                "y": 390.63,
+                "w": 584.73,
+                "h": 206
+              },
+              "css": {
+                "visibility": "visible",
+                "opacity": "1",
+                "display": "block",
+                "transform": "none",
+                "filter": "none",
+                "background": "rgba(0, 0, 0, 0) none repeat scroll 0% 0% / auto padding-box border-box",
+                "width": "504.734px",
+                "height": "46px"
+              },
+              "style": "padding:80px 40px;margin:-80px -40px;box-sizing:content-box",
+              "hidden": "visible"
+            }
+          ],
+          "text": "Hubs Spokes Reserves Assets Chains Hubs Spokes Reserves Assets Chains The glass effect helps visually highlight the sele"
+        }
+      },
+      {
+        "file": "/tmp/aave-glass-compare/origin-live-768-figure-4.png",
+        "metric": {
+          "idx": 4,
+          "caption": "The QR code is fully interactive. Click the Aave logo to see the glass effect in action.",
+          "figure": {
+            "x": 24,
+            "y": 223.63,
+            "w": 720,
+            "h": 577
+          },
+          "scrollY": 5076,
+          "content": {
+            "rect": {
+              "x": 24,
+              "y": 271.63,
+              "w": 720,
+              "h": 444
+            },
+            "css": {
+              "visibility": "visible",
+              "opacity": "1",
+              "display": "flex",
+              "transform": "none",
+              "filter": "none",
+              "background": "color(display-p3 0.980392 0.976471 0.976471) url(\"https://aave.design/design/demo/demo-bg.png\") no-repeat scroll 50% 50% / cover padding-box border-box",
+              "width": "720px",
+              "height": "444px"
+            },
+            "style": "visibility: visible;"
+          },
+          "glass": [],
+          "text": "The QR code is fully interactive. Click the Aave logo to see the glass effect in action."
+        }
+      },
+      {
+        "file": "/tmp/aave-glass-compare/origin-live-768-figure-5.png",
+        "metric": {
+          "idx": 5,
+          "caption": "The glass effect can be applied to complex, interactive content like this video player.",
+          "figure": {
+            "x": 24,
+            "y": 221.63,
+            "w": 720,
+            "h": 580
+          },
+          "scrollY": 5956,
+          "content": {
+            "rect": {
+              "x": 24,
+              "y": 269.63,
+              "w": 720,
+              "h": 447
+            },
+            "css": {
+              "visibility": "visible",
+              "opacity": "1",
+              "display": "flex",
+              "transform": "none",
+              "filter": "none",
+              "background": "color(display-p3 0.980392 0.976471 0.976471) url(\"https://aave.design/design/demo/demo-bg.png\") no-repeat scroll 50% 50% / cover padding-box border-box",
+              "width": "720px",
+              "height": "447px"
+            },
+            "style": "visibility: visible;"
+          },
+          "glass": [],
+          "text": "The glass effect can be applied to complex, interactive content like this video player."
+        }
+      }
+    ]
+  },
+  "local": {
+    "name": "local-mirror",
+    "errors": [],
+    "results": [
+      {
+        "file": "/tmp/aave-glass-compare/local-mirror-768-figure-1.png",
+        "metric": {
+          "idx": 1,
+          "caption": "Even with a small component like this switch, the glass effect adds a sense of depth and tactility.",
+          "figure": {
+            "x": 24,
+            "y": 255.03,
+            "w": 720,
+            "h": 513
+          },
+          "scrollY": 1867,
+          "content": {
+            "rect": {
+              "x": 24,
+              "y": 303.03,
+              "w": 720,
+              "h": 380
+            },
+            "css": {
+              "visibility": "hidden",
+              "opacity": "1",
+              "display": "flex",
+              "transform": "none",
+              "filter": "none",
+              "background": "color(display-p3 0.980392 0.976471 0.976471) url(\"http://127.0.0.1:4173/design/demo/demo-bg.png\") no-repeat scroll 50% 50% / cover padding-box border-box",
+              "width": "720px",
+              "height": "380px"
+            },
+            "style": "visibility: hidden;"
+          },
+          "glass": [
+            {
+              "rect": {
+                "x": 326,
+                "y": 458.03,
+                "w": 116,
+                "h": 70
+              },
+              "css": {
+                "visibility": "hidden",
+                "opacity": "1",
+                "display": "block",
+                "transform": "none",
+                "filter": "none",
+                "background": "rgba(0, 0, 0, 0) none repeat scroll 0% 0% / auto padding-box border-box",
+                "width": "116px",
+                "height": "70px"
+              },
+              "style": "width:116px;height:70px;overflow:visible;margin:-21px",
+              "hidden": "hidden"
+            }
+          ],
+          "text": "Even with a small component like this switch, the glass effect adds a sense of depth and tactility."
+        }
+      },
+      {
+        "file": "/tmp/aave-glass-compare/local-mirror-768-figure-2.png",
+        "metric": {
+          "idx": 2,
+          "caption": "Native <input type='range' /> elements are back-synced with our custom component.",
+          "figure": {
+            "x": 24,
+            "y": 255.03,
+            "w": 720,
+            "h": 514.59
+          },
+          "scrollY": 2843,
+          "content": {
+            "rect": {
+              "x": 24,
+              "y": 303.03,
+              "w": 720,
+              "h": 380
+            },
+            "css": {
+              "visibility": "hidden",
+              "opacity": "1",
+              "display": "flex",
+              "transform": "none",
+              "filter": "none",
+              "background": "color(display-p3 0.980392 0.976471 0.976471) url(\"http://127.0.0.1:4173/design/demo/demo-bg.png\") no-repeat scroll 50% 50% / cover padding-box border-box",
+              "width": "720px",
+              "height": "380px"
+            },
+            "style": "visibility: hidden;"
+          },
+          "glass": [
+            {
+              "rect": {
+                "x": 239,
+                "y": 457.03,
+                "w": 290,
+                "h": 72
+              },
+              "css": {
+                "visibility": "hidden",
+                "opacity": "1",
+                "display": "block",
+                "transform": "none",
+                "filter": "none",
+                "background": "rgba(0, 0, 0, 0) none repeat scroll 0% 0% / auto padding-box border-box",
+                "width": "290px",
+                "height": "72px"
+              },
+              "style": "width:290px;height:72px;overflow:visible;margin:-25px",
+              "hidden": "hidden"
+            }
+          ],
+          "text": "Native <input type='range' /> elements are back-synced with our custom component."
+        }
+      },
+      {
+        "file": "/tmp/aave-glass-compare/local-mirror-768-figure-3.png",
+        "metric": {
+          "idx": 3,
+          "caption": "The glass effect helps visually highlight the selected option.",
+          "figure": {
+            "x": 24,
+            "y": 255.63,
+            "w": 720,
+            "h": 513
+          },
+          "scrollY": 3910,
+          "content": {
+            "rect": {
+              "x": 24,
+              "y": 303.63,
+              "w": 720,
+              "h": 380
+            },
+            "css": {
+              "visibility": "hidden",
+              "opacity": "1",
+              "display": "flex",
+              "transform": "none",
+              "filter": "none",
+              "background": "color(display-p3 0.980392 0.976471 0.976471) url(\"http://127.0.0.1:4173/design/demo/demo-bg.png\") no-repeat scroll 50% 50% / cover padding-box border-box",
+              "width": "720px",
+              "height": "380px"
+            },
+            "style": "visibility: hidden;"
+          },
+          "glass": [
+            {
+              "rect": {
+                "x": 91.63,
+                "y": 390.63,
+                "w": 584.73,
+                "h": 206
+              },
+              "css": {
+                "visibility": "hidden",
+                "opacity": "1",
+                "display": "block",
+                "transform": "none",
+                "filter": "none",
+                "background": "rgba(0, 0, 0, 0) none repeat scroll 0% 0% / auto padding-box border-box",
+                "width": "504.734px",
+                "height": "46px"
+              },
+              "style": "padding:80px 40px;margin:-80px -40px;box-sizing:content-box",
+              "hidden": "hidden"
+            }
+          ],
+          "text": "The glass effect helps visually highlight the selected option."
+        }
+      },
+      {
+        "file": "/tmp/aave-glass-compare/local-mirror-768-figure-4.png",
+        "metric": {
+          "idx": 4,
+          "caption": "The QR code is fully interactive. Click the Aave logo to see the glass effect in action.",
+          "figure": {
+            "x": 24,
+            "y": 223.63,
+            "w": 720,
+            "h": 577
+          },
+          "scrollY": 5076,
+          "content": {
+            "rect": {
+              "x": 24,
+              "y": 271.63,
+              "w": 720,
+              "h": 444
+            },
+            "css": {
+              "visibility": "hidden",
+              "opacity": "1",
+              "display": "flex",
+              "transform": "none",
+              "filter": "none",
+              "background": "color(display-p3 0.980392 0.976471 0.976471) url(\"http://127.0.0.1:4173/design/demo/demo-bg.png\") no-repeat scroll 50% 50% / cover padding-box border-box",
+              "width": "720px",
+              "height": "444px"
+            },
+            "style": "visibility: hidden;"
+          },
+          "glass": [],
+          "text": "The QR code is fully interactive. Click the Aave logo to see the glass effect in action."
+        }
+      },
+      {
+        "file": "/tmp/aave-glass-compare/local-mirror-768-figure-5.png",
+        "metric": {
+          "idx": 5,
+          "caption": "The glass effect can be applied to complex, interactive content like this video player.",
+          "figure": {
+            "x": 24,
+            "y": 221.63,
+            "w": 720,
+            "h": 580
+          },
+          "scrollY": 5956,
+          "content": {
+            "rect": {
+              "x": 24,
+              "y": 269.63,
+              "w": 720,
+              "h": 447
+            },
+            "css": {
+              "visibility": "hidden",
+              "opacity": "1",
+              "display": "flex",
+              "transform": "none",
+              "filter": "none",
+              "background": "color(display-p3 0.980392 0.976471 0.976471) url(\"http://127.0.0.1:4173/design/demo/demo-bg.png\") no-repeat scroll 50% 50% / cover padding-box border-box",
+              "width": "720px",
+              "height": "447px"
+            },
+            "style": "visibility: hidden;"
+          },
+          "glass": [],
+          "text": "The glass effect can be applied to complex, interactive content like this video player."
+        }
+      }
+    ]
+  }
+}

@@ -1,0 +1,798 @@
+{
+  "page": "https://aave.com/design/building-glass-for-the-web",
+  "capturedAt": "2026-07-09T03:22:59.773Z",
+  "count": 67,
+  "assets": [
+    {
+      "url": "https://aave.com/cdn-cgi/speculation",
+      "kind": "other",
+      "sources": [
+        "resource-other"
+      ],
+      "path": "assets/other/speculation",
+      "ok": true,
+      "bytes": 151,
+      "contentType": "application/speculationrules+json"
+    },
+    {
+      "url": "https://aave.com/design/_vercel/insights/script.js",
+      "kind": "script",
+      "sources": [
+        "script-dom",
+        "resource-script"
+      ],
+      "path": "scripts/script.js",
+      "ok": true,
+      "bytes": 2495,
+      "contentType": "application/javascript; charset=utf-8"
+    },
+    {
+      "url": "https://aave.com/design/building-glass-for-the-web?_rsc=2tr9y",
+      "kind": "other",
+      "sources": [
+        "resource-fetch"
+      ],
+      "path": "assets/other/building-glass-for-the-web-P19yc2M9Mn",
+      "ok": true,
+      "bytes": 191635,
+      "contentType": "text/html; charset=utf-8"
+    },
+    {
+      "url": "https://aave.com/design/building-glass-for-the-web?_rsc=7celo",
+      "kind": "other",
+      "sources": [
+        "resource-fetch"
+      ],
+      "path": "assets/other/building-glass-for-the-web-P19yc2M9N2",
+      "ok": true,
+      "bytes": 191635,
+      "contentType": "text/html; charset=utf-8"
+    },
+    {
+      "url": "https://aave.com/design/building-glass-for-the-web?_rsc=fpmk7",
+      "kind": "other",
+      "sources": [
+        "resource-fetch"
+      ],
+      "path": "assets/other/building-glass-for-the-web-P19yc2M9Zn",
+      "ok": true,
+      "bytes": 191635,
+      "contentType": "text/html; charset=utf-8"
+    },
+    {
+      "url": "https://aave.com/design/building-glass-for-the-web?_rsc=oex2q",
+      "kind": "other",
+      "sources": [
+        "resource-fetch"
+      ],
+      "path": "assets/other/building-glass-for-the-web-P19yc2M9b2",
+      "ok": true,
+      "bytes": 191635,
+      "contentType": "text/html; charset=utf-8"
+    },
+    {
+      "url": "https://aave.com/design/building-glass-for-the-web?_rsc=w35zc",
+      "kind": "other",
+      "sources": [
+        "resource-fetch"
+      ],
+      "path": "assets/other/building-glass-for-the-web-P19yc2M9dz",
+      "ok": true,
+      "bytes": 191635,
+      "contentType": "text/html; charset=utf-8"
+    },
+    {
+      "url": "https://aave.com/design/careers?_rsc=d4uh8",
+      "kind": "other",
+      "sources": [
+        "resource-fetch"
+      ],
+      "path": "assets/other/careers-P19yc2M9ZD",
+      "ok": true,
+      "bytes": 41357,
+      "contentType": "text/html; charset=utf-8"
+    },
+    {
+      "url": "https://aave.com/design/careers?_rsc=oex2q",
+      "kind": "other",
+      "sources": [
+        "resource-fetch"
+      ],
+      "path": "assets/other/careers-P19yc2M9b2",
+      "ok": true,
+      "bytes": 41357,
+      "contentType": "text/html; charset=utf-8"
+    },
+    {
+      "url": "https://aave.com/design/careers?_rsc=w35zc",
+      "kind": "other",
+      "sources": [
+        "resource-fetch"
+      ],
+      "path": "assets/other/careers-P19yc2M9dz",
+      "ok": true,
+      "bytes": 41357,
+      "contentType": "text/html; charset=utf-8"
+    },
+    {
+      "url": "https://aave.com/design/careers?_rsc=x1qlf",
+      "kind": "other",
+      "sources": [
+        "resource-fetch"
+      ],
+      "path": "assets/other/careers-P19yc2M9eD",
+      "ok": true,
+      "bytes": 41357,
+      "contentType": "text/html; charset=utf-8"
+    },
+    {
+      "url": "https://aave.com/design/demo/demo-bg.png",
+      "kind": "image",
+      "sources": [
+        "resource-css"
+      ],
+      "path": "assets/image/demo-bg.png",
+      "ok": true,
+      "bytes": 769899,
+      "contentType": "image/png"
+    },
+    {
+      "url": "https://aave.com/design/demo/photos/aave-glass-icon.png",
+      "kind": "image",
+      "sources": [
+        "image-dom",
+        "link-preload",
+        "resource-link"
+      ],
+      "path": "assets/image/aave-glass-icon.png",
+      "ok": true,
+      "bytes": 53505,
+      "contentType": "image/png"
+    },
+    {
+      "url": "https://aave.com/design/demo/videos/aave-glass/aave-glass-dark-new.jpg",
+      "kind": "image",
+      "sources": [
+        "resource-css"
+      ],
+      "path": "assets/image/aave-glass-dark-new.jpg",
+      "ok": true,
+      "bytes": 152690,
+      "contentType": "image/jpeg"
+    },
+    {
+      "url": "https://aave.com/design/demo/videos/aave-glass/aave-glass-dark-new.mp4",
+      "kind": "video",
+      "sources": [
+        "video-dom",
+        "resource-video"
+      ],
+      "path": "assets/video/aave-glass-dark-new.mp4",
+      "ok": true,
+      "bytes": 584315,
+      "contentType": "video/mp4"
+    },
+    {
+      "url": "https://aave.com/design/demo/videos/cosmos-flowers-in-the-field-18491376/placeholder.webp",
+      "kind": "image",
+      "sources": [
+        "image-dom",
+        "link-preload",
+        "resource-link"
+      ],
+      "path": "assets/image/placeholder.webp",
+      "ok": true,
+      "bytes": 105060,
+      "contentType": "image/webp"
+    },
+    {
+      "url": "https://aave.com/design/demo/videos/cosmos-flowers-in-the-field-18491376/video.mp4",
+      "kind": "video",
+      "sources": [
+        "video-dom",
+        "resource-video"
+      ],
+      "path": "assets/video/video.mp4",
+      "ok": true,
+      "bytes": 6575219,
+      "contentType": "video/mp4"
+    },
+    {
+      "url": "https://aave.com/design/icon.png?icon.60856dba.png",
+      "kind": "image",
+      "sources": [
+        "link-icon",
+        "resource-other"
+      ],
+      "path": "assets/image/icon.png-P2ljb24uNj",
+      "ok": true,
+      "bytes": 21902,
+      "contentType": "image/png"
+    },
+    {
+      "url": "https://aave.com/design/images/team/abhijeet.jpg",
+      "kind": "image",
+      "sources": [
+        "image-dom",
+        "link-preload",
+        "resource-link"
+      ],
+      "path": "assets/image/abhijeet.jpg",
+      "ok": true,
+      "bytes": 14530,
+      "contentType": "image/jpeg"
+    },
+    {
+      "url": "https://aave.com/design/images/team/alex.png",
+      "kind": "image",
+      "sources": [
+        "image-dom",
+        "link-preload",
+        "resource-link"
+      ],
+      "path": "assets/image/alex.png",
+      "ok": true,
+      "bytes": 118754,
+      "contentType": "image/png"
+    },
+    {
+      "url": "https://aave.com/design/images/team/ana.png",
+      "kind": "image",
+      "sources": [
+        "image-dom",
+        "link-preload",
+        "resource-link"
+      ],
+      "path": "assets/image/ana.png",
+      "ok": true,
+      "bytes": 963930,
+      "contentType": "image/png"
+    },
+    {
+      "url": "https://aave.com/design/images/team/lochie.png",
+      "kind": "image",
+      "sources": [
+        "image-dom",
+        "link-preload",
+        "resource-link"
+      ],
+      "path": "assets/image/lochie.png",
+      "ok": true,
+      "bytes": 1620053,
+      "contentType": "image/png"
+    },
+    {
+      "url": "https://aave.com/design/sounds/back.wav",
+      "kind": "other",
+      "sources": [
+        "resource-xmlhttprequest"
+      ],
+      "path": "assets/other/back.wav",
+      "ok": true,
+      "bytes": 8148,
+      "contentType": "audio/wave"
+    },
+    {
+      "url": "https://aave.com/design/sounds/click.wav",
+      "kind": "other",
+      "sources": [
+        "resource-xmlhttprequest"
+      ],
+      "path": "assets/other/click.wav",
+      "ok": true,
+      "bytes": 24044,
+      "contentType": "audio/wave"
+    },
+    {
+      "url": "https://aave.com/design/sounds/close.wav",
+      "kind": "other",
+      "sources": [
+        "resource-xmlhttprequest"
+      ],
+      "path": "assets/other/close.wav",
+      "ok": true,
+      "bytes": 64572,
+      "contentType": "audio/wave"
+    },
+    {
+      "url": "https://aave.com/design/sounds/error.wav",
+      "kind": "other",
+      "sources": [
+        "resource-xmlhttprequest"
+      ],
+      "path": "assets/other/error.wav",
+      "ok": true,
+      "bytes": 79548,
+      "contentType": "audio/wave"
+    },
+    {
+      "url": "https://aave.com/design/sounds/forward.wav",
+      "kind": "other",
+      "sources": [
+        "resource-xmlhttprequest"
+      ],
+      "path": "assets/other/forward.wav",
+      "ok": true,
+      "bytes": 8148,
+      "contentType": "audio/wave"
+    },
+    {
+      "url": "https://aave.com/design/sounds/open.wav",
+      "kind": "other",
+      "sources": [
+        "resource-xmlhttprequest"
+      ],
+      "path": "assets/other/open.wav",
+      "ok": true,
+      "bytes": 64572,
+      "contentType": "audio/wave"
+    },
+    {
+      "url": "https://aave.com/design/sounds/release.wav",
+      "kind": "other",
+      "sources": [
+        "resource-xmlhttprequest"
+      ],
+      "path": "assets/other/release.wav",
+      "ok": true,
+      "bytes": 42556,
+      "contentType": "audio/wave"
+    },
+    {
+      "url": "https://aave.com/design/sounds/tap.wav",
+      "kind": "other",
+      "sources": [
+        "resource-xmlhttprequest"
+      ],
+      "path": "assets/other/tap.wav",
+      "ok": true,
+      "bytes": 27272,
+      "contentType": "audio/wave"
+    },
+    {
+      "url": "https://aave.com/design?_rsc=17c4b",
+      "kind": "other",
+      "sources": [
+        "resource-fetch"
+      ],
+      "path": "assets/other/design-P19yc2M9MT",
+      "ok": true,
+      "bytes": 37279,
+      "contentType": "text/html; charset=utf-8"
+    },
+    {
+      "url": "https://aave.com/design?_rsc=oex2q",
+      "kind": "other",
+      "sources": [
+        "resource-fetch"
+      ],
+      "path": "assets/other/design-P19yc2M9b2",
+      "ok": true,
+      "bytes": 37279,
+      "contentType": "text/html; charset=utf-8"
+    },
+    {
+      "url": "https://aave.com/design?_rsc=w35zc",
+      "kind": "other",
+      "sources": [
+        "resource-fetch"
+      ],
+      "path": "assets/other/design-P19yc2M9dz",
+      "ok": true,
+      "bytes": 37279,
+      "contentType": "text/html; charset=utf-8"
+    },
+    {
+      "url": "https://aave.design/design/_next/static/chunks/1105ebac09c8489a.css?dpl=dpl_D2XtDjQLhVS3zZzzdNTzPBxB69Ds",
+      "kind": "stylesheet",
+      "sources": [
+        "link-preload",
+        "resource-link"
+      ],
+      "path": "assets/stylesheet/1105ebac09c8489a.css-P2RwbD1kcG",
+      "ok": true,
+      "bytes": 1071,
+      "contentType": "text/css; charset=utf-8"
+    },
+    {
+      "url": "https://aave.design/design/_next/static/chunks/20b0e2a7eb8d2365.js?dpl=dpl_D2XtDjQLhVS3zZzzdNTzPBxB69Ds",
+      "kind": "script",
+      "sources": [
+        "script-dom",
+        "resource-script"
+      ],
+      "path": "scripts/20b0e2a7eb8d2365.js-P2RwbD1kcG",
+      "ok": true,
+      "bytes": 143994,
+      "contentType": "application/javascript; charset=utf-8"
+    },
+    {
+      "url": "https://aave.design/design/_next/static/chunks/25ef42f3c325a091.js?dpl=dpl_D2XtDjQLhVS3zZzzdNTzPBxB69Ds",
+      "kind": "script",
+      "sources": [
+        "script-dom",
+        "resource-script"
+      ],
+      "path": "scripts/25ef42f3c325a091.js-P2RwbD1kcG",
+      "ok": true,
+      "bytes": 46442,
+      "contentType": "application/javascript; charset=utf-8"
+    },
+    {
+      "url": "https://aave.design/design/_next/static/chunks/364aed98e9b5b704.js?dpl=dpl_D2XtDjQLhVS3zZzzdNTzPBxB69Ds",
+      "kind": "script",
+      "sources": [
+        "script-dom",
+        "resource-script"
+      ],
+      "path": "scripts/364aed98e9b5b704.js-P2RwbD1kcG",
+      "ok": true,
+      "bytes": 36318,
+      "contentType": "application/javascript; charset=utf-8"
+    },
+    {
+      "url": "https://aave.design/design/_next/static/chunks/36e75939a1c38671.js?dpl=dpl_D2XtDjQLhVS3zZzzdNTzPBxB69Ds",
+      "kind": "script",
+      "sources": [
+        "script-dom",
+        "resource-script"
+      ],
+      "path": "scripts/36e75939a1c38671.js-P2RwbD1kcG",
+      "ok": true,
+      "bytes": 64328,
+      "contentType": "application/javascript; charset=utf-8"
+    },
+    {
+      "url": "https://aave.design/design/_next/static/chunks/3963356e871bc455.js?dpl=dpl_D2XtDjQLhVS3zZzzdNTzPBxB69Ds",
+      "kind": "script",
+      "sources": [
+        "script-dom",
+        "resource-script"
+      ],
+      "path": "scripts/3963356e871bc455.js-P2RwbD1kcG",
+      "ok": true,
+      "bytes": 40371,
+      "contentType": "application/javascript; charset=utf-8"
+    },
+    {
+      "url": "https://aave.design/design/_next/static/chunks/3e4a1175c4be6ee8.js?dpl=dpl_D2XtDjQLhVS3zZzzdNTzPBxB69Ds",
+      "kind": "script",
+      "sources": [
+        "script-dom",
+        "resource-script"
+      ],
+      "path": "scripts/3e4a1175c4be6ee8.js-P2RwbD1kcG",
+      "ok": true,
+      "bytes": 58583,
+      "contentType": "application/javascript; charset=utf-8"
+    },
+    {
+      "url": "https://aave.design/design/_next/static/chunks/3f58956c977fefad.js?dpl=dpl_D2XtDjQLhVS3zZzzdNTzPBxB69Ds",
+      "kind": "script",
+      "sources": [
+        "script-dom",
+        "resource-script"
+      ],
+      "path": "scripts/3f58956c977fefad.js-P2RwbD1kcG",
+      "ok": true,
+      "bytes": 70214,
+      "contentType": "application/javascript; charset=utf-8"
+    },
+    {
+      "url": "https://aave.design/design/_next/static/chunks/45f52371f14d4928.js?dpl=dpl_D2XtDjQLhVS3zZzzdNTzPBxB69Ds",
+      "kind": "script",
+      "sources": [
+        "script-dom",
+        "resource-script"
+      ],
+      "path": "scripts/45f52371f14d4928.js-P2RwbD1kcG",
+      "ok": true,
+      "bytes": 60237,
+      "contentType": "application/javascript; charset=utf-8"
+    },
+    {
+      "url": "https://aave.design/design/_next/static/chunks/504982d42d3368e6.js?dpl=dpl_D2XtDjQLhVS3zZzzdNTzPBxB69Ds",
+      "kind": "script",
+      "sources": [
+        "script-dom",
+        "resource-script"
+      ],
+      "path": "scripts/504982d42d3368e6.js-P2RwbD1kcG",
+      "ok": true,
+      "bytes": 48714,
+      "contentType": "application/javascript; charset=utf-8"
+    },
+    {
+      "url": "https://aave.design/design/_next/static/chunks/58ffe16bdbbd7cba.css?dpl=dpl_D2XtDjQLhVS3zZzzdNTzPBxB69Ds",
+      "kind": "stylesheet",
+      "sources": [
+        "stylesheet-dom",
+        "link-stylesheet",
+        "resource-link"
+      ],
+      "path": "assets/stylesheet/58ffe16bdbbd7cba.css-P2RwbD1kcG",
+      "ok": true,
+      "bytes": 26572,
+      "contentType": "text/css; charset=utf-8"
+    },
+    {
+      "url": "https://aave.design/design/_next/static/chunks/6126faa3333ee75a.js?dpl=dpl_D2XtDjQLhVS3zZzzdNTzPBxB69Ds",
+      "kind": "script",
+      "sources": [
+        "script-dom",
+        "resource-script"
+      ],
+      "path": "scripts/6126faa3333ee75a.js-P2RwbD1kcG",
+      "ok": true,
+      "bytes": 36904,
+      "contentType": "application/javascript; charset=utf-8"
+    },
+    {
+      "url": "https://aave.design/design/_next/static/chunks/6b2154569d3a80d0.css?dpl=dpl_D2XtDjQLhVS3zZzzdNTzPBxB69Ds",
+      "kind": "stylesheet",
+      "sources": [
+        "stylesheet-dom",
+        "link-stylesheet",
+        "resource-link"
+      ],
+      "path": "assets/stylesheet/6b2154569d3a80d0.css-P2RwbD1kcG",
+      "ok": true,
+      "bytes": 9568,
+      "contentType": "text/css; charset=utf-8"
+    },
+    {
+      "url": "https://aave.design/design/_next/static/chunks/6b39cc5ea402bad2.js?dpl=dpl_D2XtDjQLhVS3zZzzdNTzPBxB69Ds",
+      "kind": "script",
+      "sources": [
+        "script-dom",
+        "resource-script"
+      ],
+      "path": "scripts/6b39cc5ea402bad2.js-P2RwbD1kcG",
+      "ok": true,
+      "bytes": 33301,
+      "contentType": "application/javascript; charset=utf-8"
+    },
+    {
+      "url": "https://aave.design/design/_next/static/chunks/6b8d7c86691f8081.js?dpl=dpl_D2XtDjQLhVS3zZzzdNTzPBxB69Ds",
+      "kind": "script",
+      "sources": [
+        "script-dom",
+        "resource-script"
+      ],
+      "path": "scripts/6b8d7c86691f8081.js-P2RwbD1kcG",
+      "ok": true,
+      "bytes": 9701,
+      "contentType": "application/javascript; charset=utf-8"
+    },
+    {
+      "url": "https://aave.design/design/_next/static/chunks/6cc497ddd4cdfc1d.js?dpl=dpl_D2XtDjQLhVS3zZzzdNTzPBxB69Ds",
+      "kind": "script",
+      "sources": [
+        "script-dom",
+        "resource-script"
+      ],
+      "path": "scripts/6cc497ddd4cdfc1d.js-P2RwbD1kcG",
+      "ok": true,
+      "bytes": 32245,
+      "contentType": "application/javascript; charset=utf-8"
+    },
+    {
+      "url": "https://aave.design/design/_next/static/chunks/71d732b23d95aecf.js?dpl=dpl_D2XtDjQLhVS3zZzzdNTzPBxB69Ds",
+      "kind": "script",
+      "sources": [
+        "script-dom",
+        "resource-script"
+      ],
+      "path": "scripts/71d732b23d95aecf.js-P2RwbD1kcG",
+      "ok": true,
+      "bytes": 282,
+      "contentType": "application/javascript; charset=utf-8"
+    },
+    {
+      "url": "https://aave.design/design/_next/static/chunks/761699a153de4843.js?dpl=dpl_D2XtDjQLhVS3zZzzdNTzPBxB69Ds",
+      "kind": "script",
+      "sources": [
+        "script-dom",
+        "resource-script"
+      ],
+      "path": "scripts/761699a153de4843.js-P2RwbD1kcG",
+      "ok": true,
+      "bytes": 8656,
+      "contentType": "application/javascript; charset=utf-8"
+    },
+    {
+      "url": "https://aave.design/design/_next/static/chunks/7d08b58e318686d8.css?dpl=dpl_D2XtDjQLhVS3zZzzdNTzPBxB69Ds",
+      "kind": "stylesheet",
+      "sources": [
+        "stylesheet-dom",
+        "link-stylesheet",
+        "resource-link"
+      ],
+      "path": "assets/stylesheet/7d08b58e318686d8.css-P2RwbD1kcG",
+      "ok": true,
+      "bytes": 13024,
+      "contentType": "text/css; charset=utf-8"
+    },
+    {
+      "url": "https://aave.design/design/_next/static/chunks/a6dad97d9634a72d.js?dpl=dpl_D2XtDjQLhVS3zZzzdNTzPBxB69Ds",
+      "kind": "script",
+      "sources": [
+        "script-dom"
+      ],
+      "path": "scripts/a6dad97d9634a72d.js-P2RwbD1kcG",
+      "ok": true,
+      "bytes": 112594,
+      "contentType": "application/javascript; charset=utf-8"
+    },
+    {
+      "url": "https://aave.design/design/_next/static/chunks/af6bdabf7a14b570.js?dpl=dpl_D2XtDjQLhVS3zZzzdNTzPBxB69Ds",
+      "kind": "script",
+      "sources": [
+        "script-dom",
+        "resource-script"
+      ],
+      "path": "scripts/af6bdabf7a14b570.js-P2RwbD1kcG",
+      "ok": true,
+      "bytes": 30681,
+      "contentType": "application/javascript; charset=utf-8"
+    },
+    {
+      "url": "https://aave.design/design/_next/static/chunks/b7d76adec832d628.js?dpl=dpl_D2XtDjQLhVS3zZzzdNTzPBxB69Ds",
+      "kind": "script",
+      "sources": [
+        "script-dom",
+        "resource-script"
+      ],
+      "path": "scripts/b7d76adec832d628.js-P2RwbD1kcG",
+      "ok": true,
+      "bytes": 36290,
+      "contentType": "application/javascript; charset=utf-8"
+    },
+    {
+      "url": "https://aave.design/design/_next/static/chunks/c2af83def54aebba.js?dpl=dpl_D2XtDjQLhVS3zZzzdNTzPBxB69Ds",
+      "kind": "script",
+      "sources": [
+        "script-dom",
+        "resource-script"
+      ],
+      "path": "scripts/c2af83def54aebba.js-P2RwbD1kcG",
+      "ok": true,
+      "bytes": 123267,
+      "contentType": "application/javascript; charset=utf-8"
+    },
+    {
+      "url": "https://aave.design/design/_next/static/chunks/dfa28de0220feb0d.css?dpl=dpl_D2XtDjQLhVS3zZzzdNTzPBxB69Ds",
+      "kind": "stylesheet",
+      "sources": [
+        "link-preload",
+        "resource-link"
+      ],
+      "path": "assets/stylesheet/dfa28de0220feb0d.css-P2RwbD1kcG",
+      "ok": true,
+      "bytes": 1704,
+      "contentType": "text/css; charset=utf-8"
+    },
+    {
+      "url": "https://aave.design/design/_next/static/chunks/e296b7a9aa85491d.js?dpl=dpl_D2XtDjQLhVS3zZzzdNTzPBxB69Ds",
+      "kind": "script",
+      "sources": [
+        "script-dom",
+        "link-preload",
+        "resource-link"
+      ],
+      "path": "scripts/e296b7a9aa85491d.js-P2RwbD1kcG",
+      "ok": true,
+      "bytes": 18955,
+      "contentType": "application/javascript; charset=utf-8"
+    },
+    {
+      "url": "https://aave.design/design/_next/static/chunks/eacaaad61d90a86e.css?dpl=dpl_D2XtDjQLhVS3zZzzdNTzPBxB69Ds",
+      "kind": "stylesheet",
+      "sources": [
+        "stylesheet-dom",
+        "link-stylesheet",
+        "resource-link"
+      ],
+      "path": "assets/stylesheet/eacaaad61d90a86e.css-P2RwbD1kcG",
+      "ok": true,
+      "bytes": 37868,
+      "contentType": "text/css; charset=utf-8"
+    },
+    {
+      "url": "https://aave.design/design/_next/static/chunks/f402ee53ea74b14e.js?dpl=dpl_D2XtDjQLhVS3zZzzdNTzPBxB69Ds",
+      "kind": "script",
+      "sources": [
+        "script-dom",
+        "resource-script"
+      ],
+      "path": "scripts/f402ee53ea74b14e.js-P2RwbD1kcG",
+      "ok": true,
+      "bytes": 15659,
+      "contentType": "application/javascript; charset=utf-8"
+    },
+    {
+      "url": "https://aave.design/design/_next/static/chunks/f497c470c751011a.js?dpl=dpl_D2XtDjQLhVS3zZzzdNTzPBxB69Ds",
+      "kind": "script",
+      "sources": [
+        "script-dom",
+        "resource-script"
+      ],
+      "path": "scripts/f497c470c751011a.js-P2RwbD1kcG",
+      "ok": true,
+      "bytes": 22865,
+      "contentType": "application/javascript; charset=utf-8"
+    },
+    {
+      "url": "https://aave.design/design/_next/static/chunks/fa5f88fd49b57c1d.js?dpl=dpl_D2XtDjQLhVS3zZzzdNTzPBxB69Ds",
+      "kind": "script",
+      "sources": [
+        "script-dom",
+        "resource-script"
+      ],
+      "path": "scripts/fa5f88fd49b57c1d.js-P2RwbD1kcG",
+      "ok": true,
+      "bytes": 224627,
+      "contentType": "application/javascript; charset=utf-8"
+    },
+    {
+      "url": "https://aave.design/design/_next/static/chunks/fc9f28cb893506e5.js?dpl=dpl_D2XtDjQLhVS3zZzzdNTzPBxB69Ds",
+      "kind": "script",
+      "sources": [
+        "script-dom",
+        "resource-script"
+      ],
+      "path": "scripts/fc9f28cb893506e5.js-P2RwbD1kcG",
+      "ok": true,
+      "bytes": 66176,
+      "contentType": "application/javascript; charset=utf-8"
+    },
+    {
+      "url": "https://aave.design/design/_next/static/chunks/turbopack-5725b656aea77f16.js?dpl=dpl_D2XtDjQLhVS3zZzzdNTzPBxB69Ds",
+      "kind": "script",
+      "sources": [
+        "script-dom",
+        "resource-script"
+      ],
+      "path": "scripts/turbopack-5725b656aea77f16.js-P2RwbD1kcG",
+      "ok": true,
+      "bytes": 10697,
+      "contentType": "application/javascript; charset=utf-8"
+    },
+    {
+      "url": "https://aave.design/design/_next/static/media/797e433ab948586e-s.p.29207c2f.woff2",
+      "kind": "font",
+      "sources": [
+        "link-preload",
+        "resource-link"
+      ],
+      "path": "assets/font/797e433ab948586e-s.p.29207c2f.woff2",
+      "ok": true,
+      "bytes": 23108,
+      "contentType": "font/woff2"
+    },
+    {
+      "url": "https://aave.design/design/_next/static/media/AaveAguzzo-s.p.1a42fb91.woff2",
+      "kind": "font",
+      "sources": [
+        "link-preload",
+        "resource-link"
+      ],
+      "path": "assets/font/AaveAguzzo-s.p.1a42fb91.woff2",
+      "ok": true,
+      "bytes": 75124,
+      "contentType": "font/woff2"
+    },
+    {
+      "url": "https://aave.design/design/_next/static/media/InterVariable-s.p.53d7b668.woff2",
+      "kind": "font",
+      "sources": [
+        "link-preload",
+        "resource-link"
+      ],
+      "path": "assets/font/InterVariable-s.p.53d7b668.woff2",
+      "ok": true,
+      "bytes": 352240,
+      "contentType": "font/woff2"
+    }
+  ]
+}

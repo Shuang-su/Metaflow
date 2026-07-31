@@ -1,0 +1,603 @@
+{
+  "origin": {
+    "name": "origin-live",
+    "metrics": {
+      "url": "https://aave.com/design/building-glass-for-the-web",
+      "bodyText": "Building Glass for the Web\nShare\n\nIn June last year Apple announced Liquid Glass at WWDC, a fresh design language built around the physics of light bending thro",
+      "inner": {
+        "w": 768,
+        "h": 1024
+      },
+      "glassCount": 5,
+      "filters": 25,
+      "displacements": 35,
+      "hero": {
+        "rect": {
+          "x": -8,
+          "y": 134.41,
+          "w": 784,
+          "h": 298.5
+        },
+        "css": {
+          "visibility": "visible",
+          "opacity": "1",
+          "display": "block",
+          "transform": "none",
+          "filter": "none",
+          "width": "784px",
+          "height": "298.5px",
+          "background": "rgba(0, 0, 0, 0) none repeat scroll 0% 0% / auto padding-box border-box",
+          "overflow": "visible",
+          "borderRadius": "0px"
+        },
+        "children": [
+          {
+            "rect": {
+              "x": -8,
+              "y": 134.41,
+              "w": 784,
+              "h": 298.5
+            },
+            "css": {
+              "visibility": "visible",
+              "opacity": "1",
+              "display": "block",
+              "transform": "none",
+              "filter": "url(\"#_R_g5bqivfqdb_-v2469\")",
+              "width": "784px",
+              "height": "298.5px",
+              "background": "rgba(0, 0, 0, 0) none repeat scroll 0% 0% / auto padding-box border-box",
+              "overflow": "visible",
+              "borderRadius": "0px"
+            },
+            "style": "will-change: filter; filter: url(\"#_R_g5bqivfqdb_-v2469\");"
+          },
+          {
+            "rect": {
+              "x": -8,
+              "y": 134.41,
+              "w": 784,
+              "h": 298.5
+            },
+            "css": {
+              "visibility": "visible",
+              "opacity": "1",
+              "display": "block",
+              "transform": "none",
+              "filter": "none",
+              "width": "784px",
+              "height": "298.5px",
+              "background": "rgba(0, 0, 0, 0) none repeat scroll 0% 0% / auto padding-box border-box",
+              "overflow": "visible",
+              "borderRadius": "0px"
+            },
+            "style": "position:absolute;inset:0;pointer-events:none"
+          },
+          {
+            "rect": {
+              "x": 177.47,
+              "y": 241.68,
+              "w": 160,
+              "h": 160
+            },
+            "css": {
+              "visibility": "visible",
+              "opacity": "1",
+              "display": "block",
+              "transform": "matrix(1, 0, 0, 1, 185.473, 107.277)",
+              "filter": "none",
+              "width": "160px",
+              "height": "160px",
+              "background": "rgba(0, 0, 0, 0) none repeat scroll 0% 0% / auto padding-box border-box",
+              "overflow": "visible",
+              "borderRadius": "80px"
+            },
+            "style": "position: absolute; top: 0px; left: 0px; pointer-events: none; will-change: backdrop-filter, transform; transform: translate3d(185.473px, 107.277px, 0px); width: 160px; height: 160px; border-radius: 80px; mask-image: url(\"data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20viewBox%3D'0%200%20160%20160'%20preserveAspectRatio%3D'none'%3E%3Crect%20x%3D'0.5'%20y%3D'0.5'%20width%3D'159'%20height%3D'159'%20rx%3D'79.5'%20ry%3D'79.5'%20fill%3D'black'%2F%3E%3C%2Fsvg%3E\"); mask-size: 100% 100%; backdrop-filter: blur(0.5px);"
+          }
+        ],
+        "maskChild": "position: absolute; top: 0px; left: 0px; pointer-events: none; will-change: backdrop-filter, transform; transform: translate3d(185.473px, 107.277px, 0px); width: 160px; height: 160px; border-radius: 80px; mask-image: url(\"data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20viewBox%3D'0%200%20160%20160'%20preserveAspectRatio%3D'none'%3E%3Crect%20x%3D'0.5'%20y%3D'0.5'%20width%3D'159'%20height%3D'159'%20rx%3D'79.5'%20ry%3D'79.5'%20fill%3D'black'%2F%3E%3C%2Fsvg%3E\"); mask-size: 100% 100%; backdrop-filter: blur(0.5px);"
+      },
+      "figureSummaries": [
+        {
+          "i": 0,
+          "rect": {
+            "x": 24,
+            "y": 698.91,
+            "w": 720,
+            "h": 584.13
+          },
+          "caption": "We want to bring this same feeling to the experiences we build on the web.",
+          "content": {
+            "rect": {
+              "x": 24,
+              "y": 746.91,
+              "w": 720,
+              "h": 480.13
+            },
+            "css": {
+              "visibility": "visible",
+              "opacity": "1",
+              "display": "block",
+              "transform": "none",
+              "filter": "none",
+              "width": "720px",
+              "height": "480.125px",
+              "background": "color(display-p3 0.980392 0.976471 0.976471) none repeat scroll 0% 0% / auto padding-box border-box",
+              "overflow": "hidden",
+              "borderRadius": "16px"
+            },
+            "style": "aspect-ratio:3464 / 2310"
+          },
+          "visibleText": "We want to bring this same feeling to the experiences we build on the web."
+        },
+        {
+          "i": 1,
+          "rect": {
+            "x": 24,
+            "y": 2122.03,
+            "w": 720,
+            "h": 513
+          },
+          "caption": "Even with a small component like this switch, the glass effect adds a sense of depth and tactility.",
+          "content": {
+            "rect": {
+              "x": 24,
+              "y": 2170.03,
+              "w": 720,
+              "h": 380
+            },
+            "css": {
+              "visibility": "hidden",
+              "opacity": "1",
+              "display": "flex",
+              "transform": "none",
+              "filter": "none",
+              "width": "720px",
+              "height": "380px",
+              "background": "color(display-p3 0.980392 0.976471 0.976471) url(\"https://aave.design/design/demo/demo-bg.png\") no-repeat scroll 50% 50% / cover padding-box border-box",
+              "overflow": "hidden",
+              "borderRadius": "12px"
+            },
+            "style": "visibility:hidden"
+          },
+          "visibleText": "Even with a small component like this switch, the glass effect adds a sense of depth and tactility."
+        },
+        {
+          "i": 2,
+          "rect": {
+            "x": 24,
+            "y": 3098.03,
+            "w": 720,
+            "h": 514.59
+          },
+          "caption": "Native <input type='range' /> elements are back-synced with our custom component.",
+          "content": {
+            "rect": {
+              "x": 24,
+              "y": 3146.03,
+              "w": 720,
+              "h": 380
+            },
+            "css": {
+              "visibility": "hidden",
+              "opacity": "1",
+              "display": "flex",
+              "transform": "none",
+              "filter": "none",
+              "width": "720px",
+              "height": "380px",
+              "background": "color(display-p3 0.980392 0.976471 0.976471) url(\"https://aave.design/design/demo/demo-bg.png\") no-repeat scroll 50% 50% / cover padding-box border-box",
+              "overflow": "hidden",
+              "borderRadius": "12px"
+            },
+            "style": "visibility:hidden"
+          },
+          "visibleText": "Native <input type='range' /> elements are back-synced with our custom component."
+        },
+        {
+          "i": 3,
+          "rect": {
+            "x": 24,
+            "y": 4165.63,
+            "w": 720,
+            "h": 513
+          },
+          "caption": "The glass effect helps visually highlight the selected option.",
+          "content": {
+            "rect": {
+              "x": 24,
+              "y": 4213.63,
+              "w": 720,
+              "h": 380
+            },
+            "css": {
+              "visibility": "hidden",
+              "opacity": "1",
+              "display": "flex",
+              "transform": "none",
+              "filter": "none",
+              "width": "720px",
+              "height": "380px",
+              "background": "color(display-p3 0.980392 0.976471 0.976471) url(\"https://aave.design/design/demo/demo-bg.png\") no-repeat scroll 50% 50% / cover padding-box border-box",
+              "overflow": "hidden",
+              "borderRadius": "12px"
+            },
+            "style": "visibility:hidden"
+          },
+          "visibleText": "The glass effect helps visually highlight the selected option."
+        },
+        {
+          "i": 4,
+          "rect": {
+            "x": 24,
+            "y": 5299.63,
+            "w": 720,
+            "h": 577
+          },
+          "caption": "The QR code is fully interactive. Click the Aave logo to see the glass effect in action.",
+          "content": {
+            "rect": {
+              "x": 24,
+              "y": 5347.63,
+              "w": 720,
+              "h": 444
+            },
+            "css": {
+              "visibility": "hidden",
+              "opacity": "1",
+              "display": "flex",
+              "transform": "none",
+              "filter": "none",
+              "width": "720px",
+              "height": "444px",
+              "background": "color(display-p3 0.980392 0.976471 0.976471) url(\"https://aave.design/design/demo/demo-bg.png\") no-repeat scroll 50% 50% / cover padding-box border-box",
+              "overflow": "hidden",
+              "borderRadius": "12px"
+            },
+            "style": "visibility:hidden"
+          },
+          "visibleText": "The QR code is fully interactive. Click the Aave logo to see the glass effect in action."
+        },
+        {
+          "i": 5,
+          "rect": {
+            "x": 24,
+            "y": 6177.63,
+            "w": 720,
+            "h": 580
+          },
+          "caption": "The glass effect can be applied to complex, interactive content like this video player.",
+          "content": {
+            "rect": {
+              "x": 24,
+              "y": 6225.63,
+              "w": 720,
+              "h": 447
+            },
+            "css": {
+              "visibility": "hidden",
+              "opacity": "1",
+              "display": "flex",
+              "transform": "none",
+              "filter": "none",
+              "width": "720px",
+              "height": "447px",
+              "background": "color(display-p3 0.980392 0.976471 0.976471) url(\"https://aave.design/design/demo/demo-bg.png\") no-repeat scroll 50% 50% / cover padding-box border-box",
+              "overflow": "hidden",
+              "borderRadius": "12px"
+            },
+            "style": "visibility:hidden"
+          },
+          "visibleText": "The glass effect can be applied to complex, interactive content like this video player."
+        }
+      ],
+      "errors": []
+    },
+    "errors": [
+      "Error: <path> attribute d: Expected moveto path command ('M' or 'm'), \"undefined\".",
+      "Error: <path> attribute d: Expected moveto path command ('M' or 'm'), \"undefined\".",
+      "Error: <path> attribute d: Expected moveto path command ('M' or 'm'), \"undefined\".",
+      "Error: <path> attribute d: Expected moveto path command ('M' or 'm'), \"undefined\"."
+    ],
+    "failed": [],
+    "screenshot": "/tmp/aave-glass-compare/origin-live-768-top.png"
+  },
+  "local": {
+    "name": "local-mirror",
+    "metrics": {
+      "url": "http://127.0.0.1:4173/design/building-glass-for-the-web/#glass-lab",
+      "bodyText": "Building Glass for the Web\nShare\n\nIn June last year Apple announced Liquid Glass at WWDC, a fresh design language built around the physics of light bending thro",
+      "inner": {
+        "w": 768,
+        "h": 1024
+      },
+      "glassCount": 5,
+      "filters": 25,
+      "displacements": 35,
+      "hero": {
+        "rect": {
+          "x": -8,
+          "y": 134.41,
+          "w": 784,
+          "h": 298.5
+        },
+        "css": {
+          "visibility": "visible",
+          "opacity": "1",
+          "display": "block",
+          "transform": "none",
+          "filter": "none",
+          "width": "784px",
+          "height": "298.5px",
+          "background": "rgba(0, 0, 0, 0) none repeat scroll 0% 0% / auto padding-box border-box",
+          "overflow": "visible",
+          "borderRadius": "0px"
+        },
+        "children": [
+          {
+            "rect": {
+              "x": -8,
+              "y": 134.41,
+              "w": 784,
+              "h": 298.5
+            },
+            "css": {
+              "visibility": "visible",
+              "opacity": "1",
+              "display": "block",
+              "transform": "none",
+              "filter": "url(\"#_R_g5bqivfqdb_-v3368\")",
+              "width": "784px",
+              "height": "298.5px",
+              "background": "rgba(0, 0, 0, 0) none repeat scroll 0% 0% / auto padding-box border-box",
+              "overflow": "visible",
+              "borderRadius": "0px"
+            },
+            "style": "will-change: filter; filter: url(\"#_R_g5bqivfqdb_-v3368\");"
+          },
+          {
+            "rect": {
+              "x": -8,
+              "y": 134.41,
+              "w": 784,
+              "h": 298.5
+            },
+            "css": {
+              "visibility": "visible",
+              "opacity": "1",
+              "display": "block",
+              "transform": "none",
+              "filter": "none",
+              "width": "784px",
+              "height": "298.5px",
+              "background": "rgba(0, 0, 0, 0) none repeat scroll 0% 0% / auto padding-box border-box",
+              "overflow": "visible",
+              "borderRadius": "0px"
+            },
+            "style": "position:absolute;inset:0;pointer-events:none"
+          },
+          {
+            "rect": {
+              "x": 521.26,
+              "y": 266.15,
+              "w": 160,
+              "h": 160
+            },
+            "css": {
+              "visibility": "visible",
+              "opacity": "1",
+              "display": "block",
+              "transform": "matrix(1, 0, 0, 1, 529.256, 131.741)",
+              "filter": "none",
+              "width": "160px",
+              "height": "160px",
+              "background": "rgba(0, 0, 0, 0) none repeat scroll 0% 0% / auto padding-box border-box",
+              "overflow": "visible",
+              "borderRadius": "80px"
+            },
+            "style": "position: absolute; top: 0px; left: 0px; pointer-events: none; will-change: backdrop-filter, transform; transform: translate3d(529.256px, 131.741px, 0px); width: 160px; height: 160px; border-radius: 80px; mask-image: url(\"data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20viewBox%3D'0%200%20160%20160'%20preserveAspectRatio%3D'none'%3E%3Crect%20x%3D'0.5'%20y%3D'0.5'%20width%3D'159'%20height%3D'159'%20rx%3D'79.5'%20ry%3D'79.5'%20fill%3D'black'%2F%3E%3C%2Fsvg%3E\"); mask-size: 100% 100%; backdrop-filter: blur(0.5px);"
+          }
+        ],
+        "maskChild": "position: absolute; top: 0px; left: 0px; pointer-events: none; will-change: backdrop-filter, transform; transform: translate3d(529.256px, 131.741px, 0px); width: 160px; height: 160px; border-radius: 80px; mask-image: url(\"data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20viewBox%3D'0%200%20160%20160'%20preserveAspectRatio%3D'none'%3E%3Crect%20x%3D'0.5'%20y%3D'0.5'%20width%3D'159'%20height%3D'159'%20rx%3D'79.5'%20ry%3D'79.5'%20fill%3D'black'%2F%3E%3C%2Fsvg%3E\"); mask-size: 100% 100%; backdrop-filter: blur(0.5px);"
+      },
+      "figureSummaries": [
+        {
+          "i": 0,
+          "rect": {
+            "x": 24,
+            "y": 698.91,
+            "w": 720,
+            "h": 584.13
+          },
+          "caption": "We want to bring this same feeling to the experiences we build on the web.",
+          "content": {
+            "rect": {
+              "x": 24,
+              "y": 746.91,
+              "w": 720,
+              "h": 480.13
+            },
+            "css": {
+              "visibility": "visible",
+              "opacity": "1",
+              "display": "block",
+              "transform": "none",
+              "filter": "none",
+              "width": "720px",
+              "height": "480.125px",
+              "background": "color(display-p3 0.980392 0.976471 0.976471) none repeat scroll 0% 0% / auto padding-box border-box",
+              "overflow": "hidden",
+              "borderRadius": "16px"
+            },
+            "style": "aspect-ratio:3464 / 2310"
+          },
+          "visibleText": "We want to bring this same feeling to the experiences we build on the web."
+        },
+        {
+          "i": 1,
+          "rect": {
+            "x": 24,
+            "y": 2122.03,
+            "w": 720,
+            "h": 513
+          },
+          "caption": "Even with a small component like this switch, the glass effect adds a sense of depth and tactility.",
+          "content": {
+            "rect": {
+              "x": 24,
+              "y": 2170.03,
+              "w": 720,
+              "h": 380
+            },
+            "css": {
+              "visibility": "hidden",
+              "opacity": "1",
+              "display": "flex",
+              "transform": "none",
+              "filter": "none",
+              "width": "720px",
+              "height": "380px",
+              "background": "color(display-p3 0.980392 0.976471 0.976471) url(\"http://127.0.0.1:4173/design/demo/demo-bg.png\") no-repeat scroll 50% 50% / cover padding-box border-box",
+              "overflow": "hidden",
+              "borderRadius": "12px"
+            },
+            "style": "visibility: hidden;"
+          },
+          "visibleText": "Even with a small component like this switch, the glass effect adds a sense of depth and tactility."
+        },
+        {
+          "i": 2,
+          "rect": {
+            "x": 24,
+            "y": 3098.03,
+            "w": 720,
+            "h": 514.59
+          },
+          "caption": "Native <input type='range' /> elements are back-synced with our custom component.",
+          "content": {
+            "rect": {
+              "x": 24,
+              "y": 3146.03,
+              "w": 720,
+              "h": 380
+            },
+            "css": {
+              "visibility": "hidden",
+              "opacity": "1",
+              "display": "flex",
+              "transform": "none",
+              "filter": "none",
+              "width": "720px",
+              "height": "380px",
+              "background": "color(display-p3 0.980392 0.976471 0.976471) url(\"http://127.0.0.1:4173/design/demo/demo-bg.png\") no-repeat scroll 50% 50% / cover padding-box border-box",
+              "overflow": "hidden",
+              "borderRadius": "12px"
+            },
+            "style": "visibility: hidden;"
+          },
+          "visibleText": "Native <input type='range' /> elements are back-synced with our custom component."
+        },
+        {
+          "i": 3,
+          "rect": {
+            "x": 24,
+            "y": 4165.63,
+            "w": 720,
+            "h": 513
+          },
+          "caption": "The glass effect helps visually highlight the selected option.",
+          "content": {
+            "rect": {
+              "x": 24,
+              "y": 4213.63,
+              "w": 720,
+              "h": 380
+            },
+            "css": {
+              "visibility": "hidden",
+              "opacity": "1",
+              "display": "flex",
+              "transform": "none",
+              "filter": "none",
+              "width": "720px",
+              "height": "380px",
+              "background": "color(display-p3 0.980392 0.976471 0.976471) url(\"http://127.0.0.1:4173/design/demo/demo-bg.png\") no-repeat scroll 50% 50% / cover padding-box border-box",
+              "overflow": "hidden",
+              "borderRadius": "12px"
+            },
+            "style": "visibility: hidden;"
+          },
+          "visibleText": "The glass effect helps visually highlight the selected option."
+        },
+        {
+          "i": 4,
+          "rect": {
+            "x": 24,
+            "y": 5299.63,
+            "w": 720,
+            "h": 577
+          },
+          "caption": "The QR code is fully interactive. Click the Aave logo to see the glass effect in action.",
+          "content": {
+            "rect": {
+              "x": 24,
+              "y": 5347.63,
+              "w": 720,
+              "h": 444
+            },
+            "css": {
+              "visibility": "hidden",
+              "opacity": "1",
+              "display": "flex",
+              "transform": "none",
+              "filter": "none",
+              "width": "720px",
+              "height": "444px",
+              "background": "color(display-p3 0.980392 0.976471 0.976471) url(\"http://127.0.0.1:4173/design/demo/demo-bg.png\") no-repeat scroll 50% 50% / cover padding-box border-box",
+              "overflow": "hidden",
+              "borderRadius": "12px"
+            },
+            "style": "visibility: hidden;"
+          },
+          "visibleText": "The QR code is fully interactive. Click the Aave logo to see the glass effect in action."
+        },
+        {
+          "i": 5,
+          "rect": {
+            "x": 24,
+            "y": 6177.63,
+            "w": 720,
+            "h": 580
+          },
+          "caption": "The glass effect can be applied to complex, interactive content like this video player.",
+          "content": {
+            "rect": {
+              "x": 24,
+              "y": 6225.63,
+              "w": 720,
+              "h": 447
+            },
+            "css": {
+              "visibility": "hidden",
+              "opacity": "1",
+              "display": "flex",
+              "transform": "none",
+              "filter": "none",
+              "width": "720px",
+              "height": "447px",
+              "background": "color(display-p3 0.980392 0.976471 0.976471) url(\"http://127.0.0.1:4173/design/demo/demo-bg.png\") no-repeat scroll 50% 50% / cover padding-box border-box",
+              "overflow": "hidden",
+              "borderRadius": "12px"
+            },
+            "style": "visibility: hidden;"
+          },
+          "visibleText": "The glass effect can be applied to complex, interactive content like this video player."
+        }
+      ],
+      "errors": []
+    },
+    "errors": [],
+    "failed": [],
+    "screenshot": "/tmp/aave-glass-compare/local-mirror-768-top.png"
+  }
+}

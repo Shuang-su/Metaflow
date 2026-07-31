@@ -1,0 +1,55 @@
+{
+  "heroSamples": [
+    {
+      "x": 560.57,
+      "y": 214.36,
+      "w": 160,
+      "h": 160,
+      "feX": "0.7252186977019766",
+      "feY": "0.2678639321708295"
+    },
+    {
+      "x": 532.7,
+      "y": 166.42,
+      "w": 160,
+      "h": 160,
+      "feX": "0.6896628187181638",
+      "feY": "0.10724191348735801"
+    },
+    {
+      "x": 275.35,
+      "y": 168.35,
+      "w": 160,
+      "h": 160,
+      "feX": "0.3614142645032766",
+      "feY": "0.11369846279687099"
+    },
+    {
+      "x": 51.02,
+      "y": 256.11,
+      "w": 160,
+      "h": 160,
+      "feX": "0.07527793615971415",
+      "feY": "0.40770243226151803"
+    }
+  ],
+  "metrics": {
+    "glassCount": 5,
+    "filters": 25,
+    "displacements": 35,
+    "visibleDemoContent": [
+      "visible",
+      "visible",
+      "visible",
+      "visible",
+      "visible",
+      "visible",
+      "visible"
+    ],
+    "sliderContent": "visible",
+    "sliderGlass": "visible"
+  },
+  "errors": [],
+  "failed": [],
+  "screenshot": "/tmp/aave-glass-compare/local-fixed-768-slider-visible.png"
+}

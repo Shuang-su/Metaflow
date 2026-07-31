@@ -1,0 +1,42 @@
+import { Meta } from '@storybook/addon-docs/blocks';
+import * as ComponentStories from '../1-Components.stories';
+
+<Meta of={ComponentStories} />
+
+# 组件案例
+
+这一组页面研究 Liquid Glass 如何成为真实界面组件的一部分。每个案例都保留原始 Aave 组件的运行逻辑，并在演示之后说明折射目标、状态变化、代码实现和浏览器边界。
+
+## 共同结构
+
+DOM 组件虽然形态不同，但都遵循相同的运行契约：
+
+1. 正常渲染可访问、可交互的真实控件。
+2. 单独准备需要被折射的 `refraction target`。
+3. 使用 lens geometry 生成 displacement map。
+4. 只把 SVG filter 限制在镜片和 bleed 覆盖的紧凑区域。
+5. 位置变化只移动 filter region；形状变化才重建 map。
+
+## 案例索引
+
+| 案例 | 表面与路径 | 折射目标 | 主要交互 |
+| --- | --- | --- | --- |
+| 1.1 Hero Glass | DOM / SVG | 动态背景与 Aave 图标 | 自动移动镜片 |
+| 1.2 Switch | DOM / SVG | 同步的 track fill copy | 点击、按住、拖动、释放 |
+| 1.3 Slider | DOM / SVG | range fill copy | 原生 range 拖动 |
+| 1.4 Segmented Toggle | DOM / SVG | highlighted options overlay | 选项切换与 spring |
+| 1.5 QR Code／Canvas | Canvas / WebGL | QR source texture | 点击 Logo 动画 |
+| 1.6 Video Controls | Video / WebGL | live video texture | 播放、跳转、进度拖动 |
+
+## 交互与可访问性
+
+玻璃层不是输入状态的来源。Switch 保留 native checkbox，Slider 保留 native range，Toggle 保留真实按钮和键盘焦点；视觉复制层不接收指针事件。这样既能维持语义，也能避免 glass overlay 抢占交互。
+
+## 性能基线
+
+- map 与 source texture 分开管理，不能在每一帧重复生成不变资源。
+- filter bbox 应贴合镜片，而不是覆盖整块页面。
+- resize 必须同步 CSS 尺寸、drawing buffer、viewport 和 lens 坐标。
+- 验收必须包含实际状态变化和像素签名，不能只检查元素是否存在。
+
+简单 DOM 案例直接在单页中显示演示和源码。QR 与 Video 的纹理路径更复杂，因此分别提供 README 和独立交互演示。

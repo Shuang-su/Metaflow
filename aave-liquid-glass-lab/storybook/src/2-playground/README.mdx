@@ -1,0 +1,46 @@
+import { Meta } from '@storybook/addon-docs/blocks';
+import * as PlaygroundStories from '../2-Playground.stories';
+import { SourceSnippet } from '../docs/SourceSnippet';
+
+<Meta of={PlaygroundStories} />
+
+# Playground
+
+Playground 用来同时观察折射结果和 generated displacement map。它不是另一套近似实现，而是直接挂载与全部案例相同的 Aave 原始 map playground。
+
+## Map 通道
+
+| 通道 | 含义 |
+| --- | --- |
+| R | 水平方向位移 |
+| G | 垂直方向位移 |
+| B | 高光、边缘和派生亮度信息 |
+| 中性灰 | 镜片外区域保持像素不动 |
+
+## 参数
+
+| 参数 | 范围 | 影响 |
+| --- | --- | --- |
+| Width | `20–120` | 镜片横向半尺寸 |
+| Height | `20–80` | 镜片纵向半尺寸 |
+| BorderRadius | `0–64` | rounded rect 与 circle 过渡 |
+| Scale | `0–0.2` | displacement 强度 |
+| Depth | `5–60` | dome 深度 |
+| Curvature | `0–80` | 曲面变化速度 |
+| Splay | `0–1` | 边缘向外展开程度 |
+
+<SourceSnippet studyCase="how-it-works" />
+
+## 何时重建 Map
+
+Width、Height、BorderRadius、Depth、Curvature 或 Splay 改变了镜片几何，需要重新生成 map。镜片只改变 x/y 位置时，map 保持不变，只更新 filter region 或 shader uniform。
+
+## 实验步骤
+
+1. 先观察默认 lens 和中性灰区域。
+2. 分别只改变 Width、Height 和 BorderRadius，确认 map 轮廓同步。
+3. 调整 Depth 与 Curvature，比较中心和边缘的位移差异。
+4. 调整 Scale 与 Splay，观察折射强度和边缘展开。
+5. 拖动镜片位置，确认移动时不会重新生成 map。
+
+进入 **2.1 How It Works / Displacement Map** 使用页面内调节器完成实验。

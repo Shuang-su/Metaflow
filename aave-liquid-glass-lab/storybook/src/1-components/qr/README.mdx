@@ -1,0 +1,47 @@
+import { Meta } from '@storybook/addon-docs/blocks';
+import * as QRStories from '../QRCanvas.stories';
+import { SourceSnippet } from '../../docs/SourceSnippet';
+
+<Meta of={QRStories} />
+
+# QR Code／Canvas
+
+二维码的像素已经绘制进 Canvas，不再是可以直接交给 SVG filter 的 live DOM。这个案例因此使用同一张 displacement map 驱动 WebGL shader，在点击 Aave Logo 时实时改变镜片 uniforms 和输出画面。
+
+## 渲染管线
+
+| 阶段 | 输入 | 输出 |
+| --- | --- | --- |
+| Source | 二维码 source canvas | source texture |
+| Lens map | 镜片 SDF、depth、curvature、splay | map texture |
+| Blur | source 的低频版本 | optional blur texture |
+| Shader | source + map + blur + animation uniforms | WebGL output canvas |
+
+<SourceSnippet studyCase="qr" />
+
+## Texture 生命周期
+
+二维码内容变化时才更新 source texture；镜片形状变化时才重建 map texture。点击动画推进的是旋转、splash、scale 等 uniforms，不能在每一帧重新上传所有静态资源。
+
+## DPR 与 resize
+
+Canvas 的 CSS 尺寸负责版面，`width` 和 `height` drawing buffer 则乘以 `devicePixelRatio`。每次 resize 都要同步：
+
+- drawing buffer 尺寸；
+- WebGL viewport；
+- source 与 map texture 尺寸；
+- lens 的 pixel-space 坐标和 bbox。
+
+任何一个环节仍使用旧尺寸，都会造成折射边界偏移或画面模糊。
+
+## 点击动画
+
+Logo 是真实交互入口。点击后 Motion values 推进镜片旋转和 splash 状态，renderer 在同一个 Canvas 中连续输出。交互演示保留在同级 **交互演示** 页面。
+
+## 验收要点
+
+- 页面中同时存在 source canvas 与 WebGL output canvas。
+- 两个 Canvas 的 drawing buffer 都不是 `0 × 0`。
+- 点击前后 output canvas 的 pixel signature 必须变化。
+- 竖屏 resize 后镜片中心和二维码中心仍处于同一坐标系。
+- Safari 与 Chromium 都必须走 WebGL，不用 SVG filter 伪装 Canvas 折射。

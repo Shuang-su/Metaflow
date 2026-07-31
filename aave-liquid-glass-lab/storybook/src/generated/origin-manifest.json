@@ -1,0 +1,46 @@
+{
+  "runtimeUrl": "/design/_next/static/chunks/turbopack-5725b656aea77f16.local.js?dpl=dpl_D2XtDjQLhVS3zZzzdNTzPBxB69Ds",
+  "scriptUrls": [
+    "/design/_next/static/chunks/6b39cc5ea402bad2.js?dpl=dpl_D2XtDjQLhVS3zZzzdNTzPBxB69Ds",
+    "/design/_next/static/chunks/fa5f88fd49b57c1d.js?dpl=dpl_D2XtDjQLhVS3zZzzdNTzPBxB69Ds",
+    "/design/_next/static/chunks/c2af83def54aebba.js?dpl=dpl_D2XtDjQLhVS3zZzzdNTzPBxB69Ds",
+    "/design/_next/static/chunks/f497c470c751011a.js?dpl=dpl_D2XtDjQLhVS3zZzzdNTzPBxB69Ds",
+    "/design/_next/static/chunks/6cc497ddd4cdfc1d.js?dpl=dpl_D2XtDjQLhVS3zZzzdNTzPBxB69Ds",
+    "/design/_next/static/chunks/3e4a1175c4be6ee8.js?dpl=dpl_D2XtDjQLhVS3zZzzdNTzPBxB69Ds",
+    "/design/_next/static/chunks/20b0e2a7eb8d2365.js?dpl=dpl_D2XtDjQLhVS3zZzzdNTzPBxB69Ds",
+    "/design/_next/static/chunks/6126faa3333ee75a.js?dpl=dpl_D2XtDjQLhVS3zZzzdNTzPBxB69Ds",
+    "/design/_next/static/chunks/71d732b23d95aecf.js?dpl=dpl_D2XtDjQLhVS3zZzzdNTzPBxB69Ds",
+    "/design/_next/static/chunks/af6bdabf7a14b570.js?dpl=dpl_D2XtDjQLhVS3zZzzdNTzPBxB69Ds",
+    "/design/_next/static/chunks/f402ee53ea74b14e.js?dpl=dpl_D2XtDjQLhVS3zZzzdNTzPBxB69Ds",
+    "/design/_next/static/chunks/3963356e871bc455.js?dpl=dpl_D2XtDjQLhVS3zZzzdNTzPBxB69Ds",
+    "/design/_next/static/chunks/b7d76adec832d628.js?dpl=dpl_D2XtDjQLhVS3zZzzdNTzPBxB69Ds",
+    "/design/_next/static/chunks/fc9f28cb893506e5.js?dpl=dpl_D2XtDjQLhVS3zZzzdNTzPBxB69Ds",
+    "/design/_next/static/chunks/25ef42f3c325a091.js?dpl=dpl_D2XtDjQLhVS3zZzzdNTzPBxB69Ds",
+    "/design/_next/static/chunks/504982d42d3368e6.js?dpl=dpl_D2XtDjQLhVS3zZzzdNTzPBxB69Ds",
+    "/design/_next/static/chunks/3f58956c977fefad.js?dpl=dpl_D2XtDjQLhVS3zZzzdNTzPBxB69Ds",
+    "/design/_next/static/chunks/36e75939a1c38671.js?dpl=dpl_D2XtDjQLhVS3zZzzdNTzPBxB69Ds",
+    "/design/_next/static/chunks/a6dad97d9634a72d.js?dpl=dpl_D2XtDjQLhVS3zZzzdNTzPBxB69Ds",
+    "/design/_next/static/chunks/e296b7a9aa85491d.js?dpl=dpl_D2XtDjQLhVS3zZzzdNTzPBxB69Ds"
+  ],
+  "stylesheetUrls": [
+    "/design/_next/static/chunks/58ffe16bdbbd7cba.css?dpl=dpl_D2XtDjQLhVS3zZzzdNTzPBxB69Ds",
+    "/design/_next/static/chunks/eacaaad61d90a86e.css?dpl=dpl_D2XtDjQLhVS3zZzzdNTzPBxB69Ds",
+    "/design/_next/static/chunks/7d08b58e318686d8.css?dpl=dpl_D2XtDjQLhVS3zZzzdNTzPBxB69Ds",
+    "/design/_next/static/chunks/6b2154569d3a80d0.css?dpl=dpl_D2XtDjQLhVS3zZzzdNTzPBxB69Ds"
+  ],
+  "blockedRuntimeModuleId": 95395,
+  "bridgeModuleId": 9900991,
+  "modules": {
+    "jsxRuntime": 72841,
+    "reactDomClient": 91083,
+    "themeProvider": 42092,
+    "demoContainer": 16908,
+    "hero": 15375,
+    "switch": 2267,
+    "slider": 94743,
+    "toggle": 2606,
+    "qr": 37151,
+    "video": 33360,
+    "howItWorks": 93248
+  }
+}
