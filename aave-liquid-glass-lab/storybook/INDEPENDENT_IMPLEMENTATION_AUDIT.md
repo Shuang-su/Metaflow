@@ -45,14 +45,31 @@ reference/origin
 
 | 案例 | 几何与节点 | Map 核验 | 交互核验 |
 | --- | --- | --- | --- |
-| Hero | 独立实现使用 80px map 与 160px visual lens；hover 只放大 visual shell | 初始 map data URL 与基准相同 | map 稳定策略已按源码修正；pointer hover 的逐帧截图仍待补 |
+| Hero | 独立实现使用 80px map 与 160px visual lens；桌面与竖屏 glass host、各向异性 blur 均与基准一致 | 初始 map data URL 与基准相同 | map 稳定策略已按源码修正；pointer hover 的逐帧截图仍待补 |
 | Switch Light | 两侧 glass host 均为 `116 × 70`；每侧 5 filters / 7 displacement nodes | data URL 完全相同 | native checkbox `false -> true` |
 | Switch Dark | 使用 dark material override 后，两侧 map 均相对 Light 改变 | dark data URL 完全相同 | Storybook 全局主题同步 |
-| Slider Light | 两侧 glass host 均为 `290 × 72`；每侧 5 filters / 7 displacement nodes | data URL 完全相同 | native range 与 glass position 同步 |
-| Segmented Toggle | selected pill、lens geometry 和状态路径按相同参数运行 | 已完成代表状态的字节对比 | 点击后 selected pill 与 lens 同步移动 |
+| Slider Light | 桌面两侧 glass host 均为 `290 × 72`，竖屏均为 `246 × 68`；每侧 5 filters / 7 displacement nodes | data URL 完全相同 | native range 与 glass position 同步 |
+| Segmented Toggle | 桌面两侧 host 均为 `584.719 × 206`；竖屏均为 `274.484 × 206`，并只显示 Hubs / Spokes | 已完成代表状态的字节对比 | 点击后 selected pill 与 lens 同步移动 |
 | How It Works | 初始参数下两侧 map 长度均为 `123162` | 初始 data URL 完全相同 | Width `70 -> 90` 后独立 map 改变，基准 map 保持不变 |
 
 `svg-glass.ts` 还修正了一个影响参数实验的真实问题：没有显式提供 `mapGeometry` 时，shape 更新现在会同步重建 map；显式提供固定 `mapGeometry` 时，只移动或放大 visual shell 不会重建 PNG。
+
+## 视觉几何复测
+
+Chromium 中分别使用 `1280 × 720` 与 Storybook `390 × 844` viewport，同时读取锁定基准和独立实现的运行态矩形：
+
+| 案例 | 桌面 | 竖屏 |
+| --- | --- | --- |
+| Hero | 两侧均为 `764 × 368` | 两侧均为 `368 × 214.398` |
+| Switch | 两侧均为 `116 × 70` | 两侧均为 `116 × 70` |
+| Slider | 两侧均为 `290 × 72` | 两侧均为 `246 × 68` |
+| Toggle | 两侧均为 `584.719 × 206` | 两侧均为 `274.484 × 206` |
+| QR Canvas | 两侧 canvas 均为 `324 × 324` | 两侧 canvas 均为 `324 × 324` |
+| Video | 两侧画面均为 `604 × 339.75` | 两侧画面均为 `336 × 189` |
+
+Hero 的 `feGaussianBlur` 使用按目标宽高分别归一化的标准差。桌面两侧均为 `0.0006544502617801048 0.001358695652173913`，竖屏两侧均为 `0.001358695652173913 0.002332106548117917`；这修复了把折射模糊误画成正方形区域的问题。
+
+竖屏逐页检查未发现横向溢出。Video 采用原实现的移动 figure 规则：`48px 0` padding、无 demo 背景、播放器 `12px` 圆角，避免通用卡片 padding 将画面压缩为 `240 × 135`。
 
 ## QR / Canvas
 
@@ -114,9 +131,9 @@ npm run build-storybook
 以下事项未在本轮完成，因此不能声称全量 1:1：
 
 1. Safari 上逐个复测独立实现，而不只是验证原始镜像。
-2. `390 × 844` 下逐页复测独立实现的布局与交互。
+2. `390 × 844` 下的布局、运行态矩形与无溢出已经复测，但尚未为每个控件补齐完整拖拽手势录制。
 3. Hero hover/hold/release 的逐帧运动曲线与截图差分。
-4. QR 与 Video 的全画面像素差分；目前证明了独立渲染和状态变化，尚未证明每个像素与锁定基准相同。
+4. QR 与 Video 的全画面像素差分；目前证明了独立渲染、尺寸一致和状态变化，尚未证明每个像素与锁定基准相同。
 5. 长时间视频播放、resize、DPR 改变和 context-loss 恢复。
 
 因此，当前实现已经具备后续修改所需的独立源码和共享核心，但“原样实现”仍应被理解为已完成核心算法与代表状态等价，跨浏览器和全动画像素级验收仍需继续。

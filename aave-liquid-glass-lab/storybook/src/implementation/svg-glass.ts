@@ -17,6 +17,7 @@ interface FilterGraph {
   filter: SVGFilterElement;
   image: SVGFEImageElement;
   mask: SVGFEFloodElement;
+  blur?: SVGFEGaussianBlurElement;
   mapMatrix?: SVGFEColorMatrixElement;
   displacements: SVGFEDisplacementMapElement[];
 }
@@ -107,15 +108,15 @@ function createFilterGraph(
   if (matrix) filter.append(matrix);
   const mapInput = matrix ? 'scaledMap' : 'map';
   const sourceInput = material.blurAmount > 0 && rich ? 'blurred' : 'SourceGraphic';
+  let blur: SVGFEGaussianBlurElement | undefined;
 
   if (material.blurAmount > 0 && rich) {
-    filter.append(
-      svgElement('feGaussianBlur', {
-        in: 'SourceGraphic',
-        stdDeviation: material.blurAmount / 100,
-        result: 'blurred'
-      })
-    );
+    blur = svgElement('feGaussianBlur', {
+      in: 'SourceGraphic',
+      stdDeviation: 0,
+      result: 'blurred'
+    });
+    filter.append(blur);
   }
 
   const displacements: SVGFEDisplacementMapElement[] = [];
@@ -252,6 +253,7 @@ function createFilterGraph(
     filter,
     image,
     mask,
+    blur,
     mapMatrix: matrix,
     displacements
   };
@@ -284,7 +286,8 @@ function setRegion(
   left: number,
   top: number,
   width: number,
-  height: number
+  height: number,
+  blurAmount: number
 ): void {
   // The half-pixel inset aligns the primitive region with the raster map's
   // pixel centres and matches the source implementation's filter bounds.
@@ -296,6 +299,12 @@ function setRegion(
   const y = alignedTop / targetHeight;
   const w = alignedWidth / targetWidth;
   const h = alignedHeight / targetHeight;
+  if (graph.blur) {
+    graph.blur.setAttribute(
+      'stdDeviation',
+      `${blurAmount / targetWidth} ${blurAmount / targetHeight}`
+    );
+  }
   for (const element of [
     graph.image,
     graph.mask,
@@ -527,7 +536,8 @@ export function createSvgGlass(options: SvgGlassOptions): SvgGlassController {
         lensLeft - main.rect.left,
         lensTop - main.rect.top,
         lensWidth,
-        lensHeight
+        lensHeight,
+        material.blurAmount
       );
     }
 
@@ -543,7 +553,8 @@ export function createSvgGlass(options: SvgGlassOptions): SvgGlassController {
         lensLeft - candidate.rect.left,
         lensTop - candidate.rect.top,
         lensWidth,
-        lensHeight
+        lensHeight,
+        material.blurAmount
       );
     });
 

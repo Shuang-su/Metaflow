@@ -378,90 +378,92 @@ export function SliderExample() {
 
   return (
     <div className="readable-example readable-slider-example">
-      <div
-        className="readable-slider-wrapper"
-        style={{ width, height: THUMB_HEIGHT }}
-      >
-        <AaveGlass
-          className="readable-slider-glass"
-          style={{
-            width: hostWidth,
-            height: hostHeight,
-            margin: -bleed,
-            overflow: 'visible'
-          }}
-          targetClassName="readable-slider-refraction"
-          targetStyle={{ position: 'absolute', inset: 0 }}
-          contentStyle={{
-            padding: bleed,
-            boxSizing: 'border-box'
-          }}
-          refractionTarget={refractionTarget}
-          geometry={{
-            lensW: lensHalfWidth * (1 - 0.2 * deformation),
-            lensH: lensHalfHeight * (1 + 0.4 * deformation),
-            borderRadius: lensRadius,
-            mapSize: 256
-          }}
-          material={sliderMaterial}
-          position={{
-            x: bleed + THUMB_WIDTH / 2 + x,
-            y: bleed + THUMB_HEIGHT / 2
-          }}
-          tintColor="white"
-          tintOpacity={tintOpacity}
+      <div className="readable-control-stage readable-slider-stage">
+        <div
+          className="readable-slider-wrapper"
+          style={{ width, height: THUMB_HEIGHT }}
         >
-          <div className="readable-slider-content">
-            <input
-              ref={inputRef}
-              className="readable-slider-native"
-              type="range"
-              min="0"
-              max="100"
-              step="1"
-              value={value}
-              aria-label="玻璃滑块"
-              onChange={event => {
-                const nextValue = event.currentTarget.valueAsNumber;
-                setValue(nextValue);
-                setPosition((nextValue / 100) * travel, false);
-              }}
-            />
-            <div
-              ref={rootRef}
-              className="readable-slider-root"
-              style={{ width, height: THUMB_HEIGHT }}
-              aria-hidden="true"
-              onPointerDown={onPointerDown}
-              onPointerMove={onPointerMove}
-              onPointerUp={finishPointer}
-              onPointerCancel={finishPointer}
-              onDragStart={event => event.preventDefault()}
-            >
-              <div
-                className="readable-slider-track"
-                style={{
-                  height: TRACK_HEIGHT,
-                  borderRadius: TRACK_HEIGHT / 2
-                }}
-              >
-                <span className="readable-slider-track-base" />
-                <span
-                  className="readable-slider-fill"
-                  style={{ width: THUMB_WIDTH / 2 + x }}
-                />
-              </div>
-              <span
-                className="readable-slider-thumb-hit-area"
-                style={{
-                  width: THUMB_WIDTH,
-                  height: THUMB_HEIGHT,
-                  transform: `translateX(${x}px)`
+          <AaveGlass
+            className="readable-slider-glass"
+            style={{
+              width: hostWidth,
+              height: hostHeight,
+              margin: -bleed,
+              overflow: 'visible'
+            }}
+            targetClassName="readable-slider-refraction"
+            targetStyle={{ position: 'absolute', inset: 0 }}
+            contentStyle={{
+              padding: bleed,
+              boxSizing: 'border-box'
+            }}
+            refractionTarget={refractionTarget}
+            geometry={{
+              lensW: lensHalfWidth * (1 - 0.2 * deformation),
+              lensH: lensHalfHeight * (1 + 0.4 * deformation),
+              borderRadius: lensRadius,
+              mapSize: 256
+            }}
+            material={sliderMaterial}
+            position={{
+              x: bleed + THUMB_WIDTH / 2 + x,
+              y: bleed + THUMB_HEIGHT / 2
+            }}
+            tintColor="white"
+            tintOpacity={tintOpacity}
+          >
+            <div className="readable-slider-content">
+              <input
+                ref={inputRef}
+                className="readable-slider-native"
+                type="range"
+                min="0"
+                max="100"
+                step="1"
+                value={value}
+                aria-label="玻璃滑块"
+                onChange={event => {
+                  const nextValue = event.currentTarget.valueAsNumber;
+                  setValue(nextValue);
+                  setPosition((nextValue / 100) * travel, false);
                 }}
               />
+              <div
+                ref={rootRef}
+                className="readable-slider-root"
+                style={{ width, height: THUMB_HEIGHT }}
+                aria-hidden="true"
+                onPointerDown={onPointerDown}
+                onPointerMove={onPointerMove}
+                onPointerUp={finishPointer}
+                onPointerCancel={finishPointer}
+                onDragStart={event => event.preventDefault()}
+              >
+                <div
+                  className="readable-slider-track"
+                  style={{
+                    height: TRACK_HEIGHT,
+                    borderRadius: TRACK_HEIGHT / 2
+                  }}
+                >
+                  <span className="readable-slider-track-base" />
+                  <span
+                    className="readable-slider-fill"
+                    style={{ width: THUMB_WIDTH / 2 + x }}
+                  />
+                </div>
+                <span
+                  className="readable-slider-thumb-hit-area"
+                  style={{
+                    width: THUMB_WIDTH,
+                    height: THUMB_HEIGHT,
+                    transform: `translateX(${x}px)`
+                  }}
+                />
+              </div>
             </div>
-          </div>
-        </AaveGlass>
+          </AaveGlass>
+        </div>
       </div>
     </div>
   );

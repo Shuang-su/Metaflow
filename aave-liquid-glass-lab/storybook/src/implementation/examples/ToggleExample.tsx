@@ -227,8 +227,16 @@ export function ToggleExample() {
   const toggleMaterial = dark
     ? toggleMaterialDark
     : toggleMaterialLight;
+  const [compact, setCompact] = useState(
+    () =>
+      typeof window !== 'undefined' &&
+      window.matchMedia('(max-width: 639px)').matches
+  );
   const [selected, setSelected] = useState('hubs');
-  const [hostSize, setHostSize] = useState({ width: 580, height: 206 });
+  const [hostSize, setHostSize] = useState({
+    width: compact ? 194.5 : 504,
+    height: 46
+  });
   const [lens, setLens] = useState({
     x: 84,
     y: 103,
@@ -246,6 +254,22 @@ export function ToggleExample() {
   const deformationPosition = useRef(lens.x);
   const deformationValue = useRef(0);
   const deformationVelocity = useRef(0);
+  const visibleOptions = compact ? options.slice(0, 2) : options;
+
+  useEffect(() => {
+    const media = window.matchMedia('(max-width: 639px)');
+    const sync = () => {
+      setCompact(media.matches);
+      if (media.matches) setSelected(current =>
+        options.slice(0, 2).some(option => option.code === current)
+          ? current
+          : 'hubs'
+      );
+    };
+    sync();
+    media.addEventListener('change', sync);
+    return () => media.removeEventListener('change', sync);
+  }, []);
 
   const updateLens = useCallback(
     (patch: Partial<typeof lens>) => {
@@ -345,8 +369,8 @@ export function ToggleExample() {
     const sync = (instant: boolean) => {
       const rect = group.getBoundingClientRect();
       setHostSize({
-        width: rect.width + 80,
-        height: rect.height + 160
+        width: rect.width,
+        height: rect.height
       });
       requestAnimationFrame(() => placeLens(selected, instant));
     };
@@ -382,7 +406,7 @@ export function ToggleExample() {
     (1 + (deformedHeight / Math.max(1, lens.halfHeight) - 1) * 1.25);
 
   const renderItems = (overlay: boolean) =>
-    options.map(({ code, name, color1, color2, Icon }) => {
+    visibleOptions.map(({ code, name, color1, color2, Icon }) => {
       const style = {
         '--color-1': color1,
         '--color-2': color2
@@ -420,52 +444,57 @@ export function ToggleExample() {
 
   return (
     <div className="readable-example readable-toggle-example">
-      <AaveGlass
-        className="readable-toggle-glass"
-        style={{
-          width: hostSize.width,
-          height: hostSize.height,
-          overflow: 'visible'
-        }}
-        targetClassName="readable-toggle-refraction"
-        targetStyle={{
-          position: 'absolute',
-          inset: 0,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center'
-        }}
-        contentStyle={{
-          position: 'absolute',
-          inset: 0,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center'
-        }}
-        refractionTarget={
-          <div className="readable-toggle-group readable-toggle-group-overlay">
-            {renderItems(true)}
-          </div>
-        }
-        geometry={{
-          lensW: deformedWidth,
-          lensH: deformedHeight,
-          borderRadius: Math.min(deformedWidth, deformedHeight),
-          mapSize: 256
-        }}
-        material={{ ...toggleMaterial, depth }}
-        position={{ x: lens.x, y: lens.y }}
-        tintOpacity={0}
-      >
-        <div
-          ref={groupRef}
-          className="readable-toggle-group"
-          role="group"
-          aria-label="Aave 视图"
+      <div className="readable-control-stage readable-toggle-stage">
+        <AaveGlass
+          className="readable-toggle-glass"
+          style={{
+            width: hostSize.width,
+            height: hostSize.height,
+            padding: '80px 40px',
+            margin: '-80px -40px',
+            boxSizing: 'content-box',
+            overflow: 'visible'
+          }}
+          targetClassName="readable-toggle-refraction"
+          targetStyle={{
+            position: 'absolute',
+            inset: 0,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center'
+          }}
+          contentStyle={{
+            position: 'absolute',
+            inset: 0,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center'
+          }}
+          refractionTarget={
+            <div className="readable-toggle-group readable-toggle-group-overlay">
+              {renderItems(true)}
+            </div>
+          }
+          geometry={{
+            lensW: deformedWidth,
+            lensH: deformedHeight,
+            borderRadius: Math.min(deformedWidth, deformedHeight),
+            mapSize: 256
+          }}
+          material={{ ...toggleMaterial, depth }}
+          position={{ x: lens.x, y: lens.y }}
+          tintOpacity={0}
         >
-          {renderItems(false)}
-        </div>
-      </AaveGlass>
+          <div
+            ref={groupRef}
+            className="readable-toggle-group"
+            role="group"
+            aria-label="Aave 视图"
+          >
+            {renderItems(false)}
+          </div>
+        </AaveGlass>
+      </div>
     </div>
   );
 }

@@ -364,65 +364,67 @@ export function SwitchExample() {
 
   return (
     <div className="readable-example readable-switch-example">
-      <AaveGlass
-        className="readable-switch-glass"
-        style={{
-          width: HOST_WIDTH,
-          height: HOST_HEIGHT,
-          margin: -BLEED,
-          overflow: 'visible'
-        }}
-        targetClassName="readable-switch-refraction"
-        targetStyle={{ position: 'absolute', inset: 0 }}
-        contentStyle={{ padding: BLEED, boxSizing: 'border-box' }}
-        refractionTarget={target}
-        geometry={{
-          lensW: lensHalfWidth * (1 - 0.2 * deformation),
-          lensH: lensHalfHeight * (1 + 0.4 * deformation),
-          borderRadius: lensRadius,
-          mapSize: 256
-        }}
-        material={switchMaterial}
-        position={{
-          x: BLEED + 3 + THUMB_WIDTH / 2 + x,
-          y: BLEED + HEIGHT / 2
-        }}
-        tintColor="white"
-        tintOpacity={tintOpacity}
-      >
-        <label
-          className="readable-switch"
-          style={{ width: WIDTH, height: HEIGHT }}
+      <div className="readable-control-stage readable-switch-stage">
+        <AaveGlass
+          className="readable-switch-glass"
+          style={{
+            width: HOST_WIDTH,
+            height: HOST_HEIGHT,
+            margin: -BLEED,
+            overflow: 'visible'
+          }}
+          targetClassName="readable-switch-refraction"
+          targetStyle={{ position: 'absolute', inset: 0 }}
+          contentStyle={{ padding: BLEED, boxSizing: 'border-box' }}
+          refractionTarget={target}
+          geometry={{
+            lensW: lensHalfWidth * (1 - 0.2 * deformation),
+            lensH: lensHalfHeight * (1 + 0.4 * deformation),
+            borderRadius: lensRadius,
+            mapSize: 256
+          }}
+          material={switchMaterial}
+          position={{
+            x: BLEED + 3 + THUMB_WIDTH / 2 + x,
+            y: BLEED + HEIGHT / 2
+          }}
+          tintColor="white"
+          tintOpacity={tintOpacity}
         >
-          <input
-            type="checkbox"
-            role="switch"
-            checked={checked}
-            aria-label="Glass switch"
-            onChange={event => commit(event.currentTarget.checked)}
-            onKeyDown={event => {
-              if (event.key !== 'Enter') return;
-              event.preventDefault();
-              commit(!checked);
-            }}
-          />
-          <span className="readable-switch-track" aria-hidden="true" />
-          <span
-            className="readable-switch-thumb-hit-area"
-            style={{
-              width: THUMB_WIDTH,
-              height: THUMB_HEIGHT,
-              transform: `translate(${3 + x}px, 3px)`
-            }}
-            onPointerDown={onPointerDown}
-            onPointerMove={onPointerMove}
-            onPointerUp={event => finishPointer(event, false)}
-            onPointerCancel={event => finishPointer(event, true)}
-            onClick={event => event.preventDefault()}
-            onDragStart={event => event.preventDefault()}
-          />
-        </label>
-      </AaveGlass>
+          <label
+            className="readable-switch"
+            style={{ width: WIDTH, height: HEIGHT }}
+          >
+            <input
+              type="checkbox"
+              role="switch"
+              checked={checked}
+              aria-label="Glass switch"
+              onChange={event => commit(event.currentTarget.checked)}
+              onKeyDown={event => {
+                if (event.key !== 'Enter') return;
+                event.preventDefault();
+                commit(!checked);
+              }}
+            />
+            <span className="readable-switch-track" aria-hidden="true" />
+            <span
+              className="readable-switch-thumb-hit-area"
+              style={{
+                width: THUMB_WIDTH,
+                height: THUMB_HEIGHT,
+                transform: `translate(${3 + x}px, 3px)`
+              }}
+              onPointerDown={onPointerDown}
+              onPointerMove={onPointerMove}
+              onPointerUp={event => finishPointer(event, false)}
+              onPointerCancel={event => finishPointer(event, true)}
+              onClick={event => event.preventDefault()}
+              onDragStart={event => event.preventDefault()}
+            />
+          </label>
+        </AaveGlass>
+      </div>
     </div>
   );
 }

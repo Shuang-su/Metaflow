@@ -463,32 +463,31 @@ export function QRCanvasExample() {
   };
 
   return (
-    <div
-      ref={rootRef}
-      className="readable-example readable-qr-perspective"
-    >
-      <div className="readable-qr-stage">
-        <canvas
-          ref={paintingRef}
-          className="readable-qr-painting"
-          aria-hidden="true"
-        />
-        <canvas
-          ref={outputRef}
-          className="readable-qr-output"
-          aria-label="WebGL 二维码折射输出"
-        />
-        <button
-          ref={iconRef}
-          type="button"
-          className="readable-qr-icon"
-          onClick={trigger}
-          aria-label="触发二维码玻璃扩散"
-        >
-          <span className="readable-qr-icon-rotator">
-            <AaveQrIcon />
-          </span>
-        </button>
+    <div className="readable-example readable-qr-example">
+      <div ref={rootRef} className="readable-qr-perspective">
+        <div className="readable-qr-stage">
+          <canvas
+            ref={paintingRef}
+            className="readable-qr-painting"
+            aria-hidden="true"
+          />
+          <canvas
+            ref={outputRef}
+            className="readable-qr-output"
+            aria-label="WebGL 二维码折射输出"
+          />
+          <button
+            ref={iconRef}
+            type="button"
+            className="readable-qr-icon"
+            onClick={trigger}
+            aria-label="触发二维码玻璃扩散"
+          >
+            <span className="readable-qr-icon-rotator">
+              <AaveQrIcon />
+            </span>
+          </button>
+        </div>
       </div>
     </div>
   );

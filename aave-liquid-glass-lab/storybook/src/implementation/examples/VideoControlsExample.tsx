@@ -332,160 +332,162 @@ export function VideoControlsExample() {
   const marginScale = mobile ? 0.5 : 1;
 
   return (
-    <div
-      ref={playerRef}
-      className="readable-example readable-video-stage"
-      onMouseEnter={() => {
-        firstHoverRef.current = true;
-        setHovered(true);
-      }}
-      onMouseLeave={() => setHovered(false)}
-      onFocus={event => {
-        if (event.target instanceof HTMLElement) setFocused(true);
-      }}
-      onBlur={event => {
-        if (!event.currentTarget.contains(event.relatedTarget)) {
-          setFocused(false);
-        }
-      }}
-    >
-      <img
-        className="readable-video-placeholder"
-        src="/design/demo/videos/cosmos-flowers-in-the-field-18491376/placeholder.webp"
-        alt=""
-      />
-      <video
-        ref={videoRef}
-        className="readable-video-source"
-        src="/design/demo/videos/cosmos-flowers-in-the-field-18491376/video.mp4"
-        muted
-        autoPlay
-        playsInline
-        loop
-        preload="auto"
-      />
-      <canvas
-        ref={canvasRef}
-        className="readable-video-output"
-        aria-label="WebGL 视频折射输出"
-      />
+    <div className="readable-example readable-video-example">
       <div
-        className="readable-video-controls"
-        data-visible={controlsVisible}
-        style={{ gap: CONTROL_GAP }}
-      >
-        <button
-          type="button"
-          className="is-side"
-          aria-label={`Rewind ${SKIP_SECONDS} seconds`}
-          style={{
-            width: SIDE_SIZE * sizeScale,
-            height: SIDE_SIZE * sizeScale
-          }}
-          onPointerDown={() => press(0, 0.8)}
-          onPointerUp={() => press(0, 1)}
-          onPointerCancel={() => press(0, 1)}
-          onClick={() => seekBy(-SKIP_SECONDS)}
-        >
-          <SkipIcon direction="back" />
-        </button>
-        <button
-          type="button"
-          className="is-main"
-          aria-label={playing ? 'Pause' : 'Play'}
-          style={{
-            width: PLAY_SIZE * sizeScale,
-            height: PLAY_SIZE * sizeScale
-          }}
-          onPointerDown={() => press(1, 0.8)}
-          onPointerUp={() => press(1, 1)}
-          onPointerCancel={() => press(1, 1)}
-          onClick={() => {
-            const video = videoRef.current;
-            if (!video) return;
-            if (video.paused) void video.play();
-            else video.pause();
-          }}
-        >
-          <span className="readable-video-play-pause">
-            {playing ? <PauseIcon /> : <PlayIcon />}
-          </span>
-        </button>
-        <button
-          type="button"
-          className="is-side"
-          aria-label={`Forward ${SKIP_SECONDS} seconds`}
-          style={{
-            width: SIDE_SIZE * sizeScale,
-            height: SIDE_SIZE * sizeScale
-          }}
-          onPointerDown={() => press(2, 0.8)}
-          onPointerUp={() => press(2, 1)}
-          onPointerCancel={() => press(2, 1)}
-          onClick={() => seekBy(SKIP_SECONDS)}
-        >
-          <SkipIcon direction="forward" />
-        </button>
-      </div>
-      <div
-        className="readable-video-bar"
-        data-visible={controlsVisible}
-        role="slider"
-        aria-label="Seek"
-        aria-valuemin={0}
-        aria-valuemax={100}
-        aria-valuenow={Math.round(progress * 100)}
-        tabIndex={0}
-        style={{
-          right: BAR_MARGIN * marginScale,
-          bottom: BAR_MARGIN * marginScale,
-          left: BAR_MARGIN * marginScale,
-          height: BAR_HEIGHT,
-          paddingInline: BAR_TRACK_PADDING
+        ref={playerRef}
+        className="readable-video-stage"
+        onMouseEnter={() => {
+          firstHoverRef.current = true;
+          setHovered(true);
         }}
-        onPointerDown={event => {
-          event.preventDefault();
-          event.currentTarget.setPointerCapture(event.pointerId);
-          draggingRef.current = true;
-          const video = videoRef.current;
-          resumeAfterSeekRef.current = Boolean(video && !video.paused);
-          video?.pause();
-          rendererRef.current?.start();
-          seekAt(event.clientX);
+        onMouseLeave={() => setHovered(false)}
+        onFocus={event => {
+          if (event.target instanceof HTMLElement) setFocused(true);
         }}
-        onPointerMove={event => {
-          if (draggingRef.current) seekAt(event.clientX);
-        }}
-        onPointerUp={event => {
-          if (!draggingRef.current) return;
-          draggingRef.current = false;
-          event.currentTarget.releasePointerCapture(event.pointerId);
-          if (resumeAfterSeekRef.current) {
-            void videoRef.current?.play();
-          } else {
-            rendererRef.current?.stop();
+        onBlur={event => {
+          if (!event.currentTarget.contains(event.relatedTarget)) {
+            setFocused(false);
           }
-          resumeAfterSeekRef.current = false;
-        }}
-        onPointerCancel={() => {
-          draggingRef.current = false;
-          resumeAfterSeekRef.current = false;
-          rendererRef.current?.stop();
-        }}
-        onKeyDown={event => {
-          if (event.key !== 'ArrowLeft' && event.key !== 'ArrowRight') {
-            return;
-          }
-          event.preventDefault();
-          seekBy(event.key === 'ArrowLeft' ? -5 : 5);
         }}
       >
-        <div className="readable-video-track">
-          <div
-            className="readable-video-progress"
-            style={{ width: `${progress * 100}%` }}
+          <img
+            className="readable-video-placeholder"
+            src="/design/demo/videos/cosmos-flowers-in-the-field-18491376/placeholder.webp"
+            alt=""
           />
-        </div>
+          <video
+            ref={videoRef}
+            className="readable-video-source"
+            src="/design/demo/videos/cosmos-flowers-in-the-field-18491376/video.mp4"
+            muted
+            autoPlay
+            playsInline
+            loop
+            preload="auto"
+          />
+          <canvas
+            ref={canvasRef}
+            className="readable-video-output"
+            aria-label="WebGL 视频折射输出"
+          />
+          <div
+            className="readable-video-controls"
+            data-visible={controlsVisible}
+            style={{ gap: CONTROL_GAP }}
+          >
+            <button
+              type="button"
+              className="is-side"
+              aria-label={`Rewind ${SKIP_SECONDS} seconds`}
+              style={{
+                width: SIDE_SIZE * sizeScale,
+                height: SIDE_SIZE * sizeScale
+              }}
+              onPointerDown={() => press(0, 0.8)}
+              onPointerUp={() => press(0, 1)}
+              onPointerCancel={() => press(0, 1)}
+              onClick={() => seekBy(-SKIP_SECONDS)}
+            >
+              <SkipIcon direction="back" />
+            </button>
+            <button
+              type="button"
+              className="is-main"
+              aria-label={playing ? 'Pause' : 'Play'}
+              style={{
+                width: PLAY_SIZE * sizeScale,
+                height: PLAY_SIZE * sizeScale
+              }}
+              onPointerDown={() => press(1, 0.8)}
+              onPointerUp={() => press(1, 1)}
+              onPointerCancel={() => press(1, 1)}
+              onClick={() => {
+                const video = videoRef.current;
+                if (!video) return;
+                if (video.paused) void video.play();
+                else video.pause();
+              }}
+            >
+              <span className="readable-video-play-pause">
+                {playing ? <PauseIcon /> : <PlayIcon />}
+              </span>
+            </button>
+            <button
+              type="button"
+              className="is-side"
+              aria-label={`Forward ${SKIP_SECONDS} seconds`}
+              style={{
+                width: SIDE_SIZE * sizeScale,
+                height: SIDE_SIZE * sizeScale
+              }}
+              onPointerDown={() => press(2, 0.8)}
+              onPointerUp={() => press(2, 1)}
+              onPointerCancel={() => press(2, 1)}
+              onClick={() => seekBy(SKIP_SECONDS)}
+            >
+              <SkipIcon direction="forward" />
+            </button>
+          </div>
+          <div
+            className="readable-video-bar"
+            data-visible={controlsVisible}
+            role="slider"
+            aria-label="Seek"
+            aria-valuemin={0}
+            aria-valuemax={100}
+            aria-valuenow={Math.round(progress * 100)}
+            tabIndex={0}
+            style={{
+              right: BAR_MARGIN * marginScale,
+              bottom: BAR_MARGIN * marginScale,
+              left: BAR_MARGIN * marginScale,
+              height: BAR_HEIGHT,
+              paddingInline: BAR_TRACK_PADDING
+            }}
+            onPointerDown={event => {
+              event.preventDefault();
+              event.currentTarget.setPointerCapture(event.pointerId);
+              draggingRef.current = true;
+              const video = videoRef.current;
+              resumeAfterSeekRef.current = Boolean(video && !video.paused);
+              video?.pause();
+              rendererRef.current?.start();
+              seekAt(event.clientX);
+            }}
+            onPointerMove={event => {
+              if (draggingRef.current) seekAt(event.clientX);
+            }}
+            onPointerUp={event => {
+              if (!draggingRef.current) return;
+              draggingRef.current = false;
+              event.currentTarget.releasePointerCapture(event.pointerId);
+              if (resumeAfterSeekRef.current) {
+                void videoRef.current?.play();
+              } else {
+                rendererRef.current?.stop();
+              }
+              resumeAfterSeekRef.current = false;
+            }}
+            onPointerCancel={() => {
+              draggingRef.current = false;
+              resumeAfterSeekRef.current = false;
+              rendererRef.current?.stop();
+            }}
+            onKeyDown={event => {
+              if (event.key !== 'ArrowLeft' && event.key !== 'ArrowRight') {
+                return;
+              }
+              event.preventDefault();
+              seekBy(event.key === 'ArrowLeft' ? -5 : 5);
+            }}
+          >
+            <div className="readable-video-track">
+              <div
+                className="readable-video-progress"
+                style={{ width: `${progress * 100}%` }}
+              />
+            </div>
+          </div>
       </div>
     </div>
   );
