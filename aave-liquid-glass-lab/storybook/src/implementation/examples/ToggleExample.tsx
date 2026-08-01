@@ -248,13 +248,23 @@ export function ToggleExample() {
   const itemRefs = useRef(new Map<string, HTMLButtonElement>());
   const lensRef = useRef(lens);
   const travelAnimation = useRef<Array<{ stop(): void }>>([]);
+  const firstPlacement = useRef(true);
+  const selectedRef = useRef(selected);
+  const placeLensRef = useRef<(code: string, instant?: boolean) => void>(
+    () => undefined
+  );
   const deformationFrame = useRef(0);
   const deformationRunning = useRef(false);
   const deformationTime = useRef(0);
-  const deformationPosition = useRef(lens.x);
+  const deformationTarget = useRef(0);
+  const travelSample = useRef({
+    x: lens.x,
+    time: 0
+  });
   const deformationValue = useRef(0);
   const deformationVelocity = useRef(0);
   const visibleOptions = compact ? options.slice(0, 2) : options;
+  selectedRef.current = selected;
 
   useEffect(() => {
     const media = window.matchMedia('(max-width: 639px)');
@@ -283,20 +293,11 @@ export function ToggleExample() {
     if (deformationRunning.current) return;
     deformationRunning.current = true;
     deformationTime.current = performance.now();
-    deformationPosition.current = lensRef.current.x;
 
     const frame = (now: number) => {
       const dt = Math.min((now - deformationTime.current) / 1000, 0.033);
       deformationTime.current = now;
-      const x = lensRef.current.x;
-      const xVelocity =
-        (x - deformationPosition.current) /
-        Math.max(dt, 0.008);
-      deformationPosition.current = x;
-      const target = Math.min(
-        0.3,
-        Math.sqrt(Math.abs(xVelocity)) * 0.134
-      );
+      const target = deformationTarget.current;
       const acceleration =
         -66 * (deformationValue.current - target) -
         4.5 * deformationVelocity.current;
@@ -307,7 +308,7 @@ export function ToggleExample() {
       if (
         Math.abs(deformationValue.current) < 0.0005 &&
         Math.abs(deformationVelocity.current) < 0.005 &&
-        Math.abs(xVelocity) < 0.005
+        target === 0
       ) {
         deformationRunning.current = false;
         deformationValue.current = 0;
@@ -340,9 +341,17 @@ export function ToggleExample() {
       travelAnimation.current.forEach(control => control.stop());
       travelAnimation.current = [];
       if (instant) {
+        deformationTarget.current = 0;
+        deformationValue.current = 0;
+        deformationVelocity.current = 0;
+        setDeformation(0);
         updateLens(next);
         return;
       }
+      travelSample.current = {
+        x: lensRef.current.x,
+        time: performance.now()
+      };
       const transition = {
         type: 'spring' as const,
         stiffness: 50,
@@ -353,8 +362,32 @@ export function ToggleExample() {
           animate(lensRef.current[key], next[key], {
             ...transition,
             onUpdate: value => {
+              if (key === 'x') {
+                const now = performance.now();
+                const previous = travelSample.current;
+                const dt = Math.min(
+                  Math.max((now - previous.time) / 1000, 0.008),
+                  0.033
+                );
+                // Aave samples a normalized 0-1 motion value. Convert our
+                // pixel-based position to the same container-width unit.
+                const velocity =
+                  (value - previous.x) /
+                  dt /
+                  Math.max(1, hostRect.width);
+                travelSample.current = { x: value, time: now };
+                deformationTarget.current = Math.min(
+                  0.3,
+                  Math.sqrt(Math.abs(velocity)) * 0.134
+                );
+              }
               updateLens({ [key]: value });
               if (key === 'x') startDeformation();
+            },
+            onComplete: () => {
+              if (key !== 'x') return;
+              deformationTarget.current = 0;
+              startDeformation();
             }
           })
         );
@@ -362,35 +395,42 @@ export function ToggleExample() {
     },
     [startDeformation, updateLens]
   );
+  placeLensRef.current = placeLens;
 
   useLayoutEffect(() => {
     const group = groupRef.current;
     if (!group) return;
-    const sync = (instant: boolean) => {
+    const rect = group.getBoundingClientRect();
+    setHostSize({
+      width: rect.width,
+      height: rect.height
+    });
+    const instant = firstPlacement.current;
+    firstPlacement.current = false;
+    requestAnimationFrame(() => placeLens(selected, instant));
+  }, [placeLens, selected, visibleOptions.length]);
+
+  useEffect(() => {
+    const group = groupRef.current;
+    if (!group) return;
+    const observer = new ResizeObserver(() => {
       const rect = group.getBoundingClientRect();
       setHostSize({
         width: rect.width,
         height: rect.height
       });
-      requestAnimationFrame(() => placeLens(selected, instant));
-    };
-    sync(true);
-    let first = true;
-    const observer = new ResizeObserver(() => {
-      sync(first);
-      first = false;
+      requestAnimationFrame(() => {
+        placeLensRef.current(selectedRef.current, false);
+      });
     });
     observer.observe(group);
     return () => observer.disconnect();
-  }, [placeLens, selected]);
-
-  useEffect(() => {
-    placeLens(selected);
-  }, [placeLens, selected]);
+  }, []);
 
   useEffect(
     () => () => {
       travelAnimation.current.forEach(control => control.stop());
+      deformationTarget.current = 0;
       cancelAnimationFrame(deformationFrame.current);
     },
     []
