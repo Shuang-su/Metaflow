@@ -22,6 +22,11 @@ interface AaveGlassProps {
   contentStyle?: React.CSSProperties;
   tintColor?: string;
   tintOpacity?: number;
+  tintBlur?: number;
+  shadowOpacity?: number;
+  restShadowOpacity?: number;
+  edgeBias?: number;
+  filterResolution?: number;
   onLensMapChange?(map: LensMapResource): void;
   onGenerationTime?(timing: {
     loop: number;
@@ -45,6 +50,11 @@ export function AaveGlass({
   contentStyle,
   tintColor,
   tintOpacity,
+  tintBlur,
+  shadowOpacity,
+  restShadowOpacity,
+  edgeBias,
+  filterResolution = 1,
   onLensMapChange,
   onGenerationTime
 }: AaveGlassProps) {
@@ -62,7 +72,13 @@ export function AaveGlass({
       material,
       position,
       tintColor,
-      tintOpacity
+      tintOpacity,
+      tintBlur,
+      shadowOpacity,
+      restShadowOpacity,
+      edgeBias,
+      filterResolution,
+      clipTarget: refractionTarget !== undefined
     });
     const map = controllerRef.current.getMap();
     onLensMapChange?.(map);
@@ -83,7 +99,11 @@ export function AaveGlass({
       material,
       position,
       tintColor,
-      tintOpacity
+      tintOpacity,
+      tintBlur,
+      shadowOpacity,
+      restShadowOpacity,
+      edgeBias
     });
     const map = controllerRef.current?.getMap();
     if (map) {
@@ -101,6 +121,10 @@ export function AaveGlass({
     position,
     tintColor,
     tintOpacity,
+    tintBlur,
+    shadowOpacity,
+    restShadowOpacity,
+    edgeBias,
     onLensMapChange,
     onGenerationTime
   ]);
@@ -111,24 +135,59 @@ export function AaveGlass({
       className={className}
       style={{ position: 'relative', ...style }}
     >
-      <div
-        ref={targetRef}
-        className={targetClassName}
-        style={{
-          pointerEvents: refractionTarget ? 'none' : undefined,
-          ...targetStyle
-        }}
-      >
-        {refractionTarget ?? children}
-      </div>
       {refractionTarget ? (
         <div
           className="aave-glass-content"
-          style={{ position: 'absolute', inset: 0, ...contentStyle }}
+          style={{ position: 'relative', ...contentStyle }}
         >
           {children}
         </div>
       ) : null}
+      <div
+        ref={targetRef}
+        className={targetClassName}
+        style={{
+          ...(refractionTarget
+            ? {
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                pointerEvents: 'none',
+                willChange: 'filter, clip-path'
+              }
+            : {}),
+          ...targetStyle,
+          ...(refractionTarget && filterResolution !== 1
+            ? {
+                width: `${filterResolution * 100}%`,
+                height: `${filterResolution * 100}%`,
+                right: 'auto',
+                bottom: 'auto',
+                transform: `scale(${1 / filterResolution})`,
+                transformOrigin: 'top left'
+              }
+            : {})
+        }}
+      >
+        {refractionTarget ? (
+          <div
+            style={
+              filterResolution !== 1
+                ? {
+                    width: `${100 / filterResolution}%`,
+                    height: `${100 / filterResolution}%`,
+                    transform: `scale(${filterResolution})`,
+                    transformOrigin: 'top left'
+                  }
+                : undefined
+            }
+          >
+            {refractionTarget}
+          </div>
+        ) : (
+          children
+        )}
+      </div>
     </div>
   );
 }

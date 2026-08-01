@@ -1,4 +1,5 @@
 // [study:video-example:start]
+import { AnimatePresence, animate, motion } from 'motion/react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { createWebGlRefraction } from '../webgl-refraction';
 import {
@@ -16,6 +17,24 @@ const BAR_HEIGHT = 30;
 const BAR_MARGIN = 24;
 const BAR_TRACK_PADDING = 14;
 const SKIP_SECONDS = 5;
+const MAIN_PRESS_TRANSITION = {
+  type: 'spring',
+  stiffness: 500,
+  damping: 32
+} as const;
+const SIDE_PRESS_TRANSITION = {
+  type: 'spring',
+  stiffness: 1000,
+  damping: 40,
+  mass: 1.5
+} as const;
+const ICON_TRANSITION = {
+  type: 'spring',
+  mass: 0.02,
+  stiffness: 10,
+  damping: 0.5,
+  velocity: 1
+} as const;
 
 function PlayIcon() {
   return (
@@ -35,41 +54,35 @@ function PauseIcon() {
 }
 
 function SkipIcon({ direction }: { direction: 'back' | 'forward' }) {
+  const back = direction === 'back';
   return (
     <svg
       className={`readable-video-skip-icon is-${direction}`}
       viewBox="0 0 47 45"
       fill="none"
+      style={{ transform: `translate(${back ? -1 : 1}px, 1px)` }}
       aria-hidden="true"
     >
       <path
-        d={
-          direction === 'back'
-            ? 'M6.6 17.4A18 18 0 1 1 19.3 39.4'
-            : 'M39.4 17.4A18 18 0 1 0 26.7 39.4'
-        }
+        d={back
+          ? 'M17.7049 17.1654L13.5649 20.2254V18.1454L17.8649 14.9454H19.5449V29.0454H17.7049V17.1654ZM27.2205 29.3454C26.1805 29.3454 25.2939 29.1454 24.5605 28.7454C23.8405 28.3321 23.2939 27.7854 22.9205 27.1054C22.5472 26.4254 22.3605 25.6721 22.3605 24.8454H24.2405C24.2672 25.4321 24.4072 25.9454 24.6605 26.3854C24.9139 26.8121 25.2605 27.1454 25.7005 27.3854C26.1405 27.6121 26.6339 27.7254 27.1805 27.7254C27.8339 27.7254 28.3939 27.5921 28.8605 27.3254C29.3405 27.0587 29.7072 26.6854 29.9605 26.2054C30.2139 25.7121 30.3405 25.1387 30.3405 24.4854C30.3405 23.8587 30.2072 23.3121 29.9405 22.8454C29.6739 22.3787 29.3005 22.0187 28.8205 21.7654C28.3539 21.4987 27.8272 21.3654 27.2405 21.3654C26.6139 21.3654 26.0539 21.5187 25.5605 21.8254C25.0672 22.1187 24.7139 22.5254 24.5005 23.0454H22.5005L23.2605 14.9454H31.7405V16.6054H24.8605L24.4405 21.0654C24.7339 20.6921 25.1339 20.3854 25.6405 20.1454C26.1605 19.8921 26.7939 19.7654 27.5405 19.7654C28.3805 19.7654 29.1605 19.9587 29.8805 20.3454C30.6005 20.7321 31.1805 21.2854 31.6205 22.0054C32.0605 22.7121 32.2805 23.5387 32.2805 24.4854C32.2805 25.4587 32.0605 26.3187 31.6205 27.0654C31.1805 27.7987 30.5739 28.3654 29.8005 28.7654C29.0405 29.1521 28.1805 29.3454 27.2205 29.3454Z'
+          : 'M15.7049 17.1654L11.5649 20.2254V18.1454L15.8649 14.9454H17.5449V29.0454H15.7049V17.1654ZM25.2205 29.3454C24.1805 29.3454 23.2939 29.1454 22.5605 28.7454C21.8405 28.3321 21.2939 27.7854 20.9205 27.1054C20.5472 26.4254 20.3605 25.6721 20.3605 24.8454H22.2405C22.2672 25.4321 22.4072 25.9454 22.6605 26.3854C22.9139 26.8121 23.2605 27.1454 23.7005 27.3854C24.1405 27.6121 24.6339 27.7254 25.1805 27.7254C25.8339 27.7254 26.3939 27.5921 26.8605 27.3254C27.3405 27.0587 27.7072 26.6854 27.9605 26.2054C28.2139 25.7121 28.3405 25.1387 28.3405 24.4854C28.3405 23.8587 28.2072 23.3121 27.9405 22.8454C27.6739 22.3787 27.3005 22.0187 26.8205 21.7654C26.3539 21.4987 25.8272 21.3654 25.2405 21.3654C24.6139 21.3654 24.0539 21.5187 23.5605 21.8254C23.0672 22.1187 22.7139 22.5254 22.5005 23.0454H20.5005L21.2605 14.9454H29.7405V16.6054H22.8605L22.4405 21.0654C22.7339 20.6921 23.1339 20.3854 23.6405 20.1454C24.1605 19.8921 24.7939 19.7654 25.5405 19.7654C26.3805 19.7654 27.1605 19.9587 27.8805 20.3454C28.6005 20.7321 29.1805 21.2854 29.6205 22.0054C30.0605 22.7121 30.2805 23.5387 30.2805 24.4854C30.2805 25.4587 30.0605 26.3187 29.6205 27.0654C29.1805 27.7987 28.5739 28.3654 27.8005 28.7654C27.0405 29.1521 26.1805 29.3454 25.2205 29.3454Z'}
+        fill="currentColor"
+      />
+      <path
+        d={back
+          ? 'M5.63397 24.5454C6.01888 25.2121 6.98113 25.2121 7.36603 24.5454L11.2631 17.7954C11.648 17.1287 11.1669 16.2954 10.3971 16.2954L2.60288 16.2954C1.83308 16.2954 1.35196 17.1287 1.73686 17.7954L5.63397 24.5454Z'
+          : 'M40.4109 24.5454C40.026 25.2121 39.0638 25.2121 38.6789 24.5454L34.7818 17.7954C34.3969 17.1287 34.878 16.2954 35.6478 16.2954L43.442 16.2954C44.2118 16.2954 44.693 17.1287 44.3081 17.7954L40.4109 24.5454Z'}
+        fill="currentColor"
+      />
+      <path
+        d={back
+          ? 'M6.61285 17.3867C7.53426 13.9479 9.45469 10.8596 12.1313 8.51231C14.8079 6.165 18.1204 4.6641 21.65 4.19942C25.1796 3.73474 28.7678 4.32714 31.9607 5.90172C35.1536 7.47629 37.8079 9.96232 39.588 13.0454C41.368 16.1285 42.1938 19.6702 41.961 23.2227C41.7281 26.7751 40.4471 30.1787 38.2799 33.0031C36.1126 35.8275 33.1566 37.9458 29.7854 39.0902C26.4143 40.2345 22.7795 40.3535 19.3408 39.4321'
+          : 'M39.4321 17.3867C38.5107 13.9479 36.5902 10.8596 33.9136 8.51231C31.237 6.165 27.9245 4.6641 24.3949 4.19942C20.8653 3.73474 17.2771 4.32714 14.0842 5.90172C10.8913 7.47629 8.23698 9.96232 6.45695 13.0454C4.67692 16.1285 3.85111 19.6702 4.08395 23.2227C4.31679 26.7751 5.59782 30.1787 7.76505 33.0031C9.93228 35.8275 12.8884 37.9458 16.2595 39.0902C19.6306 40.2345 23.2654 40.3535 26.7042 39.4321'}
         stroke="currentColor"
         strokeWidth="2"
         strokeLinecap="round"
       />
-      <path
-        d={
-          direction === 'back'
-            ? 'M5.63 24.55a1 1 0 0 0 1.74 0l3.9-6.75a1 1 0 0 0-.87-1.5H2.6a1 1 0 0 0-.87 1.5l3.9 6.75Z'
-            : 'M40.41 24.55a1 1 0 0 1-1.73 0l-3.9-6.75a1 1 0 0 1 .87-1.5h7.79a1 1 0 0 1 .87 1.5l-3.9 6.75Z'
-        }
-        fill="currentColor"
-      />
-      <text
-        x={direction === 'back' ? 24 : 22}
-        y="28.5"
-        fill="currentColor"
-        fontSize="16"
-        fontWeight="500"
-        textAnchor="middle"
-      >
-        15
-      </text>
     </svg>
   );
 }
@@ -191,12 +204,17 @@ export function VideoControlsExample() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const rendererRef = useRef<WebGlRefractionController | null>(null);
   const pressScalesRef = useRef<[number, number, number]>([1, 1, 1]);
+  const pressAnimationsRef = useRef<Array<{ stop(): void } | undefined>>([]);
+  const visibilityRef = useRef(0);
+  const visibilityAnimationRef = useRef<{ stop(): void } | undefined>(
+    undefined
+  );
   const draggingRef = useRef(false);
   const resumeAfterSeekRef = useRef(false);
-  const firstHoverRef = useRef(false);
   const [playing, setPlaying] = useState(false);
   const [progress, setProgress] = useState(0);
   const [ready, setReady] = useState(false);
+  const [hasInteracted, setHasInteracted] = useState(false);
   const [hovered, setHovered] = useState(false);
   const [focused, setFocused] = useState(false);
   const [mobile, setMobile] = useState(false);
@@ -246,6 +264,7 @@ export function VideoControlsExample() {
         specLumaLow: 0.3,
         specLumaHigh: 0.7
       });
+      rendererRef.current.setEffectStrength(visibilityRef.current);
       rendererRef.current.render();
       setReady(true);
       if (!video.paused) rendererRef.current.start();
@@ -291,6 +310,8 @@ export function VideoControlsExample() {
       video.removeEventListener('timeupdate', onTime);
       rendererRef.current?.dispose();
       rendererRef.current = null;
+      visibilityAnimationRef.current?.stop();
+      pressAnimationsRef.current.forEach(control => control?.stop());
     };
   }, [mobile, updateLenses]);
 
@@ -299,8 +320,20 @@ export function VideoControlsExample() {
   }, [updateLenses]);
 
   const press = (index: number, scale: number) => {
-    pressScalesRef.current[index] = scale;
-    updateLenses();
+    pressAnimationsRef.current[index]?.stop();
+    pressAnimationsRef.current[index] = animate(
+      pressScalesRef.current[index],
+      scale,
+      {
+        ...(index === 1
+          ? MAIN_PRESS_TRANSITION
+          : SIDE_PRESS_TRANSITION),
+        onUpdate: value => {
+          pressScalesRef.current[index] = value;
+          updateLenses();
+        }
+      }
+    );
   };
   const seekBy = (seconds: number) => {
     const video = videoRef.current;
@@ -326,8 +359,31 @@ export function VideoControlsExample() {
     rendererRef.current?.render();
   };
 
-  const controlsVisible =
-    ready && (!firstHoverRef.current || hovered || focused);
+  const controlsVisible = ready && (!hasInteracted || hovered || focused);
+  const showControls = () => {
+    setHasInteracted(true);
+    setHovered(true);
+  };
+  const hideControls = () => setHovered(false);
+
+  useEffect(() => {
+    visibilityAnimationRef.current?.stop();
+    visibilityAnimationRef.current = animate(
+      visibilityRef.current,
+      controlsVisible ? 1 : 0,
+      {
+        type: 'spring',
+        stiffness: 300,
+        damping: 30,
+        onUpdate: value => {
+          visibilityRef.current = value;
+          rendererRef.current?.setEffectStrength(value);
+        }
+      }
+    );
+    return () => visibilityAnimationRef.current?.stop();
+  }, [controlsVisible]);
+
   const sizeScale = mobile ? 0.75 : 1;
   const marginScale = mobile ? 0.5 : 1;
 
@@ -336,13 +392,15 @@ export function VideoControlsExample() {
       <div
         ref={playerRef}
         className="readable-video-stage"
-        onMouseEnter={() => {
-          firstHoverRef.current = true;
-          setHovered(true);
-        }}
-        onMouseLeave={() => setHovered(false)}
+        onMouseEnter={showControls}
+        onMouseLeave={hideControls}
         onFocus={event => {
-          if (event.target instanceof HTMLElement) setFocused(true);
+          if (
+            event.target instanceof HTMLElement &&
+            event.target.matches(':focus-visible')
+          ) {
+            setFocused(true);
+          }
         }}
         onBlur={event => {
           if (!event.currentTarget.contains(event.relatedTarget)) {
@@ -375,7 +433,7 @@ export function VideoControlsExample() {
             data-visible={controlsVisible}
             style={{ gap: CONTROL_GAP }}
           >
-            <button
+            <motion.button
               type="button"
               className="is-side"
               aria-label={`Rewind ${SKIP_SECONDS} seconds`}
@@ -383,14 +441,17 @@ export function VideoControlsExample() {
                 width: SIDE_SIZE * sizeScale,
                 height: SIDE_SIZE * sizeScale
               }}
-              onPointerDown={() => press(0, 0.8)}
-              onPointerUp={() => press(0, 1)}
-              onPointerCancel={() => press(0, 1)}
+              initial={false}
+              whileTap={{ scale: 0.8 }}
+              transition={SIDE_PRESS_TRANSITION}
+              onTapStart={() => press(0, 0.8)}
+              onTap={() => press(0, 1)}
+              onTapCancel={() => press(0, 1)}
               onClick={() => seekBy(-SKIP_SECONDS)}
             >
               <SkipIcon direction="back" />
-            </button>
-            <button
+            </motion.button>
+            <motion.button
               type="button"
               className="is-main"
               aria-label={playing ? 'Pause' : 'Play'}
@@ -398,9 +459,12 @@ export function VideoControlsExample() {
                 width: PLAY_SIZE * sizeScale,
                 height: PLAY_SIZE * sizeScale
               }}
-              onPointerDown={() => press(1, 0.8)}
-              onPointerUp={() => press(1, 1)}
-              onPointerCancel={() => press(1, 1)}
+              initial={false}
+              whileTap={{ scale: 0.8 }}
+              transition={MAIN_PRESS_TRANSITION}
+              onTapStart={() => press(1, 0.8)}
+              onTap={() => press(1, 1)}
+              onTapCancel={() => press(1, 1)}
               onClick={() => {
                 const video = videoRef.current;
                 if (!video) return;
@@ -408,11 +472,20 @@ export function VideoControlsExample() {
                 else video.pause();
               }}
             >
-              <span className="readable-video-play-pause">
-                {playing ? <PauseIcon /> : <PlayIcon />}
-              </span>
-            </button>
-            <button
+              <AnimatePresence mode="popLayout">
+                <motion.span
+                  key={playing ? 'pause' : 'play'}
+                  className="readable-video-play-pause"
+                  initial={{ scale: 0.5, filter: 'blur(2px)', opacity: 0 }}
+                  animate={{ scale: 1, filter: 'blur(0)', opacity: 1 }}
+                  exit={{ scale: 0.5, filter: 'blur(2px)', opacity: 0 }}
+                  transition={ICON_TRANSITION}
+                >
+                  {playing ? <PauseIcon /> : <PlayIcon />}
+                </motion.span>
+              </AnimatePresence>
+            </motion.button>
+            <motion.button
               type="button"
               className="is-side"
               aria-label={`Forward ${SKIP_SECONDS} seconds`}
@@ -420,13 +493,16 @@ export function VideoControlsExample() {
                 width: SIDE_SIZE * sizeScale,
                 height: SIDE_SIZE * sizeScale
               }}
-              onPointerDown={() => press(2, 0.8)}
-              onPointerUp={() => press(2, 1)}
-              onPointerCancel={() => press(2, 1)}
+              initial={false}
+              whileTap={{ scale: 0.8 }}
+              transition={SIDE_PRESS_TRANSITION}
+              onTapStart={() => press(2, 0.8)}
+              onTap={() => press(2, 1)}
+              onTapCancel={() => press(2, 1)}
               onClick={() => seekBy(SKIP_SECONDS)}
             >
               <SkipIcon direction="forward" />
-            </button>
+            </motion.button>
           </div>
           <div
             className="readable-video-bar"

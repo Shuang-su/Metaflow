@@ -335,7 +335,8 @@ function createScene(
   height: number,
   requestedMapSize: number | undefined,
   mapScale: number,
-  maximumTextureSize: number
+  maximumTextureSize: number,
+  effectStrength: number
 ): Scene {
   const circleLenses = lenses
     .filter(lens => lens.shape !== 'bar')
@@ -400,11 +401,11 @@ function createScene(
       depthRatio: depthRatio(
         lens.material,
         Math.min(lens.geometry.lensW, lens.geometry.lensH)
-      ),
+      ) * effectStrength,
       domeDepth: lens.material.domeDepth,
       specularRotation: lens.material.specularRotation,
       glowStrength: lens.material.glowStrength,
-      glowSpread: lens.material.glowSpread,
+      glowSpread: lens.material.glowSpread * effectStrength,
       glowExponent: lens.material.glowExponent,
       edgeStrength: lens.material.edgeStrength,
       edgeWidth: lens.material.edgeWidth,
@@ -512,6 +513,8 @@ export function createWebGlRefraction(
   let contextLost = false;
   let cssWidth = 0;
   let cssHeight = 0;
+  let effectStrength = 1;
+  let mappedEffectStrength = effectStrength;
 
   const uploadMap = (nextScene: Scene) => {
     gl.activeTexture(gl.TEXTURE1);
@@ -536,7 +539,8 @@ export function createWebGlRefraction(
       Math.max(1, cssHeight),
       options.mapSize,
       mapScale,
-      maximumTextureSize
+      maximumTextureSize,
+      effectStrength
     );
     if (next.mapKey !== sceneKey) {
       uploadMap(next);
@@ -592,7 +596,7 @@ export function createWebGlRefraction(
       scene.barMaterial ??
       lenses[0]?.material;
     const blurAmount =
-      options.blurAmount ?? primary?.blurAmount ?? 0;
+      (options.blurAmount ?? primary?.blurAmount ?? 0) * effectStrength;
     const hasBlur = blurAmount > 0.001;
     if (hasBlur) {
       const blurWidth = (displayWidth >> 1) || 1;
@@ -674,7 +678,7 @@ export function createWebGlRefraction(
       const components = scaleComponents(
         scene.circleMaterials[index]
       );
-      baseScales[index] = components[0];
+      baseScales[index] = components[0] * effectStrength;
       ratioX[index] = components[1];
       ratioY[index] = components[2];
     }
@@ -683,15 +687,16 @@ export function createWebGlRefraction(
     gl.uniform1fv(resources.uniforms.ratioY, ratioY);
     gl.uniform1f(
       resources.uniforms.chromaAmount,
-      primary?.chromaAmount ?? 0
+      (primary?.chromaAmount ?? 0) * effectStrength
     );
     gl.uniform1f(
       resources.uniforms.specStrength,
-      primary?.specularStrength ?? 0
+      (primary?.specularStrength ?? 0) * effectStrength
     );
     gl.uniform1f(
       resources.uniforms.adaptStrength,
-      options.adaptStrength ?? 0.5 * (primary?.tint ?? 0)
+      (options.adaptStrength ?? 0.5 * (primary?.tint ?? 0)) *
+        effectStrength
     );
     gl.uniform1f(
       resources.uniforms.specLumaLow,
@@ -732,7 +737,10 @@ export function createWebGlRefraction(
       );
       gl.uniform1f(resources.uniforms.barRadius, scene.bar[4]);
       const barScale = scaleComponents(scene.barMaterial);
-      gl.uniform1f(resources.uniforms.barBaseScale, barScale[0]);
+      gl.uniform1f(
+        resources.uniforms.barBaseScale,
+        barScale[0] * effectStrength
+      );
       gl.uniform1f(resources.uniforms.barRatioX, barScale[1]);
       gl.uniform1f(resources.uniforms.barRatioY, barScale[2]);
     } else {
@@ -808,6 +816,23 @@ export function createWebGlRefraction(
       }
       sceneKey = '';
       rebuildScene();
+      render();
+    },
+    setEffectStrength(nextStrength) {
+      const next = Math.max(0, Math.min(1, nextStrength));
+      effectStrength = next;
+
+      // Keep shader updates fluid while throttling the CPU-generated map to
+      // the same roughly 0.03 strength cadence used by Aave's renderer.
+      const reachedBoundary = next === 0 || next === 1;
+      if (
+        Math.abs(next - mappedEffectStrength) >= 0.03 ||
+        (reachedBoundary && next !== mappedEffectStrength)
+      ) {
+        mappedEffectStrength = next;
+        sceneKey = '';
+        rebuildScene();
+      }
       render();
     },
     dispose() {

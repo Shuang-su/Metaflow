@@ -64,7 +64,17 @@ export interface SvgGlassOptions {
   position: LensPosition;
   tintColor?: string;
   tintOpacity?: number;
+  /** Blur applied to the opaque tint shell. Aave controls animate 4 -> 0. */
+  tintBlur?: number;
+  /** Heavy edge shadow used only while the lens is pressed/expanded. */
+  shadowOpacity?: number;
+  /** Subtle edge shadow that remains visible while the lens is at rest. */
+  restShadowOpacity?: number;
+  /** Half-pixel crop at rest; animated to zero while the lens expands. */
+  edgeBias?: number;
   filterResolution?: number;
+  /** Clip only a separate refraction overlay; direct content filtering keeps SourceGraphic outside the lens. */
+  clipTarget?: boolean;
 }
 
 export interface SvgGlassUpdate {
@@ -74,6 +84,10 @@ export interface SvgGlassUpdate {
   position?: Partial<LensPosition>;
   tintColor?: string;
   tintOpacity?: number;
+  tintBlur?: number;
+  shadowOpacity?: number;
+  restShadowOpacity?: number;
+  edgeBias?: number;
 }
 
 export interface SvgGlassController {
@@ -112,6 +126,8 @@ export interface WebGlRefractionController {
   stop(): void;
   resize(): void;
   updateLenses(lenses: WebGlLens[]): void;
+  /** Fades every refraction channel without hiding the source canvas. */
+  setEffectStrength(strength: number): void;
   dispose(): void;
 }
 

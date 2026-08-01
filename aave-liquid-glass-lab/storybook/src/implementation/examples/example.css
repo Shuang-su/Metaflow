@@ -100,8 +100,7 @@
   inset: 0;
   overflow: hidden;
   border-radius: 999px;
-  background: #d9d8dd;
-  box-shadow: inset 0 1px 2px rgb(0 0 0 / 8%);
+  background: var(--bg-4, #dedde2);
 }
 
 .readable-switch-thumb-hit-area {
@@ -271,6 +270,13 @@
   place-items: center;
 }
 
+.readable-video-example {
+  min-height: 0;
+  padding: 0;
+  overflow: visible;
+  background: none;
+}
+
 .readable-toggle-group {
   display: flex;
   width: max-content;
@@ -283,6 +289,8 @@
 }
 
 .readable-toggle-item {
+  --color-1: #bcbbbb;
+  --color-2: #8f8f8f;
   display: flex;
   min-width: max-content;
   height: 40px;
@@ -311,6 +319,7 @@
 .readable-toggle-item-overlay {
   height: 36px;
   padding: 8px 13px;
+  color: var(--fg-1, #17171d);
   pointer-events: none;
 }
 
@@ -328,6 +337,7 @@
 }
 
 .readable-video-stage {
+  isolation: isolate;
   position: relative;
   width: 100%;
   min-height: 0;
@@ -346,6 +356,16 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
+  border-radius: inherit;
+}
+
+.readable-video-placeholder {
+  filter: blur(4px);
+}
+
+.readable-video-source,
+.readable-video-output {
+  transition: opacity 300ms;
 }
 
 .readable-qr-perspective {
@@ -468,7 +488,7 @@
 }
 
 .readable-video-controls button {
-  display: grid;
+  display: flex;
   flex: 0 0 auto;
   padding: 0;
   border: 0;
@@ -476,7 +496,8 @@
   background: transparent;
   color: white;
   cursor: pointer;
-  place-items: center;
+  align-items: center;
+  justify-content: center;
   -webkit-tap-highlight-color: transparent;
 }
 
@@ -493,14 +514,12 @@
   outline-offset: 3px;
 }
 
-.readable-video-controls button:active {
-  scale: 0.8;
-}
-
 .readable-video-play-pause {
-  display: block;
-  width: 42%;
-  height: 42%;
+  display: flex;
+  width: 49.55%;
+  height: 49.55%;
+  align-items: center;
+  justify-content: center;
 }
 
 .readable-video-play-pause svg,
@@ -511,8 +530,8 @@
 }
 
 .readable-video-skip-icon {
-  width: 76%;
-  height: 76%;
+  width: 70.83%;
+  height: 67.83%;
 }
 
 .readable-video-bar {
@@ -533,7 +552,7 @@
 
 .readable-video-track {
   width: 100%;
-  height: 4px;
+  height: 6px;
   overflow: hidden;
   border-radius: 999px;
   background: rgb(255 255 255 / 35%);
@@ -734,8 +753,8 @@
 
 @media (max-width: 639px) {
   .readable-hero-stage {
-    width: calc(100% + 32px);
-    margin: 0 -16px;
+    width: 100%;
+    margin: 0;
   }
 
   .readable-hero-content {
@@ -752,7 +771,7 @@
 
   .readable-video-example {
     min-height: 0;
-    padding: 48px 0;
+    padding: 0;
     overflow: visible;
     border-radius: 0;
     background: none;

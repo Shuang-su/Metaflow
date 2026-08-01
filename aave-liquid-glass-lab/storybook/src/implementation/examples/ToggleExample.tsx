@@ -432,7 +432,6 @@ export function ToggleExample() {
           }}
           type="button"
           className="readable-toggle-item"
-          style={style}
           aria-pressed={selected === code}
           onClick={() => setSelected(code)}
         >

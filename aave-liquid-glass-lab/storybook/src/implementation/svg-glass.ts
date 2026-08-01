@@ -26,6 +26,7 @@ interface TargetState {
   element: HTMLElement;
   previousFilter: string;
   previousWillChange: string;
+  previousClipPath: string;
 }
 
 function svgElement<K extends keyof SVGElementTagNameMap>(
@@ -59,6 +60,9 @@ function createFilterGraph(
   material: GlassMaterial,
   rich: boolean
 ): FilterGraph {
+  const safari =
+    typeof navigator !== 'undefined' &&
+    /^((?!chrome|chromium|android).)*safari/i.test(navigator.userAgent);
   const filter = svgElement('filter', {
     id,
     filterUnits: 'objectBoundingBox',
@@ -208,7 +212,7 @@ function createFilterGraph(
     } else {
       filter.append(
         svgElement('feColorMatrix', {
-          in: 'rawMap',
+          in: safari ? 'rawMap' : 'map',
           type: 'matrix',
           values:
             '0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 1 0 -0.5019607843',
@@ -287,14 +291,14 @@ function setRegion(
   top: number,
   width: number,
   height: number,
-  blurAmount: number
+  blurAmount: number,
+  edgeBias: number
 ): void {
-  // The half-pixel inset aligns the primitive region with the raster map's
-  // pixel centres and matches the source implementation's filter bounds.
-  const alignedLeft = left + 0.5;
-  const alignedTop = top + 0.5;
-  const alignedWidth = Math.max(0, width - 1);
-  const alignedHeight = Math.max(0, height - 1);
+  // Aave eases this crop from .5px at rest to 0px while the lens expands.
+  const alignedLeft = left + edgeBias;
+  const alignedTop = top + edgeBias;
+  const alignedWidth = Math.max(0, width - 2 * edgeBias);
+  const alignedHeight = Math.max(0, height - 2 * edgeBias);
   const x = alignedLeft / targetWidth;
   const y = alignedTop / targetHeight;
   const w = alignedWidth / targetWidth;
@@ -372,10 +376,16 @@ export function createSvgGlass(options: SvgGlassOptions): SvgGlassController {
   let position: LensPosition = { ...options.position };
   let tintColor = options.tintColor ?? '#ffffff';
   let tintOpacity = options.tintOpacity ?? Math.abs(material.tint);
+  let tintBlur = options.tintBlur ?? 0;
+  let shadowOpacity = options.shadowOpacity ?? 0;
+  let restShadowOpacity = options.restShadowOpacity ?? 0;
+  let edgeBias = options.edgeBias ?? 0.5;
+  const filterResolution = options.filterResolution ?? 1;
   let map = generateLensMap(mapGeometry, material);
   let mapKey = JSON.stringify([mapGeometry, mapMaterialKey(material)]);
   let graphKey = filterMaterialKey(material);
   let version = 0;
+  let mapRefreshTimer = 0;
   const baseId = `aave-glass-readable-${filterSequence++}`;
 
   const svg = svgElement('svg', {
@@ -407,26 +417,51 @@ export function createSvgGlass(options: SvgGlassOptions): SvgGlassController {
   );
   defs.append(mainGraph.filter, ...poolGraphs.map(graph => graph.filter));
 
-  const shell = document.createElement('div');
-  shell.className = 'aave-glass-visual-shell';
-  shell.setAttribute('aria-hidden', 'true');
-  Object.assign(shell.style, {
-    position: 'absolute',
-    zIndex: '4',
-    pointerEvents: 'none',
-    boxSizing: 'border-box',
-    willChange: 'transform'
-  });
-
   const brightness = document.createElement('div');
   brightness.className = 'aave-glass-brightness';
   Object.assign(brightness.style, {
     position: 'absolute',
-    inset: '0',
+    top: '0',
+    left: '0',
     pointerEvents: 'none',
-    borderRadius: 'inherit'
+    willChange: 'transform'
   });
-  shell.append(brightness);
+
+  const tint = document.createElement('div');
+  tint.className = 'aave-glass-tint';
+  Object.assign(tint.style, {
+    position: 'absolute',
+    top: '0',
+    left: '0',
+    pointerEvents: 'none',
+    overflow: 'hidden',
+    willChange: 'backdrop-filter, transform'
+  });
+
+  const backdrop = document.createElement('div');
+  backdrop.className = 'aave-glass-backdrop';
+  Object.assign(backdrop.style, {
+    position: 'absolute',
+    top: '0',
+    left: '0',
+    pointerEvents: 'none',
+    willChange: 'backdrop-filter, transform'
+  });
+
+  const pressShadow = document.createElement('div');
+  pressShadow.className = 'aave-glass-press-shadow';
+  const restShadow = document.createElement('div');
+  restShadow.className = 'aave-glass-rest-shadow';
+  for (const layer of [pressShadow, restShadow]) {
+    Object.assign(layer.style, {
+      position: 'absolute',
+      top: '0',
+      left: '0',
+      pointerEvents: 'none',
+      boxSizing: 'border-box',
+      willChange: 'transform, opacity'
+    });
+  }
 
   const targetStates = new Map<HTMLElement, TargetState>();
   const rememberTarget = (element: HTMLElement): TargetState => {
@@ -435,7 +470,8 @@ export function createSvgGlass(options: SvgGlassOptions): SvgGlassController {
     const state = {
       element,
       previousFilter: element.style.filter,
-      previousWillChange: element.style.willChange
+      previousWillChange: element.style.willChange,
+      previousClipPath: element.style.clipPath
     };
     targetStates.set(element, state);
     return state;
@@ -444,12 +480,20 @@ export function createSvgGlass(options: SvgGlassOptions): SvgGlassController {
     for (const state of targetStates.values()) {
       state.element.style.filter = state.previousFilter;
       state.element.style.willChange = state.previousWillChange;
+      state.element.style.clipPath = state.previousClipPath;
     }
   };
 
   options.host.dataset.aaveGlassContainer = '';
   options.target.dataset.refractionTarget = '';
-  options.host.append(svg, shell);
+  options.host.append(
+    svg,
+    brightness,
+    tint,
+    backdrop,
+    pressShadow,
+    restShadow
+  );
   rememberTarget(options.target);
 
   const refreshGraphs = () => {
@@ -481,15 +525,16 @@ export function createSvgGlass(options: SvgGlassOptions): SvgGlassController {
     return nested;
   };
 
-  const sync = (forceMap = false) => {
+  const sync = (forceMap = false, deferMap = false) => {
     const nextMapKey = JSON.stringify([
       mapGeometry,
       mapMaterialKey(material)
     ]);
     const nextGraphKey = filterMaterialKey(material);
     const mapChanged = forceMap || nextMapKey !== mapKey;
-    const graphChanged = mapChanged || nextGraphKey !== graphKey;
-    if (mapChanged) {
+    const graphChanged =
+      (mapChanged && !deferMap) || nextGraphKey !== graphKey;
+    if (mapChanged && !deferMap) {
       map.dispose();
       map = generateLensMap(mapGeometry, material);
       mapKey = nextMapKey;
@@ -498,6 +543,10 @@ export function createSvgGlass(options: SvgGlassOptions): SvgGlassController {
       graphKey = nextGraphKey;
       version += 1;
       refreshGraphs();
+    }
+    if (mapChanged && deferMap) {
+      window.clearTimeout(mapRefreshTimer);
+      mapRefreshTimer = window.setTimeout(() => sync(true), 90);
     }
 
     clearTargets();
@@ -537,8 +586,25 @@ export function createSvgGlass(options: SvgGlassOptions): SvgGlassController {
         lensTop - main.rect.top,
         lensWidth,
         lensHeight,
-        material.blurAmount
+        material.blurAmount,
+        edgeBias
       );
+      if (options.clipTarget && main.element === options.target) {
+        const resolution = filterResolution;
+        const localLeft = lensLeft - main.rect.left;
+        const localTop = lensTop - main.rect.top;
+        const clipTop = Math.max(0, localTop) * resolution;
+        const clipRight = Math.max(
+          0,
+          main.rect.width - (localLeft + lensWidth)
+        ) * resolution;
+        const clipBottom = Math.max(
+          0,
+          main.rect.height - (localTop + lensHeight)
+        ) * resolution;
+        const clipLeft = Math.max(0, localLeft) * resolution;
+        state.element.style.clipPath = `inset(${clipTop}px ${clipRight}px ${clipBottom}px ${clipLeft}px round ${Math.max(0, Math.min(geometry.borderRadius, geometry.lensW, geometry.lensH)) * resolution}px)`;
+      }
     }
 
     candidates.slice(1, POOL_SIZE + 1).forEach((candidate, index) => {
@@ -554,7 +620,8 @@ export function createSvgGlass(options: SvgGlassOptions): SvgGlassController {
         lensTop - candidate.rect.top,
         lensWidth,
         lensHeight,
-        material.blurAmount
+        material.blurAmount,
+        edgeBias
       );
     });
 
@@ -565,35 +632,52 @@ export function createSvgGlass(options: SvgGlassOptions): SvgGlassController {
       geometry.lensW,
       geometry.lensH
     );
-    shell.style.left = `${shellLeft}px`;
-    shell.style.top = `${shellTop}px`;
-    shell.style.width = `${lensWidth}px`;
-    shell.style.height = `${lensHeight}px`;
-    shell.style.borderRadius = `${radius}px`;
-    shell.style.background =
-      material.tint === 0 && tintOpacity === 0
-        ? 'transparent'
-        : material.tint < 0
-          ? `rgb(0 0 0 / ${Math.max(tintOpacity, Math.abs(material.tint))})`
-          : `color-mix(in srgb, ${tintColor} ${Math.max(tintOpacity, Math.abs(material.tint)) * 100}%, transparent)`;
-    shell.style.boxShadow = [
+    const mask = roundedRectMaskUri(lensWidth, lensHeight, radius);
+    const placeLayer = (layer: HTMLDivElement, opacity = 1) => {
+      layer.style.transform = `translate3d(${shellLeft}px, ${shellTop}px, 0)`;
+      layer.style.width = `${lensWidth}px`;
+      layer.style.height = `${lensHeight}px`;
+      layer.style.borderRadius = `${radius}px`;
+      layer.style.opacity = String(opacity);
+    };
+    placeLayer(brightness, Math.abs(material.brightness));
+    placeLayer(tint);
+    placeLayer(backdrop);
+    placeLayer(pressShadow, shadowOpacity);
+    placeLayer(restShadow, restShadowOpacity);
+
+    brightness.style.background =
+      material.brightness > 0 ? 'white' : 'black';
+    tint.style.background =
+      material.tint < 0
+        ? `color-mix(in srgb, black ${Math.max(tintOpacity, Math.abs(material.tint)) * 100}%, transparent)`
+        : `color-mix(in srgb, ${tintColor} ${Math.max(tintOpacity, Math.abs(material.tint)) * 100}%, transparent)`;
+    const tintFilter = tintBlur > 0 ? `blur(${tintBlur}px)` : 'none';
+    tint.style.backdropFilter = tintFilter;
+    tint.style.setProperty('-webkit-backdrop-filter', tintFilter);
+    const backdropFilter =
+      material.blurAmount > 0 ? `blur(${material.blurAmount}px)` : 'none';
+    backdrop.style.backdropFilter = backdropFilter;
+    backdrop.style.setProperty('-webkit-backdrop-filter', backdropFilter);
+    backdrop.style.maskImage = mask;
+    backdrop.style.webkitMaskImage = mask;
+    backdrop.style.maskSize = '100% 100%';
+    backdrop.style.webkitMaskSize = '100% 100%';
+
+    pressShadow.style.boxShadow = [
       material.edgeShadow,
       material.edgeInsetShadow ? `inset ${material.edgeInsetShadow}` : undefined
     ]
       .filter(Boolean)
       .join(', ');
-    shell.style.maskImage = roundedRectMaskUri(
-      lensWidth,
-      lensHeight,
-      radius
-    );
-    shell.style.webkitMaskImage = shell.style.maskImage;
-    shell.style.maskSize = '100% 100%';
-    shell.style.webkitMaskSize = '100% 100%';
-
-    brightness.style.background =
-      material.brightness > 0 ? 'white' : 'black';
-    brightness.style.opacity = String(Math.abs(material.brightness));
+    restShadow.style.boxShadow = [
+      material.restEdgeShadow,
+      material.restEdgeInsetShadow
+        ? `inset ${material.restEdgeInsetShadow}`
+        : undefined
+    ]
+      .filter(Boolean)
+      .join(', ');
   };
 
   sync(true);
@@ -603,33 +687,53 @@ export function createSvgGlass(options: SvgGlassOptions): SvgGlassController {
 
   return {
     update(next: SvgGlassUpdate) {
+      let shouldDeferMap = false;
       if (next.geometry) {
         geometry = { ...geometry, ...next.geometry };
         if (mapGeometryFollowsGeometry && !next.mapGeometry) {
           mapGeometry = { ...mapGeometry, ...next.geometry };
+          shouldDeferMap = true;
         }
       }
       if (next.mapGeometry) {
         mapGeometry = { ...mapGeometry, ...next.mapGeometry };
         mapGeometryFollowsGeometry = false;
+        shouldDeferMap = true;
       }
-      if (next.material) material = { ...material, ...next.material };
+      if (next.material) {
+        const previousMapMaterial = mapMaterialKey(material);
+        material = { ...material, ...next.material };
+        shouldDeferMap ||= previousMapMaterial !== mapMaterialKey(material);
+      }
       if (next.position) position = { ...position, ...next.position };
       if (next.tintColor !== undefined) tintColor = next.tintColor;
       if (next.tintOpacity !== undefined) tintOpacity = next.tintOpacity;
-      sync();
+      if (next.tintBlur !== undefined) tintBlur = next.tintBlur;
+      if (next.shadowOpacity !== undefined) {
+        shadowOpacity = next.shadowOpacity;
+      }
+      if (next.restShadowOpacity !== undefined) {
+        restShadowOpacity = next.restShadowOpacity;
+      }
+      if (next.edgeBias !== undefined) edgeBias = next.edgeBias;
+      sync(false, shouldDeferMap);
     },
     getMap() {
       return map;
     },
     destroy() {
       resizeObserver.disconnect();
+      window.clearTimeout(mapRefreshTimer);
       clearTargets();
       map.dispose();
       delete options.host.dataset.aaveGlassContainer;
       delete options.target.dataset.refractionTarget;
       svg.remove();
-      shell.remove();
+      brightness.remove();
+      tint.remove();
+      backdrop.remove();
+      pressShadow.remove();
+      restShadow.remove();
     }
   };
 }

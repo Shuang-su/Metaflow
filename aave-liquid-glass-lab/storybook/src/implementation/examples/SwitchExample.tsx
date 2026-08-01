@@ -97,6 +97,8 @@ export function SwitchExample() {
     useState(REST_HALF_HEIGHT);
   const [lensRadius, setLensRadius] = useState(REST_RADIUS);
   const [tintOpacity, setTintOpacity] = useState(1);
+  const [tintBlur, setTintBlur] = useState(0);
+  const [shadowOpacity, setShadowOpacity] = useState(0);
   const [targetScaleX, setTargetScaleX] = useState(0.85);
   const [targetScaleY, setTargetScaleY] = useState(0.525);
   const [deformation, setDeformation] = useState(0);
@@ -188,7 +190,7 @@ export function SwitchExample() {
     });
     shapeAnimations.current.push(control);
   };
-  const expand = () => {
+  const expand = (holdForce = false) => {
     stopShapeAnimations();
     run(
       lensHalfWidth,
@@ -204,9 +206,11 @@ export function SwitchExample() {
     );
     run(lensRadius, 1.5 * REST_RADIUS, setLensRadius, TAP_TRANSITION);
     run(tintOpacity, 0, setTintOpacity, TAP_TRANSITION);
+    run(tintBlur, 0, setTintBlur, TAP_TRANSITION);
+    run(shadowOpacity, 1, setShadowOpacity, TAP_TRANSITION);
     run(targetScaleX, 0.95, setTargetScaleX, TAP_TRANSITION);
     run(targetScaleY, 0.975, setTargetScaleY, TAP_TRANSITION);
-    deformationForce.current = 0.175;
+    deformationForce.current = holdForce ? 0.175 : 0;
     startDeformation();
   };
   const collapse = () => {
@@ -225,6 +229,8 @@ export function SwitchExample() {
     );
     run(lensRadius, REST_RADIUS, setLensRadius, RELEASE_TRANSITION);
     run(tintOpacity, 1, setTintOpacity, RELEASE_TRANSITION);
+    run(tintBlur, 0, setTintBlur, RELEASE_TRANSITION);
+    run(shadowOpacity, 0, setShadowOpacity, RELEASE_TRANSITION);
     run(targetScaleX, 0.85, setTargetScaleX, RELEASE_TRANSITION);
     run(targetScaleY, 0.525, setTargetScaleY, RELEASE_TRANSITION);
     deformationForce.current = 0;
@@ -259,14 +265,15 @@ export function SwitchExample() {
     pointerId.current = event.pointerId;
     event.currentTarget.setPointerCapture(event.pointerId);
     pointerStart.current = event.clientX;
-    dragStart.current = x;
+    dragStart.current = xRef.current;
     dragged.current = false;
     mode.current = 'pending';
     window.clearTimeout(holdTimer.current);
+    window.clearTimeout(releaseTimer.current);
     holdTimer.current = window.setTimeout(() => {
       if (mode.current !== 'pending') return;
       mode.current = 'hold';
-      expand();
+      expand(true);
     }, 200);
   };
 
@@ -281,13 +288,14 @@ export function SwitchExample() {
       pointerStart.current = event.clientX;
       delta = 0;
       window.clearTimeout(holdTimer.current);
+      deformationForce.current = 0;
       if (mode.current !== 'hold') {
         mode.current = 'hold';
-        expand();
+        expand(false);
       }
     }
     const raw = dragStart.current + delta;
-        updateX(
+    updateX(
       raw < 0
         ? -rubberBand(-raw)
         : raw > TRAVEL
@@ -324,9 +332,9 @@ export function SwitchExample() {
       return;
     }
 
-    if (mode.current === 'pending') {
+    if (mode.current === 'pending' || mode.current === 'tap') {
       mode.current = 'tap';
-      expand();
+      expand(false);
       const next = !checked;
       setChecked(next);
       animatePosition(next ? TRAVEL : 0);
@@ -354,7 +362,7 @@ export function SwitchExample() {
           height: Math.round(0.75 * HEIGHT),
           borderRadius: Math.round(0.75 * HEIGHT) / 2,
           background: `color-mix(in srgb, var(--bg-4, #dedde2), var(--primary, #9188ff) ${
-            (x / TRAVEL) * 100
+            Math.max(0, Math.min(1, x / TRAVEL)) * 100
           }%)`,
           transform: `scale(${targetScaleX}, ${targetScaleY})`
         }}
@@ -390,6 +398,10 @@ export function SwitchExample() {
           }}
           tintColor="white"
           tintOpacity={tintOpacity}
+          tintBlur={tintBlur}
+          shadowOpacity={shadowOpacity}
+          edgeBias={0.5 * tintOpacity}
+          filterResolution={2}
         >
           <label
             className="readable-switch"
@@ -407,7 +419,15 @@ export function SwitchExample() {
                 commit(!checked);
               }}
             />
-            <span className="readable-switch-track" aria-hidden="true" />
+            <span
+              className="readable-switch-track"
+              aria-hidden="true"
+              style={{
+                background: `color-mix(in srgb, var(--bg-4, #dedde2), var(--primary, #9896ff) ${
+                  Math.max(0, Math.min(1, x / TRAVEL)) * 100
+                }%)`
+              }}
+            />
             <span
               className="readable-switch-thumb-hit-area"
               style={{

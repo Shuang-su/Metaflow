@@ -46,11 +46,12 @@ const sliderMaterialLight = {
   glowStrength: 0.4,
   glowSpread: 0.5,
   glowExponent: 2,
-  edgeStrength: 0.5,
+  edgeStrength: 1,
   edgeWidth: 1,
   edgeExponent: 1,
   edgeShadow: '0 2px 6px rgba(0, 0, 0, 0.16)',
-  edgeInsetShadow: '0 -4px 10px rgba(0, 0, 0, 0.12)'
+  edgeInsetShadow: '0 -4px 10px rgba(0, 0, 0, 0.12)',
+  restEdgeShadow: '0 1.333px 5.333px var(--shadow-strong, rgba(0, 0, 0, 0.14))'
 };
 
 const sliderMaterialDark = {
@@ -110,6 +111,8 @@ export function SliderExample() {
     useState(THUMB_HEIGHT / 2);
   const [lensRadius, setLensRadius] = useState(THUMB_HEIGHT / 2);
   const [tintOpacity, setTintOpacity] = useState(1);
+  const [tintBlur, setTintBlur] = useState(4);
+  const [shadowOpacity, setShadowOpacity] = useState(0);
   const [targetScaleX, setTargetScaleX] = useState(0.85);
   const [targetScaleY, setTargetScaleY] = useState(0.525);
   const [deformation, setDeformation] = useState(0);
@@ -233,6 +236,8 @@ export function SliderExample() {
       PRESS_TRANSITION
     );
     runShape(tintOpacity, 0, setTintOpacity, PRESS_TRANSITION);
+    runShape(tintBlur, 0, setTintBlur, PRESS_TRANSITION);
+    runShape(shadowOpacity, 1, setShadowOpacity, PRESS_TRANSITION);
     runShape(targetScaleX, 0.95, setTargetScaleX, PRESS_TRANSITION);
     runShape(targetScaleY, 0.975, setTargetScaleY, PRESS_TRANSITION);
     deformationForce.current = 0.175;
@@ -260,6 +265,8 @@ export function SliderExample() {
       RELEASE_TRANSITION
     );
     runShape(tintOpacity, 1, setTintOpacity, RELEASE_TRANSITION);
+    runShape(tintBlur, 4, setTintBlur, RELEASE_TRANSITION);
+    runShape(shadowOpacity, 0, setShadowOpacity, RELEASE_TRANSITION);
     runShape(targetScaleX, 0.85, setTargetScaleX, RELEASE_TRANSITION);
     runShape(targetScaleY, 0.525, setTargetScaleY, RELEASE_TRANSITION);
     deformationForce.current = 0;
@@ -411,6 +418,10 @@ export function SliderExample() {
             }}
             tintColor="white"
             tintOpacity={tintOpacity}
+            tintBlur={tintBlur}
+            shadowOpacity={shadowOpacity}
+            restShadowOpacity={1 - shadowOpacity}
+            filterResolution={2}
           >
             <div className="readable-slider-content">
               <input
