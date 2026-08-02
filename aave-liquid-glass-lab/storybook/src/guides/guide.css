@@ -152,9 +152,32 @@
   gap: 32px;
 }
 
-.study-check-columns ul {
+.study-check-columns ul,
+.study-check-columns ol {
   margin: 8px 0 0;
   padding-left: 20px;
+}
+
+.study-lesson-table table {
+  min-width: 820px;
+}
+
+.study-lesson-table th,
+.study-lesson-table td {
+  width: 25%;
+}
+
+@media (min-width: 900px) {
+  .study-guide-page .study-lesson-table {
+    width: min(960px, calc(100vw - 64px));
+    max-width: none;
+    margin-left: 50%;
+    transform: translateX(-50%);
+  }
+
+  .study-guide-page .study-lesson-table table {
+    min-width: 100%;
+  }
 }
 
 .study-browser-note,

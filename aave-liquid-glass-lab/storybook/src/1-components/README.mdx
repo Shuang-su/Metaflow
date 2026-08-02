@@ -15,6 +15,33 @@ import { Meta } from '@storybook/addon-docs/blocks';
 3. 镜片移动时更新什么，形变时又更新什么？
 4. 如何证明视觉、语义和像素输出都真的变化？
 
+## 五层实现契约
+
+每个案例都应明确写出下面五层。少一层，问题通常会在快速交互、移动端或 Safari 中重新出现。
+
+| 层 | 必须定义 | 常见混淆 |
+| --- | --- | --- |
+| State | native input、selected button 或 media element | 把视觉 motion state 当成业务状态 |
+| Geometry | host、target、lens、bleed、bbox 与 DPR | 同时混用页面坐标、CSS transform 和局部坐标 |
+| Map | shape/material cache key 与中性外部区域 | 把 x/y 或 render scale 放进 map cache key |
+| Renderer | SVG filter pool 或 WebGL texture/program | 只创建节点，却没有证明其消费有效资源 |
+| Lifecycle | mount、resize、interaction、pause、dispose | 只处理首次渲染，不处理恢复和释放 |
+
+### 坐标系只允许单向换算
+
+1. 先测量 target 与交互元素的 CSS pixel bbox。
+2. DOM/SVG 保持 glass container 的局部 CSS 坐标。
+3. Canvas/WebGL 在进入 renderer 时一次性乘 DPR，得到 drawing-buffer pixel。
+4. Shader 内再换算到 0–1 UV；不得把 UV、CSS pixel 和 device pixel 混在同一状态对象中。
+5. resize 必须作为一次 transaction 同步尺寸、viewport、lens bbox 和 filter region。
+
+### 图层命中规则
+
+- 真实 input/button/video control 位于交互层。
+- refraction target 可以是同构视觉 copy，但必须 `pointer-events: none`。
+- glass shell、specular、edge 和 glow 只负责视觉，也不得抢占命中。
+- focus ring 属于真实控件，不能被透明 input 或 overflow clipping 隐藏。
+
 ## 路径对照
 
 | 案例 | 表面 | 折射目标 | 关键交互 |
@@ -36,5 +63,26 @@ import { Meta } from '@storybook/addon-docs/blocks';
 - filter bbox 应贴合镜片，而不是覆盖整块页面。
 - resize 必须同步 CSS 尺寸、drawing buffer、viewport 和 lens 坐标。
 - 验收必须包含实际状态变化和像素签名，不能只检查元素是否存在。
+
+## 已经暴露过的组件级回归
+
+| 组件 | 曾出现的表面问题 | 首要排查层 |
+| --- | --- | --- |
+| Hero | 圆形镜片内出现方形模糊、窄屏变椭圆、背景动画丢失 | Geometry → Filter bbox → live target |
+| Switch | 开启态不绿、初始白态尺寸错误、快速点击迟钝 | State → fill copy → spring cancellation |
+| Slider | 白色胶囊盖住轨道、端点错位、拖动时重建 map | progress/travel → target layer → cache key |
+| Toggle | 瞬移、不同宽度项偏心、拖动后 click 回跳 | bbox measurement → spring → pointer capture |
+| QR | canvas 存在但为空、点击只改 DOM、Retina 偏心 | texture readiness → draw → DPR transaction |
+| Video | 紫色外框、controls 不消失、按钮变但画面不变 | wrapper isolation → visibility state → frame loop |
+
+## 新组件接入前的门槛
+
+- 先写状态真源和事件表，再写玻璃视觉。
+- 先建立没有 shell 的折射最小案例，确认像素真的弯折。
+- 明确 map cache key，并写出哪些更新只动 position/uniform。
+- 为桌面和 `390×844` 分别记录目标 bbox，禁止从截图估算。
+- 至少提供一个可重复的状态断言和一个像素或 map signature 断言。
+- 写清 Safari/Chromium 差异；没有实际复测的项目必须标为待验证。
+- 组件卸载、主题切换、resize 和快速重复操作都必须回到稳定状态。
 
 每个组件的 README 提供完整交互与最小实现结构；**构建与代码** 深入解释为什么这样写，并展示实际运行文件。QR 与 Video 额外提供 **WebGL 管线**。

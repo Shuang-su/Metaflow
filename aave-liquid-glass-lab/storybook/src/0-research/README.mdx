@@ -10,6 +10,19 @@ import { GuideCodeBlock } from '../docs/GuideCodeBlock';
 
 <InteractiveOverview />
 
+## 先区分四种内容的职责
+
+为了既保留可核对的效果，又真正得到可修改代码，本册同时存在四层内容。它们互相校验，但不能互相冒充。
+
+| 层级 | 用途 | 能证明什么 | 不能单独证明什么 |
+| --- | --- | --- | --- |
+| 锁定交互基准 | 操作目标行为、读取运行态 | 目标视觉、真实参数、DOM/Canvas/Video 结构 | 我们已经掌握并重写了实现 |
+| 独立 TypeScript / GLSL | 阅读、修改、扩展 | 算法与生命周期可以脱离构建产物运行 | 所有浏览器、所有动画帧都已像素级一致 |
+| 格式化实现片段 | 校核参数和关键路径 | 研究结论有具体实现依据 | 压缩变量名或构建文件名适合成为公共 API |
+| 运行验收记录 | 比较 bbox、map、状态与像素 | 当前代表状态已经通过哪些检查 | 未执行的 Safari、长时间播放或逐帧差分也已完成 |
+
+因此，**截图相似不是完成，直接调用基准模块也不是独立实现**。完整证明至少要覆盖状态、几何、map、渲染节点、交互和像素输出。
+
 ## 先建立正确的模型
 
 玻璃不是盖在内容上的透明模糊层，也不是一张被裁切的背景截图。内容先正常绘制；镜片几何生成 displacement map；渲染器再根据 map 的 R/G 通道回到 source 中重新采样像素。B 通道保存方向性高光，A 通道在 WebGL 路径中限定镜片边界。
@@ -77,6 +90,49 @@ Canvas 和 Video 已经是像素表面，内部内容不能再作为 live DOM �
 </div>
 
 Safari 可以呈现完整效果，是因为 DOM 使用 SVG displacement，Canvas 与 Video 使用 WebGL，而不是依赖 Chromium 独有的背景抓取能力。Safari 还需要 tight filter region、filter id refresh，并避免把 live video 直接交给 SVG filter。Firefox 走相同的最终数据模型，但仍需单独检查 SVG filter bbox 与色彩空间。
+
+## 从错误路线纠正出的工程规则
+
+下面这些问题都曾经产生“局部看起来可用”的结果，但无法支持后续修改。保留这张表，是为了以后遇到相同症状时直接回到根因，而不是再次从表面补丁开始。
+
+| 早期路线或症状 | 为什么会误导 | 后来的修正 | 以后必须坚持 |
+| --- | --- | --- | --- |
+| 用 blur、透明度和边框近似玻璃 | 能做出材质感，却没有实时像素折射 | 先生成 displacement map，再由 SVG/WebGL 重采样 source | 先证明 map 和像素变化，再调 shell |
+| clone overlay 漂在组件外 | 复制层依赖页面坐标，host、bleed 与 target 不同源 | target、filter region、shell 全部进入 glass container 局部坐标 | resize/滚动/竖屏都读取真实 bbox |
+| Hero 的圆形 shell 内出现正方形模糊 | border-radius 只裁了表面，filter/mask/blur 仍是方形 | 圆形 SDF、mask、bbox 和各向异性 blur 同步 | 同时检查 clip-path、filter bbox 与 X/Y blur |
+| 整页 iframe、镜像裁切或 hydration 后再删 DOM | 切换时会先闪 Hero、产生加载延迟，内置浏览器还可能崩溃 | Storybook preview 直接挂载组件；页面不再创建嵌套 iframe | preview 内 iframe 数量必须为 0 |
+| 只运行锁定构建模块 | 行为正确，但代码仍不可读、不可迁移、不可扩展 | 保留基准对照，同时建立独立 TypeScript/GLSL | 独立目录静态禁止依赖 origin runtime |
+| 单独写一个“可调近似 Playground” | 参数同名但算法不同，实验结论无法回到组件 | Playground 与组件共享 map generator 与 controller | 相同参数必须得到相同 map signature |
+| 把 Safari 写成不支持 | 混淆了实验 API 与最终 generated-map 路线 | 按 DOM/SVG、Canvas/WebGL 的最终管线描述兼容性 | 兼容性结论必须带 API 与路径 |
+| 普通案例暴露 Storybook Controls | 参数入口与页面原理脱节，读者看不到 map 和缓存边界 | 普通案例固定参数，只有 Playground 使用页面内调节器 | 调节器必须与结果和 map 同屏 |
+| 用隐藏演示伪装 README | 内容与案例重复，导航类型和读者预期都错误 | README 使用真实 MDX Docs entry | Docs 与 Story 语义分开 |
+| 标题中的半角 `/` 随意出现 | Storybook 把它解析为额外目录，QR 导航被错误分层 | 展示名使用全角 `／`，路径层级只由有意的 `/` 创建 | 修改标题后检查 index 结构 |
+| 全局覆盖 `pre span` 颜色 | Shiki token 全部退化为单色 | 保留 token style 与 Light/Dark CSS 变量 | 构建后检查至少四类 token 颜色 |
+| Markdown 表格显示成 pipe 文本 | MDX 没启用 GFM 或 table 没进入共享 wrapper | 启用 remark-gfm 与 rehype table wrapper | 每次构建检查真实 table 数量与横向滚动 |
+| 移动端用负 margin 拉宽演示 | 画面贴边、正文溢出，窄屏看似“更大”但不可读 | 统一 `24px` 页面边距和容器内响应式尺寸 | 390px 下内容宽度不得超过 342px |
+| 用构建 chunk 文件名做正文标题 | 数字文件名只能定位证据，对读者没有语义 | 正文使用“SVG Filter 控制器”等语义名，chunk 只保留在元数据 | 构建标识不进入公共概念模型 |
+
+## 固定的验收阶梯
+
+修复不能停在“肉眼更像”。应从低成本、确定性的证据开始，逐层向真实交互和跨浏览器推进。
+
+| 层级 | 检查 | 失败时先回到哪里 |
+| --- | --- | --- |
+| 1. State | checkbox、range、button、media state 是否真实变化 | 组件状态与事件绑定 |
+| 2. Geometry | host、target、lens、filter bbox 是否同一坐标系 | wrapper、测量、DPR、resize |
+| 3. Map | R/G/B/A、neutral region、signature、cache key | SDF、material、map generator |
+| 4. Renderer | feImage/feDisplacementMap 或 source/map/blur textures 是否有效 | filter pool、shader、texture lifecycle |
+| 5. Interaction | click、hold、drag、release、seek、visibility 是否同步 | 状态机、pointer capture、spring、RAF |
+| 6. Environment | desktop/mobile、Light/Dark、Chromium/Safari 是否一致 | 浏览器分支、bbox、色彩空间、资源加载 |
+
+## Storybook 本身也有实现边界
+
+- 左侧导航负责阅读路径，preview 负责运行案例；案例内部不再嵌套另一张网页。
+- README 是解释与索引，**构建与代码** 是独立实现教程，锁定基准只用于同页对照。
+- 普通案例不提供 Controls、Actions、Interactions；参数实验使用页面内部控件。
+- 页面主题由 Storybook 侧栏的全局按钮统一控制，manager、Docs、preview 和组件材料必须保持同一状态。
+- 正文宽度、字号、表格、代码高亮和移动端边距属于研究结果的一部分，不能用临时全局 CSS 破坏。
+- npm、Storybook、TypeScript 与浏览器测试缓存固定写入项目 `.cache/`，避免外部运行环境影响构建稳定性。
 
 ## 实现完成的判据
 

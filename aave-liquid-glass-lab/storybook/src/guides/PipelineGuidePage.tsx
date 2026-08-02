@@ -61,6 +61,55 @@ export function PipelineGuidePage({ studyCase }: { studyCase: 'qr' | 'video' }) 
       </section>
 
       <section>
+        <h2>开始 Draw 前的就绪门</h2>
+        <p>
+          WebGL 最容易出现“节点都在、画面却不对”的假完成状态。每一帧进入 draw 之前，至少要让下面的条件显式成立。
+        </p>
+        <div className="study-table-wrapper">
+          <table>
+            <thead>
+              <tr>
+                <th>检查点</th>
+                <th>QR Canvas</th>
+                <th>Video Controls</th>
+                <th>失败表现</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Source ready</td>
+                <td>matrix、occupancy 与 finder-eye 参数非空</td>
+                <td>readyState、videoWidth/Height 与 CORS 可用</td>
+                <td>透明、黑屏或只显示静态底图</td>
+              </tr>
+              <tr>
+                <td>Program ready</td>
+                <td colSpan={2}>vertex/fragment shader compile，program link，attribute/uniform location 有效</td>
+                <td>canvas 存在但 draw 无输出</td>
+              </tr>
+              <tr>
+                <td>Texture ready</td>
+                <td>occupancy、map、painting texture 尺寸正确</td>
+                <td>source、map、blur texture 使用当前帧和当前 context</td>
+                <td>折射不动、finder eyes 错位或 context restore 后黑屏</td>
+              </tr>
+              <tr>
+                <td>Coordinates ready</td>
+                <td colSpan={2}>CSS size、drawing buffer、DPR、viewport、lens bbox 同步</td>
+                <td>偏心、裁切、Retina 模糊或移动端缩成小画面</td>
+              </tr>
+              <tr>
+                <td>Frame needed</td>
+                <td>painter、lens 或 resize 状态发生变化</td>
+                <td>播放中，或 pause/seek/visibility/layout 后需要一次同步重绘</td>
+                <td>无意义常驻 RAF，或状态变化但画面不更新</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section>
         <h2>Shader 如何消费 Map</h2>
         <p>
           shader 先把 R/G 从 0–1 还原到 -1–1，换算成 source texture 的 UV offset；R、G、B
@@ -99,6 +148,41 @@ export function PipelineGuidePage({ studyCase }: { studyCase: 'qr' | 'video' }) 
           )}
         </ul>
         <GuideCodeBlock sourceId={isVideo ? 'video-example' : 'qr-example'} />
+      </section>
+
+      <section>
+        <h2>从异常输出开始的固定排查顺序</h2>
+        <ol>
+          {chapter.debugOrder.map(item => (
+            <li key={item}>{item}</li>
+          ))}
+        </ol>
+
+        <h3>不能作为完成证明的假象</h3>
+        <ul>
+          {isVideo ? (
+            <>
+              <li>video 元素正在播放，但 output canvas 仍可能是上一帧或空纹理。</li>
+              <li>按钮文字切换为 Play/Pause，不代表 frame loop、lens alpha 与进度条同步。</li>
+              <li>controls 一直可见更容易截图，但它掩盖了出现、超时和消失状态机缺失。</li>
+              <li>通用紫色边框或卡片背景属于文档容器污染，不能算播放器材质。</li>
+            </>
+          ) : (
+            <>
+              <li>两个 canvas 节点存在，不代表 WebGL output 有非空像素。</li>
+              <li>Logo 上有 CSS 点击动画，不代表 painter texture 或 lens slots 已更新。</li>
+              <li>低 DPR 看起来清晰，不代表 Retina resize 后 drawing buffer 与 lens 坐标仍一致。</li>
+              <li>第一次点击成功，不代表五槽资源回收后可以再次触发。</li>
+            </>
+          )}
+        </ul>
+
+        <h3>管线不可退化约束</h3>
+        <ul>
+          {chapter.invariants.map(item => (
+            <li key={item}>{item}</li>
+          ))}
+        </ul>
       </section>
     </main>
   );

@@ -117,7 +117,63 @@ export function ImplementationGuidePage({ studyCase }: { studyCase: StudyCaseId 
       </section>
 
       <section>
-        <h2>{5 + sectionOffset}. 参数与行为校核</h2>
+        <h2>{5 + sectionOffset}. 迭代中暴露过的真实问题</h2>
+        <p>
+          下面不是假设性的“可能出错”，而是实现从近似外观走到可测折射过程中真正暴露过的症状。
+          调试时应从根因层修复，不要继续叠加颜色、阴影或延时来遮住问题。
+        </p>
+        <div className="study-table-wrapper study-lesson-table">
+          <table>
+            <thead>
+              <tr>
+                <th>可见症状</th>
+                <th>真正根因</th>
+                <th>修复动作</th>
+                <th>永久防线</th>
+              </tr>
+            </thead>
+            <tbody>
+              {chapter.iterationLessons.map(lesson => (
+                <tr key={lesson.symptom}>
+                  <td>{lesson.symptom}</td>
+                  <td>{lesson.rootCause}</td>
+                  <td>{lesson.correction}</td>
+                  <td>{lesson.guardrail}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section>
+        <h2>{6 + sectionOffset}. 排错顺序与防回归约束</h2>
+        <div className="study-check-columns">
+          <div>
+            <h3>固定诊断顺序</h3>
+            <ol>
+              {chapter.debugOrder.map(item => (
+                <li key={item}>{item}</li>
+              ))}
+            </ol>
+          </div>
+          <div>
+            <h3>不可退化约束</h3>
+            <ul>
+              {chapter.invariants.map(item => (
+                <li key={item}>{item}</li>
+              ))}
+            </ul>
+          </div>
+        </div>
+        <p className="study-browser-note">
+          调试顺序不能倒置：先证明状态、几何、map 和渲染管线，再调整材质表面。否则很容易把结构错误暂时美化，
+          在 Safari、竖屏、快速交互或下一个组件中再次暴露。
+        </p>
+      </section>
+
+      <section>
+        <h2>{7 + sectionOffset}. 参数与行为校核</h2>
         <p>
           下面的短片段只用于校核关键参数、DOM 结构和状态转移。构建产物名称不参与实现，
           读者只需要关注已经格式化的语义和本页运行代码。
@@ -134,7 +190,7 @@ export function ImplementationGuidePage({ studyCase }: { studyCase: StudyCaseId 
       </section>
 
       <section>
-        <h2>{6 + sectionOffset}. 常见错误与验收</h2>
+        <h2>{8 + sectionOffset}. 常见错误与验收</h2>
         <div className="study-check-columns">
           <div>
             <h3>不要这样写</h3>

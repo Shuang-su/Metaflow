@@ -36,8 +36,23 @@ export function ComponentReadme({ studyCase }: { studyCase: StudyCaseId }) {
         ))}
       </ul>
 
+      <h2>不可退化的实现边界</h2>
+      <ul>
+        {chapter.invariants.map(invariant => (
+          <li key={invariant}>{invariant}</li>
+        ))}
+      </ul>
+
+      <h2>出现差异时先查什么</h2>
+      <ol>
+        {chapter.debugOrder.slice(0, 3).map(item => (
+          <li key={item}>{item}</li>
+        ))}
+      </ol>
+
       <p className="study-next-step">
-        下一页 <strong>构建与代码</strong> 会把这套结构拆成数据流、数学、生命周期、浏览器差异和验收步骤。
+        下一页 <strong>构建与代码</strong> 会把这套结构拆成数据流、数学、生命周期、浏览器差异、
+        已经出现过的真实问题和逐项验收步骤。
       </p>
     </div>
   );

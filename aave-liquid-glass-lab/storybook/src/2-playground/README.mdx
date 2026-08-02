@@ -31,4 +31,53 @@ Playground 把镜片效果从“看起来像玻璃”变成可以检查的数据
 
 Width、Height、BorderRadius、Depth、Curvature 或 Splay 改变了镜片几何，需要重新生成 map。镜片只改变 x/y 位置时，map 保持不变，只更新 filter region 或 shader uniform。
 
+## 参数必须先分类，再接入缓存
+
+| 类型 | 参数示例 | 更新结果 | 是否重建 map |
+| --- | --- | --- | --- |
+| Geometry | Width、Height、BorderRadius | 改变 SDF 边界和镜片外形 | 是 |
+| Material | Depth、Curvature、Splay、edge/glow | 改变曲面梯度或高光编码 | 是 |
+| Render | Scale、RGB offset、brightness | 改变消费 map 的强度 | 否 |
+| Position | x、y、progress | 移动 filter bbox 或 lens uniform | 否 |
+| Surface | target size、DPR、source frame | 改变坐标换算或 source texture | 视路径处理，不应误入 geometry cache |
+
+cache key 只能由真正改变 map 像素的字段组成。把 `x/y` 放进去会让拖动持续编码 PNG；遗漏 Width 或 Splay 则会让预览变了而滤镜仍使用旧 map。
+
+## 一次只验证一个因果关系
+
+建议按下面顺序操作，而不是同时拖动多个参数：
+
+1. 记录默认参数、map signature、重建计数和结果截图。
+2. 改 Width：map preview、signature 和结果必须同时变化。
+3. 改 Scale：结果强度变化，但 map signature 必须保持不变。
+4. 只移动镜片：filter region 或 uniform 变化，map 与 source 资源复用。
+5. 恢复默认值：输出应回到相同 signature，filter、texture 和事件监听器数量不能累积。
+
+## 常见假阳性
+
+- shell 的 border、shadow 或 tint 变化，不代表 source pixels 已经折射。
+- map preview 变化，不代表 `feImage` 或 map texture 已经换成新资源。
+- canvas 非空，不代表交互更新来自 WebGL；可能只是静态 source 或 DOM overlay。
+- 参数控件数值变化，不代表 cache invalidation 分类正确。
+- 单张截图相似，不代表位置变化复用了 map，也不代表快速拖动没有资源泄漏。
+
+## 实验记录最少包含什么
+
+| 记录项 | 用途 |
+| --- | --- |
+| 参数前值 / 后值 | 证明本次只改变一个变量 |
+| map signature / rebuild count | 区分资源重建与消费阶段更新 |
+| target、lens、filter bbox | 定位裁切、偏心和坐标系错误 |
+| DOM 节点 / texture 数量 | 检查重复创建和释放失败 |
+| 交互前后像素 signature | 证明最终输出确实变化 |
+| 浏览器、viewport、DPR、主题 | 让结果可复现而不是依赖当前机器 |
+
+## 曾经需要纠正的实验页错误
+
+- 不再维护一套只服务 Playground 的近似算法；实验与全部组件共享正式 core。
+- 不使用 Storybook Controls 代替实验界面；参数、map 与结果必须同屏。
+- 不把 Scale 误归为 geometry，也不因 x/y 变化重建 map。
+- 不用视觉截图代替 signature、重建计数和运行态节点检查。
+- 不让 map preview 与实际 filter/WebGL texture 分别持有两份不同资源。
+
 进入 **2.1 How It Works · Displacement Map** 的 README 先理解实验结构，再在 **参数实验与代码** 中直接调节。
