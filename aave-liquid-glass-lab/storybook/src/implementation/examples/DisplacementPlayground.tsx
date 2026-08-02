@@ -1,4 +1,5 @@
 import {
+  type CSSProperties,
   useCallback,
   useEffect,
   useMemo,
@@ -26,15 +27,22 @@ function RangeControl({
   step = 1,
   onChange
 }: RangeControlProps) {
+  const progress = Math.min(
+    100,
+    Math.max(0, ((value - min) / Math.max(max - min, Number.EPSILON)) * 100)
+  );
+
   return (
     <label className="readable-range-control">
       <span>{label}</span>
       <input
         type="range"
+        aria-label={label}
         min={min}
         max={max}
         step={step}
         value={value}
+        style={{ '--range-progress': `${progress}%` } as CSSProperties}
         onInput={event => onChange(event.currentTarget.valueAsNumber)}
       />
       <output>{value.toFixed(step < 0.01 ? 3 : step < 1 ? 2 : 0)}</output>
