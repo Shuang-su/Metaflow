@@ -65,6 +65,13 @@ const guideSources = [
     language: 'tsx'
   },
   {
+    id: 'toggle-drag-example',
+    title: 'Segmented Toggle：连续拖动、跨项选择与松手吸附',
+    path: 'src/implementation/examples/ToggleExample.tsx',
+    marker: 'toggle-drag-example',
+    language: 'tsx'
+  },
+  {
     id: 'webgl-shader',
     title: 'WebGL shader：source、map、blur 与 RGB 色散',
     path: 'src/implementation/webgl-shaders.ts',

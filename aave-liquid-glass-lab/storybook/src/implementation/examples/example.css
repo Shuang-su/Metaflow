@@ -288,6 +288,20 @@
   box-shadow: 0 1px 2px rgb(0 0 0 / 4%);
 }
 
+.readable-toggle-group[data-drag-enabled='true'] {
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+}
+
+.readable-toggle-group[data-dragging='true'] {
+  cursor: grabbing;
+}
+
+.readable-toggle-group[data-drag-enabled='true'] .readable-toggle-item {
+  cursor: inherit;
+}
+
 .readable-toggle-item {
   --color-1: #bcbbbb;
   --color-2: #8f8f8f;

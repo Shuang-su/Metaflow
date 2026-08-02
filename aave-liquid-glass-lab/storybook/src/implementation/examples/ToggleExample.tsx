@@ -8,7 +8,8 @@ import {
   useLayoutEffect,
   useRef,
   useState,
-  type CSSProperties
+  type CSSProperties,
+  type PointerEvent as ReactPointerEvent
 } from 'react';
 import { AaveGlass } from '../react/AaveGlass';
 import { useDarkMode } from '../react/useDarkMode';
@@ -222,7 +223,21 @@ const toggleMaterialDark = {
   edgeExponent: 1.5
 };
 
-export function ToggleExample() {
+interface ToggleExampleProps {
+  interaction?: 'click' | 'drag';
+}
+
+interface MeasuredToggleOption {
+  code: string;
+  x: number;
+  y: number;
+  halfWidth: number;
+  halfHeight: number;
+}
+
+export function ToggleExample({
+  interaction = 'click'
+}: ToggleExampleProps = {}) {
   const dark = useDarkMode();
   const toggleMaterial = dark
     ? toggleMaterialDark
@@ -244,6 +259,7 @@ export function ToggleExample() {
     halfHeight: 20
   });
   const [deformation, setDeformation] = useState(0);
+  const [dragActive, setDragActive] = useState(false);
   const groupRef = useRef<HTMLDivElement>(null);
   const itemRefs = useRef(new Map<string, HTMLButtonElement>());
   const lensRef = useRef(lens);
@@ -263,6 +279,13 @@ export function ToggleExample() {
   });
   const deformationValue = useRef(0);
   const deformationVelocity = useRef(0);
+  const draggingRef = useRef(false);
+  const dragSession = useRef({
+    pointerId: -1,
+    startClientX: 0,
+    moved: false
+  });
+  const suppressClick = useRef(false);
   const visibleOptions = compact ? options.slice(0, 2) : options;
   selectedRef.current = selected;
 
@@ -288,6 +311,29 @@ export function ToggleExample() {
     },
     []
   );
+
+  const measureOptions = useCallback(() => {
+    const host = groupRef.current?.closest(
+      '[data-aave-glass-container]'
+    ) as HTMLDivElement | null;
+    if (!host) return null;
+    const hostRect = host.getBoundingClientRect();
+    const measured = (compact ? options.slice(0, 2) : options)
+      .map(({ code }) => {
+        const item = itemRefs.current.get(code);
+        if (!item || item.offsetParent === null) return null;
+        const rect = item.getBoundingClientRect();
+        return {
+          code,
+          x: rect.left + rect.width / 2 - hostRect.left,
+          y: rect.top + rect.height / 2 - hostRect.top,
+          halfWidth: rect.width / 2,
+          halfHeight: rect.height / 2
+        } satisfies MeasuredToggleOption;
+      })
+      .filter((item): item is MeasuredToggleOption => item !== null);
+    return measured.length > 0 ? { hostRect, measured } : null;
+  }, [compact]);
 
   const startDeformation = useCallback(() => {
     if (deformationRunning.current) return;
@@ -322,20 +368,41 @@ export function ToggleExample() {
     deformationFrame.current = requestAnimationFrame(frame);
   }, []);
 
+  const sampleTravelVelocity = useCallback(
+    (x: number, hostWidth: number) => {
+      const now = performance.now();
+      const previous = travelSample.current;
+      const dt = Math.min(
+        Math.max((now - previous.time) / 1000, 0.008),
+        0.033
+      );
+      // Aave samples a normalized 0-1 motion value. Convert our
+      // pixel-based position to the same container-width unit.
+      const velocity =
+        (x - previous.x) /
+        dt /
+        Math.max(1, hostWidth);
+      travelSample.current = { x, time: now };
+      deformationTarget.current = Math.min(
+        0.3,
+        Math.sqrt(Math.abs(velocity)) * 0.134
+      );
+      startDeformation();
+    },
+    [startDeformation]
+  );
+
   const placeLens = useCallback(
     (code: string, instant = false) => {
-      const host = groupRef.current?.closest(
-        '[data-aave-glass-container]'
-      ) as HTMLDivElement | null;
-      const item = itemRefs.current.get(code);
-      if (!host || !item || item.offsetParent === null) return;
-      const hostRect = host.getBoundingClientRect();
-      const itemRect = item.getBoundingClientRect();
+      const measurement = measureOptions();
+      const target = measurement?.measured.find(item => item.code === code);
+      if (!measurement || !target) return;
+      const { hostRect } = measurement;
       const next = {
-        x: itemRect.left + itemRect.width / 2 - hostRect.left,
-        y: itemRect.top + itemRect.height / 2 - hostRect.top,
-        halfWidth: itemRect.width / 2,
-        halfHeight: itemRect.height / 2
+        x: target.x,
+        y: target.y,
+        halfWidth: target.halfWidth,
+        halfHeight: target.halfHeight
       };
 
       travelAnimation.current.forEach(control => control.stop());
@@ -363,26 +430,9 @@ export function ToggleExample() {
             ...transition,
             onUpdate: value => {
               if (key === 'x') {
-                const now = performance.now();
-                const previous = travelSample.current;
-                const dt = Math.min(
-                  Math.max((now - previous.time) / 1000, 0.008),
-                  0.033
-                );
-                // Aave samples a normalized 0-1 motion value. Convert our
-                // pixel-based position to the same container-width unit.
-                const velocity =
-                  (value - previous.x) /
-                  dt /
-                  Math.max(1, hostRect.width);
-                travelSample.current = { x: value, time: now };
-                deformationTarget.current = Math.min(
-                  0.3,
-                  Math.sqrt(Math.abs(velocity)) * 0.134
-                );
+                sampleTravelVelocity(value, hostRect.width);
               }
               updateLens({ [key]: value });
-              if (key === 'x') startDeformation();
             },
             onComplete: () => {
               if (key !== 'x') return;
@@ -393,13 +443,142 @@ export function ToggleExample() {
         );
       });
     },
-    [startDeformation, updateLens]
+    [measureOptions, sampleTravelVelocity, startDeformation, updateLens]
   );
   placeLensRef.current = placeLens;
+
+  // [study:toggle-drag-example:start]
+  const resolveDragPosition = useCallback(
+    (clientX: number) => {
+      const measurement = measureOptions();
+      if (!measurement) return null;
+      const { hostRect, measured } = measurement;
+      const first = measured[0];
+      const last = measured[measured.length - 1];
+      const localX = clientX - hostRect.left;
+      const boundedX = Math.min(last.x, Math.max(first.x, localX));
+      const rubberX =
+        localX < first.x
+          ? first.x + (localX - first.x) * 0.18
+          : localX > last.x
+            ? last.x + (localX - last.x) * 0.18
+            : localX;
+
+      let left = first;
+      let right = last;
+      for (let index = 1; index < measured.length; index += 1) {
+        if (boundedX <= measured[index].x) {
+          left = measured[index - 1];
+          right = measured[index];
+          break;
+        }
+      }
+      const span = Math.max(1, right.x - left.x);
+      const progress = Math.min(
+        1,
+        Math.max(0, (boundedX - left.x) / span)
+      );
+      const mix = (from: number, to: number) =>
+        from + (to - from) * progress;
+      const nearest = measured.reduce((closest, option) =>
+        Math.abs(option.x - boundedX) < Math.abs(closest.x - boundedX)
+          ? option
+          : closest
+      );
+
+      return {
+        nearest,
+        hostWidth: hostRect.width,
+        lens: {
+          x: rubberX,
+          y: mix(left.y, right.y),
+          halfWidth: mix(left.halfWidth, right.halfWidth),
+          halfHeight: mix(left.halfHeight, right.halfHeight)
+        }
+      };
+    },
+    [measureOptions]
+  );
+
+  const beginDrag = useCallback(
+    (event: ReactPointerEvent<HTMLDivElement>) => {
+      if (interaction !== 'drag' || event.button !== 0) return;
+      if (!measureOptions()) return;
+      travelAnimation.current.forEach(control => control.stop());
+      travelAnimation.current = [];
+      draggingRef.current = true;
+      dragSession.current = {
+        pointerId: event.pointerId,
+        startClientX: event.clientX,
+        moved: false
+      };
+      suppressClick.current = false;
+      travelSample.current = {
+        x: lensRef.current.x,
+        time: performance.now()
+      };
+      setDragActive(true);
+      event.currentTarget.setPointerCapture(event.pointerId);
+    },
+    [interaction, measureOptions]
+  );
+
+  const moveDrag = useCallback(
+    (event: ReactPointerEvent<HTMLDivElement>) => {
+      const session = dragSession.current;
+      if (!draggingRef.current || event.pointerId !== session.pointerId) {
+        return;
+      }
+      if (Math.abs(event.clientX - session.startClientX) > 3) {
+        session.moved = true;
+      }
+      if (!session.moved) return;
+      event.preventDefault();
+      const resolved = resolveDragPosition(event.clientX);
+      if (!resolved) return;
+      sampleTravelVelocity(resolved.lens.x, resolved.hostWidth);
+      updateLens(resolved.lens);
+      if (selectedRef.current !== resolved.nearest.code) {
+        selectedRef.current = resolved.nearest.code;
+        setSelected(resolved.nearest.code);
+      }
+    },
+    [resolveDragPosition, sampleTravelVelocity, updateLens]
+  );
+
+  const endDrag = useCallback(
+    (event: ReactPointerEvent<HTMLDivElement>) => {
+      const session = dragSession.current;
+      if (!draggingRef.current || event.pointerId !== session.pointerId) {
+        return;
+      }
+      const resolved = resolveDragPosition(event.clientX);
+      const targetCode = resolved?.nearest.code ?? selectedRef.current;
+      draggingRef.current = false;
+      dragSession.current.pointerId = -1;
+      setDragActive(false);
+      if (event.currentTarget.hasPointerCapture(event.pointerId)) {
+        event.currentTarget.releasePointerCapture(event.pointerId);
+      }
+      selectedRef.current = targetCode;
+      setSelected(targetCode);
+      deformationTarget.current = 0;
+      startDeformation();
+      placeLensRef.current(targetCode, false);
+
+      suppressClick.current = session.moved;
+      window.setTimeout(() => {
+        suppressClick.current = false;
+      }, 0);
+    },
+    [resolveDragPosition, startDeformation]
+  );
+  // [study:toggle-drag-example:end]
 
   useLayoutEffect(() => {
     const group = groupRef.current;
     if (!group) return;
+    if (interaction === 'drag' && draggingRef.current) return;
     const rect = group.getBoundingClientRect();
     setHostSize({
       width: rect.width,
@@ -408,12 +587,13 @@ export function ToggleExample() {
     const instant = firstPlacement.current;
     firstPlacement.current = false;
     requestAnimationFrame(() => placeLens(selected, instant));
-  }, [placeLens, selected, visibleOptions.length]);
+  }, [interaction, placeLens, selected, visibleOptions.length]);
 
   useEffect(() => {
     const group = groupRef.current;
     if (!group) return;
     const observer = new ResizeObserver(() => {
+      if (draggingRef.current) return;
       const rect = group.getBoundingClientRect();
       setHostSize({
         width: rect.width,
@@ -473,7 +653,10 @@ export function ToggleExample() {
           type="button"
           className="readable-toggle-item"
           aria-pressed={selected === code}
-          onClick={() => setSelected(code)}
+          onClick={() => {
+            if (suppressClick.current) return;
+            setSelected(code);
+          }}
         >
           <Icon className="readable-toggle-icon" />
           <span>{name}</span>
@@ -527,8 +710,16 @@ export function ToggleExample() {
           <div
             ref={groupRef}
             className="readable-toggle-group"
+            data-drag-enabled={interaction === 'drag' || undefined}
+            data-dragging={dragActive || undefined}
+            data-testid={interaction === 'drag' ? 'draggable-segmented-toggle' : undefined}
             role="group"
-            aria-label="Aave 视图"
+            aria-label={interaction === 'drag' ? 'Aave 视图（可拖动）' : 'Aave 视图'}
+            onPointerDown={interaction === 'drag' ? beginDrag : undefined}
+            onPointerMove={interaction === 'drag' ? moveDrag : undefined}
+            onPointerUp={interaction === 'drag' ? endDrag : undefined}
+            onPointerCancel={interaction === 'drag' ? endDrag : undefined}
+            onLostPointerCapture={interaction === 'drag' ? endDrag : undefined}
           >
             {renderItems(false)}
           </div>
@@ -536,5 +727,9 @@ export function ToggleExample() {
       </div>
     </div>
   );
+}
+
+export function DraggableToggleExample() {
+  return <ToggleExample interaction="drag" />;
 }
 // [study:toggle-example:end]
