@@ -3,7 +3,7 @@ import { readFile, readdir } from 'node:fs/promises';
 import { join } from 'node:path';
 import test from 'node:test';
 
-import { REPO_ROOT } from '../mcl.mjs';
+import { REPO_ROOT, findLegacyChangeDirectories } from '../mcl.mjs';
 
 async function read(relativePath) {
     return readFile(join(REPO_ROOT, relativePath), 'utf8');
@@ -74,4 +74,10 @@ test('legacy completion templates remain available but are audit-only', async ()
 
     const manifest = await read('docs/changes/1-adopt-mcl-v1/completion/manifest.json');
     assert.match(manifest, /"schemaVersion": "1\.1"/);
+});
+
+test('check-all discovers manifests, not every lightweight Spec and Plan directory', async () => {
+    const directories = await findLegacyChangeDirectories();
+    assert.ok(directories.some((path) => path.endsWith('docs/changes/1-adopt-mcl-v1')));
+    assert.ok(!directories.some((path) => path.endsWith('docs/changes/18-mcl-lightweight')));
 });
