@@ -5,7 +5,7 @@ terminal_state: verifying
 owner: Shuang-su
 closed_at: null
 approved_by: null
-generated_at: 2026-08-09T18:00:40Z
+generated_at: 2026-08-09T18:05:56Z
 ---
 
 # Closure
@@ -31,15 +31,15 @@ Do not close MF-1. The repository candidate is published in draft PR #3 and its 
 
 ## Implementation and External Effects
 
-The Change adds repository governance documents, schemas, templates, deterministic Completion tooling, component routing, CI/security/release/rollback/upstream workflows, Viewer browser fixtures, and Version History 1.1 compatibility. Branch `codex/mcl-v1`, seven published implementation/archive commits through `e47dc4fa`, draft PR #3, labels, merge settings, dependency graph, Dependabot security updates, secret scanning, and push protection were created or enabled and re-read. Issue #1 tracks MF-1, Issue #2 tracks residual dependency work, and Issue #9 governs Dependabot PRs #4-#8 against the reference snapshot. No product release or production system was mutated.
+The Change adds repository governance documents, schemas, templates, deterministic Completion tooling, component routing, CI/security/release/rollback/upstream workflows, Viewer browser fixtures, and Version History 1.1 compatibility. Branch `codex/mcl-v1`, eight published commits through Revision 2 ref `66d2553d`, draft PR #3, labels, merge settings, dependency graph, Dependabot security updates, secret scanning, and push protection were created or enabled and re-read. Issue #1 tracks MF-1, Issue #2 tracks residual dependency work, and Issue #9 governs Dependabot PRs #4-#8 against the reference snapshot. No product release or production system was mutated.
 
 ## Verification and Review
 
-Local Completion, platform, data, link, hygiene, Viewer, Editor, browser, visual, YAML, syntax, build, and audit checks were run and recorded in `evidence.md`. The implementation Agent completed separate Spec Compliance and Code Quality self-review passes; no independent non-author Review is claimed. Hosted runs `31325948588` and `31326306006` passed every component job, dependency review, workflow CodeQL and `required / gate`; the separate GitHub Advanced Security CodeQL check also passed. Human T3 review and post-merge `main` evidence remain required.
+Local Completion, platform, data, link, hygiene, Viewer, Editor, browser, visual, YAML, syntax, build, and audit checks were run and recorded in `evidence.md`. The implementation Agent completed separate Spec Compliance and Code Quality self-review passes; no independent non-author Review is claimed. Hosted runs `31325948588`, `31326306006`, and Revision 2 run `31327941632` passed every component job, dependency review, workflow CodeQL and `required / gate`; the separate GitHub Advanced Security CodeQL check also passed. Human T3 review and post-merge `main` evidence remain required.
 
 ## Release, Rollback and Observation
 
-Release and rollback workflows are implemented but were not invoked. Netlify automatically started Deploy Preview `6a78b7bf7f384100088b3e12` for `e47dc4fa`, but it remained `building`; its checks were pending and no successful smoke evidence exists. No namespaced tag, immutable production deploy, production smoke, GitHub Release, observation window, or rollback rehearsal exists for MF-1. The candidate specification therefore remains non-effective.
+Release and rollback workflows are implemented but were not invoked. Netlify automatically started Deploy Previews `6a78b7bf7f384100088b3e12` and `6a78c06f56d7aa0008c2053f`; both remained `building`, the latest checks were pending, and no successful smoke evidence exists. Commit-message skipping did not suppress the second build, so the PR title was updated with `[skip netlify]` before the archive-only push. No namespaced tag, immutable production deploy, production smoke, GitHub Release, observation window, or rollback rehearsal exists for MF-1. The candidate specification therefore remains non-effective.
 
 ## Remaining Risks and Follow-up Changes
 
@@ -57,8 +57,8 @@ Release and rollback workflows are implemented but were not invoked. Netlify aut
 - Security follow-up: <https://github.com/Shuang-su/Metaflow/issues/2>
 - Reference-snapshot Upstream Sync decision: <https://github.com/Shuang-su/Metaflow/issues/9>
 - Draft PR: <https://github.com/Shuang-su/Metaflow/pull/3>
-- Green hosted runs: <https://github.com/Shuang-su/Metaflow/actions/runs/31325948588>, <https://github.com/Shuang-su/Metaflow/actions/runs/31326306006>
-- Implementation refs: `fb0a881b` through `e47dc4fa`; `e47dc4fa` is the published archive ref before Revision 2.
+- Green hosted runs: <https://github.com/Shuang-su/Metaflow/actions/runs/31325948588>, <https://github.com/Shuang-su/Metaflow/actions/runs/31326306006>, <https://github.com/Shuang-su/Metaflow/actions/runs/31327941632>
+- Implementation refs: `fb0a881b` through `66d2553d`; `66d2553d` is the published Revision 2 ref before this Completion refresh.
 - Tag, Release, deploy, merge, active Ruleset, and MCL 1.0 activation: not created or activated.
 
 ## Redactions

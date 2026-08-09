@@ -1,7 +1,7 @@
 ---
 change_id: MF-1
 status: verifying
-generated_at: 2026-08-09T18:00:40Z
+generated_at: 2026-08-09T18:05:56Z
 ---
 
 # Agent Actions and Replies Summary
@@ -40,6 +40,9 @@ generated_at: 2026-08-09T18:00:40Z
 24. Re-read the two original Metaflow plans, Codex task `019fe6c4-2752-76e1-98a1-0337e7f68f2d`, the shared GPT conversation, SztuCode PR #67, its Spec/Plan commits, and the repository's own policy files after the user corrected the attribution.
 25. Corrected the normative model: the Superpowers instruction is a collaborator's Task-local Plan choice, not a SztuCode-native Skill or repository-wide policy. Added explicit `reference / task-local / repository-policy / enforced-control` levels, tool-neutral Metaflow ASDD wording, and a distinction between author self-review and independent non-author Review.
 26. Re-read Netlify Deploy Preview `6a78b7bf7f384100088b3e12`. It remained `building` with pending PR checks and no successful smoke evidence; no manual Netlify or production write was performed.
+27. Committed and pushed Revision 2 as `66d2553d`, then followed [run 31327941632](https://github.com/Shuang-su/Metaflow/actions/runs/31327941632) to success. All component jobs, 18 Completion tests, dependency review, both CodeQL checks, and `required / gate` passed.
+28. Recorded that commit-message `[skip netlify]` did not stop a second automatic Preview, `6a78c06f56d7aa0008c2053f`, which remained `building`. Added `[skip netlify]` to the PR title for the archive-only push and re-read the updated title; no deploy was cancelled or represented as successful.
+29. Updated and re-read PR #3's body so it reports Revision 2, 18 Completion tests, run `31327941632`, Task-local instruction authority, author self-review, pending Netlify state, and Issue #9. Removed the earlier wording that could imply the candidate Completion Contract was already repository-enforced.
 
 ## Agent Reply Summary
 
@@ -58,9 +61,10 @@ generated_at: 2026-08-09T18:00:40Z
 - GitHub Issue #2: <https://github.com/Shuang-su/Metaflow/issues/2>.
 - GitHub Issue #9: <https://github.com/Shuang-su/Metaflow/issues/9>.
 - Draft PR #3: <https://github.com/Shuang-su/Metaflow/pull/3>.
-- Published implementation commits: `fb0a881b`, `afd5628a`, `600f1420`, `51ec19e9`, `a46f294e`, `39283ce4`, and `e47dc4fa`.
+- Published implementation commits: `fb0a881b` through `66d2553d` (eight commits before this archive refresh).
 - Dependabot automatically opened PRs #4-#8 for the reference snapshot after the security-update setting was enabled; none was merged or approved.
-- Netlify automatically started Deploy Preview `6a78b7bf7f384100088b3e12` for `e47dc4fa`; it remained `building` and unverified.
+- Netlify automatically started Deploy Previews `6a78b7bf7f384100088b3e12` for `e47dc4fa` and `6a78c06f56d7aa0008c2053f` for `66d2553d`; both remained `building` and unverified.
+- PR #3 title was updated and re-read as `Implement MCL v1 governance candidate [skip netlify]` before the archive-only push.
 - GitHub labels: six `component/*`, seven `type/*`, and four `risk/*` labels created and verified.
 - Repository merge settings: squash enabled; merge commits and rebase merges disabled; merged branches auto-delete; state re-read after mutation.
 - Repository security: dependency graph/vulnerability alerts, Dependabot security updates, secret scanning, and push protection enabled and re-read.
@@ -78,5 +82,5 @@ generated_at: 2026-08-09T18:00:40Z
 - Five Action commit pins resolved through the GitHub API; Netlify Build Hook/deploy/restore fields and endpoints were checked against official documentation.
 - A Ruby 2.6 keyword incompatibility and an over-broad all-`.json` parse were rejected and rerun with compatible, correctly scoped checks; neither represented a changed-file syntax defect.
 - Direct `concurrently` and `postcss` advisories were removed. Residual audit: Viewer full tree 5 transitive (1 moderate, 4 high), Viewer production view 1 moderate, Editor full tree 5 high, Editor production view 0; Issue #2 owns follow-up.
-- Hosted runs `31325948588` and `31326306006` passed Viewer, Editor, Design, Data, Reference, governance, dependency review, workflow CodeQL and `required / gate`; the separate GitHub Advanced Security CodeQL check also passed after two prior high-severity log-disclosure findings were fixed.
+- Hosted runs `31325948588`, `31326306006`, and `31327941632` passed Viewer, Editor, Design, Data, Reference, governance, dependency review, workflow CodeQL and `required / gate`; the separate GitHub Advanced Security CodeQL check also passed after two prior high-severity log-disclosure findings were fixed.
 - Netlify Preview remained `building`; Ruleset enforcement on `main`, Project fields, production release/rollback, scheduled extended browsers, and Phase 9 pilots remain unverified or unexecuted.
