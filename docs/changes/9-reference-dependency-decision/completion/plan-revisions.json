@@ -1,0 +1,12 @@
+{
+  "schemaVersion": "1.0",
+  "revisions": [
+    {
+      "revision": 1,
+      "sha256": "e9d4cc1981d2f2566d77dc2440db9620165876bae3f8327b23227885d33c7db6",
+      "taskIds": ["MF-9-T01"],
+      "amendmentReason": "Initial approved decision and closure plan for Dependabot PRs targeting an immutable reference snapshot.",
+      "approvalSource": "User-approved Editor source migration, upstream restoration, and dependency PR disposition plan"
+    }
+  ]
+}
