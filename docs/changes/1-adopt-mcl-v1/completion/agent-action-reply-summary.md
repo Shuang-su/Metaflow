@@ -1,7 +1,7 @@
 ---
 change_id: MF-1
 status: verifying
-generated_at: 2026-08-09T16:20:00Z
+generated_at: 2026-08-09T17:23:09Z
 ---
 
 # Agent Actions and Replies Summary
@@ -28,13 +28,20 @@ generated_at: 2026-08-09T16:20:00Z
 12. Created and re-read the repository's MCL labels; configured squash-only merge and automatic branch deletion; re-read GitHub to verify both effects.
 13. Attempted read-only GitHub Project discovery. The active GitHub token lacks `read:project`, so Project creation and field configuration were not attempted.
 14. Performed separate Spec Compliance and Code Quality passes. Negative tests exposed and fixed non-canonical checksum handling, premature Dossier section parsing, missing risk-tier/embedded-content checks, sparse Markdown reads, fixture-contaminated artifacts, and incomplete Netlify published-deploy verification.
+15. Committed and pushed the candidate, opened draft PR #3, and followed each hosted check to a terminal result instead of treating local success as hosted evidence.
+16. Corrected the first hosted failures by making tracked Markdown links sparse-aware, adding only the required Viewer support files, upgrading and API-verifying current Action pins, enabling the dependency graph, and re-reading that external configuration.
+17. Reproduced the Git LFS pointer path with `GIT_LFS_SKIP_SMUDGE=1`; pinned the Dayun manifest OID and size for small PR checks while retaining full 293-tile validation when LFS data is present.
+18. Split Playwright baselines by operating system. Added failure-artifact upload, downloaded the real GitHub Ubuntu screenshots, visually inspected desktop/mobile output, and committed Linux baselines without increasing the pixel-difference tolerance.
+19. Investigated two high-severity GitHub Advanced Security annotations, removed secret-derived finding details from CLI/JSON logs, added a non-disclosure regression test, and reran repository secret scanning.
+20. Re-ran hosted CI through [run 31325948588](https://github.com/Shuang-su/Metaflow/actions/runs/31325948588). Every component job, both CodeQL checks, dependency review, and `required / gate` passed. Enabled and re-read Dependabot security updates, secret scanning, and push protection.
+21. Replaced the stale draft PR description with the actual hosted results, reviewed platform baseline links, applied security state, and remaining activation conditions; re-read PR #3 to confirm the update while preserving draft/partial status.
 
 ## Agent Reply Summary
 
 - Reported that MF-1 is implemented locally as a reviewable candidate, not yet an effective or closed MCL release.
 - Preserved the user's complete corrections and implementation request in original order, and kept descriptive research/case narrative out of the normative specification.
-- Reported actual build, browser, audit, GitHub, and configuration results, including failed attempts and corrected test fixtures.
-- Committed to an honest `partial` result until the branch is reviewed, `required / gate` succeeds on `main`, the Ruleset is applied and re-read, GitHub Project authorization is available, and Phase 9 pilots are completed.
+- Reported actual build, browser, audit, GitHub, hosted-CI, CodeQL, and configuration results, including failed attempts, security findings, and corrected fixtures.
+- Reported that PR-head `required / gate` and both CodeQL checks are green while retaining an honest `partial` result until human T3 review, merge, a successful `main` run, Ruleset activation, GitHub Project authorization or exception, and Phase 9 pilots are completed.
 - Did not claim production, release, rollback, Design onboarding, Upstream Sync adoption, or multi-case pilot evidence that did not occur.
 
 ## Files and External Effects
@@ -43,20 +50,24 @@ generated_at: 2026-08-09T16:20:00Z
 - Isolated implementation branch/worktree: `codex/mcl-v1` at `/Volumes/Prism/Metaflow-mcl-v1`.
 - GitHub Issue #1: <https://github.com/Shuang-su/Metaflow/issues/1>.
 - GitHub Issue #2: <https://github.com/Shuang-su/Metaflow/issues/2>.
+- Draft PR #3: <https://github.com/Shuang-su/Metaflow/pull/3>.
+- Published implementation commits: `fb0a881b`, `afd5628a`, `600f1420`, `51ec19e9`, `a46f294e`, and `39283ce4`.
 - GitHub labels: six `component/*`, seven `type/*`, and four `risk/*` labels created and verified.
 - Repository merge settings: squash enabled; merge commits and rebase merges disabled; merged branches auto-delete; state re-read after mutation.
-- No PR, merge, tag, GitHub Release, Netlify deploy, rollback, Supabase remote write, GitHub Project, or active Ruleset existed at the time of this snapshot.
+- Repository security: dependency graph/vulnerability alerts, Dependabot security updates, secret scanning, and push protection enabled and re-read.
+- No merge, tag, GitHub Release, Netlify deploy, rollback, Supabase remote write, GitHub Project, or active Ruleset existed at the time of this snapshot.
 
 ## Validation, Failures, and Omissions
 
 - Completion JavaScript tests: 14 passed.
-- Python platform/data tests: 4 passed.
+- Python platform/data tests: 5 passed.
 - Viewer baseline: 52 tests passed; typecheck and build passed.
 - Editor baseline: lint and build passed; upstream peer warnings remain non-fatal.
-- Viewer E2E: dev/watch 4 passed; production build 4 passed; desktop/mobile baselines visually inspected.
+- Viewer E2E: Darwin dev/watch 4 passed and production build 4 passed; hosted Linux dev/watch 4 passed and production build 4 passed; all four platform-specific desktop/mobile baselines visually inspected.
 - In-app browser: ready state and Settings interaction verified at `1440×900` and `390×844`.
-- Platform, data, 39 Markdown files, 10,812 repository paths, targeted changed JSON, secret scan, YAML parsing, JavaScript syntax, and `git diff --check` passed in local runs.
+- Platform, data, 39 Markdown files, 10,814 repository paths, targeted changed JSON, secret scan, YAML parsing, JavaScript syntax, and `git diff --check` passed in local runs.
 - Five Action commit pins resolved through the GitHub API; Netlify Build Hook/deploy/restore fields and endpoints were checked against official documentation.
 - A Ruby 2.6 keyword incompatibility and an over-broad all-`.json` parse were rejected and rerun with compatible, correctly scoped checks; neither represented a changed-file syntax defect.
 - Direct `concurrently` and `postcss` advisories were removed. Residual audit: Viewer full tree 5 transitive (1 moderate, 4 high), Viewer production view 1 moderate, Editor full tree 5 high, Editor production view 0; Issue #2 owns follow-up.
-- GitHub-hosted CI, CodeQL, dependency review, Netlify Preview, Ruleset enforcement, Project fields, production release/rollback, scheduled extended browsers, and Phase 9 pilots remain unverified or unexecuted.
+- Hosted run `31325948588` passed Viewer, Editor, Design, Data, Reference, governance, dependency review, workflow CodeQL and `required / gate`; GitHub Advanced Security CodeQL also passed after two prior high-severity log-disclosure findings were fixed.
+- Netlify Preview, Ruleset enforcement on `main`, Project fields, production release/rollback, scheduled extended browsers, and Phase 9 pilots remain unverified or unexecuted.
