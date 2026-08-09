@@ -4,7 +4,7 @@ task_id: MF-1-T01
 source: codex
 source_thread_id: 019fe70e-e5e7-7b81-ae68-39eb0a087128
 captured: 2026-08-09
-message_count: 3
+message_count: 4
 redactions: 0
 ---
 
@@ -1194,4 +1194,8 @@ MCL 1.0：
 - 用户问题原则上逐字保存；安全 redaction 是唯一允许的内容省略，并且必须可审计。
 - 外部项目、调研过程和历史回复只可保存在独立 Research/Evidence 材料中，不得进入 MCL 规范正文。
 - Research、Design 实验和产品实施保持独立，除非通过正式 Promotion Proposal。
+<!-- /user-message -->
+
+<!-- user-message:4 -->
+Superpowers subagent-driven-development不是 SztuCode 原生内置的 Superpowers skill，而是协作者在一次 PR 中加入的特定 Plan 指令；重新审视深度链接中的原本两个计划，和链接的网页版GPT对话，再看看现在的规范要怎么改进
 <!-- /user-message -->

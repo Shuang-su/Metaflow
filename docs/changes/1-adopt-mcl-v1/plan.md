@@ -10,7 +10,7 @@ owner: Shuang-su
 created: 2026-08-09
 updated: 2026-08-10
 issue: https://github.com/Shuang-su/Metaflow/issues/1
-plan_revision: 1
+plan_revision: 2
 completion_state: pending
 supersedes: null
 terminal_reason: null
@@ -30,7 +30,7 @@ terminal_reason: null
 
 ### 1.2 方法与边界
 
-项目级正式方法为 `Metaflow Change Lifecycle（MCL）`。开发阶段使用 `Metaflow Agentic Spec-Driven Development（Metaflow ASDD）`。
+项目级正式方法为 `Metaflow Change Lifecycle（MCL）`。`Metaflow Agentic Spec-Driven Development（Metaflow ASDD）` 是 MCL 实施阶段的内部简称，只表示以 Spec、决策完备 Plan、受控执行和可验证 Evidence 为核心的工作方式；它不是外部项目、Skill、Plugin、产品、行业标准或依赖项的别名。MCL 与具体 Agent 工具、供应商、Skill、Plugin、单 Agent、多 Agent、串行或并行拓扑解耦。
 
 ```text
 MCL
@@ -60,6 +60,28 @@ MCL
 10. Change 进入终态前必须执行 Change Closure Submission。
 11. 没有完整用户问题、Agent 行动与回复摘要、完整有效计划全文的任务不得声明完成。
 12. 规范正文只包含规则、接口、状态、Gate、例外、实施和验收；调研过程、案例介绍、方案合并说明和历史回复不得进入正文。
+13. 外部案例、共享对话、目录名称、单次 Plan 指令、已接受的单个 PR 或可选工具配置，只能作为 Evidence 或 Task 局部约束；不得据此宣称仓库已采用某个方法、Skill、Plugin 或工作流。
+14. 仓库级要求必须进入本仓库的权威规范或其他明确列出的规范性来源，并经过相应 Gate 批准；“已强制执行”还必须具有已应用并重新核验的自动化或权限证据。
+15. 工具特定指令只在其授权 Task 和有效 Plan 内生效。把它提升为跨 Change 政策必须新建或修订 Proposal、Spec 和相应控制，不得从一次执行中隐式继承。
+16. Review 关注点分离不等于审查者独立；只有非实现作者的不同人类或 Agent 实体完成审查时，才可以声明独立 Review。
+
+#### 1.2.1 采用范围与声明等级
+
+所有方法、工具和控制的采用声明必须按下表分类。该分类用于限制声明范围，不替代 system、developer、当前用户和仓库规则之间的指令优先级。
+
+| 等级 | 形成方式 | 允许声明 | 禁止声明 |
+| --- | --- | --- | --- |
+| `reference` | 外部资料、案例、研究、共享对话或历史记录 | “被参考”“提供了证据” | “项目已采用”“项目原生内置” |
+| `task-local` | 当前 Task 的用户要求、获准 Plan 或工具指令 | “本 Task 必须/可以使用” | 推广为其他 Task、Change 或仓库政策 |
+| `repository-policy` | 已批准并合入的 MCL、`AGENTS.md`、`CONTRIBUTING.md`、Proposal、Spec 或其他明确规范性来源 | 在其适用范围内声明仓库要求 | 在合入或生效前声明已经实施或强制 |
+| `enforced-control` | 已应用并重新核验的 CI、Ruleset、Schema、分支保护、权限或部署控制 | 按证据声明当前自动阻断能力 | 仅凭文档、模板、Workflow 源码或计划声明已强制 |
+
+要求：
+
+- Proposal、Spec、Plan、Task Record、Evidence 和最终回复必须使用与实际等级相符的措辞。
+- `accepted`、`merged`、`configured`、`enabled`、`verified` 和 `enforced` 必须分别记录，不得互相替代。
+- 外部方法或可选工具即使产生了可取做法，也应当把做法转换成本仓库可验证的行为契约，不得让外部名称成为隐式依赖。
+- Agent Completion Record 必须记录执行方法、工具特定指令的来源与适用范围，以及 Review 是否由实现作者本人完成。
 
 ### 1.3 产物职责
 
@@ -275,7 +297,31 @@ Shell、浏览器、CI、构建器等普通工具调用属于父 Agent 的行动
 11. 失败、重试、跳过和未验证内容；
 12. Plan 偏差及批准记录；
 13. 最终状态和接续条件；
-14. 最终回复或交付文件的路径和校验值。
+14. 最终回复或交付文件的路径和校验值；
+15. 执行拓扑、指令权限来源、实现者标识、Review 身份关系和强制控制证据。
+
+#### 执行方法与权限
+
+Task Record front matter 必须包含：
+
+```yaml
+execution_topology: single-agent
+instruction_authority: task-local
+authority_source: current Task Plan
+implementer_id: codex/<source-task-id>
+review_relationship: author-self-review
+reviewer_id: codex/<source-task-id>
+control_evidence: null
+```
+
+规则：
+
+- `execution_topology` 合法值为 `single-agent / multiple-independent-tasks / subagent / external-tool`。
+- `instruction_authority` 使用 1.2.1 的四个等级。
+- `repository-policy` 的 `authority_source` 必须是仓库内实际存在的规范性文件路径；合入和生效状态仍必须由 Git 与 Change Evidence 证明。
+- `author-self-review` 的 `reviewer_id` 必须等于 `implementer_id`；`distinct-non-author` 必须提供不同标识；`not-performed` 必须使用 `reviewer_id: null`。
+- `enforced-control` 必须提供 `control_evidence`；Evidence 必须能证明控制已应用并重新读取，只有配置草稿或 Workflow 源码时不得使用该等级。
+- Markdown 章节必须解释多个工具或多种权限并存时的实际边界；front matter 记录影响当前 Task 的最高权限等级。
 
 #### 完整用户问题
 
@@ -545,6 +591,15 @@ T2/T3 只能由人类负责人决定 `Accept / Park / Reject`。AI 可以起草�
 
 完成 Gate 3 前禁止发生实现性修改。
 
+Gate 3 还必须为每个 Task 记录：
+
+- 执行拓扑：单 Agent、多个独立 Task、子 Agent 或外部工具；
+- 工具特定指令及其来源；
+- 采用声明等级和适用范围；
+- 计划中的 Review 关注点，以及是否安排非作者审查者。
+
+未指定外部 Skill、Plugin 或子 Agent 时，不得从参考案例或历史 Task 自动推断必须使用。
+
 ### Gate 4：实现
 
 必须遵守：
@@ -566,11 +621,12 @@ T2/T3 只能由人类负责人决定 `Accept / Park / Reject`。AI 可以起草�
 2. 固化实际执行的完整 Plan；
 3. 汇总全部重要行动、失败、验证和副作用；
 4. 汇总对用户的回复和决定；
-5. 写入 Task Record；
-6. 更新 `manifest.json`；
-7. 运行 Completion 校验和秘密扫描；
-8. 按最终回复契约交付；
-9. 根据真实结果设置 `complete / partial / blocked / failed / cancelled`。
+5. 记录执行方法、工具指令来源、采用范围和 Review 身份关系；
+6. 写入 Task Record；
+7. 更新 `manifest.json`；
+8. 运行 Completion 校验和秘密扫描；
+9. 按最终回复契约交付；
+10. 根据真实结果设置 `complete / partial / blocked / failed / cancelled`。
 
 缺失 Gate 5 时：
 
@@ -586,7 +642,9 @@ T2/T3 只能由人类负责人决定 `Accept / Park / Reject`。AI 可以起草�
 1. Spec Compliance Review：范围、行为、遗漏、超出项；
 2. Code Quality Review：正确性、维护性、性能、安全和测试质量。
 
-分离关注点不等于必须启动多个子 Agent。默认可以由主 Agent 执行独立 Review pass；只有当前规则明确允许且任务真正独立时才使用多 Agent。
+分离关注点不等于必须启动多个子 Agent。默认可以由实现 Agent 分别执行两个 Review pass，但这属于作者自审，禁止称为“独立 Review”。只有不同于实现作者的人类或 Agent 实体完成相应审查时，才可以记录为独立 Review；是否需要该独立性由风险等级、Spec 和仓库保护规则决定。
+
+Review 采用的 Skill、Plugin、提示模板或 Agent 拓扑必须按 1.2.1 记录。单次 Plan 对某个 Review 工具的要求不得被外推为仓库原生能力或长期政策。
 
 自动检查失败不得由 Review 文字豁免。
 
@@ -692,6 +750,8 @@ GitHub Project 字段固定为：
 - Agent 必须准确报告未验证、失败和部分完成。
 - 不强制安装或调用特定外部 Agent 工作流。
 - 不默认并行 Agent；共享文件、共享构建目录或共享发布状态的任务必须串行。
+- 可选 Skill、Plugin、子 Agent 或外部执行框架默认属于 `task-local`；除非按 MCL 正式提升为 `repository-policy`，否则不得成为后续 Task 的隐式前置条件。
+- 仓库中出现工具名称、工具生成目录或包含工具指令的单个 PR，不构成原生集成或仓库级采用证据。
 
 ### 4.3 CI 总体结构
 
@@ -1012,7 +1072,7 @@ MCL 自身实施 Change 必须作为第一个 Bootstrap Completion 案例，使�
 1. 一个 T0/T1 快路径案例，验证轻量 Plan 和 Completion 不造成不必要阻塞；
 2. 一个 Design onboarding 或 Experiment Promotion 案例；
 3. 一个真实 Upstream Sync 案例；
-4. 一个包含至少两个 Agent Task 的 T2 案例；
+4. 一个包含至少两个独立提示和终止回复的 Agent Task 的 T2 案例，用于验证 Task 边界、记录和接续；该案例不要求子 Agent 框架、并行执行或特定外部 Skill；
 5. 一次最终回复附件或长文交付测试；
 6. 一次 `partial/blocked → 接续任务 → closed` 测试；
 7. 一次回滚或回滚演练；
@@ -1032,6 +1092,7 @@ MCL 自身实施 Change 必须作为第一个 Bootstrap Completion 案例，使�
 - Plan hash 或 revision 不一致时失败；
 - 未记录 Plan amendment 时失败；
 - 缺少行动摘要或回复摘要时失败；
+- 缺少执行方法、工具指令来源、采用范围或 Review 身份关系时失败；
 - Task ID 重复、缺口或 Change ID 不一致时失败；
 - `partial/blocked/failed` 无处置时阻止关闭；
 - Dossier 手工改动或生成不幂等时失败；
@@ -1051,6 +1112,10 @@ MCL 自身实施 Change 必须作为第一个 Bootstrap Completion 案例，使�
 - T3 缺少 Proposal/RFC 时失败；
 - 非长期架构变化不被错误要求 ADR；
 - Plan 引入新产品决定时必须退回 Spec；
+- 单个外部案例、目录、PR 或 Task Plan 不得被校验为仓库级采用证据；
+- `repository-policy` 声明缺少批准并合入的规范性来源时失败；
+- `enforced-control` 声明缺少已应用且重新核验的控制证据时失败；
+- 同一实现 Agent 的 Review pass 被标记为独立 Review 时失败；
 - Release 缺少 Completion trace 时失败；
 - 回滚修改旧 Version History 时失败。
 
@@ -1163,7 +1228,19 @@ MCL 1.0：
 - Viewer、Editor、Design 保持独立版本和发布节奏。
 - 现有历史版本不全面回填 Completion；仅对 MCL 生效后的新 Change 强制。
 - Completion Contract 适用于所有被分派到 Metaflow Change 的独立 Agent/生成式工具任务；与项目无关的普通问答不纳入。
+- MCL 和 Metaflow ASDD 均保持工具、供应商和执行拓扑中立；外部 Skill、Plugin 或框架只有在 Task 明确授权时才适用于该 Task。
 - 系统指令、开发者指令和隐藏推理永不进入档案。
 - 用户问题原则上逐字保存；安全 redaction 是唯一允许的内容省略，并且必须可审计。
 - 外部项目、调研过程和历史回复只可保存在独立 Research/Evidence 材料中，不得进入 MCL 规范正文。
 - Research、Design 实验和产品实施保持独立，除非通过正式 Promotion Proposal。
+
+## 7. Plan 修订记录
+
+### Revision 2 — 2026-08-10
+
+- 触发：用户纠正了参考案例的归因，要求重新审视两个原计划、Codex 深度链接任务和共享 GPT 对话，并据此改进规范。
+- 批准：当前用户直接批准本次修订。
+- 变更：增加 `reference / task-local / repository-policy / enforced-control` 采用范围；把 Metaflow ASDD 明确为内部、工具中立的实施阶段简称；区分 Review 关注点分离、作者自审和独立审查；要求 Task Record 保存执行方法和权限来源。
+- 范围：不增加产品功能、运行时 API、生产写入或阶段性发布授权；不把任何外部 Skill、Plugin、项目或单次 PR 提升为 Metaflow 依赖。
+- 证据：源材料和外部案例的核验结论只进入 Evidence 与 Completion，不进入规范正文。
+- 偏差：没有扩大已批准的实现范围；本修订替代 Revision 1 中可能把外部方法名称理解为项目级采用的表述。

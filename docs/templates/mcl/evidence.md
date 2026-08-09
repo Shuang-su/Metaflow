@@ -35,6 +35,11 @@ terminal_reason: null
 
 ## Spec acceptance mapping
 
+## Adoption and enforcement claims
+
+| Claim | Level | Normative source | Applied-control evidence | Re-read result |
+| --- | --- | --- | --- | --- |
+
 ## Review conclusions
 
 ## Unrun checks and reasons

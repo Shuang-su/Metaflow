@@ -3,7 +3,7 @@
 import { createHash } from 'node:crypto';
 import { execFileSync } from 'node:child_process';
 import { access, mkdir, readFile, readdir, writeFile } from 'node:fs/promises';
-import { constants as fsConstants } from 'node:fs';
+import { constants as fsConstants, existsSync } from 'node:fs';
 import { basename, dirname, isAbsolute, join, relative, resolve, sep } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 
@@ -48,6 +48,9 @@ const CHANGE_ID_PATTERN = /^MF-(?:[1-9][0-9]*|T0-[0-9]{8}-[a-z0-9]+(?:-[a-z0-9]+
 const TASK_ID_PATTERN = /^MF-(?:[1-9][0-9]*|T0-[0-9]{8}-[a-z0-9]+(?:-[a-z0-9]+)*)-T([0-9]{2})$/;
 const SHA256_PATTERN = /^[a-f0-9]{64}$/;
 const REQUIRED_COMPONENTS = new Set(['viewer', 'editor', 'design', 'data', 'platform', 'reference']);
+const EXECUTION_TOPOLOGIES = new Set(['single-agent', 'multiple-independent-tasks', 'subagent', 'external-tool']);
+const ADOPTION_LEVELS = new Set(['reference', 'task-local', 'repository-policy', 'enforced-control']);
+const REVIEW_RELATIONSHIPS = new Set(['author-self-review', 'distinct-non-author', 'not-performed']);
 const SECRET_PATTERNS = [
     ['AWS access key', /\bAKIA[0-9A-Z]{16}\b/g],
     ['GitHub token', /\b(?:gh[pousr]_[A-Za-z0-9]{20,}|github_pat_[A-Za-z0-9_]{20,})\b/g],
@@ -58,6 +61,7 @@ const SECRET_PATTERNS = [
 
 const REQUIRED_TASK_HEADINGS = [
     '## Authorized Scope',
+    '## Execution Method and Authority',
     '## Complete User Request',
     '## Complete Effective Task Plan',
     '## Chronological Action Summary',
@@ -326,6 +330,36 @@ function validateTaskRecord(text, source, expectedChangeId) {
     assertion(Number.isInteger(data.plan_revision) && data.plan_revision >= 1, `${source}: invalid plan_revision`);
     if (data.plan_sha256 !== null) {
         assertion(SHA256_PATTERN.test(data.plan_sha256), `${source}: invalid plan_sha256`);
+    }
+    assertion(EXECUTION_TOPOLOGIES.has(data.execution_topology), `${source}: invalid execution_topology`);
+    assertion(ADOPTION_LEVELS.has(data.instruction_authority), `${source}: invalid instruction_authority`);
+    assertion(typeof data.authority_source === 'string' && data.authority_source.length > 0, `${source}: missing authority_source`);
+    assertion(typeof data.implementer_id === 'string' && data.implementer_id.length > 0, `${source}: missing implementer_id`);
+    assertion(REVIEW_RELATIONSHIPS.has(data.review_relationship), `${source}: invalid review_relationship`);
+    assertion(
+        data.reviewer_id === null || (typeof data.reviewer_id === 'string' && data.reviewer_id.length > 0),
+        `${source}: invalid reviewer_id`
+    );
+    assertion(
+        data.control_evidence === null || (typeof data.control_evidence === 'string' && data.control_evidence.length > 0),
+        `${source}: invalid control_evidence`
+    );
+    if (data.review_relationship === 'author-self-review') {
+        assertion(data.reviewer_id === data.implementer_id, `${source}: author-self-review must identify the implementer as reviewer`);
+    } else if (data.review_relationship === 'distinct-non-author') {
+        assertion(data.reviewer_id !== null && data.reviewer_id !== data.implementer_id, `${source}: distinct-non-author review requires a different reviewer_id`);
+    } else {
+        assertion(data.reviewer_id === null, `${source}: not-performed review must use reviewer_id: null`);
+    }
+    if (data.instruction_authority === 'enforced-control') {
+        assertion(data.control_evidence !== null, `${source}: enforced-control requires control_evidence`);
+    }
+    if (data.instruction_authority === 'repository-policy') {
+        const authorityPath = resolve(REPO_ROOT, data.authority_source);
+        assertion(
+            !isAbsolute(data.authority_source) && !relative(REPO_ROOT, authorityPath).startsWith(`..${sep}`) && existsSync(authorityPath),
+            `${source}: repository-policy requires an existing repository-relative authority_source`
+        );
     }
     assertHeadings(text, REQUIRED_TASK_HEADINGS, source);
     const executionRecord = text.slice(text.indexOf('## Chronological Action Summary'));

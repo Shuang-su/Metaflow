@@ -86,6 +86,13 @@ head_after: abcdef1
 plan_revision: 1
 plan_sha256: ${planHash}
 archive_status: complete
+execution_topology: single-agent
+instruction_authority: task-local
+authority_source: fixture Task Plan
+implementer_id: codex/fixture-thread
+review_relationship: author-self-review
+reviewer_id: codex/fixture-thread
+control_evidence: null
 ---
 
 # Agent Completion Record
@@ -93,6 +100,14 @@ archive_status: complete
 ## Authorized Scope
 
 Generate and validate the fixture.
+
+## Execution Method and Authority
+
+- Execution topology: single agent
+- Tool-specific instructions and source: fixture Task Plan
+- Adoption level: task-local
+- Scope of authority: fixture generation only
+- Review relationship: author self-review
 
 ## Complete User Request
 
@@ -360,6 +375,45 @@ test('empty action or reply summaries are rejected', async () => {
     const task = await readFile(taskPath, 'utf8');
     await writeFile(taskPath, task.replace('## Agent Reply Summary\n\nReported the result.\n', '## Agent Reply Summary\n\n'));
     await assert.rejects(() => generateChange(root), /empty "## Agent Reply Summary"/);
+});
+
+test('execution method and authority are required in every Task Record', async () => {
+    const root = await createFixture();
+    const taskPath = join(root, 'completion/task-records/MF-42-T01.md');
+    const task = await readFile(taskPath, 'utf8');
+    const withoutAuthority = task.replace(
+        /## Execution Method and Authority\n\n[\s\S]*?\n\n(?=## Complete User Request)/,
+        ''
+    );
+    await writeFile(taskPath, withoutAuthority);
+    await assert.rejects(() => generateChange(root), /missing "## Execution Method and Authority"/);
+});
+
+test('an implementation author cannot be labeled as a distinct non-author reviewer', async () => {
+    const root = await createFixture();
+    const taskPath = join(root, 'completion/task-records/MF-42-T01.md');
+    const task = await readFile(taskPath, 'utf8');
+    await writeFile(taskPath, task.replace('review_relationship: author-self-review', 'review_relationship: distinct-non-author'));
+    await assert.rejects(() => generateChange(root), /distinct-non-author review requires a different reviewer_id/);
+});
+
+test('enforced-control claims require control evidence', async () => {
+    const root = await createFixture();
+    const taskPath = join(root, 'completion/task-records/MF-42-T01.md');
+    const task = await readFile(taskPath, 'utf8');
+    await writeFile(taskPath, task.replace('instruction_authority: task-local', 'instruction_authority: enforced-control'));
+    await assert.rejects(() => generateChange(root), /enforced-control requires control_evidence/);
+});
+
+test('repository-policy claims require a repository normative source', async () => {
+    const root = await createFixture();
+    const taskPath = join(root, 'completion/task-records/MF-42-T01.md');
+    const task = await readFile(taskPath, 'utf8');
+    const unsupported = task
+        .replace('instruction_authority: task-local', 'instruction_authority: repository-policy')
+        .replace('authority_source: fixture Task Plan', 'authority_source: docs/missing-policy.md');
+    await writeFile(taskPath, unsupported);
+    await assert.rejects(() => generateChange(root), /repository-policy requires an existing repository-relative authority_source/);
 });
 
 test('unresolved placeholders are rejected from completion sources', async () => {

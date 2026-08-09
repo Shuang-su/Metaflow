@@ -10,7 +10,7 @@ owner: Shuang-su
 created: 2026-08-09
 updated: 2026-08-10
 issue: https://github.com/Shuang-su/Metaflow/issues/1
-plan_revision: 1
+plan_revision: 2
 completion_state: pending
 supersedes: null
 terminal_reason: null
@@ -30,6 +30,9 @@ terminal_reason: null
 8. Path classification comes from `metadata/components.json`.
 9. GitHub CI always emits `required / gate` and does not require production credentials for PRs.
 10. Viewer, Editor, and Design runtime behavior remains unchanged.
+11. Method and tooling claims are classified as `reference`, `task-local`, `repository-policy`, or `enforced-control`; a single external case, directory, PR, Plan directive, optional Skill, or Plugin cannot establish repository-wide adoption.
+12. Every Agent Completion Record captures execution topology, tool-directive source and scope, adoption level, and whether Review was author self-review or performed by a distinct non-author.
+13. The normative contract is tool-, vendor-, Skill-, Plugin-, and agent-topology-neutral unless an accepted Change explicitly narrows it.
 
 ## Completion content
 
@@ -63,6 +66,7 @@ The canonical Dossier contains, in order:
 - A non-complete Task without a documented disposition blocks Change closure.
 - An inaccessible final artifact must be reported as partial.
 - Secret-like content blocks the public archive until redacted.
+- A repository-policy claim without an accepted normative source, an enforced-control claim without applied and re-read evidence, or an independent-review claim naming the implementation author exits non-zero when represented in machine-readable Completion data.
 
 ## Security and privacy
 
@@ -75,5 +79,6 @@ The canonical Dossier contains, in order:
 
 - Unit and fixture tests cover valid and invalid Completion records.
 - The MF-1 Bootstrap Dossier passes the same validator shipped by the Change.
+- The Bootstrap record demonstrates that external references and Task-local tool instructions are not promoted into repository policy.
 - Existing component builds and tests are run and recorded.
 - GitHub workflows parse and complete successfully before a Ruleset requires them.

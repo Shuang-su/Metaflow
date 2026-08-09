@@ -35,6 +35,10 @@
 
 - Tool(s):
 - Scope:
+- Tool/skill/plugin instruction source:
+- Adoption level: reference / task-local / repository-policy / enforced-control
+- Execution topology: single agent / multiple tasks / subagents / external tool
+- Review relationship: author self-review / distinct non-author review / not performed
 - Human verification:
 
 ## Agent Completion

@@ -10,7 +10,7 @@ owner: Shuang-su
 created: 2026-08-09
 updated: 2026-08-10
 issue: https://github.com/Shuang-su/Metaflow/issues/1
-plan_revision: 1
+plan_revision: 2
 completion_state: pending
 supersedes: null
 terminal_reason: null
@@ -31,7 +31,7 @@ This file records only commands and outcomes that actually occurred. It is updat
 
 | Area | Command or method | Actual result |
 | --- | --- | --- |
-| Completion | `node --test scripts/tests/*.test.mjs` | 14 passed, 0 failed, including missing/misordered request messages, link-only Plan, revision drift, empty summaries, placeholders, secrets, non-canonical bytes, stale output, and unresolved Task disposition |
+| Completion | `node --test scripts/tests/*.test.mjs` | 18 passed, 0 failed, including missing/misordered request messages, link-only Plan, revision drift, missing execution authority, false independent-review identity, unsupported repository-policy/enforced-control claims, empty summaries, placeholders, secrets, non-canonical bytes, stale output, and unresolved Task disposition |
 | Platform/data unit tests | `python3 -m unittest discover -s scripts/tests -p 'test_*.py' -v` | 5 passed, 0 failed, including the public-output secret non-disclosure regression |
 | Registry and version | `node scripts/mcl.mjs validate-registry`; `validate-version-history` | Passed |
 | Platform config | `python3 scripts/validate_platform.py` | Netlify, Supabase, secrets, and pinned Workflow checks passed |
@@ -50,6 +50,7 @@ This file records only commands and outcomes that actually occurred. It is updat
 | Netlify API | Official Build Hook, REST API, and OpenAPI references | Verified `trigger_branch`, `trigger_title`, deploy `commit_ref`, immutable `deploy_ssl_url`, site `published_deploy`, and deploy restore endpoint before workflow review |
 | Sparse checkout | Fresh governance clone; fresh Viewer clone; `GIT_LFS_SKIP_SMUDGE=1` pointer clone | Governance checks passed without product trees; Viewer test/typecheck/build and both E2E modes passed from the declared small checkout; the unresolved Dayun LFS pointer passed 52 tests by its pinned OID/size |
 | Hosted CI | [run 31325948588](https://github.com/Shuang-su/Metaflow/actions/runs/31325948588) | Viewer, Editor, Design, Data, Reference, governance, dependency review, workflow CodeQL, GitHub Advanced Security CodeQL, and stable `required / gate` passed |
+| Hosted CI archive refresh | [run 31326306006](https://github.com/Shuang-su/Metaflow/actions/runs/31326306006) | Every MCL workflow job, stable `required / gate`, and the separate GitHub Advanced Security CodeQL check passed at `e47dc4fa` |
 | Source hygiene | `git diff --check`; Node syntax checks | Passed |
 
 Browser fixture:
@@ -58,8 +59,20 @@ Browser fixture:
 - fixed route, settings, language, timezone, DPR, reduced motion, WebGL, ready signal, desktop viewport, and mobile viewport;
 - the same fixture is exercised in development watch and production build modes.
 
+## Adoption and enforcement claim audit
+
+| Claim examined | Classification and result | Direct evidence |
+| --- | --- | --- |
+| SztuCode natively includes or requires the Superpowers `subagent-driven-development` Skill | Rejected. The instruction is `task-local`: collaborator `GuanG-1008` added it inside one Implementation Plan. | [Plan-adding commit `e452a423`](https://github.com/rojim666/SztuCode/commit/e452a42386a0a546b548e4cc6118ea0a1e4ae667), [PR #67](https://github.com/rojim666/SztuCode/pull/67) |
+| A merged PR proves repository-wide method adoption | Rejected. Merge proves acceptance of that PR's content, not adoption beyond its declared scope. The separate Spec was likewise introduced for the same work. | [Spec-adding commit `35374f7a`](https://github.com/rojim666/SztuCode/commit/35374f7a2fe7fd3bdd8f78a9478f74a94127ab10), [PR #67](https://github.com/rojim666/SztuCode/pull/67) |
+| The shared GPT conversation is a normative source | Rejected. It is `reference` material and contained an over-broad adoption inference; reusable ideas were translated into tool-neutral contracts. | [Shared conversation](https://chatgpt.com/share/6a788411-d11c-83e8-afac-0871d9def42d) |
+| Metaflow MCL is already repository policy or fully enforced | Rejected for the current branch state. The specification is an implemented candidate; merge, activation, Ruleset evidence, pilots, and human closure remain outstanding. | [Draft PR #3](https://github.com/Shuang-su/Metaflow/pull/3), [Issue #1](https://github.com/Shuang-su/Metaflow/issues/1) |
+| MF-1 PR-head automation is already an enforced merge control | Rejected. The run proves that checks execute and pass for the recorded commit; without an active `main` Ruleset it does not prove that merge is automatically blocked. | [Run 31326306006](https://github.com/Shuang-su/Metaflow/actions/runs/31326306006) |
+
 Review corrections:
 
+- Re-reading both source plans, the referenced Codex task, the shared GPT conversation, SztuCode PR #67, its two creating commits, and the repository's own Agent/contributor configuration corrected an attribution error: the Superpowers execution instruction was added by collaborator `GuanG-1008` in one PR Plan. It is evidence of that Task's chosen workflow, not a SztuCode-native Skill or repository-wide Superpowers policy.
+- MCL now separates `reference`, `task-local`, `repository-policy`, and `enforced-control` claims. Metaflow ASDD is explicitly an internal, tool-neutral label; Review concern separation is distinct from reviewer independence.
 - Manifest hashing now rejects non-canonical source bytes, so third-party `shasum` output must equal the recorded SHA-256.
 - Completion validation now enforces T2 Spec/T3 Proposal presence, exact embedded request and Plan text, ordered message markers, matching Plan revision, non-empty sections, Task filename/ID consistency, lifecycle consistency, redaction counts, timestamps, and unresolved placeholders.
 - The Dossier section parser was replaced after a negative test exposed premature termination at blank lines; exact embedded documents are fenced so the 13 top-level chapters remain unambiguous.
@@ -76,7 +89,8 @@ Validation retries and rejected checks:
 - Hosted run `31325117956` passed governance, dependency review, CodeQL, Editor, Design, Data, and Reference, then exposed the Dayun LFS pointer in the Viewer test. The small-fixture contract was changed to validate the pointer while retaining full-data checks elsewhere.
 - Hosted run `31325330480` passed Viewer unit/type/build and exposed cross-platform visual drift. Run `31325585391` uploaded Linux actuals as diagnostics; both images were inspected before acceptance. Run `31325739835` passed `required / gate` and exposed two separate GitHub Advanced Security findings for secret-derived logging.
 - Docker CLI was available but its daemon was not running. No Docker result was claimed; the real GitHub Ubuntu artifact was used for Linux baseline review.
-- Hosted run `31325948588` passed every workflow job, `required / gate`, and the independent GitHub Advanced Security CodeQL check after log output was sanitized.
+- Hosted run `31325948588` passed every workflow job, `required / gate`, and the separate GitHub Advanced Security CodeQL check after log output was sanitized.
+- Completion refresh commit `e47dc4fa` passed the same hosted matrix in run `31326306006`; PR #3 remained open, draft, and mergeable.
 
 Dependency audit after compatible direct updates:
 
@@ -95,15 +109,19 @@ Dependency audit after compatible direct updates:
 - Published commits `fb0a881b` through `39283ce4` on `codex/mcl-v1` and created draft PR [#3](https://github.com/Shuang-su/Metaflow/pull/3); the PR was re-read as open, draft, mergeable, and clean.
 - Enabled the repository dependency graph/vulnerability alerts and re-read the endpoint successfully so dependency review could execute.
 - Enabled and re-read Dependabot security updates, secret scanning, and secret-scanning push protection.
+- Enabling Dependabot security updates caused automated PRs [#4](https://github.com/Shuang-su/Metaflow/pull/4) through [#8](https://github.com/Shuang-su/Metaflow/pull/8) against the non-Active `supersplat-viewer-v1.18.2` reference snapshot. They were not merged, dismissed, or treated as Active product updates.
+- Created and re-read [Issue #9](https://github.com/Shuang-su/Metaflow/issues/9) as a T3 Upstream Sync Proposal signal for PRs #4-#8; no `Adopt / Defer / Skip` decision was made.
 - Read-only GitHub Project discovery failed because the active token lacks `read:project`; no Project write was attempted.
 - Ruleset activation is intentionally deferred until `required / gate` has merged and succeeded on `main`.
-- No Netlify, Supabase, production, release, rollback, tag, or deploy write occurred.
+- Netlify automatically created Deploy Preview `6a78b7bf7f384100088b3e12` for PR #3 at commit `e47dc4fa`. The public API still reported `building`, and the Preview URL had no successful smoke evidence; no manual Netlify write or production deploy occurred.
+- No Supabase, production, release, rollback, tag, or manual deploy write occurred.
 
 ## Known limitations
 
 - The implementation branch is not yet merged; MCL remains a candidate and is not effective.
 - GitHub Project fields, production Environment secrets/protection, and the `main` Ruleset are not configured.
-- No GitHub Deployment or Netlify Preview check was present for the PR head; Preview remains unverified.
+- Netlify Deploy Preview `6a78b7bf7f384100088b3e12` remained `building`; its Preview checks were pending and no successful HTTP smoke was available. Preview remains unverified.
+- Dependabot PRs #4-#8 target a reference snapshot and require the T3 Upstream Sync decision tracked by Issue #9; they must not be merged as routine Active-product dependency maintenance.
 - Preview/Beta/Stable, immutable production deployment, smoke, observation, and rollback workflows are implemented but unexercised.
 - Phase 9 fast-path, Design, real Upstream Sync, multi-Agent, continuation, attachment, and rollback pilots remain incomplete.
 - GitHub reported existing dependency alerts on the default branch after security features were enabled; MF-1 does not silently dismiss or rewrite those findings, and Issue #2 tracks the directly observed npm follow-up scope.

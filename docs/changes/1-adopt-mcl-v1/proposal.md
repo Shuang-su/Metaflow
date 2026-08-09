@@ -10,7 +10,7 @@ owner: Shuang-su
 created: 2026-08-09
 updated: 2026-08-10
 issue: https://github.com/Shuang-su/Metaflow/issues/1
-plan_revision: 1
+plan_revision: 2
 completion_state: pending
 supersedes: null
 terminal_reason: null
@@ -20,7 +20,7 @@ terminal_reason: null
 
 ## Decision
 
-Accept MCL v1.0 as the repository lifecycle and Metaflow ASDD as its implementation kernel.
+Accept MCL v1.0 as the repository lifecycle. Use Metaflow ASDD only as the internal, tool-neutral name for MCL's Spec-driven implementation phase; it does not denote adoption of an external Skill, Plugin, project, vendor workflow, or agent topology.
 
 ## Problem
 
@@ -33,6 +33,7 @@ The repository has useful post-release ledgers and version metadata but lacks en
 - Require every independently prompted agent task to archive the complete user request, effective plan, and action/reply summary.
 - Keep Viewer, Editor, Design, Data, Platform, and Reference boundaries explicit.
 - Add enforceable local and CI validation without changing runtime product behavior.
+- Prevent task-local tool instructions or external examples from being misrepresented as repository policy or enforced controls.
 
 ## Non-goals
 

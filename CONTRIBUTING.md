@@ -31,6 +31,7 @@ Use the templates in `docs/templates/mcl/`.
 - T2/T3 changes use an isolated worktree.
 - Keep one main objective per PR.
 - Use the PR template and disclose agent participation.
+- Record whether any skill, plugin, subagent, or external workflow is a Task-local instruction or an accepted repository requirement. Do not infer repository adoption from a single Plan, PR, example, or generated directory.
 - Do not mark a PR ready until the applicable Completion Record and validation are present.
 
 ## Validation
@@ -50,6 +51,6 @@ Run component commands selected by `metadata/components.json`. A passing build d
 
 ## Review and release
 
-Review Spec compliance separately from code quality. Resolve all review conversations and pass `required / gate`.
+Review Spec compliance separately from code quality. Two passes by the implementation author are self-review, not independent review; an independent-review claim requires a distinct non-author reviewer. Resolve all review conversations and pass `required / gate`.
 
 Production release requires a namespaced tag, immutable artifact, smoke verification, Version History and Ledger trace, rollback target, Release Task Record, observation owner, and final Change Completion Dossier.

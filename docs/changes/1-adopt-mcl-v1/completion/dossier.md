@@ -1202,6 +1202,10 @@ MCL 1.0：
 - 外部项目、调研过程和历史回复只可保存在独立 Research/Evidence 材料中，不得进入 MCL 规范正文。
 - Research、Design 实验和产品实施保持独立，除非通过正式 Promotion Proposal。
 <!-- /user-message -->
+
+<!-- user-message:4 -->
+Superpowers subagent-driven-development不是 SztuCode 原生内置的 Superpowers skill，而是协作者在一次 PR 中加入的特定 Plan 指令；重新审视深度链接中的原本两个计划，和链接的网页版GPT对话，再看看现在的规范要怎么改进
+<!-- /user-message -->
 ````
 
 ## 3. Agent Task Inventory
@@ -1244,13 +1248,19 @@ MCL 1.0：
 19. Investigated two high-severity GitHub Advanced Security annotations, removed secret-derived finding details from CLI/JSON logs, added a non-disclosure regression test, and reran repository secret scanning.
 20. Re-ran hosted CI through [run 31325948588](https://github.com/Shuang-su/Metaflow/actions/runs/31325948588). Every component job, both CodeQL checks, dependency review, and `required / gate` passed. Enabled and re-read Dependabot security updates, secret scanning, and push protection.
 21. Replaced the stale draft PR description with the actual hosted results, reviewed platform baseline links, applied security state, and remaining activation conditions; re-read PR #3 to confirm the update while preserving draft/partial status.
+22. Refreshed the Bootstrap archive in commit `e47dc4fa` and followed hosted run [31326306006](https://github.com/Shuang-su/Metaflow/actions/runs/31326306006); every MCL job, stable `required / gate`, and the separate GitHub Advanced Security CodeQL check passed.
+23. Observed that enabling Dependabot security updates created PRs #4-#8 against the non-Active `supersplat-viewer-v1.18.2` reference snapshot. Created and re-read T3 Upstream Sync Issue #9 so those changes cannot be mistaken for routine Active-product dependency updates; no adopt, merge, defer, skip, or close decision was made.
+24. Re-read the two original Metaflow plans, Codex task `019fe6c4-2752-76e1-98a1-0337e7f68f2d`, the shared GPT conversation, SztuCode PR #67, its Spec/Plan commits, and the repository's own policy files after the user corrected the attribution.
+25. Corrected the normative model: the Superpowers instruction is a collaborator's Task-local Plan choice, not a SztuCode-native Skill or repository-wide policy. Added explicit `reference / task-local / repository-policy / enforced-control` levels, tool-neutral Metaflow ASDD wording, and a distinction between author self-review and independent non-author Review.
+26. Re-read Netlify Deploy Preview `6a78b7bf7f384100088b3e12`. It remained `building` with pending PR checks and no successful smoke evidence; no manual Netlify or production write was performed.
 
 ## Agent Reply Summary
 
 - Reported that MF-1 is implemented locally as a reviewable candidate, not yet an effective or closed MCL release.
 - Preserved the user's complete corrections and implementation request in original order, and kept descriptive research/case narrative out of the normative specification.
+- Accepted the user's attribution correction: SztuCode evidence demonstrates one collaborator-authored Plan instruction for PR #67, not a native Superpowers Skill or project-wide adoption. Reported the four-level authority model used to prevent the same category error.
 - Reported actual build, browser, audit, GitHub, hosted-CI, CodeQL, and configuration results, including failed attempts, security findings, and corrected fixtures.
-- Reported that PR-head `required / gate` and both CodeQL checks are green while retaining an honest `partial` result until human T3 review, merge, a successful `main` run, Ruleset activation, GitHub Project authorization or exception, and Phase 9 pilots are completed.
+- Reported that PR-head `required / gate` and both CodeQL checks are green while retaining an honest `partial` result because Netlify Preview is still pending and human T3 review, merge, a successful `main` run, Ruleset activation, GitHub Project authorization or exception, and Phase 9 pilots are incomplete.
 - Did not claim production, release, rollback, Design onboarding, Upstream Sync adoption, or multi-case pilot evidence that did not occur.
 
 ## Files and External Effects
@@ -1259,16 +1269,19 @@ MCL 1.0：
 - Isolated implementation branch/worktree: `codex/mcl-v1` at `/Volumes/Prism/Metaflow-mcl-v1`.
 - GitHub Issue #1: <https://github.com/Shuang-su/Metaflow/issues/1>.
 - GitHub Issue #2: <https://github.com/Shuang-su/Metaflow/issues/2>.
+- GitHub Issue #9: <https://github.com/Shuang-su/Metaflow/issues/9>.
 - Draft PR #3: <https://github.com/Shuang-su/Metaflow/pull/3>.
-- Published implementation commits: `fb0a881b`, `afd5628a`, `600f1420`, `51ec19e9`, `a46f294e`, and `39283ce4`.
+- Published implementation commits: `fb0a881b`, `afd5628a`, `600f1420`, `51ec19e9`, `a46f294e`, `39283ce4`, and `e47dc4fa`.
+- Dependabot automatically opened PRs #4-#8 for the reference snapshot after the security-update setting was enabled; none was merged or approved.
+- Netlify automatically started Deploy Preview `6a78b7bf7f384100088b3e12` for `e47dc4fa`; it remained `building` and unverified.
 - GitHub labels: six `component/*`, seven `type/*`, and four `risk/*` labels created and verified.
 - Repository merge settings: squash enabled; merge commits and rebase merges disabled; merged branches auto-delete; state re-read after mutation.
 - Repository security: dependency graph/vulnerability alerts, Dependabot security updates, secret scanning, and push protection enabled and re-read.
-- No merge, tag, GitHub Release, Netlify deploy, rollback, Supabase remote write, GitHub Project, or active Ruleset existed at the time of this snapshot.
+- No merge, tag, GitHub Release, successful Netlify Preview, production deploy, rollback, Supabase remote write, GitHub Project, or active Ruleset existed at the time of this snapshot.
 
 ## Validation, Failures, and Omissions
 
-- Completion JavaScript tests: 14 passed.
+- Completion JavaScript tests: 18 passed, including missing execution authority, false distinct-review identity, and unsupported repository-policy/enforced-control claim regressions.
 - Python platform/data tests: 5 passed.
 - Viewer baseline: 52 tests passed; typecheck and build passed.
 - Editor baseline: lint and build passed; upstream peer warnings remain non-fatal.
@@ -1278,8 +1291,8 @@ MCL 1.0：
 - Five Action commit pins resolved through the GitHub API; Netlify Build Hook/deploy/restore fields and endpoints were checked against official documentation.
 - A Ruby 2.6 keyword incompatibility and an over-broad all-`.json` parse were rejected and rerun with compatible, correctly scoped checks; neither represented a changed-file syntax defect.
 - Direct `concurrently` and `postcss` advisories were removed. Residual audit: Viewer full tree 5 transitive (1 moderate, 4 high), Viewer production view 1 moderate, Editor full tree 5 high, Editor production view 0; Issue #2 owns follow-up.
-- Hosted run `31325948588` passed Viewer, Editor, Design, Data, Reference, governance, dependency review, workflow CodeQL and `required / gate`; GitHub Advanced Security CodeQL also passed after two prior high-severity log-disclosure findings were fixed.
-- Netlify Preview, Ruleset enforcement on `main`, Project fields, production release/rollback, scheduled extended browsers, and Phase 9 pilots remain unverified or unexecuted.
+- Hosted runs `31325948588` and `31326306006` passed Viewer, Editor, Design, Data, Reference, governance, dependency review, workflow CodeQL and `required / gate`; the separate GitHub Advanced Security CodeQL check also passed after two prior high-severity log-disclosure findings were fixed.
+- Netlify Preview remained `building`; Ruleset enforcement on `main`, Project fields, production release/rollback, scheduled extended browsers, and Phase 9 pilots remain unverified or unexecuted.
 ````
 
 ## 5. Complete Effective Plan
@@ -1297,7 +1310,7 @@ owner: Shuang-su
 created: 2026-08-09
 updated: 2026-08-10
 issue: https://github.com/Shuang-su/Metaflow/issues/1
-plan_revision: 1
+plan_revision: 2
 completion_state: pending
 supersedes: null
 terminal_reason: null
@@ -1317,7 +1330,7 @@ terminal_reason: null
 
 ### 1.2 方法与边界
 
-项目级正式方法为 `Metaflow Change Lifecycle（MCL）`。开发阶段使用 `Metaflow Agentic Spec-Driven Development（Metaflow ASDD）`。
+项目级正式方法为 `Metaflow Change Lifecycle（MCL）`。`Metaflow Agentic Spec-Driven Development（Metaflow ASDD）` 是 MCL 实施阶段的内部简称，只表示以 Spec、决策完备 Plan、受控执行和可验证 Evidence 为核心的工作方式；它不是外部项目、Skill、Plugin、产品、行业标准或依赖项的别名。MCL 与具体 Agent 工具、供应商、Skill、Plugin、单 Agent、多 Agent、串行或并行拓扑解耦。
 
 ```text
 MCL
@@ -1347,6 +1360,28 @@ MCL
 10. Change 进入终态前必须执行 Change Closure Submission。
 11. 没有完整用户问题、Agent 行动与回复摘要、完整有效计划全文的任务不得声明完成。
 12. 规范正文只包含规则、接口、状态、Gate、例外、实施和验收；调研过程、案例介绍、方案合并说明和历史回复不得进入正文。
+13. 外部案例、共享对话、目录名称、单次 Plan 指令、已接受的单个 PR 或可选工具配置，只能作为 Evidence 或 Task 局部约束；不得据此宣称仓库已采用某个方法、Skill、Plugin 或工作流。
+14. 仓库级要求必须进入本仓库的权威规范或其他明确列出的规范性来源，并经过相应 Gate 批准；“已强制执行”还必须具有已应用并重新核验的自动化或权限证据。
+15. 工具特定指令只在其授权 Task 和有效 Plan 内生效。把它提升为跨 Change 政策必须新建或修订 Proposal、Spec 和相应控制，不得从一次执行中隐式继承。
+16. Review 关注点分离不等于审查者独立；只有非实现作者的不同人类或 Agent 实体完成审查时，才可以声明独立 Review。
+
+#### 1.2.1 采用范围与声明等级
+
+所有方法、工具和控制的采用声明必须按下表分类。该分类用于限制声明范围，不替代 system、developer、当前用户和仓库规则之间的指令优先级。
+
+| 等级 | 形成方式 | 允许声明 | 禁止声明 |
+| --- | --- | --- | --- |
+| `reference` | 外部资料、案例、研究、共享对话或历史记录 | “被参考”“提供了证据” | “项目已采用”“项目原生内置” |
+| `task-local` | 当前 Task 的用户要求、获准 Plan 或工具指令 | “本 Task 必须/可以使用” | 推广为其他 Task、Change 或仓库政策 |
+| `repository-policy` | 已批准并合入的 MCL、`AGENTS.md`、`CONTRIBUTING.md`、Proposal、Spec 或其他明确规范性来源 | 在其适用范围内声明仓库要求 | 在合入或生效前声明已经实施或强制 |
+| `enforced-control` | 已应用并重新核验的 CI、Ruleset、Schema、分支保护、权限或部署控制 | 按证据声明当前自动阻断能力 | 仅凭文档、模板、Workflow 源码或计划声明已强制 |
+
+要求：
+
+- Proposal、Spec、Plan、Task Record、Evidence 和最终回复必须使用与实际等级相符的措辞。
+- `accepted`、`merged`、`configured`、`enabled`、`verified` 和 `enforced` 必须分别记录，不得互相替代。
+- 外部方法或可选工具即使产生了可取做法，也应当把做法转换成本仓库可验证的行为契约，不得让外部名称成为隐式依赖。
+- Agent Completion Record 必须记录执行方法、工具特定指令的来源与适用范围，以及 Review 是否由实现作者本人完成。
 
 ### 1.3 产物职责
 
@@ -1562,7 +1597,31 @@ Shell、浏览器、CI、构建器等普通工具调用属于父 Agent 的行动
 11. 失败、重试、跳过和未验证内容；
 12. Plan 偏差及批准记录；
 13. 最终状态和接续条件；
-14. 最终回复或交付文件的路径和校验值。
+14. 最终回复或交付文件的路径和校验值；
+15. 执行拓扑、指令权限来源、实现者标识、Review 身份关系和强制控制证据。
+
+#### 执行方法与权限
+
+Task Record front matter 必须包含：
+
+```yaml
+execution_topology: single-agent
+instruction_authority: task-local
+authority_source: current Task Plan
+implementer_id: codex/<source-task-id>
+review_relationship: author-self-review
+reviewer_id: codex/<source-task-id>
+control_evidence: null
+```
+
+规则：
+
+- `execution_topology` 合法值为 `single-agent / multiple-independent-tasks / subagent / external-tool`。
+- `instruction_authority` 使用 1.2.1 的四个等级。
+- `repository-policy` 的 `authority_source` 必须是仓库内实际存在的规范性文件路径；合入和生效状态仍必须由 Git 与 Change Evidence 证明。
+- `author-self-review` 的 `reviewer_id` 必须等于 `implementer_id`；`distinct-non-author` 必须提供不同标识；`not-performed` 必须使用 `reviewer_id: null`。
+- `enforced-control` 必须提供 `control_evidence`；Evidence 必须能证明控制已应用并重新读取，只有配置草稿或 Workflow 源码时不得使用该等级。
+- Markdown 章节必须解释多个工具或多种权限并存时的实际边界；front matter 记录影响当前 Task 的最高权限等级。
 
 #### 完整用户问题
 
@@ -1832,6 +1891,15 @@ T2/T3 只能由人类负责人决定 `Accept / Park / Reject`。AI 可以起草�
 
 完成 Gate 3 前禁止发生实现性修改。
 
+Gate 3 还必须为每个 Task 记录：
+
+- 执行拓扑：单 Agent、多个独立 Task、子 Agent 或外部工具；
+- 工具特定指令及其来源；
+- 采用声明等级和适用范围；
+- 计划中的 Review 关注点，以及是否安排非作者审查者。
+
+未指定外部 Skill、Plugin 或子 Agent 时，不得从参考案例或历史 Task 自动推断必须使用。
+
 ### Gate 4：实现
 
 必须遵守：
@@ -1853,11 +1921,12 @@ T2/T3 只能由人类负责人决定 `Accept / Park / Reject`。AI 可以起草�
 2. 固化实际执行的完整 Plan；
 3. 汇总全部重要行动、失败、验证和副作用；
 4. 汇总对用户的回复和决定；
-5. 写入 Task Record；
-6. 更新 `manifest.json`；
-7. 运行 Completion 校验和秘密扫描；
-8. 按最终回复契约交付；
-9. 根据真实结果设置 `complete / partial / blocked / failed / cancelled`。
+5. 记录执行方法、工具指令来源、采用范围和 Review 身份关系；
+6. 写入 Task Record；
+7. 更新 `manifest.json`；
+8. 运行 Completion 校验和秘密扫描；
+9. 按最终回复契约交付；
+10. 根据真实结果设置 `complete / partial / blocked / failed / cancelled`。
 
 缺失 Gate 5 时：
 
@@ -1873,7 +1942,9 @@ T2/T3 只能由人类负责人决定 `Accept / Park / Reject`。AI 可以起草�
 1. Spec Compliance Review：范围、行为、遗漏、超出项；
 2. Code Quality Review：正确性、维护性、性能、安全和测试质量。
 
-分离关注点不等于必须启动多个子 Agent。默认可以由主 Agent 执行独立 Review pass；只有当前规则明确允许且任务真正独立时才使用多 Agent。
+分离关注点不等于必须启动多个子 Agent。默认可以由实现 Agent 分别执行两个 Review pass，但这属于作者自审，禁止称为“独立 Review”。只有不同于实现作者的人类或 Agent 实体完成相应审查时，才可以记录为独立 Review；是否需要该独立性由风险等级、Spec 和仓库保护规则决定。
+
+Review 采用的 Skill、Plugin、提示模板或 Agent 拓扑必须按 1.2.1 记录。单次 Plan 对某个 Review 工具的要求不得被外推为仓库原生能力或长期政策。
 
 自动检查失败不得由 Review 文字豁免。
 
@@ -1979,6 +2050,8 @@ GitHub Project 字段固定为：
 - Agent 必须准确报告未验证、失败和部分完成。
 - 不强制安装或调用特定外部 Agent 工作流。
 - 不默认并行 Agent；共享文件、共享构建目录或共享发布状态的任务必须串行。
+- 可选 Skill、Plugin、子 Agent 或外部执行框架默认属于 `task-local`；除非按 MCL 正式提升为 `repository-policy`，否则不得成为后续 Task 的隐式前置条件。
+- 仓库中出现工具名称、工具生成目录或包含工具指令的单个 PR，不构成原生集成或仓库级采用证据。
 
 ### 4.3 CI 总体结构
 
@@ -2299,7 +2372,7 @@ MCL 自身实施 Change 必须作为第一个 Bootstrap Completion 案例，使�
 1. 一个 T0/T1 快路径案例，验证轻量 Plan 和 Completion 不造成不必要阻塞；
 2. 一个 Design onboarding 或 Experiment Promotion 案例；
 3. 一个真实 Upstream Sync 案例；
-4. 一个包含至少两个 Agent Task 的 T2 案例；
+4. 一个包含至少两个独立提示和终止回复的 Agent Task 的 T2 案例，用于验证 Task 边界、记录和接续；该案例不要求子 Agent 框架、并行执行或特定外部 Skill；
 5. 一次最终回复附件或长文交付测试；
 6. 一次 `partial/blocked → 接续任务 → closed` 测试；
 7. 一次回滚或回滚演练；
@@ -2319,6 +2392,7 @@ MCL 自身实施 Change 必须作为第一个 Bootstrap Completion 案例，使�
 - Plan hash 或 revision 不一致时失败；
 - 未记录 Plan amendment 时失败；
 - 缺少行动摘要或回复摘要时失败；
+- 缺少执行方法、工具指令来源、采用范围或 Review 身份关系时失败；
 - Task ID 重复、缺口或 Change ID 不一致时失败；
 - `partial/blocked/failed` 无处置时阻止关闭；
 - Dossier 手工改动或生成不幂等时失败；
@@ -2338,6 +2412,10 @@ MCL 自身实施 Change 必须作为第一个 Bootstrap Completion 案例，使�
 - T3 缺少 Proposal/RFC 时失败；
 - 非长期架构变化不被错误要求 ADR；
 - Plan 引入新产品决定时必须退回 Spec；
+- 单个外部案例、目录、PR 或 Task Plan 不得被校验为仓库级采用证据；
+- `repository-policy` 声明缺少批准并合入的规范性来源时失败；
+- `enforced-control` 声明缺少已应用且重新核验的控制证据时失败；
+- 同一实现 Agent 的 Review pass 被标记为独立 Review 时失败；
 - Release 缺少 Completion trace 时失败；
 - 回滚修改旧 Version History 时失败。
 
@@ -2450,23 +2528,36 @@ MCL 1.0：
 - Viewer、Editor、Design 保持独立版本和发布节奏。
 - 现有历史版本不全面回填 Completion；仅对 MCL 生效后的新 Change 强制。
 - Completion Contract 适用于所有被分派到 Metaflow Change 的独立 Agent/生成式工具任务；与项目无关的普通问答不纳入。
+- MCL 和 Metaflow ASDD 均保持工具、供应商和执行拓扑中立；外部 Skill、Plugin 或框架只有在 Task 明确授权时才适用于该 Task。
 - 系统指令、开发者指令和隐藏推理永不进入档案。
 - 用户问题原则上逐字保存；安全 redaction 是唯一允许的内容省略，并且必须可审计。
 - 外部项目、调研过程和历史回复只可保存在独立 Research/Evidence 材料中，不得进入 MCL 规范正文。
 - Research、Design 实验和产品实施保持独立，除非通过正式 Promotion Proposal。
+
+## 7. Plan 修订记录
+
+### Revision 2 — 2026-08-10
+
+- 触发：用户纠正了参考案例的归因，要求重新审视两个原计划、Codex 深度链接任务和共享 GPT 对话，并据此改进规范。
+- 批准：当前用户直接批准本次修订。
+- 变更：增加 `reference / task-local / repository-policy / enforced-control` 采用范围；把 Metaflow ASDD 明确为内部、工具中立的实施阶段简称；区分 Review 关注点分离、作者自审和独立审查；要求 Task Record 保存执行方法和权限来源。
+- 范围：不增加产品功能、运行时 API、生产写入或阶段性发布授权；不把任何外部 Skill、Plugin、项目或单次 PR 提升为 Metaflow 依赖。
+- 证据：源材料和外部案例的核验结论只进入 Evidence 与 Completion，不进入规范正文。
+- 偏差：没有扩大已批准的实现范围；本修订替代 Revision 1 中可能把外部方法名称理解为项目级采用的表述。
 ````
 
 ## 6. Plan Amendments and Deviations
 
-- The approved Plan was not amended.
+- Revision 2 was directly approved by the user after correcting the SztuCode/Superpowers attribution. It adds adoption-scope evidence levels, tool-neutral Metaflow ASDD wording, execution-method recording, and accurate author-self-review terminology without expanding product or production authority.
 - MCL was kept in `candidate` state instead of being declared effective because its own activation gates have not yet occurred.
 - GitHub Project creation was skipped after a read-only command proved the active token lacks `read:project`; no OAuth permission expansion was attempted without the user's participation.
 - Direct build dependency patch updates were made within the approved security-baseline scope after audit evidence identified compatible fixes. Residual transitive advisories were split into Issue #2.
 - Hosted verification corrections were made within the Plan's CI/security/visual scope: sparse path coverage, LFS pointer validation, platform-specific baselines, diagnostic artifacts, current Action pins, and secret-safe validation output. None changed the approved product or architecture scope.
+- Re-examining the two original plans, Codex deep-link task, shared GPT conversation, and linked GitHub evidence corrected a research inference. The correction is recorded in Evidence and Completion; case narrative remains excluded from the normative specification.
 
 ## 7. Implementation and External Effects
 
-The Change adds repository governance documents, schemas, templates, deterministic Completion tooling, component routing, CI/security/release/rollback/upstream workflows, Viewer browser fixtures, and Version History 1.1 compatibility. Branch `codex/mcl-v1`, six implementation commits, draft PR #3, labels, merge settings, dependency graph, Dependabot security updates, secret scanning, and push protection were created or enabled and re-read. Issue #1 tracks MF-1 and Issue #2 tracks residual dependency work. No product release or production system was mutated.
+The Change adds repository governance documents, schemas, templates, deterministic Completion tooling, component routing, CI/security/release/rollback/upstream workflows, Viewer browser fixtures, and Version History 1.1 compatibility. Branch `codex/mcl-v1`, seven published implementation/archive commits through `e47dc4fa`, draft PR #3, labels, merge settings, dependency graph, Dependabot security updates, secret scanning, and push protection were created or enabled and re-read. Issue #1 tracks MF-1, Issue #2 tracks residual dependency work, and Issue #9 governs Dependabot PRs #4-#8 against the reference snapshot. No product release or production system was mutated.
 
 ## 8. Verification and Review Evidence
 
@@ -2486,7 +2577,7 @@ This file records only commands and outcomes that actually occurred. It is updat
 
 | Area | Command or method | Actual result |
 | --- | --- | --- |
-| Completion | `node --test scripts/tests/*.test.mjs` | 14 passed, 0 failed, including missing/misordered request messages, link-only Plan, revision drift, empty summaries, placeholders, secrets, non-canonical bytes, stale output, and unresolved Task disposition |
+| Completion | `node --test scripts/tests/*.test.mjs` | 18 passed, 0 failed, including missing/misordered request messages, link-only Plan, revision drift, missing execution authority, false independent-review identity, unsupported repository-policy/enforced-control claims, empty summaries, placeholders, secrets, non-canonical bytes, stale output, and unresolved Task disposition |
 | Platform/data unit tests | `python3 -m unittest discover -s scripts/tests -p 'test_*.py' -v` | 5 passed, 0 failed, including the public-output secret non-disclosure regression |
 | Registry and version | `node scripts/mcl.mjs validate-registry`; `validate-version-history` | Passed |
 | Platform config | `python3 scripts/validate_platform.py` | Netlify, Supabase, secrets, and pinned Workflow checks passed |
@@ -2505,6 +2596,7 @@ This file records only commands and outcomes that actually occurred. It is updat
 | Netlify API | Official Build Hook, REST API, and OpenAPI references | Verified `trigger_branch`, `trigger_title`, deploy `commit_ref`, immutable `deploy_ssl_url`, site `published_deploy`, and deploy restore endpoint before workflow review |
 | Sparse checkout | Fresh governance clone; fresh Viewer clone; `GIT_LFS_SKIP_SMUDGE=1` pointer clone | Governance checks passed without product trees; Viewer test/typecheck/build and both E2E modes passed from the declared small checkout; the unresolved Dayun LFS pointer passed 52 tests by its pinned OID/size |
 | Hosted CI | [run 31325948588](https://github.com/Shuang-su/Metaflow/actions/runs/31325948588) | Viewer, Editor, Design, Data, Reference, governance, dependency review, workflow CodeQL, GitHub Advanced Security CodeQL, and stable `required / gate` passed |
+| Hosted CI archive refresh | [run 31326306006](https://github.com/Shuang-su/Metaflow/actions/runs/31326306006) | Every MCL workflow job, stable `required / gate`, and the separate GitHub Advanced Security CodeQL check passed at `e47dc4fa` |
 | Source hygiene | `git diff --check`; Node syntax checks | Passed |
 
 Browser fixture:
@@ -2513,8 +2605,20 @@ Browser fixture:
 - fixed route, settings, language, timezone, DPR, reduced motion, WebGL, ready signal, desktop viewport, and mobile viewport;
 - the same fixture is exercised in development watch and production build modes.
 
+## Adoption and enforcement claim audit
+
+| Claim examined | Classification and result | Direct evidence |
+| --- | --- | --- |
+| SztuCode natively includes or requires the Superpowers `subagent-driven-development` Skill | Rejected. The instruction is `task-local`: collaborator `GuanG-1008` added it inside one Implementation Plan. | [Plan-adding commit `e452a423`](https://github.com/rojim666/SztuCode/commit/e452a42386a0a546b548e4cc6118ea0a1e4ae667), [PR #67](https://github.com/rojim666/SztuCode/pull/67) |
+| A merged PR proves repository-wide method adoption | Rejected. Merge proves acceptance of that PR's content, not adoption beyond its declared scope. The separate Spec was likewise introduced for the same work. | [Spec-adding commit `35374f7a`](https://github.com/rojim666/SztuCode/commit/35374f7a2fe7fd3bdd8f78a9478f74a94127ab10), [PR #67](https://github.com/rojim666/SztuCode/pull/67) |
+| The shared GPT conversation is a normative source | Rejected. It is `reference` material and contained an over-broad adoption inference; reusable ideas were translated into tool-neutral contracts. | [Shared conversation](https://chatgpt.com/share/6a788411-d11c-83e8-afac-0871d9def42d) |
+| Metaflow MCL is already repository policy or fully enforced | Rejected for the current branch state. The specification is an implemented candidate; merge, activation, Ruleset evidence, pilots, and human closure remain outstanding. | [Draft PR #3](https://github.com/Shuang-su/Metaflow/pull/3), [Issue #1](https://github.com/Shuang-su/Metaflow/issues/1) |
+| MF-1 PR-head automation is already an enforced merge control | Rejected. The run proves that checks execute and pass for the recorded commit; without an active `main` Ruleset it does not prove that merge is automatically blocked. | [Run 31326306006](https://github.com/Shuang-su/Metaflow/actions/runs/31326306006) |
+
 Review corrections:
 
+- Re-reading both source plans, the referenced Codex task, the shared GPT conversation, SztuCode PR #67, its two creating commits, and the repository's own Agent/contributor configuration corrected an attribution error: the Superpowers execution instruction was added by collaborator `GuanG-1008` in one PR Plan. It is evidence of that Task's chosen workflow, not a SztuCode-native Skill or repository-wide Superpowers policy.
+- MCL now separates `reference`, `task-local`, `repository-policy`, and `enforced-control` claims. Metaflow ASDD is explicitly an internal, tool-neutral label; Review concern separation is distinct from reviewer independence.
 - Manifest hashing now rejects non-canonical source bytes, so third-party `shasum` output must equal the recorded SHA-256.
 - Completion validation now enforces T2 Spec/T3 Proposal presence, exact embedded request and Plan text, ordered message markers, matching Plan revision, non-empty sections, Task filename/ID consistency, lifecycle consistency, redaction counts, timestamps, and unresolved placeholders.
 - The Dossier section parser was replaced after a negative test exposed premature termination at blank lines; exact embedded documents are fenced so the 13 top-level chapters remain unambiguous.
@@ -2531,7 +2635,8 @@ Validation retries and rejected checks:
 - Hosted run `31325117956` passed governance, dependency review, CodeQL, Editor, Design, Data, and Reference, then exposed the Dayun LFS pointer in the Viewer test. The small-fixture contract was changed to validate the pointer while retaining full-data checks elsewhere.
 - Hosted run `31325330480` passed Viewer unit/type/build and exposed cross-platform visual drift. Run `31325585391` uploaded Linux actuals as diagnostics; both images were inspected before acceptance. Run `31325739835` passed `required / gate` and exposed two separate GitHub Advanced Security findings for secret-derived logging.
 - Docker CLI was available but its daemon was not running. No Docker result was claimed; the real GitHub Ubuntu artifact was used for Linux baseline review.
-- Hosted run `31325948588` passed every workflow job, `required / gate`, and the independent GitHub Advanced Security CodeQL check after log output was sanitized.
+- Hosted run `31325948588` passed every workflow job, `required / gate`, and the separate GitHub Advanced Security CodeQL check after log output was sanitized.
+- Completion refresh commit `e47dc4fa` passed the same hosted matrix in run `31326306006`; PR #3 remained open, draft, and mergeable.
 
 Dependency audit after compatible direct updates:
 
@@ -2550,15 +2655,19 @@ Dependency audit after compatible direct updates:
 - Published commits `fb0a881b` through `39283ce4` on `codex/mcl-v1` and created draft PR [#3](https://github.com/Shuang-su/Metaflow/pull/3); the PR was re-read as open, draft, mergeable, and clean.
 - Enabled the repository dependency graph/vulnerability alerts and re-read the endpoint successfully so dependency review could execute.
 - Enabled and re-read Dependabot security updates, secret scanning, and secret-scanning push protection.
+- Enabling Dependabot security updates caused automated PRs [#4](https://github.com/Shuang-su/Metaflow/pull/4) through [#8](https://github.com/Shuang-su/Metaflow/pull/8) against the non-Active `supersplat-viewer-v1.18.2` reference snapshot. They were not merged, dismissed, or treated as Active product updates.
+- Created and re-read [Issue #9](https://github.com/Shuang-su/Metaflow/issues/9) as a T3 Upstream Sync Proposal signal for PRs #4-#8; no `Adopt / Defer / Skip` decision was made.
 - Read-only GitHub Project discovery failed because the active token lacks `read:project`; no Project write was attempted.
 - Ruleset activation is intentionally deferred until `required / gate` has merged and succeeded on `main`.
-- No Netlify, Supabase, production, release, rollback, tag, or deploy write occurred.
+- Netlify automatically created Deploy Preview `6a78b7bf7f384100088b3e12` for PR #3 at commit `e47dc4fa`. The public API still reported `building`, and the Preview URL had no successful smoke evidence; no manual Netlify write or production deploy occurred.
+- No Supabase, production, release, rollback, tag, or manual deploy write occurred.
 
 ## Known limitations
 
 - The implementation branch is not yet merged; MCL remains a candidate and is not effective.
 - GitHub Project fields, production Environment secrets/protection, and the `main` Ruleset are not configured.
-- No GitHub Deployment or Netlify Preview check was present for the PR head; Preview remains unverified.
+- Netlify Deploy Preview `6a78b7bf7f384100088b3e12` remained `building`; its Preview checks were pending and no successful HTTP smoke was available. Preview remains unverified.
+- Dependabot PRs #4-#8 target a reference snapshot and require the T3 Upstream Sync decision tracked by Issue #9; they must not be merged as routine Active-product dependency maintenance.
 - Preview/Beta/Stable, immutable production deployment, smoke, observation, and rollback workflows are implemented but unexercised.
 - Phase 9 fast-path, Design, real Upstream Sync, multi-Agent, continuation, attachment, and rollback pilots remain incomplete.
 - GitHub reported existing dependency alerts on the default branch after security features were enabled; MF-1 does not silently dismiss or rewrite those findings, and Issue #2 tracks the directly observed npm follow-up scope.
@@ -2566,7 +2675,7 @@ Dependency audit after compatible direct updates:
 
 ## 9. Release, Rollback and Observation
 
-Release and rollback workflows are implemented but were not invoked. No GitHub Deployment or Netlify Preview check was found for the PR head. No namespaced tag, immutable production deploy, production smoke, GitHub Release, observation window, or rollback rehearsal exists for MF-1. The candidate specification therefore remains non-effective.
+Release and rollback workflows are implemented but were not invoked. Netlify automatically started Deploy Preview `6a78b7bf7f384100088b3e12` for `e47dc4fa`, but it remained `building`; its checks were pending and no successful smoke evidence exists. No namespaced tag, immutable production deploy, production smoke, GitHub Release, observation window, or rollback rehearsal exists for MF-1. The candidate specification therefore remains non-effective.
 
 ## 10. Remaining Risks and Follow-up Changes
 
@@ -2574,27 +2683,30 @@ Release and rollback workflows are implemented but were not invoked. No GitHub D
 - `required / gate` cannot safely become required until it exists and succeeds on `main`.
 - Issue #2 owns residual transitive npm advisories.
 - Existing default-branch dependency alerts remain external follow-up evidence; enabling security controls did not resolve or dismiss them.
+- Dependabot PRs #4-#8 affect a non-Active reference snapshot and require the T3 `Adopt / Defer / Skip` decision tracked by Issue #9.
+- The still-building Netlify Preview needs a terminal result and successful Preview smoke or an explicit documented exception.
 - Design onboarding, real Upstream Sync, T0/T1 fast path, multi-Agent T2, partial-to-closed, attachment delivery, rollback, and full release pilots remain outstanding.
 
 ## 11. Ledger, Version, PR, and Release Links
 
 - Change: <https://github.com/Shuang-su/Metaflow/issues/1>
 - Security follow-up: <https://github.com/Shuang-su/Metaflow/issues/2>
+- Reference-snapshot Upstream Sync decision: <https://github.com/Shuang-su/Metaflow/issues/9>
 - Draft PR: <https://github.com/Shuang-su/Metaflow/pull/3>
-- Green hosted run: <https://github.com/Shuang-su/Metaflow/actions/runs/31325948588>
-- Implementation refs: `fb0a881b` through `39283ce4`; `39283ce4` is the final implementation ref before this Completion refresh.
+- Green hosted runs: <https://github.com/Shuang-su/Metaflow/actions/runs/31325948588>, <https://github.com/Shuang-su/Metaflow/actions/runs/31326306006>
+- Implementation refs: `fb0a881b` through `e47dc4fa`; `e47dc4fa` is the published archive ref before Revision 2.
 - Tag, Release, deploy, merge, active Ruleset, and MCL 1.0 activation: not created or activated.
 
 ## 12. Checksums and Redaction Manifest
 
 | Source | SHA-256 |
 | --- | --- |
-| request-transcript.md | `212c5c0e09c7b15fda528fa3a8022aa34c480197eb1b722a4b6519738de53cad` |
-| ../plan.md | `0d8d097dc0fcf53b23809f3dbd81b2fa58bdfec38a99bdf898294d4ba50b1906` |
-| agent-action-reply-summary.md | `9f23d306085bace21e9fc28e56f4e807072fdc44b7db1d575cd5551f325ed3d2` |
-| ../evidence.md | `865335e6a97ceeae2442e19ceaeec2998397fc76edc1a24fe2a9d022cf879729` |
-| closure.md | `0a81ec1b681a9fbbe3aaa2a6338e87c098a283492ffb315816d9fc3ad95bb4dd` |
-| task-records/MF-1-T01.md | `fede54d8b9cfead687ae3139f174dd1f58c22753cee10513e8b0168257c89ad8` |
+| request-transcript.md | `3ae3aa523dee475f8d960198c39468466e59caaf6d5bef0087a9e8dd91d4f49e` |
+| ../plan.md | `a60905c15cdf421de4f8c9fc9cd1d64fe73e6711846b7376a172c601297bb207` |
+| agent-action-reply-summary.md | `6471c1a07d7f8053ea860b46824e39a5c060906018acb1e416bd6bbeae8308ee` |
+| ../evidence.md | `50329bf98f38e703e069f5ac7f79cfbc1eb46a7a79d136769c33f563a393a648` |
+| closure.md | `04f7f5f85c57884e4e28e598f73a5d3bc7dc378329e38ec4db56d1e6573f0159` |
+| task-records/MF-1-T01.md | `65434d3a390295967b6c145bf5e6631dbbe57bd9571194aaa7a43fd858651e42` |
 
 No redactions.
 
