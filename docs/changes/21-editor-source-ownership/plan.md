@@ -30,7 +30,7 @@ The Active fork, its ignored `dist/`, metadata generator, CI, release workflow, 
 
 ## Preconditions and dependencies
 
-- Work only in `/Volumes/Prism/Metaflow-editor-migration` on `codex/mf-21-editor-source-ownership`, based on `origin/main` at `b9c54c0cf985cdb6908bc0b877312eee453ec4fe`.
+- Work only in `/Volumes/Prism/Metaflow-editor-migration` on `codex/mf-21-editor-source-ownership`, based on `origin/main` at `ecc3b16e52c118ab53a2efd649efe53d3dc91c84`.
 - Preserve `/Volumes/Prism/Metaflow` local `main` at `47ffd86e9635d7d797628a214df817f7ca60b55c`, its nine local commits, the untracked Swiftgram directory, and the predecessor-plan checksum.
 - Use Node 20.19.0 for package commands.
 - Fix upstream identity to tag object `ca76baf0c6b7f12a337c1c71a37554eb991a25f9`, commit `9f4dfe1ff4e94876fb2054353497c8e2eb93b423`, tree `0ce0d79143abc945e394d1f13f362533a15bf363`, 232 files, and canonical digest `9d37961e3ba6259b26f8564e177d5aa4de7d547caa2fd6a8a7ae748c1a6df4a7`.

@@ -24,7 +24,7 @@ terminal_reason: null
 
 - Isolated worktree: `/Volumes/Prism/Metaflow-editor-migration`
 - Branch: `codex/mf-21-editor-source-ownership`
-- Base: `origin/main@b9c54c0cf985cdb6908bc0b877312eee453ec4fe`
+- Base: `origin/main@ecc3b16e52c118ab53a2efd649efe53d3dc91c84`
 - Package runtime: Node 20.19.0
 
 ## Commands and results
@@ -43,7 +43,7 @@ terminal_reason: null
 | `node --test scripts/tests/*.test.mjs` | 0 | passed | 60 tests including routing, Completion, runtime, and positive/negative snapshot identity cases |
 | `python3 -m unittest discover -s scripts/tests -p 'test_*.py' -v` | 0 | passed | 10 tests including generator, data, Dependabot boundary, Netlify build-source, security, and action pinning |
 | Governance and metadata validators | 0 | passed | MCL strict check, component registry, CI routing, Version History, platform, and data checks |
-| Markdown, repository scan, and staged diff | 0 | passed | 74 Markdown files; 11,071 scanned files; no secret/accidental-file finding; `git diff --cached --check` clean |
+| Markdown, repository scan, and staged diff | 0 | passed | 96 Markdown files; 11,093 scanned files; no secret/accidental-file finding; `git diff --check` clean |
 | Workflow YAML parse and staged path route | 0 | passed | 275 changed paths owned/routed; selected checks exclude `viewer-source` and `viewer-data`, so Viewer E2E is not selected |
 
 ## Browser, device, and rendering backend

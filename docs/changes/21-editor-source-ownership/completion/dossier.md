@@ -241,6 +241,7 @@ PR B 必须验证：
 | 7 | Added fail-closed source, runtime, metadata, and path-ownership contracts | write | metadata, scripts, tests, CI/release/Netlify | Activity and reference paths route independently; generated artifacts no longer live in Git. |
 | 8 | Ran local product and governance Gates under Node 20.19.0 | read/ignored build | Editor, Viewer, repository validators | Editor 4 tests/lint/build and 26-file parity passed; Viewer 52 tests/type/build passed without E2E; 60 Node and 10 Python repository tests passed. |
 | 9 | Performed separate Spec-compliance and code-quality author review passes | read | complete staged diff | Scope and behavior matched the Spec; validators fail closed and no independent-review claim was made. |
+| 10 | Rebased the committed implementation onto the latest remote documentation baseline | read/write | MF-21 branch only | Replayed cleanly on `origin/main@ecc3b16e`; user local `main` remained untouched; affected checks were rerun before the force-with-lease update. |
 
 ## Agent Reply Summary
 
@@ -313,7 +314,7 @@ The Active fork, its ignored `dist/`, metadata generator, CI, release workflow, 
 
 ## Preconditions and dependencies
 
-- Work only in `/Volumes/Prism/Metaflow-editor-migration` on `codex/mf-21-editor-source-ownership`, based on `origin/main` at `b9c54c0cf985cdb6908bc0b877312eee453ec4fe`.
+- Work only in `/Volumes/Prism/Metaflow-editor-migration` on `codex/mf-21-editor-source-ownership`, based on `origin/main` at `ecc3b16e52c118ab53a2efd649efe53d3dc91c84`.
 - Preserve `/Volumes/Prism/Metaflow` local `main` at `47ffd86e9635d7d797628a214df817f7ca60b55c`, its nine local commits, the untracked Swiftgram directory, and the predecessor-plan checksum.
 - Use Node 20.19.0 for package commands.
 - Fix upstream identity to tag object `ca76baf0c6b7f12a337c1c71a37554eb991a25f9`, commit `9f4dfe1ff4e94876fb2054353497c8e2eb93b423`, tree `0ce0d79143abc945e394d1f13f362533a15bf363`, 232 files, and canonical digest `9d37961e3ba6259b26f8564e177d5aa4de7d547caa2fd6a8a7ae748c1a6df4a7`.
@@ -369,7 +370,7 @@ The Active source migration, official snapshot restoration, metadata/CI/release/
 
 - Isolated worktree: `/Volumes/Prism/Metaflow-editor-migration`
 - Branch: `codex/mf-21-editor-source-ownership`
-- Base: `origin/main@b9c54c0cf985cdb6908bc0b877312eee453ec4fe`
+- Base: `origin/main@ecc3b16e52c118ab53a2efd649efe53d3dc91c84`
 - Package runtime: Node 20.19.0
 
 ## Commands and results
@@ -388,7 +389,7 @@ The Active source migration, official snapshot restoration, metadata/CI/release/
 | `node --test scripts/tests/*.test.mjs` | 0 | passed | 60 tests including routing, Completion, runtime, and positive/negative snapshot identity cases |
 | `python3 -m unittest discover -s scripts/tests -p 'test_*.py' -v` | 0 | passed | 10 tests including generator, data, Dependabot boundary, Netlify build-source, security, and action pinning |
 | Governance and metadata validators | 0 | passed | MCL strict check, component registry, CI routing, Version History, platform, and data checks |
-| Markdown, repository scan, and staged diff | 0 | passed | 74 Markdown files; 11,071 scanned files; no secret/accidental-file finding; `git diff --cached --check` clean |
+| Markdown, repository scan, and staged diff | 0 | passed | 96 Markdown files; 11,093 scanned files; no secret/accidental-file finding; `git diff --check` clean |
 | Workflow YAML parse and staged path route | 0 | passed | 275 changed paths owned/routed; selected checks exclude `viewer-source` and `viewer-data`, so Viewer E2E is not selected |
 
 ## Browser, device, and rendering backend
@@ -465,12 +466,12 @@ MF-2 will remediate Active dependency findings after PR A reaches its Ready endp
 | Source | SHA-256 |
 | --- | --- |
 | request-transcript.md | `7a58adf911696dead00d05309bec9e24e96a7573a31e4a9aa3d5a4bb795f8b29` |
-| ../plan.md | `4b0f5bbbaa1132978804fbfb37efd65f3e663eca0b52cd9d4757352f5d1fa004` |
-| agent-action-reply-summary.md | `e4759bf24a40fad469bab97678309cdb17ba1edde2819463626b61fd89e026e7` |
-| ../evidence.md | `fbed52750ebde7fc81fdb81e0952b73924b5520af6218cfc6b38288a7c2dc47d` |
+| ../plan.md | `77a4fcfd2a42d6cde6a65d7a09835f2fc7b190f3932b940bd059e550e20c5269` |
+| agent-action-reply-summary.md | `52b5cd913ab9ca7754492e8e6a2f85c6ae829ab4381f0103f86d30861456f63f` |
+| ../evidence.md | `d7ae9eaa71cd07806aa5f95c79dd446e1324fe4cd5056df65ea52c7b8c91b42b` |
 | closure.md | `b795edb948fdf3973c5ef47c4466387e96dc4264a0e4288f7a29846f63515bcc` |
-| task-records/MF-21-T01.md | `0349b94b22094d7acef4b831b90dfcabed9ba568614c9abc905026a425bb0e1c` |
-| plan-revisions.json | `fc947b6389fadf81d20f6d349704d81420ec53e262862aad2ba3fff839479d40` |
+| task-records/MF-21-T01.md | `a01a3816eee66af0e880d2b4cec26261a223c8194c857c026d71d1ff11d3c04a` |
+| plan-revisions.json | `91db850174c0317ab8089afbed53ad68c7740b94bfb48ab3344be303d6d2ca72` |
 
 No redactions.
 

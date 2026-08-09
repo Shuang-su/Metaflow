@@ -29,6 +29,7 @@ generated_at: 2026-08-10T00:00:00.000Z
 | 7 | Added fail-closed source, runtime, metadata, and path-ownership contracts | write | metadata, scripts, tests, CI/release/Netlify | Activity and reference paths route independently; generated artifacts no longer live in Git. |
 | 8 | Ran local product and governance Gates under Node 20.19.0 | read/ignored build | Editor, Viewer, repository validators | Editor 4 tests/lint/build and 26-file parity passed; Viewer 52 tests/type/build passed without E2E; 60 Node and 10 Python repository tests passed. |
 | 9 | Performed separate Spec-compliance and code-quality author review passes | read | complete staged diff | Scope and behavior matched the Spec; validators fail closed and no independent-review claim was made. |
+| 10 | Rebased the committed implementation onto the latest remote documentation baseline | read/write | MF-21 branch only | Replayed cleanly on `origin/main@ecc3b16e`; user local `main` remained untouched; affected checks were rerun before the force-with-lease update. |
 
 ## Agent Reply Summary
 
