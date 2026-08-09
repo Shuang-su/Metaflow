@@ -28,7 +28,7 @@
     "@playwright/test": "1.62.1",
     "autoprefixer": "10.5.0",
     "concurrently": "9.2.4",
-    "playcanvas": "2.19.2",
+    "playcanvas": "2.21.3",
     "postcss": "8.5.26",
     "rollup": "4.61.0",
     "rollup-plugin-copy": "3.5.0",
