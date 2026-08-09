@@ -30,6 +30,8 @@ generated_at: 2026-08-10T00:00:00.000Z
 | 8 | Ran local product and governance Gates under Node 20.19.0 | read/ignored build | Editor, Viewer, repository validators | Editor 4 tests/lint/build and 26-file parity passed; Viewer 52 tests/type/build passed without E2E; 60 Node and 10 Python repository tests passed. |
 | 9 | Performed separate Spec-compliance and code-quality author review passes | read | complete staged diff | Scope and behavior matched the Spec; validators fail closed and no independent-review claim was made. |
 | 10 | Rebased the committed implementation onto the latest remote documentation baseline | read/write | MF-21 branch only | Replayed cleanly on `origin/main@ecc3b16e`; user local `main` remained untouched; affected checks were rerun before the force-with-lease update. |
+| 11 | Pushed the branch and opened Draft PR #25 | external write/read-back | GitHub | Re-read Draft/open, base `main`, exact Head `0b64e35a`, and mergeable state before monitoring hosted checks. |
+| 12 | Inspected the first hosted failures and applied the approved in-scope CI-input correction | read/write | PR #25 logs, workflow sparse inputs, README contract test | Kept product bytes unchanged; added missing attributes/snapshot/registry inputs and updated the stale PR #24 README digest baseline. |
 
 ## Agent Reply Summary
 
@@ -47,6 +49,7 @@ The Agent reported that the Active Editor migration and upstream restoration are
 - Added the reference registry/validator, runtime baseline/validator, Editor contract tests, metadata generator checks, CI routing, and build-source updates.
 - Generated only ignored `node_modules/` and `dist/` outputs during validation; no release, production deploy, PR merge, or local-main update occurred.
 - Created recoverable temporary backups under `/tmp/mf21-editor-swap.fCg3Uv`; moved two untracked `.DS_Store` files there after validation detected them as extras.
+- Pushed `codex/mf-21-editor-source-ownership` and created Draft PR #25 against `main`; no Ready or merge transition has occurred yet.
 
 ## Validation, Failures, and Omissions
 
@@ -64,4 +67,5 @@ The Agent reported that the Active Editor migration and upstream restoration are
 - The first exact snapshot check failed on one `.DS_Store`; it was moved to a recoverable temporary directory and the 232-file identity then passed.
 - A Ruby 2.6 YAML parsing option was unsupported; rerunning with the compatible parser API succeeded for both workflows.
 - Editor install still reports 7 high and 2 critical audit findings, and Viewer reports 1 moderate and 4 high; these are assigned to MF-2 and are not claimed fixed here.
-- Hosted Gates and Preview remain unrun until the branch is pushed. Full Viewer E2E and production release validation are intentionally out of scope.
+- PR #25 Head `0b64e35a` failed docs/governance/Viewer/Editor because sparse checkouts omitted required validation inputs and PR #24 had left the README digest assertion stale; reference/data/release/dependency review and both CodeQL checks passed. The Gate failed as designed, and the Head is being superseded by the scoped correction.
+- Full Viewer E2E and production release validation are intentionally out of scope.

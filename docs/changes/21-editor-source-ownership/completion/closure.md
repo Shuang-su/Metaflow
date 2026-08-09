@@ -26,7 +26,7 @@ None.
 
 ## Implementation and External Effects
 
-The Active source migration, official snapshot restoration, metadata/CI/release/Netlify routing, tests, and deterministic Completion sources are staged in the isolated worktree. PR effects are pending; no merge, release, deploy, or local-main update occurred.
+The Active source migration, official snapshot restoration, metadata/CI/release/Netlify routing, tests, and deterministic Completion sources are pushed in Draft PR #25. Its first hosted run exposed in-scope sparse-input and stale-test-baseline issues; a corrected Head is pending. No merge, release, deploy, or local-main update occurred.
 
 ## Verification and Review
 
@@ -43,7 +43,7 @@ MF-2 will remediate Active dependency findings after PR A reaches its Ready endp
 ## Ledger, Version, PR, and Release Links
 
 - Issue: <https://github.com/Shuang-su/Metaflow/issues/21>
-- PR: pending branch push
+- PR: <https://github.com/Shuang-su/Metaflow/pull/25> (Draft; hosted correction pending)
 
 ## Redactions
 

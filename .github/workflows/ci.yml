@@ -100,6 +100,7 @@ jobs:
             PROJECT_INDEX.md
             README.md
             ROADMAP.md
+            metaflow-editor/.gitattributes
           sparse-checkout-cone-mode: false
       - name: Set up Node.js
         uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
@@ -146,6 +147,8 @@ jobs:
             ROADMAP.md
             README.md
             netlify.toml
+            metaflow-editor/.gitattributes
+            supersplat-v2.28.0
           sparse-checkout-cone-mode: false
       - name: Set up Node.js
         uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
@@ -282,6 +285,7 @@ jobs:
             metaflow-editor
             metadata/editor-version-history.json
             metadata/editor-runtime-baseline.json
+            metadata/components.json
             metadata/version-history.json
             data/editor-version-history.json
             data/index.json

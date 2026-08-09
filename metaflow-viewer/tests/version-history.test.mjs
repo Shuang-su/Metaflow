@@ -230,7 +230,7 @@ test('root README preserves the original usage guide and exposes the audit entry
     const originalGuide = `${readme.split('\n## 当前版本\n')[0]}\n`;
     const digest = createHash('sha256').update(originalGuide).digest('hex');
 
-    assert.equal(digest, '5650ea5179d57897d06d04b6f434429a083766154058ec6048c4518dedbb56f4');
+    assert.equal(digest, 'c2d7995084cc957259cfc25f7f549a360c08c31f5f35dc3f7f88b8006999d319');
     assert.match(readme, /docs\/metaflow-viewer-change-ledger\.md/);
     assert.match(readme, /metadata\/version-history\.json/);
 });

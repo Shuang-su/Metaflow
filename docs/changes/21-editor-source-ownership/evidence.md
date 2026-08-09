@@ -45,6 +45,7 @@ terminal_reason: null
 | Governance and metadata validators | 0 | passed | MCL strict check, component registry, CI routing, Version History, platform, and data checks |
 | Markdown, repository scan, and staged diff | 0 | passed | 96 Markdown files; 11,093 scanned files; no secret/accidental-file finding; `git diff --check` clean |
 | Workflow YAML parse and staged path route | 0 | passed | 275 changed paths owned/routed; selected checks exclude `viewer-source` and `viewer-data`, so Viewer E2E is not selected |
+| PR #25 first hosted run for Head `0b64e35a` | 1 | failed, diagnosed | Reference/data/release/dependency review/CodeQL passed; docs/governance/Viewer/Editor exposed sparse-checkout inputs and a stale README digest, then Gate failed as designed |
 
 ## Browser, device, and rendering backend
 
@@ -52,7 +53,7 @@ Pending Deploy Preview smoke. Full Viewer E2E, visual, WebGPU, and product relea
 
 ## Screenshots, recordings, and CI artifacts
 
-Pending hosted PR runs and Deploy Preview for the exact pushed Head.
+The first PR #25 run is recorded in GitHub Actions; its failing Head is superseded. Hosted artifacts and Deploy Preview for the corrected exact Head remain pending.
 
 ## Performance samples and baseline
 
@@ -89,13 +90,15 @@ Preview pending. Beta and production are prohibited in this Change.
 ## Unrun checks and reasons
 
 - Full Viewer E2E, visual baselines, performance sampling, production release, and deploy are outside the approved boundary.
-- GitHub checks and Deploy Preview are pending the first pushed PR Head.
+- GitHub checks and Deploy Preview are pending the corrected pushed PR Head.
+- The first hosted Head is superseded by an in-scope CI-input correction; a new exact-Head run is required.
 
 ## Known limitations
 
 - Editor install reports 7 high and 2 critical audit findings; Viewer install reports 1 moderate and 4 high findings. They are not claimed fixed and remain assigned to MF-2.
 - The attempted expansion of Editor lint to include tests exposed the existing ESLint 10 / `eslint-plugin-import` peer incompatibility, so the inherited `eslint src` boundary was retained and Node's test runner covers the new contract test.
 - The first snapshot identity check found a local `.DS_Store`; it was moved to the recoverable temporary backup and the exact 232-file identity then passed. No snapshot byte was edited.
+- PR #25 Head `0b64e35a` failed four selected jobs for reproducible CI-input reasons: docs could not see the nested whitespace attributes; governance checked only three sparse snapshot files; Editor lacked `metadata/components.json`; Viewer/Editor exposed PR #24's stale README digest. The correction adds only missing sparse inputs and pins the test to the current `origin/main` digest; no product byte changes.
 
 ## Release, rollback, and observation
 

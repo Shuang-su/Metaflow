@@ -242,6 +242,8 @@ PR B 必须验证：
 | 8 | Ran local product and governance Gates under Node 20.19.0 | read/ignored build | Editor, Viewer, repository validators | Editor 4 tests/lint/build and 26-file parity passed; Viewer 52 tests/type/build passed without E2E; 60 Node and 10 Python repository tests passed. |
 | 9 | Performed separate Spec-compliance and code-quality author review passes | read | complete staged diff | Scope and behavior matched the Spec; validators fail closed and no independent-review claim was made. |
 | 10 | Rebased the committed implementation onto the latest remote documentation baseline | read/write | MF-21 branch only | Replayed cleanly on `origin/main@ecc3b16e`; user local `main` remained untouched; affected checks were rerun before the force-with-lease update. |
+| 11 | Pushed the branch and opened Draft PR #25 | external write/read-back | GitHub | Re-read Draft/open, base `main`, exact Head `0b64e35a`, and mergeable state before monitoring hosted checks. |
+| 12 | Inspected the first hosted failures and applied the approved in-scope CI-input correction | read/write | PR #25 logs, workflow sparse inputs, README contract test | Kept product bytes unchanged; added missing attributes/snapshot/registry inputs and updated the stale PR #24 README digest baseline. |
 
 ## Agent Reply Summary
 
@@ -259,6 +261,7 @@ The Agent reported that the Active Editor migration and upstream restoration are
 - Added the reference registry/validator, runtime baseline/validator, Editor contract tests, metadata generator checks, CI routing, and build-source updates.
 - Generated only ignored `node_modules/` and `dist/` outputs during validation; no release, production deploy, PR merge, or local-main update occurred.
 - Created recoverable temporary backups under `/tmp/mf21-editor-swap.fCg3Uv`; moved two untracked `.DS_Store` files there after validation detected them as extras.
+- Pushed `codex/mf-21-editor-source-ownership` and created Draft PR #25 against `main`; no Ready or merge transition has occurred yet.
 
 ## Validation, Failures, and Omissions
 
@@ -276,7 +279,8 @@ The Agent reported that the Active Editor migration and upstream restoration are
 - The first exact snapshot check failed on one `.DS_Store`; it was moved to a recoverable temporary directory and the 232-file identity then passed.
 - A Ruby 2.6 YAML parsing option was unsupported; rerunning with the compatible parser API succeeded for both workflows.
 - Editor install still reports 7 high and 2 critical audit findings, and Viewer reports 1 moderate and 4 high; these are assigned to MF-2 and are not claimed fixed here.
-- Hosted Gates and Preview remain unrun until the branch is pushed. Full Viewer E2E and production release validation are intentionally out of scope.
+- PR #25 Head `0b64e35a` failed docs/governance/Viewer/Editor because sparse checkouts omitted required validation inputs and PR #24 had left the README digest assertion stale; reference/data/release/dependency review and both CodeQL checks passed. The Gate failed as designed, and the Head is being superseded by the scoped correction.
+- Full Viewer E2E and production release validation are intentionally out of scope.
 ````
 
 ## 5. Complete Effective Plan
@@ -359,7 +363,7 @@ None.
 
 ## 7. Implementation and External Effects
 
-The Active source migration, official snapshot restoration, metadata/CI/release/Netlify routing, tests, and deterministic Completion sources are staged in the isolated worktree. PR effects are pending; no merge, release, deploy, or local-main update occurred.
+The Active source migration, official snapshot restoration, metadata/CI/release/Netlify routing, tests, and deterministic Completion sources are pushed in Draft PR #25. Its first hosted run exposed in-scope sparse-input and stale-test-baseline issues; a corrected Head is pending. No merge, release, deploy, or local-main update occurred.
 
 ## 8. Verification and Review Evidence
 
@@ -391,6 +395,7 @@ The Active source migration, official snapshot restoration, metadata/CI/release/
 | Governance and metadata validators | 0 | passed | MCL strict check, component registry, CI routing, Version History, platform, and data checks |
 | Markdown, repository scan, and staged diff | 0 | passed | 96 Markdown files; 11,093 scanned files; no secret/accidental-file finding; `git diff --check` clean |
 | Workflow YAML parse and staged path route | 0 | passed | 275 changed paths owned/routed; selected checks exclude `viewer-source` and `viewer-data`, so Viewer E2E is not selected |
+| PR #25 first hosted run for Head `0b64e35a` | 1 | failed, diagnosed | Reference/data/release/dependency review/CodeQL passed; docs/governance/Viewer/Editor exposed sparse-checkout inputs and a stale README digest, then Gate failed as designed |
 
 ## Browser, device, and rendering backend
 
@@ -398,7 +403,7 @@ Pending Deploy Preview smoke. Full Viewer E2E, visual, WebGPU, and product relea
 
 ## Screenshots, recordings, and CI artifacts
 
-Pending hosted PR runs and Deploy Preview for the exact pushed Head.
+The first PR #25 run is recorded in GitHub Actions; its failing Head is superseded. Hosted artifacts and Deploy Preview for the corrected exact Head remain pending.
 
 ## Performance samples and baseline
 
@@ -435,13 +440,15 @@ Preview pending. Beta and production are prohibited in this Change.
 ## Unrun checks and reasons
 
 - Full Viewer E2E, visual baselines, performance sampling, production release, and deploy are outside the approved boundary.
-- GitHub checks and Deploy Preview are pending the first pushed PR Head.
+- GitHub checks and Deploy Preview are pending the corrected pushed PR Head.
+- The first hosted Head is superseded by an in-scope CI-input correction; a new exact-Head run is required.
 
 ## Known limitations
 
 - Editor install reports 7 high and 2 critical audit findings; Viewer install reports 1 moderate and 4 high findings. They are not claimed fixed and remain assigned to MF-2.
 - The attempted expansion of Editor lint to include tests exposed the existing ESLint 10 / `eslint-plugin-import` peer incompatibility, so the inherited `eslint src` boundary was retained and Node's test runner covers the new contract test.
 - The first snapshot identity check found a local `.DS_Store`; it was moved to the recoverable temporary backup and the exact 232-file identity then passed. No snapshot byte was edited.
+- PR #25 Head `0b64e35a` failed four selected jobs for reproducible CI-input reasons: docs could not see the nested whitespace attributes; governance checked only three sparse snapshot files; Editor lacked `metadata/components.json`; Viewer/Editor exposed PR #24's stale README digest. The correction adds only missing sparse inputs and pins the test to the current `origin/main` digest; no product byte changes.
 
 ## Release, rollback, and observation
 
@@ -459,7 +466,7 @@ MF-2 will remediate Active dependency findings after PR A reaches its Ready endp
 ## 11. Ledger, Version, PR, and Release Links
 
 - Issue: <https://github.com/Shuang-su/Metaflow/issues/21>
-- PR: pending branch push
+- PR: <https://github.com/Shuang-su/Metaflow/pull/25> (Draft; hosted correction pending)
 
 ## 12. Checksums and Redaction Manifest
 
@@ -467,10 +474,10 @@ MF-2 will remediate Active dependency findings after PR A reaches its Ready endp
 | --- | --- |
 | request-transcript.md | `7a58adf911696dead00d05309bec9e24e96a7573a31e4a9aa3d5a4bb795f8b29` |
 | ../plan.md | `77a4fcfd2a42d6cde6a65d7a09835f2fc7b190f3932b940bd059e550e20c5269` |
-| agent-action-reply-summary.md | `52b5cd913ab9ca7754492e8e6a2f85c6ae829ab4381f0103f86d30861456f63f` |
-| ../evidence.md | `d7ae9eaa71cd07806aa5f95c79dd446e1324fe4cd5056df65ea52c7b8c91b42b` |
-| closure.md | `b795edb948fdf3973c5ef47c4466387e96dc4264a0e4288f7a29846f63515bcc` |
-| task-records/MF-21-T01.md | `a01a3816eee66af0e880d2b4cec26261a223c8194c857c026d71d1ff11d3c04a` |
+| agent-action-reply-summary.md | `d9d65419d8bcb8e6112e207ba0253b1edcbf4953e0a2e8ac239898484cd70872` |
+| ../evidence.md | `b1875ce52b1068de0ba9cbc77c10ddd80e4c16fb7f0277ff83ca59eb8eb5d3c5` |
+| closure.md | `76c33ec0f2298877fd6541ac8f2f2cb277ed5e21ac531b31b08bda0aa8c25419` |
+| task-records/MF-21-T01.md | `5f26ff7005e14e02d501ca7a4b87bce1b0ee4b830792fe861d1aec04e5c28591` |
 | plan-revisions.json | `91db850174c0317ab8089afbed53ad68c7740b94bfb48ab3344be303d6d2ca72` |
 
 No redactions.
