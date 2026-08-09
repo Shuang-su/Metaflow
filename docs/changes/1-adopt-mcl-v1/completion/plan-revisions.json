@@ -1,0 +1,33 @@
+{
+  "schemaVersion": "1.0",
+  "revisions": [
+    {
+      "revision": 1,
+      "sha256": "0d8d097dc0fcf53b23809f3dbd81b2fa58bdfec38a99bdf898294d4ba50b1906",
+      "taskIds": [],
+      "amendmentReason": "Initial MF-1 candidate adoption and implementation plan; retained as historical context before Agent Completion execution began.",
+      "approvalSource": "MF-1 Proposal acceptance and user-approved initial MCL plan"
+    },
+    {
+      "revision": 2,
+      "sha256": "a60905c15cdf421de4f8c9fc9cd1d64fe73e6711846b7376a172c601297bb207",
+      "taskIds": [
+        "MF-1-T01"
+      ],
+      "amendmentReason": "Corrected the SztuCode and Superpowers attribution, added explicit adoption levels, and distinguished author self-review from independent review.",
+      "approvalSource": "User correction in Codex task 019fe70e-e5e7-7b81-ae68-39eb0a087128"
+    },
+    {
+      "revision": 3,
+      "sha256": "c4fc6da8f701a46412caef5a396449e1560d569bdd000a9bd1955f627608e107",
+      "taskIds": [
+        "MF-1-T02",
+        "MF-1-T03",
+        "MF-1-T04",
+        "MF-1-T05"
+      ],
+      "amendmentReason": "Authorized a gated merge of the MCL candidate, preserved the predecessor plan, fixed immutable multi-Task Completion, separated the normative specification from the Change Plan, removed versioned-snapshot dependency maintenance, and recorded every independently prompted implementation Agent.",
+      "approvalSource": "User-approved MCL v1 revision and merge plan in Codex task 019fe70e-e5e7-7b81-ae68-39eb0a087128"
+    }
+  ]
+}

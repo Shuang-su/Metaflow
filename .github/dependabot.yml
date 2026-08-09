@@ -1,0 +1,14 @@
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: /metaflow-viewer
+    schedule:
+      interval: weekly
+    labels: ["component/viewer", "type/maintenance"]
+    open-pull-requests-limit: 5
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+    labels: ["component/platform", "type/maintenance"]
+    open-pull-requests-limit: 5

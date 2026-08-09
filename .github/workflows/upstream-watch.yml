@@ -1,0 +1,68 @@
+name: Upstream release discovery
+
+on:
+  schedule:
+    - cron: "17 3 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+concurrency:
+  group: upstream-release-discovery
+  cancel-in-progress: false
+
+jobs:
+  discover:
+    name: discover releases and maintain proposals
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Check out registry and version sources
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          lfs: false
+          sparse-checkout: |
+            metadata
+            scripts/upstream_watch.mjs
+          sparse-checkout-cone-mode: true
+      - name: Discover versions without modifying product code
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          node scripts/upstream_watch.mjs > upstream-targets.json
+          node --input-type=module <<'NODE' > upstream-targets.tsv
+          import { readFileSync } from 'node:fs';
+          const { targets } = JSON.parse(readFileSync('upstream-targets.json', 'utf8'));
+          for (const target of targets) {
+            process.stdout.write(`${target.component}\t${target.repository}\t${target.currentVersion}\n`);
+          }
+          NODE
+          while IFS=$'\t' read -r component repository current; do
+            latest="$(gh api "repos/$repository/releases/latest" --jq '.tag_name')"
+            if [ "${latest#v}" = "${current#v}" ]; then continue; fi
+            title="Upstream Sync Proposal: $component $latest"
+            body_file="$(mktemp)"
+            printf '%s\n' \
+              "## Signal" \
+              "" \
+              "A newer upstream release was detected. This issue is discovery only and does not authorize code changes or merging." \
+              "" \
+              "- Component: $component" \
+              "- Upstream: https://github.com/$repository/releases/tag/$latest" \
+              "- Local baseline: $current" \
+              "- Candidate: $latest" \
+              "" \
+              "## Required decision" \
+              "" \
+              "Classify Added / Changed / Fixed / Breaking behavior, then record Adopt / Defer / Skip and map every local customization as Keep / Port / Replace / Drop / Conflict." > "$body_file"
+            existing="$(gh issue list --repo "$GH_REPO" --state open --search "in:title $title" --json number --jq '.[0].number // empty')"
+            if [ -n "$existing" ]; then
+              gh issue edit "$existing" --repo "$GH_REPO" --body-file "$body_file"
+            else
+              gh issue create --repo "$GH_REPO" --title "$title" --body-file "$body_file" --label "component/$component" --label "type/upstream-sync" --label "risk/T3"
+            fi
+            rm -f "$body_file"
+          done < upstream-targets.tsv

@@ -1,5 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { createHash } from 'node:crypto';
 import { readFile, stat } from 'node:fs/promises';
 
 const readJson = async (path) => JSON.parse(await readFile(path, 'utf8'));
@@ -292,9 +293,24 @@ test('published legacy voxel resources are explicitly marked for Metaflow Rz180 
     assert.deepEqual(markedRoutes, expectedRoutes);
 });
 
-test('Dayun tiled voxel manifest references only published tile files', async () => {
+test('Dayun tiled voxel source is pinned and full manifest paths validate when available', async () => {
     const base = new URL('../../data/Shenzhen/250917 Dayun/tiled-voxel/', import.meta.url);
-    const manifest = await readJson(new URL('voxel-tiles.json', base));
+    const manifestUrl = new URL('voxel-tiles.json', base);
+    const rawManifest = await readFile(manifestUrl);
+    const expectedSha256 = '4654f0904fd641c92f8d62fd6d90e65bd339d5421083180d267dfd8f12133ef4';
+    const expectedSize = 157118;
+    const checkLargeFiles = process.env.MCL_SMALL_FIXTURES !== '1';
+
+    if (rawManifest.toString('utf8').startsWith('version https://git-lfs.github.com/spec/v1\n')) {
+        assert.equal(checkLargeFiles, false, 'full-data validation requires the resolved LFS object');
+        assert.match(rawManifest.toString('utf8'), new RegExp(`oid sha256:${expectedSha256}\\n`));
+        assert.match(rawManifest.toString('utf8'), new RegExp(`size ${expectedSize}\\n?$`));
+        return;
+    }
+
+    assert.equal(rawManifest.byteLength, expectedSize);
+    assert.equal(createHash('sha256').update(rawManifest).digest('hex'), expectedSha256);
+    const manifest = JSON.parse(rawManifest.toString('utf8'));
 
     assert.equal(manifest.version, 1);
     assert.equal(manifest.voxelResolution, 0.08);
@@ -304,6 +320,7 @@ test('Dayun tiled voxel manifest references only published tile files', async ()
 
     for (const tile of manifest.tiles) {
         assert.match(tile.url, /^tiles\/x\d+_z\d+\/walk\.voxel\.json$/);
+        if (!checkLargeFiles) continue;
         const jsonStat = await stat(new URL(tile.url, base));
         const binStat = await stat(new URL(tile.url.replace(/\.json$/, '.bin'), base));
         assert.ok(jsonStat.size > 0, `${tile.id} json should not be empty`);

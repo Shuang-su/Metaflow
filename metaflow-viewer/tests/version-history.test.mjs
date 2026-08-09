@@ -4,6 +4,7 @@ import { execFileSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import { readFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
+import { classifyPaths, loadComponentRegistry } from '../../scripts/mcl.mjs';
 
 const repoRoot = fileURLToPath(new URL('../..', import.meta.url));
 
@@ -120,9 +121,10 @@ test('change ledger contains every structured version and only main-history comm
     }
 });
 
-test('commits after documentedThrough are documentation/version maintenance only', async () => {
+test('commits after documentedThrough require version records only for affected product components', async () => {
     const manifest = await readJson(new URL('../../metadata/version-history.json', import.meta.url));
     const editorManifest = await readJson(new URL('../../metadata/editor-version-history.json', import.meta.url));
+    const componentRegistry = await loadComponentRegistry(repoRoot);
     const refs = execFileSync('git', ['rev-list', '--reverse', `${manifest.documentedThrough}..HEAD`], {
         cwd: repoRoot,
         encoding: 'utf8'
@@ -141,8 +143,14 @@ test('commits after documentedThrough are documentation/version maintenance only
         'data/index.json',
         'metaflow-viewer/package.json',
         'metaflow-viewer/package-lock.json',
+        'metaflow-viewer/.gitignore',
+        'metaflow-viewer/playwright.config.mjs',
         'metaflow-viewer/tests/version-history.test.mjs'
     ]);
+    const viewerMaintenancePrefixes = [
+        'metaflow-viewer/e2e/',
+        'metaflow-viewer/tests/'
+    ];
     const editorMaintenanceFiles = new Set([
         '.gitignore',
         'README.md',
@@ -151,6 +159,8 @@ test('commits after documentedThrough are documentation/version maintenance only
         'metadata/editor-version-history.json',
         'data/editor-version-history.json',
         'metaflow-editor/version.json',
+        'supersplat-v2.28.0/package.json',
+        'supersplat-v2.28.0/package-lock.json',
         'scripts/generate_editor_version.py',
         'metaflow-viewer/tests/editor-version-history.test.mjs',
         'metaflow-viewer/tests/tiled-voxel-index.test.mjs',
@@ -164,6 +174,10 @@ test('commits after documentedThrough are documentation/version maintenance only
     const documentedEditorReleaseRefs = new Set(
         (editorManifest.entries || []).map((entry) => entry.gitRef).filter(Boolean)
     );
+    const documentedViewerRefs = new Set([
+        ...(manifest.entries || []).map((entry) => entry.gitRef).filter(Boolean),
+        ...(manifest.maintenanceCommits || []).map((entry) => entry.gitRef).filter(Boolean)
+    ]);
     const isEditorReleaseFile = (file) => (
         editorMaintenanceFiles.has(file) ||
         editorSourcePrefixes.some((prefix) => file.startsWith(prefix))
@@ -176,14 +190,29 @@ test('commits after documentedThrough are documentation/version maintenance only
         }).trim().split('\n').filter(Boolean);
         const shortRef = ref.slice(0, 7);
         const isDocumentedEditorRelease = documentedEditorReleaseRefs.has(shortRef);
+        const isDocumentedViewerRelease = documentedViewerRefs.has(shortRef);
+        const classified = classifyPaths(files, componentRegistry);
+        const viewerOrDataFiles = new Set([
+            ...(classified.viewer || []),
+            ...(classified.data || [])
+        ]);
         const unexpectedFiles = files.filter((file) => {
             if (allowedFiles.has(file)) {
+                return false;
+            }
+            if (viewerMaintenancePrefixes.some((prefix) => file.startsWith(prefix))) {
                 return false;
             }
             if (editorMaintenanceFiles.has(file)) {
                 return false;
             }
-            return !(isDocumentedEditorRelease && isEditorReleaseFile(file));
+            if (isDocumentedEditorRelease && isEditorReleaseFile(file)) {
+                return false;
+            }
+            if (!viewerOrDataFiles.has(file)) {
+                return false;
+            }
+            return !isDocumentedViewerRelease;
         });
         assert.ok(
             unexpectedFiles.length === 0,
@@ -212,4 +241,6 @@ test('package and public release versions match the structured current version',
     assert.equal(lock.packages[''].version, manifest.current.appSemver);
     assert.equal(manifest.current.displayVersion, '5.18a');
     assert.equal(manifest.current.gitRef, manifest.documentedThrough);
+    assert.equal(manifest.current.upstream.repository, 'playcanvas/supersplat-viewer');
+    assert.equal(manifest.current.upstream.version, '1.26.2');
 });

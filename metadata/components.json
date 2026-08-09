@@ -1,0 +1,95 @@
+{
+  "schemaVersion": "1.0",
+  "components": [
+    {
+      "id": "viewer",
+      "kind": "product",
+      "ownedPaths": [
+        "metaflow-viewer/**",
+        "metadata/version-history.json",
+        "data/version-history.json"
+      ],
+      "versionSource": "metadata/version-history.json",
+      "checks": ["viewer-test", "viewer-typecheck", "viewer-build", "viewer-e2e"],
+      "deployTarget": "/",
+      "upstream": {
+        "repository": "playcanvas/supersplat-viewer",
+        "versionField": "current.upstream.version"
+      }
+    },
+    {
+      "id": "editor",
+      "kind": "product",
+      "ownedPaths": [
+        "supersplat-v2.28.0/**",
+        "metaflow-editor/**",
+        "metadata/editor-version-history.json",
+        "data/editor-version-history.json"
+      ],
+      "versionSource": "metadata/editor-version-history.json",
+      "checks": ["editor-lint", "editor-build", "editor-contract"],
+      "deployTarget": "/editor",
+      "upstream": {
+        "repository": "playcanvas/supersplat",
+        "versionField": "current.upstream.version"
+      }
+    },
+    {
+      "id": "design",
+      "kind": "lab",
+      "ownedPaths": [
+        "aave-liquid-glass-lab/**",
+        "swiftgram-ios-liquid-glass-lab/**",
+        "docs/design/**"
+      ],
+      "versionSource": null,
+      "checks": ["design-source-audit", "design-typecheck", "design-storybook", "design-visual"],
+      "deployTarget": null
+    },
+    {
+      "id": "data",
+      "kind": "product-data",
+      "ownedPaths": ["data/**"],
+      "versionSource": "metadata/version-history.json",
+      "checks": ["data-schema", "data-index", "data-fixtures"],
+      "deployTarget": "/data"
+    },
+    {
+      "id": "platform",
+      "kind": "infrastructure",
+      "ownedPaths": [
+        ".github/**",
+        "scripts/**",
+        "supabase/**",
+        "analytics/**",
+        "netlify.toml",
+        "AGENTS.md",
+        "CONTRIBUTING.md",
+        "ROADMAP.md",
+        "README.md",
+        ".gitattributes",
+        ".gitignore",
+        "metadata/components.json",
+        "metadata/schemas/**",
+        "docs/metaflow-change-lifecycle-v1.0.md",
+        "docs/metaflow-change-lifecycle-v1.0-complete-plan.md",
+        "docs/changes/**",
+        "docs/templates/**"
+      ],
+      "versionSource": null,
+      "checks": ["governance", "completion", "platform-config", "security"],
+      "deployTarget": null
+    },
+    {
+      "id": "reference",
+      "kind": "upstream-snapshot",
+      "ownedPaths": [
+        "supersplat-viewer-v*/**",
+        "supersplat-v2.18.1/**"
+      ],
+      "versionSource": null,
+      "checks": ["reference-source", "reference-version", "reference-license"],
+      "deployTarget": null
+    }
+  ]
+}

@@ -1,0 +1,41 @@
+name: Product or feature proposal
+description: Propose a product, interaction, UI, or data capability.
+title: "[Proposal] "
+labels: ["type/proposal", "risk/T2"]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem or opportunity
+    validations:
+      required: true
+  - type: textarea
+    id: users
+    attributes:
+      label: Users and scenarios
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Evidence and why now
+    validations:
+      required: true
+  - type: textarea
+    id: success
+    attributes:
+      label: Goals and measurable success
+    validations:
+      required: true
+  - type: textarea
+    id: non_goals
+    attributes:
+      label: Non-goals
+    validations:
+      required: true
+  - type: textarea
+    id: options
+    attributes:
+      label: Options, cost, dependencies, and risks
+    validations:
+      required: true

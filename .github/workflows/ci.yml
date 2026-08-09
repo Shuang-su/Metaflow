@@ -1,0 +1,377 @@
+name: MCL CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: mcl-ci-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  classify:
+    name: classify paths
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    outputs:
+      viewer: ${{ steps.classify.outputs.viewer }}
+      editor: ${{ steps.classify.outputs.editor }}
+      design: ${{ steps.classify.outputs.design }}
+      data: ${{ steps.classify.outputs.data }}
+      platform: ${{ steps.classify.outputs.platform }}
+      reference: ${{ steps.classify.outputs.reference }}
+      registry: ${{ steps.classify.outputs.registry }}
+      unowned: ${{ steps.classify.outputs.unowned }}
+    steps:
+      - name: Check out classification sources
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          fetch-depth: 0
+          lfs: false
+          sparse-checkout: |
+            scripts
+            metadata
+          sparse-checkout-cone-mode: true
+      - name: Set up Node.js
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
+        with:
+          node-version: 20
+      - name: Classify changed paths from the component registry
+        id: classify
+        env:
+          PR_BASE: ${{ github.event.pull_request.base.sha }}
+          PUSH_BASE: ${{ github.event.before }}
+        run: |
+          base="$PR_BASE"
+          if [ -z "$base" ]; then base="$PUSH_BASE"; fi
+          if [ -z "$base" ] || printf '%s' "$base" | grep -Eq '^0+$'; then base="HEAD^"; fi
+          node scripts/mcl.mjs classify --base "$base" > classification.json
+          node --input-type=module <<'NODE'
+          import { appendFileSync, readFileSync } from 'node:fs';
+          const result = JSON.parse(readFileSync('classification.json', 'utf8'));
+          const components = ['viewer', 'editor', 'design', 'data', 'platform', 'reference'];
+          const owned = new Set(Object.values(result.components).flat());
+          const output = components.map((id) => `${id}=${Boolean(result.components[id])}`);
+          output.push(`registry=${result.paths.includes('metadata/components.json')}`);
+          output.push(`unowned=${result.paths.filter((path) => !owned.has(path)).join(',')}`);
+          appendFileSync(process.env.GITHUB_OUTPUT, `${output.join('\n')}\n`);
+          NODE
+          test -z "$(node -e "const x=require('./classification.json');const o=new Set(Object.values(x.components).flat());process.stdout.write(x.paths.filter(p=>!o.has(p)).join(','))")"
+
+  governance:
+    name: governance and completion
+    needs: classify
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Check out governance sources
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          fetch-depth: 0
+          lfs: false
+          sparse-checkout: |
+            .github
+            analytics
+            data/index.json
+            data/version-history.json
+            data/editor-version-history.json
+            docs
+            metadata
+            scripts
+            supabase
+            AGENTS.md
+            CONTRIBUTING.md
+            ROADMAP.md
+            README.md
+            netlify.toml
+          sparse-checkout-cone-mode: false
+      - name: Set up Node.js
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
+        with:
+          node-version: 20
+      - name: Run Completion Contract tests
+        run: node --test scripts/tests/*.test.mjs
+      - name: Run platform and data unit tests
+        run: python3 -m unittest discover -s scripts/tests -p 'test_*.py' -v
+      - name: Validate governed Changes
+        run: node scripts/mcl.mjs check-all
+      - name: Validate registry and Version History
+        run: |
+          node scripts/mcl.mjs validate-registry
+          node scripts/mcl.mjs validate-version-history
+      - name: Validate platform configuration
+        run: python3 scripts/validate_platform.py
+      - name: Validate distributable data fixtures
+        run: python3 scripts/validate_data.py
+      - name: Validate Markdown links
+        run: node scripts/check_markdown_links.mjs
+      - name: Scan secrets and accidental files
+        run: node scripts/scan_repository.mjs
+      - name: Check whitespace errors
+        run: git diff --check
+
+  viewer:
+    name: viewer test, typecheck, and build
+    needs: classify
+    if: needs.classify.outputs.viewer == 'true' || needs.classify.outputs.data == 'true' || needs.classify.outputs.registry == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - name: Check out Viewer sources without large data blobs
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          fetch-depth: 0
+          lfs: false
+          sparse-checkout: |
+            metaflow-viewer
+            metaflow-editor
+            supersplat-v2.18.1/src/ui/timeline-panel.ts
+            supersplat-v2.28.0/src
+            analytics
+            supabase
+            scripts
+            metadata
+            data/index.json
+            data/version-history.json
+            data/editor-version-history.json
+            data/ACG/FireflyFes38/260502 172930 03 崩坏星穹铁道 昔涟/settings-v2.json
+            data/Shenzhen/250917 Dayun/tiled-voxel/voxel-tiles.json
+            docs/metaflow-viewer-change-ledger.md
+            docs/metaflow-editor-change-ledger.md
+            README.md
+            netlify.toml
+          sparse-checkout-cone-mode: false
+      - name: Set up Node.js
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: metaflow-viewer/package-lock.json
+      - name: Install Viewer dependencies
+        working-directory: metaflow-viewer
+        run: npm ci
+      - name: Test Viewer
+        working-directory: metaflow-viewer
+        env:
+          MCL_SMALL_FIXTURES: 1
+        run: npm test
+      - name: Typecheck Viewer
+        working-directory: metaflow-viewer
+        run: npm run type:check
+      - name: Build Viewer
+        working-directory: metaflow-viewer
+        run: npm run build
+      - name: Install Chromium for Viewer E2E
+        working-directory: metaflow-viewer
+        run: npx playwright install --with-deps chromium
+      - name: Run Viewer E2E against development watch mode
+        working-directory: metaflow-viewer
+        run: npm run e2e:dev
+      - name: Run Viewer E2E against production build
+        working-directory: metaflow-viewer
+        run: npm run e2e:build
+      - name: Upload Viewer failure diagnostics
+        if: failure()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: viewer-diagnostics-${{ github.sha }}
+          path: |
+            metaflow-viewer/playwright-report
+            metaflow-viewer/test-results
+          if-no-files-found: warn
+          retention-days: 14
+      - name: Enforce Viewer bundle budget
+        run: test "$(du -sk metaflow-viewer/public metaflow-viewer/dist | awk '{sum += $1} END {print sum}')" -le 20480
+      - name: Upload Viewer build
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: viewer-build-${{ github.sha }}
+          path: |
+            metaflow-viewer/public
+            !metaflow-viewer/public/data/**
+            metaflow-viewer/dist
+            metaflow-viewer/playwright-report
+            metaflow-viewer/test-results
+          if-no-files-found: error
+          retention-days: 14
+
+  editor:
+    name: editor lint and build
+    needs: classify
+    if: needs.classify.outputs.editor == 'true' || needs.classify.outputs.registry == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - name: Check out Editor sources
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          lfs: false
+          sparse-checkout: supersplat-v2.28.0
+      - name: Set up Node.js
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
+        with:
+          node-version: 20.19.0
+          cache: npm
+          cache-dependency-path: supersplat-v2.28.0/package-lock.json
+      - name: Install Editor dependencies
+        working-directory: supersplat-v2.28.0
+        run: npm ci
+      - name: Lint Editor
+        working-directory: supersplat-v2.28.0
+        run: npm run lint
+      - name: Build Editor
+        working-directory: supersplat-v2.28.0
+        run: npm run build
+      - name: Enforce Editor bundle budget
+        run: test "$(du -sk supersplat-v2.28.0/dist | awk '{print $1}')" -le 51200
+      - name: Upload Editor build
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: editor-build-${{ github.sha }}
+          path: supersplat-v2.28.0/dist
+          if-no-files-found: error
+          retention-days: 14
+
+  design:
+    name: design source and package baseline
+    needs: classify
+    if: needs.classify.outputs.design == 'true' || needs.classify.outputs.registry == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Check out Design sources
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          lfs: false
+          sparse-checkout: |
+            aave-liquid-glass-lab
+            swiftgram-ios-liquid-glass-lab
+            docs/design
+          sparse-checkout-cone-mode: true
+      - name: Set up Node.js
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
+        with:
+          node-version: 20
+      - name: Validate Design provenance and available package scripts
+        run: |
+          found=0
+          for directory in aave-liquid-glass-lab swiftgram-ios-liquid-glass-lab; do
+            if [ ! -d "$directory" ]; then continue; fi
+            found=1
+            test -f "$directory/README.md"
+            if [ -f "$directory/package.json" ]; then
+              test -f "$directory/package-lock.json" -o -f "$directory/pnpm-lock.yaml" -o -f "$directory/yarn.lock"
+              node -e "const p=require('./$directory/package.json');for(const s of ['typecheck','generate-study-pages','build-storybook'])if(!p.scripts?.[s])throw new Error('$directory missing '+s)"
+              npm --prefix "$directory" ci
+              npm --prefix "$directory" run typecheck
+              npm --prefix "$directory" run generate-study-pages
+              npm --prefix "$directory" run build-storybook
+            fi
+          done
+          if [ "$found" -eq 0 ]; then printf '%s\n' 'No tracked Design implementation is present on this ref.'; fi
+
+  data:
+    name: data schema fixtures
+    needs: classify
+    if: needs.classify.outputs.data == 'true' || needs.classify.outputs.viewer == 'true' || needs.classify.outputs.registry == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Check out small data fixtures only
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          lfs: false
+          sparse-checkout: |
+            data/index.json
+            data/version-history.json
+            data/editor-version-history.json
+            metadata/version-history.json
+            metadata/editor-version-history.json
+            scripts/validate_data.py
+          sparse-checkout-cone-mode: false
+      - name: Validate data schemas and mirrors
+        run: python3 scripts/validate_data.py
+
+  reference:
+    name: reference provenance and integrity
+    needs: classify
+    if: needs.classify.outputs.reference == 'true' || needs.classify.outputs.registry == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Check out reference manifests
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          lfs: false
+          sparse-checkout: |
+            supersplat-viewer-v1.11.1/LICENSE
+            supersplat-viewer-v1.11.1/package.json
+            supersplat-viewer-v1.18.2/LICENSE
+            supersplat-viewer-v1.18.2/package.json
+            supersplat-v2.18.1/LICENSE
+            supersplat-v2.18.1/package.json
+          sparse-checkout-cone-mode: false
+      - name: Validate reference licenses and versions
+        run: |
+          for directory in supersplat-viewer-v1.11.1 supersplat-viewer-v1.18.2 supersplat-v2.18.1; do
+            test -s "$directory/LICENSE"
+            node -e "const p=require('./$directory/package.json');if(!p.name||!p.version||!p.license)process.exit(1)"
+          done
+
+  codeql:
+    name: CodeQL
+    needs: classify
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: read
+      security-events: write
+    steps:
+      - name: Check out executable sources without data assets
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          lfs: false
+          sparse-checkout: |
+            metaflow-viewer
+            supersplat-v2.28.0
+            scripts
+            supabase/functions
+          sparse-checkout-cone-mode: true
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@5595ccaf912efad79be6eef63a5619ff05969be3 # v4
+        with:
+          languages: javascript-typescript,python
+      - name: Analyze
+        uses: github/codeql-action/analyze@5595ccaf912efad79be6eef63a5619ff05969be3 # v4
+
+  dependency-review:
+    name: dependency review
+    needs: classify
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      pull-requests: read
+    steps:
+      - name: Review dependency changes
+        uses: actions/dependency-review-action@a1d282b36b6f3519aa1f3fc636f609c47dddb294 # v5
+
+  gate:
+    name: required / gate
+    if: always()
+    needs: [classify, governance, viewer, editor, design, data, reference, codeql, dependency-review]
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Require every applicable job to succeed
+        env:
+          RESULTS: ${{ join(needs.*.result, ',') }}
+          UNOWNED: ${{ needs.classify.outputs.unowned }}
+        run: |
+          test -z "$UNOWNED"
+          ! printf '%s' "$RESULTS" | grep -Eq 'failure|cancelled'

@@ -1,0 +1,99 @@
+name: Controlled production rollback
+
+on:
+  workflow_dispatch:
+    inputs:
+      change_id:
+        description: Change ID being rolled back
+        required: true
+        type: string
+      deploy_id:
+        description: Previously successful immutable Netlify deploy ID
+        required: true
+        type: string
+      reason:
+        description: Incident evidence and rollback reason
+        required: true
+        type: string
+      confirmation:
+        description: Enter ROLLBACK to authorize the production mutation
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: production-rollback
+  cancel-in-progress: false
+
+jobs:
+  rollback:
+    name: restore, verify, and open follow-up
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    environment: production
+    permissions:
+      contents: read
+      issues: write
+    steps:
+      - name: Validate explicit authorization
+        env:
+          CONFIRMATION: ${{ inputs.confirmation }}
+          CHANGE_ID: ${{ inputs.change_id }}
+        run: |
+          test "$CONFIRMATION" = ROLLBACK
+          printf '%s' "$CHANGE_ID" | grep -Eq '^MF-([1-9][0-9]*|T0-[0-9]{8}-[a-z0-9-]+)$'
+      - name: Restore the selected atomic deploy
+        env:
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+          NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
+          DEPLOY_ID: ${{ inputs.deploy_id }}
+        run: |
+          test -n "$NETLIFY_AUTH_TOKEN"
+          test -n "$NETLIFY_SITE_ID"
+          curl --fail --silent --show-error --request POST --header "Authorization: Bearer $NETLIFY_AUTH_TOKEN" "https://api.netlify.com/api/v1/sites/$NETLIFY_SITE_ID/deploys/$DEPLOY_ID/restore" > rollback-response.json
+          curl --fail --silent --show-error --header "Authorization: Bearer $NETLIFY_AUTH_TOKEN" "https://api.netlify.com/api/v1/sites/$NETLIFY_SITE_ID/deploys/$DEPLOY_ID" > rollback-deploy.json
+          curl --fail --silent --show-error --header "Authorization: Bearer $NETLIFY_AUTH_TOKEN" "https://api.netlify.com/api/v1/sites/$NETLIFY_SITE_ID" > rollback-site.json
+          node -e "const d=require('./rollback-deploy.json');const s=require('./rollback-site.json');if(d.id!==process.env.DEPLOY_ID||!['ready','current'].includes(d.state)||s.published_deploy?.id!==d.id)process.exit(1)"
+      - name: Smoke the restored deploy
+        run: |
+          deploy_url="$(node -e "const d=require('./rollback-deploy.json');process.stdout.write(d.deploy_ssl_url||d.ssl_url||d.url)")"
+          production_url="$(node -e "const s=require('./rollback-site.json');process.stdout.write(s.ssl_url||s.url)")"
+          curl --fail --silent --show-error --retry 4 --retry-delay 5 "$deploy_url/" > rollback-deploy-smoke.html
+          curl --fail --silent --show-error --retry 4 --retry-delay 5 "$production_url/" > rollback-production-smoke.html
+      - name: Create the mandatory rollback follow-up Change
+        env:
+          GH_TOKEN: ${{ github.token }}
+          CHANGE_ID: ${{ inputs.change_id }}
+          DEPLOY_ID: ${{ inputs.deploy_id }}
+          REASON: ${{ inputs.reason }}
+        run: |
+          printf '%s\n' \
+            "## Rollback" \
+            "" \
+            "- Original Change: $CHANGE_ID" \
+            "- Restored Netlify deploy: $DEPLOY_ID" \
+            "- Reason: $REASON" \
+            "- Workflow run: $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID" \
+            "" \
+            "## Required closure work" \
+            "" \
+            "- Create a revert or corrective PR." \
+            "- Append a rollback Version History entry; do not rewrite the original release." \
+            "- Import this workflow evidence into a Rollback Task Record." \
+            "- Mark the original Change rolled-back and generate a new Completion Dossier." \
+            "- Record observation and the incident follow-up Change." > rollback-issue.md
+          gh issue create --repo "$GITHUB_REPOSITORY" --title "Rollback follow-up for $CHANGE_ID" --label "component/platform" --label "type/rollback" --label "risk/T2" --body-file rollback-issue.md
+      - name: Upload rollback evidence
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: rollback-evidence-${{ inputs.change_id }}-${{ inputs.deploy_id }}
+          path: |
+            rollback-response.json
+            rollback-deploy.json
+            rollback-site.json
+            rollback-deploy-smoke.html
+            rollback-production-smoke.html
+          if-no-files-found: error
+          retention-days: 90

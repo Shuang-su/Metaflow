@@ -1,0 +1,155 @@
+{
+  "schemaVersion": "1.1",
+  "changeId": "MF-1",
+  "terminalState": "verifying",
+  "risk": "T3",
+  "components": [
+    "platform"
+  ],
+  "request": {
+    "path": "request-transcript.md",
+    "sha256": "49fe518d3e38c4099508ead4e8f3008598f26a735a44b8dd82218d86d968d11f",
+    "messageCount": 12
+  },
+  "plan": {
+    "path": "approved-plan.md",
+    "sha256": "c4fc6da8f701a46412caef5a396449e1560d569bdd000a9bd1955f627608e107",
+    "revision": 3,
+    "source": "../plan.md"
+  },
+  "agentSummary": {
+    "path": "agent-action-reply-summary.md",
+    "sha256": "d1e07c7511f70ad49fe19627aa6e9ce93ee5ecd823b2d689efd1e9d7e8c350b1"
+  },
+  "planRevisions": [
+    {
+      "revision": 1,
+      "sha256": "0d8d097dc0fcf53b23809f3dbd81b2fa58bdfec38a99bdf898294d4ba50b1906",
+      "taskIds": [],
+      "amendmentReason": "Initial MF-1 candidate adoption and implementation plan; retained as historical context before Agent Completion execution began.",
+      "approvalSource": "MF-1 Proposal acceptance and user-approved initial MCL plan"
+    },
+    {
+      "revision": 2,
+      "sha256": "a60905c15cdf421de4f8c9fc9cd1d64fe73e6711846b7376a172c601297bb207",
+      "taskIds": [
+        "MF-1-T01"
+      ],
+      "amendmentReason": "Corrected the SztuCode and Superpowers attribution, added explicit adoption levels, and distinguished author self-review from independent review.",
+      "approvalSource": "User correction in Codex task 019fe70e-e5e7-7b81-ae68-39eb0a087128"
+    },
+    {
+      "revision": 3,
+      "sha256": "c4fc6da8f701a46412caef5a396449e1560d569bdd000a9bd1955f627608e107",
+      "taskIds": [
+        "MF-1-T02",
+        "MF-1-T03",
+        "MF-1-T04",
+        "MF-1-T05"
+      ],
+      "amendmentReason": "Authorized a gated merge of the MCL candidate, preserved the predecessor plan, fixed immutable multi-Task Completion, separated the normative specification from the Change Plan, removed versioned-snapshot dependency maintenance, and recorded every independently prompted implementation Agent.",
+      "approvalSource": "User-approved MCL v1 revision and merge plan in Codex task 019fe70e-e5e7-7b81-ae68-39eb0a087128"
+    }
+  ],
+  "taskRecords": [
+    {
+      "taskId": "MF-1-T01",
+      "tool": "codex",
+      "sourceTaskId": "019fe70e-e5e7-7b81-ae68-39eb0a087128",
+      "status": "partial",
+      "record": "task-records/MF-1-T01.md",
+      "sha256": "616c6d3390b6663882d54551be4e6c74f906e177601c9af72311fa873e33101d",
+      "request": {
+        "sha256": "3ae3aa523dee475f8d960198c39468466e59caaf6d5bef0087a9e8dd91d4f49e",
+        "messageCount": 4
+      },
+      "plan": {
+        "revision": 2,
+        "sha256": "a60905c15cdf421de4f8c9fc9cd1d64fe73e6711846b7376a172c601297bb207"
+      }
+    },
+    {
+      "taskId": "MF-1-T02",
+      "tool": "codex",
+      "sourceTaskId": "019fe7dd-c2c6-7062-b61a-b2f23285b126",
+      "status": "complete",
+      "record": "task-records/MF-1-T02.md",
+      "sha256": "ed88ac509f41c161d3dfd5e7092b8264c3f179dcec3720e60941738ad39b91f3",
+      "request": {
+        "sha256": "226c7bce935308776323e54313d29bc6a90bdee450cb699f6127ad677db2d7c8",
+        "messageCount": 1
+      },
+      "plan": {
+        "revision": 3,
+        "sha256": "c4fc6da8f701a46412caef5a396449e1560d569bdd000a9bd1955f627608e107"
+      }
+    },
+    {
+      "taskId": "MF-1-T03",
+      "tool": "codex",
+      "sourceTaskId": "019fe7dd-e983-7cb0-ab7d-9afa741263e4",
+      "status": "complete",
+      "record": "task-records/MF-1-T03.md",
+      "sha256": "f23f68ca14a5dded0794eb927844f9341d014dbb76a5f8e8fe88ec1ed99c2239",
+      "request": {
+        "sha256": "cf6667b6178bb2f7d74a635ee7b268a1d687880a54576eaf917ae6c724cacdd7",
+        "messageCount": 1
+      },
+      "plan": {
+        "revision": 3,
+        "sha256": "c4fc6da8f701a46412caef5a396449e1560d569bdd000a9bd1955f627608e107"
+      }
+    },
+    {
+      "taskId": "MF-1-T04",
+      "tool": "codex",
+      "sourceTaskId": "019fe7de-0291-7362-a282-8e9fabc2ef1f",
+      "status": "complete",
+      "record": "task-records/MF-1-T04.md",
+      "sha256": "89c8bf2ddc3e682d973af73fb71737007cba6b5552c271224584b10c110cf56e",
+      "request": {
+        "sha256": "7f189cada67f9b281b684fe82762944663df150276cfd2f9cc800cf7ec3c90ae",
+        "messageCount": 1
+      },
+      "plan": {
+        "revision": 3,
+        "sha256": "c4fc6da8f701a46412caef5a396449e1560d569bdd000a9bd1955f627608e107"
+      }
+    },
+    {
+      "taskId": "MF-1-T05",
+      "tool": "codex",
+      "sourceTaskId": "019fe70e-e5e7-7b81-ae68-39eb0a087128",
+      "status": "partial",
+      "record": "task-records/MF-1-T05.md",
+      "sha256": "f60165d99286ad2df51c1672bd2035d2dc0744af4145bc6ed81f663d41b0ac2f",
+      "request": {
+        "sha256": "54e3f4ab3a906f16181f6252e395792cb39a08a05200bb2a6e42e3ce559e6b46",
+        "messageCount": 5
+      },
+      "plan": {
+        "revision": 3,
+        "sha256": "c4fc6da8f701a46412caef5a396449e1560d569bdd000a9bd1955f627608e107"
+      }
+    }
+  ],
+  "sourceMaterials": [
+    {
+      "path": "source-materials/metaflow-change-lifecycle-v1.0-complete-plan.md",
+      "sha256": "37f45424cc233af72801e1d91053d4581d1bbcdfb73627612d6f28f018af85a3",
+      "kind": "predecessor-plan",
+      "provenance": "user-supplied-workspace-file",
+      "nonNormative": true
+    }
+  ],
+  "closure": {
+    "path": "closure.md",
+    "sha256": "cd732031a8283c694aa849c934fc48cf51a15da1c34fd71cc8189ead0f4f0103"
+  },
+  "dossier": {
+    "path": "dossier.md",
+    "sha256": "21673c955aa48adf7b7e8fcbc2a8ab180c8c6670259f13522f393132152b6afd"
+  },
+  "redactions": [],
+  "generatedAt": "2026-08-09T19:29:24.000Z"
+}
