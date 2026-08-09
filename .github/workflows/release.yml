@@ -86,8 +86,8 @@ jobs:
         run: npm ci && MCL_SMALL_FIXTURES=1 npm test && npm run type:check && npm run build
       - name: Build Editor release payload
         if: steps.tag.outputs.component == 'editor'
-        working-directory: supersplat-v2.28.0
-        run: npm ci && npm run lint && npm run build
+        working-directory: metaflow-editor
+        run: npm ci && npm test && npm run lint && npm run build && python3 ../scripts/generate_editor_version.py && npm run test:runtime
       - name: Create immutable evidence manifest
         env:
           RELEASE_TAG: ${{ inputs.release_tag }}

@@ -12,7 +12,8 @@ test('generated editor version history mirrors metadata source', async () => {
     assert.equal(manifest.current.productName, 'Metaflow Editor');
     assert.equal(manifest.current.displayVersion, '1.1');
     assert.equal(manifest.current.appSemver, '1.1.0');
-    assert.equal(manifest.current.sourcePath, 'supersplat-v2.28.0');
+    assert.equal(manifest.current.sourcePath, 'metaflow-editor');
+    assert.equal(manifest.current.upstreamSnapshotPath, 'supersplat-v2.28.0');
     assert.equal(manifest.current.upstream.version, '2.28.0');
 
     const entries = new Map(manifest.entries.map((entry) => [entry.displayVersion, entry]));
@@ -20,17 +21,13 @@ test('generated editor version history mirrors metadata source', async () => {
     assert.equal(entries.get('1.1')?.sourcePath, 'supersplat-v2.28.0');
 });
 
-test('editor runtime version json exposes the current release', async () => {
-    const manifest = await readJson(new URL('../../metadata/editor-version-history.json', import.meta.url));
-    const runtime = await readJson(new URL('../../metaflow-editor/version.json', import.meta.url));
+test('editor runtime metadata is generated inside the ignored Active dist', async () => {
+    const generator = await readFile(new URL('../../scripts/generate_editor_version.py', import.meta.url), 'utf8');
+    const gitignore = await readFile(new URL('../../metaflow-editor/.gitignore', import.meta.url), 'utf8');
 
-    assert.equal(runtime.productName, manifest.current.productName);
-    assert.equal(runtime.displayVersion, manifest.current.displayVersion);
-    assert.equal(runtime.appSemver, manifest.current.appSemver);
-    assert.deepEqual(runtime.upstream, manifest.current.upstream);
-    assert.deepEqual(runtime.dependencies, manifest.current.dependencies);
-    assert.equal(runtime.historyUrl, manifest.current.historyUrl);
-    assert.equal(runtime.generatedFrom, 'metadata/editor-version-history.json');
+    assert.match(generator, /"metaflow-editor" \/ "dist" \/ "version\.json"/);
+    assert.match(generator, /upstreamSnapshotPath/);
+    assert.match(gitignore, /^dist$/m);
 });
 
 test('editor ledger documents the structured editor release', async () => {
@@ -47,11 +44,11 @@ test('editor ledger documents the structured editor release', async () => {
 
 test('editor source keeps Metaflow version, frame cap, and export compatibility wiring', async () => {
     await stat(new URL('../../supersplat-v2.18.1/src/ui/timeline-panel.ts', import.meta.url));
-    await stat(new URL('../../supersplat-v2.28.0/src/metaflow-editor-version.ts', import.meta.url));
+    await stat(new URL('../../supersplat-v2.28.0/LICENSE', import.meta.url));
 
-    const versionSource = await readFile(new URL('../../supersplat-v2.28.0/src/metaflow-editor-version.ts', import.meta.url), 'utf8');
-    const timelineSource = await readFile(new URL('../../supersplat-v2.28.0/src/ui/timeline-panel.ts', import.meta.url), 'utf8');
-    const exportSource = await readFile(new URL('../../supersplat-v2.28.0/src/splat-serialize.ts', import.meta.url), 'utf8');
+    const versionSource = await readFile(new URL('../../metaflow-editor/src/metaflow-editor-version.ts', import.meta.url), 'utf8');
+    const timelineSource = await readFile(new URL('../../metaflow-editor/src/ui/timeline-panel.ts', import.meta.url), 'utf8');
+    const exportSource = await readFile(new URL('../../metaflow-editor/src/splat-serialize.ts', import.meta.url), 'utf8');
 
     assert.match(versionSource, /Metaflow Editor/);
     assert.match(versionSource, /displayVersion: '1\.1'/);
@@ -65,22 +62,13 @@ test('editor source keeps Metaflow version, frame cap, and export compatibility 
     assert.match(exportSource, /scene\.compressed\.ply/);
 });
 
-test('built editor exposes Metaflow version, cache name, frame cap, and legacy export strings', async () => {
-    const indexHtml = await readFile(new URL('../../metaflow-editor/index.html', import.meta.url), 'utf8');
-    const indexJs = await readFile(new URL('../../metaflow-editor/index.js', import.meta.url), 'utf8');
-    const sw = await readFile(new URL('../../metaflow-editor/sw.js', import.meta.url), 'utf8');
+test('editor runtime baseline records the complete non-map 1.1.0 file set', async () => {
+    const baseline = await readJson(new URL('../../metadata/editor-runtime-baseline.json', import.meta.url));
 
-    assert.match(indexHtml, /Metaflow Editor/);
-    assert.ok(indexJs.includes('Metaflow Editor'), 'built editor bundle should contain the Metaflow product name');
-    assert.ok(indexJs.includes('SuperSplat Editor'), 'built editor bundle should contain the upstream product name');
-    assert.ok(indexJs.includes('1.1.0'), 'built editor bundle should contain the Metaflow semver');
-    assert.ok(indexJs.includes('2.28.0'), 'built editor bundle should contain the upstream editor version');
-    assert.ok(indexJs.includes('scene.compressed.ply'), 'built editor bundle should contain legacy zip model filename');
-    assert.ok(indexJs.includes('settings.json'), 'built editor bundle should contain settings export filename');
-    assert.ok(indexJs.includes('legacyZip'), 'built editor bundle should contain legacy zip export type');
-    assert.match(indexJs, /max:1e5|max:100000/);
-    assert.ok(sw.includes('metaflow-editor-v'), 'service worker should use the Metaflow editor cache prefix');
-    assert.ok(sw.includes("appSemver: '1.1.0'"), 'service worker should include the Metaflow editor semver');
-    assert.ok(sw.includes("upstreamVersion: '2.28.0'"), 'service worker should include the upstream editor version');
-    assert.match(sw, /version\.json/);
+    assert.equal(baseline.editorVersion, '1.1.0');
+    assert.equal(baseline.sourcePath, 'metaflow-editor');
+    assert.equal(baseline.buildPath, 'metaflow-editor/dist');
+    assert.equal(Object.keys(baseline.files).length, 26);
+    assert.equal(baseline.files['index.js'], '8bc4743c4f0b3a2cbe8488bf429d806be65f662f63ffc469ce695d1a39b05abf');
+    assert.equal(baseline.files['sw.js'], 'a0af903ab42d9ea57d5c8de503a407e27005f9342f0ccb2c25e2c13bba5ae459');
 });

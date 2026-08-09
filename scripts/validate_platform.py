@@ -121,6 +121,17 @@ def validate_netlify(root: Path) -> list[str]:
         errors.append("netlify.toml: build.command must run the MCL check from the configured base")
     if "python3 ../scripts/validate_platform.py" not in command:
         errors.append("netlify.toml: build.command must run the platform configuration check")
+    editor_requirements = {
+        "npm --prefix ../metaflow-editor ci": "install the Active Editor with npm ci",
+        "npm --prefix ../metaflow-editor run build": "build the Active Editor source",
+        "python3 ../scripts/generate_editor_version.py": "generate Editor runtime version metadata",
+        "../metaflow-editor/dist/": "publish the generated Editor dist directory",
+    }
+    for required, description in editor_requirements.items():
+        if required not in command:
+            errors.append(f"netlify.toml: build.command must {description}")
+    if re.search(r"rsync\s+[^&]*\.\./metaflow-editor/\s+public/editor/", command):
+        errors.append("netlify.toml: publish metaflow-editor/dist, not the Active source directory")
 
     redirects = document.get("redirects", [])
     catchalls = [index for index, redirect in enumerate(redirects) if redirect.get("from") == "/*"]

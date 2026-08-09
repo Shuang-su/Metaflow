@@ -1,0 +1,20 @@
+{
+  "schemaVersion": "1.0",
+  "snapshots": [
+    {
+      "id": "supersplat-v2.28.0",
+      "path": "supersplat-v2.28.0",
+      "kind": "upstream-snapshot",
+      "repository": "https://github.com/playcanvas/supersplat",
+      "tag": "v2.28.0",
+      "tagObject": "ca76baf0c6b7f12a337c1c71a37554eb991a25f9",
+      "commit": "9f4dfe1ff4e94876fb2054353497c8e2eb93b423",
+      "tree": "0ce0d79143abc945e394d1f13f362533a15bf363",
+      "fileCount": 232,
+      "canonicalTreeSha256": "9d37961e3ba6259b26f8564e177d5aa4de7d547caa2fd6a8a7ae748c1a6df4a7",
+      "canonicalFormat": "lexicographically sorted complete <mode> <git-blob-sha1>\\t<relative-path>\\n lines",
+      "license": "MIT",
+      "mutable": false
+    }
+  ]
+}

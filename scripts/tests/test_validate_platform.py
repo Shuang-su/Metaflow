@@ -50,6 +50,32 @@ class PlatformValidationTests(unittest.TestCase):
         self.assertTrue(any("final redirect" in error for error in errors))
         self.assertTrue(any("MCL check" in error for error in errors))
 
+    def test_netlify_requires_building_and_publishing_active_editor_dist(self):
+        (self.root / "netlify.toml").write_text(
+            textwrap.dedent(
+                """
+                [build]
+                base = "metaflow-viewer"
+                command = "node ../scripts/mcl.mjs check-all && python3 ../scripts/validate_platform.py && npm ci && rsync -a ../metaflow-editor/ public/editor/"
+                publish = "public"
+
+                [[redirects]]
+                from = "/*"
+                to = "/index.html"
+                status = 200
+                """
+            ),
+            encoding="utf-8",
+        )
+
+        errors = validate_netlify(self.root)
+
+        self.assertTrue(any("install the Active Editor" in error for error in errors))
+        self.assertTrue(any("build the Active Editor" in error for error in errors))
+        self.assertTrue(any("generate Editor runtime version metadata" in error for error in errors))
+        self.assertTrue(any("publish the generated Editor dist" in error for error in errors))
+        self.assertTrue(any("not the Active source directory" in error for error in errors))
+
     def test_supabase_requires_rls_and_definer_search_path(self):
         (self.root / "supabase" / "migrations").mkdir(parents=True)
         (self.root / "supabase" / "config.toml").write_text(

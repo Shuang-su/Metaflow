@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
-"""Generate public Metaflow Editor version metadata."""
+"""Generate or verify public Metaflow Editor version metadata."""
 
+import argparse
 import json
 from pathlib import Path
 
@@ -8,7 +9,7 @@ from pathlib import Path
 REPO_ROOT = Path(__file__).resolve().parent.parent
 SOURCE_FILE = REPO_ROOT / "metadata" / "editor-version-history.json"
 DATA_FILE = REPO_ROOT / "data" / "editor-version-history.json"
-RUNTIME_FILE = REPO_ROOT / "metaflow-editor" / "version.json"
+RUNTIME_FILE = REPO_ROOT / "metaflow-editor" / "dist" / "version.json"
 
 
 def read_json(path):
@@ -16,11 +17,22 @@ def read_json(path):
         return json.load(file)
 
 
+def render_json(data):
+    return f"{json.dumps(data, ensure_ascii=False, indent=2)}\n"
+
+
 def write_json(path, data):
     path.parent.mkdir(parents=True, exist_ok=True)
-    with path.open("w", encoding="utf-8") as file:
-        json.dump(data, file, ensure_ascii=False, indent=2)
-        file.write("\n")
+    path.write_text(render_json(data), encoding="utf-8")
+
+
+def check_json(path, data):
+    expected = render_json(data)
+    if not path.exists():
+        raise SystemExit(f"Missing generated file: {path}")
+    actual = path.read_text(encoding="utf-8")
+    if actual != expected:
+        raise SystemExit(f"Generated file is stale: {path}")
 
 
 def build_runtime_version(history):
@@ -34,6 +46,7 @@ def build_runtime_version(history):
         "gitRef": current["gitRef"],
         "historyUrl": current["historyUrl"],
         "sourcePath": current.get("sourcePath"),
+        "upstreamSnapshotPath": current.get("upstreamSnapshotPath"),
         "upstream": current["upstream"],
         "dependencies": current["dependencies"],
         "latestChange": {
@@ -47,11 +60,22 @@ def build_runtime_version(history):
 
 
 def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--check", action="store_true", help="verify generated files without writing")
+    args = parser.parse_args()
     history = read_json(SOURCE_FILE)
-    write_json(DATA_FILE, history)
-    write_json(RUNTIME_FILE, build_runtime_version(history))
-    print(f"Generated {DATA_FILE}")
-    print(f"Generated {RUNTIME_FILE}")
+    outputs = [
+        (DATA_FILE, history),
+        (RUNTIME_FILE, build_runtime_version(history))
+    ]
+    if args.check:
+        for path, data in outputs:
+            check_json(path, data)
+            print(f"Verified {path}")
+    else:
+        for path, data in outputs:
+            write_json(path, data)
+            print(f"Generated {path}")
 
 
 if __name__ == "__main__":

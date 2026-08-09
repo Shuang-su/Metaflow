@@ -29,6 +29,7 @@ jobs:
       codeql: ${{ steps.classify.outputs.codeql }}
       dependency_review: ${{ steps.classify.outputs.dependency_review }}
       selected: ${{ steps.classify.outputs.selected }}
+      viewer_e2e: ${{ steps.classify.outputs.viewer_e2e }}
     steps:
       - name: Check out classification sources
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
@@ -64,6 +65,7 @@ jobs:
             `${id.replaceAll('-', '_')}=${result.checks.includes(id)}`
           );
           output.push(`selected=${result.checks.join(',')}`);
+          output.push(`viewer_e2e=${Boolean(result.routes['viewer-source'] || result.routes['viewer-data'])}`);
           appendFileSync(process.env.GITHUB_OUTPUT, `${output.join('\n')}\n`);
           if (result.unowned.length || result.unrouted.length) {
             throw new Error(`fail-closed routing: unowned=${result.unowned.join(',')} unrouted=${result.unrouted.join(',')}`);
@@ -192,7 +194,7 @@ jobs:
             metaflow-viewer
             metaflow-editor
             supersplat-v2.18.1/src/ui/timeline-panel.ts
-            supersplat-v2.28.0/src
+            supersplat-v2.28.0/LICENSE
             analytics
             supabase
             scripts
@@ -228,12 +230,15 @@ jobs:
         working-directory: metaflow-viewer
         run: npm run build
       - name: Install Chromium for Viewer E2E
+        if: needs.classify.outputs.viewer_e2e == 'true'
         working-directory: metaflow-viewer
         run: npx playwright install --with-deps chromium
       - name: Run Viewer E2E against development watch mode
+        if: needs.classify.outputs.viewer_e2e == 'true'
         working-directory: metaflow-viewer
         run: npm run e2e:dev
       - name: Run Viewer E2E against production build
+        if: needs.classify.outputs.viewer_e2e == 'true'
         working-directory: metaflow-viewer
         run: npm run e2e:build
       - name: Upload Viewer failure diagnostics
@@ -271,30 +276,64 @@ jobs:
       - name: Check out Editor sources
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
+          fetch-depth: 0
           lfs: false
-          sparse-checkout: supersplat-v2.28.0
+          sparse-checkout: |
+            metaflow-editor
+            metadata/editor-version-history.json
+            metadata/editor-runtime-baseline.json
+            metadata/version-history.json
+            data/editor-version-history.json
+            data/index.json
+            docs/metaflow-editor-change-ledger.md
+            docs/metaflow-viewer-change-ledger.md
+            metaflow-viewer/package.json
+            metaflow-viewer/package-lock.json
+            metaflow-viewer/src/index.ts
+            metaflow-viewer/tests/editor-version-history.test.mjs
+            metaflow-viewer/tests/version-history.test.mjs
+            scripts/generate_editor_version.py
+            scripts/validate_editor_runtime.mjs
+            scripts/mcl.mjs
+            supersplat-v2.18.1/src/ui/timeline-panel.ts
+            supersplat-v2.28.0/LICENSE
+            README.md
+          sparse-checkout-cone-mode: false
       - name: Set up Node.js
         uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
         with:
           node-version: 20.19.0
           cache: npm
-          cache-dependency-path: supersplat-v2.28.0/package-lock.json
+          cache-dependency-path: metaflow-editor/package-lock.json
       - name: Install Editor dependencies
-        working-directory: supersplat-v2.28.0
+        working-directory: metaflow-editor
         run: npm ci
+      - name: Test Editor contracts
+        working-directory: metaflow-editor
+        run: npm test
+      - name: Test Editor metadata and Version History contracts
+        run: node --test metaflow-viewer/tests/editor-version-history.test.mjs metaflow-viewer/tests/version-history.test.mjs
       - name: Lint Editor
-        working-directory: supersplat-v2.28.0
+        working-directory: metaflow-editor
         run: npm run lint
       - name: Build Editor
-        working-directory: supersplat-v2.28.0
+        working-directory: metaflow-editor
         run: npm run build
+      - name: Generate and verify Editor version metadata
+        run: |
+          python3 scripts/generate_editor_version.py
+          git diff --exit-code -- data/editor-version-history.json
+          python3 scripts/generate_editor_version.py --check
+      - name: Compare Editor runtime with the 1.1.0 baseline
+        working-directory: metaflow-editor
+        run: npm run test:runtime
       - name: Enforce Editor bundle budget
-        run: test "$(du -sk supersplat-v2.28.0/dist | awk '{print $1}')" -le 51200
+        run: test "$(du -sk metaflow-editor/dist | awk '{print $1}')" -le 51200
       - name: Upload Editor build
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         with:
           name: editor-build-${{ github.sha }}
-          path: supersplat-v2.28.0/dist
+          path: metaflow-editor/dist
           if-no-files-found: error
           retention-days: 14
 
@@ -376,13 +415,18 @@ jobs:
             supersplat-viewer-v1.18.2/package.json
             supersplat-v2.18.1/LICENSE
             supersplat-v2.18.1/package.json
+            supersplat-v2.28.0
+            metadata/reference-snapshots.json
+            scripts/validate_reference_snapshots.mjs
           sparse-checkout-cone-mode: false
       - name: Validate reference licenses and versions
         run: |
-          for directory in supersplat-viewer-v1.11.1 supersplat-viewer-v1.18.2 supersplat-v2.18.1; do
+          for directory in supersplat-viewer-v1.11.1 supersplat-viewer-v1.18.2 supersplat-v2.18.1 supersplat-v2.28.0; do
             test -s "$directory/LICENSE"
             node -e "const p=require('./$directory/package.json');if(!p.name||!p.version||!p.license)process.exit(1)"
           done
+      - name: Validate registered reference snapshot identity
+        run: node scripts/validate_reference_snapshots.mjs
 
   release:
     name: release configuration smoke
@@ -434,7 +478,7 @@ jobs:
           lfs: false
           sparse-checkout: |
             metaflow-viewer
-            supersplat-v2.28.0
+            metaflow-editor
             scripts
             supabase/functions
           sparse-checkout-cone-mode: true

@@ -1,9 +1,9 @@
-import { metaflowEditorLabel, serviceWorkerCacheName } from './metaflow-editor-version';
+import { version as appVersion } from '../package.json';
 
 // export default null
 declare let self: ServiceWorkerGlobalScope;
 
-const cacheName = serviceWorkerCacheName;
+const cacheName = `superSplat-v${appVersion}`;
 
 const cacheUrls = [
     './',
@@ -12,7 +12,6 @@ const cacheUrls = [
     './index.js',
     './index.js.map',
     './manifest.json',
-    './version.json',
     './static/icons/logo-192.png',
     './static/icons/logo-512.png',
     './static/images/screenshot-narrow.jpg',
@@ -23,17 +22,14 @@ const cacheUrls = [
     './static/lib/webp/webp.wasm',
     './static/locales/de.json',
     './static/locales/en.json',
-    './static/locales/es.json',
     './static/locales/fr.json',
     './static/locales/ja.json',
     './static/locales/ko.json',
-    './static/locales/pt-BR.json',
-    './static/locales/ru.json',
     './static/locales/zh-CN.json'
 ];
 
 self.addEventListener('install', (event) => {
-    console.log(`installing ${metaflowEditorLabel} cache ${cacheName}`);
+    console.log(`installing v${appVersion}`);
 
     // create cache for current version
     event.waitUntil(
@@ -45,7 +41,7 @@ self.addEventListener('install', (event) => {
 });
 
 self.addEventListener('activate', () => {
-    console.log(`activating ${metaflowEditorLabel} cache ${cacheName}`);
+    console.log(`activating v${appVersion}`);
 
     // delete the old caches once this one is activated
     caches.keys().then((names) => {

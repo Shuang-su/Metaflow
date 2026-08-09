@@ -26,7 +26,6 @@ const removeKnownExtension = (filename: string) => {
         '.sog',
         '.spz',
         '.lcc',
-        '.json',
         '.zip'
     ];
 
@@ -98,9 +97,7 @@ class ExportPopup extends Container {
             defaultValue: 'html',
             options: [
                 { v: 'html', t: localize('popup.export.html') },
-                { v: 'zip', t: localize('popup.export.package') },
-                { v: 'legacyZip', t: 'Metaflow legacy ZIP' },
-                { v: 'settingsJson', t: 'settings.json' }
+                { v: 'zip', t: localize('popup.export.package') }
             ]
         });
 
@@ -314,17 +311,12 @@ class ExportPopup extends Container {
             filenameEntry.value = removeKnownExtension(filenameEntry.value) + ext;
         };
 
-        const viewerExtension = () => {
-            return viewerTypeSelect.value === 'html' ? '.html' :
-                viewerTypeSelect.value === 'settingsJson' ? '.json' : '.zip';
-        };
-
         compressBoolean.on('change', () => {
             updateExtension(compressBoolean.value ? '.compressed.ply' : '.ply');
         });
 
         viewerTypeSelect.on('change', () => {
-            updateExtension(viewerExtension());
+            updateExtension(viewerTypeSelect.value === 'html' ? '.html' : '.zip');
         });
 
         animationToggle.on('change', (value: boolean) => {
@@ -368,7 +360,7 @@ class ExportPopup extends Container {
                     updateExtension('.sog');
                     break;
                 case 'viewer':
-                    updateExtension(viewerExtension());
+                    updateExtension(viewerTypeSelect.value === 'html' ? '.html' : '.zip');
                     break;
             }
 
@@ -499,7 +491,7 @@ class ExportPopup extends Container {
                         maxSHBands: bandsSlider.value
                     },
                     viewerExportSettings: {
-                        type: viewerTypeSelect.value as 'html' | 'zip' | 'legacyZip' | 'settingsJson',
+                        type: viewerTypeSelect.value,
                         experienceSettings
                     }
                 };

@@ -1,0 +1,8 @@
+# Preserve the verified Editor 1.1.0 source bytes during the ownership-only move.
+# These upstream-derived files contain intentional historical trailing whitespace;
+# runtime parity takes precedence over whitespace normalization in MF-21.
+src/ui/scss/panel.scss whitespace=-trailing-space
+src/ui/scss/popup.scss whitespace=-trailing-space
+src/ui/scss/right-toolbar.scss whitespace=-trailing-space
+src/ui/svg/collapse.svg whitespace=-trailing-space
+src/ui/svg/select-eyedropper.svg whitespace=-trailing-space

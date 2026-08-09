@@ -84,7 +84,9 @@
         "**/package.json",
         "**/package-lock.json",
         "**/pnpm-lock.yaml",
-        "**/yarn.lock"
+        "**/yarn.lock",
+        "metaflow-viewer/tests/editor-version-history.test.mjs",
+        "metaflow-viewer/tests/version-history.test.mjs"
       ],
       "checks": ["viewer", "codeql"]
     },
@@ -116,7 +118,7 @@
     {
       "id": "editor-source",
       "category": "editor",
-      "includePaths": ["metaflow-editor/**", "supersplat-v2.28.0/**"],
+      "includePaths": ["metaflow-editor/**"],
       "excludePaths": [
         "**/*.md",
         "**/package.json",
@@ -130,10 +132,10 @@
       "id": "editor-dependency",
       "category": "dependency",
       "includePaths": [
-        "supersplat-v2.28.0/package.json",
-        "supersplat-v2.28.0/package-lock.json",
-        "supersplat-v2.28.0/pnpm-lock.yaml",
-        "supersplat-v2.28.0/yarn.lock"
+        "metaflow-editor/package.json",
+        "metaflow-editor/package-lock.json",
+        "metaflow-editor/pnpm-lock.yaml",
+        "metaflow-editor/yarn.lock"
       ],
       "excludePaths": [],
       "checks": ["editor"]
@@ -148,6 +150,20 @@
       ],
       "excludePaths": [],
       "checks": ["data", "editor"]
+    },
+    {
+      "id": "editor-contract",
+      "category": "editor",
+      "includePaths": [
+        "metadata/editor-runtime-baseline.json",
+        "metaflow-viewer/tests/editor-version-history.test.mjs",
+        "metaflow-viewer/tests/version-history.test.mjs",
+        "scripts/validate_editor_runtime.mjs",
+        "scripts/tests/editor-runtime-baseline.test.mjs",
+        "scripts/tests/test_generate_editor_version.py"
+      ],
+      "excludePaths": [],
+      "checks": ["editor", "codeql"]
     },
     {
       "id": "design-source",
@@ -181,7 +197,11 @@
     {
       "id": "reference-source",
       "category": "reference",
-      "includePaths": ["supersplat-viewer-v*/**", "supersplat-v2.18.1/**"],
+      "includePaths": [
+        "supersplat-viewer-v*/**",
+        "supersplat-v2.18.1/**",
+        "supersplat-v2.28.0/**"
+      ],
       "excludePaths": [
         "**/*.md",
         "**/package.json",
@@ -202,10 +222,25 @@
         "supersplat-v2.18.1/package.json",
         "supersplat-v2.18.1/package-lock.json",
         "supersplat-v2.18.1/pnpm-lock.yaml",
-        "supersplat-v2.18.1/yarn.lock"
+        "supersplat-v2.18.1/yarn.lock",
+        "supersplat-v2.28.0/package.json",
+        "supersplat-v2.28.0/package-lock.json",
+        "supersplat-v2.28.0/pnpm-lock.yaml",
+        "supersplat-v2.28.0/yarn.lock"
       ],
       "excludePaths": [],
       "checks": ["reference"]
+    },
+    {
+      "id": "reference-integrity",
+      "category": "reference",
+      "includePaths": [
+        "metadata/reference-snapshots.json",
+        "scripts/validate_reference_snapshots.mjs",
+        "scripts/tests/reference-snapshots.test.mjs"
+      ],
+      "excludePaths": [],
+      "checks": ["reference", "codeql"]
     },
     {
       "id": "release",

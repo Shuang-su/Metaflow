@@ -20,9 +20,9 @@
       "id": "editor",
       "kind": "product",
       "ownedPaths": [
-        "supersplat-v2.28.0/**",
         "metaflow-editor/**",
         "metadata/editor-version-history.json",
+        "metadata/editor-runtime-baseline.json",
         "data/editor-version-history.json"
       ],
       "versionSource": "metadata/editor-version-history.json",
@@ -80,10 +80,12 @@
       "id": "reference",
       "kind": "upstream-snapshot",
       "ownedPaths": [
+        "metadata/reference-snapshots.json",
         "supersplat-viewer-v*/**",
-        "supersplat-v2.18.1/**"
+        "supersplat-v2.18.1/**",
+        "supersplat-v2.28.0/**"
       ],
-      "versionSource": null,
+      "versionSource": "metadata/reference-snapshots.json",
       "deployTarget": null
     }
   ]

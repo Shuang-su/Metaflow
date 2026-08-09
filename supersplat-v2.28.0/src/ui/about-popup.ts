@@ -1,7 +1,7 @@
 import { Container, Label, version as pcuiVersion, revision as pcuiRevision } from '@playcanvas/pcui';
 import { version as engineVersion, revision as engineRevision } from 'playcanvas';
 
-import { metaflowEditorVersion, upstreamEditorLabel } from '../metaflow-editor-version';
+import { version as appVersion } from '../../package.json';
 
 // Inline SVG for the SuperSplat logo
 const logoSvg = `
@@ -64,7 +64,7 @@ class AboutPopup extends Container {
         });
         logoContainer.dom.innerHTML = logoSvg;
         logoContainer.dom.addEventListener('click', () => {
-            window.open('https://metaflow.shuang-su.com/editor/', '_blank')?.focus();
+            window.open('https://github.com/playcanvas/supersplat', '_blank')?.focus();
         });
 
         // App name and version
@@ -77,12 +77,12 @@ class AboutPopup extends Container {
 
         const appName = new Label({
             id: 'about-app-name',
-            text: metaflowEditorVersion.productName
+            text: 'SuperSplat'
         });
 
         const appVersionLabel = new Label({
             id: 'about-app-version',
-            text: `v${metaflowEditorVersion.displayVersion} / ${upstreamEditorLabel}`
+            text: `v${appVersion}`
         });
 
         appInfo.append(appName);

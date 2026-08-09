@@ -24,7 +24,8 @@
 | **supersplat-viewer-v1.18.2** | 高斯泼溅查看器上游 | 1.18.2 | TypeScript + PlayCanvas + Rollup | 对比用 |
 | **metaflow-viewer** | Metaflow 定制查看器 | 1.0.0 | TypeScript + 基于 v1.11.1 扩展 | `npm install && npm run develop` |
 | **supersplat-v2.18.1** | 高斯泼溅场景编辑器基线 | v2.18.1 / Metaflow Editor 1.0 | TypeScript + PlayCanvas + PCUI + Rollup | 对比用 |
-| **supersplat-v2.28.0** | Metaflow 定制编辑器 | v2.28.0 / Metaflow Editor 1.1 | TypeScript + PlayCanvas + PCUI + Rollup | `npm install && npm run develop` |
+| **metaflow-editor** | Metaflow 活动编辑器源码 | Metaflow Editor 1.1 / upstream v2.28.0 | TypeScript + PlayCanvas + PCUI + Rollup | `npm ci && npm run develop` |
+| **supersplat-v2.28.0** | SuperSplat 官方上游快照 | v2.28.0 | TypeScript + PlayCanvas + PCUI + Rollup | 不运行，仅供校验和对比 |
 | **pcui** | PlayCanvas 官方 UI 组件库 | - | TypeScript + SCSS + React + Storybook | `npm install && npm run storybook` |
 
 ---
@@ -91,7 +92,7 @@ supersplat-viewer-v1.11.1/
 - 保留 `metaflow-viewer` 的双通道语义：`progress + status`。
 - 保留首帧与超时兜底机制：`firstFrame`、排序超时、LOD 超时。
 - 保留并扩展加载状态追踪字段：`loadingMode`、`loadingStage`、`loadingConflict`。
-- `metaflow-editor/` 由 `supersplat-v2.28.0/` 构建产物直接覆盖，editor 自身版本历史见 `metadata/editor-version-history.json`。
+- `metaflow-editor/` 是活动 Editor 源码包，构建产物位于 Git 忽略的 `metaflow-editor/dist/`；`supersplat-v2.28.0/` 是不可修改的官方上游快照，editor 自身版本历史见 `metadata/editor-version-history.json`。
 
 ### 运行时验证矩阵
 
@@ -133,7 +134,7 @@ supersplat-viewer-v1.11.1/
 ### 文件结构
 
 ```
-supersplat-v2.28.0/
+metaflow-editor/
 ├── src/
 │   ├── index.ts                 # 入口：样式加载、版本输出
 │   ├── main.ts                  # 主流程：事件注册、场景初始化
@@ -552,13 +553,13 @@ pcui/
 | 加载并显示一个 .ply 文件 | `viewer/src/index.ts` → `loadGsplat()` |
 | 实现轨道相机控制 | `viewer/src/cameras/orbit-controller.ts` |
 | 添加 3D 标注热点 | `viewer/src/annotation.ts` |
-| 实现撤销/重做 | `supersplat-v2.28.0/src/edit-history.ts` |
-| 创建选区工具 | `supersplat-v2.28.0/src/tools/` |
+| 实现撤销/重做 | `metaflow-editor/src/edit-history.ts` |
+| 创建选区工具 | `metaflow-editor/src/tools/` |
 | 使用滑块组件 | `pcui/src/components/SliderInput/` |
 | 实现数据双向绑定 | `pcui/src/binding/BindingTwoWay/` |
 | 添加 AR 支持 | `viewer/src/xr.ts` |
-| 导出 PLY 文件 | `supersplat-v2.28.0/src/splat-serialize.ts` |
-| 添加新语言 | `supersplat-v2.28.0/static/locales/` |
+| 导出 PLY 文件 | `metaflow-editor/src/splat-serialize.ts` |
+| 添加新语言 | `metaflow-editor/static/locales/` |
 
 ---
 

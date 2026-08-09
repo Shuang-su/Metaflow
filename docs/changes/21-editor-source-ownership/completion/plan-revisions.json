@@ -1,0 +1,14 @@
+{
+  "schemaVersion": "1.0",
+  "revisions": [
+    {
+      "revision": 1,
+      "sha256": "4b0f5bbbaa1132978804fbfb37efd65f3e663eca0b52cd9d4757352f5d1fa004",
+      "taskIds": [
+        "MF-21-T01"
+      ],
+      "amendmentReason": "Initial approved Editor source ownership migration, exact upstream snapshot restoration, validation, and Ready PR plan.",
+      "approvalSource": "User-approved Editor source migration, upstream restoration, and dependency PR disposition plan"
+    }
+  ]
+}

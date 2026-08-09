@@ -1,6 +1,6 @@
 [build]
   base = "metaflow-viewer"
-  command = "node ../scripts/mcl.mjs check-all && python3 ../scripts/validate_platform.py && npm ci && python3 ../scripts/generate_index.py && npm run build && mkdir -p public/data public/editor && rsync -a --delete ../data/ public/data/ && rsync -a --delete ../metaflow-editor/ public/editor/"
+  command = "node ../scripts/mcl.mjs check-all && python3 ../scripts/validate_platform.py && npm --prefix ../metaflow-editor ci && npm --prefix ../metaflow-editor test && npm --prefix ../metaflow-editor run lint && npm --prefix ../metaflow-editor run build && python3 ../scripts/generate_editor_version.py && npm --prefix ../metaflow-editor run test:runtime && npm ci && python3 ../scripts/generate_index.py && npm run build && mkdir -p public/data public/editor && rsync -a --delete ../data/ public/data/ && rsync -a --delete ../metaflow-editor/dist/ public/editor/"
   publish = "public"
 
 # Custom domain redirects - 深圳技术大学.com → /sztu/c2-lib

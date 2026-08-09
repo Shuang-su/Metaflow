@@ -159,9 +159,10 @@ location / {
 |------|----|
 | Metaflow Editor | `1.1` |
 | 上游 SuperSplat Editor | `v2.28.0` |
-| 当前源码目录 | [`supersplat-v2.28.0`](supersplat-v2.28.0) |
+| 当前源码目录 | [`metaflow-editor`](metaflow-editor) |
+| 上游不可变快照 | [`supersplat-v2.28.0`](supersplat-v2.28.0) |
 | 基线源码目录 | [`supersplat-v2.18.1`](supersplat-v2.18.1) |
-| `/editor` 运行时版本 | [`metaflow-editor/version.json`](metaflow-editor/version.json) |
+| `/editor` 运行时版本 | 构建生成的 `metaflow-editor/dist/version.json` |
 | 版本历史 | [`metadata/editor-version-history.json`](metadata/editor-version-history.json) |
 
 ## 最近版本

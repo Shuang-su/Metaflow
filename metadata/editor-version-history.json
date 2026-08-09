@@ -8,7 +8,8 @@
     "gitRef": "aa4c35f",
     "historyUrl": "/data/editor-version-history.json",
     "runtimeUrl": "/editor/version.json",
-    "sourcePath": "supersplat-v2.28.0",
+    "sourcePath": "metaflow-editor",
+    "upstreamSnapshotPath": "supersplat-v2.28.0",
     "upstream": {
       "name": "SuperSplat Editor",
       "version": "2.28.0",
@@ -24,13 +25,14 @@
     }
   },
   "versioning": {
-    "mode": "editor-fork",
+    "mode": "editor-fork-with-immutable-upstream",
     "displayVersion": "major.minor for Metaflow Editor behavior and upstream sync milestones",
     "upstreamVersion": "pinned SuperSplat Editor release tag",
-    "sourceDirectories": "versioned source directories use original repository name plus upstream tag, such as supersplat-v2.28.0",
+    "sourceDirectories": "metaflow-editor is the Active fork; versioned supersplat-v* directories are immutable upstream reference snapshots",
     "rules": [
       "Every upstream editor sync records the SuperSplat tag, dependency set, and Metaflow customizations.",
-      "Versioned supersplat-v* source directories are the rebuild source of truth for metaflow-editor.",
+      "metaflow-editor is the only Active Editor source, build, dependency, and release target.",
+      "Versioned supersplat-v* directories are immutable references and cannot be dependency-update targets.",
       "Generated /data/editor-version-history.json and /editor/version.json must match this metadata file."
     ]
   },

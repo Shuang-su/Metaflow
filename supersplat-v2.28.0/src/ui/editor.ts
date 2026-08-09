@@ -25,7 +25,7 @@ import { Tooltips } from './tooltips';
 import { VideoSettingsDialog } from './video-settings-dialog';
 import { ViewCube } from './view-cube';
 import { ViewPanel } from './view-panel';
-import { metaflowEditorLabel } from '../metaflow-editor-version';
+import { version } from '../../package.json';
 
 // ts compiler and vscode find this type, but eslint does not
 type FilePickerAcceptType = unknown;
@@ -76,7 +76,7 @@ class EditorUI {
         // app label
         const appLabel = new Label({
             id: 'app-label',
-            text: metaflowEditorLabel
+            text: `SUPERSPLAT v${version}`
         });
 
         // cursor label

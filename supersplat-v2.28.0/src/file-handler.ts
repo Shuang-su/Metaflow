@@ -14,7 +14,7 @@ type FilePickerAcceptType = unknown;
 
 type ExportType = 'ply' | 'splat' | 'sog' | 'viewer';
 
-type FileType = 'ply' | 'compressedPly' | 'splat' | 'sog' | 'htmlViewer' | 'packageViewer' | 'legacyPackageViewer' | 'viewerSettings';
+type FileType = 'ply' | 'compressedPly' | 'splat' | 'sog' | 'htmlViewer' | 'packageViewer';
 
 interface SceneExportOptions {
     filename: string;
@@ -92,18 +92,6 @@ const filePickerTypes: { [key: string]: FilePickerAcceptType } = {
         description: 'Viewer ZIP',
         accept: {
             'application/zip': ['.zip']
-        }
-    },
-    'legacyPackageViewer': {
-        description: 'Metaflow Legacy Viewer ZIP',
-        accept: {
-            'application/zip': ['.zip']
-        }
-    },
-    'viewerSettings': {
-        description: 'Metaflow Viewer Settings',
-        accept: {
-            'application/json': ['.json']
         }
     }
 };
@@ -511,11 +499,7 @@ const initFileHandler = (scene: Scene, events: Events, dropTarget: HTMLElement) 
         }
 
         const fileType: FileType =
-            (exportType === 'viewer') ? (
-                options.viewerExportSettings!.type === 'zip' ? 'packageViewer' :
-                    options.viewerExportSettings!.type === 'legacyZip' ? 'legacyPackageViewer' :
-                        options.viewerExportSettings!.type === 'settingsJson' ? 'viewerSettings' : 'htmlViewer'
-            ) :
+            (exportType === 'viewer') ? (options.viewerExportSettings!.type === 'zip' ? 'packageViewer' : 'htmlViewer') :
                 (exportType === 'ply') ? (options.compressedPly ? 'compressedPly' : 'ply') :
                     (exportType === 'sog') ? 'sog' : 'splat';
 
@@ -583,8 +567,6 @@ const initFileHandler = (scene: Scene, events: Events, dropTarget: HTMLElement) 
                 }
                 case 'htmlViewer':
                 case 'packageViewer':
-                case 'legacyPackageViewer':
-                case 'viewerSettings':
                     await serializeViewer(splats, serializeSettings, { ...viewerExportSettings!, events }, fs);
                     break;
             }

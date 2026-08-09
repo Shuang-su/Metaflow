@@ -4,10 +4,10 @@ import { version as stVersion, revision as stRevision } from '@playcanvas/splat-
 import { version as engineVersion, revision as engineRevision } from 'playcanvas';
 
 import { main } from './main';
-import { metaflowEditorLabel, metaflowEditorVersion, upstreamEditorLabel } from './metaflow-editor-version';
+import { version as appVersion } from '../package.json';
 
 // print out versions of dependent packages
 // NOTE: add dummy style reference to prevent tree shaking
-console.log(`${metaflowEditorLabel} (semver ${metaflowEditorVersion.appSemver}) | ${upstreamEditorLabel} | SplatTransform v${stVersion} (${stRevision}) | Engine v${engineVersion} (${engineRevision}) | PCUI v${pcuiVersion} (${pcuiRevision})`);
+console.log(`SuperSplat v${appVersion} | SplatTransform v${stVersion} (${stRevision}) | Engine v${engineVersion} (${engineRevision}) | PCUI v${pcuiVersion} (${pcuiRevision})`);
 
 main();

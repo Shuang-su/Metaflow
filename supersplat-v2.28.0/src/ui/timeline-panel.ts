@@ -288,7 +288,7 @@ class TimelinePanel extends Container {
             id: 'totalFrames',
             value: 180,
             min: 1,
-            max: 100000,
+            max: 10000,
             precision: 0
         });
 

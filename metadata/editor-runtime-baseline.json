@@ -1,0 +1,38 @@
+{
+  "schemaVersion": "1.0",
+  "editorVersion": "1.1.0",
+  "sourcePath": "metaflow-editor",
+  "buildPath": "metaflow-editor/dist",
+  "excluded": [
+    "source maps (*.map)",
+    "generated version.json"
+  ],
+  "files": {
+    "index.css": "eac2fda9298e7d516a2a52d8d0f81922ecea7047ef336f7363845f92de8444ce",
+    "index.html": "b1b2f492d9aa961ef455b5f903de9093aab6f3e05a714310be1e47d7566ef459",
+    "index.js": "8bc4743c4f0b3a2cbe8488bf429d806be65f662f63ffc469ce695d1a39b05abf",
+    "manifest.json": "3cf07655cebb92fd2705cb037d679a3b7d36d03e83397b5b8f1bfda2adfb95fa",
+    "node-ponyfill-C-pVJllX.js": "66f084b8c10d261822461fd1d115f4831a7713440a461635f5931de771bd9329",
+    "spz-Vf7157fI-84REFz7c.js": "e5ab472e6f237200cfa9f1b12ba61f30827a787c68a81d9553c0871e1db095c1",
+    "static/env/VertebraeHDRI_v1_512.png": "214b90133a446a32561c0a052d49c5a9fe00f8b2119486386c330e34ea3fc392",
+    "static/icons/logo-192.png": "973e8cb91cb1b3057ee4d9ce3da26fc91bad374f736d749a62cf8e006ee8203a",
+    "static/icons/logo-512.png": "0f6f828b880fcceb17a483af24ce5a77e7793ea4254041562cc79d786bfc3d9a",
+    "static/images/header.webp": "c99b1a59f67eceda8def23507d5f455acb010061a9b6ce5fbb06bb53de7f1938",
+    "static/images/screenshot-narrow.jpg": "77c0ef3543180ce459a99bb6682aa6d9325983c8682eaa1e0a479c29dabee316",
+    "static/images/screenshot-wide.jpg": "812488eedc531a2b49a584621815da572ee99e27648bd989c9cb52b3e75e8501",
+    "static/lib/lodepng/lodepng.js": "14f407afa9a422639c0c4a0d6895c8bc6cbc402a41aa982c40beb71fea540d4d",
+    "static/lib/lodepng/lodepng.wasm": "2f1b29b6d34c9d57795eb9d8abf2a69072b2b8b830a19daa3de2ce36400370ac",
+    "static/lib/webp/webp.mjs": "96bdc7e19889af61457bdb386c729a30bd29a8961a0187918b07a4b1f0a82dca",
+    "static/lib/webp/webp.wasm": "e2c337e1afacf5c9e35f21916b5615fc6c5623074c6e110c07791bd0af071501",
+    "static/locales/de.json": "062e288b0591ec4fee89370110172715dfc44a7f478880a8e5144010ce272dd5",
+    "static/locales/en.json": "0092088f6d853420ce1c99ed6073d3a116fc2d7bf938c40b164d3e08d8294201",
+    "static/locales/es.json": "92ee946a979a97923520c8e65bd9aeaa9d6453075b372ef3bd5e67024ac50d11",
+    "static/locales/fr.json": "10a2abfc191637484590d3822ffc9eaa89732738a5bf4068a2d607270bd05ace",
+    "static/locales/ja.json": "8644f021055762570b9dcba1ae52b64894262d5bd09c78ea8da6c2a669ef7b5a",
+    "static/locales/ko.json": "72cf2081adbf2e36a9f6505fc5232a334d44ca7dbddff584edffdc75682161fe",
+    "static/locales/pt-BR.json": "37db505ec75fbc38dcbec9a1bd6b896ea8db6bff2ec4ee1705a36acca6cf361c",
+    "static/locales/ru.json": "3a61706db820ed1f227e6b9bcec450169e75384da5657207407ae6af5a33e1a3",
+    "static/locales/zh-CN.json": "ccd991a8ef9a15c2126b6c19955585d153139517b973df0603145932d49764dd",
+    "sw.js": "a0af903ab42d9ea57d5c8de503a407e27005f9342f0ccb2c25e2c13bba5ae459"
+  }
+}

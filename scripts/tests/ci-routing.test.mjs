@@ -47,10 +47,11 @@ test('documentation and governance changes take the union without product jobs',
 
 test('Viewer, Editor, data, Design, and reference source routes stay independent', () => {
     assert.deepEqual(route(['metaflow-viewer/src/main.ts']).checks, ['viewer', 'codeql']);
-    assert.deepEqual(route(['supersplat-v2.28.0/src/index.ts']).checks, ['editor', 'codeql']);
+    assert.deepEqual(route(['metaflow-editor/src/index.ts']).checks, ['editor', 'codeql']);
     assert.deepEqual(route(['data/Shenzhen/example/settings.json']).checks, ['viewer', 'data']);
     assert.deepEqual(route(['aave-liquid-glass-lab/src/App.tsx']).checks, ['design', 'codeql']);
     assert.deepEqual(route(['supersplat-viewer-v1.18.2/src/index.ts']).checks, ['reference']);
+    assert.deepEqual(route(['supersplat-v2.28.0/src/index.ts']).checks, ['reference']);
 });
 
 test('dependency routes add review and only the corresponding product check', () => {
@@ -59,8 +60,12 @@ test('dependency routes add review and only the corresponding product check', ()
         ['viewer', 'dependency-review']
     );
     assert.deepEqual(
-        route(['supersplat-v2.28.0/package.json']).checks,
+        route(['metaflow-editor/package.json']).checks,
         ['editor', 'dependency-review']
+    );
+    assert.deepEqual(
+        route(['supersplat-v2.28.0/package.json']).checks,
+        ['reference', 'dependency-review']
     );
     assert.deepEqual(
         route(['supersplat-viewer-v1.18.2/package-lock.json']).checks,
@@ -72,6 +77,23 @@ test('release configuration selects governance, affected products, and static re
     const result = route(['netlify.toml']);
     assert.deepEqual(result.checks, ['governance', 'viewer', 'editor', 'release']);
     assert.equal(result.checks.includes('codeql'), false);
+    assert.equal(Object.hasOwn(result.routes, 'viewer-source'), false);
+    assert.equal(Object.hasOwn(result.routes, 'viewer-data'), false);
+});
+
+test('activity and snapshot metadata retain their independent checks', () => {
+    assert.deepEqual(
+        route(['metaflow-viewer/tests/editor-version-history.test.mjs']).checks,
+        ['editor', 'codeql']
+    );
+    assert.deepEqual(
+        route(['metadata/reference-snapshots.json']).checks,
+        ['reference', 'codeql']
+    );
+    const dependency = route(['metaflow-editor/package-lock.json']);
+    assert.deepEqual(dependency.checks, ['editor', 'dependency-review']);
+    assert.equal(Object.hasOwn(dependency.routes, 'viewer-source'), false);
+    assert.equal(Object.hasOwn(dependency.routes, 'viewer-data'), false);
 });
 
 test('base and head manifests are unioned when a routing bypass is attempted', () => {
@@ -142,10 +164,10 @@ test('mixed components select the exact union and leave unrelated products out',
         'supersplat-v2.28.0/package-lock.json',
         'docs/guides/configuration.md'
     ]);
-    assert.deepEqual(result.checks, ['docs', 'viewer', 'editor', 'codeql', 'dependency-review']);
+    assert.deepEqual(result.checks, ['docs', 'viewer', 'reference', 'codeql', 'dependency-review']);
     assert.equal(result.checks.includes('design'), false);
     assert.equal(result.checks.includes('data'), false);
-    assert.equal(result.checks.includes('reference'), false);
+    assert.equal(result.checks.includes('editor'), false);
 });
 
 test('the aggregate gate requires every selected job and rejects unselected work', () => {
