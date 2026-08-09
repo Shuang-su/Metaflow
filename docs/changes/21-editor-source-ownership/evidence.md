@@ -46,6 +46,7 @@ terminal_reason: null
 | Markdown, repository scan, and staged diff | 0 | passed | 96 Markdown files; 11,093 scanned files; no secret/accidental-file finding; `git diff --check` clean |
 | Workflow YAML parse and staged path route | 0 | passed | 275 changed paths owned/routed; selected checks exclude `viewer-source` and `viewer-data`, so Viewer E2E is not selected |
 | PR #25 first hosted run for Head `0b64e35a` | 1 | failed, diagnosed | Reference/data/release/dependency review/CodeQL passed; docs/governance/Viewer/Editor exposed sparse-checkout inputs and a stale README digest, then Gate failed as designed |
+| Temporary exact sparse-checkout reproductions | 0 | passed after tooling retry | Docs range diff, all 60 governance tests plus range diff, and all 13 Editor metadata/version tests passed with the exact hosted checkout inputs |
 
 ## Browser, device, and rendering backend
 
@@ -99,6 +100,7 @@ Preview pending. Beta and production are prohibited in this Change.
 - The attempted expansion of Editor lint to include tests exposed the existing ESLint 10 / `eslint-plugin-import` peer incompatibility, so the inherited `eslint src` boundary was retained and Node's test runner covers the new contract test.
 - The first snapshot identity check found a local `.DS_Store`; it was moved to the recoverable temporary backup and the exact 232-file identity then passed. No snapshot byte was edited.
 - PR #25 Head `0b64e35a` failed four selected jobs for reproducible CI-input reasons: docs could not see the nested whitespace attributes; governance checked only three sparse snapshot files; Editor lacked `metadata/components.json`; Viewer/Editor exposed PR #24's stale README digest. The correction adds only missing sparse inputs and pins the test to the current `origin/main` digest; no product byte changes.
+- The first temporary sparse-worktree command began a full checkout before sparse patterns and stopped on temporary-volume space exhaustion. Git removed the partial checkout, the empty registered path was pruned, and the retry used `git worktree add --no-checkout` before applying patterns; no repository ref or user file changed.
 
 ## Release, rollback, and observation
 

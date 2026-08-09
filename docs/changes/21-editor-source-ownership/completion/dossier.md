@@ -244,6 +244,7 @@ PR B 必须验证：
 | 10 | Rebased the committed implementation onto the latest remote documentation baseline | read/write | MF-21 branch only | Replayed cleanly on `origin/main@ecc3b16e`; user local `main` remained untouched; affected checks were rerun before the force-with-lease update. |
 | 11 | Pushed the branch and opened Draft PR #25 | external write/read-back | GitHub | Re-read Draft/open, base `main`, exact Head `0b64e35a`, and mergeable state before monitoring hosted checks. |
 | 12 | Inspected the first hosted failures and applied the approved in-scope CI-input correction | read/write | PR #25 logs, workflow sparse inputs, README contract test | Kept product bytes unchanged; added missing attributes/snapshot/registry inputs and updated the stale PR #24 README digest baseline. |
+| 13 | Reproduced the hosted checkout topology in a temporary sparse worktree | read/temporary write | exact docs, governance, and Editor sparse patterns | Docs range diff, 60 governance tests, governance range diff, and 13 Editor metadata/version tests passed before pushing the corrected Head. |
 
 ## Agent Reply Summary
 
@@ -280,6 +281,7 @@ The Agent reported that the Active Editor migration and upstream restoration are
 - A Ruby 2.6 YAML parsing option was unsupported; rerunning with the compatible parser API succeeded for both workflows.
 - Editor install still reports 7 high and 2 critical audit findings, and Viewer reports 1 moderate and 4 high; these are assigned to MF-2 and are not claimed fixed here.
 - PR #25 Head `0b64e35a` failed docs/governance/Viewer/Editor because sparse checkouts omitted required validation inputs and PR #24 had left the README digest assertion stale; reference/data/release/dependency review and both CodeQL checks passed. The Gate failed as designed, and the Head is being superseded by the scoped correction.
+- The first temporary sparse-worktree reproduction attempted a full checkout and stopped on temporary-volume space exhaustion; Git cleaned the partial files, the empty path was pruned, and `--no-checkout` made the exact sparse retry pass without touching any branch or user material.
 - Full Viewer E2E and production release validation are intentionally out of scope.
 ````
 
@@ -396,6 +398,7 @@ The Active source migration, official snapshot restoration, metadata/CI/release/
 | Markdown, repository scan, and staged diff | 0 | passed | 96 Markdown files; 11,093 scanned files; no secret/accidental-file finding; `git diff --check` clean |
 | Workflow YAML parse and staged path route | 0 | passed | 275 changed paths owned/routed; selected checks exclude `viewer-source` and `viewer-data`, so Viewer E2E is not selected |
 | PR #25 first hosted run for Head `0b64e35a` | 1 | failed, diagnosed | Reference/data/release/dependency review/CodeQL passed; docs/governance/Viewer/Editor exposed sparse-checkout inputs and a stale README digest, then Gate failed as designed |
+| Temporary exact sparse-checkout reproductions | 0 | passed after tooling retry | Docs range diff, all 60 governance tests plus range diff, and all 13 Editor metadata/version tests passed with the exact hosted checkout inputs |
 
 ## Browser, device, and rendering backend
 
@@ -449,6 +452,7 @@ Preview pending. Beta and production are prohibited in this Change.
 - The attempted expansion of Editor lint to include tests exposed the existing ESLint 10 / `eslint-plugin-import` peer incompatibility, so the inherited `eslint src` boundary was retained and Node's test runner covers the new contract test.
 - The first snapshot identity check found a local `.DS_Store`; it was moved to the recoverable temporary backup and the exact 232-file identity then passed. No snapshot byte was edited.
 - PR #25 Head `0b64e35a` failed four selected jobs for reproducible CI-input reasons: docs could not see the nested whitespace attributes; governance checked only three sparse snapshot files; Editor lacked `metadata/components.json`; Viewer/Editor exposed PR #24's stale README digest. The correction adds only missing sparse inputs and pins the test to the current `origin/main` digest; no product byte changes.
+- The first temporary sparse-worktree command began a full checkout before sparse patterns and stopped on temporary-volume space exhaustion. Git removed the partial checkout, the empty registered path was pruned, and the retry used `git worktree add --no-checkout` before applying patterns; no repository ref or user file changed.
 
 ## Release, rollback, and observation
 
@@ -474,10 +478,10 @@ MF-2 will remediate Active dependency findings after PR A reaches its Ready endp
 | --- | --- |
 | request-transcript.md | `7a58adf911696dead00d05309bec9e24e96a7573a31e4a9aa3d5a4bb795f8b29` |
 | ../plan.md | `77a4fcfd2a42d6cde6a65d7a09835f2fc7b190f3932b940bd059e550e20c5269` |
-| agent-action-reply-summary.md | `d9d65419d8bcb8e6112e207ba0253b1edcbf4953e0a2e8ac239898484cd70872` |
-| ../evidence.md | `b1875ce52b1068de0ba9cbc77c10ddd80e4c16fb7f0277ff83ca59eb8eb5d3c5` |
+| agent-action-reply-summary.md | `c47635c640657dd54803520706fb3fc428f6844dae9e8742c2bf36892217c6a9` |
+| ../evidence.md | `c228c69208720f11cfd9839d8cf55607520ad148af7f4c8e80b1262ce1a8c3d8` |
 | closure.md | `76c33ec0f2298877fd6541ac8f2f2cb277ed5e21ac531b31b08bda0aa8c25419` |
-| task-records/MF-21-T01.md | `5f26ff7005e14e02d501ca7a4b87bce1b0ee4b830792fe861d1aec04e5c28591` |
+| task-records/MF-21-T01.md | `ced6405895c181c7693d9a8e93b4b418aa78d6fef06835657a376fe927bb7188` |
 | plan-revisions.json | `91db850174c0317ab8089afbed53ad68c7740b94bfb48ab3344be303d6d2ca72` |
 
 No redactions.

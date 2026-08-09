@@ -32,6 +32,7 @@ generated_at: 2026-08-10T00:00:00.000Z
 | 10 | Rebased the committed implementation onto the latest remote documentation baseline | read/write | MF-21 branch only | Replayed cleanly on `origin/main@ecc3b16e`; user local `main` remained untouched; affected checks were rerun before the force-with-lease update. |
 | 11 | Pushed the branch and opened Draft PR #25 | external write/read-back | GitHub | Re-read Draft/open, base `main`, exact Head `0b64e35a`, and mergeable state before monitoring hosted checks. |
 | 12 | Inspected the first hosted failures and applied the approved in-scope CI-input correction | read/write | PR #25 logs, workflow sparse inputs, README contract test | Kept product bytes unchanged; added missing attributes/snapshot/registry inputs and updated the stale PR #24 README digest baseline. |
+| 13 | Reproduced the hosted checkout topology in a temporary sparse worktree | read/temporary write | exact docs, governance, and Editor sparse patterns | Docs range diff, 60 governance tests, governance range diff, and 13 Editor metadata/version tests passed before pushing the corrected Head. |
 
 ## Agent Reply Summary
 
@@ -68,4 +69,5 @@ The Agent reported that the Active Editor migration and upstream restoration are
 - A Ruby 2.6 YAML parsing option was unsupported; rerunning with the compatible parser API succeeded for both workflows.
 - Editor install still reports 7 high and 2 critical audit findings, and Viewer reports 1 moderate and 4 high; these are assigned to MF-2 and are not claimed fixed here.
 - PR #25 Head `0b64e35a` failed docs/governance/Viewer/Editor because sparse checkouts omitted required validation inputs and PR #24 had left the README digest assertion stale; reference/data/release/dependency review and both CodeQL checks passed. The Gate failed as designed, and the Head is being superseded by the scoped correction.
+- The first temporary sparse-worktree reproduction attempted a full checkout and stopped on temporary-volume space exhaustion; Git cleaned the partial files, the empty path was pruned, and `--no-checkout` made the exact sparse retry pass without touching any branch or user material.
 - Full Viewer E2E and production release validation are intentionally out of scope.
