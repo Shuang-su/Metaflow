@@ -5,7 +5,7 @@ terminal_state: verifying
 owner: Shuang-su
 closed_at: null
 approved_by: null
-generated_at: 2026-08-09T19:22:32Z
+generated_at: 2026-08-09T19:29:24Z
 ---
 
 # Closure
@@ -37,7 +37,7 @@ Do not close MF-1. Revision 3 is being integrated on the PR #3 branch; the previ
 
 ## Implementation and External Effects
 
-The Change adds repository governance documents, schemas, templates, deterministic Completion tooling, component routing, CI/security/release/rollback/upstream workflows, Viewer browser fixtures, and Version History compatibility. Revision 3 additionally separates the normative specification from the Change Plan, archives the exact predecessor plan, introduces Task-specific Completion aggregation, and removes versioned Supersplat snapshots from dependency-update authorization. Branch `codex/mcl-v1`, draft PR #3, labels, merge settings, dependency graph, Dependabot security updates, secret scanning, and push protection were created or enabled during T01 and re-read. Revision 3 has not yet been committed or pushed at this checkpoint. Issue #1 tracks MF-1, Issue #2 tracks residual dependency work, and Issue #9 records PRs #4–#8 without MF-1 disposing of them. No product release or production system was mutated.
+The Change adds repository governance documents, schemas, templates, deterministic Completion tooling, component routing, CI/security/release/rollback/upstream workflows, Viewer browser fixtures, and Version History compatibility. Revision 3 additionally separates the normative specification from the Change Plan, archives the exact predecessor plan, introduces Task-specific Completion aggregation, and removes versioned Supersplat snapshots from dependency-update authorization. Branch `codex/mcl-v1`, draft PR #3, labels, merge settings, dependency graph, Dependabot security updates, secret scanning, and push protection were created or enabled and re-read. Revision 3 commit `023dac807976f02ec6e95a9dbf33de827896bd51` was pushed and PR #3 was retitled “Adopt MCL v1 governance candidate”; its first exact-Head run failed the unowned-path Gate, so a focused component-registry correction is being prepared. Issue #1 tracks MF-1, Issue #2 tracks residual dependency work, and Issue #9 records PRs #4–#8 without MF-1 disposing of them. No product release or production system was mutated.
 
 ## Verification and Review
 
@@ -45,7 +45,7 @@ T01 local and hosted checks remain historical evidence only. Revision 3 passed 3
 
 ## Release, Rollback and Observation
 
-Release and rollback workflows are implemented but were not invoked. Older Netlify Preview attempts are not evidence for Revision 3. The PR title still carries `[skip netlify]` at this checkpoint and must be corrected before a fresh exact-Head Preview and smoke. No namespaced tag, immutable production deploy, production smoke, GitHub Release, observation window, or rollback rehearsal exists for MF-1. The candidate specification therefore remains non-effective.
+Release and rollback workflows are implemented but were not invoked. Older Netlify Preview attempts are not evidence for Revision 3. The PR title no longer carries `[skip netlify]`, but no successful exact-Head Preview and smoke exists yet. No namespaced tag, immutable production deploy, production smoke, GitHub Release, observation window, or rollback rehearsal exists for MF-1. The candidate specification therefore remains non-effective.
 
 ## Remaining Risks and Follow-up Changes
 
@@ -56,7 +56,7 @@ Release and rollback workflows are implemented but were not invoked. Older Netli
 - Dependabot PRs #4-#8 affect a non-Active reference snapshot and require the T3 `Adopt / Defer / Skip` decision tracked by Issue #9.
 - The still-building Netlify Preview needs a terminal result and successful Preview smoke or an explicit documented exception.
 - Design onboarding, real Upstream Sync, T0/T1 fast path, multi-Agent T2, partial-to-closed, attachment delivery, rollback, and full release pilots remain outstanding.
-- Revision 3 full local validation, exact-Head hosted checks, Preview smoke, merge, post-merge `main` verification, and the separate T06 evidence PR remain outstanding.
+- The focused compatibility-entry classifier correction, its local validation, exact-Head hosted checks, Preview smoke, merge, post-merge `main` verification, and the separate T06 evidence PR remain outstanding.
 
 ## Ledger, Version, PR, and Release Links
 
@@ -64,6 +64,8 @@ Release and rollback workflows are implemented but were not invoked. Older Netli
 - Security follow-up: <https://github.com/Shuang-su/Metaflow/issues/2>
 - Reference-snapshot Upstream Sync decision: <https://github.com/Shuang-su/Metaflow/issues/9>
 - Draft PR: <https://github.com/Shuang-su/Metaflow/pull/3>
+- Revision 3 first push: `023dac807976f02ec6e95a9dbf33de827896bd51`
+- Failed exact-Head run requiring a new commit: <https://github.com/Shuang-su/Metaflow/actions/runs/31331509106>
 - Green hosted runs: <https://github.com/Shuang-su/Metaflow/actions/runs/31325948588>, <https://github.com/Shuang-su/Metaflow/actions/runs/31326306006>, <https://github.com/Shuang-su/Metaflow/actions/runs/31327941632>
 - Implementation refs: `fb0a881b` through `66d2553d`; `66d2553d` is the published Revision 2 ref before this Completion refresh.
 - Tag, Release, deploy, merge, active Ruleset, and MCL 1.0 activation: not created or activated.
@@ -74,4 +76,4 @@ No request content required redaction. System/developer instructions and hidden 
 
 ## Final Response Delivery
 
-At this checkpoint T05 must report `partial`. Its terminal delivery may become `complete` only after the full local and hosted merge-preparation Gates are recorded and generated artifacts are refreshed. MF-1 itself remains `verifying` after PR #3 merges and cannot be described as effective or closed.
+At this checkpoint T05 reports `partial`. A focused follow-up commit and a full exact-Head rerun are required before the independent T06 merge task may start. MF-1 itself remains `verifying` after PR #3 merges and cannot be described as effective or closed.

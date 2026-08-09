@@ -784,11 +784,16 @@ test('component registry classifies platform and design paths independently', as
     const registry = await loadComponentRegistry();
     const result = classifyPaths([
         'docs/changes/42-fixture/plan.md',
+        'docs/metaflow-change-lifecycle-v1.0-complete-plan.md',
         'aave-liquid-glass-lab/storybook/package.json',
         'metaflow-viewer/src/index.ts'
     ], registry);
     assert.deepEqual(Object.keys(result).sort(), ['design', 'platform', 'viewer']);
     assert.deepEqual(result.design, ['aave-liquid-glass-lab/storybook/package.json']);
+    assert.deepEqual(result.platform, [
+        'docs/changes/42-fixture/plan.md',
+        'docs/metaflow-change-lifecycle-v1.0-complete-plan.md'
+    ]);
 });
 
 test('upstream watcher derives targets from component version sources', async () => {

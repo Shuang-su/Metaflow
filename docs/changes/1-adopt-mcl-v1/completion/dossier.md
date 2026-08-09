@@ -1689,6 +1689,9 @@ MF-1 继续处于 verifying，MCL 1.0 尚未 effective/closed。
 13. Performed a separate Spec-compliance pass over scope, source preservation, candidate/effective claims, Task topology, component authorization, and exclusion of product/upstream work.
 14. Performed a separate code-quality pass over Completion parsing/generation, schema compatibility, source-material path safety, strict-mode semantics, deterministic timestamps, link handling, and Dependabot validation. The pass found and fixed missing active-strict semantics and stale closure-time acceptance, with regression tests.
 15. Deferred Git publication, PR Ready state, merge, Ruleset writes, and Issue updates until the exact pushed Head can acquire hosted evidence.
+16. Committed and pushed Revision 3 as `023dac807976f02ec6e95a9dbf33de827896bd51`, then updated and re-read PR #3's title and body without claiming hosted success.
+17. Inspected failed run `31331509106` through the GitHub app and Actions logs. Classification correctly rejected the new compatibility entry as unowned.
+18. Added that one exact compatibility path to the platform component registry and a regression assertion; no broad path exception or product ownership was added.
 
 ## Agent Reply Summary
 
@@ -1768,7 +1771,8 @@ External effects:
 - Modified `scripts/check_markdown_links.mjs` for exact registered non-normative source-material handling.
 - Refined `scripts/mcl.mjs` and its tests so strict validation supports active Changes without treating them as closed and rejects a closure timestamp older than its latest Task.
 - Added `completion/plan-revisions.json`, `completion/source-materials.json`, and Task Records T02–T05.
-- Did not commit, push, alter PR #3, merge, write Issue #1, deploy, or apply a Ruleset at this checkpoint.
+- Created commit `023dac807976f02ec6e95a9dbf33de827896bd51`, pushed `codex/mcl-v1`, and updated/re-read PR #3 as the draft “Adopt MCL v1 governance candidate”.
+- The first exact-Head Actions run `31331509106` failed at classification; no merge, Issue #1 write, deployment, or Ruleset application occurred.
 - Did not modify the checked-out local main branch, the Swiftgram directory, or the untracked predecessor-plan source.
 
 ## Validation, Failures, and Omissions
@@ -1856,6 +1860,7 @@ No focused validation failed at termination. The Agent did not run Viewer/Editor
 - Three reference license/version checks passed; the Design job's source check found no tracked Design implementation on this ref.
 - Viewer install still reports five transitive advisories; Editor install reports existing peer-resolution warnings and nine audit findings. These are recorded limitations, not silently fixed by changing versioned source.
 - Hosted CI, both CodeQL surfaces, dependency review, exact-Head Netlify Preview, HTTP smoke, and PR Ready re-read remained unverified at this checkpoint.
+- GitHub run `31331509106` conclusively failed because `docs/metaflow-change-lifecycle-v1.0-complete-plan.md` was unowned; every downstream job was skipped and no passed result was inferred.
 
 #### Failures, Retries, and Skipped Checks
 
@@ -1864,6 +1869,7 @@ No focused validation failed at termination. The Agent did not run Viewer/Editor
 - Four new Task Record patches were initially applied relative to the main workspace instead of the MCL worktree. The files were copied into the authorized worktree, deleted from the main workspace, and the main workspace was immediately re-read: its HEAD, nine-commit lead, and only two pre-existing untracked paths were unchanged.
 - The first strict run rejected the active `verifying` Change because strict mode previously meant terminal-only. Strict mode was split into active and terminal invariants and a positive active-Change regression test was added.
 - The first generated aggregate reproduced three user-authored Markdown hard-break spaces and failed the whitespace Gate. Those line endings were normalized without changing message wording or order, then generation and `git diff --check` passed.
+- The first pushed Revision 3 run failed its intended unowned-path guard on the new compatibility entry. The focused correction registers only that path under platform and adds a classifier regression test; no failed check was rerun or waived without a new commit.
 - Full remote writes were intentionally skipped until Task-specific records, authored indexes, local validation, and the two author-review passes existed.
 - No failed Gate was waived.
 ````
@@ -2119,7 +2125,7 @@ PR #3 合并后，MF-1 保持 `status: verifying` 和 `completion_state: pending
 
 ## 7. Implementation and External Effects
 
-The Change adds repository governance documents, schemas, templates, deterministic Completion tooling, component routing, CI/security/release/rollback/upstream workflows, Viewer browser fixtures, and Version History compatibility. Revision 3 additionally separates the normative specification from the Change Plan, archives the exact predecessor plan, introduces Task-specific Completion aggregation, and removes versioned Supersplat snapshots from dependency-update authorization. Branch `codex/mcl-v1`, draft PR #3, labels, merge settings, dependency graph, Dependabot security updates, secret scanning, and push protection were created or enabled during T01 and re-read. Revision 3 has not yet been committed or pushed at this checkpoint. Issue #1 tracks MF-1, Issue #2 tracks residual dependency work, and Issue #9 records PRs #4–#8 without MF-1 disposing of them. No product release or production system was mutated.
+The Change adds repository governance documents, schemas, templates, deterministic Completion tooling, component routing, CI/security/release/rollback/upstream workflows, Viewer browser fixtures, and Version History compatibility. Revision 3 additionally separates the normative specification from the Change Plan, archives the exact predecessor plan, introduces Task-specific Completion aggregation, and removes versioned Supersplat snapshots from dependency-update authorization. Branch `codex/mcl-v1`, draft PR #3, labels, merge settings, dependency graph, Dependabot security updates, secret scanning, and push protection were created or enabled and re-read. Revision 3 commit `023dac807976f02ec6e95a9dbf33de827896bd51` was pushed and PR #3 was retitled “Adopt MCL v1 governance candidate”; its first exact-Head run failed the unowned-path Gate, so a focused component-registry correction is being prepared. Issue #1 tracks MF-1, Issue #2 tracks residual dependency work, and Issue #9 records PRs #4–#8 without MF-1 disposing of them. No product release or production system was mutated.
 
 ## 8. Verification and Review Evidence
 
@@ -2234,6 +2240,7 @@ Review corrections:
 
 Validation retries and rejected checks:
 
+- Revision 3 run [31331509106](https://github.com/Shuang-su/Metaflow/actions/runs/31331509106) failed at `classify paths` because the new compatibility entry `docs/metaflow-change-lifecycle-v1.0-complete-plan.md` had no component owner; every downstream job was skipped and `required / gate` failed. The focused fix adds that exact path to platform ownership and a classifier regression assertion.
 - The first Revision 3 `check-all --strict` run exposed that the old flag meant “terminal-only” and therefore could not validate an active `verifying` Change. Strict mode now fully validates active Changes with `completion_state: pending` and retains the all-Tasks-complete requirement for terminal Changes; positive regression coverage was added.
 - The first generated Revision 3 Dossier reproduced three Markdown hard-break spaces from the user-supplied Plan and failed `git diff --check`. The transcript snapshot normalized those line endings without changing message wording or order, then deterministic generation and whitespace validation passed.
 - Four new Task Record patches were initially resolved against the main workspace. They were copied into the authorized MCL worktree and deleted from the main workspace immediately; a re-read confirmed main remained at `47ffd86e`, nine commits ahead of `origin/main`, with only the predecessor plan and Swiftgram directory untracked.
@@ -2262,6 +2269,7 @@ Dependency audit after compatible direct updates:
 - Set and re-read repository merge controls: squash enabled, merge commits disabled, rebase merge disabled, delete branch after merge enabled.
 - Created and re-read Issue #2 for residual transitive dependency advisories.
 - Published commits `fb0a881b` through `66d2553d` on `codex/mcl-v1` and created draft PR [#3](https://github.com/Shuang-su/Metaflow/pull/3); the PR was re-read as open, draft, and mergeable.
+- Published Revision 3 commit `023dac807976f02ec6e95a9dbf33de827896bd51`, removed `[skip netlify]` from the title, replaced the PR body with Revision 3 scope/evidence, and re-read the exact Head. Its first run failed the unowned-path Gate described above, so it is not merge evidence.
 - Enabled the repository dependency graph/vulnerability alerts and re-read the endpoint successfully so dependency review could execute.
 - Enabled and re-read Dependabot security updates, secret scanning, and secret-scanning push protection.
 - Enabling Dependabot security updates caused automated PRs [#4](https://github.com/Shuang-su/Metaflow/pull/4) through [#8](https://github.com/Shuang-su/Metaflow/pull/8) against the non-Active `supersplat-viewer-v1.18.2` reference snapshot. They were not merged, dismissed, or treated as Active product updates.
@@ -2286,7 +2294,7 @@ Dependency audit after compatible direct updates:
 
 ## 9. Release, Rollback and Observation
 
-Release and rollback workflows are implemented but were not invoked. Older Netlify Preview attempts are not evidence for Revision 3. The PR title still carries `[skip netlify]` at this checkpoint and must be corrected before a fresh exact-Head Preview and smoke. No namespaced tag, immutable production deploy, production smoke, GitHub Release, observation window, or rollback rehearsal exists for MF-1. The candidate specification therefore remains non-effective.
+Release and rollback workflows are implemented but were not invoked. Older Netlify Preview attempts are not evidence for Revision 3. The PR title no longer carries `[skip netlify]`, but no successful exact-Head Preview and smoke exists yet. No namespaced tag, immutable production deploy, production smoke, GitHub Release, observation window, or rollback rehearsal exists for MF-1. The candidate specification therefore remains non-effective.
 
 ## 10. Remaining Risks and Follow-up Changes
 
@@ -2297,7 +2305,7 @@ Release and rollback workflows are implemented but were not invoked. Older Netli
 - Dependabot PRs #4-#8 affect a non-Active reference snapshot and require the T3 `Adopt / Defer / Skip` decision tracked by Issue #9.
 - The still-building Netlify Preview needs a terminal result and successful Preview smoke or an explicit documented exception.
 - Design onboarding, real Upstream Sync, T0/T1 fast path, multi-Agent T2, partial-to-closed, attachment delivery, rollback, and full release pilots remain outstanding.
-- Revision 3 full local validation, exact-Head hosted checks, Preview smoke, merge, post-merge `main` verification, and the separate T06 evidence PR remain outstanding.
+- The focused compatibility-entry classifier correction, its local validation, exact-Head hosted checks, Preview smoke, merge, post-merge `main` verification, and the separate T06 evidence PR remain outstanding.
 
 ## 11. Ledger, Version, PR, and Release Links
 
@@ -2305,6 +2313,8 @@ Release and rollback workflows are implemented but were not invoked. Older Netli
 - Security follow-up: <https://github.com/Shuang-su/Metaflow/issues/2>
 - Reference-snapshot Upstream Sync decision: <https://github.com/Shuang-su/Metaflow/issues/9>
 - Draft PR: <https://github.com/Shuang-su/Metaflow/pull/3>
+- Revision 3 first push: `023dac807976f02ec6e95a9dbf33de827896bd51`
+- Failed exact-Head run requiring a new commit: <https://github.com/Shuang-su/Metaflow/actions/runs/31331509106>
 - Green hosted runs: <https://github.com/Shuang-su/Metaflow/actions/runs/31325948588>, <https://github.com/Shuang-su/Metaflow/actions/runs/31326306006>, <https://github.com/Shuang-su/Metaflow/actions/runs/31327941632>
 - Implementation refs: `fb0a881b` through `66d2553d`; `66d2553d` is the published Revision 2 ref before this Completion refresh.
 - Tag, Release, deploy, merge, active Ruleset, and MCL 1.0 activation: not created or activated.
@@ -2313,16 +2323,16 @@ Release and rollback workflows are implemented but were not invoked. Older Netli
 
 | Source | SHA-256 |
 | --- | --- |
-| request-transcript.md | `0adb1fca658bc76d239d2804d59da8a6ecd82b00e7a6f996677364552ef31a7f` |
+| request-transcript.md | `49fe518d3e38c4099508ead4e8f3008598f26a735a44b8dd82218d86d968d11f` |
 | ../plan.md | `c4fc6da8f701a46412caef5a396449e1560d569bdd000a9bd1955f627608e107` |
-| agent-action-reply-summary.md | `a73296b5c9689c5bc9b7e19ef2a0e26128f618fe6da0cb1536557c7b1b6b780e` |
-| ../evidence.md | `686eb91be4de3904566c1e939d67382b4341d9cc9a7fb19df89e1df3425ef978` |
-| closure.md | `ce6db7c85348691a3d92769e28df7e7bd47d2c400538d532f4f4f22b1b2730df` |
+| agent-action-reply-summary.md | `d1e07c7511f70ad49fe19627aa6e9ce93ee5ecd823b2d689efd1e9d7e8c350b1` |
+| ../evidence.md | `3821b203771624b7565ec5a9a89195e9ea089ee6598bd80b92c7ebb11e3cdc28` |
+| closure.md | `cd732031a8283c694aa849c934fc48cf51a15da1c34fd71cc8189ead0f4f0103` |
 | task-records/MF-1-T01.md | `616c6d3390b6663882d54551be4e6c74f906e177601c9af72311fa873e33101d` |
 | task-records/MF-1-T02.md | `ed88ac509f41c161d3dfd5e7092b8264c3f179dcec3720e60941738ad39b91f3` |
 | task-records/MF-1-T03.md | `f23f68ca14a5dded0794eb927844f9341d014dbb76a5f8e8fe88ec1ed99c2239` |
 | task-records/MF-1-T04.md | `89c8bf2ddc3e682d973af73fb71737007cba6b5552c271224584b10c110cf56e` |
-| task-records/MF-1-T05.md | `47a917bc5c6d694f3149f64d40d7182e41d3192644861ff09213e1774092d2fa` |
+| task-records/MF-1-T05.md | `f60165d99286ad2df51c1672bd2035d2dc0744af4145bc6ed81f663d41b0ac2f` |
 | plan-revisions.json | `8ac78c6aa0813c801784202e94a171c6c5433b199ff5ec4bfd92d9cb8e7ce59c` |
 | source-materials.json | `17174a46f38c70fc040c801dc8f62ee6a379f7f7ac844df6c385bf39ed5307d9` |
 | source-materials/metaflow-change-lifecycle-v1.0-complete-plan.md | `37f45424cc233af72801e1d91053d4581d1bbcdfb73627612d6f28f018af85a3` |

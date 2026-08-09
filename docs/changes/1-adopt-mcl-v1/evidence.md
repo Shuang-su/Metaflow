@@ -126,6 +126,7 @@ Review corrections:
 
 Validation retries and rejected checks:
 
+- Revision 3 run [31331509106](https://github.com/Shuang-su/Metaflow/actions/runs/31331509106) failed at `classify paths` because the new compatibility entry `docs/metaflow-change-lifecycle-v1.0-complete-plan.md` had no component owner; every downstream job was skipped and `required / gate` failed. The focused fix adds that exact path to platform ownership and a classifier regression assertion.
 - The first Revision 3 `check-all --strict` run exposed that the old flag meant “terminal-only” and therefore could not validate an active `verifying` Change. Strict mode now fully validates active Changes with `completion_state: pending` and retains the all-Tasks-complete requirement for terminal Changes; positive regression coverage was added.
 - The first generated Revision 3 Dossier reproduced three Markdown hard-break spaces from the user-supplied Plan and failed `git diff --check`. The transcript snapshot normalized those line endings without changing message wording or order, then deterministic generation and whitespace validation passed.
 - Four new Task Record patches were initially resolved against the main workspace. They were copied into the authorized MCL worktree and deleted from the main workspace immediately; a re-read confirmed main remained at `47ffd86e`, nine commits ahead of `origin/main`, with only the predecessor plan and Swiftgram directory untracked.
@@ -154,6 +155,7 @@ Dependency audit after compatible direct updates:
 - Set and re-read repository merge controls: squash enabled, merge commits disabled, rebase merge disabled, delete branch after merge enabled.
 - Created and re-read Issue #2 for residual transitive dependency advisories.
 - Published commits `fb0a881b` through `66d2553d` on `codex/mcl-v1` and created draft PR [#3](https://github.com/Shuang-su/Metaflow/pull/3); the PR was re-read as open, draft, and mergeable.
+- Published Revision 3 commit `023dac807976f02ec6e95a9dbf33de827896bd51`, removed `[skip netlify]` from the title, replaced the PR body with Revision 3 scope/evidence, and re-read the exact Head. Its first run failed the unowned-path Gate described above, so it is not merge evidence.
 - Enabled the repository dependency graph/vulnerability alerts and re-read the endpoint successfully so dependency review could execute.
 - Enabled and re-read Dependabot security updates, secret scanning, and secret-scanning push protection.
 - Enabling Dependabot security updates caused automated PRs [#4](https://github.com/Shuang-su/Metaflow/pull/4) through [#8](https://github.com/Shuang-su/Metaflow/pull/8) against the non-Active `supersplat-viewer-v1.18.2` reference snapshot. They were not merged, dismissed, or treated as Active product updates.

@@ -1,7 +1,7 @@
 ---
 change_id: MF-1
 status: verifying
-generated_at: 2026-08-09T19:22:32.000Z
+generated_at: 2026-08-09T19:29:24.000Z
 ---
 
 # Agent Actions and Replies Summary
@@ -102,6 +102,9 @@ generated_at: 2026-08-09T19:22:32.000Z
 13. Performed a separate Spec-compliance pass over scope, source preservation, candidate/effective claims, Task topology, component authorization, and exclusion of product/upstream work.
 14. Performed a separate code-quality pass over Completion parsing/generation, schema compatibility, source-material path safety, strict-mode semantics, deterministic timestamps, link handling, and Dependabot validation. The pass found and fixed missing active-strict semantics and stale closure-time acceptance, with regression tests.
 15. Deferred Git publication, PR Ready state, merge, Ruleset writes, and Issue updates until the exact pushed Head can acquire hosted evidence.
+16. Committed and pushed Revision 3 as `023dac807976f02ec6e95a9dbf33de827896bd51`, then updated and re-read PR #3's title and body without claiming hosted success.
+17. Inspected failed run `31331509106` through the GitHub app and Actions logs. Classification correctly rejected the new compatibility entry as unowned.
+18. Added that one exact compatibility path to the platform component registry and a regression assertion; no broad path exception or product ownership was added.
 
 ## Agent Reply Summary
 
@@ -181,7 +184,8 @@ External effects:
 - Modified `scripts/check_markdown_links.mjs` for exact registered non-normative source-material handling.
 - Refined `scripts/mcl.mjs` and its tests so strict validation supports active Changes without treating them as closed and rejects a closure timestamp older than its latest Task.
 - Added `completion/plan-revisions.json`, `completion/source-materials.json`, and Task Records T02–T05.
-- Did not commit, push, alter PR #3, merge, write Issue #1, deploy, or apply a Ruleset at this checkpoint.
+- Created commit `023dac807976f02ec6e95a9dbf33de827896bd51`, pushed `codex/mcl-v1`, and updated/re-read PR #3 as the draft “Adopt MCL v1 governance candidate”.
+- The first exact-Head Actions run `31331509106` failed at classification; no merge, Issue #1 write, deployment, or Ruleset application occurred.
 - Did not modify the checked-out local main branch, the Swiftgram directory, or the untracked predecessor-plan source.
 
 ## Validation, Failures, and Omissions
@@ -269,6 +273,7 @@ No focused validation failed at termination. The Agent did not run Viewer/Editor
 - Three reference license/version checks passed; the Design job's source check found no tracked Design implementation on this ref.
 - Viewer install still reports five transitive advisories; Editor install reports existing peer-resolution warnings and nine audit findings. These are recorded limitations, not silently fixed by changing versioned source.
 - Hosted CI, both CodeQL surfaces, dependency review, exact-Head Netlify Preview, HTTP smoke, and PR Ready re-read remained unverified at this checkpoint.
+- GitHub run `31331509106` conclusively failed because `docs/metaflow-change-lifecycle-v1.0-complete-plan.md` was unowned; every downstream job was skipped and no passed result was inferred.
 
 #### Failures, Retries, and Skipped Checks
 
@@ -277,5 +282,6 @@ No focused validation failed at termination. The Agent did not run Viewer/Editor
 - Four new Task Record patches were initially applied relative to the main workspace instead of the MCL worktree. The files were copied into the authorized worktree, deleted from the main workspace, and the main workspace was immediately re-read: its HEAD, nine-commit lead, and only two pre-existing untracked paths were unchanged.
 - The first strict run rejected the active `verifying` Change because strict mode previously meant terminal-only. Strict mode was split into active and terminal invariants and a positive active-Change regression test was added.
 - The first generated aggregate reproduced three user-authored Markdown hard-break spaces and failed the whitespace Gate. Those line endings were normalized without changing message wording or order, then generation and `git diff --check` passed.
+- The first pushed Revision 3 run failed its intended unowned-path guard on the new compatibility entry. The focused correction registers only that path under platform and adds a classifier regression test; no failed check was rerun or waived without a new commit.
 - Full remote writes were intentionally skipped until Task-specific records, authored indexes, local validation, and the two author-review passes existed.
 - No failed Gate was waived.

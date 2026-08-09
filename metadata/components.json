@@ -72,6 +72,7 @@
         "metadata/components.json",
         "metadata/schemas/**",
         "docs/metaflow-change-lifecycle-v1.0.md",
+        "docs/metaflow-change-lifecycle-v1.0-complete-plan.md",
         "docs/changes/**",
         "docs/templates/**"
       ],
