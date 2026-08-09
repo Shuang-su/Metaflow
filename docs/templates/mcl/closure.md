@@ -10,6 +10,8 @@ generated_at: YYYY-MM-DDTHH:MM:SSZ
 
 # Closure
 
+> **仅限显式审计模式。** 默认关闭记录写入 Issue 的验收、状态与完成交付，并由 PR 保存不可变集成证据。
+
 ## Closure Decision
 
 ## Task Disposition

@@ -1,26 +1,34 @@
 name: Bug report
-description: Report a reproducible defect.
+description: 报告一个可复现缺陷，并给出完整任务边界。
 title: "[Bug] "
 labels: ["type/bug", "risk/T1"]
 body:
-  - type: textarea
-    id: problem
+  - type: dropdown
+    id: current_status
     attributes:
-      label: Problem
-      description: What did you observe?
+      label: 当前状态
+      options: [Proposed, Ready, In Progress, In Review, Done, Parked, Rejected, Rolled Back]
+    validations:
+      required: true
+  - type: textarea
+    id: background
+    attributes:
+      label: 背景
+      description: 观察到什么、影响谁、为什么现在修复。
     validations:
       required: true
   - type: textarea
     id: reproduce
     attributes:
-      label: Reproduction
-      description: Include route, input, environment, and deterministic steps.
+      label: 复现与证据
+      description: 包含 route、输入、环境、确定性步骤、日志或失败测试；移除秘密。
     validations:
       required: true
   - type: textarea
-    id: expected
+    id: goal
     attributes:
-      label: Expected behavior
+      label: 目标
+      description: 写明修复后的可观察行为。
     validations:
       required: true
   - type: dropdown
@@ -31,11 +39,41 @@ body:
     validations:
       required: true
   - type: textarea
-    id: evidence
+    id: included_scope
     attributes:
-      label: Evidence
-      description: Logs, screenshots, recordings, or a failing test. Remove secrets.
+      label: 包含范围
+    validations:
+      required: true
   - type: textarea
-    id: non_goals
+    id: excluded_scope
     attributes:
-      label: Non-goals
+      label: 排除范围
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: 验收标准
+      description: 包含回归证据与兼容边界。
+    validations:
+      required: true
+  - type: textarea
+    id: risks
+    attributes:
+      label: 风险、依赖与回退
+    validations:
+      required: true
+  - type: textarea
+    id: artifacts
+    attributes:
+      label: Spec / Plan 与相关任务
+      description: 链接技术细节；T1 不适用独立 Spec 时链接轻量 Plan。
+    validations:
+      required: true
+  - type: textarea
+    id: delivery
+    attributes:
+      label: 完成交付
+      description: 完成后回填 PR、squash commit、验证和遗留事项。
+    validations:
+      required: true

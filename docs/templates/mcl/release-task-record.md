@@ -16,6 +16,8 @@ archive_status: pending-import
 
 # Release Task Record
 
+> **仅限显式审计模式。** 普通发布优先由发布 Issue、PR、不可变 workflow run、Version History 和观察记录共同交付。
+
 ## Authorized Scope
 
 ## Complete User Request

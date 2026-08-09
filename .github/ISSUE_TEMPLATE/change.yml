@@ -1,34 +1,27 @@
-name: Performance or compatibility
-description: 报告可量化的性能、浏览器、设备、渲染或数据兼容问题。
-title: "[Compatibility] "
-labels: ["type/performance", "risk/T1"]
+name: Change
+description: 提交一个具备完整背景、范围、验收和状态的变更。
+title: "[Change] "
+labels: ["component/platform", "type/maintenance", "risk/T1"]
 body:
   - type: dropdown
     id: current_status
     attributes:
       label: 当前状态
-      options: [Proposed, Ready, In Progress, In Review, Done, Parked, Rejected, Rolled Back]
+      options: [Proposed, Ready, In Progress, In Review, Done, Released, Observing, Parked, Rejected, Rolled Back]
     validations:
       required: true
   - type: textarea
     id: background
     attributes:
       label: 背景
-      description: 影响、基线和为什么现在处理。
-    validations:
-      required: true
-  - type: textarea
-    id: matrix
-    attributes:
-      label: 环境、观察结果与证据
-      description: Browser、版本、设备、OS、WebGL/WebGPU、route、data、测量和复现。
+      description: 说明现状、问题、证据以及为什么现在处理。
     validations:
       required: true
   - type: textarea
     id: goal
     attributes:
       label: 目标
-      description: 期望结果、预算或兼容基线。
+      description: 描述期望结果，不写文件级实现步骤。
     validations:
       required: true
   - type: textarea
@@ -47,7 +40,7 @@ body:
     id: acceptance
     attributes:
       label: 验收标准
-      description: 写明环境矩阵和数值阈值。
+      description: 使用可核验的 Markdown checklist。
     validations:
       required: true
   - type: textarea
@@ -60,12 +53,13 @@ body:
     id: artifacts
     attributes:
       label: Spec / Plan 与相关任务
+      description: 链接具体 API、文件步骤、测试命令和 Codex 任务；不适用时说明原因。
     validations:
       required: true
   - type: textarea
     id: delivery
     attributes:
       label: 完成交付
-      description: 完成后回填 PR、squash commit、验证和遗留事项。
+      description: 未完成时写明尚未完成；完成后回填 PR、squash commit、验证和遗留事项。
     validations:
       required: true

@@ -4,19 +4,32 @@
 - Closes:
 - Risk: T0 / T1 / T2 / T3
 - Components:
+- Current status: In Review
 
-## Summary and motivation
+## Background and goal
 
-## User-visible behavior
+<!-- Link the Issue for full decision context; summarize only what reviewers need here. -->
 
-## Scope and non-goals
+## Actual changes
+
+## User / developer impact
+
+## Included scope
+
+## Excluded scope
+
+## Issue acceptance mapping
+
+| Acceptance criterion | Result | Evidence |
+| --- | --- | --- |
 
 ## Proposal / Spec / Plan / ADR
 
-- Proposal:
+- Proposal / RFC:
 - Spec:
 - Plan:
 - ADR:
+- Codex task:
 
 ## Validation
 
@@ -25,27 +38,26 @@
 
 ### Not run
 
-## UI, compatibility, and performance evidence
+<!-- Name every plausible but unrun check and explain why it is not applicable. -->
 
-## Risk and rollback
+## Risks, rollback, and deviations
 
-## Ledger and Version History
+- Known risks:
+- Rollback:
+- Plan deviations:
+- Known limitations:
 
-## AI assistance
+## AI assistance and review
 
 - Tool(s):
-- Scope:
-- Tool/skill/plugin instruction source:
-- Adoption level: reference / task-local / repository-policy / enforced-control
-- Execution topology: single agent / multiple tasks / subagents / external tool
+- Authorized scope:
+- Instruction source and adoption level:
+- Execution topology:
 - Review relationship: author self-review / distinct non-author review / not performed
 - Human verification:
 
-## Agent Completion
+## Follow-up and Issue delivery
 
-- Task records:
-- Completion manifest:
-- Completion dossier:
-- Final response delivered: yes / no
-
-## Incomplete work and follow-up
+- Remaining work:
+- Follow-up Issues:
+- After merge, update the Issue with this PR, the squash commit, actual validation, and remaining work.

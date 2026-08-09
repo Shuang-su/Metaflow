@@ -1,7 +1,7 @@
 ---
 change_id: MF-000
 title: Replace with a contract title
-status: specified
+status: ready
 component:
   - viewer
 risk: T2
@@ -10,15 +10,13 @@ owner: owner
 created: YYYY-MM-DD
 updated: YYYY-MM-DD
 issue: https://github.com/Shuang-su/Metaflow/issues/000
-plan_revision: 1
-completion_state: pending
-supersedes: null
-terminal_reason: null
 ---
 
 # Change Spec
 
-## Context and Proposal
+> 这是本 Change 唯一规范 Spec。Issue 只摘要并链接本文。
+
+## Context and accepted direction
 
 ## User-visible behavior
 
@@ -32,19 +30,15 @@ terminal_reason: null
 
 ## Compatibility and migration
 
-## Security and privacy
-
-## Performance budgets
-
-## Accessibility, mobile, and reduced motion
+## Security, privacy, performance and accessibility
 
 ## Non-goals
 
 ## Acceptance matrix
 
-| Requirement | Evidence | Required environment |
+| Requirement | Required evidence | Environment |
 | --- | --- | --- |
 
 ## Open decisions
 
-Must be empty or explicitly deferred before `specified`.
+进入 Ready 前必须为空，或明确记录为不影响当前范围的后续 Issue。
