@@ -5,14 +5,14 @@ terminal_state: verifying
 owner: Shuang-su
 closed_at: null
 approved_by: null
-generated_at: 2026-08-09T19:29:24Z
+generated_at: 2026-08-09T19:58:18Z
 ---
 
 # Closure
 
 ## Closure Decision
 
-Do not close MF-1. Revision 3 is being integrated on the PR #3 branch; the previously green hosted results belong to an older Head and are not merge evidence for the current revision. MCL 1.0 cannot become effective until Revision 3 passes its exact-Head local, hosted, Preview, merge, post-merge, Ruleset, pilot, release/rollback, and human activation Gates.
+Do not close MF-1. PR #3 has merged the MCL candidate, the exact merge tree and first `main` run were verified, and Ruleset `20612630` is an enforced-control. Revision 4 explicitly separates Netlify and product validation from this candidate merge. MCL 1.0 cannot become effective until the remaining pilots, activation, release/rollback rehearsal, observation, and human closure Gates are completed.
 
 ## Task Disposition
 
@@ -22,7 +22,8 @@ Do not close MF-1. Revision 3 is being integrated on the PR #3 branch; the previ
 | MF-1-T02 | complete | Completion multi-Task immutability, Manifest 1.1, schema, and focused regression tests were delivered to T05 for integration. |
 | MF-1-T03 | complete | Normative/Plan separation, candidate semantics, predecessor archive, and disposition material were delivered to T05 for integration. |
 | MF-1-T04 | complete | Versioned-snapshot Dependabot exclusion, platform tests, and the precise two-file package restoration were delivered to T05 for integration. |
-| MF-1-T05 | partial | Continue only after deterministic generation, full local validation, exact-Head hosted checks, Preview smoke, PR update, and Ready-state re-read succeed. |
+| MF-1-T05 | partial | Historical pre-merge integration checkpoint; its failed classifier run and focused correction remain immutable, and T06 explicitly accepted the continuation. |
+| MF-1-T06 | complete | Candidate merge, main evidence, Ruleset, follow-up split and the path-scoped post-merge Evidence/Completion PR succeeded without reopening product or Netlify implementation in MF-1. |
 
 ## Plan Amendments and Deviations
 
@@ -34,41 +35,50 @@ Do not close MF-1. Revision 3 is being integrated on the PR #3 branch; the previ
 - Re-examining the two original plans, Codex deep-link task, shared GPT conversation, and linked GitHub evidence corrected a research inference. The correction is recorded in Evidence and Completion; case narrative remains excluded from the normative specification.
 - Revision 3 was directly approved by the user to merge only the MCL candidate after new evidence. It archives the predecessor plan, makes historical Task snapshots immutable, adds Manifest 1.1 source materials, separates the reusable specification from the MF-1 Plan, removes versioned-snapshot dependency maintenance, and delays activation and closure.
 - The approved plan originally named the revision work T02 and merge work T03. Three independently prompted implementation subagents require separate records, so the actual sequence is T02–T04 for those agents, T05 for primary integration, and T06 for merge/post-merge evidence. Scope, ordering, merge Gates, and external-write authority are unchanged.
+- Revision 4 was directly approved by the user after T05: Viewer/Editor source was unchanged, so full product build/E2E, product-release verification, and Netlify Preview/smoke were removed from the candidate merge hard Gate and split into Issues #15 and #16. Completion, checksum, secret, link, governance, CodeQL and `required / gate` remained mandatory.
+- A detached worktree method was abandoned after it began hydrating large product data and exhausted temporary disk. The exact Task-created temporary checkout was removed, and Git tree equality plus checks on the already checked-out identical tree supplied the post-merge content evidence without expanding product scope.
 
 ## Implementation and External Effects
 
-The Change adds repository governance documents, schemas, templates, deterministic Completion tooling, component routing, CI/security/release/rollback/upstream workflows, Viewer browser fixtures, and Version History compatibility. Revision 3 additionally separates the normative specification from the Change Plan, archives the exact predecessor plan, introduces Task-specific Completion aggregation, and removes versioned Supersplat snapshots from dependency-update authorization. Branch `codex/mcl-v1`, draft PR #3, labels, merge settings, dependency graph, Dependabot security updates, secret scanning, and push protection were created or enabled and re-read. Revision 3 commit `023dac807976f02ec6e95a9dbf33de827896bd51` was pushed and PR #3 was retitled “Adopt MCL v1 governance candidate”; its first exact-Head run failed the unowned-path Gate, so a focused component-registry correction is being prepared. Issue #1 tracks MF-1, Issue #2 tracks residual dependency work, and Issue #9 records PRs #4–#8 without MF-1 disposing of them. No product release or production system was mutated.
+The Change adds repository governance documents, schemas, templates, deterministic Completion tooling, component routing, CI/security/release/rollback/upstream workflows, Viewer browser fixtures, and Version History compatibility. Revision 3 separates the normative specification from the Change Plan, archives the exact predecessor plan, introduces Task-specific Completion aggregation, and removes versioned Supersplat snapshots from dependency-update authorization. PR #3 was marked Ready and squash-merged as `6e1725ee6d24ea37fcf3bb7492606e95e0e0780b`; `origin/main`, the merged PR, the deleted remote branch and Issue #1 evidence were re-read. Ruleset `20612630` was created active after the first main Gate succeeded and its effective rules were re-read. Issues #15 and #16 now own the separated Netlify and product-Gate proposals. No product release or production deployment was performed.
 
 ## Verification and Review
 
-T01 local and hosted checks remain historical evidence only. Revision 3 passed 37 Node tests, seven Python tests, deterministic Manifest 1.1 generation, strict active-Change validation, registry/version/data/platform/link/hygiene checks, 52 Viewer tests, Viewer typecheck/build, four development and four production E2E tests, Editor lint/build, bundle budgets, reference checks, and source/T01/worktree immutability checks. The implementation Agent completed separate Spec-compliance and code-quality author self-review passes; no independent non-author Review is claimed. Exact-Head GitHub jobs, both CodeQL surfaces, dependency review, Netlify Preview/smoke, and post-merge `main` evidence remain required.
+Revision 3's product jobs remain historical additive evidence and are not treated as Revision 4 release Gates. Exact PR Head run `31331822368` passed governance/Completion, both CodeQL surfaces and `required / gate`. The approved Head and merge commit share tree `3b1828abbd623a9f81e334171950c7a43321c3f4`; 37 Node tests, seven Python tests, strict Completion, platform, link and secret/hygiene checks passed on that identical tree. Main run `31332409298` succeeded, including `governance and completion`, CodeQL and `required / gate`. The implementation Agent performed author self-review; no independent non-author Review is claimed.
 
 ## Release, Rollback and Observation
 
-Release and rollback workflows are implemented but were not invoked. Older Netlify Preview attempts are not evidence for Revision 3. The PR title no longer carries `[skip netlify]`, but no successful exact-Head Preview and smoke exists yet. No namespaced tag, immutable production deploy, production smoke, GitHub Release, observation window, or rollback rehearsal exists for MF-1. The candidate specification therefore remains non-effective.
+Release and rollback workflows are implemented but were not invoked. Netlify Previews remained non-terminal and are not successful evidence; Issue #15 owns that separate proposal. No namespaced tag, immutable production deploy, production smoke, GitHub Release, observation window, or rollback rehearsal exists for MF-1. The installed candidate therefore remains non-effective.
 
 ## Remaining Risks and Follow-up Changes
 
 - GitHub Project fields require an authenticated token with Project scope.
-- `required / gate` cannot safely become required until it exists and succeeds on `main`.
 - Issue #2 owns residual transitive npm advisories.
 - Existing default-branch dependency alerts remain external follow-up evidence; enabling security controls did not resolve or dismiss them.
 - Dependabot PRs #4-#8 affect a non-Active reference snapshot and require the T3 `Adopt / Defer / Skip` decision tracked by Issue #9.
-- The still-building Netlify Preview needs a terminal result and successful Preview smoke or an explicit documented exception.
+- Issue #15 owns lightweight Netlify Preview and smoke; MF-1 must not silently absorb its implementation.
+- Issue #16 owns path-scoped Viewer/Editor validation and product/release Gate design.
 - Design onboarding, real Upstream Sync, T0/T1 fast path, multi-Agent T2, partial-to-closed, attachment delivery, rollback, and full release pilots remain outstanding.
-- The focused compatibility-entry classifier correction, its local validation, exact-Head hosted checks, Preview smoke, merge, post-merge `main` verification, and the separate T06 evidence PR remain outstanding.
+- Candidate activation, pilots and closure remain later MF-1 work; T06 itself has no remaining scope.
 
 ## Ledger, Version, PR, and Release Links
 
 - Change: <https://github.com/Shuang-su/Metaflow/issues/1>
 - Security follow-up: <https://github.com/Shuang-su/Metaflow/issues/2>
 - Reference-snapshot Upstream Sync decision: <https://github.com/Shuang-su/Metaflow/issues/9>
-- Draft PR: <https://github.com/Shuang-su/Metaflow/pull/3>
+- Merged candidate PR: <https://github.com/Shuang-su/Metaflow/pull/3>
+- Merge commit: `6e1725ee6d24ea37fcf3bb7492606e95e0e0780b`
+- Main run: <https://github.com/Shuang-su/Metaflow/actions/runs/31332409298>
+- Active Ruleset: <https://github.com/Shuang-su/Metaflow/rules/20612630>
+- Post-merge Evidence/Completion PR: <https://github.com/Shuang-su/Metaflow/pull/17>
+- Post-merge Evidence/Completion run: <https://github.com/Shuang-su/Metaflow/actions/runs/31332937375>
+- Netlify follow-up: <https://github.com/Shuang-su/Metaflow/issues/15>
+- Product-Gate follow-up: <https://github.com/Shuang-su/Metaflow/issues/16>
 - Revision 3 first push: `023dac807976f02ec6e95a9dbf33de827896bd51`
 - Failed exact-Head run requiring a new commit: <https://github.com/Shuang-su/Metaflow/actions/runs/31331509106>
 - Green hosted runs: <https://github.com/Shuang-su/Metaflow/actions/runs/31325948588>, <https://github.com/Shuang-su/Metaflow/actions/runs/31326306006>, <https://github.com/Shuang-su/Metaflow/actions/runs/31327941632>
 - Implementation refs: `fb0a881b` through `66d2553d`; `66d2553d` is the published Revision 2 ref before this Completion refresh.
-- Tag, Release, deploy, merge, active Ruleset, and MCL 1.0 activation: not created or activated.
+- Tag, Release, successful deploy evidence, and MCL 1.0 activation: not created or activated.
 
 ## Redactions
 
@@ -76,4 +86,4 @@ No request content required redaction. System/developer instructions and hidden 
 
 ## Final Response Delivery
 
-At this checkpoint T05 reports `partial`. A focused follow-up commit and a full exact-Head rerun are required before the independent T06 merge task may start. MF-1 itself remains `verifying` after PR #3 merges and cannot be described as effective or closed.
+T06 reports `complete` for the authorized candidate-merge and evidence-delivery scope. PR #3 is merged and the Ruleset is enforced, but MF-1 itself remains `verifying` and cannot be described as effective or closed.

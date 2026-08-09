@@ -10,7 +10,7 @@ owner: Shuang-su
 created: 2026-08-09
 updated: 2026-08-10
 issue: https://github.com/Shuang-su/Metaflow/issues/1
-plan_revision: 3
+plan_revision: 4
 completion_state: pending
 supersedes: null
 terminal_reason: null
@@ -100,6 +100,27 @@ Browser fixture:
 - fixed route, settings, language, timezone, DPR, reduced motion, WebGL, ready signal, desktop viewport, and mobile viewport;
 - the same fixture is exercised in development watch and production build modes.
 
+## Revision 4 candidate merge and post-merge evidence
+
+The user narrowed the merge Gate before merge: Viewer/Editor source was unchanged, so full product build/E2E, product-release verification, and Netlify Preview/smoke were split from MF-1 instead of remaining hard blockers. Historical product-job results above remain factual but are not treated as release evidence.
+
+| Area | Actual result |
+| --- | --- |
+| Approved PR Head | `02cb823b22cf1eb2f5fed3bd7bbb4309414bd629`; PR #3 Ready, mergeable, two historical review threads resolved/outdated |
+| Exact-Head MCL Gate | [run 31331822368](https://github.com/Shuang-su/Metaflow/actions/runs/31331822368) passed governance/Completion, dependency review, both CodeQL surfaces and `required / gate` |
+| Candidate merge | PR #3 squash-merged at `2026-08-09T19:43:45Z`; merge commit `6e1725ee6d24ea37fcf3bb7492606e95e0e0780b`; remote feature branch deleted |
+| Tree identity | Approved Head and merge commit both resolve to tree `3b1828abbd623a9f81e334171950c7a43321c3f4`; `git diff --exit-code 02cb823b... origin/main` passed |
+| MCL-only post-merge validation | 37 Node tests, 7 Python tests, strict Completion, platform validation, 46 Markdown files, and 10,823-path secret/hygiene scan passed on the identical tree |
+| Main workflow | [run 31332409298](https://github.com/Shuang-su/Metaflow/actions/runs/31332409298) passed; `governance and completion`, CodeQL and `required / gate` were re-read successful |
+| Enforced control | Active [Ruleset 20612630](https://github.com/Shuang-su/Metaflow/rules/20612630) was created only after the main Gate passed; detail and effective-branch-rules APIs confirmed PR-only, squash-only, resolved conversations, deletion/non-fast-forward protection and required `required / gate` |
+| Issue evidence | [Issue #1 comment](https://github.com/Shuang-su/Metaflow/issues/1#issuecomment-5233527273) was added and re-read |
+| Deferred Netlify Change | [Issue #15](https://github.com/Shuang-su/Metaflow/issues/15) records lightweight Preview/LFS/data-corpus work; current deploy `6a78d554571d99000892e5a4` remained `building` and is not success evidence |
+| Deferred product Gate Change | [Issue #16](https://github.com/Shuang-su/Metaflow/issues/16) records path-scoped Viewer/Editor validation and release Gate design |
+| Post-merge evidence delivery | Ready [PR #17](https://github.com/Shuang-su/Metaflow/pull/17) at Head `b99aadd9eff7df67acafb0c9c7f58d19b8fd1275`; [run 31332937375](https://github.com/Shuang-su/Metaflow/actions/runs/31332937375) passed governance/Completion, dependency review, both CodeQL surfaces and `required / gate`; product jobs were path-skipped |
+| Local-main safety | `/Volumes/Prism/Metaflow` remains `47ffd86e9635d7d797628a214df817f7ca60b55c`, now nine ahead/one behind remote, with the predecessor plan and Swiftgram paths still untracked |
+
+Two temporary checkout attempts were stopped because they began hydrating or writing large product data. The first Task-created incomplete checkout consumed about 3.5 GB and was permanently deleted after its exact temporary path was verified; the second failed with `No space left on device` and left no worktree registration. No user-authored path was deleted. Cryptographic tree identity replaced further full checkout attempts.
+
 ## Adoption and enforcement claim audit
 
 | Claim examined | Classification and result | Direct evidence |
@@ -107,8 +128,8 @@ Browser fixture:
 | SztuCode natively includes or requires the Superpowers `subagent-driven-development` Skill | Rejected. The instruction is `task-local`: collaborator `GuanG-1008` added it inside one Implementation Plan. | [Plan-adding commit `e452a423`](https://github.com/rojim666/SztuCode/commit/e452a42386a0a546b548e4cc6118ea0a1e4ae667), [PR #67](https://github.com/rojim666/SztuCode/pull/67) |
 | A merged PR proves repository-wide method adoption | Rejected. Merge proves acceptance of that PR's content, not adoption beyond its declared scope. The separate Spec was likewise introduced for the same work. | [Spec-adding commit `35374f7a`](https://github.com/rojim666/SztuCode/commit/35374f7a2fe7fd3bdd8f78a9478f74a94127ab10), [PR #67](https://github.com/rojim666/SztuCode/pull/67) |
 | The shared GPT conversation is a normative source | Rejected. It is `reference` material and contained an over-broad adoption inference; reusable ideas were translated into tool-neutral contracts. | [Shared conversation](https://chatgpt.com/share/6a788411-d11c-83e8-afac-0871d9def42d) |
-| Metaflow MCL is already repository policy or fully enforced | Rejected for the current branch state. The specification is an implemented candidate; merge, activation, Ruleset evidence, pilots, and human closure remain outstanding. | [Draft PR #3](https://github.com/Shuang-su/Metaflow/pull/3), [Issue #1](https://github.com/Shuang-su/Metaflow/issues/1) |
-| MF-1 PR-head automation is already an enforced merge control | Rejected. The run proves that checks execute and pass for the recorded commit; without an active `main` Ruleset it does not prove that merge is automatically blocked. | [Run 31327941632](https://github.com/Shuang-su/Metaflow/actions/runs/31327941632) |
+| Metaflow MCL is already full repository policy or fully effective | Rejected. The candidate is installed on `main`, and the verified Ruleset is an enforced-control; pilots, activation, release/rollback rehearsal and human closure remain outstanding. | [PR #3](https://github.com/Shuang-su/Metaflow/pull/3), [Issue #1](https://github.com/Shuang-su/Metaflow/issues/1), [Ruleset 20612630](https://github.com/Shuang-su/Metaflow/rules/20612630) |
+| `required / gate` is now an enforced merge control for `main` | Accepted for this specific control. It succeeded on the first merged-main run before the active Ruleset was created and was then present in the effective branch rules. | [Run 31332409298](https://github.com/Shuang-su/Metaflow/actions/runs/31332409298), [Ruleset 20612630](https://github.com/Shuang-su/Metaflow/rules/20612630) |
 
 Review corrections:
 
@@ -161,17 +182,20 @@ Dependency audit after compatible direct updates:
 - Enabling Dependabot security updates caused automated PRs [#4](https://github.com/Shuang-su/Metaflow/pull/4) through [#8](https://github.com/Shuang-su/Metaflow/pull/8) against the non-Active `supersplat-viewer-v1.18.2` reference snapshot. They were not merged, dismissed, or treated as Active product updates.
 - Created and re-read [Issue #9](https://github.com/Shuang-su/Metaflow/issues/9) as a T3 Upstream Sync Proposal signal for PRs #4-#8; no `Adopt / Defer / Skip` decision was made.
 - Read-only GitHub Project discovery failed because the active token lacks `read:project`; no Project write was attempted.
-- Ruleset activation is intentionally deferred until `required / gate` has merged and succeeded on `main`.
+- After `required / gate` succeeded on merged `main`, created active Ruleset `20612630` and re-read both its full configuration and effective rules for `main`.
 - Netlify automatically created Deploy Preview `6a78b7bf7f384100088b3e12` for PR #3 at commit `e47dc4fa`. The public API still reported `building`, and the Preview URL had no successful smoke evidence; no manual Netlify write or production deploy occurred.
 - Commit message `[skip netlify]` did not prevent a second automatic Preview: deploy `6a78c06f56d7aa0008c2053f` was created for `66d2553d` and remained `building`. PR #3 was then renamed to include `[skip netlify]` for the next archive-only push, and the updated title was re-read.
 - Updated and re-read PR #3's body to identify Revision 2, 18 Completion tests, run `31327941632`, author self-review, Task-local instruction authority, pending Netlify state, and Issue #9 without claiming repository enforcement.
+- Updated PR #3 to Revision 4's MCL-only Gate, marked it Ready, squash-merged it, and re-read merge commit `6e1725ee6d24ea37fcf3bb7492606e95e0e0780b` and `origin/main`.
+- Added and re-read the post-merge Issue #1 comment, then created and re-read proposed follow-up Issues #15 and #16.
 - No Supabase, production, release, rollback, tag, or manual deploy write occurred.
 
 ## Known limitations
 
-- The implementation branch is not yet merged; MCL remains a candidate and is not effective.
-- GitHub Project fields, production Environment secrets/protection, and the `main` Ruleset are not configured.
-- Netlify Deploy Previews `6a78b7bf7f384100088b3e12` and `6a78c06f56d7aa0008c2053f` remained `building`; the latest Preview checks were pending and no successful HTTP smoke was available. Preview remains unverified.
+- PR #3 is merged and the Ruleset is active, but MCL remains an installed candidate and is not effective or closed.
+- GitHub Project fields and production Environment secrets/protection are not configured.
+- Netlify Deploy Previews remained non-terminal and no successful HTTP smoke was available. Revision 4 explicitly moved this work to Issue #15; no success is claimed.
+- Path-scoped Viewer/Editor product and release Gate design is proposed in Issue #16 and is not implemented by MF-1.
 - Dependabot PRs #4-#8 target a reference snapshot and require the T3 Upstream Sync decision tracked by Issue #9; they must not be merged as routine Active-product dependency maintenance.
 - Preview/Beta/Stable, immutable production deployment, smoke, observation, and rollback workflows are implemented but unexercised.
 - Phase 9 fast-path, Design, real Upstream Sync, multi-Agent, continuation, attachment, and rollback pilots remain incomplete.
