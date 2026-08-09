@@ -1,5 +1,7 @@
 # Metaflow Analytics Implementation
 
+> **专项维护资料。** 本文保留 Analytics v1 的详细英文实施说明，不是中文核心手册的独立分支，也不决定 Viewer 是否能加载资源。当前文档入口见 [`docs/README.md`](README.md)；URL 隐私开关摘要见 [Viewer URL 与 settings](reference/viewer-url-settings.md)。维护本链路时应同时核对当前源码与平台配置。
+
 This document describes the v1 analytics implementation for Metaflow Viewer.
 Supabase is the canonical analytics store. PostHog is optional and should only
 mirror low-frequency product analytics events.
