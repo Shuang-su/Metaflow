@@ -1,5 +1,7 @@
 # Metaflow 项目索引与模块文档
 
+> **历史资料。** 本文保留早期三个上游仓库的逐模块索引，正文中的“当前”“最新”和本地绝对路径不代表现在的 Metaflow 状态。当前目录职责见 [`docs/reference/repository-map.md`](docs/reference/repository-map.md)，版本事实见 [`metadata/version-history.json`](metadata/version-history.json) 与 [`metadata/editor-version-history.json`](metadata/editor-version-history.json)。原有内容不删除，以便追溯早期设计和检索线索。
+
 > 本文档整理 PlayCanvas 高斯泼溅相关三个核心仓库的结构、关键模块与检索索引，便于后续 Web 端资源浏览器开发时快速定位代码。
 
 ---

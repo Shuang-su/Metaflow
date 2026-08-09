@@ -10,6 +10,8 @@
 
 结构化版本号的权威来源仍是 [`metadata/version-history.json`](../metadata/version-history.json)。本文档是面向维护者的行为审计层。
 
+当前操作入口见 [Metaflow 文档](README.md)，版本与上游关系见 [版本、上游与本地改动](concepts/version-upstream-local.md)。总账中的旧版本值是历史事实，不应被批量替换成当前版本。
+
 ## 审计规则
 
 | 字段 | 含义 |
