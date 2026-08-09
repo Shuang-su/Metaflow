@@ -47,14 +47,18 @@ terminal_reason: null
 | Workflow YAML parse and staged path route | 0 | passed | 275 changed paths owned/routed; selected checks exclude `viewer-source` and `viewer-data`, so Viewer E2E is not selected |
 | PR #25 first hosted run for Head `0b64e35a` | 1 | failed, diagnosed | Reference/data/release/dependency review/CodeQL passed; docs/governance/Viewer/Editor exposed sparse-checkout inputs and a stale README digest, then Gate failed as designed |
 | Temporary exact sparse-checkout reproductions | 0 | passed after tooling retry | Docs range diff, all 60 governance tests plus range diff, and all 13 Editor metadata/version tests passed with the exact hosted checkout inputs |
+| PR #25 exact Head `14684ddf` hosted run `31337737726` | 0 | passed | All applicable jobs, dependency review, both CodeQL checks, and `required / gate` passed; Design skipped as expected |
+| GitHub Deployment/status read-back for Head `14684ddf` | 0 | no Preview found | Deployment list and commit status list were empty; PR remained Draft/open/mergeable at the exact Head |
+| Netlify connection and local-state read-back | blocked | reauthentication required | Connector required reauthentication; no authenticated CLI, token, or `.netlify/state.json` was available, so no Netlify write was attempted |
+| Protected workspace read-back | stop condition | externally changed | Safety ref remains `47ffd86e`; local `main` now points to external merge `06e5bdb5`; predecessor-plan path is now a tracked compatibility entry; Swiftgram count and size remain unchanged |
 
 ## Browser, device, and rendering backend
 
-Pending Deploy Preview smoke. Full Viewer E2E, visual, WebGPU, and product release environments are out of scope.
+Deploy Preview smoke could not be run because no exact-Head Preview exists in GitHub and the available Netlify connection requires reauthentication. Full Viewer E2E, visual, WebGPU, and product release environments remain out of scope.
 
 ## Screenshots, recordings, and CI artifacts
 
-The first PR #25 run is recorded in GitHub Actions; its failing Head is superseded. Hosted artifacts and Deploy Preview for the corrected exact Head remain pending.
+The first PR #25 run is recorded in GitHub Actions and its failing Head is superseded. Corrected exact Head `14684ddf` passed run `31337737726`; no Deploy Preview artifact or status exists for that Head.
 
 ## Performance samples and baseline
 
@@ -62,7 +66,7 @@ No performance campaign is required because no runtime behavior change is author
 
 ## Preview, Beta, and production
 
-Preview pending. Beta and production are prohibited in this Change.
+Preview unavailable and unverified; no deploy was triggered. Beta and production are prohibited in this Change.
 
 ## Spec acceptance mapping
 
@@ -74,14 +78,14 @@ Preview pending. Beta and production are prohibited in this Change.
 | Reproducible runtime | passed locally | 26 runtime files match the pre-migration hashes; source maps and generated version metadata are the approved exclusions. |
 | Source preservation | passed locally | Pre-migration customized source and Active source differ only in approved package identity, README, tests, and `.gitattributes`; the lock dependency graph is unchanged. |
 | Pipeline ownership | passed locally | CI, release, generator, component registry, routing, and Netlify consume `metaflow-editor`; reference checks consume the snapshot. |
-| Preview routes | pending | Requires the exact PR Head Deploy Preview. |
-| Hosted repository Gate | pending | Requires the exact PR Head GitHub checks. |
+| Preview routes | blocked | Exact Head has no GitHub Deployment/status and the Netlify connection requires reauthentication. |
+| Hosted repository Gate | passed | Run `31337737726` passed all applicable jobs and `required / gate` at Head `14684ddf`. |
 
 ## Adoption and enforcement claims
 
 | Claim | Level | Normative source | Applied-control evidence | Re-read result |
 | --- | --- | --- | --- | --- |
-| MF-21 follows MCL | task-local pilot | Accepted MF-21 Proposal and Plan | Change files, Task Record, deterministic Dossier, and local strict check | Passed locally; hosted result pending |
+| MF-21 follows MCL | task-local pilot | Accepted MF-21 Proposal and Plan | Change files, Task Record, deterministic Dossier, local strict check, and hosted Gate | Local and hosted checks passed; Preview and Ready endpoint remain blocked |
 
 ## Review conclusions
 
@@ -91,8 +95,8 @@ Preview pending. Beta and production are prohibited in this Change.
 ## Unrun checks and reasons
 
 - Full Viewer E2E, visual baselines, performance sampling, production release, and deploy are outside the approved boundary.
-- GitHub checks and Deploy Preview are pending the corrected pushed PR Head.
-- The first hosted Head is superseded by an in-scope CI-input correction; a new exact-Head run is required.
+- Deploy Preview smoke is unrun because the exact Head has no deployment/status and Netlify authentication is unavailable.
+- The first hosted Head is superseded; the corrected exact-Head GitHub run passed.
 
 ## Known limitations
 
@@ -101,6 +105,8 @@ Preview pending. Beta and production are prohibited in this Change.
 - The first snapshot identity check found a local `.DS_Store`; it was moved to the recoverable temporary backup and the exact 232-file identity then passed. No snapshot byte was edited.
 - PR #25 Head `0b64e35a` failed four selected jobs for reproducible CI-input reasons: docs could not see the nested whitespace attributes; governance checked only three sparse snapshot files; Editor lacked `metadata/components.json`; Viewer/Editor exposed PR #24's stale README digest. The correction adds only missing sparse inputs and pins the test to the current `origin/main` digest; no product byte changes.
 - The first temporary sparse-worktree command began a full checkout before sparse patterns and stopped on temporary-volume space exhaustion. Git removed the partial checkout, the empty registered path was pruned, and the retry used `git worktree add --no-checkout` before applying patterns; no repository ref or user file changed.
+- The user workspace baseline changed during the task through another operation: local `main` moved via `merge origin/main`, and the original predecessor-plan path became a tracked compatibility entry. The safety ref and observations were preserved; this task did not reset or overwrite them.
+- Because both the workspace-baseline and Preview clauses are explicit stop conditions, PR #25 remains Draft and the stacked dependency Change was not started.
 
 ## Release, rollback, and observation
 

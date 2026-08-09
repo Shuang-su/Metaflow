@@ -33,12 +33,16 @@ generated_at: 2026-08-10T00:00:00.000Z
 | 11 | Pushed the branch and opened Draft PR #25 | external write/read-back | GitHub | Re-read Draft/open, base `main`, exact Head `0b64e35a`, and mergeable state before monitoring hosted checks. |
 | 12 | Inspected the first hosted failures and applied the approved in-scope CI-input correction | read/write | PR #25 logs, workflow sparse inputs, README contract test | Kept product bytes unchanged; added missing attributes/snapshot/registry inputs and updated the stale PR #24 README digest baseline. |
 | 13 | Reproduced the hosted checkout topology in a temporary sparse worktree | read/temporary write | exact docs, governance, and Editor sparse patterns | Docs range diff, 60 governance tests, governance range diff, and 13 Editor metadata/version tests passed before pushing the corrected Head. |
+| 14 | Pushed the corrected implementation and its hosted-retry record | external write/read-back | `codex/mf-21-editor-source-ownership`, PR #25 | Exact Head advanced to `14684ddf`; branch remained Draft, open, mergeable, and based on `main`. |
+| 15 | Re-read all applicable checks on the exact Head | external read | GitHub Actions run `31337737726` | Viewer, Editor, docs, governance, reference, data, release smoke, dependency review, both CodeQL checks, and `required / gate` all passed; Design correctly skipped. |
+| 16 | Queried Preview state without creating a deployment | external read | GitHub Deployments/statuses, Netlify connector, local Netlify state | GitHub returned no deployment or commit status for the exact Head; the Netlify connector required reauthentication and no authenticated CLI/site link was present. No site or deploy was created or changed. |
+| 17 | Re-read protected workspace invariants before the Ready transition | read | `/Volumes/Prism/Metaflow` | Swiftgram retained 82,563 files and 1,307,692 KiB, but local `main` had externally moved from safety ref `47ffd86e` to `06e5bdb5` via `merge origin/main`, and the predecessor-plan path had externally become a tracked 17-line compatibility file. The mandated stop condition was applied without resetting user state. |
 
 ## Agent Reply Summary
 
 ### MF-21-T01
 
-The Agent reported that the Active Editor migration and upstream restoration are locally verified, including exact runtime and snapshot identities. The task remains `partial` until the pushed PR Head passes GitHub Gates and Deploy Preview and can be marked Ready without merge.
+The Agent reports that the Active Editor migration and upstream restoration are implemented and locally verified, and that every applicable GitHub check on exact Head `14684ddf` passed. The task remains `partial`: no exact-Head Netlify Preview exists or can be authenticated from the available connection, and the protected local `main` and predecessor-plan path changed through a separate concurrent operation. In accordance with the approved stop conditions, PR #25 remains Draft and MF-2 was not started.
 
 ## Files and External Effects
 
@@ -48,9 +52,11 @@ The Agent reported that the Active Editor migration and upstream restoration are
 - Created the isolated branch/worktree and a local safety ref for the original main.
 - Moved the complete customized source into `metaflow-editor/`, removed tracked generated runtime files, and restored `supersplat-v2.28.0/` from the official tag.
 - Added the reference registry/validator, runtime baseline/validator, Editor contract tests, metadata generator checks, CI routing, and build-source updates.
-- Generated only ignored `node_modules/` and `dist/` outputs during validation; no release, production deploy, PR merge, or local-main update occurred.
+- Generated only ignored `node_modules/` and `dist/` outputs during validation; no release, production deploy, PR merge, or local-main update was performed by this Agent.
 - Created recoverable temporary backups under `/tmp/mf21-editor-swap.fCg3Uv`; moved two untracked `.DS_Store` files there after validation detected them as extras.
-- Pushed `codex/mf-21-editor-source-ownership` and created Draft PR #25 against `main`; no Ready or merge transition has occurred yet.
+- Pushed `codex/mf-21-editor-source-ownership` and created Draft PR #25 against `main`; exact Head `14684ddf` passed all applicable GitHub checks, but no Ready or merge transition occurred.
+- Performed no Netlify write because the exact Head had no GitHub deployment/status, the connector required reauthentication, and no authenticated local site link existed.
+- Did not alter or reset the externally changed local `main` or predecessor-plan path; the original safety ref remains at `47ffd86e`.
 
 ## Validation, Failures, and Omissions
 
@@ -61,6 +67,8 @@ The Agent reported that the Active Editor migration and upstream restoration are
 - Viewer: `npm ci`, 52 tests, typecheck, and build passed; E2E was not selected or run.
 - Repository: 60 Node tests and 10 Python tests passed; MCL strict, registry, routing, Version History, platform, data, Markdown, secret/accidental-file, YAML, and staged diff checks passed.
 - Source move review: pre-migration customized tree and Active source differ only in approved package identity, README, tests, and `.gitattributes`; lock dependency graph is unchanged.
+- Hosted exact Head: GitHub Actions run `31337737726` passed all applicable component jobs, dependency review, both CodeQL checks, and `required / gate`; Design was correctly skipped.
+- External-state read-back: PR #25 was Draft, open, mergeable, based on `main`, and at exact Head `14684ddf`; GitHub Deployments and commit statuses were both empty for that Head.
 
 #### Failures, Retries, and Skipped Checks
 
@@ -70,4 +78,6 @@ The Agent reported that the Active Editor migration and upstream restoration are
 - Editor install still reports 7 high and 2 critical audit findings, and Viewer reports 1 moderate and 4 high; these are assigned to MF-2 and are not claimed fixed here.
 - PR #25 Head `0b64e35a` failed docs/governance/Viewer/Editor because sparse checkouts omitted required validation inputs and PR #24 had left the README digest assertion stale; reference/data/release/dependency review and both CodeQL checks passed. The Gate failed as designed, and the Head is being superseded by the scoped correction.
 - The first temporary sparse-worktree reproduction attempted a full checkout and stopped on temporary-volume space exhaustion; Git cleaned the partial files, the empty path was pruned, and `--no-checkout` made the exact sparse retry pass without touching any branch or user material.
+- Netlify Preview could not be verified: the exact Head has no GitHub Deployment or status, the Netlify connector requested reauthentication, the local environment has no authenticated Netlify CLI/token/site link, and repository hooks/deployments were empty. The Agent did not create a new site or trigger an unidentified deployment.
+- The protected workspace re-read found that another operation had changed local `main` from safety ref `47ffd86e` to `06e5bdb5` at `2026-08-10 05:42:14 +0800` using `merge origin/main`. The original predecessor-plan path also changed from the untracked 1,575-line file (`37f45424...`) to a tracked 17-line compatibility entry (`3c7f932c...`). This Agent did not perform or reverse either change. Swiftgram retained its original file count and size.
 - Full Viewer E2E and production release validation are intentionally out of scope.
