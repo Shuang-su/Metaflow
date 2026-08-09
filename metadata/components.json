@@ -1,5 +1,5 @@
 {
-  "schemaVersion": "1.0",
+  "schemaVersion": "1.1",
   "components": [
     {
       "id": "viewer",
@@ -10,7 +10,6 @@
         "data/version-history.json"
       ],
       "versionSource": "metadata/version-history.json",
-      "checks": ["viewer-test", "viewer-typecheck", "viewer-build", "viewer-e2e"],
       "deployTarget": "/",
       "upstream": {
         "repository": "playcanvas/supersplat-viewer",
@@ -27,7 +26,6 @@
         "data/editor-version-history.json"
       ],
       "versionSource": "metadata/editor-version-history.json",
-      "checks": ["editor-lint", "editor-build", "editor-contract"],
       "deployTarget": "/editor",
       "upstream": {
         "repository": "playcanvas/supersplat",
@@ -43,7 +41,6 @@
         "docs/design/**"
       ],
       "versionSource": null,
-      "checks": ["design-source-audit", "design-typecheck", "design-storybook", "design-visual"],
       "deployTarget": null
     },
     {
@@ -51,7 +48,6 @@
       "kind": "product-data",
       "ownedPaths": ["data/**"],
       "versionSource": "metadata/version-history.json",
-      "checks": ["data-schema", "data-index", "data-fixtures"],
       "deployTarget": "/data"
     },
     {
@@ -67,17 +63,17 @@
         "CONTRIBUTING.md",
         "ROADMAP.md",
         "README.md",
+        "PROJECT_INDEX.md",
+        "MIGRATION_VALIDATION.md",
+        ".nvmrc",
         ".gitattributes",
         ".gitignore",
         "metadata/components.json",
+        "metadata/ci-routing.json",
         "metadata/schemas/**",
-        "docs/metaflow-change-lifecycle-v1.0.md",
-        "docs/metaflow-change-lifecycle-v1.0-complete-plan.md",
-        "docs/changes/**",
-        "docs/templates/**"
+        "docs/**"
       ],
       "versionSource": null,
-      "checks": ["governance", "completion", "platform-config", "security"],
       "deployTarget": null
     },
     {
@@ -88,7 +84,6 @@
         "supersplat-v2.18.1/**"
       ],
       "versionSource": null,
-      "checks": ["reference-source", "reference-version", "reference-license"],
       "deployTarget": null
     }
   ]

@@ -365,7 +365,7 @@ function globToRegExp(pattern) {
 export async function loadComponentRegistry(root = REPO_ROOT) {
     const path = join(root, 'metadata/components.json');
     const registry = JSON.parse(await readFile(path, 'utf8'));
-    assertion(registry.schemaVersion === '1.0', 'metadata/components.json: unsupported schemaVersion');
+    assertion(['1.0', '1.1'].includes(registry.schemaVersion), 'metadata/components.json: unsupported schemaVersion');
     assertion(Array.isArray(registry.components), 'metadata/components.json: components must be an array');
     const seen = new Set();
     for (const component of registry.components) {
@@ -373,7 +373,11 @@ export async function loadComponentRegistry(root = REPO_ROOT) {
         assertion(!seen.has(component.id), `metadata/components.json: duplicate id "${component.id}"`);
         seen.add(component.id);
         assertion(Array.isArray(component.ownedPaths) && component.ownedPaths.length > 0, `${component.id}: ownedPaths must be non-empty`);
-        assertion(Array.isArray(component.checks) && component.checks.length > 0, `${component.id}: checks must be non-empty`);
+        if (registry.schemaVersion === '1.0') {
+            assertion(Array.isArray(component.checks) && component.checks.length > 0, `${component.id}: checks must be non-empty`);
+        } else {
+            assertion(component.checks === undefined, `${component.id}: checks must be defined in metadata/ci-routing.json`);
+        }
     }
     for (const required of REQUIRED_COMPONENTS) {
         assertion(seen.has(required), `metadata/components.json: missing component "${required}"`);
