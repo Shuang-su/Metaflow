@@ -1,0 +1,40 @@
+{
+  "version": "1.0",
+  "schemaVersion": "1.2",
+  "release": {
+    "displayVersion": "5.18a",
+    "appSemver": "5.18.0",
+    "schemaVersion": "1.2",
+    "historyUrl": "/data/version-history.json",
+    "updatedAt": "2026-06-27",
+    "gitRef": "c613a87"
+  },
+  "lastUpdated": "2026-08-10",
+  "totalResources": 1,
+  "categories": {
+    "e2e": {"name": "E2E", "nameEn": "E2E"}
+  },
+  "subcategories": {},
+  "resources": [
+    {
+      "id": "single-gaussian",
+      "title": "Single Gaussian",
+      "titleEn": "Single Gaussian",
+      "category": ["e2e"],
+      "route": "/e2e-fixture",
+      "source": "generated-fixture",
+      "experienceType": "character",
+      "files": {
+        "model": "e2e/single-gaussian.ply",
+        "environment": null,
+        "settings": "e2e/settings.json",
+        "thumbnail": null,
+        "voxel": null
+      },
+      "fileSize": {"model": 428, "environment": 0, "thumbnail": 0, "total": 428, "voxel": 0},
+      "meta": {"date": "2026-08-10", "device": "generated", "folderName": "e2e"},
+      "viewer": {"defaultCameraMode": "orbit"},
+      "version": {"addedIn": "5.18a", "updatedIn": "5.18a"}
+    }
+  ]
+}

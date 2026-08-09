@@ -1,5 +1,7 @@
 # Metaflow Viewer LOD Migration Validation Checklist
 
+> **历史验证清单。** 本文对应早期 `feature/lod-migration-and-versioning` 分支，不代表当前 Viewer 的完整 Gate。原始场景与断言保留用于回归线索；当前加载链路见 [`docs/concepts/resource-loading.md`](docs/concepts/resource-loading.md)，开发验证见 [`docs/maintenance/development.md`](docs/maintenance/development.md)。
+
 ## Scope
 
 This checklist validates the dual-path LOD migration in metaflow-viewer while keeping:

@@ -1,5 +1,7 @@
 # Metaflow Viewer Sync Comparison
 
+> **历史比较材料。** 本文记录 2026-06-08 的来源路径、差异规模和待采纳判断，包含当时机器的绝对路径，不是当前操作说明。当前同步流程见 [上游同步](maintenance/upstream-sync.md)，当前资源加载边界见 [资源加载链路](concepts/resource-loading.md)。原文不改写，以保留当时证据。
+
 Date: 2026-06-08
 
 ## Sources

@@ -1,12 +1,42 @@
-# Metaflow Viewer
+# Metaflow
 
-基于 [SuperSplat Viewer](https://github.com/playcanvas/supersplat-viewer) 构建的 3D Gaussian Splatting 浏览器。
+Metaflow 把基于 [SuperSplat](https://github.com/playcanvas/supersplat) 的 Editor、资源索引和定制 Viewer 组合成一条 3D Gaussian Splatting 编辑、发布与分享链路。
+
+## 项目入口
+
+| 入口 | 用途 |
+|---|---|
+| [中文文档总入口](docs/README.md) | 快速开始、操作指南、概念、参考与维护 |
+| [Viewer 快速开始](docs/getting-started/viewer.md) | 本地运行 Viewer 与打开 route |
+| [Editor 快速开始](docs/getting-started/editor.md) | 本地运行当前 Editor 源码 |
+| [Editor 到 Viewer](docs/guides/editor-to-viewer.md) | 导出模型/settings 并进入稳定路由 |
+| [资源索引参考](docs/reference/resource-index.md) | `data/index.json` schema 与生成规则 |
+| [仓库地图](docs/reference/repository-map.md) | 活跃源码、生成物与历史快照边界 |
+
+## 当前发布基线
+
+| 产品 | 当前版本 | 上游基线 | 唯一事实来源 |
+|---|---|---|---|
+| Viewer | `5.18a` / package `5.18.0` | SuperSplat Viewer `1.26.2` | [`metadata/version-history.json`](metadata/version-history.json) |
+| Editor | `1.1` / app `1.1.0` | SuperSplat Editor `2.28.0` | [`metadata/editor-version-history.json`](metadata/editor-version-history.json) |
+| 资源索引 | schema `1.2` | 不适用 | [`data/index.json`](data/index.json) |
+
+Viewer 源码在 `metaflow-viewer/`；Editor 源码在 `supersplat-v2.28.0/`，`metaflow-editor/` 是发布构建。贡献与变更流程见 [`CONTRIBUTING.md`](CONTRIBUTING.md) 和 [MCL v1.0 candidate](docs/metaflow-change-lifecycle-v1.0.md)。
+
+下方保留原有 Viewer 快速参考，方便已有读者继续使用；新的分层手册和当前契约以 [`docs/README.md`](docs/README.md) 为入口。
 
 ## 快速开始
 
 ```bash
+# 进入 Viewer 包
+cd metaflow-viewer
+
 # 安装依赖
-npm install
+npm ci
+
+# 首次需要读取仓库 data/ 时建立本地链接（public/data 不存在时执行）
+mkdir -p public
+ln -s ../../data public/data
 
 # 构建项目
 npm run build
@@ -71,7 +101,7 @@ metaflow-viewer/
 │   ├── index.html
 │   ├── index.css
 │   ├── index.js            # 打包后的 JS (含 PlayCanvas 引擎)
-│   ├── data -> ../../data  # 数据目录软链接
+│   ├── data -> ../../data  # 本地开发链接；部署时由 Netlify 同步副本
 │   └── serve.json          # 服务器配置（SPA 路由）
 ├── package.json
 ├── rollup.config.mjs
@@ -100,7 +130,7 @@ metaflow-viewer/
 
 ## 部署
 
-构建后的 `public/` 目录可以直接部署到任何静态服务器。
+`npm run build` 生成 Viewer 文件；完整平台发布还要把仓库根 `data/` 和 `metaflow-editor/` 同步到 `public/data/`、`public/editor/`。当前 Netlify 命令已执行这一步，手工部署时也不能漏掉。
 
 **注意**：需要配置服务器支持 SPA 路由（将所有路径重定向到 index.html，除了 /data/ 等静态资源）。
 
@@ -116,12 +146,12 @@ location / {
 
 | 字段 | 值 |
 |------|----|
-| 展示版本 | `5.17` |
-| 包版本 | `5.17.0` |
+| 展示版本 | `5.18a` |
+| 包版本 | `5.18.0` |
 | 索引 schema | `1.2` |
 | 上游 SuperSplat Viewer | `v1.26.2` |
 | PlayCanvas | `2.19.2` |
-| 已审计至 commit | `f371f48` |
+| 已审计至 commit | `c613a87` |
 
 ## 当前 Editor
 
@@ -138,6 +168,8 @@ location / {
 
 | 版本 | commit | 摘要 |
 |------|--------|------|
+| `5.18a` | `c613a87` | 新增并对齐深圳笔架山动态 voxel 场景 |
+| `5.18` | `7ce294a` | 优化移动端触控游戏控制 |
 | `5.17` | `f371f48` | 对照支付宝式数据面板补齐全局筛选、指标口径、D30 留存、访问时长/时段画像、可信机型明细、机型质量排行和转化目标 |
 | `5.16` | `e68d52b` | 新增 Metabase 看板汇总层：今日小时对比、留存 cohort、来源分析、保守机型统计和双语看板卡片 |
 | `5.15` | `46b4ec2` | 为 SZTU 全部资源补齐中文域名短链 alias，包括 `/top10-26` 和 `/fes/top10-26` |

@@ -1,5 +1,7 @@
 # Metaflow Current Sync Diff Audit
 
+> **历史审计快照。** 本文描述 2026-06-08 同步与 hotfix 阶段，标题中的 “Current” 只指当时工作树，不代表现在的 `main`。不要直接按本文建议恢复代码。当前架构与同步方法见 [整体架构](concepts/architecture.md) 和 [上游同步](maintenance/upstream-sync.md)，当前 Viewer 事实见 [`metadata/version-history.json`](../metadata/version-history.json)。原文保留用于审计。
+
 Date: 2026-06-08
 
 Baseline: clean Metaflow `HEAD` / `origin/main` before the SuperSplat v1.26.2 sync.

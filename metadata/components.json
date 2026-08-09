@@ -1,0 +1,90 @@
+{
+  "schemaVersion": "1.1",
+  "components": [
+    {
+      "id": "viewer",
+      "kind": "product",
+      "ownedPaths": [
+        "metaflow-viewer/**",
+        "metadata/version-history.json",
+        "data/version-history.json"
+      ],
+      "versionSource": "metadata/version-history.json",
+      "deployTarget": "/",
+      "upstream": {
+        "repository": "playcanvas/supersplat-viewer",
+        "versionField": "current.upstream.version"
+      }
+    },
+    {
+      "id": "editor",
+      "kind": "product",
+      "ownedPaths": [
+        "supersplat-v2.28.0/**",
+        "metaflow-editor/**",
+        "metadata/editor-version-history.json",
+        "data/editor-version-history.json"
+      ],
+      "versionSource": "metadata/editor-version-history.json",
+      "deployTarget": "/editor",
+      "upstream": {
+        "repository": "playcanvas/supersplat",
+        "versionField": "current.upstream.version"
+      }
+    },
+    {
+      "id": "design",
+      "kind": "lab",
+      "ownedPaths": [
+        "aave-liquid-glass-lab/**",
+        "swiftgram-ios-liquid-glass-lab/**",
+        "docs/design/**"
+      ],
+      "versionSource": null,
+      "deployTarget": null
+    },
+    {
+      "id": "data",
+      "kind": "product-data",
+      "ownedPaths": ["data/**"],
+      "versionSource": "metadata/version-history.json",
+      "deployTarget": "/data"
+    },
+    {
+      "id": "platform",
+      "kind": "infrastructure",
+      "ownedPaths": [
+        ".github/**",
+        "scripts/**",
+        "supabase/**",
+        "analytics/**",
+        "netlify.toml",
+        "AGENTS.md",
+        "CONTRIBUTING.md",
+        "ROADMAP.md",
+        "README.md",
+        "PROJECT_INDEX.md",
+        "MIGRATION_VALIDATION.md",
+        ".nvmrc",
+        ".gitattributes",
+        ".gitignore",
+        "metadata/components.json",
+        "metadata/ci-routing.json",
+        "metadata/schemas/**",
+        "docs/**"
+      ],
+      "versionSource": null,
+      "deployTarget": null
+    },
+    {
+      "id": "reference",
+      "kind": "upstream-snapshot",
+      "ownedPaths": [
+        "supersplat-viewer-v*/**",
+        "supersplat-v2.18.1/**"
+      ],
+      "versionSource": null,
+      "deployTarget": null
+    }
+  ]
+}

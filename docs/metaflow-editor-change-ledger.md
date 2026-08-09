@@ -9,6 +9,8 @@
 - `/editor`、导出包、直接 `settings.json` 和长动画编辑的用户结果是什么；
 - 下次 upstream 合并时哪些文件必须重新核对。
 
+当前操作入口见 [Editor 快速开始](getting-started/editor.md)，稳定导出行为见 [Editor 导出契约](reference/editor-export-contract.md)。总账保留每个阶段的版本事实，不把历史值改写为当前值。
+
 ## 审计规则
 
 | 字段 | 含义 |

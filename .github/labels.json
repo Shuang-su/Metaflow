@@ -1,0 +1,19 @@
+[
+  {"name": "component/viewer", "color": "1d76db", "description": "Viewer product component"},
+  {"name": "component/editor", "color": "5319e7", "description": "Editor product component"},
+  {"name": "component/design", "color": "d4c5f9", "description": "Design lab or promoted design work"},
+  {"name": "component/data", "color": "0e8a16", "description": "Product data and fixtures"},
+  {"name": "component/platform", "color": "0052cc", "description": "Repository and delivery infrastructure"},
+  {"name": "component/reference", "color": "cfd3d7", "description": "Upstream reference snapshots"},
+  {"name": "type/bug", "color": "d73a4a", "description": "Verified defect"},
+  {"name": "type/proposal", "color": "a2eeef", "description": "Product or technical proposal"},
+  {"name": "type/performance", "color": "fbca04", "description": "Performance or compatibility"},
+  {"name": "type/upstream-sync", "color": "bfd4f2", "description": "Upstream release evaluation"},
+  {"name": "type/experiment-promotion", "color": "c2e0c6", "description": "Design experiment promotion"},
+  {"name": "type/maintenance", "color": "ededed", "description": "Non-product maintenance"},
+  {"name": "type/rollback", "color": "b60205", "description": "Production rollback follow-up"},
+  {"name": "risk/T0", "color": "ededed", "description": "Documentation or no behavior change"},
+  {"name": "risk/T1", "color": "c2e0c6", "description": "Local compatible fix"},
+  {"name": "risk/T2", "color": "fbca04", "description": "Feature or product behavior"},
+  {"name": "risk/T3", "color": "b60205", "description": "Architecture, security, migration, or upstream sync"}
+]

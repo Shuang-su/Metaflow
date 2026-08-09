@@ -1,0 +1,222 @@
+{
+  "schemaVersion": "1.0",
+  "checks": [
+    "docs",
+    "governance",
+    "viewer",
+    "editor",
+    "design",
+    "data",
+    "reference",
+    "release",
+    "codeql",
+    "dependency-review"
+  ],
+  "routes": [
+    {
+      "id": "documentation",
+      "category": "docs",
+      "includePaths": ["*.md", "**/*.md", "docs/**"],
+      "excludePaths": [],
+      "checks": ["docs"]
+    },
+    {
+      "id": "governance",
+      "category": "governance",
+      "includePaths": [
+        ".github/**",
+        ".gitattributes",
+        ".gitignore",
+        ".nvmrc",
+        "AGENTS.md",
+        "CONTRIBUTING.md",
+        "metadata/components.json",
+        "metadata/ci-routing.json",
+        "metadata/schemas/**",
+        "docs/metaflow-change-lifecycle-v1.0.md",
+        "docs/changes/**",
+        "docs/templates/**",
+        "scripts/mcl.mjs",
+        "scripts/ci-routing.mjs",
+        "scripts/check_markdown_links.mjs",
+        "scripts/scan_repository.mjs",
+        "scripts/validate_platform.py",
+        "scripts/tests/mcl*.test.mjs",
+        "scripts/tests/ci-routing.test.mjs",
+        "scripts/tests/test_validate_platform.py"
+      ],
+      "excludePaths": [],
+      "checks": ["governance"]
+    },
+    {
+      "id": "platform-executable",
+      "category": "governance",
+      "includePaths": [
+        "analytics/**",
+        "supabase/**",
+        "scripts/**/*.mjs",
+        "scripts/**/*.py",
+        "scripts/**/*.sh"
+      ],
+      "excludePaths": ["**/*.md"],
+      "checks": ["governance", "codeql"]
+    },
+    {
+      "id": "dependency",
+      "category": "dependency",
+      "includePaths": [
+        "**/package.json",
+        "**/package-lock.json",
+        "**/pnpm-lock.yaml",
+        "**/yarn.lock",
+        ".github/dependabot.yml",
+        ".nvmrc"
+      ],
+      "excludePaths": [],
+      "checks": ["dependency-review"]
+    },
+    {
+      "id": "viewer-source",
+      "category": "viewer",
+      "includePaths": ["metaflow-viewer/**"],
+      "excludePaths": [
+        "**/*.md",
+        "**/package.json",
+        "**/package-lock.json",
+        "**/pnpm-lock.yaml",
+        "**/yarn.lock"
+      ],
+      "checks": ["viewer", "codeql"]
+    },
+    {
+      "id": "viewer-dependency",
+      "category": "dependency",
+      "includePaths": [
+        "metaflow-viewer/package.json",
+        "metaflow-viewer/package-lock.json",
+        "metaflow-viewer/pnpm-lock.yaml",
+        "metaflow-viewer/yarn.lock"
+      ],
+      "excludePaths": [],
+      "checks": ["viewer"]
+    },
+    {
+      "id": "viewer-data",
+      "category": "data",
+      "includePaths": [
+        "data/**",
+        "metadata/version-history.json",
+        "scripts/generate_index.py",
+        "scripts/validate_data.py",
+        "scripts/tests/test_validate_data.py"
+      ],
+      "excludePaths": ["**/*.md", "data/editor-version-history.json"],
+      "checks": ["data", "viewer"]
+    },
+    {
+      "id": "editor-source",
+      "category": "editor",
+      "includePaths": ["metaflow-editor/**", "supersplat-v2.28.0/**"],
+      "excludePaths": [
+        "**/*.md",
+        "**/package.json",
+        "**/package-lock.json",
+        "**/pnpm-lock.yaml",
+        "**/yarn.lock"
+      ],
+      "checks": ["editor", "codeql"]
+    },
+    {
+      "id": "editor-dependency",
+      "category": "dependency",
+      "includePaths": [
+        "supersplat-v2.28.0/package.json",
+        "supersplat-v2.28.0/package-lock.json",
+        "supersplat-v2.28.0/pnpm-lock.yaml",
+        "supersplat-v2.28.0/yarn.lock"
+      ],
+      "excludePaths": [],
+      "checks": ["editor"]
+    },
+    {
+      "id": "editor-data",
+      "category": "data",
+      "includePaths": [
+        "data/editor-version-history.json",
+        "metadata/editor-version-history.json",
+        "scripts/generate_editor_version.py"
+      ],
+      "excludePaths": [],
+      "checks": ["data", "editor"]
+    },
+    {
+      "id": "design-source",
+      "category": "design",
+      "includePaths": ["aave-liquid-glass-lab/**", "swiftgram-ios-liquid-glass-lab/**"],
+      "excludePaths": [
+        "**/*.md",
+        "**/package.json",
+        "**/package-lock.json",
+        "**/pnpm-lock.yaml",
+        "**/yarn.lock"
+      ],
+      "checks": ["design", "codeql"]
+    },
+    {
+      "id": "design-dependency",
+      "category": "dependency",
+      "includePaths": [
+        "aave-liquid-glass-lab/package.json",
+        "aave-liquid-glass-lab/package-lock.json",
+        "aave-liquid-glass-lab/pnpm-lock.yaml",
+        "aave-liquid-glass-lab/yarn.lock",
+        "swiftgram-ios-liquid-glass-lab/package.json",
+        "swiftgram-ios-liquid-glass-lab/package-lock.json",
+        "swiftgram-ios-liquid-glass-lab/pnpm-lock.yaml",
+        "swiftgram-ios-liquid-glass-lab/yarn.lock"
+      ],
+      "excludePaths": [],
+      "checks": ["design"]
+    },
+    {
+      "id": "reference-source",
+      "category": "reference",
+      "includePaths": ["supersplat-viewer-v*/**", "supersplat-v2.18.1/**"],
+      "excludePaths": [
+        "**/*.md",
+        "**/package.json",
+        "**/package-lock.json",
+        "**/pnpm-lock.yaml",
+        "**/yarn.lock"
+      ],
+      "checks": ["reference"]
+    },
+    {
+      "id": "reference-dependency",
+      "category": "dependency",
+      "includePaths": [
+        "supersplat-viewer-v*/package.json",
+        "supersplat-viewer-v*/package-lock.json",
+        "supersplat-viewer-v*/pnpm-lock.yaml",
+        "supersplat-viewer-v*/yarn.lock",
+        "supersplat-v2.18.1/package.json",
+        "supersplat-v2.18.1/package-lock.json",
+        "supersplat-v2.18.1/pnpm-lock.yaml",
+        "supersplat-v2.18.1/yarn.lock"
+      ],
+      "excludePaths": [],
+      "checks": ["reference"]
+    },
+    {
+      "id": "release",
+      "category": "release",
+      "includePaths": [
+        ".github/workflows/release.yml",
+        ".github/workflows/rollback.yml",
+        "netlify.toml"
+      ],
+      "excludePaths": [],
+      "checks": ["governance", "release", "viewer", "editor"]
+    }
+  ]
+}

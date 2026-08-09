@@ -1,5 +1,5 @@
 {
-  "schemaVersion": "1.0",
+  "schemaVersion": "1.1",
   "cutoffGitRef": "c613a87",
   "documentedThrough": "c613a87",
   "defaultResourceVersion": "1.0a",
@@ -9,7 +9,11 @@
     "indexSchemaVersion": "1.2",
     "date": "2026-06-27",
     "gitRef": "c613a87",
-    "historyUrl": "/data/version-history.json"
+    "historyUrl": "/data/version-history.json",
+    "upstream": {
+      "repository": "playcanvas/supersplat-viewer",
+      "version": "1.26.2"
+    }
   },
   "versioning": {
     "mode": "dual-track",

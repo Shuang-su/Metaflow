@@ -1,0 +1,252 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://metaflow.shuang-su.com/schemas/completion-manifest.json",
+  "title": "Metaflow Completion Manifest",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "changeId",
+    "terminalState",
+    "risk",
+    "components",
+    "request",
+    "plan",
+    "agentSummary",
+    "taskRecords",
+    "closure",
+    "dossier",
+    "redactions",
+    "generatedAt"
+  ],
+  "properties": {
+    "schemaVersion": {"enum": ["1.0", "1.1"]},
+    "changeId": {
+      "type": "string",
+      "pattern": "^MF-(?:[1-9][0-9]*|T0-[0-9]{8}-[a-z0-9]+(?:-[a-z0-9]+)*)$"
+    },
+    "terminalState": {
+      "enum": [
+        "observed",
+        "proposed",
+        "accepted",
+        "specified",
+        "planned",
+        "implementing",
+        "verifying",
+        "ready-for-release",
+        "released",
+        "observing",
+        "closing",
+        "closed",
+        "rejected",
+        "parked",
+        "superseded",
+        "rolled-back"
+      ]
+    },
+    "risk": {"enum": ["T0", "T1", "T2", "T3"]},
+    "components": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {"enum": ["viewer", "editor", "design", "data", "platform", "reference"]}
+    },
+    "request": {"$ref": "#/$defs/requestRef"},
+    "plan": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "sha256", "revision", "source"],
+      "properties": {
+        "path": {"type": "string", "minLength": 1},
+        "sha256": {"$ref": "#/$defs/sha256"},
+        "revision": {"type": "integer", "minimum": 1},
+        "source": {"type": "string", "minLength": 1}
+      }
+    },
+    "agentSummary": {"$ref": "#/$defs/contentRef"},
+    "taskRecords": {"type": "array", "minItems": 1},
+    "closure": {"$ref": "#/$defs/contentRef"},
+    "dossier": {"$ref": "#/$defs/contentRef"},
+    "redactions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["location", "reason", "replacement"],
+        "properties": {
+          "location": {"type": "string", "minLength": 1},
+          "reason": {"type": "string", "minLength": 1},
+          "replacement": {"type": "string", "pattern": "^\\[REDACTED: .+\\]$"}
+        }
+      }
+    },
+    "generatedAt": {"type": "string", "format": "date-time"},
+    "planRevisions": {
+      "type": "array",
+      "minItems": 1,
+      "items": {"$ref": "#/$defs/planRevision"}
+    },
+    "sourceMaterials": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/sourceMaterial"}
+    }
+  },
+  "allOf": [
+    {
+      "if": {"properties": {"schemaVersion": {"const": "1.0"}}, "required": ["schemaVersion"]},
+      "then": {
+        "properties": {
+          "taskRecords": {
+            "type": "array",
+            "minItems": 1,
+            "items": {"$ref": "#/$defs/taskRecord10"}
+          }
+        },
+        "not": {
+          "anyOf": [
+            {"required": ["planRevisions"]},
+            {"required": ["sourceMaterials"]}
+          ]
+        }
+      },
+      "else": {
+        "required": ["planRevisions", "sourceMaterials"],
+        "properties": {
+          "schemaVersion": {"const": "1.1"},
+          "taskRecords": {
+            "type": "array",
+            "minItems": 1,
+            "items": {"$ref": "#/$defs/taskRecord11"}
+          }
+        }
+      }
+    }
+  ],
+  "$defs": {
+    "sha256": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "contentRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "sha256"],
+      "properties": {
+        "path": {"type": "string", "minLength": 1},
+        "sha256": {"$ref": "#/$defs/sha256"}
+      }
+    },
+    "requestRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "sha256", "messageCount"],
+      "properties": {
+        "path": {"type": "string", "minLength": 1},
+        "sha256": {"$ref": "#/$defs/sha256"},
+        "messageCount": {"type": "integer", "minimum": 1}
+      }
+    },
+    "taskRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["sha256", "messageCount"],
+      "properties": {
+        "sha256": {"$ref": "#/$defs/sha256"},
+        "messageCount": {"type": "integer", "minimum": 1}
+      }
+    },
+    "taskPlan": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["revision", "sha256"],
+      "properties": {
+        "revision": {"type": "integer", "minimum": 1},
+        "sha256": {"$ref": "#/$defs/sha256"}
+      }
+    },
+    "taskRecordBaseProperties": {
+      "type": "object",
+      "properties": {
+        "taskId": {
+          "type": "string",
+          "pattern": "^MF-(?:[1-9][0-9]*|T0-[0-9]{8}-[a-z0-9]+(?:-[a-z0-9]+)*)-T[0-9]{2}$"
+        },
+        "tool": {"type": "string", "minLength": 1},
+        "sourceTaskId": {"type": ["string", "null"]},
+        "status": {"enum": ["complete", "partial", "blocked", "failed", "cancelled"]},
+        "record": {"type": "string", "minLength": 1},
+        "sha256": {"$ref": "#/$defs/sha256"}
+      }
+    },
+    "taskRecord10": {
+      "allOf": [
+        {"$ref": "#/$defs/taskRecordBaseProperties"},
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["taskId", "tool", "sourceTaskId", "status", "record", "sha256"],
+          "properties": {
+            "taskId": true,
+            "tool": true,
+            "sourceTaskId": true,
+            "status": true,
+            "record": true,
+            "sha256": true
+          }
+        }
+      ]
+    },
+    "taskRecord11": {
+      "allOf": [
+        {"$ref": "#/$defs/taskRecordBaseProperties"},
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["taskId", "tool", "sourceTaskId", "status", "record", "sha256", "request", "plan"],
+          "properties": {
+            "taskId": true,
+            "tool": true,
+            "sourceTaskId": true,
+            "status": true,
+            "record": true,
+            "sha256": true,
+            "request": {"$ref": "#/$defs/taskRequest"},
+            "plan": {"$ref": "#/$defs/taskPlan"}
+          }
+        }
+      ]
+    },
+    "planRevision": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["revision", "sha256", "taskIds", "amendmentReason", "approvalSource"],
+      "properties": {
+        "revision": {"type": "integer", "minimum": 1},
+        "sha256": {"$ref": "#/$defs/sha256"},
+        "taskIds": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "pattern": "^MF-(?:[1-9][0-9]*|T0-[0-9]{8}-[a-z0-9]+(?:-[a-z0-9]+)*)-T[0-9]{2}$"
+          }
+        },
+        "amendmentReason": {"type": "string", "minLength": 1},
+        "approvalSource": {"type": "string", "minLength": 1}
+      }
+    },
+    "sourceMaterial": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "sha256", "kind", "provenance", "nonNormative"],
+      "properties": {
+        "path": {"type": "string", "pattern": "^source-materials/.+"},
+        "sha256": {"$ref": "#/$defs/sha256"},
+        "kind": {"type": "string", "minLength": 1},
+        "provenance": {"type": "string", "minLength": 1},
+        "nonNormative": {"type": "boolean"}
+      }
+    }
+  }
+}

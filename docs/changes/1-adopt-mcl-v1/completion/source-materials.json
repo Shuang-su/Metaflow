@@ -1,0 +1,12 @@
+{
+  "schemaVersion": "1.0",
+  "materials": [
+    {
+      "path": "source-materials/metaflow-change-lifecycle-v1.0-complete-plan.md",
+      "sha256": "37f45424cc233af72801e1d91053d4581d1bbcdfb73627612d6f28f018af85a3",
+      "kind": "predecessor-plan",
+      "provenance": "user-supplied-workspace-file",
+      "nonNormative": true
+    }
+  ]
+}

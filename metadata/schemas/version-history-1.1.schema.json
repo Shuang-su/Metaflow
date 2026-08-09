@@ -1,0 +1,53 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://metaflow.shuang-su.com/schemas/version-history-1.1.json",
+  "title": "Metaflow Version History 1.1",
+  "type": "object",
+  "required": ["schemaVersion", "current", "entries"],
+  "properties": {
+    "schemaVersion": {"enum": ["1.0", "1.1"]},
+    "current": {
+      "type": "object",
+      "required": ["displayVersion", "appSemver", "gitRef"],
+      "properties": {
+        "displayVersion": {"type": "string"},
+        "appSemver": {"type": "string"},
+        "gitRef": {"type": "string"}
+      }
+    },
+    "entries": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "trace": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["changeId", "pullRequest", "completionManifest", "completionDossier"],
+            "properties": {
+              "changeId": {"type": "string", "pattern": "^MF-"},
+              "issue": {"type": "string"},
+              "proposal": {"type": "string"},
+              "spec": {"type": "string"},
+              "plan": {"type": "string"},
+              "pullRequest": {"type": "string"},
+              "evidence": {"type": "string"},
+              "completionManifest": {"type": "string"},
+              "completionDossier": {"type": "string"},
+              "releaseTag": {"type": "string"},
+              "deployUrl": {"type": "string"},
+              "upstream": {
+                "type": "object",
+                "properties": {
+                  "repository": {"type": "string"},
+                  "from": {"type": "string"},
+                  "to": {"type": "string"}
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
