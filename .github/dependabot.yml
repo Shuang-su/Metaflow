@@ -6,12 +6,6 @@ updates:
       interval: weekly
     labels: ["component/viewer", "type/maintenance"]
     open-pull-requests-limit: 5
-  - package-ecosystem: npm
-    directory: /supersplat-v2.28.0
-    schedule:
-      interval: weekly
-    labels: ["component/editor", "type/maintenance"]
-    open-pull-requests-limit: 5
   - package-ecosystem: github-actions
     directory: /
     schedule:

@@ -2,7 +2,7 @@
 
 import { createHash } from 'node:crypto';
 import { execFileSync } from 'node:child_process';
-import { access, mkdir, readFile, readdir, writeFile } from 'node:fs/promises';
+import { access, lstat, mkdir, readFile, readdir, realpath, writeFile } from 'node:fs/promises';
 import { constants as fsConstants, existsSync } from 'node:fs';
 import { basename, dirname, isAbsolute, join, relative, resolve, sep } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
@@ -58,6 +58,15 @@ const SECRET_PATTERNS = [
     ['Supabase secret', /\bsb_secret_[A-Za-z0-9_-]{16,}\b/g],
     ['Private key', /-----BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY-----/g]
 ];
+const UNEXPECTED_SOURCE_SEGMENTS = new Set([
+    '.DS_Store',
+    '.cache',
+    '.git',
+    'build',
+    'coverage',
+    'dist',
+    'node_modules'
+]);
 
 const REQUIRED_TASK_HEADINGS = [
     '## Authorized Scope',
@@ -96,6 +105,12 @@ const PLACEHOLDER_PATTERNS = [
 
 function assertion(condition, message) {
     if (!condition) throw new Error(message);
+}
+
+function assertExactKeys(value, allowedKeys, source) {
+    assertion(value && typeof value === 'object' && !Array.isArray(value), `${source}: expected an object`);
+    const unexpected = Object.keys(value).filter((key) => !allowedKeys.includes(key));
+    assertion(unexpected.length === 0, `${source}: unexpected field(s): ${unexpected.join(', ')}`);
 }
 
 function normalizeText(text) {
@@ -161,6 +176,89 @@ function markdownSection(text, heading) {
     const remainder = normalized.slice(contentStart).replace(/^\n/, '');
     const nextHeading = /^## /m.exec(remainder);
     return remainder.slice(0, nextHeading?.index ?? remainder.length).trim();
+}
+
+function taskSection(text, heading, nextHeading, source) {
+    const normalized = text.replace(/\r\n/g, '\n');
+    const startPattern = new RegExp(`^## ${heading.replace(/[.*+?^$\{\}()|[\]\\]/g, '\\$&')}[ \\t]*$`, 'm');
+    const start = startPattern.exec(normalized);
+    assertion(start, `${source}: missing "## ${heading}"`);
+    const contentStart = start.index + start[0].length;
+    const remainder = normalized.slice(contentStart).replace(/^\n/, '');
+    const nextPattern = new RegExp(`^## ${nextHeading.replace(/[.*+?^$\{\}()|[\]\\]/g, '\\$&')}[ \\t]*$`, 'm');
+    const next = nextPattern.exec(remainder);
+    assertion(next, `${source}: missing "## ${nextHeading}" after "## ${heading}"`);
+    return remainder.slice(0, next.index).trim();
+}
+
+function extractTaskDocument(text, heading, nextHeading, source) {
+    const normalized = text.replace(/\r\n/g, '\n');
+    const startPattern = new RegExp(`^## ${heading.replace(/[.*+?^$\{\}()|[\]\\]/g, '\\$&')}[ \\t]*$`, 'm');
+    const start = startPattern.exec(normalized);
+    assertion(start, `${source}: missing "## ${heading}"`);
+    const remainder = normalized.slice(start.index + start[0].length).replace(/^\n/, '');
+    const nextPattern = new RegExp(`^## ${nextHeading.replace(/[.*+?^$\{\}()|[\]\\]/g, '\\$&')}[ \\t]*$`, 'm');
+    const next = nextPattern.exec(remainder);
+    assertion(next, `${source}: missing "## ${nextHeading}" after "## ${heading}"`);
+
+    const opening = /(?:^|\n)(`{3,})markdown[ \\t]*\n/.exec(remainder);
+    if (!opening || opening.index > next.index) return normalizeText(remainder.slice(0, next.index).trim());
+
+    const fence = opening[1];
+    const documentStart = opening.index + opening[0].length;
+    const closingPattern = new RegExp(`^${fence}[ \\t]*$`, 'm');
+    const closing = closingPattern.exec(remainder.slice(documentStart));
+    assertion(closing, `${source}: unterminated fenced Markdown in "## ${heading}"`);
+    const closingEnd = documentStart + closing.index + closing[0].length;
+    const outerNext = nextPattern.exec(remainder.slice(closingEnd));
+    assertion(outerNext, `${source}: missing outer "## ${nextHeading}" after fenced Markdown`);
+    return normalizeText(remainder.slice(documentStart, documentStart + closing.index));
+}
+
+function validateRequestTranscript(
+    text,
+    source,
+    expectedChangeId,
+    expectedTaskId = null,
+    { validateMarkers = true } = {}
+) {
+    const parsed = parseFrontMatter(text, source);
+    assertion(parsed.data.change_id === expectedChangeId, `${source}: change_id mismatch`);
+    if (expectedTaskId !== null) {
+        assertion(
+            parsed.data.task_id === undefined || parsed.data.task_id === expectedTaskId,
+            `${source}: task_id does not match ${expectedTaskId}`
+        );
+    }
+    assertion(
+        Number.isInteger(parsed.data.message_count) && parsed.data.message_count >= 1,
+        `${source}: invalid message_count`
+    );
+    assertion(
+        Number.isInteger(parsed.data.redactions) && parsed.data.redactions >= 0,
+        `${source}: invalid redactions count`
+    );
+    if (validateMarkers) {
+        const messageNumbers = [...text.matchAll(/<!-- user-message:([0-9]+) -->/g)]
+            .map((match) => Number(match[1]));
+        const expectedNumbers = Array.from({ length: parsed.data.message_count }, (_, index) => index + 1);
+        assertion(
+            JSON.stringify(messageNumbers) === JSON.stringify(expectedNumbers),
+            `${source}: user-message markers must be contiguous and ordered from 1 to ${parsed.data.message_count}`
+        );
+        const closingMarkers = (text.match(/<!-- \/user-message -->/g) || []).length;
+        assertion(
+            closingMarkers === parsed.data.message_count,
+            `${source}: expected ${parsed.data.message_count} closing user-message markers, found ${closingMarkers}`
+        );
+    }
+    assertion(text.includes('# Complete User Request Transcript'), `${source}: missing transcript heading`);
+    return {
+        data: parsed.data,
+        text,
+        messageCount: parsed.data.message_count,
+        sha256: sha256(text)
+    };
 }
 
 function assertHeadings(text, headings, source) {
@@ -364,7 +462,62 @@ function validateTaskRecord(text, source, expectedChangeId) {
     assertHeadings(text, REQUIRED_TASK_HEADINGS, source);
     const executionRecord = text.slice(text.indexOf('## Chronological Action Summary'));
     assertNoPlaceholders(executionRecord, source);
-    return data;
+
+    const requestText = extractTaskDocument(
+        text,
+        'Complete User Request',
+        'Complete Effective Task Plan',
+        source
+    );
+    const request = validateRequestTranscript(
+        requestText,
+        `${source}: Complete User Request`,
+        expectedChangeId,
+        data.task_id
+    );
+    const planText = extractTaskDocument(
+        text,
+        'Complete Effective Task Plan',
+        'Chronological Action Summary',
+        source
+    );
+    const plan = parseFrontMatter(planText, `${source}: Complete Effective Task Plan`);
+    validateCommonFrontMatter(plan.data, `${source}: Complete Effective Task Plan`);
+    assertion(plan.data.change_id === expectedChangeId, `${source}: embedded plan change_id mismatch`);
+    assertion(
+        data.plan_revision === plan.data.plan_revision,
+        `${source}: plan_revision does not match the embedded effective plan`
+    );
+    const embeddedPlanHash = sha256(planText);
+    if (data.plan_sha256 !== null) {
+        assertion(
+            data.plan_sha256 === embeddedPlanHash,
+            `${source}: plan_sha256 does not match the embedded effective plan`
+        );
+    }
+
+    return {
+        data,
+        request,
+        plan: {
+            data: plan.data,
+            text: planText,
+            revision: plan.data.plan_revision,
+            sha256: embeddedPlanHash
+        },
+        sections: {
+            actions: taskSection(text, 'Chronological Action Summary', 'Agent Reply Summary', source),
+            replies: taskSection(text, 'Agent Reply Summary', 'Files and External Effects', source),
+            effects: taskSection(text, 'Files and External Effects', 'Validation', source),
+            validation: taskSection(text, 'Validation', 'Failures, Retries, and Skipped Checks', source),
+            failures: taskSection(
+                text,
+                'Failures, Retries, and Skipped Checks',
+                'Plan Deviations and Approval',
+                source
+            )
+        }
+    };
 }
 
 function taskSequence(taskId) {
@@ -405,6 +558,272 @@ function fencedMarkdown(text) {
     const longestRun = Math.max(0, ...[...normalized.matchAll(/`+/g)].map((match) => match[0].length));
     const fence = '`'.repeat(Math.max(4, longestRun + 1));
     return `${fence}markdown\n${normalized}\n${fence}`;
+}
+
+function renderRequestTranscript(change, tasks, redactions, generatedAt) {
+    const messageCount = tasks.reduce((total, task) => total + task.request.messageCount, 0);
+    const taskDocuments = tasks.map((task) => `## ${task.data.task_id}
+
+- Request SHA-256: \`${task.request.sha256}\`
+- Message count: ${task.request.messageCount}
+
+${fencedMarkdown(task.request.text)}`).join('\n\n');
+    return normalizeText(`---
+change_id: ${change.data.change_id}
+source: task-records
+generated_at: ${new Date(generatedAt).toISOString()}
+message_count: ${messageCount}
+redactions: ${redactions.length}
+---
+
+# Complete User Request Transcript
+
+<!-- Generated by scripts/mcl.mjs from immutable Task Records. Do not edit directly. -->
+
+${taskDocuments}
+`);
+}
+
+function renderTaskSummarySection(tasks, key) {
+    return tasks
+        .map((task) => `### ${task.data.task_id}\n\n${task.sections[key]}`)
+        .join('\n\n');
+}
+
+function renderAgentSummary(change, closure, tasks) {
+    const validation = tasks.map((task) => `### ${task.data.task_id}
+
+${task.sections.validation}
+
+#### Failures, Retries, and Skipped Checks
+
+${task.sections.failures}`).join('\n\n');
+    return normalizeText(`---
+change_id: ${change.data.change_id}
+status: ${change.data.status}
+generated_at: ${new Date(closure.data.generated_at).toISOString()}
+---
+
+# Agent Actions and Replies Summary
+
+<!-- Generated by scripts/mcl.mjs from immutable Task Records. Do not edit directly. -->
+
+## Task Inventory
+
+${buildInventory(tasks)}
+
+## Chronological Action Summary
+
+${renderTaskSummarySection(tasks, 'actions')}
+
+## Agent Reply Summary
+
+${renderTaskSummarySection(tasks, 'replies')}
+
+## Files and External Effects
+
+${renderTaskSummarySection(tasks, 'effects')}
+
+## Validation, Failures, and Omissions
+
+${validation}
+`);
+}
+
+async function loadPlanRevisionIndex(path, change, tasks, planHash) {
+    const source = relativePosix(REPO_ROOT, path);
+    const text = await readNormalized(path);
+    const document = JSON.parse(text);
+    assertExactKeys(document, ['schemaVersion', 'revisions'], source);
+    assertion(document.schemaVersion === '1.0', `${source}: unsupported schemaVersion`);
+    assertion(Array.isArray(document.revisions), `${source}: revisions must be an array`);
+    const seenRevisions = new Set();
+    const seenTasks = new Set();
+    const revisions = document.revisions.map((entry) => {
+        assertExactKeys(
+            entry,
+            ['revision', 'sha256', 'taskIds', 'amendmentReason', 'approvalSource'],
+            `${source}: revision entry`
+        );
+        assertion(
+            Number.isInteger(entry.revision) && entry.revision >= 1,
+            `${source}: invalid revision "${entry.revision}"`
+        );
+        assertion(!seenRevisions.has(entry.revision), `${source}: duplicate revision ${entry.revision}`);
+        seenRevisions.add(entry.revision);
+        assertion(SHA256_PATTERN.test(entry.sha256), `${source}: revision ${entry.revision} has invalid sha256`);
+        assertion(Array.isArray(entry.taskIds), `${source}: revision ${entry.revision} taskIds must be an array`);
+        assertion(
+            typeof entry.amendmentReason === 'string' && entry.amendmentReason.trim().length > 0,
+            `${source}: revision ${entry.revision} requires amendmentReason`
+        );
+        assertion(
+            typeof entry.approvalSource === 'string' && entry.approvalSource.trim().length > 0,
+            `${source}: revision ${entry.revision} requires approvalSource`
+        );
+        const localTasks = new Set();
+        for (const taskId of entry.taskIds) {
+            assertion(TASK_ID_PATTERN.test(taskId), `${source}: invalid task ID "${taskId}"`);
+            assertion(!localTasks.has(taskId), `${source}: duplicate task ID ${taskId} in revision ${entry.revision}`);
+            assertion(!seenTasks.has(taskId), `${source}: task ID ${taskId} appears in multiple revisions`);
+            localTasks.add(taskId);
+            seenTasks.add(taskId);
+        }
+        return {
+            revision: entry.revision,
+            sha256: entry.sha256,
+            taskIds: [...entry.taskIds],
+            amendmentReason: entry.amendmentReason,
+            approvalSource: entry.approvalSource
+        };
+    }).sort((a, b) => a.revision - b.revision);
+
+    const expectedRevisions = Array.from(
+        { length: change.data.plan_revision },
+        (_, index) => index + 1
+    );
+    assertion(
+        JSON.stringify(revisions.map((entry) => entry.revision)) === JSON.stringify(expectedRevisions),
+        `${source}: revisions must be contiguous from 1 to ${change.data.plan_revision}`
+    );
+    const currentRevision = revisions.at(-1);
+    assertion(
+        currentRevision.sha256 === planHash,
+        `${source}: current revision sha256 does not match plan.md`
+    );
+
+    const taskById = new Map(tasks.map((task) => [task.data.task_id, task]));
+    for (const taskId of seenTasks) {
+        assertion(taskById.has(taskId), `${source}: unknown task ID ${taskId}`);
+    }
+    for (const task of tasks) {
+        assertion(seenTasks.has(task.data.task_id), `${source}: missing ${task.data.task_id} from revision taskIds`);
+        assertion(task.data.plan_sha256 !== null, `${task.path}: Manifest 1.1 requires plan_sha256`);
+        const revision = revisions.find((entry) => entry.revision === task.plan.revision);
+        assertion(revision, `${source}: missing revision ${task.plan.revision} for ${task.data.task_id}`);
+        assertion(revision.taskIds.includes(task.data.task_id), `${source}: ${task.data.task_id} is assigned to the wrong revision`);
+        assertion(
+            revision.sha256 === task.plan.sha256,
+            `${source}: revision ${revision.revision} sha256 does not match ${task.data.task_id}`
+        );
+    }
+    return { text, revisions };
+}
+
+function isPathInside(parent, candidate) {
+    const rel = relative(parent, candidate);
+    return rel !== '' && !rel.startsWith(`..${sep}`) && rel !== '..' && !isAbsolute(rel);
+}
+
+async function listFilesRecursively(directory, base = directory) {
+    if (!(await exists(directory))) return [];
+    const files = [];
+    const entries = await readdir(directory, { withFileTypes: true });
+    for (const entry of entries) {
+        const absolute = join(directory, entry.name);
+        assertion(!entry.isSymbolicLink(), `${relativePosix(REPO_ROOT, absolute)}: symbolic links are not allowed`);
+        if (entry.isDirectory()) {
+            files.push(...await listFilesRecursively(absolute, base));
+        } else if (entry.isFile()) {
+            files.push(relativePosix(base, absolute));
+        }
+    }
+    return files.sort();
+}
+
+function validateRedactionsInText(text, path, redactions) {
+    const targeted = redactions.filter((item) => item.location === path || item.location.startsWith(`${path}:`));
+    for (const item of targeted) {
+        assertion(text.includes(item.replacement), `${path}: redaction manifest entry is not present in the source`);
+    }
+    const replacements = [...text.matchAll(/\[REDACTED: [^\]]+\]/g)].map((match) => match[0]);
+    for (const replacement of replacements) {
+        assertion(
+            targeted.some((item) => item.replacement === replacement),
+            `${path}: unlisted redaction ${replacement}`
+        );
+    }
+}
+
+async function loadSourceMaterials(paths, completionDir, redactions) {
+    const indexExists = await exists(paths.sourceMaterialsIndex);
+    const actualFiles = await listFilesRecursively(paths.sourceMaterials);
+    if (!indexExists) {
+        assertion(actualFiles.length === 0, `${relativePosix(REPO_ROOT, paths.sourceMaterials)}: source materials are unlisted`);
+        return { indexText: null, materials: [] };
+    }
+
+    const indexSource = relativePosix(REPO_ROOT, paths.sourceMaterialsIndex);
+    const indexText = await readNormalized(paths.sourceMaterialsIndex);
+    const document = JSON.parse(indexText);
+    assertExactKeys(document, ['schemaVersion', 'materials'], indexSource);
+    assertion(document.schemaVersion === '1.0', `${indexSource}: unsupported schemaVersion`);
+    assertion(Array.isArray(document.materials), `${indexSource}: materials must be an array`);
+    const seenPaths = new Set();
+    const sourceRoot = resolve(paths.sourceMaterials);
+    const sourceRootReal = await realpath(sourceRoot).catch(() => sourceRoot);
+    const materials = [];
+    for (const entry of document.materials) {
+        assertExactKeys(
+            entry,
+            ['path', 'sha256', 'kind', 'provenance', 'nonNormative'],
+            `${indexSource}: material entry`
+        );
+        assertion(typeof entry.path === 'string' && entry.path.length > 0, `${indexSource}: material path is required`);
+        assertion(!entry.path.includes('\\'), `${indexSource}: material paths must use POSIX separators`);
+        assertion(!isAbsolute(entry.path), `${indexSource}: absolute material path is not allowed`);
+        assertion(entry.path.startsWith('source-materials/'), `${indexSource}: material path must start with source-materials/`);
+        assertion(
+            !entry.path.split('/').some((segment) => UNEXPECTED_SOURCE_SEGMENTS.has(segment)),
+            `${indexSource}: unexpected cache or build artifact ${entry.path}`
+        );
+        const absolute = resolve(completionDir, ...entry.path.split('/'));
+        assertion(isPathInside(sourceRoot, absolute), `${indexSource}: material path escapes source-materials: ${entry.path}`);
+        assertion(!seenPaths.has(entry.path), `${indexSource}: duplicate material path ${entry.path}`);
+        seenPaths.add(entry.path);
+        assertion(SHA256_PATTERN.test(entry.sha256), `${indexSource}: ${entry.path} has invalid sha256`);
+        assertion(typeof entry.kind === 'string' && entry.kind.length > 0, `${indexSource}: ${entry.path} requires kind`);
+        assertion(
+            typeof entry.provenance === 'string' && entry.provenance.length > 0,
+            `${indexSource}: ${entry.path} requires provenance`
+        );
+        assertion(typeof entry.nonNormative === 'boolean', `${indexSource}: ${entry.path} requires nonNormative`);
+        assertion(await exists(absolute), `${indexSource}: missing source material ${entry.path}`);
+        const info = await lstat(absolute);
+        assertion(info.isFile() && !info.isSymbolicLink(), `${indexSource}: source material must be a regular file: ${entry.path}`);
+        const actualReal = await realpath(absolute);
+        assertion(isPathInside(sourceRootReal, actualReal), `${indexSource}: material resolves outside source-materials: ${entry.path}`);
+        const bytes = await readFile(absolute);
+        const actualHash = sha256(bytes);
+        assertion(actualHash === entry.sha256, `${indexSource}: checksum mismatch for ${entry.path}`);
+        let sourceText;
+        try {
+            sourceText = new TextDecoder('utf-8', { fatal: true }).decode(bytes);
+        } catch {
+            throw new Error(`${indexSource}: ${entry.path} must be UTF-8 text for secret scanning`);
+        }
+        const findings = scanSecrets(sourceText, entry.path);
+        assertion(findings.length === 0, findings.join('\n'));
+        validateRedactionsInText(sourceText, entry.path, redactions);
+        materials.push({
+            path: entry.path,
+            sha256: entry.sha256,
+            kind: entry.kind,
+            provenance: entry.provenance,
+            nonNormative: entry.nonNormative,
+            text: sourceText
+        });
+    }
+
+    const listedFiles = [...seenPaths]
+        .map((path) => path.slice('source-materials/'.length))
+        .sort();
+    assertion(
+        JSON.stringify(listedFiles) === JSON.stringify(actualFiles),
+        `${indexSource}: source-materials directory contains missing or unlisted files`
+    );
+    materials.sort((a, b) => a.path.localeCompare(b.path));
+    return { indexText, materials };
 }
 
 function renderDossier({
@@ -504,13 +923,22 @@ async function loadChange(changeDirectory, { requireGenerated = false } = {}) {
         summary: join(completionDir, 'agent-action-reply-summary.md'),
         closure: join(completionDir, 'closure.md'),
         redactions: join(completionDir, 'redactions.json'),
+        planRevisions: join(completionDir, 'plan-revisions.json'),
+        sourceMaterialsIndex: join(completionDir, 'source-materials.json'),
+        sourceMaterials: join(completionDir, 'source-materials'),
         dossier: join(completionDir, 'dossier.md'),
         manifest: join(completionDir, 'manifest.json'),
         tasks: join(completionDir, 'task-records')
     };
 
-    for (const name of ['plan', 'evidence', 'request', 'summary', 'closure', 'redactions']) {
+    for (const name of ['plan', 'evidence', 'closure', 'redactions']) {
         assertion(await exists(paths[name]), `${relativePosix(REPO_ROOT, paths[name])}: missing required source`);
+    }
+    const manifestVersion = await exists(paths.planRevisions) ? '1.1' : '1.0';
+    if (manifestVersion === '1.0') {
+        for (const name of ['request', 'summary']) {
+            assertion(await exists(paths[name]), `${relativePosix(REPO_ROOT, paths[name])}: missing required source`);
+        }
     }
 
     const planText = await readNormalized(paths.plan);
@@ -546,43 +974,36 @@ async function loadChange(changeDirectory, { requireGenerated = false } = {}) {
         artifacts[name] = artifact;
     }
 
-    const requestText = await readNormalized(paths.request);
-    const request = {
-        ...parseFrontMatter(requestText, relativePosix(REPO_ROOT, paths.request)),
-        text: requestText,
-        path: relativePosix(REPO_ROOT, paths.request)
-    };
-    assertion(request.data.change_id === change.data.change_id, `${request.path}: change_id mismatch`);
-    assertion(Number.isInteger(request.data.message_count) && request.data.message_count >= 1, `${request.path}: invalid message_count`);
-    const userMessageNumbers = [...request.text.matchAll(/<!-- user-message:([0-9]+) -->/g)]
-        .map((match) => Number(match[1]));
-    const expectedMessageNumbers = Array.from({ length: request.data.message_count }, (_, index) => index + 1);
-    assertion(
-        JSON.stringify(userMessageNumbers) === JSON.stringify(expectedMessageNumbers),
-        `${request.path}: user-message markers must be contiguous and ordered from 1 to ${request.data.message_count}`
-    );
-    const closingMessageMarkers = (request.text.match(/<!-- \/user-message -->/g) || []).length;
-    assertion(
-        closingMessageMarkers === request.data.message_count,
-        `${request.path}: expected ${request.data.message_count} closing user-message markers, found ${closingMessageMarkers}`
-    );
-    assertion(request.text.includes('# Complete User Request Transcript'), `${request.path}: missing transcript heading`);
+    let request = null;
+    let summary = null;
+    if (manifestVersion === '1.0') {
+        const requestText = await readNormalized(paths.request);
+        const validated = validateRequestTranscript(
+            requestText,
+            relativePosix(REPO_ROOT, paths.request),
+            change.data.change_id
+        );
+        request = {
+            ...validated,
+            path: relativePosix(REPO_ROOT, paths.request)
+        };
 
-    const summaryText = await readNormalized(paths.summary);
-    const summary = {
-        ...parseFrontMatter(summaryText, relativePosix(REPO_ROOT, paths.summary)),
-        text: summaryText,
-        path: relativePosix(REPO_ROOT, paths.summary)
-    };
-    assertion(summary.data.change_id === change.data.change_id, `${summary.path}: change_id mismatch`);
-    assertHeadings(summary.text, [
-        '## Task Inventory',
-        '## Chronological Action Summary',
-        '## Agent Reply Summary',
-        '## Files and External Effects',
-        '## Validation, Failures, and Omissions'
-    ], summary.path);
-    assertNoPlaceholders(summary.text, summary.path);
+        const summaryText = await readNormalized(paths.summary);
+        summary = {
+            ...parseFrontMatter(summaryText, relativePosix(REPO_ROOT, paths.summary)),
+            text: summaryText,
+            path: relativePosix(REPO_ROOT, paths.summary)
+        };
+        assertion(summary.data.change_id === change.data.change_id, `${summary.path}: change_id mismatch`);
+        assertHeadings(summary.text, [
+            '## Task Inventory',
+            '## Chronological Action Summary',
+            '## Agent Reply Summary',
+            '## Files and External Effects',
+            '## Validation, Failures, and Omissions'
+        ], summary.path);
+        assertNoPlaceholders(summary.text, summary.path);
+    }
 
     const evidenceText = await readNormalized(paths.evidence);
     const evidence = {
@@ -619,8 +1040,6 @@ async function loadChange(changeDirectory, { requireGenerated = false } = {}) {
         assertion(typeof item.reason === 'string' && item.reason.length > 0, 'redaction: missing reason');
         assertion(/^\[REDACTED: .+\]$/.test(item.replacement), 'redaction: invalid replacement');
     }
-    assertion(request.data.redactions === redactions.length, `${request.path}: redactions count mismatch`);
-
     const taskPaths = await listMarkdownFiles(paths.tasks);
     assertion(taskPaths.length > 0, `${relativePosix(REPO_ROOT, paths.tasks)}: at least one Task Record is required`);
     const tasks = [];
@@ -628,26 +1047,63 @@ async function loadChange(changeDirectory, { requireGenerated = false } = {}) {
     for (const taskPath of taskPaths) {
         const text = await readNormalized(taskPath);
         const relativePath = relativePosix(completionDir, taskPath);
-        const data = validateTaskRecord(text, relativePosix(REPO_ROOT, taskPath), change.data.change_id);
-        assertion(basename(taskPath) === `${data.task_id}.md`, `${relativePosix(REPO_ROOT, taskPath)}: filename must match task_id`);
-        assertion(!seenTaskIds.has(data.task_id), `duplicate Task ID ${data.task_id}`);
-        seenTaskIds.add(data.task_id);
-        tasks.push({ data, text, path: relativePosix(REPO_ROOT, taskPath), relativePath });
+        const validated = validateTaskRecord(text, relativePosix(REPO_ROOT, taskPath), change.data.change_id);
+        assertion(basename(taskPath) === `${validated.data.task_id}.md`, `${relativePosix(REPO_ROOT, taskPath)}: filename must match task_id`);
+        assertion(!seenTaskIds.has(validated.data.task_id), `duplicate Task ID ${validated.data.task_id}`);
+        seenTaskIds.add(validated.data.task_id);
+        tasks.push({ ...validated, text, path: relativePosix(REPO_ROOT, taskPath), relativePath });
     }
     tasks.sort((a, b) => taskSequence(a.data.task_id) - taskSequence(b.data.task_id));
     tasks.forEach((task, index) => {
         assertion(taskSequence(task.data.task_id) === index + 1, `Task sequence must be contiguous from T01; found ${task.data.task_id}`);
     });
+    const latestTaskCompletion = Math.max(...tasks.map((task) => Date.parse(task.data.completed)));
+    assertion(
+        Date.parse(closure.data.generated_at) >= latestTaskCompletion,
+        `${closure.path}: generated_at precedes the latest Task completion`
+    );
 
     const planHash = sha256(planText);
     for (const task of tasks) {
-        assertion(task.data.plan_revision === change.data.plan_revision, `${task.path}: plan_revision does not match plan.md`);
-        if (task.data.plan_sha256 !== null) {
-            assertion(task.data.plan_sha256 === planHash, `${task.path}: plan_sha256 does not match plan.md`);
+        if (task.plan.revision === change.data.plan_revision) {
+            assertion(
+                task.plan.sha256 === planHash,
+                `${task.path}: current plan revision does not match plan.md`
+            );
         }
-        assertion(task.text.includes(request.text.trim()), `${task.path}: complete request transcript is not embedded verbatim`);
-        assertion(task.text.includes(planText.trim()), `${task.path}: complete effective plan is not embedded verbatim`);
     }
+
+    let planRevisionIndex = null;
+    if (manifestVersion === '1.1') {
+        planRevisionIndex = await loadPlanRevisionIndex(paths.planRevisions, change, tasks, planHash);
+        const requestText = renderRequestTranscript(change, tasks, redactions, closure.data.generated_at);
+        request = {
+            ...validateRequestTranscript(
+                requestText,
+                relativePosix(REPO_ROOT, paths.request),
+                change.data.change_id,
+                null,
+                { validateMarkers: false }
+            ),
+            path: relativePosix(REPO_ROOT, paths.request)
+        };
+        const summaryText = renderAgentSummary(change, closure, tasks);
+        summary = {
+            ...parseFrontMatter(summaryText, relativePosix(REPO_ROOT, paths.summary)),
+            text: summaryText,
+            path: relativePosix(REPO_ROOT, paths.summary)
+        };
+        assertHeadings(summary.text, [
+            '## Task Inventory',
+            '## Chronological Action Summary',
+            '## Agent Reply Summary',
+            '## Files and External Effects',
+            '## Validation, Failures, and Omissions'
+        ], summary.path);
+    }
+    assertion(request.data.redactions === redactions.length, `${request.path}: redactions count mismatch`);
+
+    const sourceMaterials = await loadSourceMaterials(paths, completionDir, redactions);
 
     const disposition = markdownSection(closure.text, 'Task Disposition');
     for (const task of tasks.filter((item) => item.data.status !== 'complete')) {
@@ -666,10 +1122,24 @@ async function loadChange(changeDirectory, { requireGenerated = false } = {}) {
     for (const source of [request, summary, evidence, closure, ...tasks]) {
         secretFindings.push(...scanSecrets(source.text, source.path));
     }
+    if (planRevisionIndex) {
+        const revisionPath = relativePosix(completionDir, paths.planRevisions);
+        secretFindings.push(...scanSecrets(planRevisionIndex.text, revisionPath));
+        validateRedactionsInText(planRevisionIndex.text, revisionPath, redactions);
+    }
+    if (sourceMaterials.indexText) {
+        const materialsPath = relativePosix(completionDir, paths.sourceMaterialsIndex);
+        secretFindings.push(...scanSecrets(sourceMaterials.indexText, materialsPath));
+        validateRedactionsInText(sourceMaterials.indexText, materialsPath, redactions);
+    }
     assertion(secretFindings.length === 0, secretFindings.join('\n'));
 
     if (requireGenerated) {
         assertion(await exists(paths.approvedPlan), `${relativePosix(REPO_ROOT, paths.approvedPlan)}: missing generated file`);
+        if (manifestVersion === '1.1') {
+            assertion(await exists(paths.request), `${relativePosix(REPO_ROOT, paths.request)}: missing generated file`);
+            assertion(await exists(paths.summary), `${relativePosix(REPO_ROOT, paths.summary)}: missing generated file`);
+        }
         assertion(await exists(paths.dossier), `${relativePosix(REPO_ROOT, paths.dossier)}: missing generated file`);
         assertion(await exists(paths.manifest), `${relativePosix(REPO_ROOT, paths.manifest)}: missing generated file`);
     }
@@ -686,25 +1156,47 @@ async function loadChange(changeDirectory, { requireGenerated = false } = {}) {
         closure,
         redactions,
         tasks,
-        planHash
+        planHash,
+        manifestVersion,
+        planRevisionIndex,
+        sourceMaterials
     };
 }
 
 function sourceDescriptors(context) {
-    return [
+    const sources = [
         { path: relativePosix(context.completionDir, context.paths.request), text: context.request.text },
         { path: relativePosix(context.completionDir, context.paths.plan), text: context.change.text },
         { path: relativePosix(context.completionDir, context.paths.summary), text: context.summary.text },
         { path: relativePosix(context.completionDir, context.paths.evidence), text: context.evidence.text },
         { path: relativePosix(context.completionDir, context.paths.closure), text: context.closure.text },
         ...context.tasks.map((task) => ({ path: task.relativePath, text: task.text }))
-    ].map((source) => ({ ...source, sha256: sha256(source.text) }));
+    ];
+    if (context.planRevisionIndex) {
+        sources.push({
+            path: relativePosix(context.completionDir, context.paths.planRevisions),
+            text: context.planRevisionIndex.text
+        });
+    }
+    if (context.sourceMaterials.indexText) {
+        sources.push({
+            path: relativePosix(context.completionDir, context.paths.sourceMaterialsIndex),
+            text: context.sourceMaterials.indexText
+        });
+    }
+    for (const material of context.sourceMaterials.materials) {
+        sources.push({ path: material.path, text: material.text, sha256: material.sha256 });
+    }
+    return sources.map((source) => ({
+        ...source,
+        sha256: source.sha256 ?? sha256(source.text)
+    }));
 }
 
 function buildManifest(context, dossierText) {
     const sources = sourceDescriptors(context);
     const sourceByPath = new Map(sources.map((source) => [source.path, source]));
-    const taskRecords = context.tasks.map((task) => ({
+    const legacyTaskRecords = context.tasks.map((task) => ({
         taskId: task.data.task_id,
         tool: task.data.tool,
         sourceTaskId: task.data.source_task_id ?? null,
@@ -713,8 +1205,22 @@ function buildManifest(context, dossierText) {
         sha256: sha256(task.text)
     }));
 
-    return {
-        schemaVersion: '1.0',
+    const taskRecords = context.manifestVersion === '1.0'
+        ? legacyTaskRecords
+        : legacyTaskRecords.map((record, index) => ({
+            ...record,
+            request: {
+                sha256: context.tasks[index].request.sha256,
+                messageCount: context.tasks[index].request.messageCount
+            },
+            plan: {
+                revision: context.tasks[index].plan.revision,
+                sha256: context.tasks[index].plan.sha256
+            }
+        }));
+
+    const manifest = {
+        schemaVersion: context.manifestVersion,
         changeId: context.change.data.change_id,
         terminalState: context.closure.data.terminal_state,
         risk: context.change.data.risk,
@@ -734,7 +1240,16 @@ function buildManifest(context, dossierText) {
             path: 'agent-action-reply-summary.md',
             sha256: sourceByPath.get('agent-action-reply-summary.md').sha256
         },
+        ...(context.manifestVersion === '1.1'
+            ? { planRevisions: context.planRevisionIndex.revisions }
+            : {}),
         taskRecords,
+        ...(context.manifestVersion === '1.1'
+            ? {
+                sourceMaterials: context.sourceMaterials.materials
+                    .map(({ text: _text, ...material }) => material)
+            }
+            : {}),
         closure: {
             path: 'closure.md',
             sha256: sourceByPath.get('closure.md').sha256
@@ -746,6 +1261,7 @@ function buildManifest(context, dossierText) {
         redactions: context.redactions,
         generatedAt: new Date(context.closure.data.generated_at).toISOString()
     };
+    return manifest;
 }
 
 export async function buildGeneratedChange(changeDirectory) {
@@ -769,6 +1285,10 @@ export async function buildGeneratedChange(changeDirectory) {
 export async function generateChange(changeDirectory) {
     const generated = await buildGeneratedChange(changeDirectory);
     const changed = [];
+    if (generated.context.manifestVersion === '1.1') {
+        if (await writeNormalized(generated.context.paths.request, generated.context.request.text)) changed.push('request-transcript.md');
+        if (await writeNormalized(generated.context.paths.summary, generated.context.summary.text)) changed.push('agent-action-reply-summary.md');
+    }
     if (await writeNormalized(generated.context.paths.approvedPlan, generated.approvedPlan)) changed.push('approved-plan.md');
     if (await writeNormalized(generated.context.paths.dossier, generated.dossier)) changed.push('dossier.md');
     if (await writeJson(generated.context.paths.manifest, generated.manifest)) changed.push('manifest.json');
@@ -778,20 +1298,32 @@ export async function generateChange(changeDirectory) {
 export async function checkChange(changeDirectory, { strict = false } = {}) {
     const generated = await buildGeneratedChange(changeDirectory);
     const context = await loadChange(changeDirectory, { requireGenerated: true });
+    const actualRequest = await readNormalized(context.paths.request);
+    const actualSummary = await readNormalized(context.paths.summary);
     const actualApprovedPlan = await readNormalized(context.paths.approvedPlan);
     const actualDossier = await readNormalized(context.paths.dossier);
-    const actualManifest = JSON.parse(await readFile(context.paths.manifest, 'utf8'));
+    const actualManifestText = await readNormalized(context.paths.manifest);
+    const actualManifest = JSON.parse(actualManifestText);
 
+    if (context.manifestVersion === '1.1') {
+        assertion(actualRequest === generated.context.request.text, `${relativePosix(REPO_ROOT, context.paths.request)} is stale; run generate`);
+        assertion(actualSummary === generated.context.summary.text, `${relativePosix(REPO_ROOT, context.paths.summary)} is stale; run generate`);
+    }
     assertion(actualApprovedPlan === generated.approvedPlan, `${relativePosix(REPO_ROOT, context.paths.approvedPlan)} is stale; run generate`);
     assertion(actualDossier === generated.dossier, `${relativePosix(REPO_ROOT, context.paths.dossier)} is stale; run generate`);
     assertion(
-        JSON.stringify(actualManifest) === JSON.stringify(generated.manifest),
+        actualManifestText === normalizeText(JSON.stringify(generated.manifest, null, 2)) &&
+            JSON.stringify(actualManifest) === JSON.stringify(generated.manifest),
         `${relativePosix(REPO_ROOT, context.paths.manifest)} is stale; run generate`
     );
 
-    if (strict) {
-        assertion(TERMINAL_CHANGE_STATES.has(context.closure.data.terminal_state), 'strict check requires a terminal Change state');
-        assertion(context.tasks.every((task) => task.data.status === 'complete'), 'strict check requires all Tasks to be complete');
+    if (strict && TERMINAL_CHANGE_STATES.has(context.closure.data.terminal_state)) {
+        assertion(context.tasks.every((task) => task.data.status === 'complete'), 'strict terminal check requires all Tasks to be complete');
+    } else if (strict) {
+        assertion(
+            context.change.data.completion_state === 'pending',
+            'strict active-Change check requires completion_state: pending'
+        );
     }
 
     return generated.manifest;

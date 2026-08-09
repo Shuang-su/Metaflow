@@ -6,7 +6,13 @@ from pathlib import Path
 import sys
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-from validate_platform import render_public_json, validate_netlify, validate_supabase, validate_workflows  # noqa: E402
+from validate_platform import (  # noqa: E402
+    render_public_json,
+    validate_dependabot,
+    validate_netlify,
+    validate_supabase,
+    validate_workflows,
+)
 
 
 class PlatformValidationTests(unittest.TestCase):
@@ -85,6 +91,55 @@ class PlatformValidationTests(unittest.TestCase):
         errors = validate_workflows(self.root)
         self.assertEqual(len(errors), 1)
         self.assertIn("full commit SHA", errors[0])
+
+    def test_dependabot_rejects_versioned_source_directory_for_npm(self):
+        config = self.root / ".github" / "dependabot.yml"
+        config.parent.mkdir(parents=True)
+        config.write_text(
+            textwrap.dedent(
+                """
+                version: 2
+                updates:
+                  - package-ecosystem: npm
+                    directory: /supersplat-v2.28.0
+                    schedule:
+                      interval: weekly
+                  - package-ecosystem: npm
+                    directory: /archive/supersplat-viewer-v1.18.2
+                    schedule:
+                      interval: weekly
+                """
+            ),
+            encoding="utf-8",
+        )
+
+        errors = validate_dependabot(self.root)
+
+        self.assertEqual(len(errors), 2)
+        self.assertTrue(all("versioned source directory" in error for error in errors))
+
+    def test_dependabot_allows_active_npm_and_github_actions_targets(self):
+        config = self.root / ".github" / "dependabot.yml"
+        config.parent.mkdir(parents=True)
+        config.write_text(
+            textwrap.dedent(
+                """
+                version: 2
+                updates:
+                  - package-ecosystem: npm
+                    directory: /metaflow-viewer
+                    schedule:
+                      interval: weekly
+                  - package-ecosystem: github-actions
+                    directory: /
+                    schedule:
+                      interval: weekly
+                """
+            ),
+            encoding="utf-8",
+        )
+
+        self.assertEqual(validate_dependabot(self.root), [])
 
     def test_public_json_never_contains_finding_details(self):
         finding = "sensitive-finding-detail-that-must-not-reach-logs"

@@ -10,7 +10,7 @@ owner: Shuang-su
 created: 2026-08-09
 updated: 2026-08-10
 issue: https://github.com/Shuang-su/Metaflow/issues/1
-plan_revision: 2
+plan_revision: 3
 completion_state: pending
 supersedes: null
 terminal_reason: null
@@ -25,9 +25,49 @@ This file records only commands and outcomes that actually occurred. It is updat
 - Protection branch: `codex/preserve-design-20260809`
 - Governance branch: `codex/mcl-v1`
 - Governance base: `origin/main@95d0115c`
+- Revision 3 recovery refs: `codex/safety-main-pre-mcl-v1-20260810@47ffd86e` and `codex/safety-mcl-v1-pre-revision3-20260810@590377bd`
 - The original local `main`, its nine Design commits, the untracked Swiftgram directory, and the untracked prior MCL draft remain untouched.
 
+## Revision 3 source-material preservation
+
+| Check | Actual result |
+| --- | --- |
+| Source | `/Volumes/Prism/Metaflow/docs/metaflow-change-lifecycle-v1.0-complete-plan.md` remained in place as the untracked local recovery copy |
+| Archive | Copied byte-for-byte to `completion/source-materials/metaflow-change-lifecycle-v1.0-complete-plan.md` |
+| Line count | Source and archive both reported 1,575 lines |
+| SHA-256 | Source and archive both reported `37f45424cc233af72801e1d91053d4581d1bbcdfb73627612d6f28f018af85a3` |
+| Byte comparison | `cmp -s` exited `0` |
+| Classification | `source-materials.json` and Manifest 1.1 classify it as a non-normative `predecessor-plan` from a `user-supplied-workspace-file` |
+| Disposition | `source-material-disposition.md` covers all 21 top-level numbered sections using `archived / absorbed / superseded / evidence-only / change-plan` |
+
+The compatibility entry at `docs/metaflow-change-lifecycle-v1.0-complete-plan.md` contains no duplicated normative rules. It links the original archive, normative specification, effective MF-1 Plan, Completion Dossier, and disposition record.
+
+## Revision 3 dependency and PR boundary
+
+- PRs #4-#8 were created by Dependabot against the versioned `supersplat-viewer-v1.18.2` reference snapshot after repository security features were enabled.
+- Issue #9 records the resulting Upstream Sync Proposal signal. MF-1 does not make an Adopt, Defer, Skip, close, or merge decision for those PRs.
+- `supersplat-v2.28.0/package.json` and `package-lock.json` were restored to their exact `origin/main` blobs (`6d07aba07665fc79337ef43834325e1bff326c93` and `8c54c7e1433d494ad69ef7489b121d7ce52acde0`); `git diff origin/main --` reports no change for either file.
+- `.github/dependabot.yml` now targets only `/metaflow-viewer` and GitHub Actions. The platform validator rejects npm targets containing `supersplat-v*` or `supersplat-viewer-v*` path components.
+- Component ownership is used for CI routing and version attribution; it is not evidence that a versioned snapshot is an Active dependency-maintenance target.
+
 ## Validation results
+
+Revision 3 pre-push local Gate:
+
+| Area | Command or method | Actual result |
+| --- | --- | --- |
+| Completion | `node --test scripts/tests/*.test.mjs` | 37 passed, including immutable historical Task revisions, Task-specific requests/Plans, Manifest 1.0 compatibility, Manifest 1.1 aggregation, source-material path/checksum/secret/redaction checks, active strict validation, and closure-time ordering |
+| Platform/data unit tests | `python3 -m unittest discover -s scripts/tests -p 'test_*.py'` | 7 passed, including positive and negative Dependabot versioned-snapshot routing |
+| Deterministic Completion | `node scripts/mcl.mjs generate docs/changes/1-adopt-mcl-v1`; `node scripts/mcl.mjs check-all --strict` | Generated Manifest 1.1 and deterministic aggregates; strict active-Change validation passed without treating MF-1 as terminal |
+| Registry/version/data | `validate-registry`; `validate-version-history`; `python3 scripts/validate_data.py` | Passed |
+| Platform and links | `python3 scripts/validate_platform.py`; `node scripts/check_markdown_links.mjs` | Passed; 46 Markdown files checked, with only the exact registered non-normative archive excluded from live-link traversal |
+| Repository hygiene | `node scripts/scan_repository.mjs`; `git diff --check` | 10,823 files passed the secret/accidental-file scan; whitespace check passed |
+| Viewer | `npm ci`; `npm test`; `npm run type:check`; `npm run build` | 52 tests passed; typecheck and build passed; install reported 5 existing transitive advisories |
+| Viewer E2E | `npm run e2e:dev`; `npm run e2e:build` | 4 development-mode and 4 production-build Chromium/WebGL desktop/mobile tests passed |
+| Editor | `npm ci`; `npm run lint`; `npm run build` | Passed; install reported existing peer-resolution warnings and 9 audit findings; Rollup reported non-fatal upstream circular-dependency warnings |
+| Bundle budgets | Viewer public+dist and Editor dist size checks | Viewer 16,680 KiB ≤ 20,480 KiB; Editor 31,472 KiB ≤ 51,200 KiB |
+| Reference/Design | Reference license/version loop; Design source presence check | All three tracked reference manifests passed; no tracked Design implementation exists on this ref |
+| Immutability | SHA-256, line count, Git and worktree re-read | T01 remained `616c6d...101d`; predecessor archive remained 1,575 lines and `37f454...85a3`; local main remained `47ffd86e`, nine commits ahead, with only the two pre-existing untracked paths |
 
 | Area | Command or method | Actual result |
 | --- | --- | --- |
@@ -72,6 +112,8 @@ Browser fixture:
 
 Review corrections:
 
+- Revision 3 Spec-compliance pass confirmed that the candidate contains only MCL governance, Completion, CI/fixture, and exact snapshot-boundary work; Editor migration, full upstream restoration, PR #4–#8 disposition, Design/Swiftgram changes, activation, release, and closure remain excluded.
+- Revision 3 code-quality pass found two integration defects before publication: strict validation could only represent terminal Changes, and closure generation time could precede newly aggregated Tasks. Active/terminal strict invariants and a latest-Task timestamp check were added with regression coverage; all 37 tests then passed.
 - Re-reading both source plans, the referenced Codex task, the shared GPT conversation, SztuCode PR #67, its two creating commits, and the repository's own Agent/contributor configuration corrected an attribution error: the Superpowers execution instruction was added by collaborator `GuanG-1008` in one PR Plan. It is evidence of that Task's chosen workflow, not a SztuCode-native Skill or repository-wide Superpowers policy.
 - MCL now separates `reference`, `task-local`, `repository-policy`, and `enforced-control` claims. Metaflow ASDD is explicitly an internal, tool-neutral label; Review concern separation is distinct from reviewer independence.
 - Manifest hashing now rejects non-canonical source bytes, so third-party `shasum` output must equal the recorded SHA-256.
@@ -84,6 +126,9 @@ Review corrections:
 
 Validation retries and rejected checks:
 
+- The first Revision 3 `check-all --strict` run exposed that the old flag meant “terminal-only” and therefore could not validate an active `verifying` Change. Strict mode now fully validates active Changes with `completion_state: pending` and retains the all-Tasks-complete requirement for terminal Changes; positive regression coverage was added.
+- The first generated Revision 3 Dossier reproduced three Markdown hard-break spaces from the user-supplied Plan and failed `git diff --check`. The transcript snapshot normalized those line endings without changing message wording or order, then deterministic generation and whitespace validation passed.
+- Four new Task Record patches were initially resolved against the main workspace. They were copied into the authorized MCL worktree and deleted from the main workspace immediately; a re-read confirmed main remained at `47ffd86e`, nine commits ahead of `origin/main`, with only the predecessor plan and Swiftgram directory untracked.
 - Ruby 2.6 rejected the newer `YAML.load_file(..., aliases:)` API; the same Psych parser's AST entrypoint then parsed all Workflow files successfully.
 - A broad strict-JSON sweep was rejected because pre-existing JSONC `tsconfig` files and a legacy JPEG named `meta.json` are intentionally not strict JSON. The rerun parsed only the 19 contracts changed by MF-1.
 - Hosted run `31324658384` exposed a dependency-graph prerequisite plus sparse governance and Viewer omissions. The dependency graph was enabled and re-read; sparse path and tracked-link handling were corrected.

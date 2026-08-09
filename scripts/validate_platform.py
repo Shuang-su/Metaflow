@@ -12,6 +12,13 @@ from pathlib import Path
 
 MIGRATION_NAME = re.compile(r"^[0-9]{14}_[a-z0-9_]+\.sql$")
 PINNED_ACTION = re.compile(r"^[^\s@]+@[0-9a-f]{40}(?:\s+#.*)?$")
+DEPENDABOT_UPDATE = re.compile(
+    r"^(?P<indent>\s*)-\s+package-ecosystem:\s*(?P<ecosystem>[^#]+?)\s*(?:#.*)?$"
+)
+DEPENDABOT_DIRECTORY = re.compile(
+    r"^\s+directory:\s*(?P<directory>[^#]+?)\s*(?:#.*)?$"
+)
+VERSIONED_SOURCE_DIRECTORY = re.compile(r"^(?:supersplat|supersplat-viewer)-v", re.IGNORECASE)
 CREATE_TABLE = re.compile(
     r"create\s+table\s+(?:if\s+not\s+exists\s+)?"
     r"(?P<table>[a-z_][a-z0-9_]*\.[a-z_][a-z0-9_]*)"
@@ -48,6 +55,54 @@ def _load_toml(path: Path) -> dict:
             return tomllib.load(handle)
     except tomllib.TOMLDecodeError as error:
         raise ValidationError(f"{path}: invalid TOML: {error}") from error
+
+
+def _yaml_scalar(value: str) -> str:
+    """Return the scalar shape used by the repository's small YAML manifests."""
+    scalar = value.strip()
+    if len(scalar) >= 2 and scalar[0] == scalar[-1] and scalar[0] in {'"', "'"}:
+        return scalar[1:-1]
+    return scalar
+
+
+def _is_versioned_source_directory(directory: str) -> bool:
+    components = [component for component in directory.split("/") if component]
+    return any(VERSIONED_SOURCE_DIRECTORY.match(component) for component in components)
+
+
+def validate_dependabot(root: Path) -> list[str]:
+    """Reject npm update targets that point at immutable, versioned source snapshots."""
+    path = root / ".github" / "dependabot.yml"
+    if not path.is_file():
+        return [".github/dependabot.yml: missing"]
+
+    errors: list[str] = []
+    current_ecosystem: str | None = None
+    current_indent = -1
+    for line_number, line in enumerate(path.read_text(encoding="utf-8").splitlines(), start=1):
+        update = DEPENDABOT_UPDATE.match(line)
+        if update:
+            current_ecosystem = _yaml_scalar(update.group("ecosystem"))
+            current_indent = len(update.group("indent"))
+            continue
+
+        # A new list item at the update indentation ends the current update block.
+        list_item = re.match(r"^(?P<indent>\s*)-\s+", line)
+        if list_item and len(list_item.group("indent")) <= current_indent:
+            current_ecosystem = None
+            current_indent = -1
+            continue
+
+        directory = DEPENDABOT_DIRECTORY.match(line)
+        if current_ecosystem != "npm" or not directory:
+            continue
+        target = _yaml_scalar(directory.group("directory"))
+        if _is_versioned_source_directory(target):
+            errors.append(
+                f".github/dependabot.yml:{line_number}: npm updates must not target "
+                f"versioned source directory {target}"
+            )
+    return errors
 
 
 def validate_netlify(root: Path) -> list[str]:
@@ -168,6 +223,7 @@ def scan_secrets(root: Path) -> list[str]:
 
 def validate(root: Path, include_workflows: bool = True) -> dict:
     checks = {
+        "dependabot": validate_dependabot(root),
         "netlify": validate_netlify(root),
         "supabase": validate_supabase(root),
         "secrets": scan_secrets(root),

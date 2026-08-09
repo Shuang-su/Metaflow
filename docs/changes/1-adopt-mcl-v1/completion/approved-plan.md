@@ -10,1237 +10,224 @@ owner: Shuang-su
 created: 2026-08-09
 updated: 2026-08-10
 issue: https://github.com/Shuang-su/Metaflow/issues/1
-plan_revision: 2
+plan_revision: 3
 completion_state: pending
 supersedes: null
 terminal_reason: null
 ---
 
-# Metaflow Change Lifecycle v1.0 正式规范与实施计划
+# MF-1 Revision 3 候选采纳、合并与合并后验证计划
 
-## 1. 规范总则
+## 1. 目标和结束状态
 
-### 1.1 规范用语
+本 Change 将 MCL v1 的候选规范、模板、Schema、校验器和试点自动化以可追溯方式合入 `main`，并取得真实的合并后证据。
 
-- “必须”：缺失时不得进入下一状态。
-- “禁止”：任何流程等级均不得违反。
-- “应当”：默认执行；不执行时必须在 Completion Dossier 中记录理由、风险和批准人。
-- “可以”：按 Change 实际需要选择。
-- “完成”：授权范围已实现、验证、归档并交付；只完成代码、计划、局部测试或口头说明均不构成完成。
-
-### 1.2 方法与边界
-
-项目级正式方法为 `Metaflow Change Lifecycle（MCL）`。`Metaflow Agentic Spec-Driven Development（Metaflow ASDD）` 是 MCL 实施阶段的内部简称，只表示以 Spec、决策完备 Plan、受控执行和可验证 Evidence 为核心的工作方式；它不是外部项目、Skill、Plugin、产品、行业标准或依赖项的别名。MCL 与具体 Agent 工具、供应商、Skill、Plugin、单 Agent、多 Agent、串行或并行拓扑解耦。
+本 Revision 的目标结果是：
 
 ```text
-MCL
-├── Signal / Observation
-├── Proposal Governance
-├── Change Spec / Technical Design
-├── Implementation Plan
-├── Agentic Execution
-├── Evidence / Review
-├── Agent Completion Submission
-├── Release / Ledger / Version History
-├── Observation
-└── Change Closure Submission
+PR #3 已合并，MCL v1 候选规范、工具和试点控制已进入 main。
+已应用且重读验证的控制可逐项标记为 enforced-control。
+MF-1 继续处于 verifying，MCL 1.0 尚未 effective/closed。
 ```
 
-必须遵守以下原则：
+PR 合并、候选 CI 成功或 Ruleset 的局部应用都不单独构成 MCL 1.0 全量生效。
 
-1. Proposal 决定是否做，Spec 决定交付什么，Plan 决定怎样执行；三者不得互相替代。
-2. Implementation Plan 必须决策完备，不得把产品、架构或兼容性决定留给实施 Agent。
-3. Agent 在实施中遇到新决策时，必须返回 Proposal 或 Spec，不得在 Plan 内隐式扩大范围。
-4. 自动证据优先于 Agent 的完成声明。
-5. 每个 Change 只能有一个主要目标；无关重构必须拆分。
-6. 研究材料可以进入 `design` 域，但不得自动成为产品能力。
-7. 上游升级必须作为独立 Change 评估，禁止直接覆盖本地定制。
-8. Version History 只追加，不得重写已发布事实。
-9. 每次独立 Agent 任务结束时必须执行 Agent Completion Submission。
-10. Change 进入终态前必须执行 Change Closure Submission。
-11. 没有完整用户问题、Agent 行动与回复摘要、完整有效计划全文的任务不得声明完成。
-12. 规范正文只包含规则、接口、状态、Gate、例外、实施和验收；调研过程、案例介绍、方案合并说明和历史回复不得进入正文。
-13. 外部案例、共享对话、目录名称、单次 Plan 指令、已接受的单个 PR 或可选工具配置，只能作为 Evidence 或 Task 局部约束；不得据此宣称仓库已采用某个方法、Skill、Plugin 或工作流。
-14. 仓库级要求必须进入本仓库的权威规范或其他明确列出的规范性来源，并经过相应 Gate 批准；“已强制执行”还必须具有已应用并重新核验的自动化或权限证据。
-15. 工具特定指令只在其授权 Task 和有效 Plan 内生效。把它提升为跨 Change 政策必须新建或修订 Proposal、Spec 和相应控制，不得从一次执行中隐式继承。
-16. Review 关注点分离不等于审查者独立；只有非实现作者的不同人类或 Agent 实体完成审查时，才可以声明独立 Review。
+## 2. 权威输入和职责分离
 
-#### 1.2.1 采用范围与声明等级
+- `docs/metaflow-change-lifecycle-v1.0.md` 是 MCL 规则、接口、状态、Gate、例外、控制和验收的唯一规范真源。
+- `proposal.md` 记录为什么采纳候选 MCL 以及人类决策；`spec.md` 记录 MF-1 必须实现的可验证行为。
+- 本文件只记录 MF-1 的执行顺序、验证、合并、停止、回滚和接续条件，不复制 MCL 规范。
+- `evidence.md` 只记录真实执行过的命令、外部写入和重读结果。
+- `completion/approved-plan.md` 由 Completion 流程保存本 Revision 最终有效全文；它是生成交付物，不是第二份 MCL 规范。
 
-所有方法、工具和控制的采用声明必须按下表分类。该分类用于限制声明范围，不替代 system、developer、当前用户和仓库规则之间的指令优先级。
+本 Revision 的授权来源是当前用户批准的《MCL v1 修订、合并与合并后验证计划》。另一 Codex 任务 `codex://threads/019fe7a7-f99a-7431-aa29-ca775f3a1c61` 只作为“前身计划应并入 MF-1”的决策来源；该任务中的 Viewer/Editor 文档工作不属于 MF-1。
 
-| 等级 | 形成方式 | 允许声明 | 禁止声明 |
-| --- | --- | --- | --- |
-| `reference` | 外部资料、案例、研究、共享对话或历史记录 | “被参考”“提供了证据” | “项目已采用”“项目原生内置” |
-| `task-local` | 当前 Task 的用户要求、获准 Plan 或工具指令 | “本 Task 必须/可以使用” | 推广为其他 Task、Change 或仓库政策 |
-| `repository-policy` | 已批准并合入的 MCL、`AGENTS.md`、`CONTRIBUTING.md`、Proposal、Spec 或其他明确规范性来源 | 在其适用范围内声明仓库要求 | 在合入或生效前声明已经实施或强制 |
-| `enforced-control` | 已应用并重新核验的 CI、Ruleset、Schema、分支保护、权限或部署控制 | 按证据声明当前自动阻断能力 | 仅凭文档、模板、Workflow 源码或计划声明已强制 |
+## 3. 范围
 
-要求：
+### 3.1 包含
 
-- Proposal、Spec、Plan、Task Record、Evidence 和最终回复必须使用与实际等级相符的措辞。
-- `accepted`、`merged`、`configured`、`enabled`、`verified` 和 `enforced` 必须分别记录，不得互相替代。
-- 外部方法或可选工具即使产生了可取做法，也应当把做法转换成本仓库可验证的行为契约，不得让外部名称成为隐式依赖。
-- Agent Completion Record 必须记录执行方法、工具特定指令的来源与适用范围，以及 Review 是否由实现作者本人完成。
+1. 归档用户提供的 1,575 行 MCL 前身计划，保留字节和 SHA-256。
+2. 建立兼容入口和章节处置记录，把规范、Change 实施、历史对话和参考调研分开。
+3. 修复多 Task Completion 模型，保证历史 Task Record 不因后续问题或 Plan 修订而被改写。
+4. 以向后兼容方式增加 Completion Manifest 1.1 的每 Task request/Plan 摘要和 `sourceMaterials`。
+5. 明确单一真源、MCL 自身变更管理、两稳定版本复盘和候选合并语义。
+6. 移除 PR #3 中与 MCL 无关或越界的带版本号快照依赖变更及 Dependabot 更新目标。
+7. 完成 PR #3 的本地验证、托管 Gate、Preview、squash merge、合并后 `main` 验证和可证明的 Ruleset 应用。
 
-### 1.3 产物职责
+### 3.2 不包含
 
-| 产物 | 必须回答的问题 | 禁止承担的职责 |
+- Editor 源码迁移或恢复完整上游 `supersplat-v2.28.0`。
+- Viewer/Editor 文档体系建设。
+- PR #4–#8 的 Adopt、Defer、Skip、关闭或合并。
+- Design、Swiftgram 或任何产品功能变更。
+- 生产部署、Stable Release、MCL 1.0 全量生效或 MF-1 关闭。
+- 强制安装或调用 Superpowers、其 `subagent-driven-development` 指令或其他外部 Skill/Plugin。任何此类指令均只在明确授权的 Task 内属于 `task-local`。
+
+## 4. 保护现场和不可变约束
+
+1. 实施只在 `/Volumes/Prism/Metaflow-mcl-v1` 的 `codex/mcl-v1` 分支进行。
+2. 执行前为该分支和 `/Volumes/Prism/Metaflow` 当前本地 `main` 建立可恢复 Git ref，记录 ref 名和对应 SHA。
+3. 禁止 pull、rebase、reset、checkout 或 merge 主工作区的本地 `main`；其领先 `origin/main` 的 9 个提交必须保持可恢复。
+4. 禁止移动、删除或提交主工作区的未跟踪 Swiftgram 目录。
+5. 前身计划归档后，主工作区中的未跟踪原件仍作为本地恢复副本，不得移动或删除。
+6. `completion/task-records/MF-1-T01.md` 必须保持字节级不变，其 SHA-256 必须始终为 `616c6d3390b6663882d54551be4e6c74f906e177601c9af72311fa873e33101d`。
+7. 外部写入必须在执行后通过 GitHub、Netlify 或相应 API 重读；不得仅以命令成功返回作为证据。
+
+## 5. MF-1-T02–T05：Revision 3 与合并准备
+
+为满足“每个独立提示且具有终止回复的 Agent 都有自己的 Record”，合并准备按以下 Task 分工；结束边界仍是“PR #3 已具备合并条件”，不包含合并操作。
+
+| Task | 实现者 | 授权范围 |
 | --- | --- | --- |
-| Proposal / RFC | 是否值得做，为什么现在做 | 直接规定文件级实现步骤 |
-| Change Spec | 用户、接口、数据和兼容行为是什么 | 未经批准改变产品方向 |
-| Technical Design | 系统结构、数据流、失败和迁移如何设计 | 替代用户行为验收 |
-| Implementation Plan | 按什么顺序实现、验证和提交 | 新增需求或架构决定 |
-| Evidence | 实际是否满足 Spec | 修改验收标准 |
-| Agent Completion Record | 单次 Agent 被问了什么、做了什么、如何回复、执行了哪份完整计划 | 暴露隐藏推理或用摘要代替证据 |
-| Change Completion Dossier | 整个 Change 的完整任务、计划、执行、发布和关闭记录 | 重写已合并的任务记录 |
-| Change Ledger | 实际行为演化、风险和维护约束 | 作为结构化版本真源 |
-| Version History | 哪些 Change 在哪个版本交付 | 表示未发布工作 |
+| `MF-1-T02` | Codex subagent | Completion 多 Task 不可变模型、Manifest 1.1、Schema 和回归测试 |
+| `MF-1-T03` | Codex subagent | 权威规范、Revision 3 Plan、前身计划归档、章节处置和候选语义 |
+| `MF-1-T04` | Codex subagent | Dependabot/versioned snapshot 边界、平台校验及精确恢复两个 package 文件 |
+| `MF-1-T05` | primary Codex agent | 集成、完整用户请求、全量验证、双重作者自审、Completion 生成、PR 更新和 Ready Gate |
 
-### 1.4 风险分级
+T02–T04 只能修改各自获准的文件；T05 负责审查、整合和记录它们的来源 Task ID、实际结果及任何偏差。共享构建目录和外部状态操作保持串行。
 
-| 等级 | 适用范围 | 必需产物 |
-| --- | --- | --- |
-| T0 | 文档、研究资料、无行为变化的维护 | 范围说明；Agent 参与时必须有轻量 Plan、Agent Completion Record 和完成交付 |
-| T1 | Bug、小型改进、接口不变的局部行为修复 | Issue 或 PR 记录、复现或 RED 测试、轻量 Plan、Evidence、Completion Dossier |
-| T2 | 功能、交互、UI、数据能力、`/design` 产品能力 | Issue、必要时 Proposal、Spec、完整 Plan、Preview、Evidence、全部任务记录、Completion Dossier、Ledger/Version |
-| T3 | 架构、公共格式、跨组件策略、安全边界、破坏性迁移、大规模上游同步 | Proposal/RFC、必要的 ADR、Spec、分阶段 Plan、Beta、迁移、回滚、监控、全部任务记录和完整关闭档案 |
+### 5.1 归档前身计划
 
-T0/T1 可以走快路径，但不得豁免 Agent Completion Submission。
+1. 从 `/Volumes/Prism/Metaflow/docs/metaflow-change-lifecycle-v1.0-complete-plan.md` 逐字节复制到 `completion/source-materials/metaflow-change-lifecycle-v1.0-complete-plan.md`。
+2. 复制前后分别验证 1,575 行且 SHA-256 均等于 `37f45424cc233af72801e1d91053d4581d1bbcdfb73627612d6f28f018af85a3`。
+3. 将原路径 `docs/metaflow-change-lifecycle-v1.0-complete-plan.md` 变为兼容入口，只链接非规范原文归档、权威规范、本 Plan 和 Completion Dossier。
+4. 建立章节处置表，按 `archived / absorbed / superseded / evidence-only / change-plan` 标注前身计划的每个顶层章节去向。
+5. 把完整用户问题、Agent 行动、历史回复、案例和调研保留在原文归档和 Evidence/Completion，禁止将这些叙述复制进权威规范。
 
-### 1.5 状态模型
+### 5.2 修复多 Task Completion 契约
 
-```text
-Observed
-→ Proposed
-→ Accepted
-→ Specified
-→ Planned
-→ Implementing
-    ↳ Task Assigned
-    ↳ Task Running
-    ↳ Agent Completion Submitted
-    ↳ 下一任务或返回修正
-→ Verifying
-→ Ready for Release
-→ Released
-→ Observing
-→ Closing
-→ Change Completion Submitted
-→ Closed
+1. 先增加失败回归用例：在不改动 T01 的前提下添加 T02 和 Revision 3，旧 Task 的 request/Plan hash 不应被新内容替换。
+2. 调整 Task Record 和生成器，使每个 Task 封存自己的完整问题、message count、request SHA-256、Plan 全文、Plan revision 和 Plan SHA-256。
+3. 将 Change 层 transcript、summary、approved Plan、Dossier 和 Manifest 改为可从不可变 Task Record 及当前 Change 源确定性生成的聚合产物。
+4. 在 `completion/plan-revisions.json` 增加 Plan revision/amendment 索引，记录每个 revision 的 hash、适用 Task、修改理由和批准来源。
+5. 将 Manifest 生成版本升级为 `1.1`，保持读取 `1.0`；为每个 Task 输出 request/Plan 摘要，并为前身计划输出 `sourceMaterials` 条目。
+6. 通过 `completion/source-materials.json` 显式登记源材料，校验路径边界、存在性、唯一性、SHA-256、secret/redaction 及 Dossier checksum；`nonNormative` 材料不得被当作规范或采用证据。
+7. 运行新增的正负用例，确认 T01 不变、新 Task 不污染旧 Task，且 Change 聚合可幂等重建。
+
+### 5.3 分离规范、Plan 和生效语义
+
+1. 从权威规范删除 MF-1 特有的阶段日程、本地分支事实和历史调研，只保留通用规则、接口、Gate、例外、控制和验收。
+2. 将 MF-1 的实际实施顺序、分支保护、验证、合并、回滚和未完成 Gate 只保留在本 Plan。
+3. 将候选期强制范围限定为 MF-1 和明确指定的试点 Change；未完成 activation Gate 时禁止声明 MCL 1.0 已是全库 `repository-policy`。
+4. 规定 MCL 自身修订必须走 Change，重复事实必须有唯一真源和一致性检查，每两个稳定版本必须执行指标化复盘。
+5. 保持 Metaflow ASDD 工具中立；不将 Superpowers、单次 PR Plan、外部目录或子 Agent 拓扑表述为仓库原生能力。
+
+### 5.4 移除 PR #3 非 MCL 内容
+
+1. 将 `supersplat-v2.28.0/package.json` 和 `package-lock.json` 恢复为 PR 基线版本，确保 PR #3 不携带该快照的依赖升级。
+2. 不恢复整个上游源码，不移动 Editor 源码。
+3. 从 `.github/dependabot.yml` 删除所有带版本号目录的 npm 更新目标，只保留真正活动的可维护路径和 GitHub Actions。
+4. 增加治理负向测试：Dependabot 目标匹配 `supersplat-v*` 或 `supersplat-viewer-v*` 时失败。
+5. 明确组件路径所有权只负责 CI 路由，不自动授予修改或依赖升级权限。
+6. 在 Evidence 中保留 PR #4–#8 和 Issue #9 已发生的事实，但不在 MF-1 中作出 Adopt/Defer/Skip 或关闭处置。
+7. 保留 MCL 浏览器验证确实依赖的 Playwright 内容；其他活动 Viewer 安全补丁只有在 Evidence 明确用途并完成全量验证时才能保留。
+
+### 5.5 T02–T05 Completion 和 PR 准备
+
+1. 保存本 Task 从开始到终止的全部用户消息原文，不以摘要或仅 MCL 节选代替。
+2. 生成 Revision 3 的 transcript、summary、approved Plan、Manifest 和 Dossier；所有 checksum 从实际文件计算。
+3. 执行两个分开的作者自审 pass：Spec Compliance 审查范围、漏项和越界；Code Quality 审查正确性、可维护性、安全、测试和幂等性。禁止称为独立 Review。
+4. 更新 PR #3 正文，记录 Revision 3、前身计划归档、当前验证、作者自审、候选语义、未完成 activation Gate 和不在范围的后续工作。
+5. 从 PR 标题移除 `[skip netlify]`，推送当前 Head，使新的 GitHub 检查和 Netlify Preview 针对精确的新 Head 执行。
+6. T02–T04 各自终止时生成独立 Record；T05 只有在整合它们并完成全量验证后才能终止。
+7. 所有合并前 Gate 成功后将 PR 从 Draft 改为 Ready，重读 PR 状态，然后将 T05 记录为 `complete`。
+8. 任一 Gate 失败或仍无证据时，保持 PR 未合并，将受影响 Task 记录为 `partial` 或 `blocked`，明确失败命令、剩余范围和接续条件。
+
+## 6. 合并前验证
+
+### 6.1 本地命令
+
+在干净的 MCL worktree 中至少执行：
+
+```bash
+node --test scripts/tests/*.test.mjs
+python3 -m unittest discover -s scripts/tests -p 'test_*.py'
+node scripts/mcl.mjs generate docs/changes/1-adopt-mcl-v1
+node scripts/mcl.mjs check-all --strict
+python3 scripts/validate_platform.py
+node scripts/check_markdown_links.mjs
+git diff --check
 ```
 
-旁路终态：
+还必须执行并记录：
 
-```text
-Rejected
-Parked
-Superseded
-Rolled Back
-```
+- Viewer：`npm ci`、`npm test`、`npm run type:check`、`npm run build`、开发/生产构建双模式 Playwright；
+- Editor：`npm ci`、`npm run lint`、`npm run build`；
+- Completion：Manifest 1.0 兼容、1.1 正负用例、多 Task、旧 revision 不可变、source-material checksum、secret/redaction 和幂等生成；
+- 治理：带版本号 snapshot 不得是 Dependabot npm 目标；规范、Plan、模板和生成文件不得形成冲突真源；
+- 不可变：T01 SHA-256、前身原文行数和 SHA-256、本地 `main` ref 及 Swiftgram 目录状态均与实施前一致。
 
-规则：
+### 6.2 托管 Gate 和 Preview
 
-- T0/T1 无独立发布时，可以从 `Verifying` 直接进入 `Closing`。
-- `Rejected`、`Parked`、`Superseded` 和 `Rolled Back` 同样必须形成与实际阶段相符的关闭档案。
-- 单次 Agent 任务状态固定为 `complete / partial / blocked / failed / cancelled`。
-- `partial`、`blocked` 或 `failed` 记录必须说明剩余范围和接续条件；Change 不得因此被误标为完成。
-- Change 状态增加 `closing`，用于区分“工作停止”与“完整归档并正式关闭”。
+- PR #3 的当前 Head 必须通过所有组件作业、两类 CodeQL、dependency review 和稳定名称 `required / gate`。历史 Head 的绿色结果不得代替。
+- `netlify.toml` 变更要求当前 Head 的 Deploy Preview 成功，并通过 `/`、`/editor/` 和版本数据端点的 HTTP smoke。
+- GitHub 和 Netlify 结果必须通过 API 重读，记录 run/deploy ID、Head SHA、状态、URL 和查询时间。
+- 任一 required check、Preview、checksum、secret 扫描或确定性生成失败时，合并 Gate 失败。
 
-## 2. 公共契约与仓库接口
+## 7. MF-1-T06：合并与合并后证据
 
-本方案不修改 Viewer、Editor 或 Design 的运行时 API；新增的是仓库治理、文档、元数据和 CI 接口。
+T06 必须在 T02–T05 全部终止后串行启动，使用独立 Task ID、完整用户问题、Plan Snapshot 和终止回复。
 
-### 2.1 Change ID、Task ID 与目录
+1. 重读 PR #3 的 Head SHA、Draft/Ready 状态、mergeability、审批、未解决对话和当前 Head 的所有检查。
+2. 仅在第 6 节及第 9 节的所有合并 Gate 成功时执行 squash merge。
+3. 合并后立即重读 PR，记录 `merged_at`、实际 merge commit、原 Head 和 `origin/main`。
+4. 从精确的远端 `main` SHA 创建新的 detached 或临时 worktree，运行必需的 MCL、平台、链接和基线检查；禁止更新主工作区领先 9 个提交的本地 `main`。
+5. 等待该 merge commit 的首个 `main` 工作流，重读并验证稳定名称 `required / gate` 成功。
+6. 只有当主分支上该检查名真实存在且成功后，才按 `.github/rulesets/main.json` 应用 Ruleset；应用后必须通过 GitHub API 重读详细规则和 active 状态。
+7. Ruleset 应用或重读失败时，记录为未强制的剩余 Gate；禁止使用 `enforced-control` 声明。PR 已合并的事实不因此被改写。
+8. 把 merge commit、`main` run、Ruleset 状态、合并后验证和剩余 activation Gate 写入 Issue #1。Issue 写入后立即重读评论或本体。
+9. 在 `codex/mf-1-post-merge-evidence` 分支上保存 T06 Record、Evidence 及后续 Completion，通过独立后续 PR 合入；禁止通过改写 T01–T05 补写事后事实。
+10. T06 以实际结果记录 `complete / partial / blocked / failed`；仅 PR 已合并不允许将 MF-1 改为 `closed`。
 
-T1–T3 使用 GitHub Issue 号：
+## 8. 回滚和故障处置
 
-```text
-Change ID: MF-<issue-number>
-Task ID:   MF-<issue-number>-T<两位序号>
-```
+- 合并前发现规范越界、多 Task 数据污染、快照变更、未登记的源材料或无法重建 Dossier 时，停止合并，在当前分支修正或返回 Spec。
+- 合并前 CI/Preview 失败时保持 PR 开放且未合并，不通过 Review 文字豁免自动 Gate。
+- 合并后若候选 MCL 导致 `main` 阻断，优先创建 revert PR 恢复 merge commit，保留原 PR、T01/T02/T03 和 Evidence；不 reset 或 force-push `main`。
+- Ruleset 配置错误导致无法正常修复时，使用仓库管理员可审计的 Ruleset 更新或暂时禁用，随后重读并记录详细差异；不得静默放宽控制。
+- 任何回滚都必须新增 Task Record 和 Version/Ledger 或 Issue 事实，不得删除原合并证据。
 
-无 Issue 的 T0 使用：
+## 9. PR #3 合并 Gate
 
-```text
-Change ID: MF-T0-<YYYYMMDD>-<slug>
-Task ID:   MF-T0-<YYYYMMDD>-<slug>-T<两位序号>
-```
+PR #3 只有在以下条件全部成立时才能合并：
 
-目录固定为：
+- 前身计划已原文归档，行数和 SHA-256 精确；
+- T01 字节未变，历史 request/Plan 没有被 Revision 3 回灌；
+- 多 Task Completion、Manifest 1.0 兼容和 1.1 `sourceMaterials` 的正负用例通过；
+- 权威规范和 MF-1 Plan 职责分离，候选、生效和强制声明无歧义；
+- `supersplat-v2.28.0/package.json` 和 `package-lock.json` 不再出现在 PR diff；
+- Dependabot 不再指向任何带版本号的源码或快照目录；
+- PR 正文、Task Record、Evidence 和 Dossier 不包含虚假生效、独立 Review、Preview 成功或 enforced 声明；
+- 当前 Head 的本地命令、GitHub Gate、两类 CodeQL、dependency review 和 Netlify Preview/smoke 全部通过；
+- PR 为 Ready、mergeable，无未解决审查对话，且所有证据指向精确当前 Head；
+- 本地 `main` 的 9 个提交、未跟踪前身计划原件和 Swiftgram 目录保持不变。
 
-```text
-docs/changes/<issue-number>-<slug>/
-├── proposal.md
-├── spec.md
-├── plan.md
-├── evidence.md
-└── completion/
-    ├── manifest.json
-    ├── request-transcript.md
-    ├── approved-plan.md
-    ├── agent-action-reply-summary.md
-    ├── closure.md
-    ├── task-records/
-    │   ├── MF-123-T01.md
-    │   └── MF-123-T02.md
-    └── dossier.md
-```
+## 10. 延后的生效 Gate
 
-T0 使用 `docs/changes/t0/<YYYYMMDD>-<slug>/`，沿用相同的 `completion/` 契约。
+PR #3 合并后，MF-1 保持 `status: verifying` 和 `completion_state: pending`。以下工作不在 T02/T03 中执行，但必须在将 MCL 改为 `effective` 或将 MF-1 改为 `closed` 前有完整证据：
 
-### 2.2 Change Front Matter
+- MCL 规范第 5.2 节列出的快路径、Design/Promotion、Upstream Sync、多 Task T2、长文交付、接续和回滚试点；
+- Preview/Beta/Stable、不可变制品、production smoke、观察和关闭演练；
+- Ruleset 的实际阻断验证，以及人类负责人的最终 activation/closure 决定；
+- 填写非空 `effective_date`、最终 Dossier、Ledger/Version 链接和可审计关闭回复。
 
-```yaml
----
-change_id: MF-123
-title: Short descriptive title
-status: planned
-component:
-  - viewer
-risk: T2
-type: product
-owner: Shuang-su
-created: 2026-08-09
-updated: 2026-08-09
-issue: https://github.com/Shuang-su/Metaflow/issues/123
-plan_revision: 1
-completion_state: pending
-supersedes: null
-terminal_reason: null
----
-```
+## 11. Plan 修订记录
 
-合法 Change 状态：
+### Revision 1 — 2026-08-09
 
-```text
-observed
-proposed
-accepted
-specified
-planned
-implementing
-verifying
-ready-for-release
-released
-observing
-closing
-closed
-rejected
-parked
-superseded
-rolled-back
-```
-
-### 2.3 组件注册表
-
-新增 `metadata/components.json`，作为路径分类、CI 路由、版本归属和 CODEOWNERS 的共同真源。
-
-固定组件：
-
-| ID | 类型 | 归属 | 默认检查 |
-| --- | --- | --- | --- |
-| `viewer` | product | Viewer 运行代码、数据和版本元数据 | test、typecheck、build、E2E、visual |
-| `editor` | product | Active Editor、导出和 Editor 元数据 | lint、build、export/reopen contract |
-| `design` | lab / future product | Liquid Glass 研究、Storybook、未来 `/design` | typecheck、storybook、visual、license |
-| `data` | product data | 场景、索引、SOG/PLY/LOD/voxel | schema、hash、fixture compatibility |
-| `platform` | infrastructure | scripts、Netlify、analytics、Supabase | config、script、smoke、security |
-| `reference` | upstream snapshot | 非 Active 的上游快照 | source、version、license、integrity |
-
-Schema：
-
-```json
-{
-  "schemaVersion": "1.0",
-  "components": [
-    {
-      "id": "viewer",
-      "kind": "product",
-      "ownedPaths": ["metaflow-viewer/**"],
-      "versionSource": "metadata/version-history.json",
-      "checks": [
-        "viewer-test",
-        "viewer-typecheck",
-        "viewer-build",
-        "viewer-e2e"
-      ],
-      "deployTarget": "/",
-      "upstream": {
-        "repository": "playcanvas/supersplat-viewer",
-        "versionField": "current.upstream.version"
-      }
-    }
-  ]
-}
-```
-
-具体路径必须由真实构建和部署依赖确定，禁止在多个 Workflow 中重复维护另一套路径列表。
-
-### 2.4 Agent Completion Record
-
-每次独立提示并具有自己终止回复的 Codex、IDE Agent、外部 AI 或其他生成式执行工具，必须产生一份 Agent Completion Record。
-
-Shell、浏览器、CI、构建器等普通工具调用属于父 Agent 的行动，不单独建立 Agent Completion Record。
-
-每份记录必须包含：
-
-1. `task_id`、`change_id`、工具名称、来源任务或任务 ID；
-2. 开始和结束时间；
-3. 授权范围；
-4. 任务前后的分支和 Git ref；
-5. 完整用户问题；
-6. 完整任务计划；
-7. Agent 行动摘要；
-8. Agent 回复摘要；
-9. 文件、Git、云端、PR、部署或消息等实际副作用；
-10. 验证命令、退出码、数量和证据；
-11. 失败、重试、跳过和未验证内容；
-12. Plan 偏差及批准记录；
-13. 最终状态和接续条件；
-14. 最终回复或交付文件的路径和校验值；
-15. 执行拓扑、指令权限来源、实现者标识、Review 身份关系和强制控制证据。
-
-#### 执行方法与权限
-
-Task Record front matter 必须包含：
-
-```yaml
-execution_topology: single-agent
-instruction_authority: task-local
-authority_source: current Task Plan
-implementer_id: codex/<source-task-id>
-review_relationship: author-self-review
-reviewer_id: codex/<source-task-id>
-control_evidence: null
-```
-
-规则：
-
-- `execution_topology` 合法值为 `single-agent / multiple-independent-tasks / subagent / external-tool`。
-- `instruction_authority` 使用 1.2.1 的四个等级。
-- `repository-policy` 的 `authority_source` 必须是仓库内实际存在的规范性文件路径；合入和生效状态仍必须由 Git 与 Change Evidence 证明。
-- `author-self-review` 的 `reviewer_id` 必须等于 `implementer_id`；`distinct-non-author` 必须提供不同标识；`not-performed` 必须使用 `reviewer_id: null`。
-- `enforced-control` 必须提供 `control_evidence`；Evidence 必须能证明控制已应用并重新读取，只有配置草稿或 Workflow 源码时不得使用该等级。
-- Markdown 章节必须解释多个工具或多种权限并存时的实际边界；front matter 记录影响当前 Task 的最高权限等级。
-
-#### 完整用户问题
-
-“完整用户问题”必须满足：
-
-- 收录任务开始到终止之间所有用户编写的需求、补充、纠正、约束和验收要求；
-- 保留原始顺序和原文，不以 Agent 复述代替；
-- 文本附件属于问题组成部分时，必须保存全文或版本化副本；
-- 二进制或超大附件必须记录名称、来源、SHA-256 和可访问位置；
-- 不得收录与当前 Task 无关的其他对话；
-- 不得收录 system/developer 指令、隐藏推理或内部 chain-of-thought；
-- 凭据、Token、私钥和依法不得公开的信息必须显式替换为 `[REDACTED: 原因]`，并在 `manifest.json` 记录位置和原因；禁止静默删除。
-
-#### 完整计划全文
-
-- 每次 Agent 发生变更前必须已有 Task Plan Snapshot。
-- T0/T1 可以使用轻量 Plan，但仍必须包含目标、范围、步骤、验证、风险和停止条件。
-- T2/T3 必须引用已批准的完整 Implementation Plan。
-- Record 必须保存 Agent 实际获准执行的计划全文，不能只保存链接或摘要。
-- 执行中修改 Plan 时，必须保存原版本、修改原因、批准记录和最终有效版本。
-- 紧急生产修复至少必须在执行前记录目标、允许修改范围、验证和回滚；不得以“紧急”为由完全省略 Plan。
-
-#### Agent 行动与回复摘要
-
-行动摘要必须按顺序覆盖：
-
-- 影响判断的环境检查和调研；
-- 所有文件或外部状态变更；
-- 关键命令和工具调用；
-- 失败、重试及替代路径；
-- 测试、构建、截图、性能、部署和事后核验；
-- 未执行事项和原因。
-
-回复摘要必须覆盖：
-
-- 向用户报告的阶段结果；
-- 用户在执行中作出的决定；
-- Agent 承诺的范围；
-- 最终交付、限制、风险和后续事项。
-
-摘要不得伪装成原始日志，也不得包含隐藏推理。必要的完整命令输出应保存为 Evidence 或 CI artifact。
-
-### 2.5 Change Completion Dossier
-
-Change 进入 `Closing` 后，必须汇总全部 Task Record，生成一个确定性的 `dossier.md`。
-
-固定章节顺序：
-
-```text
-1. Change Metadata
-2. Complete User Request Transcript
-3. Agent Task Inventory
-4. Agent Actions and Replies Summary
-5. Complete Effective Plan
-6. Plan Amendments and Deviations
-7. Implementation and External Effects
-8. Verification and Review Evidence
-9. Release, Rollback and Observation
-10. Remaining Risks and Follow-up Changes
-11. Ledger / Version / PR / Release Links
-12. Checksums and Redaction Manifest
-13. Closure Decision
-```
-
-规则：
-
-- `dossier.md` 必须由源文件生成，禁止手工维护第二份内容。
-- 已合并的 Task Record 视为不可变；更正必须新增 amendment，不得覆盖原记录。
-- `approved-plan.md` 必须是最终有效计划全文，并保留原始计划与所有批准修订的关系。
-- 所有 `partial`、`blocked`、`failed` 和 `cancelled` Task 必须在 `closure.md` 中逐项解释其处置。
-- 未解决的阻断项必须生成新的 Change 或阻止当前 Change 关闭。
-- T2/T3 的 Dossier 必须由人类负责人确认；CI 和 AI Review 只能验证结构和一致性。
-- 仅提供摘要、无法访问的链接或被截断的计划，不构成 Completion Submission。
-
-### 2.6 Completion Manifest
-
-`completion/manifest.json` 使用以下接口：
-
-```json
-{
-  "schemaVersion": "1.0",
-  "changeId": "MF-123",
-  "terminalState": "closed",
-  "risk": "T2",
-  "components": ["viewer"],
-  "request": {
-    "path": "request-transcript.md",
-    "sha256": "<sha256>",
-    "messageCount": 4
-  },
-  "plan": {
-    "path": "approved-plan.md",
-    "sha256": "<sha256>",
-    "revision": 2,
-    "source": "../plan.md"
-  },
-  "agentSummary": {
-    "path": "agent-action-reply-summary.md",
-    "sha256": "<sha256>"
-  },
-  "taskRecords": [
-    {
-      "taskId": "MF-123-T01",
-      "tool": "codex",
-      "sourceTaskId": "<optional-platform-id>",
-      "status": "complete",
-      "record": "task-records/MF-123-T01.md",
-      "sha256": "<sha256>"
-    }
-  ],
-  "closure": {
-    "path": "closure.md",
-    "sha256": "<sha256>"
-  },
-  "dossier": {
-    "path": "dossier.md",
-    "sha256": "<sha256>"
-  },
-  "redactions": [],
-  "generatedAt": "2026-08-09T00:00:00Z"
-}
-```
-
-校验必须覆盖：
-
-- 必需文件和章节存在；
-- ID、风险、组件和状态一致；
-- SHA-256 正确；
-- Plan revision 与批准记录一致；
-- Task 序号无重复或缺口；
-- 所有 Task 均处于终态；
-- 所有非完成 Task 均有处置；
-- Dossier 可确定性重建；
-- 不存在占位符、秘密、缓存或构建产物；
-- `closed`、`released` 和 `rolled-back` 状态具有相应证据。
-
-### 2.7 最终回复交付契约
-
-每次 Agent 任务的最终回复必须按以下顺序交付：
-
-1. 状态和实际结果；
-2. 用户完整问题；
-3. Agent 行动与回复摘要；
-4. 完整有效计划全文；
-5. 验证、未验证内容和风险；
-6. Agent Completion Record / Dossier 的仓库路径、链接和 SHA-256；
-7. Change、PR、Commit、Release 和部署链接。
-
-交付方式：
-
-- 内容在工具限制内时，应当直接完整内联。
-- 内容超过单条消息限制时，必须在同一最终回复附带或链接完整可访问的版本化 Markdown 文件，并给出 SHA-256；不得只给节选。
-- 工具无法写入仓库时，必须把完整 Record 返回给具备写入权限的父任务，由父任务原样导入并记录 `imported_from`。
-- 归档尚未完成时，Change 不得关闭；最终状态必须报告为 `partial`。
-- Agent 不得在未运行完整验证或未完成交付契约时使用“全部完成”等表述。
-
-### 2.8 Ledger 与 Version History
-
-Version History 从 schema `1.0` 兼容升级到 `1.1`。新条目允许并在 MCL 生效后的用户可见 Change 中强制以下 trace：
-
-```json
-{
-  "trace": {
-    "changeId": "MF-123",
-    "issue": "<issue-url>",
-    "proposal": "docs/changes/123-example/proposal.md",
-    "spec": "docs/changes/123-example/spec.md",
-    "plan": "docs/changes/123-example/plan.md",
-    "pullRequest": "<pr-url>",
-    "evidence": "docs/changes/123-example/evidence.md",
-    "completionManifest": "docs/changes/123-example/completion/manifest.json",
-    "completionDossier": "docs/changes/123-example/completion/dossier.md",
-    "releaseTag": "viewer-v5.19.0",
-    "deployUrl": "<production-url>"
-  }
-}
-```
-
-规则：
-
-- 旧记录不强制回填 Completion 字段。
-- MCL 生效后的 T1–T3 必须具有 `trace.changeId`、PR 和 Completion Dossier。
-- Stable Release 必须具有 tag、Evidence、Completion 和 deploy 证据。
-- 回滚必须新增版本条目和新的关闭记录，不得修改原 Release。
-- Ledger 必须链接 Change ID 和 Completion Dossier，但不得复制结构化版本字段。
-
-### 2.9 分支、标签和 PR 接口
-
-分支：
-
-```text
-codex/mf-<issue>-<slug>
-feature/mf-<issue>-<slug>
-fix/mf-<issue>-<slug>
-```
-
-标签：
-
-```text
-viewer-vX.Y.Z
-editor-vX.Y.Z
-design-vX.Y.Z
-viewer-vX.Y.Z-beta.N
-```
-
-PR 模板必须包含：
-
-1. Change ID；
-2. Summary、Motivation、Behavior；
-3. Scope / Non-goals；
-4. Proposal / Spec / Plan / ADR；
-5. Validation 和未运行项目；
-6. UI / Compatibility / Performance Evidence；
-7. Risk / Rollback；
-8. Ledger / Version History；
-9. AI Assistance；
-10. Agent Task Record 清单；
-11. Completion Dossier 状态；
-12. 未完成或后续 Change。
-
-## 3. 生命周期 Gate
-
-### Gate 0：Signal 可行动性
-
-必须确认：
-
-- 问题或机会可验证；
-- 是否重复；
-- 受影响组件；
-- 紧急程度；
-- 初始证据；
-- 是否进入现有 Change。
-
-输出只能是关闭、合并到已有 Change 或 `Proposed`。
-
-### Gate 1：Proposal 决策
-
-必须覆盖问题、用户、证据、时机、目标、非目标、选项、成本、风险和成功信号。
-
-T2/T3 只能由人类负责人决定 `Accept / Park / Reject`。AI 可以起草和审查，但不得自行批准。
-
-### Gate 2：Spec 就绪
-
-必须确认：
-
-- 用户可观察行为无歧义；
-- URL、配置、类型、数据和兼容契约明确；
-- 错误、超时、取消、降级和恢复明确；
-- 安全、隐私、性能、无障碍和移动端要求明确；
-- 验收可以测试或观察；
-- 未决项为零或已明确延期。
-
-### Gate 3：Plan 与 Task 授权
-
-必须完成：
-
-- Implementation Plan；
-- 任务依赖和顺序；
-- RED / GREEN / REFACTOR 边界；
-- 目标子系统；
-- 验证命令和预期结果；
-- 提交、PR 和发布边界；
-- 回滚和停止条件；
-- Task ID；
-- 完整用户问题初始快照；
-- Task Plan Snapshot 和 SHA-256。
-
-完成 Gate 3 前禁止发生实现性修改。
-
-Gate 3 还必须为每个 Task 记录：
-
-- 执行拓扑：单 Agent、多个独立 Task、子 Agent 或外部工具；
-- 工具特定指令及其来源；
-- 采用声明等级和适用范围；
-- 计划中的 Review 关注点，以及是否安排非作者审查者。
-
-未指定外部 Skill、Plugin 或子 Agent 时，不得从参考案例或历史 Task 自动推断必须使用。
-
-### Gate 4：实现
-
-必须遵守：
-
-- 只实现批准范围；
-- 保护现有用户文件和脏工作树；
-- 测试先证明失败，再证明修复；
-- 禁止混入无关重构；
-- 文档、生成物、迁移和元数据同步；
-- 外部副作用必须在执行后重新读取验证。
-
-出现 Spec 外决策时必须返回 Gate 1 或 Gate 2。
-
-### Gate 5：Agent Completion Submission
-
-每个独立 Agent Task 终止前必须：
-
-1. 更新完整用户问题；
-2. 固化实际执行的完整 Plan；
-3. 汇总全部重要行动、失败、验证和副作用；
-4. 汇总对用户的回复和决定；
-5. 记录执行方法、工具指令来源、采用范围和 Review 身份关系；
-6. 写入 Task Record；
-7. 更新 `manifest.json`；
-8. 运行 Completion 校验和秘密扫描；
-9. 按最终回复契约交付；
-10. 根据真实结果设置 `complete / partial / blocked / failed / cancelled`。
-
-缺失 Gate 5 时：
-
-- 不得把 Task 标为完成；
-- 不得把 PR 标为 Ready；
-- 不得把该 Task 从 Change 清单中移除；
-- 后续 Agent 必须先补全或显式接管。
-
-### Gate 6：验证与 Review
-
-必须分离两种关注点：
-
-1. Spec Compliance Review：范围、行为、遗漏、超出项；
-2. Code Quality Review：正确性、维护性、性能、安全和测试质量。
-
-分离关注点不等于必须启动多个子 Agent。默认可以由实现 Agent 分别执行两个 Review pass，但这属于作者自审，禁止称为“独立 Review”。只有不同于实现作者的人类或 Agent 实体完成相应审查时，才可以记录为独立 Review；是否需要该独立性由风险等级、Spec 和仓库保护规则决定。
-
-Review 采用的 Skill、Plugin、提示模板或 Agent 拓扑必须按 1.2.1 记录。单次 Plan 对某个 Review 工具的要求不得被外推为仓库原生能力或长期政策。
-
-自动检查失败不得由 Review 文字豁免。
-
-### Gate 7：Release Readiness
-
-必须确认：
-
-- `required / gate` 全绿；
-- Preview / Beta 证据；
-- 版本、标签和不可变制品；
-- 数据迁移和回滚；
-- Ledger、Version History 和 Completion 链接；
-- 线上 smoke 方案；
-- 已知限制和观察负责人。
-
-### Gate 8：Release 与观察
-
-发布顺序：
-
-```text
-PR Preview
-→ Merge
-→ Beta / Staging
-→ Stable Tag
-→ Immutable Build
-→ Production Deploy
-→ Post-deploy Smoke
-→ GitHub Release
-→ Observation
-```
-
-必须新增 Release Task Record，记录部署、线上验证、回滚目标和最终回复。
-
-观察期必须检查关键路径、错误、性能、兼容性、支持问题和成功信号。
-
-### Gate 9：Change Closure Submission
-
-进入 `Closed` 前必须：
-
-1. 汇总全部 Agent Task Record；
-2. 汇总完整用户问题；
-3. 生成完整有效计划全文；
-4. 记录所有 Plan 修订和偏差；
-5. 生成行动与回复总摘要；
-6. 核对 Evidence、PR、Commit、Release、部署、Ledger 和 Version；
-7. 处理所有非完成 Task；
-8. 生成 `dossier.md` 和 `manifest.json`；
-9. 运行确定性生成、schema、链接、checksum 和 secret checks；
-10. 由负责人确认关闭决定；
-11. 通过最终回复同步交付完整 Dossier；
-12. 将 Change 状态改为相应终态。
-
-## 4. 工程、协作与发布控制
-
-### 4.1 GitHub 协作
-
-Issue 类型固定为：
-
-- Bug；
-- Product / Feature Proposal；
-- Performance / Compatibility；
-- Upstream Sync Proposal；
-- Experiment Promotion Proposal；
-- Security 使用私密渠道。
-
-标签分为：
-
-```text
-component/*
-type/*
-risk/T0-T3
-```
-
-GitHub Project 字段固定为：
-
-- Lifecycle Phase；
-- Risk；
-- Component；
-- Change Type；
-- Target Release；
-- Owner；
-- Upstream Version；
-- Blocked By；
-- Completion State。
-
-`main` Ruleset 必须：
-
-- PR-only；
-- 禁止 force push 和删除；
-- 解决所有 Review conversation；
-- 通过稳定名称 `required / gate`；
-- 默认 squash merge；
-- 合并后删除分支；
-- 当前个人加 AI 模式 required approvals 为 `0`；
-- 固定第二维护者加入后切换为 `1` 并启用 CODEOWNERS approval。
-
-### 4.2 AI 责任边界
-
-- 人类负责人必须批准 T2/T3 Proposal、公共契约、破坏性迁移和生产发布。
-- Agent 可以调研、起草、实现、测试、Review、生成 Evidence 和 Completion。
-- AI Review 不得代替自动测试或人类产品决策。
-- Agent 不得公开 system/developer 指令或隐藏推理。
-- Agent 必须准确报告未验证、失败和部分完成。
-- 不强制安装或调用特定外部 Agent 工作流。
-- 不默认并行 Agent；共享文件、共享构建目录或共享发布状态的任务必须串行。
-- 可选 Skill、Plugin、子 Agent 或外部执行框架默认属于 `task-local`；除非按 MCL 正式提升为 `repository-policy`，否则不得成为后续 Task 的隐式前置条件。
-- 仓库中出现工具名称、工具生成目录或包含工具指令的单个 PR，不构成原生集成或仓库级采用证据。
-
-### 4.3 CI 总体结构
-
-所有 PR 必须先运行路径分类，并始终产生同一最终检查：
-
-```text
-required / gate
-```
-
-所有 Workflow 必须：
-
-- 固定第三方 Action 到完整 commit SHA；
-- 使用最小权限；
-- 禁止 PR 获取生产凭据；
-- 设置 timeout 和并发取消；
-- 按 lockfile 缓存依赖；
-- 不在普通 PR 下载全部大数据或全部 reference；
-- 对外部写入执行事后核验。
-
-Always-on 作业必须包含：
-
-- Change front matter 和状态；
-- 风险等级与必需产物；
-- Proposal / Spec / Plan / Evidence 链接；
-- Agent Task Record 和 Completion Manifest；
-- Dossier 确定性生成；
-- 用户问题、计划和摘要章节完整性；
-- Plan revision 和 checksum；
-- Version History schema；
-- 组件路径归属；
-- 版本一致性；
-- Markdown 链接；
-- `git diff --check`；
-- secret 和意外文件扫描。
-
-### 4.4 组件检查
-
-Viewer：
-
-```text
-npm ci
-npm test
-npm run type:check
-npm run build
-```
-
-并检查运行时版本、Version History、数据索引、redirect、analytics、voxel、动画策略和构建体积。
-
-Editor：
-
-```text
-npm ci
-npm run lint
-npm run build
-```
-
-逐步补充打开、编辑、undo/redo、HTML/SOG package、legacy ZIP、settings、`.ssproj`、时间轴、locale、Service Worker、导出和重新打开契约。
-
-Design：
-
-```text
-npm ci
-npm run typecheck
-npm run generate-study-pages
-npm run build-storybook
-```
-
-必须补充来源与许可证、资产完整性、Storybook smoke、视觉、reduced-motion、overflow 和控件交互。
-
-Data / Platform：
-
-- 小型 schema fixture 每个相关 PR 运行；
-- 大型语料在定时或手动 Workflow 运行；
-- Netlify redirect、SPA fallback 和部署包完整性；
-- 生成脚本幂等；
-- Supabase migration/function 静态检查；
-- analytics 隐私和事件 schema；
-- 外部服务写入后的重新读取验证。
-
-### 4.5 浏览器、视觉和性能
-
-Playwright 必须以同一 fixture 同时验证开发服务器和生产构建。
-
-PR 必需环境：
-
-- Chromium；
-- WebGL；
-- `1440×900`；
-- `390×844`。
-
-定时或发布前环境：
-
-- WebGPU；
-- WebKit；
-- Firefox；
-- 真实移动设备；
-- 有条件的 XR 设备。
-
-Fixture 至少覆盖：
-
-- Legacy SOG；
-- streaming / LOD；
-- subject + environment；
-- 单体和 tiled voxel；
-- annotation、picker、target navigation；
-- Orbit / Anim / Fly / Walk；
-- URL、settings、timeout 和 fallback；
-- 损坏输入和不支持能力降级；
-- 移动触控和窄屏。
-
-视觉测试必须固定相机、DPR、字体、语言、时区、动画时间和 ready signal。Baseline 更新必须显式审查。
-
-性能硬门禁先覆盖 bundle、关键资源数量、同步阻塞和首帧超时。GPU 运行指标在专用 Runner 获得至少 20 次稳定样本且变异系数低于 10% 后，才按基线 p95 加 10% 建立阻断预算。
-
-### 4.6 安全
-
-必须建立：
-
-- CodeQL；
-- dependency review；
-- secret scanning；
-- Workflow 权限和 Action SHA 检查；
-- 活动依赖的自动更新 PR；
-- 研究代码、资产和许可证审计；
-- Completion 文本的敏感信息扫描。
-
-安全报告和未公开漏洞不得进入公开 Completion Transcript；公开档案使用受控占位符和私密记录引用。
-
-### 4.7 Release 与回滚
-
-回滚必须：
-
-- 优先恢复上一成功部署；
-- 创建 revert 或修复 PR；
-- 新增 rollback Version History 条目；
-- 新增 Rollback Task Record；
-- 将 Change 标记为 `rolled-back`；
-- 保留原 Release、Evidence 和 Completion；
-- 创建事故后续 Change。
-
-### 4.8 Upstream Sync
-
-定时任务只允许发现版本并创建或更新 Issue，禁止自动覆盖代码或自动合并。
-
-Upstream Sync Proposal 必须记录：
-
-- 当前本地基线和目标 tag/commit；
-- Added / Changed / Fixed / Breaking；
-- 用户价值；
-- 本地定制影响；
-- 数据、URL、导出、渲染和部署兼容；
-- `Adopt / Defer / Skip` 决定；
-- Beta 范围和发布建议。
-
-本地定制逐项分类：
-
-```text
-Keep
-Port
-Replace
-Drop
-Conflict
-```
-
-`Conflict` 必须返回 Proposal/RFC。Skip 和 Defer 同样必须形成关闭档案，避免重复分析。
-
-### 4.9 Design 晋升
-
-研究进入产品前必须经过 Experiment Promotion Proposal，并确认：
-
-- 来源、许可证、抓取日期和可再分发性；
-- 目标用户和信息架构；
-- 保留、重写和禁止使用的内容；
-- 移动端、性能、无障碍和降级要求；
-- 研究实现与产品实现的边界。
-
-`design` 变更不得触发 Viewer 版本记录，除非同时改变 Viewer 公共组件或根产品行为。
-
-## 5. 分阶段实施路线
-
-### Phase 0：保护现场
-
-1. 在任何实施性修改前保存当前 HEAD 的可恢复引用。
-2. 禁止重置当前 `main` 或改写现有 9 个本地提交。
-3. 未跟踪 Swiftgram 目录在完成来源、许可、敏感文件和体积审计前不得提交、移动或删除。
-4. 当前未跟踪的 MCL 草稿不得直接提交；必须按本规范重写，移除调研过程、案例说明、合并说明和历史回复。
-5. 治理工作应当使用独立分支或 worktree。
-6. 保存 Git、测试、版本、GitHub 和部署配置基线。
-
-验收：当前用户工作可恢复，治理修改不混入 Design 研究或产品变化。
-
-### Phase 1：规范和模板
-
-交付：
-
-- MCL 权威规范；
-- `CONTRIBUTING.md`；
-- `AGENTS.md`；
-- Roadmap；
-- Change 状态和风险等级；
-- Proposal、Spec、Plan、Evidence、ADR 模板；
-- Agent Completion Record、Closure 和 Dossier 模板；
-- Issue 和 PR 模板。
-
-规范正文必须保持操作性，不得包含来源调研或历史对话叙述。
-
-### Phase 2：Completion Contract
-
-交付：
-
-- Completion Manifest schema；
-- Task Record 模板；
-- Dossier 确定性生成器；
-- `generate` 和 `--check` 模式；
-- checksum、redaction 和 secret checks；
-- Agent 开始任务和完成任务的操作清单；
-- 无仓库写权限工具的导入协议；
-- PR Completion 状态检查；
-- Version History Completion 链接。
-
-MCL 自身实施 Change 必须作为第一个 Bootstrap Completion 案例，使用实际任务请求、实际执行摘要和获准计划验证完整流程。
-
-验收：
-
-- 缺少完整问题、摘要或计划时检查失败；
-- 修改源文件后未重新生成 Dossier 时检查失败；
-- 外部工具 Record 可以无损导入；
-- 最终回复和仓库 Dossier 的 SHA-256 一致。
-
-### Phase 3：组件注册与绿色基线
-
-交付：
-
-- `metadata/components.json`；
-- 路径分类器；
-- Version History 测试按组件归属执行；
-- README、Project Index、package 和 metadata 版本真源统一；
-- Viewer 当前测试、类型和构建全绿；
-- Editor lint/build 基线；
-- Design typecheck/Storybook 基线。
-
-禁止通过提交哈希白名单或 Design 路径特例掩盖 Viewer 的路径归属问题。
-
-### Phase 4：GitHub 和核心 CI
-
-交付：
-
-- Always-on governance；
-- Completion validation；
-- Viewer、Editor、Design、Data/Platform 路径作业；
-- 稳定的 `required / gate`；
-- Ruleset；
-- CODEOWNERS；
-- 标签、Issue 表单和 Project 字段。
-
-顺序必须是：Workflow 先进入 `main` 并成功运行，再配置 required check。
-
-### Phase 5：Ledger 与 Version History 1.1
-
-交付：
-
-- 向后兼容 schema；
-- Change、Evidence、Completion、Release trace；
-- 生成脚本和 `--check`；
-- Ledger/Version/Completion 一致性验证；
-- namespaced tag；
-- legacy 历史兼容测试。
-
-旧历史不强制回填；MCL 生效后的新 Change 强制完整 trace。
-
-### Phase 6：浏览器、视觉和性能
-
-交付：
-
-- 小型可再分发 fixture；
-- serve/build 双模式 Playwright；
-- Chromium/WebGL 必需门禁；
-- 视觉基线；
-- bundle budget；
-- 定时 WebGPU、多浏览器和性能趋势；
-- Editor export/reopen；
-- Design Storybook 视觉和 reduced-motion。
-
-### Phase 7：安全、发布、观察和关闭
-
-交付：
-
-- CodeQL、依赖和 secret checks；
-- Preview/Beta/Stable；
-- immutable artifact；
-- production smoke；
-- rollback；
-- Release Task Record；
-- Observation 模板；
-- Closeout PR 和 Change Completion Dossier。
-
-先执行无生产写入的 dry run，再执行受控 Beta。Smoke 失败时不得生成成功 Release。
-
-### Phase 8：Upstream Sync
-
-交付：
-
-- Release watcher；
-- no-op 去重；
-- Sync Proposal；
-- 上游变化和本地定制分类；
-- patch map；
-- Beta 兼容矩阵；
-- Skip/Defer Completion；
-- Sync Ledger 和 Version trace。
-
-监控只能创建或更新 Issue，不得自动修改或合并产品代码。
-
-### Phase 9：试点与生效
-
-必须完成：
-
-1. 一个 T0/T1 快路径案例，验证轻量 Plan 和 Completion 不造成不必要阻塞；
-2. 一个 Design onboarding 或 Experiment Promotion 案例；
-3. 一个真实 Upstream Sync 案例；
-4. 一个包含至少两个独立提示和终止回复的 Agent Task 的 T2 案例，用于验证 Task 边界、记录和接续；该案例不要求子 Agent 框架、并行执行或特定外部 Skill；
-5. 一次最终回复附件或长文交付测试；
-6. 一次 `partial/blocked → 接续任务 → closed` 测试；
-7. 一次回滚或回滚演练；
-8. 流程复盘并删除无决策价值的重复字段。
-
-全部通过后才发布 `MCL 1.0` 并强制新 T2/T3 执行。
-
-## 6. 测试与验收
-
-### 6.1 Completion Contract 测试
-
-必须覆盖：
-
-- 缺少任一用户消息时失败；
-- 消息顺序错误或 message count 不一致时失败；
-- 缺少完整计划或仅保存链接时失败；
-- Plan hash 或 revision 不一致时失败；
-- 未记录 Plan amendment 时失败；
-- 缺少行动摘要或回复摘要时失败；
-- 缺少执行方法、工具指令来源、采用范围或 Review 身份关系时失败；
-- Task ID 重复、缺口或 Change ID 不一致时失败；
-- `partial/blocked/failed` 无处置时阻止关闭；
-- Dossier 手工改动或生成不幂等时失败；
-- checksum 不一致时失败；
-- 检测到凭据时失败；
-- 合法 redaction 有原因和位置时通过；
-- 外部 Agent Record 导入后保留来源 ID 和原文；
-- 最终回复附件与仓库 Dossier hash 不一致时失败；
-- 无法访问完整交付物时不得标记完成。
-
-### 6.2 治理测试
-
-- T0 不被错误要求 Proposal/Spec；
-- Agent 参与的 T0 缺少 Task Plan 或 Completion 时失败；
-- T1 缺少复现/回归证据时失败；
-- T2 缺少 Spec、Plan 或 Dossier 时失败；
-- T3 缺少 Proposal/RFC 时失败；
-- 非长期架构变化不被错误要求 ADR；
-- Plan 引入新产品决定时必须退回 Spec；
-- 单个外部案例、目录、PR 或 Task Plan 不得被校验为仓库级采用证据；
-- `repository-policy` 声明缺少批准并合入的规范性来源时失败；
-- `enforced-control` 声明缺少已应用且重新核验的控制证据时失败；
-- 同一实现 Agent 的 Review pass 被标记为独立 Review 时失败；
-- Release 缺少 Completion trace 时失败；
-- 回滚修改旧 Version History 时失败。
-
-### 6.3 路径测试
-
-- 仅修改 Design 不触发 Viewer 版本要求；
-- Viewer 公共行为变化触发 Viewer CI、Ledger、Version 和 Completion；
-- Editor 变化触发 lint、build 和契约测试；
-- 组件注册表变化触发全部治理检查；
-- Netlify、脚本或生成逻辑触发 Platform 和 smoke；
-- Reference 变化只运行来源、版本、许可和完整性检查。
-
-### 6.4 生命周期端到端测试
-
-T1：
-
-```text
-Bug → RED → Fix → Agent Completion → PR → Gate → Closure Dossier
-```
-
-T2：
-
-```text
-Proposal → Spec → Plan
-→ Task 1 → Completion
-→ Task 2 → Completion
-→ Preview → Review → Release → Observation
-→ Change Completion → Closed
-```
-
-T3：
-
-```text
-RFC → ADR → Spec → Staged Plan
-→ Task Completions
-→ Beta → Migration/Rollback Evidence
-→ Stable → Observation → Closure
-```
-
-Upstream：
-
-```text
-Release Detected → Sync Proposal
-→ Adopt/Defer/Skip
-→ Plan/Sync or Decision Record
-→ Completion Dossier
-```
-
-另一名维护者或 Agent 必须能够只读取仓库资料，准确还原：
-
-- 用户完整提出了什么；
-- 哪些约束在执行中发生变化；
-- 每个 Agent 做了什么、如何回复；
-- 执行的是哪份完整计划；
-- 哪些步骤成功、失败、跳过或未验证；
-- 产品、仓库和外部系统最终处于什么状态；
-- 为什么可以关闭或为什么仍不能关闭。
-
-### 6.5 Definition of Done
-
-所有 Agent Task：
-
-- 完整用户问题已保存；
-- 完整 Task Plan 已保存；
-- 行动与回复摘要完整；
-- 实际验证和副作用可追溯；
-- 最终状态准确；
-- Task Record 校验通过；
-- 仓库和最终回复均已交付完整材料。
-
-所有 Change：
-
-- 风险和组件正确；
-- 必需产物存在并互相链接；
-- 所有 Task Record 已汇总；
-- Spec 与实现一致；
-- 所有声明有实际证据；
-- 无未说明失败；
-- 回滚路径明确；
-- Ledger/Version 规则满足；
-- Completion Dossier 生成和校验通过；
-- 最终回复已同步提交；
-- 负责人已确认终态。
-
-Stable Release：
-
-- namespaced tag 指向通过 Gate 的 commit；
-- immutable artifact 可定位；
-- Preview/Beta 证据存在；
-- production smoke 成功；
-- Version endpoint 正确；
-- Release 链接 Change 和 Completion；
-- 观察期、负责人和回滚目标明确。
-
-MCL 1.0：
-
-- 规范、模板和 Schema 已进入 `main`；
-- Completion Contract 在 CI 中成为硬门禁；
-- 当前组件基线绿色；
-- Ruleset 已真实验证；
-- Version History 1.1 向后兼容；
-- 浏览器、视觉、安全、发布和回滚完成演练；
-- Bootstrap、快路径、Design 和 Upstream 试点完成；
-- 新 T2/T3 能在不依赖历史聊天的条件下完整继续执行。
-
-### 6.6 固定默认项
-
-- 当前运行模式为个人维护者加 AI；人类 required approvals 暂为 `0`。
-- GitHub Actions、GitHub Projects 和 Netlify 继续作为基础设施，不引入另一套项目管理系统。
-- Viewer、Editor、Design 保持独立版本和发布节奏。
-- 现有历史版本不全面回填 Completion；仅对 MCL 生效后的新 Change 强制。
-- Completion Contract 适用于所有被分派到 Metaflow Change 的独立 Agent/生成式工具任务；与项目无关的普通问答不纳入。
-- MCL 和 Metaflow ASDD 均保持工具、供应商和执行拓扑中立；外部 Skill、Plugin 或框架只有在 Task 明确授权时才适用于该 Task。
-- 系统指令、开发者指令和隐藏推理永不进入档案。
-- 用户问题原则上逐字保存；安全 redaction 是唯一允许的内容省略，并且必须可审计。
-- 外部项目、调研过程和历史回复只可保存在独立 Research/Evidence 材料中，不得进入 MCL 规范正文。
-- Research、Design 实验和产品实施保持独立，除非通过正式 Promotion Proposal。
-
-## 7. Plan 修订记录
+- 作为 MF-1 初始采纳和实施计划。
+- 后续修订不得改写使用 Revision 1 的历史 Task Record。
 
 ### Revision 2 — 2026-08-10
 
-- 触发：用户纠正了参考案例的归因，要求重新审视两个原计划、Codex 深度链接任务和共享 GPT 对话，并据此改进规范。
-- 批准：当前用户直接批准本次修订。
-- 变更：增加 `reference / task-local / repository-policy / enforced-control` 采用范围；把 Metaflow ASDD 明确为内部、工具中立的实施阶段简称；区分 Review 关注点分离、作者自审和独立审查；要求 Task Record 保存执行方法和权限来源。
-- 范围：不增加产品功能、运行时 API、生产写入或阶段性发布授权；不把任何外部 Skill、Plugin、项目或单次 PR 提升为 Metaflow 依赖。
-- 证据：源材料和外部案例的核验结论只进入 Evidence 与 Completion，不进入规范正文。
-- 偏差：没有扩大已批准的实现范围；本修订替代 Revision 1 中可能把外部方法名称理解为项目级采用的表述。
+- 触发：用户纠正了参考案例的方法归因和采用范围。
+- 变更：增加 `reference / task-local / repository-policy / enforced-control`，明确 Metaflow ASDD 是工具中立的内部名称，并区分作者自审和独立 Review。
+
+### Revision 3 — 2026-08-10
+
+- 触发：用户明确要求合并 MCL v1，但不把 Editor 迁移、快照恢复或 PR #4–#8 处置混入同一 Change。
+- 批准：当前用户直接批准本 Revision 的完整计划与实际合并授权。
+- 变更：归档前身计划，修复多 Task Completion 不可变性，升级 Manifest 1.1，分离规范与 Change Plan，移除 PR 非 MCL 内容，明确候选合并、合并准备/合并 Task 边界、Ruleset 顺序、停止和回滚条件。
+- 执行拓扑澄清：实际实现使用三个文件范围互斥的 Codex subagent；为遵守独立 Agent 必须独立归档的规则，合并准备记录为 T02–T05，合并任务顺延为 T06。该澄清不改变用户批准的范围、Gate 或外部写入授权。
+- 工具边界：Superpowers 和其他外部工作流继续保持 `task-local` 和非必需；使用 Codex subagent 是本 Revision 的实际执行拓扑，不构成仓库采用某个外部框架。
+- 终态限制：本 Revision 替代之前的“只本地提交、不 push/merge”默认；它授权满足 Gate 后合并 PR #3，但不授权把 MCL 1.0 标记为 effective 或关闭 MF-1。

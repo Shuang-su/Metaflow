@@ -1,6 +1,8 @@
 # Contributing to Metaflow
 
-All changes follow the Metaflow Change Lifecycle defined in `docs/metaflow-change-lifecycle-v1.0.md`.
+The Metaflow Change Lifecycle is defined only in `docs/metaflow-change-lifecycle-v1.0.md`.
+
+While that document has `status: candidate`, mandatory MCL use is limited to MF-1 and Changes explicitly designated as MCL pilots in an accepted Proposal, Spec, or Plan. Other contributors may opt in, but merge of the candidate files does not by itself make MCL 1.0 an effective repository-wide policy. After a governed activation Change sets a non-empty `effective_date`, MCL applies to the scope declared by that Change.
 
 ## Choose the workflow
 
@@ -23,6 +25,8 @@ T1-T3 use `MF-<issue-number>` and store applicable artifacts under `docs/changes
 
 Use the templates in `docs/templates/mcl/`.
 
+The Change Plan must not copy the normative MCL specification. Repeated structured facts must point to their single source or be deterministically generated and checked for drift. Changes to MCL itself require their own Change ID, Proposal/Spec/Plan/Evidence, validation, and Completion.
+
 ## Branches and pull requests
 
 - Agent branches: `codex/mf-<issue>-<slug>`.
@@ -32,6 +36,7 @@ Use the templates in `docs/templates/mcl/`.
 - Keep one main objective per PR.
 - Use the PR template and disclose agent participation.
 - Record whether any skill, plugin, subagent, or external workflow is a Task-local instruction or an accepted repository requirement. Do not infer repository adoption from a single Plan, PR, example, or generated directory.
+- Treat Superpowers and any `subagent-driven-development` instruction as Task-local unless an accepted and effective repository policy explicitly states otherwise.
 - Do not mark a PR ready until the applicable Completion Record and validation are present.
 
 ## Validation

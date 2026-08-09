@@ -1,6 +1,8 @@
 # Metaflow Agent Rules
 
-These rules apply to every agent operating in this repository.
+While `docs/metaflow-change-lifecycle-v1.0.md` has `status: candidate`, the MCL-specific requirements in this file apply to MF-1 and to Changes whose accepted Proposal, Spec, or Plan explicitly designates them as MCL pilots. Other work may opt in but must not be described as governed by an effective repository-wide MCL policy. Repository safety and instruction-precedence requirements continue to apply to every agent.
+
+After a governed Change sets the normative document to `status: effective` with a non-empty `effective_date`, this file applies to every agent operating in the declared effective scope.
 
 ## Authority
 
@@ -11,9 +13,11 @@ Follow this precedence:
 3. the accepted Change Proposal, Spec, and Plan;
 4. optional tools, skills, and external examples.
 
-The normative lifecycle is defined in `docs/metaflow-change-lifecycle-v1.0.md`.
+The sole normative lifecycle source is `docs/metaflow-change-lifecycle-v1.0.md`. A Change Plan must reference that specification rather than copying it. Generated Completion files may reproduce an approved Plan for archival delivery but do not become a second normative MCL source.
 
 An external example, directory name, accepted one-off PR, or Task-specific Plan instruction does not establish repository policy. Classify method and tooling claims as `reference`, `task-local`, `repository-policy`, or `enforced-control` under MCL section 1.2.1. Only applied and re-read automation or permissions may be called enforced.
+
+MCL itself may change only through a governed Change. Superpowers, `subagent-driven-development`, optional skills/plugins, and other external workflows remain Task-local unless an accepted and effective repository policy explicitly changes that scope.
 
 ## Before work
 
