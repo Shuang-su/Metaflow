@@ -1,42 +1,72 @@
 name: Upstream sync proposal
-description: Evaluate a SuperSplat, Viewer, PlayCanvas, or critical dependency release.
+description: 评估 SuperSplat、Viewer、PlayCanvas 或关键依赖版本。
 title: "[Upstream] "
 labels: ["type/upstream-sync", "risk/T3"]
 body:
-  - type: input
-    id: source
+  - type: dropdown
+    id: current_status
     attributes:
-      label: Repository and target tag or commit
+      label: 当前状态
+      options: [Proposed, Ready, In Progress, In Review, Done, Parked, Rejected, Rolled Back]
     validations:
       required: true
-  - type: input
-    id: baseline
+  - type: textarea
+    id: background
     attributes:
-      label: Current local baseline
+      label: 背景
+      description: Repository、目标 tag/commit、当前 baseline、变化和为什么现在评估。
+    validations:
+      required: true
+  - type: textarea
+    id: goal
+    attributes:
+      label: 目标
+      description: 明确本 Issue 要形成 Adopt、Defer 或 Skip 决策，或已获准的同步结果。
     validations:
       required: true
   - type: textarea
     id: changes
     attributes:
-      label: Added, changed, fixed, and breaking behavior
+      label: 上游变化与本地定制影响
+      description: Added/Changed/Fixed/Breaking；按 Keep/Port/Replace/Drop/Conflict 分类。
     validations:
       required: true
   - type: textarea
-    id: value
+    id: included_scope
     attributes:
-      label: User value and timing
+      label: 包含范围
     validations:
       required: true
   - type: textarea
-    id: customizations
+    id: excluded_scope
     attributes:
-      label: Local customization impact
-      description: Classify Keep, Port, Replace, Drop, or Conflict where known.
+      label: 排除范围
     validations:
       required: true
   - type: textarea
-    id: decision
+    id: acceptance
     attributes:
-      label: Adopt, Defer, or Skip recommendation
+      label: 验收标准
+      description: 包含来源、版本、license、完整性、构建和兼容证据。
+    validations:
+      required: true
+  - type: textarea
+    id: risks
+    attributes:
+      label: 风险、依赖与回退
+      description: 包含 snapshot 不可变性、依赖、兼容、安全和回滚。
+    validations:
+      required: true
+  - type: textarea
+    id: artifacts
+    attributes:
+      label: Spec / Plan 与相关任务
+    validations:
+      required: true
+  - type: textarea
+    id: delivery
+    attributes:
+      label: 完成交付
+      description: 完成后回填决策、PR、squash commit、验证和遗留事项。
     validations:
       required: true

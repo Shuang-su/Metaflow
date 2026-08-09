@@ -23,6 +23,8 @@ control_evidence: null
 
 # Agent Completion Record
 
+> **仅限显式审计模式。** 日常 Change 使用 Issue、Commit、PR 和唯一 Spec/Plan；只有合规、事故、破坏性迁移、正式发布或当前用户明确要求时，才复制完整请求和计划。
+
 ## Authorized Scope
 
 ## Execution Method and Authority

@@ -1329,17 +1329,17 @@ export async function checkChange(changeDirectory, { strict = false } = {}) {
     return generated.manifest;
 }
 
-async function findChangeDirectories(root = REPO_ROOT) {
+export async function findLegacyChangeDirectories(root = REPO_ROOT) {
     const base = join(root, 'docs/changes');
     if (!(await exists(base))) return [];
     const found = [];
     async function walk(directory, depth) {
         if (depth > 3) return;
-        const entries = await readdir(directory, { withFileTypes: true });
-        if (entries.some((entry) => entry.isFile() && entry.name === 'plan.md')) {
+        if (await exists(join(directory, 'completion', 'manifest.json'))) {
             found.push(directory);
             return;
         }
+        const entries = await readdir(directory, { withFileTypes: true });
         for (const entry of entries) {
             if (entry.isDirectory()) await walk(join(directory, entry.name), depth + 1);
         }
@@ -1386,7 +1386,7 @@ export async function validateVersionHistories(root = REPO_ROOT) {
 export async function checkAll({ strict = false } = {}) {
     await loadComponentRegistry();
     await validateVersionHistories();
-    const directories = await findChangeDirectories();
+    const directories = await findLegacyChangeDirectories();
     assertion(directories.length > 0, 'no governed Change directories found');
     const results = [];
     for (const directory of directories) {

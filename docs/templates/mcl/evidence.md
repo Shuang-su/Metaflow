@@ -1,7 +1,7 @@
 ---
 change_id: MF-000
 title: Replace with an evidence title
-status: verifying
+status: in-review
 component:
   - viewer
 risk: T2
@@ -10,40 +10,28 @@ owner: owner
 created: YYYY-MM-DD
 updated: YYYY-MM-DD
 issue: https://github.com/Shuang-su/Metaflow/issues/000
-plan_revision: 1
-completion_state: pending
-supersedes: null
-terminal_reason: null
 ---
 
 # Evidence
+
+> Evidence 只记录实际发生的结果。Issue 和 PR 链接本文；本文不复制 Spec 或 Plan。
 
 ## Environment and commit
 
 ## Commands and results
 
-| Command | Exit | Passed / failed | Evidence |
-| --- | ---: | --- | --- |
-
-## Browser, device, and rendering backend
-
-## Screenshots, recordings, and CI artifacts
-
-## Performance samples and baseline
-
-## Preview, Beta, and production
+| Command / hosted check | Result | Evidence |
+| --- | --- | --- |
 
 ## Spec acceptance mapping
 
-## Adoption and enforcement claims
-
-| Claim | Level | Normative source | Applied-control evidence | Re-read result |
-| --- | --- | --- | --- | --- |
+| Requirement | Result | Evidence |
+| --- | --- | --- |
 
 ## Review conclusions
 
 ## Unrun checks and reasons
 
-## Known limitations
+## Known limitations, risks and follow-up
 
-## Release, rollback, and observation
+## Release, rollback and observation

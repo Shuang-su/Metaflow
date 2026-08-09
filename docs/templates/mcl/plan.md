@@ -1,7 +1,7 @@
 ---
 change_id: MF-000
 title: Replace with an execution title
-status: planned
+status: ready
 component:
   - viewer
 risk: T2
@@ -11,35 +11,27 @@ created: YYYY-MM-DD
 updated: YYYY-MM-DD
 issue: https://github.com/Shuang-su/Metaflow/issues/000
 plan_revision: 1
-completion_state: pending
-supersedes: null
-terminal_reason: null
 ---
 
 # Implementation Plan
 
-## Goal
+> 这是本 Change 唯一规范 Plan。不要在 Task Record、PR 或其他文档复制全文。
 
-## Architecture summary
+## Goal
 
 ## Preconditions and dependencies
 
-## Branch and worktree strategy
+## Architecture and interface decisions
 
-## Tasks
+## Implementation sequence
 
-For every task specify:
+每一步只记录实施者仍需知道的内容：授权范围、目标路径或子系统、依赖、预期行为、验证命令、提交边界、回退和停止条件。不要为无行为变化的文档任务强制 RED/GREEN 或产品 E2E。
 
-- Task ID and authorized scope;
-- target paths or subsystem;
-- RED test and expected failure;
-- minimum GREEN implementation;
-- REFACTOR boundary;
-- validation command and expected result;
-- commit and PR boundary;
-- serial dependencies and optional independent work;
-- rollback and stop conditions.
+## Validation matrix
 
-## Final validation
+| Scope | Command or hosted check | Expected result |
+| --- | --- | --- |
 
-## Release, observation, and closure
+## Rollback and stop conditions
+
+## PR, release, observation and Issue delivery

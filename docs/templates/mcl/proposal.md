@@ -10,27 +10,21 @@ owner: owner
 created: YYYY-MM-DD
 updated: YYYY-MM-DD
 issue: https://github.com/Shuang-su/Metaflow/issues/000
-plan_revision: 0
-completion_state: pending
-supersedes: null
-terminal_reason: null
 ---
 
-# Proposal
+# Proposal / RFC
+
+> Issue 负责完整任务背景、范围、验收和当前状态；本文只记录是否采用某个方向及其取舍。
 
 ## Problem or opportunity
 
 ## Users and scenarios
 
-## Evidence
-
-## Why now
+## Evidence and why now
 
 ## Goals and measurable success signals
 
-## Non-goals
-
-## Options
+## Options and tradeoffs
 
 ## Cost and dependencies
 
