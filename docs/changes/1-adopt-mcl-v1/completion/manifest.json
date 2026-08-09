@@ -8,18 +8,18 @@
   ],
   "request": {
     "path": "request-transcript.md",
-    "sha256": "49fe518d3e38c4099508ead4e8f3008598f26a735a44b8dd82218d86d968d11f",
-    "messageCount": 12
+    "sha256": "bc26e775f9358f3f80a48e19fefbc5db25b8fa8d308def7c54e80a22ec074635",
+    "messageCount": 13
   },
   "plan": {
     "path": "approved-plan.md",
-    "sha256": "c4fc6da8f701a46412caef5a396449e1560d569bdd000a9bd1955f627608e107",
-    "revision": 3,
+    "sha256": "2f196e224ed65fab483804addd57de5bd9b6f82ce6fca48d0651fce83fc10564",
+    "revision": 4,
     "source": "../plan.md"
   },
   "agentSummary": {
     "path": "agent-action-reply-summary.md",
-    "sha256": "d1e07c7511f70ad49fe19627aa6e9ce93ee5ecd823b2d689efd1e9d7e8c350b1"
+    "sha256": "ca2573445bd29469bf15ea17f6ff5ac3fba36eb9f4590ad9e14bf231c4b51c15"
   },
   "planRevisions": [
     {
@@ -49,6 +49,15 @@
       ],
       "amendmentReason": "Authorized a gated merge of the MCL candidate, preserved the predecessor plan, fixed immutable multi-Task Completion, separated the normative specification from the Change Plan, removed versioned-snapshot dependency maintenance, and recorded every independently prompted implementation Agent.",
       "approvalSource": "User-approved MCL v1 revision and merge plan in Codex task 019fe70e-e5e7-7b81-ae68-39eb0a087128"
+    },
+    {
+      "revision": 4,
+      "sha256": "2f196e224ed65fab483804addd57de5bd9b6f82ce6fca48d0651fce83fc10564",
+      "taskIds": [
+        "MF-1-T06"
+      ],
+      "amendmentReason": "Narrowed the candidate merge Gate to MCL governance and Completion evidence, split Netlify and Viewer/Editor product validation into follow-up Changes, and recorded the actual merge, main run, and enforced Ruleset.",
+      "approvalSource": "User scope correction in Codex task 019fe70e-e5e7-7b81-ae68-39eb0a087128"
     }
   ],
   "taskRecords": [
@@ -131,6 +140,22 @@
         "revision": 3,
         "sha256": "c4fc6da8f701a46412caef5a396449e1560d569bdd000a9bd1955f627608e107"
       }
+    },
+    {
+      "taskId": "MF-1-T06",
+      "tool": "codex",
+      "sourceTaskId": "019fe70e-e5e7-7b81-ae68-39eb0a087128",
+      "status": "partial",
+      "record": "task-records/MF-1-T06.md",
+      "sha256": "ac17b60aca6119392ee30cc9511bf01efec2d10023af601b1da0564560d823bc",
+      "request": {
+        "sha256": "41b4e1fcd7160f0804f540f99e7b2c30437f03911d89c7eee0c80158e5eaeff1",
+        "messageCount": 1
+      },
+      "plan": {
+        "revision": 4,
+        "sha256": "2f196e224ed65fab483804addd57de5bd9b6f82ce6fca48d0651fce83fc10564"
+      }
     }
   ],
   "sourceMaterials": [
@@ -144,12 +169,12 @@
   ],
   "closure": {
     "path": "closure.md",
-    "sha256": "cd732031a8283c694aa849c934fc48cf51a15da1c34fd71cc8189ead0f4f0103"
+    "sha256": "dc53ad74a9bcd39dbd9239038ddaad9b6e1d29b03113f8b75ff2ec4808cd231f"
   },
   "dossier": {
     "path": "dossier.md",
-    "sha256": "21673c955aa48adf7b7e8fcbc2a8ab180c8c6670259f13522f393132152b6afd"
+    "sha256": "d77ef2fa0e00c89b198347831db26290466e73d590cc2560da79a78508582468"
   },
   "redactions": [],
-  "generatedAt": "2026-08-09T19:29:24.000Z"
+  "generatedAt": "2026-08-09T19:52:50.000Z"
 }

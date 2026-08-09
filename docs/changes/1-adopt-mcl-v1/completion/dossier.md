@@ -1576,6 +1576,29 @@ MF-1 继续处于 verifying，MCL 1.0 尚未 effective/closed。
 
 <!-- /user-message -->
 ````
+
+## MF-1-T06
+
+- Request SHA-256: `41b4e1fcd7160f0804f540f99e7b2c30437f03911d89c7eee0c80158e5eaeff1`
+- Message count: 1
+
+````markdown
+---
+change_id: MF-1
+task_id: MF-1-T06
+source: codex-user-message
+source_thread_id: 019fe70e-e5e7-7b81-ae68-39eb0a087128
+captured: 2026-08-10
+message_count: 1
+redactions: 0
+---
+
+# Complete User Request Transcript
+
+<!-- user-message:1 -->
+Viewer/Editor 源码未改变，就不把完整构建、E2E 和产品发布验证作为本次合并硬门槛。应该立即停止继续扩展，把 Netlify 和产品测试拆出去，先完成一个范围清晰的 MCL 候选合并。
+<!-- /user-message -->
+````
 `````
 
 ## 3. Agent Task Inventory
@@ -1587,6 +1610,7 @@ MF-1 继续处于 verifying，MCL 1.0 尚未 effective/closed。
 | MF-1-T03 | codex | complete | task-records/MF-1-T03.md |
 | MF-1-T04 | codex | complete | task-records/MF-1-T04.md |
 | MF-1-T05 | codex | partial | task-records/MF-1-T05.md |
+| MF-1-T06 | codex | partial | task-records/MF-1-T06.md |
 
 ## 4. Agent Actions and Replies Summary
 
@@ -1604,6 +1628,7 @@ MF-1 继续处于 verifying，MCL 1.0 尚未 effective/closed。
 | MF-1-T03 | codex | complete | task-records/MF-1-T03.md |
 | MF-1-T04 | codex | complete | task-records/MF-1-T04.md |
 | MF-1-T05 | codex | partial | task-records/MF-1-T05.md |
+| MF-1-T06 | codex | partial | task-records/MF-1-T06.md |
 
 ## Chronological Action Summary
 
@@ -1693,6 +1718,23 @@ MF-1 继续处于 verifying，MCL 1.0 尚未 effective/closed。
 17. Inspected failed run `31331509106` through the GitHub app and Actions logs. Classification correctly rejected the new compatibility entry as unowned.
 18. Added that one exact compatibility path to the platform component registry and a regression assertion; no broad path exception or product ownership was added.
 
+### MF-1-T06
+
+1. Accepted the user's narrower Gate and stopped treating Viewer/Editor full build, E2E, product release verification, and Netlify Preview/smoke as blockers for the MCL candidate merge.
+2. Reverted the uncommitted Netlify preview-context, platform-validator, and test expansion; re-read the worktree as clean.
+3. Queried both site- and account-level Netlify environment variables and confirmed that the attempted clone-control experiment left no `GIT_LFS_SKIP_SMUDGE` variable.
+4. Updated PR #3's body with the explicit non-gating boundary, marked it Ready, and re-read exact Head `02cb823b22cf1eb2f5fed3bd7bbb4309414bd629`, mergeability, checks, and review threads.
+5. Verified all MCL CI jobs, dependency review, two CodeQL surfaces, and `required / gate` succeeded on exact-Head run `31331822368`; the only pending contexts were the explicitly deferred Netlify checks.
+6. Squash-merged PR #3, re-read merge commit `6e1725ee6d24ea37fcf3bb7492606e95e0e0780b`, fetched only the remote `main` ref, and verified the remote feature branch was deleted.
+7. Re-read the protected local workspace: local `main` remained `47ffd86e9635d7d797628a214df817f7ca60b55c`, its nine local commits and two pre-existing untracked paths were preserved, and it was not updated or rewritten.
+8. Stopped two temporary full-checkout attempts when repository data hydration exceeded the MCL-only scope. Removed only the exact temporary checkout created by this Task, then used Git tree identity instead of a product-data checkout.
+9. Verified the approved Head and merge commit have the same tree `3b1828abbd623a9f81e334171950c7a43321c3f4`, then reran MCL-only checks on that identical tree.
+10. Re-read main run `31332409298` as successful, including `governance and completion`, CodeQL, and stable `required / gate`.
+11. Applied repository Ruleset `20612630` only after the main prerequisite passed, then re-read both its detailed active configuration and the effective rules for `main`.
+12. Added and re-read the post-merge evidence comment on Issue #1.
+13. Created and re-read Issue #15 for lightweight Netlify Preview and Issue #16 for path-scoped Viewer/Editor validation; no implementation was performed in either Change.
+14. Created `codex/mf-1-post-merge-evidence` from exact `origin/main` and prepared Revision 4, T06, Evidence, and Completion updates without changing product source.
+
 ## Agent Reply Summary
 
 ### MF-1-T01
@@ -1716,6 +1758,14 @@ The Agent reported that seven Python tests passed, platform validation and `git 
 ### MF-1-T05
 
 The Agent told the user that work would proceed in two stages, with merge conditional on the exact new Head's GitHub and Netlify evidence. It reported the protected-state boundary, completion of the dependency Task, the Completion immutability approach, normative-document separation, preservation of T01, the exact non-normative archive link rule, and the successful 37-Node/7-Python governance gate before moving to component validation. No final completion, merge, Preview success, activation, or enforced-control claim has been made.
+
+### MF-1-T06
+
+- Told the user that the narrower boundary was accepted and that uncommitted Netlify expansion would be withdrawn before merging.
+- Reported that PR #3 was actually squash-merged, gave the exact merge commit, and stated that local `main` and user materials remained unchanged.
+- Reported that post-merge verification uses cryptographic tree identity and MCL-only checks rather than another product-data checkout.
+- Distinguished the installed MCL candidate and verified Ruleset from full MCL activation or Change closure.
+- Kept Netlify and product checks explicit as follow-up work rather than reporting them as passed or silently omitting them.
 
 ## Files and External Effects
 
@@ -1774,6 +1824,18 @@ External effects:
 - Created commit `023dac807976f02ec6e95a9dbf33de827896bd51`, pushed `codex/mcl-v1`, and updated/re-read PR #3 as the draft “Adopt MCL v1 governance candidate”.
 - The first exact-Head Actions run `31331509106` failed at classification; no merge, Issue #1 write, deployment, or Ruleset application occurred.
 - Did not modify the checked-out local main branch, the Swiftgram directory, or the untracked predecessor-plan source.
+
+### MF-1-T06
+
+- GitHub PR #3 changed from Draft to Ready and was squash-merged; remote branch `codex/mcl-v1` was deleted.
+- `origin/main` advanced to `6e1725ee6d24ea37fcf3bb7492606e95e0e0780b`; local `main` was not advanced.
+- GitHub Ruleset `20612630` was created active with PR-only, deletion/non-fast-forward protection, squash-only merge, review-thread resolution, and required `required / gate`.
+- Issue #1 received a verified merge/main-run/Ruleset status comment.
+- Proposed follow-up Issues #15 and #16 were created with platform/product scope and non-goals.
+- The current post-merge branch modifies only MF-1 Plan, Evidence, Completion sources, and deterministic generated outputs.
+- No Viewer/Editor product source, versioned Supersplat snapshot, production deployment, release, or MCL activation was changed.
+- No Netlify environment variable remained after the stopped experiment.
+- One Task-created 3.5 GB incomplete temporary checkout was permanently deleted after its exact path was verified; it contained no user-authored material and is not recoverable.
 
 ## Validation, Failures, and Omissions
 
@@ -1872,6 +1934,29 @@ No focused validation failed at termination. The Agent did not run Viewer/Editor
 - The first pushed Revision 3 run failed its intended unowned-path guard on the new compatibility entry. The focused correction registers only that path under platform and adds a classifier regression test; no failed check was rerun or waived without a new commit.
 - Full remote writes were intentionally skipped until Task-specific records, authored indexes, local validation, and the two author-review passes existed.
 - No failed Gate was waived.
+
+### MF-1-T06
+
+- Exact approved Head and merge commit tree hashes both equal `3b1828abbd623a9f81e334171950c7a43321c3f4`; `git diff --exit-code <approved-head> origin/main` passed.
+- MCL Completion tests: 37/37 Node tests passed.
+- Platform unit tests: 7/7 Python tests passed.
+- `node scripts/mcl.mjs check-all --strict`: passed for active/verifying MF-1.
+- `python3 scripts/validate_platform.py`: passed.
+- Markdown link validation: 46 files passed.
+- Repository hygiene and secret scan: 10,823 paths passed.
+- Main run `31332409298`: success; `required / gate` job `93292927424` succeeded.
+- Ruleset detail and effective `main` rules were re-read and matched the repository JSON.
+- Issue #1's final comment, Issue #15, and Issue #16 were re-read after creation.
+- T01 SHA-256 and the predecessor-plan archive remain governed by unchanged historical records; Revision 4 does not rewrite them.
+
+#### Failures, Retries, and Skipped Checks
+
+- Before the user's correction, the Agent briefly drafted an uncommitted lightweight Netlify Preview context after observing multiple stuck builds. The user narrowed scope; all three uncommitted files were restored, and API re-reads confirmed no clone-control variable existed at site or account level.
+- A first temporary detached worktree began hydrating large product data. It was terminated, moved to Trash, and then permanently removed when the temporary checkout consumed about 3.5 GB and left the filesystem nearly full.
+- A second attempt with `GIT_LFS_SKIP_SMUDGE=1` still encountered large non-pointer checkout content and failed with `No space left on device`; Git removed the failed worktree registration. No third checkout was attempted.
+- The replacement verification compared Git trees and ran governance checks on the already checked-out identical tree, avoiding further product-data work.
+- Netlify Preview/smoke and full product-release validation were skipped by direct user-approved Revision 4 scope, not inferred as successful.
+- No failed MCL Gate was waived.
 ````
 
 ## 5. Complete Effective Plan
@@ -1889,13 +1974,13 @@ owner: Shuang-su
 created: 2026-08-09
 updated: 2026-08-10
 issue: https://github.com/Shuang-su/Metaflow/issues/1
-plan_revision: 3
+plan_revision: 4
 completion_state: pending
 supersedes: null
 terminal_reason: null
 ---
 
-# MF-1 Revision 3 候选采纳、合并与合并后验证计划
+# MF-1 Revision 4 候选合并与合并后证据计划
 
 ## 1. 目标和结束状态
 
@@ -1931,7 +2016,7 @@ PR 合并、候选 CI 成功或 Ruleset 的局部应用都不单独构成 MCL 1.
 4. 以向后兼容方式增加 Completion Manifest 1.1 的每 Task request/Plan 摘要和 `sourceMaterials`。
 5. 明确单一真源、MCL 自身变更管理、两稳定版本复盘和候选合并语义。
 6. 移除 PR #3 中与 MCL 无关或越界的带版本号快照依赖变更及 Dependabot 更新目标。
-7. 完成 PR #3 的本地验证、托管 Gate、Preview、squash merge、合并后 `main` 验证和可证明的 Ruleset 应用。
+7. 完成 PR #3 的 MCL-only 本地/托管 Gate、squash merge、合并后 `main` 验证和可证明的 Ruleset 应用。
 
 ### 3.2 不包含
 
@@ -1940,6 +2025,7 @@ PR 合并、候选 CI 成功或 Ruleset 的局部应用都不单独构成 MCL 1.
 - PR #4–#8 的 Adopt、Defer、Skip、关闭或合并。
 - Design、Swiftgram 或任何产品功能变更。
 - 生产部署、Stable Release、MCL 1.0 全量生效或 MF-1 关闭。
+- Netlify Preview/smoke，以及不由 Viewer/Editor 源码变化触发的完整产品构建、E2E 和产品发布验证；这些必须作为后续 Change 单独处理。
 - 强制安装或调用 Superpowers、其 `subagent-driven-development` 指令或其他外部 Skill/Plugin。任何此类指令均只在明确授权的 Task 内属于 `task-local`。
 
 ## 4. 保护现场和不可变约束
@@ -2007,10 +2093,10 @@ T02–T04 只能修改各自获准的文件；T05 负责审查、整合和记录
 2. 生成 Revision 3 的 transcript、summary、approved Plan、Manifest 和 Dossier；所有 checksum 从实际文件计算。
 3. 执行两个分开的作者自审 pass：Spec Compliance 审查范围、漏项和越界；Code Quality 审查正确性、可维护性、安全、测试和幂等性。禁止称为独立 Review。
 4. 更新 PR #3 正文，记录 Revision 3、前身计划归档、当前验证、作者自审、候选语义、未完成 activation Gate 和不在范围的后续工作。
-5. 从 PR 标题移除 `[skip netlify]`，推送当前 Head，使新的 GitHub 检查和 Netlify Preview 针对精确的新 Head 执行。
+5. 从 PR 标题移除 `[skip netlify]`，推送当前 Head，使新的 GitHub 检查针对精确的新 Head 执行；Netlify 可以产生观察证据，但不属于 Revision 4 合并 Gate。
 6. T02–T04 各自终止时生成独立 Record；T05 只有在整合它们并完成全量验证后才能终止。
-7. 所有合并前 Gate 成功后将 PR 从 Draft 改为 Ready，重读 PR 状态，然后将 T05 记录为 `complete`。
-8. 任一 Gate 失败或仍无证据时，保持 PR 未合并，将受影响 Task 记录为 `partial` 或 `blocked`，明确失败命令、剩余范围和接续条件。
+7. 所有 MCL-only 合并前 Gate 成功后将 PR 从 Draft 改为 Ready 并重读；已经终止的 T05 保持不可变的 `partial`，由 T06 显式接管。
+8. 任一 MCL-only Gate 失败或仍无证据时，保持 PR 未合并，将受影响 Task 记录为 `partial` 或 `blocked`，明确失败命令、剩余范围和接续条件。
 
 ## 6. 合并前验证
 
@@ -2030,27 +2116,28 @@ git diff --check
 
 还必须执行并记录：
 
-- Viewer：`npm ci`、`npm test`、`npm run type:check`、`npm run build`、开发/生产构建双模式 Playwright；
-- Editor：`npm ci`、`npm run lint`、`npm run build`；
 - Completion：Manifest 1.0 兼容、1.1 正负用例、多 Task、旧 revision 不可变、source-material checksum、secret/redaction 和幂等生成；
 - 治理：带版本号 snapshot 不得是 Dependabot npm 目标；规范、Plan、模板和生成文件不得形成冲突真源；
 - 不可变：T01 SHA-256、前身原文行数和 SHA-256、本地 `main` ref 及 Swiftgram 目录状态均与实施前一致。
 
-### 6.2 托管 Gate 和 Preview
+Revision 3 已运行的 Viewer/Editor 构建与 E2E 可以作为历史附加证据保留，但 Viewer/Editor 源码未变化时不属于本次候选合并的硬门槛，也不得把它们解释为产品发布验证。
 
-- PR #3 的当前 Head 必须通过所有组件作业、两类 CodeQL、dependency review 和稳定名称 `required / gate`。历史 Head 的绿色结果不得代替。
-- `netlify.toml` 变更要求当前 Head 的 Deploy Preview 成功，并通过 `/`、`/editor/` 和版本数据端点的 HTTP smoke。
-- GitHub 和 Netlify 结果必须通过 API 重读，记录 run/deploy ID、Head SHA、状态、URL 和查询时间。
-- 任一 required check、Preview、checksum、secret 扫描或确定性生成失败时，合并 Gate 失败。
+### 6.2 托管 MCL Gate
+
+- PR #3 当前 Head 的 `governance and completion`、两类 CodeQL、Completion/checksum/secret/link 检查和稳定名称 `required / gate` 必须成功；历史 Head 的绿色结果不得代替。
+- 当前 Workflow 若顺带运行 Viewer/Editor 作业，其结果可以记录，但不因本 Revision 把完整产品验证重新定义为 MCL 合并 Gate。
+- Netlify Preview/smoke 和产品发布验证移入独立后续 Change；pending、skipped 或失败状态必须如实记录，但不阻止本候选合并。
+- GitHub 结果必须通过 API 重读，记录 run ID、Head SHA、状态、URL 和查询时间。
+- 任一 MCL required check、checksum、secret 扫描或确定性生成失败时，合并 Gate 失败。
 
 ## 7. MF-1-T06：合并与合并后证据
 
-T06 必须在 T02–T05 全部终止后串行启动，使用独立 Task ID、完整用户问题、Plan Snapshot 和终止回复。
+T06 必须在 T02–T05 全部终止后串行启动，使用独立 Task ID、完整用户问题、Revision 4 Plan Snapshot 和终止回复。Revision 4 的直接授权是用户要求立即停止 Netlify/产品验证扩展，先完成范围清晰的 MCL 候选合并。
 
 1. 重读 PR #3 的 Head SHA、Draft/Ready 状态、mergeability、审批、未解决对话和当前 Head 的所有检查。
-2. 仅在第 6 节及第 9 节的所有合并 Gate 成功时执行 squash merge。
+2. 仅在第 6 节及第 9 节的 MCL-only 合并 Gate 成功时执行 squash merge；不得等待已拆出的 Netlify/产品发布 Gate。
 3. 合并后立即重读 PR，记录 `merged_at`、实际 merge commit、原 Head 和 `origin/main`。
-4. 从精确的远端 `main` SHA 创建新的 detached 或临时 worktree，运行必需的 MCL、平台、链接和基线检查；禁止更新主工作区领先 9 个提交的本地 `main`。
+4. 验证 merge commit 与已批准 Head 的 Git tree 相同，并在相同树上运行必需的 MCL、平台、链接和基线检查。只有不会水合大数据时才创建 detached/临时 worktree；发现全量产品 checkout 时必须停止并改用 tree/hash、现有相同树或 GitHub API。禁止更新主工作区领先 9 个提交的本地 `main`。
 5. 等待该 merge commit 的首个 `main` 工作流，重读并验证稳定名称 `required / gate` 成功。
 6. 只有当主分支上该检查名真实存在且成功后，才按 `.github/rulesets/main.json` 应用 Ruleset；应用后必须通过 GitHub API 重读详细规则和 active 状态。
 7. Ruleset 应用或重读失败时，记录为未强制的剩余 Gate；禁止使用 `enforced-control` 声明。PR 已合并的事实不因此被改写。
@@ -2061,7 +2148,7 @@ T06 必须在 T02–T05 全部终止后串行启动，使用独立 Task ID、完
 ## 8. 回滚和故障处置
 
 - 合并前发现规范越界、多 Task 数据污染、快照变更、未登记的源材料或无法重建 Dossier 时，停止合并，在当前分支修正或返回 Spec。
-- 合并前 CI/Preview 失败时保持 PR 开放且未合并，不通过 Review 文字豁免自动 Gate。
+- 合并前 MCL CI 失败时保持 PR 开放且未合并，不通过 Review 文字豁免自动 Gate；Netlify/产品验证按 Revision 4 另建 Change，不伪装成成功或阻断本合并。
 - 合并后若候选 MCL 导致 `main` 阻断，优先创建 revert PR 恢复 merge commit，保留原 PR、T01/T02/T03 和 Evidence；不 reset 或 force-push `main`。
 - Ruleset 配置错误导致无法正常修复时，使用仓库管理员可审计的 Ruleset 更新或暂时禁用，随后重读并记录详细差异；不得静默放宽控制。
 - 任何回滚都必须新增 Task Record 和 Version/Ledger 或 Issue 事实，不得删除原合并证据。
@@ -2077,8 +2164,9 @@ PR #3 只有在以下条件全部成立时才能合并：
 - `supersplat-v2.28.0/package.json` 和 `package-lock.json` 不再出现在 PR diff；
 - Dependabot 不再指向任何带版本号的源码或快照目录；
 - PR 正文、Task Record、Evidence 和 Dossier 不包含虚假生效、独立 Review、Preview 成功或 enforced 声明；
-- 当前 Head 的本地命令、GitHub Gate、两类 CodeQL、dependency review 和 Netlify Preview/smoke 全部通过；
+- 当前 Head 的 MCL 本地命令、`governance and completion`、两类 CodeQL、Completion/checksum/secret/link Gate 和 `required / gate` 全部通过；
 - PR 为 Ready、mergeable，无未解决审查对话，且所有证据指向精确当前 Head；
+- Netlify Preview/smoke、Viewer/Editor 全量产品验证和产品发布验证已登记为非门禁后续 Change，且没有被描述为成功；
 - 本地 `main` 的 9 个提交、未跟踪前身计划原件和 Swiftgram 目录保持不变。
 
 ## 10. 延后的生效 Gate
@@ -2110,6 +2198,14 @@ PR #3 合并后，MF-1 保持 `status: verifying` 和 `completion_state: pending
 - 执行拓扑澄清：实际实现使用三个文件范围互斥的 Codex subagent；为遵守独立 Agent 必须独立归档的规则，合并准备记录为 T02–T05，合并任务顺延为 T06。该澄清不改变用户批准的范围、Gate 或外部写入授权。
 - 工具边界：Superpowers 和其他外部工作流继续保持 `task-local` 和非必需；使用 Codex subagent 是本 Revision 的实际执行拓扑，不构成仓库采用某个外部框架。
 - 终态限制：本 Revision 替代之前的“只本地提交、不 push/merge”默认；它授权满足 Gate 后合并 PR #3，但不授权把 MCL 1.0 标记为 effective 或关闭 MF-1。
+
+### Revision 4 — 2026-08-10
+
+- 触发：用户确认 Viewer/Editor 源码未改变，要求立即停止 Netlify 和产品测试扩展，先合并范围清晰的 MCL 候选。
+- 批准：用户在当前 Codex Task 中直接缩小合并硬门槛并要求把 Netlify 与产品验证拆成后续 Change。
+- 变更：保留 Completion、治理、checksum、secret、link、CodeQL 和 `required / gate` 作为 MCL-only Gate；移除 Netlify Preview/smoke、完整 Viewer/Editor 构建/E2E 和产品发布验证的硬门槛地位。
+- 合并结果：PR #3 squash merge 为 `6e1725ee6d24ea37fcf3bb7492606e95e0e0780b`；其 tree 与获准 Head 相同，首个 `main` run `31332409298` 成功，Ruleset `20612630` 已应用并重读。
+- 终态限制：Revision 4 只完成候选合并和可验证控制安装；MF-1 继续 `verifying`，MCL 1.0 仍非 `effective/closed`。
 ````
 
 ## 6. Plan Amendments and Deviations
@@ -2122,10 +2218,12 @@ PR #3 合并后，MF-1 保持 `status: verifying` 和 `completion_state: pending
 - Re-examining the two original plans, Codex deep-link task, shared GPT conversation, and linked GitHub evidence corrected a research inference. The correction is recorded in Evidence and Completion; case narrative remains excluded from the normative specification.
 - Revision 3 was directly approved by the user to merge only the MCL candidate after new evidence. It archives the predecessor plan, makes historical Task snapshots immutable, adds Manifest 1.1 source materials, separates the reusable specification from the MF-1 Plan, removes versioned-snapshot dependency maintenance, and delays activation and closure.
 - The approved plan originally named the revision work T02 and merge work T03. Three independently prompted implementation subagents require separate records, so the actual sequence is T02–T04 for those agents, T05 for primary integration, and T06 for merge/post-merge evidence. Scope, ordering, merge Gates, and external-write authority are unchanged.
+- Revision 4 was directly approved by the user after T05: Viewer/Editor source was unchanged, so full product build/E2E, product-release verification, and Netlify Preview/smoke were removed from the candidate merge hard Gate and split into Issues #15 and #16. Completion, checksum, secret, link, governance, CodeQL and `required / gate` remained mandatory.
+- A detached worktree method was abandoned after it began hydrating large product data and exhausted temporary disk. The exact Task-created temporary checkout was removed, and Git tree equality plus checks on the already checked-out identical tree supplied the post-merge content evidence without expanding product scope.
 
 ## 7. Implementation and External Effects
 
-The Change adds repository governance documents, schemas, templates, deterministic Completion tooling, component routing, CI/security/release/rollback/upstream workflows, Viewer browser fixtures, and Version History compatibility. Revision 3 additionally separates the normative specification from the Change Plan, archives the exact predecessor plan, introduces Task-specific Completion aggregation, and removes versioned Supersplat snapshots from dependency-update authorization. Branch `codex/mcl-v1`, draft PR #3, labels, merge settings, dependency graph, Dependabot security updates, secret scanning, and push protection were created or enabled and re-read. Revision 3 commit `023dac807976f02ec6e95a9dbf33de827896bd51` was pushed and PR #3 was retitled “Adopt MCL v1 governance candidate”; its first exact-Head run failed the unowned-path Gate, so a focused component-registry correction is being prepared. Issue #1 tracks MF-1, Issue #2 tracks residual dependency work, and Issue #9 records PRs #4–#8 without MF-1 disposing of them. No product release or production system was mutated.
+The Change adds repository governance documents, schemas, templates, deterministic Completion tooling, component routing, CI/security/release/rollback/upstream workflows, Viewer browser fixtures, and Version History compatibility. Revision 3 separates the normative specification from the Change Plan, archives the exact predecessor plan, introduces Task-specific Completion aggregation, and removes versioned Supersplat snapshots from dependency-update authorization. PR #3 was marked Ready and squash-merged as `6e1725ee6d24ea37fcf3bb7492606e95e0e0780b`; `origin/main`, the merged PR, the deleted remote branch and Issue #1 evidence were re-read. Ruleset `20612630` was created active after the first main Gate succeeded and its effective rules were re-read. Issues #15 and #16 now own the separated Netlify and product-Gate proposals. No product release or production deployment was performed.
 
 ## 8. Verification and Review Evidence
 
@@ -2214,6 +2312,26 @@ Browser fixture:
 - fixed route, settings, language, timezone, DPR, reduced motion, WebGL, ready signal, desktop viewport, and mobile viewport;
 - the same fixture is exercised in development watch and production build modes.
 
+## Revision 4 candidate merge and post-merge evidence
+
+The user narrowed the merge Gate before merge: Viewer/Editor source was unchanged, so full product build/E2E, product-release verification, and Netlify Preview/smoke were split from MF-1 instead of remaining hard blockers. Historical product-job results above remain factual but are not treated as release evidence.
+
+| Area | Actual result |
+| --- | --- |
+| Approved PR Head | `02cb823b22cf1eb2f5fed3bd7bbb4309414bd629`; PR #3 Ready, mergeable, two historical review threads resolved/outdated |
+| Exact-Head MCL Gate | [run 31331822368](https://github.com/Shuang-su/Metaflow/actions/runs/31331822368) passed governance/Completion, dependency review, both CodeQL surfaces and `required / gate` |
+| Candidate merge | PR #3 squash-merged at `2026-08-09T19:43:45Z`; merge commit `6e1725ee6d24ea37fcf3bb7492606e95e0e0780b`; remote feature branch deleted |
+| Tree identity | Approved Head and merge commit both resolve to tree `3b1828abbd623a9f81e334171950c7a43321c3f4`; `git diff --exit-code 02cb823b... origin/main` passed |
+| MCL-only post-merge validation | 37 Node tests, 7 Python tests, strict Completion, platform validation, 46 Markdown files, and 10,823-path secret/hygiene scan passed on the identical tree |
+| Main workflow | [run 31332409298](https://github.com/Shuang-su/Metaflow/actions/runs/31332409298) passed; `governance and completion`, CodeQL and `required / gate` were re-read successful |
+| Enforced control | Active [Ruleset 20612630](https://github.com/Shuang-su/Metaflow/rules/20612630) was created only after the main Gate passed; detail and effective-branch-rules APIs confirmed PR-only, squash-only, resolved conversations, deletion/non-fast-forward protection and required `required / gate` |
+| Issue evidence | [Issue #1 comment](https://github.com/Shuang-su/Metaflow/issues/1#issuecomment-5233527273) was added and re-read |
+| Deferred Netlify Change | [Issue #15](https://github.com/Shuang-su/Metaflow/issues/15) records lightweight Preview/LFS/data-corpus work; current deploy `6a78d554571d99000892e5a4` remained `building` and is not success evidence |
+| Deferred product Gate Change | [Issue #16](https://github.com/Shuang-su/Metaflow/issues/16) records path-scoped Viewer/Editor validation and release Gate design |
+| Local-main safety | `/Volumes/Prism/Metaflow` remains `47ffd86e9635d7d797628a214df817f7ca60b55c`, now nine ahead/one behind remote, with the predecessor plan and Swiftgram paths still untracked |
+
+Two temporary checkout attempts were stopped because they began hydrating or writing large product data. The first Task-created incomplete checkout consumed about 3.5 GB and was permanently deleted after its exact temporary path was verified; the second failed with `No space left on device` and left no worktree registration. No user-authored path was deleted. Cryptographic tree identity replaced further full checkout attempts.
+
 ## Adoption and enforcement claim audit
 
 | Claim examined | Classification and result | Direct evidence |
@@ -2221,8 +2339,8 @@ Browser fixture:
 | SztuCode natively includes or requires the Superpowers `subagent-driven-development` Skill | Rejected. The instruction is `task-local`: collaborator `GuanG-1008` added it inside one Implementation Plan. | [Plan-adding commit `e452a423`](https://github.com/rojim666/SztuCode/commit/e452a42386a0a546b548e4cc6118ea0a1e4ae667), [PR #67](https://github.com/rojim666/SztuCode/pull/67) |
 | A merged PR proves repository-wide method adoption | Rejected. Merge proves acceptance of that PR's content, not adoption beyond its declared scope. The separate Spec was likewise introduced for the same work. | [Spec-adding commit `35374f7a`](https://github.com/rojim666/SztuCode/commit/35374f7a2fe7fd3bdd8f78a9478f74a94127ab10), [PR #67](https://github.com/rojim666/SztuCode/pull/67) |
 | The shared GPT conversation is a normative source | Rejected. It is `reference` material and contained an over-broad adoption inference; reusable ideas were translated into tool-neutral contracts. | [Shared conversation](https://chatgpt.com/share/6a788411-d11c-83e8-afac-0871d9def42d) |
-| Metaflow MCL is already repository policy or fully enforced | Rejected for the current branch state. The specification is an implemented candidate; merge, activation, Ruleset evidence, pilots, and human closure remain outstanding. | [Draft PR #3](https://github.com/Shuang-su/Metaflow/pull/3), [Issue #1](https://github.com/Shuang-su/Metaflow/issues/1) |
-| MF-1 PR-head automation is already an enforced merge control | Rejected. The run proves that checks execute and pass for the recorded commit; without an active `main` Ruleset it does not prove that merge is automatically blocked. | [Run 31327941632](https://github.com/Shuang-su/Metaflow/actions/runs/31327941632) |
+| Metaflow MCL is already full repository policy or fully effective | Rejected. The candidate is installed on `main`, and the verified Ruleset is an enforced-control; pilots, activation, release/rollback rehearsal and human closure remain outstanding. | [PR #3](https://github.com/Shuang-su/Metaflow/pull/3), [Issue #1](https://github.com/Shuang-su/Metaflow/issues/1), [Ruleset 20612630](https://github.com/Shuang-su/Metaflow/rules/20612630) |
+| `required / gate` is now an enforced merge control for `main` | Accepted for this specific control. It succeeded on the first merged-main run before the active Ruleset was created and was then present in the effective branch rules. | [Run 31332409298](https://github.com/Shuang-su/Metaflow/actions/runs/31332409298), [Ruleset 20612630](https://github.com/Shuang-su/Metaflow/rules/20612630) |
 
 Review corrections:
 
@@ -2275,17 +2393,20 @@ Dependency audit after compatible direct updates:
 - Enabling Dependabot security updates caused automated PRs [#4](https://github.com/Shuang-su/Metaflow/pull/4) through [#8](https://github.com/Shuang-su/Metaflow/pull/8) against the non-Active `supersplat-viewer-v1.18.2` reference snapshot. They were not merged, dismissed, or treated as Active product updates.
 - Created and re-read [Issue #9](https://github.com/Shuang-su/Metaflow/issues/9) as a T3 Upstream Sync Proposal signal for PRs #4-#8; no `Adopt / Defer / Skip` decision was made.
 - Read-only GitHub Project discovery failed because the active token lacks `read:project`; no Project write was attempted.
-- Ruleset activation is intentionally deferred until `required / gate` has merged and succeeded on `main`.
+- After `required / gate` succeeded on merged `main`, created active Ruleset `20612630` and re-read both its full configuration and effective rules for `main`.
 - Netlify automatically created Deploy Preview `6a78b7bf7f384100088b3e12` for PR #3 at commit `e47dc4fa`. The public API still reported `building`, and the Preview URL had no successful smoke evidence; no manual Netlify write or production deploy occurred.
 - Commit message `[skip netlify]` did not prevent a second automatic Preview: deploy `6a78c06f56d7aa0008c2053f` was created for `66d2553d` and remained `building`. PR #3 was then renamed to include `[skip netlify]` for the next archive-only push, and the updated title was re-read.
 - Updated and re-read PR #3's body to identify Revision 2, 18 Completion tests, run `31327941632`, author self-review, Task-local instruction authority, pending Netlify state, and Issue #9 without claiming repository enforcement.
+- Updated PR #3 to Revision 4's MCL-only Gate, marked it Ready, squash-merged it, and re-read merge commit `6e1725ee6d24ea37fcf3bb7492606e95e0e0780b` and `origin/main`.
+- Added and re-read the post-merge Issue #1 comment, then created and re-read proposed follow-up Issues #15 and #16.
 - No Supabase, production, release, rollback, tag, or manual deploy write occurred.
 
 ## Known limitations
 
-- The implementation branch is not yet merged; MCL remains a candidate and is not effective.
-- GitHub Project fields, production Environment secrets/protection, and the `main` Ruleset are not configured.
-- Netlify Deploy Previews `6a78b7bf7f384100088b3e12` and `6a78c06f56d7aa0008c2053f` remained `building`; the latest Preview checks were pending and no successful HTTP smoke was available. Preview remains unverified.
+- PR #3 is merged and the Ruleset is active, but MCL remains an installed candidate and is not effective or closed.
+- GitHub Project fields and production Environment secrets/protection are not configured.
+- Netlify Deploy Previews remained non-terminal and no successful HTTP smoke was available. Revision 4 explicitly moved this work to Issue #15; no success is claimed.
+- Path-scoped Viewer/Editor product and release Gate design is proposed in Issue #16 and is not implemented by MF-1.
 - Dependabot PRs #4-#8 target a reference snapshot and require the T3 Upstream Sync decision tracked by Issue #9; they must not be merged as routine Active-product dependency maintenance.
 - Preview/Beta/Stable, immutable production deployment, smoke, observation, and rollback workflows are implemented but unexercised.
 - Phase 9 fast-path, Design, real Upstream Sync, multi-Agent, continuation, attachment, and rollback pilots remain incomplete.
@@ -2294,46 +2415,52 @@ Dependency audit after compatible direct updates:
 
 ## 9. Release, Rollback and Observation
 
-Release and rollback workflows are implemented but were not invoked. Older Netlify Preview attempts are not evidence for Revision 3. The PR title no longer carries `[skip netlify]`, but no successful exact-Head Preview and smoke exists yet. No namespaced tag, immutable production deploy, production smoke, GitHub Release, observation window, or rollback rehearsal exists for MF-1. The candidate specification therefore remains non-effective.
+Release and rollback workflows are implemented but were not invoked. Netlify Previews remained non-terminal and are not successful evidence; Issue #15 owns that separate proposal. No namespaced tag, immutable production deploy, production smoke, GitHub Release, observation window, or rollback rehearsal exists for MF-1. The installed candidate therefore remains non-effective.
 
 ## 10. Remaining Risks and Follow-up Changes
 
 - GitHub Project fields require an authenticated token with Project scope.
-- `required / gate` cannot safely become required until it exists and succeeds on `main`.
 - Issue #2 owns residual transitive npm advisories.
 - Existing default-branch dependency alerts remain external follow-up evidence; enabling security controls did not resolve or dismiss them.
 - Dependabot PRs #4-#8 affect a non-Active reference snapshot and require the T3 `Adopt / Defer / Skip` decision tracked by Issue #9.
-- The still-building Netlify Preview needs a terminal result and successful Preview smoke or an explicit documented exception.
+- Issue #15 owns lightweight Netlify Preview and smoke; MF-1 must not silently absorb its implementation.
+- Issue #16 owns path-scoped Viewer/Editor validation and product/release Gate design.
 - Design onboarding, real Upstream Sync, T0/T1 fast path, multi-Agent T2, partial-to-closed, attachment delivery, rollback, and full release pilots remain outstanding.
-- The focused compatibility-entry classifier correction, its local validation, exact-Head hosted checks, Preview smoke, merge, post-merge `main` verification, and the separate T06 evidence PR remain outstanding.
+- The post-merge Evidence/Completion PR remains outstanding; candidate activation, pilots and closure remain later MF-1 work.
 
 ## 11. Ledger, Version, PR, and Release Links
 
 - Change: <https://github.com/Shuang-su/Metaflow/issues/1>
 - Security follow-up: <https://github.com/Shuang-su/Metaflow/issues/2>
 - Reference-snapshot Upstream Sync decision: <https://github.com/Shuang-su/Metaflow/issues/9>
-- Draft PR: <https://github.com/Shuang-su/Metaflow/pull/3>
+- Merged candidate PR: <https://github.com/Shuang-su/Metaflow/pull/3>
+- Merge commit: `6e1725ee6d24ea37fcf3bb7492606e95e0e0780b`
+- Main run: <https://github.com/Shuang-su/Metaflow/actions/runs/31332409298>
+- Active Ruleset: <https://github.com/Shuang-su/Metaflow/rules/20612630>
+- Netlify follow-up: <https://github.com/Shuang-su/Metaflow/issues/15>
+- Product-Gate follow-up: <https://github.com/Shuang-su/Metaflow/issues/16>
 - Revision 3 first push: `023dac807976f02ec6e95a9dbf33de827896bd51`
 - Failed exact-Head run requiring a new commit: <https://github.com/Shuang-su/Metaflow/actions/runs/31331509106>
 - Green hosted runs: <https://github.com/Shuang-su/Metaflow/actions/runs/31325948588>, <https://github.com/Shuang-su/Metaflow/actions/runs/31326306006>, <https://github.com/Shuang-su/Metaflow/actions/runs/31327941632>
 - Implementation refs: `fb0a881b` through `66d2553d`; `66d2553d` is the published Revision 2 ref before this Completion refresh.
-- Tag, Release, deploy, merge, active Ruleset, and MCL 1.0 activation: not created or activated.
+- Tag, Release, successful deploy evidence, and MCL 1.0 activation: not created or activated.
 
 ## 12. Checksums and Redaction Manifest
 
 | Source | SHA-256 |
 | --- | --- |
-| request-transcript.md | `49fe518d3e38c4099508ead4e8f3008598f26a735a44b8dd82218d86d968d11f` |
-| ../plan.md | `c4fc6da8f701a46412caef5a396449e1560d569bdd000a9bd1955f627608e107` |
-| agent-action-reply-summary.md | `d1e07c7511f70ad49fe19627aa6e9ce93ee5ecd823b2d689efd1e9d7e8c350b1` |
-| ../evidence.md | `3821b203771624b7565ec5a9a89195e9ea089ee6598bd80b92c7ebb11e3cdc28` |
-| closure.md | `cd732031a8283c694aa849c934fc48cf51a15da1c34fd71cc8189ead0f4f0103` |
+| request-transcript.md | `bc26e775f9358f3f80a48e19fefbc5db25b8fa8d308def7c54e80a22ec074635` |
+| ../plan.md | `2f196e224ed65fab483804addd57de5bd9b6f82ce6fca48d0651fce83fc10564` |
+| agent-action-reply-summary.md | `ca2573445bd29469bf15ea17f6ff5ac3fba36eb9f4590ad9e14bf231c4b51c15` |
+| ../evidence.md | `ad7cfc4f200622b9cc5bd5032db1883145123c7176da29bec1fa68fd82413b33` |
+| closure.md | `dc53ad74a9bcd39dbd9239038ddaad9b6e1d29b03113f8b75ff2ec4808cd231f` |
 | task-records/MF-1-T01.md | `616c6d3390b6663882d54551be4e6c74f906e177601c9af72311fa873e33101d` |
 | task-records/MF-1-T02.md | `ed88ac509f41c161d3dfd5e7092b8264c3f179dcec3720e60941738ad39b91f3` |
 | task-records/MF-1-T03.md | `f23f68ca14a5dded0794eb927844f9341d014dbb76a5f8e8fe88ec1ed99c2239` |
 | task-records/MF-1-T04.md | `89c8bf2ddc3e682d973af73fb71737007cba6b5552c271224584b10c110cf56e` |
 | task-records/MF-1-T05.md | `f60165d99286ad2df51c1672bd2035d2dc0744af4145bc6ed81f663d41b0ac2f` |
-| plan-revisions.json | `8ac78c6aa0813c801784202e94a171c6c5433b199ff5ec4bfd92d9cb8e7ce59c` |
+| task-records/MF-1-T06.md | `ac17b60aca6119392ee30cc9511bf01efec2d10023af601b1da0564560d823bc` |
+| plan-revisions.json | `6a186927f5ddd0714a37eb37c23602b87c89faae88b3f2f33245cf77353e9e7f` |
 | source-materials.json | `17174a46f38c70fc040c801dc8f62ee6a379f7f7ac844df6c385bf39ed5307d9` |
 | source-materials/metaflow-change-lifecycle-v1.0-complete-plan.md | `37f45424cc233af72801e1d91053d4581d1bbcdfb73627612d6f28f018af85a3` |
 
@@ -2341,4 +2468,4 @@ No redactions.
 
 ## 13. Closure Decision
 
-Do not close MF-1. Revision 3 is being integrated on the PR #3 branch; the previously green hosted results belong to an older Head and are not merge evidence for the current revision. MCL 1.0 cannot become effective until Revision 3 passes its exact-Head local, hosted, Preview, merge, post-merge, Ruleset, pilot, release/rollback, and human activation Gates.
+Do not close MF-1. PR #3 has merged the MCL candidate, the exact merge tree and first `main` run were verified, and Ruleset `20612630` is an enforced-control. Revision 4 explicitly separates Netlify and product validation from this candidate merge. MCL 1.0 cannot become effective until the remaining pilots, activation, release/rollback rehearsal, observation, and human closure Gates are completed.

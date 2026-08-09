@@ -1,7 +1,7 @@
 ---
 change_id: MF-1
 status: verifying
-generated_at: 2026-08-09T19:29:24.000Z
+generated_at: 2026-08-09T19:52:50.000Z
 ---
 
 # Agent Actions and Replies Summary
@@ -17,6 +17,7 @@ generated_at: 2026-08-09T19:29:24.000Z
 | MF-1-T03 | codex | complete | task-records/MF-1-T03.md |
 | MF-1-T04 | codex | complete | task-records/MF-1-T04.md |
 | MF-1-T05 | codex | partial | task-records/MF-1-T05.md |
+| MF-1-T06 | codex | partial | task-records/MF-1-T06.md |
 
 ## Chronological Action Summary
 
@@ -106,6 +107,23 @@ generated_at: 2026-08-09T19:29:24.000Z
 17. Inspected failed run `31331509106` through the GitHub app and Actions logs. Classification correctly rejected the new compatibility entry as unowned.
 18. Added that one exact compatibility path to the platform component registry and a regression assertion; no broad path exception or product ownership was added.
 
+### MF-1-T06
+
+1. Accepted the user's narrower Gate and stopped treating Viewer/Editor full build, E2E, product release verification, and Netlify Preview/smoke as blockers for the MCL candidate merge.
+2. Reverted the uncommitted Netlify preview-context, platform-validator, and test expansion; re-read the worktree as clean.
+3. Queried both site- and account-level Netlify environment variables and confirmed that the attempted clone-control experiment left no `GIT_LFS_SKIP_SMUDGE` variable.
+4. Updated PR #3's body with the explicit non-gating boundary, marked it Ready, and re-read exact Head `02cb823b22cf1eb2f5fed3bd7bbb4309414bd629`, mergeability, checks, and review threads.
+5. Verified all MCL CI jobs, dependency review, two CodeQL surfaces, and `required / gate` succeeded on exact-Head run `31331822368`; the only pending contexts were the explicitly deferred Netlify checks.
+6. Squash-merged PR #3, re-read merge commit `6e1725ee6d24ea37fcf3bb7492606e95e0e0780b`, fetched only the remote `main` ref, and verified the remote feature branch was deleted.
+7. Re-read the protected local workspace: local `main` remained `47ffd86e9635d7d797628a214df817f7ca60b55c`, its nine local commits and two pre-existing untracked paths were preserved, and it was not updated or rewritten.
+8. Stopped two temporary full-checkout attempts when repository data hydration exceeded the MCL-only scope. Removed only the exact temporary checkout created by this Task, then used Git tree identity instead of a product-data checkout.
+9. Verified the approved Head and merge commit have the same tree `3b1828abbd623a9f81e334171950c7a43321c3f4`, then reran MCL-only checks on that identical tree.
+10. Re-read main run `31332409298` as successful, including `governance and completion`, CodeQL, and stable `required / gate`.
+11. Applied repository Ruleset `20612630` only after the main prerequisite passed, then re-read both its detailed active configuration and the effective rules for `main`.
+12. Added and re-read the post-merge evidence comment on Issue #1.
+13. Created and re-read Issue #15 for lightweight Netlify Preview and Issue #16 for path-scoped Viewer/Editor validation; no implementation was performed in either Change.
+14. Created `codex/mf-1-post-merge-evidence` from exact `origin/main` and prepared Revision 4, T06, Evidence, and Completion updates without changing product source.
+
 ## Agent Reply Summary
 
 ### MF-1-T01
@@ -129,6 +147,14 @@ The Agent reported that seven Python tests passed, platform validation and `git 
 ### MF-1-T05
 
 The Agent told the user that work would proceed in two stages, with merge conditional on the exact new Head's GitHub and Netlify evidence. It reported the protected-state boundary, completion of the dependency Task, the Completion immutability approach, normative-document separation, preservation of T01, the exact non-normative archive link rule, and the successful 37-Node/7-Python governance gate before moving to component validation. No final completion, merge, Preview success, activation, or enforced-control claim has been made.
+
+### MF-1-T06
+
+- Told the user that the narrower boundary was accepted and that uncommitted Netlify expansion would be withdrawn before merging.
+- Reported that PR #3 was actually squash-merged, gave the exact merge commit, and stated that local `main` and user materials remained unchanged.
+- Reported that post-merge verification uses cryptographic tree identity and MCL-only checks rather than another product-data checkout.
+- Distinguished the installed MCL candidate and verified Ruleset from full MCL activation or Change closure.
+- Kept Netlify and product checks explicit as follow-up work rather than reporting them as passed or silently omitting them.
 
 ## Files and External Effects
 
@@ -187,6 +213,18 @@ External effects:
 - Created commit `023dac807976f02ec6e95a9dbf33de827896bd51`, pushed `codex/mcl-v1`, and updated/re-read PR #3 as the draft “Adopt MCL v1 governance candidate”.
 - The first exact-Head Actions run `31331509106` failed at classification; no merge, Issue #1 write, deployment, or Ruleset application occurred.
 - Did not modify the checked-out local main branch, the Swiftgram directory, or the untracked predecessor-plan source.
+
+### MF-1-T06
+
+- GitHub PR #3 changed from Draft to Ready and was squash-merged; remote branch `codex/mcl-v1` was deleted.
+- `origin/main` advanced to `6e1725ee6d24ea37fcf3bb7492606e95e0e0780b`; local `main` was not advanced.
+- GitHub Ruleset `20612630` was created active with PR-only, deletion/non-fast-forward protection, squash-only merge, review-thread resolution, and required `required / gate`.
+- Issue #1 received a verified merge/main-run/Ruleset status comment.
+- Proposed follow-up Issues #15 and #16 were created with platform/product scope and non-goals.
+- The current post-merge branch modifies only MF-1 Plan, Evidence, Completion sources, and deterministic generated outputs.
+- No Viewer/Editor product source, versioned Supersplat snapshot, production deployment, release, or MCL activation was changed.
+- No Netlify environment variable remained after the stopped experiment.
+- One Task-created 3.5 GB incomplete temporary checkout was permanently deleted after its exact path was verified; it contained no user-authored material and is not recoverable.
 
 ## Validation, Failures, and Omissions
 
@@ -285,3 +323,26 @@ No focused validation failed at termination. The Agent did not run Viewer/Editor
 - The first pushed Revision 3 run failed its intended unowned-path guard on the new compatibility entry. The focused correction registers only that path under platform and adds a classifier regression test; no failed check was rerun or waived without a new commit.
 - Full remote writes were intentionally skipped until Task-specific records, authored indexes, local validation, and the two author-review passes existed.
 - No failed Gate was waived.
+
+### MF-1-T06
+
+- Exact approved Head and merge commit tree hashes both equal `3b1828abbd623a9f81e334171950c7a43321c3f4`; `git diff --exit-code <approved-head> origin/main` passed.
+- MCL Completion tests: 37/37 Node tests passed.
+- Platform unit tests: 7/7 Python tests passed.
+- `node scripts/mcl.mjs check-all --strict`: passed for active/verifying MF-1.
+- `python3 scripts/validate_platform.py`: passed.
+- Markdown link validation: 46 files passed.
+- Repository hygiene and secret scan: 10,823 paths passed.
+- Main run `31332409298`: success; `required / gate` job `93292927424` succeeded.
+- Ruleset detail and effective `main` rules were re-read and matched the repository JSON.
+- Issue #1's final comment, Issue #15, and Issue #16 were re-read after creation.
+- T01 SHA-256 and the predecessor-plan archive remain governed by unchanged historical records; Revision 4 does not rewrite them.
+
+#### Failures, Retries, and Skipped Checks
+
+- Before the user's correction, the Agent briefly drafted an uncommitted lightweight Netlify Preview context after observing multiple stuck builds. The user narrowed scope; all three uncommitted files were restored, and API re-reads confirmed no clone-control variable existed at site or account level.
+- A first temporary detached worktree began hydrating large product data. It was terminated, moved to Trash, and then permanently removed when the temporary checkout consumed about 3.5 GB and left the filesystem nearly full.
+- A second attempt with `GIT_LFS_SKIP_SMUDGE=1` still encountered large non-pointer checkout content and failed with `No space left on device`; Git removed the failed worktree registration. No third checkout was attempted.
+- The replacement verification compared Git trees and ran governance checks on the already checked-out identical tree, avoiding further product-data work.
+- Netlify Preview/smoke and full product-release validation were skipped by direct user-approved Revision 4 scope, not inferred as successful.
+- No failed MCL Gate was waived.

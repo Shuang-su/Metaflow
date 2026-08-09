@@ -1,8 +1,8 @@
 ---
 change_id: MF-1
 source: task-records
-generated_at: 2026-08-09T19:29:24.000Z
-message_count: 12
+generated_at: 2026-08-09T19:52:50.000Z
+message_count: 13
 redactions: 0
 ---
 
@@ -1565,5 +1565,28 @@ MF-1 继续处于 verifying，MCL 1.0 尚未 effective/closed。
 
 不得把 PR 合并、局部 Gate 成功或 Ruleset 应用单独表述为“MCL 1.0 已全部完成”。
 
+<!-- /user-message -->
+````
+
+## MF-1-T06
+
+- Request SHA-256: `41b4e1fcd7160f0804f540f99e7b2c30437f03911d89c7eee0c80158e5eaeff1`
+- Message count: 1
+
+````markdown
+---
+change_id: MF-1
+task_id: MF-1-T06
+source: codex-user-message
+source_thread_id: 019fe70e-e5e7-7b81-ae68-39eb0a087128
+captured: 2026-08-10
+message_count: 1
+redactions: 0
+---
+
+# Complete User Request Transcript
+
+<!-- user-message:1 -->
+Viewer/Editor 源码未改变，就不把完整构建、E2E 和产品发布验证作为本次合并硬门槛。应该立即停止继续扩展，把 Netlify 和产品测试拆出去，先完成一个范围清晰的 MCL 候选合并。
 <!-- /user-message -->
 ````

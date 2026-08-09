@@ -10,13 +10,13 @@ owner: Shuang-su
 created: 2026-08-09
 updated: 2026-08-10
 issue: https://github.com/Shuang-su/Metaflow/issues/1
-plan_revision: 3
+plan_revision: 4
 completion_state: pending
 supersedes: null
 terminal_reason: null
 ---
 
-# MF-1 Revision 3 候选采纳、合并与合并后验证计划
+# MF-1 Revision 4 候选合并与合并后证据计划
 
 ## 1. 目标和结束状态
 
@@ -52,7 +52,7 @@ PR 合并、候选 CI 成功或 Ruleset 的局部应用都不单独构成 MCL 1.
 4. 以向后兼容方式增加 Completion Manifest 1.1 的每 Task request/Plan 摘要和 `sourceMaterials`。
 5. 明确单一真源、MCL 自身变更管理、两稳定版本复盘和候选合并语义。
 6. 移除 PR #3 中与 MCL 无关或越界的带版本号快照依赖变更及 Dependabot 更新目标。
-7. 完成 PR #3 的本地验证、托管 Gate、Preview、squash merge、合并后 `main` 验证和可证明的 Ruleset 应用。
+7. 完成 PR #3 的 MCL-only 本地/托管 Gate、squash merge、合并后 `main` 验证和可证明的 Ruleset 应用。
 
 ### 3.2 不包含
 
@@ -61,6 +61,7 @@ PR 合并、候选 CI 成功或 Ruleset 的局部应用都不单独构成 MCL 1.
 - PR #4–#8 的 Adopt、Defer、Skip、关闭或合并。
 - Design、Swiftgram 或任何产品功能变更。
 - 生产部署、Stable Release、MCL 1.0 全量生效或 MF-1 关闭。
+- Netlify Preview/smoke，以及不由 Viewer/Editor 源码变化触发的完整产品构建、E2E 和产品发布验证；这些必须作为后续 Change 单独处理。
 - 强制安装或调用 Superpowers、其 `subagent-driven-development` 指令或其他外部 Skill/Plugin。任何此类指令均只在明确授权的 Task 内属于 `task-local`。
 
 ## 4. 保护现场和不可变约束
@@ -128,10 +129,10 @@ T02–T04 只能修改各自获准的文件；T05 负责审查、整合和记录
 2. 生成 Revision 3 的 transcript、summary、approved Plan、Manifest 和 Dossier；所有 checksum 从实际文件计算。
 3. 执行两个分开的作者自审 pass：Spec Compliance 审查范围、漏项和越界；Code Quality 审查正确性、可维护性、安全、测试和幂等性。禁止称为独立 Review。
 4. 更新 PR #3 正文，记录 Revision 3、前身计划归档、当前验证、作者自审、候选语义、未完成 activation Gate 和不在范围的后续工作。
-5. 从 PR 标题移除 `[skip netlify]`，推送当前 Head，使新的 GitHub 检查和 Netlify Preview 针对精确的新 Head 执行。
+5. 从 PR 标题移除 `[skip netlify]`，推送当前 Head，使新的 GitHub 检查针对精确的新 Head 执行；Netlify 可以产生观察证据，但不属于 Revision 4 合并 Gate。
 6. T02–T04 各自终止时生成独立 Record；T05 只有在整合它们并完成全量验证后才能终止。
-7. 所有合并前 Gate 成功后将 PR 从 Draft 改为 Ready，重读 PR 状态，然后将 T05 记录为 `complete`。
-8. 任一 Gate 失败或仍无证据时，保持 PR 未合并，将受影响 Task 记录为 `partial` 或 `blocked`，明确失败命令、剩余范围和接续条件。
+7. 所有 MCL-only 合并前 Gate 成功后将 PR 从 Draft 改为 Ready 并重读；已经终止的 T05 保持不可变的 `partial`，由 T06 显式接管。
+8. 任一 MCL-only Gate 失败或仍无证据时，保持 PR 未合并，将受影响 Task 记录为 `partial` 或 `blocked`，明确失败命令、剩余范围和接续条件。
 
 ## 6. 合并前验证
 
@@ -151,27 +152,28 @@ git diff --check
 
 还必须执行并记录：
 
-- Viewer：`npm ci`、`npm test`、`npm run type:check`、`npm run build`、开发/生产构建双模式 Playwright；
-- Editor：`npm ci`、`npm run lint`、`npm run build`；
 - Completion：Manifest 1.0 兼容、1.1 正负用例、多 Task、旧 revision 不可变、source-material checksum、secret/redaction 和幂等生成；
 - 治理：带版本号 snapshot 不得是 Dependabot npm 目标；规范、Plan、模板和生成文件不得形成冲突真源；
 - 不可变：T01 SHA-256、前身原文行数和 SHA-256、本地 `main` ref 及 Swiftgram 目录状态均与实施前一致。
 
-### 6.2 托管 Gate 和 Preview
+Revision 3 已运行的 Viewer/Editor 构建与 E2E 可以作为历史附加证据保留，但 Viewer/Editor 源码未变化时不属于本次候选合并的硬门槛，也不得把它们解释为产品发布验证。
 
-- PR #3 的当前 Head 必须通过所有组件作业、两类 CodeQL、dependency review 和稳定名称 `required / gate`。历史 Head 的绿色结果不得代替。
-- `netlify.toml` 变更要求当前 Head 的 Deploy Preview 成功，并通过 `/`、`/editor/` 和版本数据端点的 HTTP smoke。
-- GitHub 和 Netlify 结果必须通过 API 重读，记录 run/deploy ID、Head SHA、状态、URL 和查询时间。
-- 任一 required check、Preview、checksum、secret 扫描或确定性生成失败时，合并 Gate 失败。
+### 6.2 托管 MCL Gate
+
+- PR #3 当前 Head 的 `governance and completion`、两类 CodeQL、Completion/checksum/secret/link 检查和稳定名称 `required / gate` 必须成功；历史 Head 的绿色结果不得代替。
+- 当前 Workflow 若顺带运行 Viewer/Editor 作业，其结果可以记录，但不因本 Revision 把完整产品验证重新定义为 MCL 合并 Gate。
+- Netlify Preview/smoke 和产品发布验证移入独立后续 Change；pending、skipped 或失败状态必须如实记录，但不阻止本候选合并。
+- GitHub 结果必须通过 API 重读，记录 run ID、Head SHA、状态、URL 和查询时间。
+- 任一 MCL required check、checksum、secret 扫描或确定性生成失败时，合并 Gate 失败。
 
 ## 7. MF-1-T06：合并与合并后证据
 
-T06 必须在 T02–T05 全部终止后串行启动，使用独立 Task ID、完整用户问题、Plan Snapshot 和终止回复。
+T06 必须在 T02–T05 全部终止后串行启动，使用独立 Task ID、完整用户问题、Revision 4 Plan Snapshot 和终止回复。Revision 4 的直接授权是用户要求立即停止 Netlify/产品验证扩展，先完成范围清晰的 MCL 候选合并。
 
 1. 重读 PR #3 的 Head SHA、Draft/Ready 状态、mergeability、审批、未解决对话和当前 Head 的所有检查。
-2. 仅在第 6 节及第 9 节的所有合并 Gate 成功时执行 squash merge。
+2. 仅在第 6 节及第 9 节的 MCL-only 合并 Gate 成功时执行 squash merge；不得等待已拆出的 Netlify/产品发布 Gate。
 3. 合并后立即重读 PR，记录 `merged_at`、实际 merge commit、原 Head 和 `origin/main`。
-4. 从精确的远端 `main` SHA 创建新的 detached 或临时 worktree，运行必需的 MCL、平台、链接和基线检查；禁止更新主工作区领先 9 个提交的本地 `main`。
+4. 验证 merge commit 与已批准 Head 的 Git tree 相同，并在相同树上运行必需的 MCL、平台、链接和基线检查。只有不会水合大数据时才创建 detached/临时 worktree；发现全量产品 checkout 时必须停止并改用 tree/hash、现有相同树或 GitHub API。禁止更新主工作区领先 9 个提交的本地 `main`。
 5. 等待该 merge commit 的首个 `main` 工作流，重读并验证稳定名称 `required / gate` 成功。
 6. 只有当主分支上该检查名真实存在且成功后，才按 `.github/rulesets/main.json` 应用 Ruleset；应用后必须通过 GitHub API 重读详细规则和 active 状态。
 7. Ruleset 应用或重读失败时，记录为未强制的剩余 Gate；禁止使用 `enforced-control` 声明。PR 已合并的事实不因此被改写。
@@ -182,7 +184,7 @@ T06 必须在 T02–T05 全部终止后串行启动，使用独立 Task ID、完
 ## 8. 回滚和故障处置
 
 - 合并前发现规范越界、多 Task 数据污染、快照变更、未登记的源材料或无法重建 Dossier 时，停止合并，在当前分支修正或返回 Spec。
-- 合并前 CI/Preview 失败时保持 PR 开放且未合并，不通过 Review 文字豁免自动 Gate。
+- 合并前 MCL CI 失败时保持 PR 开放且未合并，不通过 Review 文字豁免自动 Gate；Netlify/产品验证按 Revision 4 另建 Change，不伪装成成功或阻断本合并。
 - 合并后若候选 MCL 导致 `main` 阻断，优先创建 revert PR 恢复 merge commit，保留原 PR、T01/T02/T03 和 Evidence；不 reset 或 force-push `main`。
 - Ruleset 配置错误导致无法正常修复时，使用仓库管理员可审计的 Ruleset 更新或暂时禁用，随后重读并记录详细差异；不得静默放宽控制。
 - 任何回滚都必须新增 Task Record 和 Version/Ledger 或 Issue 事实，不得删除原合并证据。
@@ -198,8 +200,9 @@ PR #3 只有在以下条件全部成立时才能合并：
 - `supersplat-v2.28.0/package.json` 和 `package-lock.json` 不再出现在 PR diff；
 - Dependabot 不再指向任何带版本号的源码或快照目录；
 - PR 正文、Task Record、Evidence 和 Dossier 不包含虚假生效、独立 Review、Preview 成功或 enforced 声明；
-- 当前 Head 的本地命令、GitHub Gate、两类 CodeQL、dependency review 和 Netlify Preview/smoke 全部通过；
+- 当前 Head 的 MCL 本地命令、`governance and completion`、两类 CodeQL、Completion/checksum/secret/link Gate 和 `required / gate` 全部通过；
 - PR 为 Ready、mergeable，无未解决审查对话，且所有证据指向精确当前 Head；
+- Netlify Preview/smoke、Viewer/Editor 全量产品验证和产品发布验证已登记为非门禁后续 Change，且没有被描述为成功；
 - 本地 `main` 的 9 个提交、未跟踪前身计划原件和 Swiftgram 目录保持不变。
 
 ## 10. 延后的生效 Gate
@@ -231,3 +234,11 @@ PR #3 合并后，MF-1 保持 `status: verifying` 和 `completion_state: pending
 - 执行拓扑澄清：实际实现使用三个文件范围互斥的 Codex subagent；为遵守独立 Agent 必须独立归档的规则，合并准备记录为 T02–T05，合并任务顺延为 T06。该澄清不改变用户批准的范围、Gate 或外部写入授权。
 - 工具边界：Superpowers 和其他外部工作流继续保持 `task-local` 和非必需；使用 Codex subagent 是本 Revision 的实际执行拓扑，不构成仓库采用某个外部框架。
 - 终态限制：本 Revision 替代之前的“只本地提交、不 push/merge”默认；它授权满足 Gate 后合并 PR #3，但不授权把 MCL 1.0 标记为 effective 或关闭 MF-1。
+
+### Revision 4 — 2026-08-10
+
+- 触发：用户确认 Viewer/Editor 源码未改变，要求立即停止 Netlify 和产品测试扩展，先合并范围清晰的 MCL 候选。
+- 批准：用户在当前 Codex Task 中直接缩小合并硬门槛并要求把 Netlify 与产品验证拆成后续 Change。
+- 变更：保留 Completion、治理、checksum、secret、link、CodeQL 和 `required / gate` 作为 MCL-only Gate；移除 Netlify Preview/smoke、完整 Viewer/Editor 构建/E2E 和产品发布验证的硬门槛地位。
+- 合并结果：PR #3 squash merge 为 `6e1725ee6d24ea37fcf3bb7492606e95e0e0780b`；其 tree 与获准 Head 相同，首个 `main` run `31332409298` 成功，Ruleset `20612630` 已应用并重读。
+- 终态限制：Revision 4 只完成候选合并和可验证控制安装；MF-1 继续 `verifying`，MCL 1.0 仍非 `effective/closed`。

@@ -28,6 +28,15 @@
       ],
       "amendmentReason": "Authorized a gated merge of the MCL candidate, preserved the predecessor plan, fixed immutable multi-Task Completion, separated the normative specification from the Change Plan, removed versioned-snapshot dependency maintenance, and recorded every independently prompted implementation Agent.",
       "approvalSource": "User-approved MCL v1 revision and merge plan in Codex task 019fe70e-e5e7-7b81-ae68-39eb0a087128"
+    },
+    {
+      "revision": 4,
+      "sha256": "2f196e224ed65fab483804addd57de5bd9b6f82ce6fca48d0651fce83fc10564",
+      "taskIds": [
+        "MF-1-T06"
+      ],
+      "amendmentReason": "Narrowed the candidate merge Gate to MCL governance and Completion evidence, split Netlify and Viewer/Editor product validation into follow-up Changes, and recorded the actual merge, main run, and enforced Ruleset.",
+      "approvalSource": "User scope correction in Codex task 019fe70e-e5e7-7b81-ae68-39eb0a087128"
     }
   ]
 }
