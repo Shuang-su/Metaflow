@@ -9,7 +9,7 @@ const extendedRenderer = process.env.E2E_RENDERER || 'webgl';
 export default defineConfig({
     testDir: './e2e',
     outputDir: `test-results/${mode}`,
-    snapshotPathTemplate: '{testDir}/{testFilePath}-snapshots/{arg}-{projectName}{ext}',
+    snapshotPathTemplate: '{testDir}/{testFilePath}-snapshots/{arg}-{projectName}-{platform}{ext}',
     fullyParallel: false,
     forbidOnly: Boolean(process.env.CI),
     retries: process.env.CI ? 1 : 0,
