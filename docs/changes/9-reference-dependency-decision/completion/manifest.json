@@ -1,25 +1,25 @@
 {
   "schemaVersion": "1.1",
   "changeId": "MF-9",
-  "terminalState": "implementing",
+  "terminalState": "closed",
   "risk": "T3",
   "components": [
     "reference"
   ],
   "request": {
     "path": "request-transcript.md",
-    "sha256": "8a40a111c459a9d399187bb97abec7fa67a34fb99ee6e89573b7a2c631a72c78",
+    "sha256": "7833c24c16b806a2c23d4ee38f1df0d5b1d929703b5fa62f4dbdb1b5aee25132",
     "messageCount": 1
   },
   "plan": {
     "path": "approved-plan.md",
-    "sha256": "e9d4cc1981d2f2566d77dc2440db9620165876bae3f8327b23227885d33c7db6",
-    "revision": 1,
+    "sha256": "70d4935952f665c3534ff55213f66e5149504f7b968153d08e33eef3270bc736",
+    "revision": 2,
     "source": "../plan.md"
   },
   "agentSummary": {
     "path": "agent-action-reply-summary.md",
-    "sha256": "adec326b0dd92c214fe5919f7a007bd6ba4863e97f69fc477f7a34c432cc2949"
+    "sha256": "607573534b000e34630643b01b34f4875ead6c9b7da445feab9ac2f984dea60e"
   },
   "planRevisions": [
     {
@@ -30,6 +30,13 @@
       ],
       "amendmentReason": "Initial approved decision and closure plan for Dependabot PRs targeting an immutable reference snapshot.",
       "approvalSource": "User-approved Editor source migration, upstream restoration, and dependency PR disposition plan"
+    },
+    {
+      "revision": 2,
+      "sha256": "70d4935952f665c3534ff55213f66e5149504f7b968153d08e33eef3270bc736",
+      "taskIds": [],
+      "amendmentReason": "Lifecycle-only closeout after the approved decision, external-state verification, deterministic archive, and applicable hosted Gates succeeded; no implementation decision changed.",
+      "approvalSource": "User-approved closure endpoint for MF-9 in the current implementation plan"
     }
   ],
   "taskRecords": [
@@ -37,9 +44,9 @@
       "taskId": "MF-9-T01",
       "tool": "codex",
       "sourceTaskId": "019fe70e-e5e7-7b81-ae68-39eb0a087128",
-      "status": "partial",
+      "status": "complete",
       "record": "task-records/MF-9-T01.md",
-      "sha256": "c1182245e11e446ed03ed0f2356ff682547e27480a2fd92d150c72afda1f7a07",
+      "sha256": "23c96231859be9d59b82ae552b0cce40593bfc109f60a1b6ff683ed9bd891d35",
       "request": {
         "sha256": "a93f600da9214f9397e924adb02a8dd8cafc9251a0f249d173ff32d2765a000b",
         "messageCount": 1
@@ -53,12 +60,12 @@
   "sourceMaterials": [],
   "closure": {
     "path": "closure.md",
-    "sha256": "d4bfd8d8752946dd27e03bd41605704181400021c232a144201516420035bd54"
+    "sha256": "22ae934a5038569e658e162b79ad96b436b692cdb0422b9b0f520cd3b755ddd8"
   },
   "dossier": {
     "path": "dossier.md",
-    "sha256": "6c865a5b9b7426c79ba9dd1c7b0af7e7f85f8107aecf50c5126649ed11243b8b"
+    "sha256": "b47bd3a6dab326d95d36d4fd4ea1bce0a5636cfab2335dbf1b2b94d25ffef2ea"
   },
   "redactions": [],
-  "generatedAt": "2026-08-10T00:00:00.000Z"
+  "generatedAt": "2026-08-09T20:46:23.000Z"
 }

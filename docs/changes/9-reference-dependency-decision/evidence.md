@@ -33,6 +33,10 @@ terminal_reason: null
 | Update Issue #9 | 0 | Passed | Approved Skip/Adopt matrix and MF-2 continuation were written and re-read at `2026-08-09T20:40:26Z`. |
 | Comment on and close PR #4–#8 | 0 | Passed | Tailored comment IDs: `5233740405`, `5233740551`, `5233740697`, `5233740869`, `5233741037`. |
 | Re-read PR #4–#8 | 0 | Passed | All report `state: closed`, `merged: false`, `merged_at: null`; close times span `2026-08-09T20:40:41Z` through `20:40:51Z`. |
+| `node --test scripts/tests/*.test.mjs` | 0 | Passed | 37/37 tests passed. |
+| `python3 -m unittest discover -s scripts/tests -p 'test_*.py'` | 0 | Passed | 7/7 tests passed. |
+| Strict MCL, platform, Markdown and whitespace checks | 0 | Passed | Deterministic Completion, platform configuration, 57 Markdown files and diff whitespace passed. |
+| GitHub Actions run `31334992146` | 0 | Passed | Governance/Completion, CodeQL, dependency review and `required / gate` succeeded for PR #19 Head `cc224f63`; all product jobs were path-skipped. |
 
 ## Browser, device, and rendering backend
 
@@ -67,7 +71,9 @@ No Preview, Beta, release, or production deployment is authorized.
 
 ## Review conclusions
 
-The author will perform separate Spec-compliance and code-quality self-review passes after deterministic generation and before publication. No independent non-author review is claimed.
+- Spec-compliance author self-review: passed. The staged and hosted diff contains only MF-9 documentation; all five required PR states and MF-2 continuation are evidenced; no product, snapshot, dependency, Preview, release, or deployment change is present.
+- Code-quality author self-review: passed. Generated artifacts are deterministic, all checksums validate, required sections are complete, no placeholders or likely secrets were found, and product jobs were correctly omitted by path routing.
+- No independent non-author review is claimed.
 
 ## Unrun checks and reasons
 
@@ -75,7 +81,7 @@ Product builds, E2E, Netlify Preview, performance, and release checks are intent
 
 ## Known limitations
 
-Closing the snapshot PRs does not itself repair Active dependencies; MF-2 owns that continuation.
+Closing the snapshot PRs does not itself repair Active dependencies; MF-2 owns that continuation. The final closed record becomes repository fact when PR #19 is squash-merged; the exact merge commit and Issue closure are re-read and recorded in Issue #9 and the final delivery response.
 
 ## Release, rollback, and observation
 

@@ -8,7 +8,7 @@
 - Title: Close snapshot dependency PRs and archive the decision
 - Risk: T3
 - Components: reference
-- Lifecycle state: implementing
+- Lifecycle state: closed
 - Owner: Shuang-su
 - Issue: https://github.com/Shuang-su/Metaflow/issues/9
 
@@ -211,7 +211,7 @@ PR B 必须验证：
 
 | Task ID | Tool | Status | Record |
 | --- | --- | --- | --- |
-| MF-9-T01 | codex | partial | task-records/MF-9-T01.md |
+| MF-9-T01 | codex | complete | task-records/MF-9-T01.md |
 
 ## 4. Agent Actions and Replies Summary
 
@@ -224,7 +224,7 @@ PR B 必须验证：
 
 | Task ID | Tool | Status | Record |
 | --- | --- | --- | --- |
-| MF-9-T01 | codex | partial | task-records/MF-9-T01.md |
+| MF-9-T01 | codex | complete | task-records/MF-9-T01.md |
 
 ## Chronological Action Summary
 
@@ -239,12 +239,17 @@ PR B 必须验证：
 | 5 | Record the approved decision | Write and re-read | GitHub Issue #9 | Skip/Adopt matrix, rationale, MF-2 link, and closure contract persisted. |
 | 6 | Comment on and close snapshot PRs | Write | GitHub PR #4–#8 | Posted one tailored comment per PR and closed each without a merge operation. |
 | 7 | Verify external state | Read | GitHub PR #4–#8 and their comments | All five are closed with `merged: false`, `merged_at: null`; authored comment IDs were re-read. |
+| 8 | Run local validation | Read | MCL, Node, Python, platform, Markdown and Git diff | 37 Node tests, seven Python tests, strict Completion, platform, link, and whitespace checks passed. |
+| 9 | Publish the pre-closure archive | Write and re-read | commit `cc224f63`, branch, and PR #19 | Branch was pushed; PR file list contained only 13 MF-9 documentation files. |
+| 10 | Validate the hosted Head | Read | GitHub Actions run `31334992146` | Governance/Completion, CodeQL, dependency review, and `required / gate` passed; product jobs were correctly skipped. |
+| 11 | Perform separated author self-review | Read | MF-9 Spec and staged/hosted diff | Spec compliance and code quality both passed; no independent non-author review is claimed. |
+| 12 | Finalize merge-effective closure | Write | MF-9 sources and deterministic generated artifacts | The final record is marked closed and becomes repository fact when PR #19 is merged. |
 
 ## Agent Reply Summary
 
 ### MF-9-T01
 
-The Agent reported the verified baseline, isolated-worktree recovery, Manifest 1.1 capture, and successful unmerged closure of PR #4–#8. It has not yet claimed MF-9 closed because repository publication and hosted Gates are pending.
+The Agent reported the verified baseline, isolated-worktree recovery, Manifest 1.1 capture, successful unmerged closure of PR #4–#8, and green local/hosted governance Gates. MF-9 is closed by merging this final archive; the exact merge and Issue state are delivered after re-read.
 
 ## Files and External Effects
 
@@ -257,6 +262,7 @@ The Agent reported the verified baseline, isolated-worktree recovery, Manifest 1
 - Added comments `5233740405`, `5233740551`, `5233740697`, `5233740869`, and `5233741037` to PR #4–#8 respectively.
 - Closed PR #4–#8 without merging them.
 - No product change, snapshot change, dependency change, release, Preview, or deployment occurred.
+- Pushed commit `cc224f63ea43c1f57756097d45401a2ce7b7c5aa` and created draft PR #19 against `main`.
 
 ## Validation, Failures, and Omissions
 
@@ -267,11 +273,15 @@ The Agent reported the verified baseline, isolated-worktree recovery, Manifest 1
 - Predecessor plan SHA-256 remains `37f45424cc233af72801e1d91053d4581d1bbcdfb73627612d6f28f018af85a3`.
 - GitHub re-read returned `state: closed`, `merged: false`, and `merged_at: null` for PR #4–#8.
 - MF-2 and MF-9 body content was re-read after update.
+- 37 Node tests and seven Python tests passed.
+- Strict MCL generation/check, platform validation, Markdown links, secret/hygiene checks, and whitespace checks passed locally and in hosted governance job `93299321593`.
+- CodeQL job `93299321623`, dependency review job `93299321629`, and `required / gate` job `93299509483` passed in run `31334992146`.
+- Spec-compliance self-review and code-quality self-review passed; all changed files belong to MF-9 documentation.
 
 #### Failures, Retries, and Skipped Checks
 
 - The first worktree checkout attempted to hydrate the large LFS tree and stopped while initializing. Its exact task-created residue was moved to Trash, and a clean checkout succeeded with LFS smudge disabled.
-- External-state validation passed. Local and hosted repository checks have not all run yet because the Task is still active.
+- The first hosted run validated the pre-closure record. A final run must validate this closure-only generated update before merge.
 ````
 
 ## 5. Complete Effective Plan
@@ -280,7 +290,7 @@ The Agent reported the verified baseline, isolated-worktree recovery, Manifest 1
 ---
 change_id: MF-9
 title: Close snapshot dependency PRs and archive the decision
-status: implementing
+status: closed
 component:
   - reference
 risk: T3
@@ -289,10 +299,10 @@ owner: Shuang-su
 created: 2026-08-10
 updated: 2026-08-10
 issue: https://github.com/Shuang-su/Metaflow/issues/9
-plan_revision: 1
-completion_state: pending
+plan_revision: 2
+completion_state: complete
 supersedes: null
-terminal_reason: null
+terminal_reason: snapshot-dependency-prs-skipped
 ---
 
 # Implementation Plan
@@ -370,6 +380,10 @@ Issue #2 and Issue #9 were updated. Tailored decision comments were posted to PR
 | Update Issue #9 | 0 | Passed | Approved Skip/Adopt matrix and MF-2 continuation were written and re-read at `2026-08-09T20:40:26Z`. |
 | Comment on and close PR #4–#8 | 0 | Passed | Tailored comment IDs: `5233740405`, `5233740551`, `5233740697`, `5233740869`, `5233741037`. |
 | Re-read PR #4–#8 | 0 | Passed | All report `state: closed`, `merged: false`, `merged_at: null`; close times span `2026-08-09T20:40:41Z` through `20:40:51Z`. |
+| `node --test scripts/tests/*.test.mjs` | 0 | Passed | 37/37 tests passed. |
+| `python3 -m unittest discover -s scripts/tests -p 'test_*.py'` | 0 | Passed | 7/7 tests passed. |
+| Strict MCL, platform, Markdown and whitespace checks | 0 | Passed | Deterministic Completion, platform configuration, 57 Markdown files and diff whitespace passed. |
+| GitHub Actions run `31334992146` | 0 | Passed | Governance/Completion, CodeQL, dependency review and `required / gate` succeeded for PR #19 Head `cc224f63`; all product jobs were path-skipped. |
 
 ## Browser, device, and rendering backend
 
@@ -404,7 +418,9 @@ No Preview, Beta, release, or production deployment is authorized.
 
 ## Review conclusions
 
-The author will perform separate Spec-compliance and code-quality self-review passes after deterministic generation and before publication. No independent non-author review is claimed.
+- Spec-compliance author self-review: passed. The staged and hosted diff contains only MF-9 documentation; all five required PR states and MF-2 continuation are evidenced; no product, snapshot, dependency, Preview, release, or deployment change is present.
+- Code-quality author self-review: passed. Generated artifacts are deterministic, all checksums validate, required sections are complete, no placeholders or likely secrets were found, and product jobs were correctly omitted by path routing.
+- No independent non-author review is claimed.
 
 ## Unrun checks and reasons
 
@@ -412,7 +428,7 @@ Product builds, E2E, Netlify Preview, performance, and release checks are intent
 
 ## Known limitations
 
-Closing the snapshot PRs does not itself repair Active dependencies; MF-2 owns that continuation.
+Closing the snapshot PRs does not itself repair Active dependencies; MF-2 owns that continuation. The final closed record becomes repository fact when PR #19 is squash-merged; the exact merge commit and Issue closure are re-read and recorded in Issue #9 and the final delivery response.
 
 ## Release, rollback, and observation
 
@@ -425,27 +441,29 @@ No product release or deployment applies.
 
 ## 10. Remaining Risks and Follow-up Changes
 
-MF-2 must remediate applicable Active dependency findings. Editor source ownership migration is a separate T3 Change.
+MF-2 must remediate applicable Active dependency findings. Editor source ownership migration is a separate T3 Change. Neither continuation is required to keep the immutable-snapshot decision closed.
 
 ## 11. Ledger, Version, PR, and Release Links
 
 - Issue: <https://github.com/Shuang-su/Metaflow/issues/9>
 - Active dependency continuation: <https://github.com/Shuang-su/Metaflow/issues/2>
+- Governance archive PR: <https://github.com/Shuang-su/Metaflow/pull/19>
+- Pre-closure hosted run: <https://github.com/Shuang-su/Metaflow/actions/runs/31334992146>
 
 ## 12. Checksums and Redaction Manifest
 
 | Source | SHA-256 |
 | --- | --- |
-| request-transcript.md | `8a40a111c459a9d399187bb97abec7fa67a34fb99ee6e89573b7a2c631a72c78` |
-| ../plan.md | `e9d4cc1981d2f2566d77dc2440db9620165876bae3f8327b23227885d33c7db6` |
-| agent-action-reply-summary.md | `adec326b0dd92c214fe5919f7a007bd6ba4863e97f69fc477f7a34c432cc2949` |
-| ../evidence.md | `218e201e528225ccfc111c45965b6acb3558d7abd7c9425bf4bb499a4b2abd18` |
-| closure.md | `d4bfd8d8752946dd27e03bd41605704181400021c232a144201516420035bd54` |
-| task-records/MF-9-T01.md | `c1182245e11e446ed03ed0f2356ff682547e27480a2fd92d150c72afda1f7a07` |
-| plan-revisions.json | `dd44d2da283819edc1418639befd8a9bfd6d6abd7a1f463cc81b367ecbdbac48` |
+| request-transcript.md | `7833c24c16b806a2c23d4ee38f1df0d5b1d929703b5fa62f4dbdb1b5aee25132` |
+| ../plan.md | `70d4935952f665c3534ff55213f66e5149504f7b968153d08e33eef3270bc736` |
+| agent-action-reply-summary.md | `607573534b000e34630643b01b34f4875ead6c9b7da445feab9ac2f984dea60e` |
+| ../evidence.md | `3a9141a9cf48f426a90e72446bd9ba3d088b770ddc296b2cd623e69c1161f6c3` |
+| closure.md | `22ae934a5038569e658e162b79ad96b436b692cdb0422b9b0f520cd3b755ddd8` |
+| task-records/MF-9-T01.md | `23c96231859be9d59b82ae552b0cce40593bfc109f60a1b6ff683ed9bd891d35` |
+| plan-revisions.json | `4bb6fef8647c1b5ededabf85adbaffeb6db9462123959e8b3e586da7a6d4a3ad` |
 
 No redactions.
 
 ## 13. Closure Decision
 
-MF-9 remains closing until PR #4–#8 are re-read as closed and unmerged and the governance archive is merged.
+Close MF-9 when this archive is squash-merged to `main`. PR #4–#8 are closed and unmerged, MF-2 owns applicable Active remediation, the archive is deterministic, and the exact pre-closure Head passed all applicable hosted Gates. This closed record becomes repository fact through the merge; the merge commit and Issue transition are re-read afterward.

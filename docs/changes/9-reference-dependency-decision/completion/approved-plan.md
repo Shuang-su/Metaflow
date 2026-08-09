@@ -1,7 +1,7 @@
 ---
 change_id: MF-9
 title: Close snapshot dependency PRs and archive the decision
-status: implementing
+status: closed
 component:
   - reference
 risk: T3
@@ -10,10 +10,10 @@ owner: Shuang-su
 created: 2026-08-10
 updated: 2026-08-10
 issue: https://github.com/Shuang-su/Metaflow/issues/9
-plan_revision: 1
-completion_state: pending
+plan_revision: 2
+completion_state: complete
 supersedes: null
-terminal_reason: null
+terminal_reason: snapshot-dependency-prs-skipped
 ---
 
 # Implementation Plan

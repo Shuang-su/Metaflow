@@ -1,7 +1,7 @@
 ---
 change_id: MF-9
-status: implementing
-generated_at: 2026-08-10T00:00:00.000Z
+status: closed
+generated_at: 2026-08-09T20:46:23.000Z
 ---
 
 # Agent Actions and Replies Summary
@@ -12,7 +12,7 @@ generated_at: 2026-08-10T00:00:00.000Z
 
 | Task ID | Tool | Status | Record |
 | --- | --- | --- | --- |
-| MF-9-T01 | codex | partial | task-records/MF-9-T01.md |
+| MF-9-T01 | codex | complete | task-records/MF-9-T01.md |
 
 ## Chronological Action Summary
 
@@ -27,12 +27,17 @@ generated_at: 2026-08-10T00:00:00.000Z
 | 5 | Record the approved decision | Write and re-read | GitHub Issue #9 | Skip/Adopt matrix, rationale, MF-2 link, and closure contract persisted. |
 | 6 | Comment on and close snapshot PRs | Write | GitHub PR #4–#8 | Posted one tailored comment per PR and closed each without a merge operation. |
 | 7 | Verify external state | Read | GitHub PR #4–#8 and their comments | All five are closed with `merged: false`, `merged_at: null`; authored comment IDs were re-read. |
+| 8 | Run local validation | Read | MCL, Node, Python, platform, Markdown and Git diff | 37 Node tests, seven Python tests, strict Completion, platform, link, and whitespace checks passed. |
+| 9 | Publish the pre-closure archive | Write and re-read | commit `cc224f63`, branch, and PR #19 | Branch was pushed; PR file list contained only 13 MF-9 documentation files. |
+| 10 | Validate the hosted Head | Read | GitHub Actions run `31334992146` | Governance/Completion, CodeQL, dependency review, and `required / gate` passed; product jobs were correctly skipped. |
+| 11 | Perform separated author self-review | Read | MF-9 Spec and staged/hosted diff | Spec compliance and code quality both passed; no independent non-author review is claimed. |
+| 12 | Finalize merge-effective closure | Write | MF-9 sources and deterministic generated artifacts | The final record is marked closed and becomes repository fact when PR #19 is merged. |
 
 ## Agent Reply Summary
 
 ### MF-9-T01
 
-The Agent reported the verified baseline, isolated-worktree recovery, Manifest 1.1 capture, and successful unmerged closure of PR #4–#8. It has not yet claimed MF-9 closed because repository publication and hosted Gates are pending.
+The Agent reported the verified baseline, isolated-worktree recovery, Manifest 1.1 capture, successful unmerged closure of PR #4–#8, and green local/hosted governance Gates. MF-9 is closed by merging this final archive; the exact merge and Issue state are delivered after re-read.
 
 ## Files and External Effects
 
@@ -45,6 +50,7 @@ The Agent reported the verified baseline, isolated-worktree recovery, Manifest 1
 - Added comments `5233740405`, `5233740551`, `5233740697`, `5233740869`, and `5233741037` to PR #4–#8 respectively.
 - Closed PR #4–#8 without merging them.
 - No product change, snapshot change, dependency change, release, Preview, or deployment occurred.
+- Pushed commit `cc224f63ea43c1f57756097d45401a2ce7b7c5aa` and created draft PR #19 against `main`.
 
 ## Validation, Failures, and Omissions
 
@@ -55,8 +61,12 @@ The Agent reported the verified baseline, isolated-worktree recovery, Manifest 1
 - Predecessor plan SHA-256 remains `37f45424cc233af72801e1d91053d4581d1bbcdfb73627612d6f28f018af85a3`.
 - GitHub re-read returned `state: closed`, `merged: false`, and `merged_at: null` for PR #4–#8.
 - MF-2 and MF-9 body content was re-read after update.
+- 37 Node tests and seven Python tests passed.
+- Strict MCL generation/check, platform validation, Markdown links, secret/hygiene checks, and whitespace checks passed locally and in hosted governance job `93299321593`.
+- CodeQL job `93299321623`, dependency review job `93299321629`, and `required / gate` job `93299509483` passed in run `31334992146`.
+- Spec-compliance self-review and code-quality self-review passed; all changed files belong to MF-9 documentation.
 
 #### Failures, Retries, and Skipped Checks
 
 - The first worktree checkout attempted to hydrate the large LFS tree and stopped while initializing. Its exact task-created residue was moved to Trash, and a clean checkout succeeded with LFS smudge disabled.
-- External-state validation passed. Local and hosted repository checks have not all run yet because the Task is still active.
+- The first hosted run validated the pre-closure record. A final run must validate this closure-only generated update before merge.
