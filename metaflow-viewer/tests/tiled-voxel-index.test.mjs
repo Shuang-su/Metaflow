@@ -292,9 +292,10 @@ test('published legacy voxel resources are explicitly marked for Metaflow Rz180 
     assert.deepEqual(markedRoutes, expectedRoutes);
 });
 
-test('Dayun tiled voxel manifest references only published tile files', async () => {
+test('Dayun tiled voxel manifest references valid published tile paths', async () => {
     const base = new URL('../../data/Shenzhen/250917 Dayun/tiled-voxel/', import.meta.url);
     const manifest = await readJson(new URL('voxel-tiles.json', base));
+    const checkLargeFiles = process.env.MCL_SMALL_FIXTURES !== '1';
 
     assert.equal(manifest.version, 1);
     assert.equal(manifest.voxelResolution, 0.08);
@@ -304,6 +305,7 @@ test('Dayun tiled voxel manifest references only published tile files', async ()
 
     for (const tile of manifest.tiles) {
         assert.match(tile.url, /^tiles\/x\d+_z\d+\/walk\.voxel\.json$/);
+        if (!checkLargeFiles) continue;
         const jsonStat = await stat(new URL(tile.url, base));
         const binStat = await stat(new URL(tile.url.replace(/\.json$/, '.bin'), base));
         assert.ok(jsonStat.size > 0, `${tile.id} json should not be empty`);

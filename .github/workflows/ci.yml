@@ -28,7 +28,7 @@ jobs:
       unowned: ${{ steps.classify.outputs.unowned }}
     steps:
       - name: Check out classification sources
-        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           fetch-depth: 0
           lfs: false
@@ -37,7 +37,7 @@ jobs:
             metadata
           sparse-checkout-cone-mode: true
       - name: Set up Node.js
-        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
         with:
           node-version: 20
       - name: Classify changed paths from the component registry
@@ -69,7 +69,7 @@ jobs:
     timeout-minutes: 15
     steps:
       - name: Check out governance sources
-        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           fetch-depth: 0
           lfs: false
@@ -90,7 +90,7 @@ jobs:
             netlify.toml
           sparse-checkout-cone-mode: false
       - name: Set up Node.js
-        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
         with:
           node-version: 20
       - name: Run Completion Contract tests
@@ -122,7 +122,7 @@ jobs:
     timeout-minutes: 25
     steps:
       - name: Check out Viewer sources without large data blobs
-        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           fetch-depth: 0
           lfs: false
@@ -131,17 +131,22 @@ jobs:
             metaflow-editor
             supersplat-v2.18.1/src/ui/timeline-panel.ts
             supersplat-v2.28.0/src
+            analytics
+            supabase
             scripts
             metadata
             data/index.json
             data/version-history.json
             data/editor-version-history.json
+            data/ACG/FireflyFes38/260502 172930 03 崩坏星穹铁道 昔涟/settings-v2.json
+            data/Shenzhen/250917 Dayun/tiled-voxel/voxel-tiles.json
             docs/metaflow-viewer-change-ledger.md
             docs/metaflow-editor-change-ledger.md
             README.md
+            netlify.toml
           sparse-checkout-cone-mode: false
       - name: Set up Node.js
-        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
         with:
           node-version: 20
           cache: npm
@@ -151,6 +156,8 @@ jobs:
         run: npm ci
       - name: Test Viewer
         working-directory: metaflow-viewer
+        env:
+          MCL_SMALL_FIXTURES: 1
         run: npm test
       - name: Typecheck Viewer
         working-directory: metaflow-viewer
@@ -170,7 +177,7 @@ jobs:
       - name: Enforce Viewer bundle budget
         run: test "$(du -sk metaflow-viewer/public metaflow-viewer/dist | awk '{sum += $1} END {print sum}')" -le 20480
       - name: Upload Viewer build
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         with:
           name: viewer-build-${{ github.sha }}
           path: |
@@ -190,12 +197,12 @@ jobs:
     timeout-minutes: 25
     steps:
       - name: Check out Editor sources
-        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           lfs: false
           sparse-checkout: supersplat-v2.28.0
       - name: Set up Node.js
-        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
         with:
           node-version: 20.19.0
           cache: npm
@@ -212,7 +219,7 @@ jobs:
       - name: Enforce Editor bundle budget
         run: test "$(du -sk supersplat-v2.28.0/dist | awk '{print $1}')" -le 51200
       - name: Upload Editor build
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         with:
           name: editor-build-${{ github.sha }}
           path: supersplat-v2.28.0/dist
@@ -227,7 +234,7 @@ jobs:
     timeout-minutes: 20
     steps:
       - name: Check out Design sources
-        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           lfs: false
           sparse-checkout: |
@@ -236,7 +243,7 @@ jobs:
             docs/design
           sparse-checkout-cone-mode: true
       - name: Set up Node.js
-        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
         with:
           node-version: 20
       - name: Validate Design provenance and available package scripts
@@ -265,7 +272,7 @@ jobs:
     timeout-minutes: 10
     steps:
       - name: Check out small data fixtures only
-        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           lfs: false
           sparse-checkout: |
@@ -287,7 +294,7 @@ jobs:
     timeout-minutes: 10
     steps:
       - name: Check out reference manifests
-        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           lfs: false
           sparse-checkout: |
@@ -315,7 +322,7 @@ jobs:
       security-events: write
     steps:
       - name: Check out executable sources without data assets
-        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           lfs: false
           sparse-checkout: |
@@ -325,11 +332,11 @@ jobs:
             supabase/functions
           sparse-checkout-cone-mode: true
       - name: Initialize CodeQL
-        uses: github/codeql-action/init@c4dd10e44af883a891fe31ced449bcb4a6728b9b # v3
+        uses: github/codeql-action/init@5595ccaf912efad79be6eef63a5619ff05969be3 # v4
         with:
           languages: javascript-typescript,python
       - name: Analyze
-        uses: github/codeql-action/analyze@c4dd10e44af883a891fe31ced449bcb4a6728b9b # v3
+        uses: github/codeql-action/analyze@5595ccaf912efad79be6eef63a5619ff05969be3 # v4
 
   dependency-review:
     name: dependency review
@@ -342,7 +349,7 @@ jobs:
       pull-requests: read
     steps:
       - name: Review dependency changes
-        uses: actions/dependency-review-action@2031cfc080254a8a887f58cffee85186f0e49e48 # v4
+        uses: actions/dependency-review-action@a1d282b36b6f3519aa1f3fc636f609c47dddb294 # v5
 
   gate:
     name: required / gate

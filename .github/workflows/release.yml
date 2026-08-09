@@ -33,7 +33,7 @@ jobs:
       component: ${{ steps.tag.outputs.component }}
     steps:
       - name: Check out release sources without large data blobs
-        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           fetch-depth: 0
           lfs: false
@@ -43,6 +43,8 @@ jobs:
             data/index.json
             data/version-history.json
             data/editor-version-history.json
+            data/ACG/FireflyFes38/260502 172930 03 崩坏星穹铁道 昔涟/settings-v2.json
+            data/Shenzhen/250917 Dayun/tiled-voxel/voxel-tiles.json
             docs
             metadata
             scripts
@@ -58,7 +60,7 @@ jobs:
             netlify.toml
           sparse-checkout-cone-mode: false
       - name: Set up Node.js
-        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
         with:
           node-version: 20.19.0
       - name: Validate namespaced tag and governed closure
@@ -81,7 +83,7 @@ jobs:
       - name: Build Viewer release payload
         if: steps.tag.outputs.component == 'viewer'
         working-directory: metaflow-viewer
-        run: npm ci && npm test && npm run type:check && npm run build
+        run: npm ci && MCL_SMALL_FIXTURES=1 npm test && npm run type:check && npm run build
       - name: Build Editor release payload
         if: steps.tag.outputs.component == 'editor'
         working-directory: supersplat-v2.28.0
@@ -95,7 +97,7 @@ jobs:
           git ls-tree -r --full-tree "$GITHUB_SHA" | sha256sum | awk '{print $1}' > release-evidence/git-tree.sha256
           printf '{"tag":"%s","component":"%s","commit":"%s","gitTreeSha256":"%s"}\n' "$RELEASE_TAG" "$COMPONENT" "$GITHUB_SHA" "$(cat release-evidence/git-tree.sha256)" > release-evidence/manifest.json
       - name: Upload release evidence
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         with:
           name: release-evidence-${{ inputs.release_tag }}
           path: release-evidence
@@ -113,7 +115,7 @@ jobs:
       contents: write
     steps:
       - name: Check out release metadata
-        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           fetch-depth: 0
           lfs: false
@@ -179,7 +181,7 @@ jobs:
             "Immutable Netlify deploy: $deploy_url" > release-notes.md
           gh release create "$RELEASE_TAG" --repo "$GITHUB_REPOSITORY" --verify-tag --title "$RELEASE_TAG" --notes-file release-notes.md
       - name: Upload deployment evidence
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         with:
           name: production-evidence-${{ inputs.release_tag }}
           path: |

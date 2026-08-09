@@ -2,7 +2,7 @@
 
 import { execFileSync } from 'node:child_process';
 import { access, readFile } from 'node:fs/promises';
-import { dirname, resolve } from 'node:path';
+import { dirname, relative, resolve, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
@@ -18,10 +18,11 @@ async function exists(path) {
 
 const output = execFileSync(
     'git',
-    ['ls-files', '--cached', '--others', '--exclude-standard', '--', '*.md'],
+    ['ls-files', '--cached', '--others', '--exclude-standard'],
     { cwd: root, encoding: 'utf8' }
 );
-const files = output.split('\n').filter(Boolean).sort();
+const knownPaths = new Set(output.split('\n').filter(Boolean));
+const files = [...knownPaths].filter((file) => file.endsWith('.md')).sort();
 const errors = [];
 
 for (const file of files) {
@@ -46,7 +47,10 @@ for (const file of files) {
             continue;
         }
         const resolved = resolve(root, dirname(file), target);
-        if (!resolved.startsWith(`${root}/`) || !(await exists(resolved))) {
+        const repositoryPath = relative(root, resolved).split(sep).join('/');
+        const trackedTarget = knownPaths.has(repositoryPath) ||
+            [...knownPaths].some((path) => path.startsWith(`${repositoryPath}/`));
+        if (!resolved.startsWith(`${root}/`) || (!(await exists(resolved)) && !trackedTarget)) {
             errors.push(`${file}: missing local link target ${match[1]}`);
         }
     }
