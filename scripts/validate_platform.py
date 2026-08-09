@@ -4,7 +4,6 @@
 from __future__ import annotations
 
 import argparse
-import json
 import re
 import sys
 import tomllib
@@ -179,6 +178,11 @@ def validate(root: Path, include_workflows: bool = True) -> dict:
     return {"ok": not errors, "checks": checks, "errors": errors}
 
 
+def render_public_json(ok: bool) -> str:
+    """Render only a constant-shape status; findings may describe detected secrets."""
+    return '{"ok": true}\n' if ok else '{"ok": false}\n'
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--root", type=Path, default=Path(__file__).resolve().parents[1])
@@ -188,12 +192,11 @@ def main() -> int:
 
     result = validate(args.root.resolve(), include_workflows=not args.skip_workflows)
     if args.json:
-        print(json.dumps(result, indent=2))
+        print(render_public_json(result["ok"]), end="")
     elif result["ok"]:
         print("Platform configuration validation passed.")
     else:
-        for error in result["errors"]:
-            print(f"ERROR: {error}", file=sys.stderr)
+        print("ERROR: Platform configuration validation failed; sensitive findings are not written to logs.", file=sys.stderr)
     return 0 if result["ok"] else 1
 
 

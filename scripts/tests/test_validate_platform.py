@@ -6,7 +6,7 @@ from pathlib import Path
 import sys
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-from validate_platform import validate_netlify, validate_supabase, validate_workflows  # noqa: E402
+from validate_platform import render_public_json, validate_netlify, validate_supabase, validate_workflows  # noqa: E402
 
 
 class PlatformValidationTests(unittest.TestCase):
@@ -85,6 +85,12 @@ class PlatformValidationTests(unittest.TestCase):
         errors = validate_workflows(self.root)
         self.assertEqual(len(errors), 1)
         self.assertIn("full commit SHA", errors[0])
+
+    def test_public_json_never_contains_finding_details(self):
+        finding = "sensitive-finding-detail-that-must-not-reach-logs"
+        rendered = render_public_json(not [finding])
+        self.assertEqual(rendered, '{"ok": false}\n')
+        self.assertNotIn(finding, rendered)
 
 
 if __name__ == "__main__":
