@@ -34,7 +34,7 @@
     "rollup-plugin-copy": "3.5.0",
     "rollup-plugin-scss": "4.0.1",
     "rollup-plugin-string": "3.0.0",
-    "sass": "1.100.0",
+    "sass": "1.102.0",
     "serve": "14.2.6",
     "typescript": "5.9.3"
   },
