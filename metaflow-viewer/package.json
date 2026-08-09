@@ -30,7 +30,7 @@
     "concurrently": "9.2.4",
     "playcanvas": "2.19.2",
     "postcss": "8.5.26",
-    "rollup": "4.61.0",
+    "rollup": "4.62.4",
     "rollup-plugin-copy": "3.5.0",
     "rollup-plugin-scss": "4.0.1",
     "rollup-plugin-string": "3.0.0",
