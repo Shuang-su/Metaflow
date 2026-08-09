@@ -1,0 +1,35 @@
+name: Experiment promotion proposal
+description: Propose moving Design research toward a public product capability.
+title: "[Experiment Promotion] "
+labels: ["component/design", "type/experiment-promotion", "risk/T2"]
+body:
+  - type: textarea
+    id: source
+    attributes:
+      label: Source, license, capture date, and redistributability
+    validations:
+      required: true
+  - type: textarea
+    id: users
+    attributes:
+      label: Target users and information architecture
+    validations:
+      required: true
+  - type: textarea
+    id: content
+    attributes:
+      label: Content to preserve, rewrite, or exclude
+    validations:
+      required: true
+  - type: textarea
+    id: quality
+    attributes:
+      label: Mobile, performance, accessibility, and degradation requirements
+    validations:
+      required: true
+  - type: textarea
+    id: boundary
+    attributes:
+      label: Research and product implementation boundary
+    validations:
+      required: true

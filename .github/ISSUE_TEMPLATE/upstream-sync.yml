@@ -1,0 +1,42 @@
+name: Upstream sync proposal
+description: Evaluate a SuperSplat, Viewer, PlayCanvas, or critical dependency release.
+title: "[Upstream] "
+labels: ["type/upstream-sync", "risk/T3"]
+body:
+  - type: input
+    id: source
+    attributes:
+      label: Repository and target tag or commit
+    validations:
+      required: true
+  - type: input
+    id: baseline
+    attributes:
+      label: Current local baseline
+    validations:
+      required: true
+  - type: textarea
+    id: changes
+    attributes:
+      label: Added, changed, fixed, and breaking behavior
+    validations:
+      required: true
+  - type: textarea
+    id: value
+    attributes:
+      label: User value and timing
+    validations:
+      required: true
+  - type: textarea
+    id: customizations
+    attributes:
+      label: Local customization impact
+      description: Classify Keep, Port, Replace, Drop, or Conflict where known.
+    validations:
+      required: true
+  - type: textarea
+    id: decision
+    attributes:
+      label: Adopt, Defer, or Skip recommendation
+    validations:
+      required: true

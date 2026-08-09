@@ -1,0 +1,44 @@
+{
+  "schemaVersion": "1.0",
+  "changeId": "MF-1",
+  "terminalState": "verifying",
+  "risk": "T3",
+  "components": [
+    "platform"
+  ],
+  "request": {
+    "path": "request-transcript.md",
+    "sha256": "212c5c0e09c7b15fda528fa3a8022aa34c480197eb1b722a4b6519738de53cad",
+    "messageCount": 3
+  },
+  "plan": {
+    "path": "approved-plan.md",
+    "sha256": "0d8d097dc0fcf53b23809f3dbd81b2fa58bdfec38a99bdf898294d4ba50b1906",
+    "revision": 1,
+    "source": "../plan.md"
+  },
+  "agentSummary": {
+    "path": "agent-action-reply-summary.md",
+    "sha256": "ec022488f220a6111ba79f29240b3ea25f9d66d1ea46213ef1376fe8616e0ae4"
+  },
+  "taskRecords": [
+    {
+      "taskId": "MF-1-T01",
+      "tool": "codex",
+      "sourceTaskId": "019fe70e-e5e7-7b81-ae68-39eb0a087128",
+      "status": "partial",
+      "record": "task-records/MF-1-T01.md",
+      "sha256": "ccebf06959f6099f464ab44bebcf2500ed3e3df6a25adf1e4e594b7600966fec"
+    }
+  ],
+  "closure": {
+    "path": "closure.md",
+    "sha256": "dee960ca3c0047b66b28654dab01b42521f729dab9f42166a898bff6e55220a3"
+  },
+  "dossier": {
+    "path": "dossier.md",
+    "sha256": "42e06757063ef8fc9f5f1a03b75fde5d047fb295a4d2e5fd4721d46f52fc5b41"
+  },
+  "redactions": [],
+  "generatedAt": "2026-08-09T16:20:00.000Z"
+}

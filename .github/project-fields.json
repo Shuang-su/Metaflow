@@ -1,0 +1,14 @@
+{
+  "title": "Metaflow Change Lifecycle",
+  "fields": [
+    "Lifecycle Phase",
+    "Risk",
+    "Component",
+    "Change Type",
+    "Target Release",
+    "Owner",
+    "Upstream Version",
+    "Blocked By",
+    "Completion State"
+  ]
+}

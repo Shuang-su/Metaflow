@@ -1,0 +1,55 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://metaflow.shuang-su.com/schemas/components-1.0.json",
+  "title": "Metaflow component registry",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "components"],
+  "properties": {
+    "schemaVersion": {
+      "const": "1.0"
+    },
+    "components": {
+      "type": "array",
+      "minItems": 6,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "kind", "ownedPaths", "versionSource", "checks", "deployTarget"],
+        "properties": {
+          "id": {
+            "enum": ["viewer", "editor", "design", "data", "platform", "reference"]
+          },
+          "kind": {
+            "enum": ["product", "lab", "product-data", "infrastructure", "upstream-snapshot"]
+          },
+          "ownedPaths": {
+            "type": "array",
+            "minItems": 1,
+            "items": {"type": "string", "minLength": 1}
+          },
+          "versionSource": {
+            "type": ["string", "null"]
+          },
+          "checks": {
+            "type": "array",
+            "minItems": 1,
+            "items": {"type": "string", "minLength": 1}
+          },
+          "deployTarget": {
+            "type": ["string", "null"]
+          },
+          "upstream": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["repository", "versionField"],
+            "properties": {
+              "repository": {"type": "string", "pattern": "^[^/]+/[^/]+$"},
+              "versionField": {"type": "string", "minLength": 1}
+            }
+          }
+        }
+      }
+    }
+  }
+}

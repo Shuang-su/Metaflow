@@ -1,0 +1,30 @@
+name: Performance or compatibility
+description: Report a measurable performance, browser, device, rendering, or data compatibility concern.
+title: "[Compatibility] "
+labels: ["type/performance", "risk/T1"]
+body:
+  - type: textarea
+    id: matrix
+    attributes:
+      label: Environment matrix
+      description: Browser, version, device, OS, WebGL/WebGPU, route, and data.
+    validations:
+      required: true
+  - type: textarea
+    id: observed
+    attributes:
+      label: Observed result and measurements
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected result or baseline
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Reproduction and evidence
+    validations:
+      required: true

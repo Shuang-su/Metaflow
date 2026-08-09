@@ -1,0 +1,64 @@
+name: Extended browser and renderer matrix
+
+on:
+  schedule:
+    - cron: "43 4 * * 3"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: extended-browser-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  browser-matrix:
+    name: ${{ matrix.browser }} / ${{ matrix.renderer }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - browser: chromium
+            renderer: webgpu
+          - browser: firefox
+            renderer: webgl
+          - browser: webkit
+            renderer: webgl
+    steps:
+      - name: Check out Viewer fixture sources
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          lfs: false
+          sparse-checkout: metaflow-viewer
+      - name: Set up Node.js
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: metaflow-viewer/package-lock.json
+      - name: Install dependencies and selected browser
+        working-directory: metaflow-viewer
+        env:
+          BROWSER: ${{ matrix.browser }}
+        run: |
+          npm ci
+          npx playwright install --with-deps "$BROWSER"
+      - name: Run the extended fixture path
+        working-directory: metaflow-viewer
+        env:
+          E2E_BROWSER: ${{ matrix.browser }}
+          E2E_RENDERER: ${{ matrix.renderer }}
+        run: npm run e2e:extended
+      - name: Upload traces and reports
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: extended-${{ matrix.browser }}-${{ matrix.renderer }}-${{ github.sha }}
+          path: |
+            metaflow-viewer/playwright-report
+            metaflow-viewer/test-results
+          if-no-files-found: warn
+          retention-days: 30

@@ -1,0 +1,193 @@
+name: Controlled release
+
+on:
+  workflow_dispatch:
+    inputs:
+      change_directory:
+        description: Governed Change directory containing a strict Completion Dossier
+        required: true
+        type: string
+      release_tag:
+        description: Existing namespaced tag pointing at this commit
+        required: true
+        type: string
+      promote_production:
+        description: Trigger and verify the protected production deployment
+        required: true
+        default: false
+        type: boolean
+
+permissions:
+  contents: read
+
+concurrency:
+  group: controlled-release-${{ inputs.release_tag }}
+  cancel-in-progress: false
+
+jobs:
+  prepare:
+    name: validate, build, and package
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    outputs:
+      component: ${{ steps.tag.outputs.component }}
+    steps:
+      - name: Check out release sources without large data blobs
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          fetch-depth: 0
+          lfs: false
+          sparse-checkout: |
+            .github
+            analytics
+            data/index.json
+            data/version-history.json
+            data/editor-version-history.json
+            docs
+            metadata
+            scripts
+            supabase
+            metaflow-viewer
+            metaflow-editor
+            supersplat-v2.18.1/src/ui/timeline-panel.ts
+            supersplat-v2.28.0
+            AGENTS.md
+            CONTRIBUTING.md
+            ROADMAP.md
+            README.md
+            netlify.toml
+          sparse-checkout-cone-mode: false
+      - name: Set up Node.js
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: 20.19.0
+      - name: Validate namespaced tag and governed closure
+        id: tag
+        env:
+          CHANGE_DIRECTORY: ${{ inputs.change_directory }}
+          RELEASE_TAG: ${{ inputs.release_tag }}
+        run: |
+          case "$RELEASE_TAG" in
+            viewer-v[0-9]*.[0-9]*.[0-9]*|viewer-v[0-9]*.[0-9]*.[0-9]*-beta.[0-9]*) component=viewer ;;
+            editor-v[0-9]*.[0-9]*.[0-9]*|editor-v[0-9]*.[0-9]*.[0-9]*-beta.[0-9]*) component=editor ;;
+            design-v[0-9]*.[0-9]*.[0-9]*|design-v[0-9]*.[0-9]*.[0-9]*-beta.[0-9]*) component=design ;;
+            *) printf '%s\n' "Invalid namespaced release tag: $RELEASE_TAG" >&2; exit 1 ;;
+          esac
+          test "$(git rev-parse "$RELEASE_TAG^{commit}")" = "$GITHUB_SHA"
+          node scripts/mcl.mjs check "$CHANGE_DIRECTORY" --strict
+          printf 'component=%s\n' "$component" >> "$GITHUB_OUTPUT"
+      - name: Validate platform configuration
+        run: python3 scripts/validate_platform.py
+      - name: Build Viewer release payload
+        if: steps.tag.outputs.component == 'viewer'
+        working-directory: metaflow-viewer
+        run: npm ci && npm test && npm run type:check && npm run build
+      - name: Build Editor release payload
+        if: steps.tag.outputs.component == 'editor'
+        working-directory: supersplat-v2.28.0
+        run: npm ci && npm run lint && npm run build
+      - name: Create immutable evidence manifest
+        env:
+          RELEASE_TAG: ${{ inputs.release_tag }}
+          COMPONENT: ${{ steps.tag.outputs.component }}
+        run: |
+          mkdir -p release-evidence
+          git ls-tree -r --full-tree "$GITHUB_SHA" | sha256sum | awk '{print $1}' > release-evidence/git-tree.sha256
+          printf '{"tag":"%s","component":"%s","commit":"%s","gitTreeSha256":"%s"}\n' "$RELEASE_TAG" "$COMPONENT" "$GITHUB_SHA" "$(cat release-evidence/git-tree.sha256)" > release-evidence/manifest.json
+      - name: Upload release evidence
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: release-evidence-${{ inputs.release_tag }}
+          path: release-evidence
+          if-no-files-found: error
+          retention-days: 90
+
+  production:
+    name: deploy, smoke, and publish release
+    needs: prepare
+    if: inputs.promote_production == true
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    environment: production
+    permissions:
+      contents: write
+    steps:
+      - name: Check out release metadata
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          fetch-depth: 0
+          lfs: false
+          sparse-checkout: |
+            docs
+            metadata
+            data/index.json
+          sparse-checkout-cone-mode: false
+      - name: Trigger the protected Netlify build hook
+        env:
+          NETLIFY_BUILD_HOOK: ${{ secrets.NETLIFY_BUILD_HOOK }}
+          RELEASE_TAG: ${{ inputs.release_tag }}
+        run: |
+          test -n "$NETLIFY_BUILD_HOOK"
+          curl --fail --silent --show-error --request POST --data "{\"tag\":\"$RELEASE_TAG\",\"commit\":\"$GITHUB_SHA\"}" "$NETLIFY_BUILD_HOOK?trigger_branch=main&trigger_title=$RELEASE_TAG" > hook-response.json
+      - name: Re-read Netlify until the tagged commit is ready
+        env:
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+          NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
+        run: |
+          test -n "$NETLIFY_AUTH_TOKEN"
+          test -n "$NETLIFY_SITE_ID"
+          for attempt in $(seq 1 60); do
+            curl --fail --silent --show-error --header "Authorization: Bearer $NETLIFY_AUTH_TOKEN" "https://api.netlify.com/api/v1/sites/$NETLIFY_SITE_ID/deploys?per_page=20" > deploys.json
+            node --input-type=module <<'NODE' > selected-deploy.json
+          import { readFileSync } from 'node:fs';
+          const deployments = JSON.parse(readFileSync('deploys.json', 'utf8'));
+          const match = deployments.find((item) => item.commit_ref === process.env.GITHUB_SHA);
+          if (match) process.stdout.write(JSON.stringify(match));
+          NODE
+            state="$(node -e "const fs=require('fs');const p='selected-deploy.json';if(fs.existsSync(p)&&fs.statSync(p).size){process.stdout.write(JSON.parse(fs.readFileSync(p)).state||'')}" )"
+            if [ "$state" = "ready" ]; then break; fi
+            if [ "$state" = "error" ]; then exit 1; fi
+            sleep 10
+          done
+          test "$(node -e "const d=require('./selected-deploy.json');process.stdout.write(d.state)")" = ready
+          curl --fail --silent --show-error --header "Authorization: Bearer $NETLIFY_AUTH_TOKEN" "https://api.netlify.com/api/v1/sites/$NETLIFY_SITE_ID" > selected-site.json
+          node -e "const d=require('./selected-deploy.json');const s=require('./selected-site.json');if(s.published_deploy?.id!==d.id)throw new Error('tagged deploy is ready but is not the published production deploy')"
+      - name: Run post-deploy smoke checks
+        env:
+          COMPONENT: ${{ needs.prepare.outputs.component }}
+        run: |
+          deploy_url="$(node -e "const d=require('./selected-deploy.json');process.stdout.write(d.deploy_ssl_url||d.ssl_url||d.url)")"
+          production_url="$(node -e "const s=require('./selected-site.json');process.stdout.write(s.ssl_url||s.url)")"
+          curl --fail --silent --show-error --retry 4 --retry-delay 5 "$deploy_url/" > smoke-index.html
+          curl --fail --silent --show-error --retry 4 --retry-delay 5 "$production_url/" > smoke-production-index.html
+          if [ "$COMPONENT" = viewer ]; then
+            curl --fail --silent --show-error --retry 4 --retry-delay 5 "$deploy_url/data/index.json" > smoke-version.json
+            node -e "const d=require('./smoke-version.json');if(!d.release?.appSemver)process.exit(1)"
+          fi
+      - name: Publish GitHub Release after successful smoke
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ inputs.release_tag }}
+          CHANGE_DIRECTORY: ${{ inputs.change_directory }}
+        run: |
+          deploy_url="$(node -e "const d=require('./selected-deploy.json');process.stdout.write(d.deploy_ssl_url||d.ssl_url||d.url)")"
+          printf '%s\n' \
+            "Change: $CHANGE_DIRECTORY" \
+            "" \
+            "Completion Dossier: $CHANGE_DIRECTORY/completion/dossier.md" \
+            "" \
+            "Immutable Netlify deploy: $deploy_url" > release-notes.md
+          gh release create "$RELEASE_TAG" --repo "$GITHUB_REPOSITORY" --verify-tag --title "$RELEASE_TAG" --notes-file release-notes.md
+      - name: Upload deployment evidence
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: production-evidence-${{ inputs.release_tag }}
+          path: |
+            hook-response.json
+            selected-deploy.json
+            selected-site.json
+            smoke-index.html
+            smoke-production-index.html
+            smoke-version.json
+          if-no-files-found: warn
+          retention-days: 90
