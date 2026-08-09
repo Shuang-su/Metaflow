@@ -1610,7 +1610,7 @@ Viewer/Editor 源码未改变，就不把完整构建、E2E 和产品发布验�
 | MF-1-T03 | codex | complete | task-records/MF-1-T03.md |
 | MF-1-T04 | codex | complete | task-records/MF-1-T04.md |
 | MF-1-T05 | codex | partial | task-records/MF-1-T05.md |
-| MF-1-T06 | codex | partial | task-records/MF-1-T06.md |
+| MF-1-T06 | codex | complete | task-records/MF-1-T06.md |
 
 ## 4. Agent Actions and Replies Summary
 
@@ -1628,7 +1628,7 @@ Viewer/Editor 源码未改变，就不把完整构建、E2E 和产品发布验�
 | MF-1-T03 | codex | complete | task-records/MF-1-T03.md |
 | MF-1-T04 | codex | complete | task-records/MF-1-T04.md |
 | MF-1-T05 | codex | partial | task-records/MF-1-T05.md |
-| MF-1-T06 | codex | partial | task-records/MF-1-T06.md |
+| MF-1-T06 | codex | complete | task-records/MF-1-T06.md |
 
 ## Chronological Action Summary
 
@@ -1734,6 +1734,8 @@ Viewer/Editor 源码未改变，就不把完整构建、E2E 和产品发布验�
 12. Added and re-read the post-merge evidence comment on Issue #1.
 13. Created and re-read Issue #15 for lightweight Netlify Preview and Issue #16 for path-scoped Viewer/Editor validation; no implementation was performed in either Change.
 14. Created `codex/mf-1-post-merge-evidence` from exact `origin/main` and prepared Revision 4, T06, Evidence, and Completion updates without changing product source.
+15. Committed and pushed the post-merge evidence, opened Ready PR #17, and re-read its exact Head `b99aadd9eff7df67acafb0c9c7f58d19b8fd1275`.
+16. Verified run `31332937375`: governance/Completion, dependency review, both CodeQL surfaces, and `required / gate` succeeded, while Viewer, Editor, Design, Data, and Reference product jobs were path-skipped as intended.
 
 ## Agent Reply Summary
 
@@ -1832,7 +1834,7 @@ External effects:
 - GitHub Ruleset `20612630` was created active with PR-only, deletion/non-fast-forward protection, squash-only merge, review-thread resolution, and required `required / gate`.
 - Issue #1 received a verified merge/main-run/Ruleset status comment.
 - Proposed follow-up Issues #15 and #16 were created with platform/product scope and non-goals.
-- The current post-merge branch modifies only MF-1 Plan, Evidence, Completion sources, and deterministic generated outputs.
+- Ready PR #17 versions only MF-1 Plan, Evidence, Completion sources, and deterministic generated outputs.
 - No Viewer/Editor product source, versioned Supersplat snapshot, production deployment, release, or MCL activation was changed.
 - No Netlify environment variable remained after the stopped experiment.
 - One Task-created 3.5 GB incomplete temporary checkout was permanently deleted after its exact path was verified; it contained no user-authored material and is not recoverable.
@@ -1945,6 +1947,7 @@ No focused validation failed at termination. The Agent did not run Viewer/Editor
 - Markdown link validation: 46 files passed.
 - Repository hygiene and secret scan: 10,823 paths passed.
 - Main run `31332409298`: success; `required / gate` job `93292927424` succeeded.
+- Post-merge evidence PR run `31332937375`: success; governance/Completion, dependency review, both CodeQL surfaces, and `required / gate` succeeded; product jobs were path-skipped.
 - Ruleset detail and effective `main` rules were re-read and matched the repository JSON.
 - Issue #1's final comment, Issue #15, and Issue #16 were re-read after creation.
 - T01 SHA-256 and the predecessor-plan archive remain governed by unchanged historical records; Revision 4 does not rewrite them.
@@ -2328,6 +2331,7 @@ The user narrowed the merge Gate before merge: Viewer/Editor source was unchange
 | Issue evidence | [Issue #1 comment](https://github.com/Shuang-su/Metaflow/issues/1#issuecomment-5233527273) was added and re-read |
 | Deferred Netlify Change | [Issue #15](https://github.com/Shuang-su/Metaflow/issues/15) records lightweight Preview/LFS/data-corpus work; current deploy `6a78d554571d99000892e5a4` remained `building` and is not success evidence |
 | Deferred product Gate Change | [Issue #16](https://github.com/Shuang-su/Metaflow/issues/16) records path-scoped Viewer/Editor validation and release Gate design |
+| Post-merge evidence delivery | Ready [PR #17](https://github.com/Shuang-su/Metaflow/pull/17) at Head `b99aadd9eff7df67acafb0c9c7f58d19b8fd1275`; [run 31332937375](https://github.com/Shuang-su/Metaflow/actions/runs/31332937375) passed governance/Completion, dependency review, both CodeQL surfaces and `required / gate`; product jobs were path-skipped |
 | Local-main safety | `/Volumes/Prism/Metaflow` remains `47ffd86e9635d7d797628a214df817f7ca60b55c`, now nine ahead/one behind remote, with the predecessor plan and Swiftgram paths still untracked |
 
 Two temporary checkout attempts were stopped because they began hydrating or writing large product data. The first Task-created incomplete checkout consumed about 3.5 GB and was permanently deleted after its exact temporary path was verified; the second failed with `No space left on device` and left no worktree registration. No user-authored path was deleted. Cryptographic tree identity replaced further full checkout attempts.
@@ -2426,7 +2430,7 @@ Release and rollback workflows are implemented but were not invoked. Netlify Pre
 - Issue #15 owns lightweight Netlify Preview and smoke; MF-1 must not silently absorb its implementation.
 - Issue #16 owns path-scoped Viewer/Editor validation and product/release Gate design.
 - Design onboarding, real Upstream Sync, T0/T1 fast path, multi-Agent T2, partial-to-closed, attachment delivery, rollback, and full release pilots remain outstanding.
-- The post-merge Evidence/Completion PR remains outstanding; candidate activation, pilots and closure remain later MF-1 work.
+- Candidate activation, pilots and closure remain later MF-1 work; T06 itself has no remaining scope.
 
 ## 11. Ledger, Version, PR, and Release Links
 
@@ -2437,6 +2441,8 @@ Release and rollback workflows are implemented but were not invoked. Netlify Pre
 - Merge commit: `6e1725ee6d24ea37fcf3bb7492606e95e0e0780b`
 - Main run: <https://github.com/Shuang-su/Metaflow/actions/runs/31332409298>
 - Active Ruleset: <https://github.com/Shuang-su/Metaflow/rules/20612630>
+- Post-merge Evidence/Completion PR: <https://github.com/Shuang-su/Metaflow/pull/17>
+- Post-merge Evidence/Completion run: <https://github.com/Shuang-su/Metaflow/actions/runs/31332937375>
 - Netlify follow-up: <https://github.com/Shuang-su/Metaflow/issues/15>
 - Product-Gate follow-up: <https://github.com/Shuang-su/Metaflow/issues/16>
 - Revision 3 first push: `023dac807976f02ec6e95a9dbf33de827896bd51`
@@ -2449,17 +2455,17 @@ Release and rollback workflows are implemented but were not invoked. Netlify Pre
 
 | Source | SHA-256 |
 | --- | --- |
-| request-transcript.md | `bc26e775f9358f3f80a48e19fefbc5db25b8fa8d308def7c54e80a22ec074635` |
+| request-transcript.md | `bbd5b98d46ea8d4e87ba705570ae27be1167959ceef71146e0a36b8cda0dde9a` |
 | ../plan.md | `2f196e224ed65fab483804addd57de5bd9b6f82ce6fca48d0651fce83fc10564` |
-| agent-action-reply-summary.md | `ca2573445bd29469bf15ea17f6ff5ac3fba36eb9f4590ad9e14bf231c4b51c15` |
-| ../evidence.md | `ad7cfc4f200622b9cc5bd5032db1883145123c7176da29bec1fa68fd82413b33` |
-| closure.md | `dc53ad74a9bcd39dbd9239038ddaad9b6e1d29b03113f8b75ff2ec4808cd231f` |
+| agent-action-reply-summary.md | `86d5aa437a0ad7df24ae2003536da0ec355072681bf7502341d618da25d8e776` |
+| ../evidence.md | `102fbfcd808b1379b8e8d368d4f22471a90590dd1f1b29db72ae9dd2267d7044` |
+| closure.md | `f4e4ea924e7345c9ffdfb6dc7b86d1cc5a40a95168119bf2b4cb392a31ebe120` |
 | task-records/MF-1-T01.md | `616c6d3390b6663882d54551be4e6c74f906e177601c9af72311fa873e33101d` |
 | task-records/MF-1-T02.md | `ed88ac509f41c161d3dfd5e7092b8264c3f179dcec3720e60941738ad39b91f3` |
 | task-records/MF-1-T03.md | `f23f68ca14a5dded0794eb927844f9341d014dbb76a5f8e8fe88ec1ed99c2239` |
 | task-records/MF-1-T04.md | `89c8bf2ddc3e682d973af73fb71737007cba6b5552c271224584b10c110cf56e` |
 | task-records/MF-1-T05.md | `f60165d99286ad2df51c1672bd2035d2dc0744af4145bc6ed81f663d41b0ac2f` |
-| task-records/MF-1-T06.md | `ac17b60aca6119392ee30cc9511bf01efec2d10023af601b1da0564560d823bc` |
+| task-records/MF-1-T06.md | `48ead2afe3a271ee75dd249c60abefe0bf096fba844517658d10cc72920a0c09` |
 | plan-revisions.json | `6a186927f5ddd0714a37eb37c23602b87c89faae88b3f2f33245cf77353e9e7f` |
 | source-materials.json | `17174a46f38c70fc040c801dc8f62ee6a379f7f7ac844df6c385bf39ed5307d9` |
 | source-materials/metaflow-change-lifecycle-v1.0-complete-plan.md | `37f45424cc233af72801e1d91053d4581d1bbcdfb73627612d6f28f018af85a3` |

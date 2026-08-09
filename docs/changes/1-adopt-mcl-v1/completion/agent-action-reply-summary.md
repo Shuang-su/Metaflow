@@ -1,7 +1,7 @@
 ---
 change_id: MF-1
 status: verifying
-generated_at: 2026-08-09T19:52:50.000Z
+generated_at: 2026-08-09T19:58:18.000Z
 ---
 
 # Agent Actions and Replies Summary
@@ -17,7 +17,7 @@ generated_at: 2026-08-09T19:52:50.000Z
 | MF-1-T03 | codex | complete | task-records/MF-1-T03.md |
 | MF-1-T04 | codex | complete | task-records/MF-1-T04.md |
 | MF-1-T05 | codex | partial | task-records/MF-1-T05.md |
-| MF-1-T06 | codex | partial | task-records/MF-1-T06.md |
+| MF-1-T06 | codex | complete | task-records/MF-1-T06.md |
 
 ## Chronological Action Summary
 
@@ -123,6 +123,8 @@ generated_at: 2026-08-09T19:52:50.000Z
 12. Added and re-read the post-merge evidence comment on Issue #1.
 13. Created and re-read Issue #15 for lightweight Netlify Preview and Issue #16 for path-scoped Viewer/Editor validation; no implementation was performed in either Change.
 14. Created `codex/mf-1-post-merge-evidence` from exact `origin/main` and prepared Revision 4, T06, Evidence, and Completion updates without changing product source.
+15. Committed and pushed the post-merge evidence, opened Ready PR #17, and re-read its exact Head `b99aadd9eff7df67acafb0c9c7f58d19b8fd1275`.
+16. Verified run `31332937375`: governance/Completion, dependency review, both CodeQL surfaces, and `required / gate` succeeded, while Viewer, Editor, Design, Data, and Reference product jobs were path-skipped as intended.
 
 ## Agent Reply Summary
 
@@ -221,7 +223,7 @@ External effects:
 - GitHub Ruleset `20612630` was created active with PR-only, deletion/non-fast-forward protection, squash-only merge, review-thread resolution, and required `required / gate`.
 - Issue #1 received a verified merge/main-run/Ruleset status comment.
 - Proposed follow-up Issues #15 and #16 were created with platform/product scope and non-goals.
-- The current post-merge branch modifies only MF-1 Plan, Evidence, Completion sources, and deterministic generated outputs.
+- Ready PR #17 versions only MF-1 Plan, Evidence, Completion sources, and deterministic generated outputs.
 - No Viewer/Editor product source, versioned Supersplat snapshot, production deployment, release, or MCL activation was changed.
 - No Netlify environment variable remained after the stopped experiment.
 - One Task-created 3.5 GB incomplete temporary checkout was permanently deleted after its exact path was verified; it contained no user-authored material and is not recoverable.
@@ -334,6 +336,7 @@ No focused validation failed at termination. The Agent did not run Viewer/Editor
 - Markdown link validation: 46 files passed.
 - Repository hygiene and secret scan: 10,823 paths passed.
 - Main run `31332409298`: success; `required / gate` job `93292927424` succeeded.
+- Post-merge evidence PR run `31332937375`: success; governance/Completion, dependency review, both CodeQL surfaces, and `required / gate` succeeded; product jobs were path-skipped.
 - Ruleset detail and effective `main` rules were re-read and matched the repository JSON.
 - Issue #1's final comment, Issue #15, and Issue #16 were re-read after creation.
 - T01 SHA-256 and the predecessor-plan archive remain governed by unchanged historical records; Revision 4 does not rewrite them.

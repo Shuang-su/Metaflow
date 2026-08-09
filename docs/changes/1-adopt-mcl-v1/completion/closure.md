@@ -5,7 +5,7 @@ terminal_state: verifying
 owner: Shuang-su
 closed_at: null
 approved_by: null
-generated_at: 2026-08-09T19:52:50Z
+generated_at: 2026-08-09T19:58:18Z
 ---
 
 # Closure
@@ -23,7 +23,7 @@ Do not close MF-1. PR #3 has merged the MCL candidate, the exact merge tree and 
 | MF-1-T03 | complete | Normative/Plan separation, candidate semantics, predecessor archive, and disposition material were delivered to T05 for integration. |
 | MF-1-T04 | complete | Versioned-snapshot Dependabot exclusion, platform tests, and the precise two-file package restoration were delivered to T05 for integration. |
 | MF-1-T05 | partial | Historical pre-merge integration checkpoint; its failed classifier run and focused correction remain immutable, and T06 explicitly accepted the continuation. |
-| MF-1-T06 | partial | Candidate merge, main evidence, Ruleset and follow-up split succeeded; continue through the post-merge Evidence/Completion PR without reopening product or Netlify implementation in MF-1. |
+| MF-1-T06 | complete | Candidate merge, main evidence, Ruleset, follow-up split and the path-scoped post-merge Evidence/Completion PR succeeded without reopening product or Netlify implementation in MF-1. |
 
 ## Plan Amendments and Deviations
 
@@ -59,7 +59,7 @@ Release and rollback workflows are implemented but were not invoked. Netlify Pre
 - Issue #15 owns lightweight Netlify Preview and smoke; MF-1 must not silently absorb its implementation.
 - Issue #16 owns path-scoped Viewer/Editor validation and product/release Gate design.
 - Design onboarding, real Upstream Sync, T0/T1 fast path, multi-Agent T2, partial-to-closed, attachment delivery, rollback, and full release pilots remain outstanding.
-- The post-merge Evidence/Completion PR remains outstanding; candidate activation, pilots and closure remain later MF-1 work.
+- Candidate activation, pilots and closure remain later MF-1 work; T06 itself has no remaining scope.
 
 ## Ledger, Version, PR, and Release Links
 
@@ -70,6 +70,8 @@ Release and rollback workflows are implemented but were not invoked. Netlify Pre
 - Merge commit: `6e1725ee6d24ea37fcf3bb7492606e95e0e0780b`
 - Main run: <https://github.com/Shuang-su/Metaflow/actions/runs/31332409298>
 - Active Ruleset: <https://github.com/Shuang-su/Metaflow/rules/20612630>
+- Post-merge Evidence/Completion PR: <https://github.com/Shuang-su/Metaflow/pull/17>
+- Post-merge Evidence/Completion run: <https://github.com/Shuang-su/Metaflow/actions/runs/31332937375>
 - Netlify follow-up: <https://github.com/Shuang-su/Metaflow/issues/15>
 - Product-Gate follow-up: <https://github.com/Shuang-su/Metaflow/issues/16>
 - Revision 3 first push: `023dac807976f02ec6e95a9dbf33de827896bd51`
@@ -84,4 +86,4 @@ No request content required redaction. System/developer instructions and hidden 
 
 ## Final Response Delivery
 
-T06 reports `partial` until this post-merge Evidence/Completion PR is versioned and delivered. PR #3 is merged and the Ruleset is enforced, but MF-1 itself remains `verifying` and cannot be described as effective or closed.
+T06 reports `complete` for the authorized candidate-merge and evidence-delivery scope. PR #3 is merged and the Ruleset is enforced, but MF-1 itself remains `verifying` and cannot be described as effective or closed.
