@@ -52,7 +52,7 @@
     "eslint": "9.39.4",
     "globals": "17.4.0",
     "playcanvas": "2.17.1",
-    "postcss": "8.5.8",
+    "postcss": "8.5.26",
     "publint": "0.3.18",
     "rollup": "4.59.0",
     "rollup-plugin-copy": "3.5.0",
