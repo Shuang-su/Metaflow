@@ -1,0 +1,22 @@
+- generic [active] [ref=e1]:
+  - generic:
+    - link "Metaflow" [ref=e5] [cursor=pointer]:
+      - /url: https://metaflow.shuang-su.com/
+      - img "Metaflow Logo" [ref=e6]
+      - img "Metaflow"
+    - generic [ref=e7]:
+      - generic [ref=e8]: 0%
+      - generic [ref=e10]: "[流式加载] 流式 LOD 拉取中 (剩余 6 个分块)"
+    - generic:
+      - generic [ref=e11] [cursor=pointer]
+      - generic [ref=e12] [cursor=pointer]
+      - generic [ref=e13] [cursor=pointer]
+      - generic [ref=e14] [cursor=pointer]
+      - generic [ref=e15] [cursor=pointer]
+      - generic [ref=e16] [cursor=pointer]
+      - generic [ref=e17] [cursor=pointer]
+      - generic [ref=e18] [cursor=pointer]
+      - generic [ref=e19] [cursor=pointer]
+      - generic [ref=e20] [cursor=pointer]
+      - generic [ref=e21] [cursor=pointer]
+      - generic [ref=e22] [cursor=pointer]

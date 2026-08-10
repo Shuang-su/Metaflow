@@ -172,6 +172,7 @@ location / {
 | `/editor` 运行时版本 | [`metaflow-editor/version.json`](metaflow-editor/version.json) |
 | 版本历史 | [`metadata/editor-version-history.json`](metadata/editor-version-history.json) |
 | 三方审查快照登记 | [`metadata/reference-snapshots.json`](metadata/reference-snapshots.json)：Viewer `v1.26.2/v1.29.0`、Editor `v2.28.0/v2.32.3`、Transform CLI `v2.5.1/v3.3.0`；执行中发布的前一候选 `v1.28.0/v3.2.0` 仍作为不可变中间快照保留 |
+| 三方审查结论 | [`docs/history/upstream-reviews/2026-08-10/`](docs/history/upstream-reviews/2026-08-10/README.md)：Viewer Adopt、Editor Defer、Transform CLI Adopt（离线工具）；均未在本轮发布 |
 
 ## 最近版本
 
