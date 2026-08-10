@@ -8,20 +8,22 @@
 2. Viewer 以 `cache: no-store` 请求 `/data/index.json`。
 3. pathname 经过标准化和 URL 解码后，与 `resources[].route` 或 `aliases[]` 匹配。
 4. Viewer 从 `files` 选择模型、settings、thumbnail、environment、voxel/collision。
-5. 显式 URL 参数可以覆盖 poster、环境、碰撞等资源地址。
+5. 显式 URL 参数可以优先提供 poster、环境、碰撞、voxel 等地址；`settings` 与 `content` 具有不同规则。
 6. Viewer 解析 settings，创建渲染设备并进入模型加载阶段。
 
 index 本身使用重新验证策略，因为 route 可以独立于大型资产变化；模型和 data 资源通常使用长期 immutable cache。
 
 ## 直接参数模式
 
-当 URL 提供 `content` 时，Viewer 不需要 route 命中：
+当 URL 提供 `content` 时，Viewer 会跳过整个 route/index 查找，而不只是替换主体模型：
 
 ```text
 /?content=/data/model.sog&settings=/data/settings.json
 ```
 
 没有 `content` 时回退到 `./scene.compressed.ply`；没有 `settings` 时回退到 `./settings.json`。因此根路径黑屏时，Network 中出现这两个回退文件的 404 往往意味着 URL 没有命中 route，也没有提供直接参数。
+
+route/query 的实际优先级并不统一：route 命中会覆盖 query `settings`，而 query `content` 会让 route settings、viewer 策略和资源元数据都不再读取。完整矩阵见 [Viewer URL 参数](../reference/viewer-url-parameters.md#实际-routequery-优先级)。
 
 ## Settings 兼容层
 
@@ -33,9 +35,13 @@ index 本身使用重新验证策略，因为 route 可以独立于大型资产�
 
 部分历史 v2 只写了 `{ "enabled": false }` 的后处理对象，当前兼容层会补齐默认字段。新配置仍应输出完整 v2。
 
+字段、v1/v2 边界和当前 Editor annotation 限制见 [Viewer settings schema](../reference/viewer-settings-schema.md)。
+
 ## 模型与环境
 
 Viewer 根据文件扩展名和 JSON 结构区分 legacy SOG/PLY 与 streaming LOD。环境模型独立加载；有环境时会先进入 environment 阶段，但失败不应让主模型永久不可见。
+
+“Viewer 能加载”不等于“index 生成器会发布为 route”。独立 compressed PLY 可用 direct `content` 或 legacy package 加载；当前生成器只把 SOG 或 streaming JSON 选为稳定 route 主模型，并把特定命名的 compressed PLY 作为 environment。
 
 资源 index 的 `files.model` 是首选入口；存在 `files.lod` 时，页面选择第一个有效 LOD 文件作为兼容入口。生成器负责让这些字段与真实文件一致。
 

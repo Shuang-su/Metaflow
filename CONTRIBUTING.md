@@ -71,6 +71,8 @@ git diff --check
 
 以下内容不是默认工件：Task Record、Completion Dossier、Manifest、完整 request transcript、approved-plan 副本。只在合规、事故、破坏性迁移、正式发布或用户明确要求时启用审计模式；MF-1/MF-9 legacy 档案保持原样。
 
+历史 Change 的状态、Gate、命令和验收只说明当时版本，不建立当前政策。开始复用旧工件前先看 [`docs/changes/README.md`](docs/changes/README.md) 的状态注册表；没有显式审计需求时，不进入 legacy `completion/` 寻找日常模板。
+
 - Spec compliance 与 code/document quality 分开检查；实现作者复查属于 self-review。
 - 产品发布更新对应 Version History/Ledger、回滚目标和必要观察；它们不替代 PR/Issue Completion Contract。
 - Ledger 与 Version History 不是通用 Completion Contract：前者解释 Viewer 产品行为、风险和证据背景，后者记录结构化发布事实。

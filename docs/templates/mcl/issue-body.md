@@ -1,6 +1,8 @@
 # 当前状态
 
-Proposed / Ready / In Progress / In Review / Done / Released / Observing / Parked / Rejected / Rolled Back
+Open / In Progress / In Review / Done
+
+生产发布可追加 Released / Observing；真实阻塞或终止时才使用 Blocked / Parked / Rejected / Rolled Back。Proposed 只用于尚未决定的 Proposal；Ready 是开始条件判断结果，不是通用状态。
 
 ## 背景
 
@@ -26,6 +28,8 @@ Proposed / Ready / In Progress / In Review / Done / Released / Observing / Parke
 - Plan：
 - ADR：
 - Codex 任务：
+
+简单任务不需要独立 Spec/Plan 时直接写明原因，不创建占位文件。
 
 ## 完成交付
 

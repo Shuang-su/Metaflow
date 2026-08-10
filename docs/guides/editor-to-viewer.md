@@ -2,9 +2,22 @@
 
 这条流程适用于“在 Editor 中完成场景配置，然后把模型与展示配置纳入 Metaflow 稳定路由”。
 
+```mermaid
+flowchart LR
+    E["Editor 场景"] -->|导出| M["SOG / streaming 模型"]
+    E -->|导出| S["settings.json"]
+    M --> D["data/ 资源目录"]
+    S --> D
+    D --> G["generate_index.py"]
+    G --> I["data/index.json"]
+    I --> R["Viewer 稳定 route"]
+```
+
+Editor 负责创作和导出；生成器负责公开 route。自包含 HTML/ZIP、独立 compressed PLY 与平台 index 是不同契约，不能用“Editor 能打开或导出”推断“生成器一定会发布”。
+
 ## 1. 在 Editor 中准备场景
 
-从 `supersplat-v2.28.0/` 启动 Editor，导入源模型，完成裁剪、朝向、颜色、相机姿态、动画和标注。
+从 `supersplat-v2.28.0/` 启动 Editor，导入源模型，完成裁剪、朝向、颜色、相机姿态和动画。当前 Editor export 固定写入空 `annotations`，不能把标注作为已支持的创作或往返步骤；需要标注时按 [settings schema 的限制说明](../reference/viewer-settings-schema.md#标注及当前-editor-限制) 单独维护。
 
 导出前至少检查：
 
@@ -18,10 +31,10 @@
 
 面向 Metaflow 路由，推荐分别导出：
 
-1. 模型：优先 SOG；已有流水线也可以使用压缩 PLY 或 streaming `lod-meta.json`。
+1. 模型：使用 SOG，或已经由现有流水线生成的 streaming `lod-meta.json` / `meta.json`。
 2. Viewer 配置：在 Viewer 导出类型中选择 `settings.json`。
 
-`Metaflow legacy ZIP` 适合验证一份可独立打开的旧 Viewer 包，其内部包含 `scene.compressed.ply` 与 `settings.json`；它不是 `data/index.json` 的首选发布形态。完整差异见 [Editor 导出契约](../reference/editor-export-contract.md)。
+Viewer 能通过显式 `content` 直接加载 compressed PLY，`Metaflow legacy ZIP` 也固定包含 `scene.compressed.ply`；但当前 `generate_index.py` 不会把独立 compressed PLY 识别为稳定 route 主模型。它只把 compressed PLY 用作符合命名规则的 environment。完整边界见 [资源索引 schema](../reference/resource-index.md#可索引模型边界) 和 [Editor 导出契约](../reference/editor-export-contract.md)。
 
 ## 3. 放入资源目录
 
@@ -52,23 +65,17 @@ python3 scripts/validate_data.py --check-files
 
 ## 5. 本地验证
 
-启动 Viewer：
+按 [Viewer 快速开始](../getting-started/viewer.md#用-spa-fallback-启动) 分别启动 watch 和带 `-s` 的静态服务器。不要只运行当前 `npm run develop` 后访问深层 route；它没有 SPA fallback。
 
-```bash
-cd metaflow-viewer
-npm ci
-npm run develop
-```
-
-确认 `metaflow-viewer/public/data` 是指向仓库根 `data/` 的本地链接，或已同步为当前副本；否则刚生成的 index 与资源不会出现在本地静态服务器中。首次设置方法见 [Viewer 快速开始](../getting-started/viewer.md)。
+确认 `metaflow-viewer/public/data` 是指向仓库根 `data/` 的本地链接，或已同步为当前副本；否则刚生成的 index 与资源不会出现在本地静态服务器中。
 
 然后访问 index 生成的 route。检查：
 
 - route/alias 能命中唯一资源；
 - 模型、settings、缩略图与环境没有 404；
-- 初始相机、动画、标注、碰撞策略与 Editor 预期一致；
+- 初始相机、动画和碰撞策略与 Editor 预期一致；手工标注按独立 settings 源验证；
 - 直接 `?content=...&settings=...` 与稳定 route 的表现没有意外差异。
 
 ## 6. 准备发布证据
 
-资源或行为发布需要同步 Viewer Version History 与 Ledger。当前 `5.18a` 保留为历史状态；下一次真实资源或兼容修复从 `5.18.1` 开始使用 SemVer PATCH。提交前记录 route、变更类型、验证范围和未运行检查。发布步骤见 [版本、发布与部署](../maintenance/release-deploy.md)。
+资源或行为发布需要同步 Viewer Version History 与 Ledger。当前 `5.18a` 保留为历史状态；下一次真实资源或兼容修复从 `5.18.1` 开始使用 SemVer PATCH。提交前记录 route、变更类型、验证范围和未运行检查。版本记录见 [版本与发布](../maintenance/versioning-and-release.md)，静态交付见 [部署](../maintenance/deployment.md)。

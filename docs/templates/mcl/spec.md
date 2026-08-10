@@ -1,7 +1,7 @@
 ---
 change_id: MF-000
 title: Replace with a contract title
-status: ready
+status: specified
 component:
   - viewer
 risk: T2
@@ -15,6 +15,8 @@ issue: https://github.com/Shuang-su/Metaflow/issues/000
 # Change Spec
 
 > 这是本 Change 唯一规范 Spec。Issue 只摘要并链接本文。
+
+> `status` 表示 Spec 工件成熟度，不是 Issue 生命周期；通用任务状态以 Issue 为准。
 
 ## Context and accepted direction
 
@@ -41,4 +43,4 @@ issue: https://github.com/Shuang-su/Metaflow/issues/000
 
 ## Open decisions
 
-进入 Ready 前必须为空，或明确记录为不影响当前范围的后续 Issue。
+开始实施前必须为空，或明确记录为不影响当前范围的后续 Issue。

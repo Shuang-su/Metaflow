@@ -1,5 +1,7 @@
 # 中文文档体系实施计划
 
+> **历史完成计划。** 本文记录 Issue #23 / PR #24 当时的 20 篇交付与 Hosted `required / gate` 实证；它不是当前操作计划。MCL Revision 6 已取消普通 PR/push 的必需 Gate，后续文档维护以 [`../maintenance/documentation.md`](../maintenance/documentation.md) 和实时 Issue 为准。
+
 ## 1. 状态与边界
 
 Issue #23 是任务状态真相源。本计划只记录文件步骤和验证命令。变更限于 Markdown，不修改运行时、数据、依赖和部署配置。

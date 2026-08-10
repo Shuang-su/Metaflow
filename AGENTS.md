@@ -11,6 +11,8 @@
 
 外部案例或单次 Plan 不能建立仓库政策。只有已应用并重新核验的自动化或权限可以称为 enforced control。
 
+`docs/changes/` 中的旧状态、Gate、命令和工件要求只描述当时 Change；它们不覆盖当前 MCL。先读 [`docs/changes/README.md`](docs/changes/README.md) 判断工件是现行、已完成、已取代还是 legacy 审计档案，再决定是否进入其正文或 `completion/`。
+
 ## 开始前
 
 1. 检查 `git status --short --branch`、upstream 和相关 diff，保护已有改动与未跟踪文件。
@@ -49,7 +51,7 @@
 - Issue/PR 都没有：commit trailer 与最终 Codex 回复共同说明实际结果。
 - 产品发布另外更新对应 Ledger 与 Version History；二者不是通用 Completion Contract。
 
-Task Record、Completion Dossier、Manifest 和全文 transcript 仅在合规、事故、破坏性迁移、正式发布或用户明确要求的审计模式中生成。旧 MF-1/MF-9 档案仍可使用：
+Task Record、Completion Dossier、Manifest 和全文 transcript 仅在合规、事故、破坏性迁移、正式发布或用户明确要求的审计模式中生成。旧档案仍可用于确定性核验，但不能用 MF-1、MF-9 的目录结构作为新任务模板：
 
 ```bash
 node scripts/mcl.mjs check docs/changes/1-adopt-mcl-v1 --strict

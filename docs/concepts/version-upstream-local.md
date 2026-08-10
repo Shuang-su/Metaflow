@@ -52,3 +52,5 @@ Viewer Ledger 在历史边界 `c613a87` 之前保留原有全量记录；之后�
 2. 核对 package 或运行时 version JSON。
 3. 查看对应 Ledger 的详细演化。
 4. 只有研究历史差异时才读旧 sync audit 或版本目录。
+
+需要查表而不是理解概念时，使用 [兼容边界与版本事实源](../reference/compatibility-and-version-sources.md)；准备真实产品发布时，使用 [版本与发布](../maintenance/versioning-and-release.md)。
