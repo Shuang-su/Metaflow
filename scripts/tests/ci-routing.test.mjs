@@ -148,7 +148,7 @@ test('mixed components select the exact union and leave unrelated products out',
     assert.equal(result.checks.includes('reference'), false);
 });
 
-test('the aggregate gate requires every selected job and rejects unselected work', () => {
+test('the manual summary requires every selected job and rejects unselected work', () => {
     for (const selected of [
         ['docs'],
         ['governance'],
@@ -159,14 +159,15 @@ test('the aggregate gate requires every selected job and rejects unselected work
         ['reference'],
         ['release', 'governance', 'viewer', 'editor']
     ]) {
+        const expectedSelected = selected.filter((check) => check !== 'dependency-review');
         const results = Object.fromEntries(CHECK_IDS.map((check) => [
             check,
-            selected.includes(check) ? 'success' : 'skipped'
+            expectedSelected.includes(check) ? 'success' : 'skipped'
         ]));
         const outcome = evaluateGate({
             selectedChecks: selected,
             results,
-            eventName: 'pull_request',
+            eventName: 'workflow_dispatch',
             classifyResult: 'success'
         });
         assert.equal(outcome.ok, true, outcome.errors.join('; '));
@@ -178,19 +179,19 @@ test('the aggregate gate requires every selected job and rejects unselected work
             check,
             check === 'docs' || check === 'viewer' ? 'success' : 'skipped'
         ])),
-        eventName: 'pull_request',
+        eventName: 'workflow_dispatch',
         classifyResult: 'success'
     });
     assert.equal(overrun.ok, false);
     assert.ok(overrun.errors.some((error) => error.includes('viewer=success, expected skipped')));
 
-    const pushDependency = evaluateGate({
+    const manualDependency = evaluateGate({
         selectedChecks: ['dependency-review'],
         results: Object.fromEntries(CHECK_IDS.map((check) => [check, 'skipped'])),
-        eventName: 'push',
+        eventName: 'workflow_dispatch',
         classifyResult: 'success'
     });
-    assert.equal(pushDependency.ok, true);
+    assert.equal(manualDependency.ok, true);
 });
 
 test('every tracked or proposed repository path is owned and routed', () => {

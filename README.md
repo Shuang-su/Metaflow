@@ -199,7 +199,7 @@ location / {
 - [当前同步差异审计](docs/metaflow-current-sync-diff-audit.md)
 - [SuperSplat 同步对比](docs/metaflow-viewer-sync-comparison.md)
 
-版本历史采用双轨规则：数字版本记录代码、行为、架构和部署变化；字母后缀记录当前数字版本上的纯资源更新。
+当前 `5.18a / 5.18.0` 是最后一个双轨历史版本。旧字母版本保持原样；下一次真实 Viewer 资源发布或兼容修复从 `5.18.1` 开始，之后统一使用 SemVer PATCH/MINOR/MAJOR。
 
 ## URL 查询参数详解
 

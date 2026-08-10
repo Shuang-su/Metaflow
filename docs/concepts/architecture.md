@@ -53,6 +53,6 @@ Editor 同样是浏览器应用。发布到 `/editor` 的 bundle 可以独立运
 
 ## 仓库治理边界
 
-`metadata/components.json` 只定义路径所有权，`metadata/ci-routing.json` 定义检查路由。文档、数据、Viewer、Editor、Design、Reference 和发布配置分别命中最小可信检查；`required / gate` 始终给出最终结论。
+`metadata/components.json` 定义路径所有权，`metadata/ci-routing.json` 定义建议检查路由。文档、数据、Viewer、Editor、Design、Reference 和发布配置分别命中最小可信本地检查；普通 GitHub workflow 只按需手动运行，不再提供所有 Change 都必须等待的聚合 Gate。
 
-这套边界让文档更改不必构建产品，也让数据、依赖或公共行为变化不能伪装成纯文档。
+这套边界让文档更改不必构建产品，也让数据、依赖或公共行为变化不能伪装成纯文档。实际执行的命令、结果和未运行项由 PR、Issue 或直接提交交付记录。

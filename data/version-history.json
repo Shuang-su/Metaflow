@@ -16,14 +16,16 @@
     }
   },
   "versioning": {
-    "mode": "dual-track",
+    "mode": "semver-forward",
     "packageVersion": "semver",
-    "displayVersion": "major.minor plus optional resource suffix",
+    "displayVersion": "legacy major.minor plus optional resource suffix through 5.18a; full semver thereafter",
     "rules": [
-      "Major versions group broad product lines.",
-      "Numeric minor versions track code, UI, behavior, migration, and tooling changes.",
-      "Letter suffixes track resource-only updates on the current numeric version.",
-      "Letter suffixes reset after the next numeric minor version."
+      "Published display versions through 5.18a are immutable legacy history.",
+      "The next real Viewer release is 5.18.1; releases after 5.18a use full SemVer and displayVersion equals appSemver.",
+      "Patch releases cover resources, thumbnails, settings, compatible routes, bug fixes, and other backwards-compatible corrections.",
+      "Minor releases add backwards-compatible product, interaction, loader, data, or architecture capabilities.",
+      "Major releases change public contracts incompatibly or require consumer migration.",
+      "Documentation, governance, research, behavior-neutral refactors, test maintenance, and unpublished staging do not create Viewer versions."
     ],
     "majorLines": [
       {
@@ -143,6 +145,11 @@
       "gitRef": "bdf46c9",
       "date": "2026-06-26",
       "summary": "chore(release): document Bijiashan data release"
+    },
+    {
+      "gitRef": "65a5fb6",
+      "date": "2026-06-27",
+      "summary": "Document Bijiashan 5.18a release"
     }
   ],
   "entries": [

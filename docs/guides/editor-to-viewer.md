@@ -71,4 +71,4 @@ npm run develop
 
 ## 6. 准备发布证据
 
-资源或行为发布需要同步对应 Viewer 版本历史；纯资源后缀遵循双轨版本规则。提交前记录 route、变更类型、验证范围和未运行检查。发布步骤见 [版本、发布与部署](../maintenance/release-deploy.md)。
+资源或行为发布需要同步 Viewer Version History 与 Ledger。当前 `5.18a` 保留为历史状态；下一次真实资源或兼容修复从 `5.18.1` 开始使用 SemVer PATCH。提交前记录 route、变更类型、验证范围和未运行检查。发布步骤见 [版本、发布与部署](../maintenance/release-deploy.md)。

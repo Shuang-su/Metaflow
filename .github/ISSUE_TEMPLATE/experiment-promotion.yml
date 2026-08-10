@@ -7,7 +7,7 @@ body:
     id: current_status
     attributes:
       label: 当前状态
-      options: [Proposed, Ready, In Progress, In Review, Done, Parked, Rejected, Rolled Back]
+      options: [Proposed, Open, In Progress, In Review, Done, Released, Observing, Blocked, Parked, Rejected, Rolled Back]
     validations:
       required: true
   - type: textarea
