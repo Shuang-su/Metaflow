@@ -1,14 +1,24 @@
 # 添加并发布资源
 
-本指南从“资源文件已经准备好”开始，目标是让它获得稳定 route，并通过现有静态发布链路可访问。
+本指南从“资源文件已经准备好”开始，目标是让它获得稳定 route，并通过现有静态发布链路可访问。先判断规模与契约变化，再选择最短可信流程。
 
-## 1. 确定分类与目录
+## 1. 选择发布路线
+
+| 路线 | 判断条件 | 最小流程 |
+|---|---|---|
+| 常规资源 | 既有格式、schema、生成器、缓存和现有 route；不涉及 LFS、许可证、运行时代码或部署配置 | 可 Direct Commit；生成并审查 index，运行数据和 route 定向验证 |
+| 大型或新增入口 | 新 route/alias、超过 20 个文件、新增超过 100 MiB、LFS 或大量 tiled/LOD 文件，但契约不变 | 轻量 Issue 或 PR checklist + PR；审查存储、路径、index 和缓存 |
+| 结构性资源变更 | 修改 schema、生成器语义、Loader、Viewer、缓存/部署、格式兼容、授权来源或公共 URL 契约 | Issue + Spec + Plan + PR；运行被实际行为命中的检查 |
+
+文件数量和体积决定操作路线，不自动把已有契约内的资源变成架构任务。仅 staging 且尚未进入公开 index/route 的上传不提升产品版本。
+
+## 2. 确定分类与目录
 
 生成器识别的一级分类由 `scripts/generate_index.py` 的 `CATEGORIES` 定义；部分分类还有 `SUBCATEGORIES`。先复用现有结构，不要只为一个资源随意新增分类。
 
-目录名可以保留采集信息，公开 route 使用规范化 slug 或显式 override。需要兼容旧链接时使用 alias，不复制一份资源。
+目录名可以保留采集信息，公开 route 使用规范化 slug 或显式 override。需要兼容旧链接时使用 alias，不复制一份资源。新增普通 route/alias 若完全复用既有契约，属于兼容内容变化；它会触发轻量 PR 路线，但不需要完整 Spec。
 
-## 2. 准备文件
+## 3. 准备文件
 
 一个可发布资源至少需要可识别的模型。常见组合：
 
@@ -20,7 +30,9 @@
 
 生成器对部分历史目录有明确 override。不要依赖“碰巧按字母排序选中正确文件”；存在多个 settings 或 model 候选时应写规则。
 
-## 3. 处理 Git 与 LFS
+同一路径覆盖大型 immutable 文件前必须评估缓存；优先采用新文件名或内容地址，避免客户端继续命中旧内容。
+
+## 4. 处理 Git 与 LFS
 
 先检查文件大小和 `.gitattributes`。当前策略是只有精确列出的超大资产进入 LFS，较小的 SOG、PLY 和 voxel 文件保持普通 Git。
 
@@ -31,7 +43,7 @@ git lfs ls-files
 
 若目标被标记为 LFS，确认提交的是 pointer，且托管端已有对象。不要为了让本地 checkout 变小而扩大 LFS glob；这会改变部署和历史可用性。
 
-## 4. 生成并审查 index
+## 5. 生成并审查 index
 
 ```bash
 python3 scripts/generate_index.py
@@ -49,14 +61,27 @@ git diff -- data/index.json
 
 字段说明见 [资源索引参考](../reference/resource-index.md)。
 
-## 5. 更新版本历史
+## 6. 更新版本历史与 Ledger
 
-代码、行为和工具变化使用新的数字版本；只增加或替换资源时使用当前数字版本的字母后缀。Viewer 当前规则定义在 [`metadata/version-history.json`](../../metadata/version-history.json)。
+公开 route、thumbnail、settings 或资源内容发生变化时，使用 Viewer PATCH，并同时更新：
 
-版本历史是源，`data/version-history.json` 是发布镜像；两者必须完全一致。运行生成器后再用 `scripts/validate_data.py` 检查。
+- `metadata/version-history.json` 结构化事实源；
+- `data/version-history.json` 发布镜像；
+- `data/index.json.release`、Viewer package/lock 和当前版本摘要；
+- [Viewer 变更总账](../metaflow-viewer-change-ledger.md)。
 
-## 6. 验证与发布
+当前仍为 `5.18a / 5.18.0`。旧字母版本不改写；下一次真实资源发布为 `5.18.1`，之后依次使用 `5.18.2`、`5.18.3`，不再新增 `5.18b`。
 
-至少验证新增 route、一个 alias（若有）、直接资源 URL、settings 解析和移动端首屏。只有 data/fixture 变化时，路径级 CI 会运行 data 验证与受影响 Viewer 检查，不应触发 Editor、Design 或 reference。
+常规 Direct Commit 发布使用两个本地原子提交并一次 push：先提交资源/index，再以 `chore(release)` 引用前一个真实 SHA 并更新版本记录。PR 使用 squash merge 时，合并后以极小 release-record commit 回填最终 SHA；在回填完成前不标记稳定完成。
 
-合并后由现有 Netlify build 重新生成 index、构建 Viewer，并同步 `data/` 与 `metaflow-editor/`。不要在文档或资源 PR 中手动触发 production mutation。
+## 7. 验证与交付
+
+至少验证新增 route、一个 alias（若有）、直接资源 URL、settings 解析和与资源相关的首屏/交互。常规资源不运行无关 Editor、Design、Reference 或全仓 E2E；实际命令、结果和未运行项记录在 PR、Issue 或直接提交交付中。
+
+可以用本地路由器预览建议检查：
+
+```bash
+node scripts/ci-routing.mjs route --base origin/main
+```
+
+GitHub Actions 只按需手动运行，不是资源发布的通用完成条件。合并或 direct push 后由现有 Netlify 配置决定站点构建；文档或资源任务本身不手动触发 production mutation，除非发布 Plan 明确授权。

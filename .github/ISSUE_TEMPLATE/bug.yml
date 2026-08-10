@@ -7,7 +7,7 @@ body:
     id: current_status
     attributes:
       label: 当前状态
-      options: [Proposed, Ready, In Progress, In Review, Done, Parked, Rejected, Rolled Back]
+      options: [Open, In Progress, In Review, Done, Blocked, Parked, Rejected, Rolled Back]
     validations:
       required: true
   - type: textarea
@@ -67,7 +67,7 @@ body:
     id: artifacts
     attributes:
       label: Spec / Plan 与相关任务
-      description: 链接技术细节；T1 不适用独立 Spec 时链接轻量 Plan。
+      description: 链接适用的技术细节；简单修复不需要独立 Spec/Plan 时说明原因。
     validations:
       required: true
   - type: textarea

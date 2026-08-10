@@ -7,27 +7,97 @@ import { fileURLToPath } from 'node:url';
 import { classifyPaths, loadComponentRegistry } from '../../scripts/mcl.mjs';
 
 const repoRoot = fileURLToPath(new URL('../..', import.meta.url));
+const LEGACY_DISPLAY_CUTOFF = '5.18a';
+const LEGACY_LEDGER_CUTOFF = 'c613a87';
 
 const readJson = async (path) => JSON.parse(await readFile(path, 'utf8'));
 
-const versionBase = (displayVersion) => {
-    const match = displayVersion.match(/^(\d+\.\d+)([a-z])?$/);
-    assert.ok(match, `invalid displayVersion: ${displayVersion}`);
+const parseDisplayVersion = (displayVersion) => {
+    const semver = displayVersion.match(/^(\d+)\.(\d+)\.(\d+)$/);
+    if (semver) {
+        return {
+            kind: 'semver',
+            base: `${semver[1]}.${semver[2]}`,
+            patch: Number(semver[3]),
+            parts: semver.slice(1).map(Number),
+            suffix: ''
+        };
+    }
+
+    const legacy = displayVersion.match(/^(\d+\.\d+)([a-z])?$/);
+    assert.ok(legacy, `invalid displayVersion: ${displayVersion}`);
     return {
-        base: match[1],
-        suffix: match[2] || ''
+        kind: 'legacy',
+        base: legacy[1],
+        patch: null,
+        parts: null,
+        suffix: legacy[2] || ''
     };
 };
 
-test('version history backfills every commit through the cutoff ref', async () => {
+const compareSemverParts = (left, right) => {
+    for (let index = 0; index < left.length; index += 1) {
+        if (left[index] !== right[index]) {
+            return left[index] - right[index];
+        }
+    }
+    return 0;
+};
+
+function assertVersionPolicy(entries) {
+    const cutoffIndex = entries.findIndex((entry) => entry.displayVersion === LEGACY_DISPLAY_CUTOFF);
+    assert.notEqual(cutoffIndex, -1, `missing legacy display cutoff ${LEGACY_DISPLAY_CUTOFF}`);
+
+    const displayVersions = entries.map((entry) => entry.displayVersion);
+    assert.equal(new Set(displayVersions).size, displayVersions.length, 'display versions must be unique');
+
+    const suffixesByBase = new Map();
+    let previousSemver = null;
+    for (const [index, entry] of entries.entries()) {
+        const parsed = parseDisplayVersion(entry.displayVersion);
+        if (index <= cutoffIndex) {
+            assert.equal(parsed.kind, 'legacy', `${entry.displayVersion} must remain legacy history`);
+            assert.equal(entry.appSemver, `${parsed.base}.0`);
+            if (parsed.suffix) {
+                assert.equal(entry.type, 'resource');
+                const suffixes = suffixesByBase.get(parsed.base) || [];
+                suffixes.push(parsed.suffix);
+                suffixesByBase.set(parsed.base, suffixes);
+            }
+            continue;
+        }
+
+        assert.equal(parsed.kind, 'semver', `${entry.displayVersion} uses a letter suffix after ${LEGACY_DISPLAY_CUTOFF}`);
+        assert.equal(entry.displayVersion, entry.appSemver, `${entry.displayVersion} must match appSemver`);
+        if (previousSemver) {
+            assert.ok(
+                compareSemverParts(parsed.parts, previousSemver) > 0,
+                `${entry.displayVersion} must be greater than the previous SemVer release`
+            );
+        }
+        previousSemver = parsed.parts;
+    }
+
+    const firstForwardEntry = entries[cutoffIndex + 1];
+    if (firstForwardEntry) {
+        assert.equal(firstForwardEntry.displayVersion, '5.18.1', 'the first forward release must be 5.18.1');
+    }
+
+    for (const [base, suffixes] of suffixesByBase.entries()) {
+        const expected = suffixes.map((_, index) => String.fromCharCode('a'.charCodeAt(0) + index));
+        assert.deepEqual(suffixes, expected, `${base} legacy resource suffixes should be contiguous`);
+    }
+}
+
+test('legacy version history backfills every commit through the fixed historical cutoff', async () => {
     const manifest = await readJson(new URL('../../metadata/version-history.json', import.meta.url));
     const log = execFileSync('git', ['log', '--abbrev=7', '--pretty=format:%h', '--reverse'], {
         cwd: repoRoot,
         encoding: 'utf8'
     }).trim().split('\n');
 
-    const cutoffIndex = log.indexOf(manifest.cutoffGitRef);
-    assert.notEqual(cutoffIndex, -1, 'cutoffGitRef is missing from git log');
+    const cutoffIndex = log.indexOf(LEGACY_LEDGER_CUTOFF);
+    assert.notEqual(cutoffIndex, -1, 'legacy ledger cutoff is missing from git log');
 
     const expectedRefs = log.slice(0, cutoffIndex + 1);
     const documentedRefs = [
@@ -36,33 +106,82 @@ test('version history backfills every commit through the cutoff ref', async () =
     ];
     assert.equal(new Set(documentedRefs).size, documentedRefs.length, 'each commit should be documented exactly once');
     const logOrder = new Map(expectedRefs.map((ref, index) => [ref, index]));
-    const actualRefs = documentedRefs.toSorted((a, b) => logOrder.get(a) - logOrder.get(b));
+    const actualRefs = documentedRefs
+        .filter((ref) => logOrder.has(ref))
+        .toSorted((a, b) => logOrder.get(a) - logOrder.get(b));
     assert.deepEqual(actualRefs, expectedRefs);
-    assert.equal(manifest.documentedThrough, manifest.cutoffGitRef);
+    assert.equal(manifest.cutoffGitRef, LEGACY_LEDGER_CUTOFF);
 });
 
-test('display versions are unique and resource suffixes are contiguous', async () => {
+test('legacy display versions remain valid and future releases require full SemVer', async () => {
     const manifest = await readJson(new URL('../../metadata/version-history.json', import.meta.url));
-    const displayVersions = manifest.entries.map((entry) => entry.displayVersion);
+    assert.equal(manifest.versioning.mode, 'semver-forward');
+    assertVersionPolicy(manifest.entries);
 
-    assert.equal(new Set(displayVersions).size, displayVersions.length);
+    const rules = manifest.versioning.rules.join(' ');
+    assert.match(rules, /Patch releases cover resources.*bug fixes/i);
+    assert.match(rules, /Minor releases add backwards-compatible.*capabilities/i);
+    assert.match(rules, /Major releases change public contracts incompatibly.*consumer migration/i);
+    assert.match(rules, /Documentation.*governance.*unpublished staging.*do not create Viewer versions/i);
 
-    const suffixesByBase = new Map();
-    for (const entry of manifest.entries) {
-        const { base, suffix } = versionBase(entry.displayVersion);
-        assert.equal(entry.appSemver, `${base}.0`);
-
-        if (suffix) {
-            assert.equal(entry.type, 'resource');
-            const suffixes = suffixesByBase.get(base) || [];
-            suffixes.push(suffix);
-            suffixesByBase.set(base, suffixes);
+    const compatibleFuture = [
+        ...manifest.entries,
+        {
+            displayVersion: '5.18.1',
+            appSemver: '5.18.1',
+            type: 'fix',
+            scope: 'viewer'
+        },
+        {
+            displayVersion: '5.18.2',
+            appSemver: '5.18.2',
+            type: 'resource',
+            scope: 'data'
+        },
+        {
+            displayVersion: '5.19.0',
+            appSemver: '5.19.0',
+            type: 'feature',
+            scope: 'viewer'
+        },
+        {
+            displayVersion: '6.0.0',
+            appSemver: '6.0.0',
+            type: 'feature',
+            scope: 'viewer'
         }
-    }
-    for (const [base, suffixes] of suffixesByBase.entries()) {
-        const expected = suffixes.map((_, index) => String.fromCharCode('a'.charCodeAt(0) + index));
-        assert.deepEqual(suffixes, expected, `${base} resource suffixes should be contiguous`);
-    }
+    ];
+    assert.doesNotThrow(() => assertVersionPolicy(compatibleFuture));
+
+    assert.throws(() => assertVersionPolicy([
+        ...manifest.entries,
+        {
+            displayVersion: '5.18b',
+            appSemver: '5.18.0',
+            type: 'resource',
+            scope: 'data'
+        }
+    ]), /letter suffix/);
+
+    assert.throws(() => assertVersionPolicy([
+        ...manifest.entries,
+        {
+            displayVersion: '5.18.1',
+            appSemver: '5.18.0',
+            type: 'fix',
+            scope: 'viewer'
+        }
+    ]), /must match appSemver/);
+
+    assert.throws(() => assertVersionPolicy([
+        ...manifest.entries,
+        {
+            displayVersion: '5.18.2',
+            appSemver: '5.18.2',
+            type: 'fix',
+            scope: 'viewer'
+        }
+    ]), /first forward release must be 5\.18\.1/);
 });
 
 test('generated index release matches current version history', async () => {
@@ -121,11 +240,11 @@ test('change ledger contains every structured version and only main-history comm
     }
 });
 
-test('commits after documentedThrough require version records only for affected product components', async () => {
+test('commits after the legacy cutoff require records only for affected product components', async () => {
     const manifest = await readJson(new URL('../../metadata/version-history.json', import.meta.url));
     const editorManifest = await readJson(new URL('../../metadata/editor-version-history.json', import.meta.url));
     const componentRegistry = await loadComponentRegistry(repoRoot);
-    const refs = execFileSync('git', ['rev-list', '--reverse', `${manifest.documentedThrough}..HEAD`], {
+    const refs = execFileSync('git', ['rev-list', '--reverse', `${LEGACY_LEDGER_CUTOFF}..HEAD`], {
         cwd: repoRoot,
         encoding: 'utf8'
     }).trim();
@@ -140,7 +259,6 @@ test('commits after documentedThrough require version records only for affected 
         'docs/metaflow-viewer-change-ledger.md',
         'metadata/version-history.json',
         'data/version-history.json',
-        'data/index.json',
         'metaflow-viewer/package.json',
         'metaflow-viewer/package-lock.json',
         'metaflow-viewer/.gitignore',
@@ -183,20 +301,16 @@ test('commits after documentedThrough require version records only for affected 
         editorSourcePrefixes.some((prefix) => file.startsWith(prefix))
     );
 
-    for (const ref of refs.split('\n')) {
-        const files = execFileSync('git', ['diff-tree', '--no-commit-id', '--name-only', '-r', ref], {
-            cwd: repoRoot,
-            encoding: 'utf8'
-        }).trim().split('\n').filter(Boolean);
-        const shortRef = ref.slice(0, 7);
-        const isDocumentedEditorRelease = documentedEditorReleaseRefs.has(shortRef);
-        const isDocumentedViewerRelease = documentedViewerRefs.has(shortRef);
+    const findUnexpectedProductFiles = (files, {
+        isDocumentedEditorRelease = false,
+        isDocumentedViewerRelease = false
+    } = {}) => {
         const classified = classifyPaths(files, componentRegistry);
         const viewerOrDataFiles = new Set([
             ...(classified.viewer || []),
             ...(classified.data || [])
         ]);
-        const unexpectedFiles = files.filter((file) => {
+        return files.filter((file) => {
             if (allowedFiles.has(file)) {
                 return false;
             }
@@ -214,6 +328,28 @@ test('commits after documentedThrough require version records only for affected 
             }
             return !isDocumentedViewerRelease;
         });
+    };
+
+    assert.deepEqual(findUnexpectedProductFiles(['data/index.json']), ['data/index.json']);
+    assert.deepEqual(
+        findUnexpectedProductFiles(['metaflow-viewer/src/main.ts']),
+        ['metaflow-viewer/src/main.ts']
+    );
+    assert.deepEqual(findUnexpectedProductFiles(['docs/maintenance/documentation.md']), []);
+    assert.deepEqual(findUnexpectedProductFiles(['supersplat-v2.28.0/src/index.ts']), []);
+
+    for (const ref of refs.split('\n')) {
+        const files = execFileSync('git', ['diff-tree', '--no-commit-id', '--name-only', '-r', ref], {
+            cwd: repoRoot,
+            encoding: 'utf8'
+        }).trim().split('\n').filter(Boolean);
+        const shortRef = ref.slice(0, 7);
+        const isDocumentedEditorRelease = documentedEditorReleaseRefs.has(shortRef);
+        const isDocumentedViewerRelease = documentedViewerRefs.has(shortRef);
+        const unexpectedFiles = findUnexpectedProductFiles(files, {
+            isDocumentedEditorRelease,
+            isDocumentedViewerRelease
+        });
         assert.ok(
             unexpectedFiles.length === 0,
             `${shortRef} changes product files without a version-history entry: ${unexpectedFiles.join(', ')}`
@@ -226,7 +362,7 @@ test('root README preserves the original usage guide and exposes the audit entry
     const originalGuide = `${readme.split('\n## 当前版本\n')[0]}\n`;
     const digest = createHash('sha256').update(originalGuide).digest('hex');
 
-    assert.equal(digest, '5650ea5179d57897d06d04b6f434429a083766154058ec6048c4518dedbb56f4');
+    assert.equal(digest, 'c2d7995084cc957259cfc25f7f549a360c08c31f5f35dc3f7f88b8006999d319');
     assert.match(readme, /docs\/metaflow-viewer-change-ledger\.md/);
     assert.match(readme, /metadata\/version-history\.json/);
 });

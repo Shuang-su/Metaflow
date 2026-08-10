@@ -67,15 +67,17 @@ git diff --check
 
 纯文档通常只需前两个和 diff；MCL、模板、workflow、router 等治理变化再运行治理检查。
 
-## 路径级 CI
+## 路径级本地检查
 
-提交后可预览 route：
+实施前或提交前可预览建议检查：
 
 ```bash
 node scripts/ci-routing.mjs route --base origin/main
 ```
 
-输出中的 `checks` 是应运行 job 的并集；`unowned` 或 `unrouted` 非空必须先修复。不要通过修改 router 缩小本 PR 的检查：分类器会对 base/head 配置取并集。
+输出中的 `checks` 是建议运行检查的并集；`unowned` 或 `unrouted` 非空必须先修复。不要通过修改 router 缩小本次验证：分类器会对 base/head 配置取并集。
+
+普通 GitHub CI 只通过 `workflow_dispatch` 按需运行，不是所有 PR 或 direct commit 的完成条件。把实际本地命令、结果和未运行项记录在 PR、Issue 或直接提交交付中。
 
 ## 大资源与工作区
 
