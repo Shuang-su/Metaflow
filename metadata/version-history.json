@@ -150,6 +150,11 @@
       "gitRef": "65a5fb6",
       "date": "2026-06-27",
       "summary": "Document Bijiashan 5.18a release"
+    },
+    {
+      "gitRef": "8f4ffc2",
+      "date": "2026-08-11",
+      "summary": "chore(release): align Viewer 5.18.1 merge record"
     }
   ],
   "entries": [

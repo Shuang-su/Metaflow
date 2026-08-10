@@ -273,6 +273,7 @@ flowchart TD
 | `f7e3883` | 先上传深圳笔架山动态体素数据和正式 route 基础索引，随后由最终 5.18a 提交补齐 Dayun 坐标空间对齐。 | 作为 5.18a 前置上传记录，不创建独立展示版本；由 `maintenanceCommits` 显式登记。 |
 | `bdf46c9` | 将笔架山数据发布的版本文档先行补齐，随后由最终 5.18a 提交更新 gitRef 和总账说明。 | 发布文档维护，不创建独立展示版本；由 `maintenanceCommits` 显式登记。 |
 | `65a5fb6` | 将 5.18a 的结构化历史、公开镜像、index release gitRef 和总账对齐到最终产品提交 `c613a87`。 | 发布记录维护，不创建独立展示版本；由 `maintenanceCommits` 显式登记。 |
+| `8f4ffc2` | 将 5.18.1 的结构化历史、公开镜像、index release gitRef、总账和测试夹具对齐到 PR #35 的最终 squash 提交 `578272c`，并移除仅存在于 squash 前分支历史的临时提交引用。 | 发布记录维护，不创建独立展示版本；由 `maintenanceCommits` 显式登记。 |
 
 ## 能力到提交的反向索引
 
