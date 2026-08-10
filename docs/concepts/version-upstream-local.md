@@ -40,7 +40,7 @@ Viewer Ledger 在历史边界 `c613a87` 之前保留原有全量记录；之后�
 
 ## 历史目录
 
-`references/` 下的目录是审计快照，不是当前运行源码。`supersplat-viewer-v1.11.1/` 与 `supersplat-viewer-v1.18.2/` 是纯上游内容；`supersplat-v2.18.1/` 是历史 Metaflow 定制基线，目录名只说明 upstream lineage，不表示与官方 tag 内容一致。机器身份、迁移前路径和摘要以 [`metadata/reference-snapshots.json`](../../metadata/reference-snapshots.json) 为准；历史 Version History 的原始 `sourcePath` 不回写。
+`references/` 下的目录是审计快照，不是当前运行源码。Viewer `v1.11.1`、`v1.18.2`、`v1.26.2`、`v1.28.0`，Editor `v2.28.0`、`v2.32.3`，以及 Transform CLI `v2.5.1`、`v3.2.0` 都是纯上游内容；`supersplat-v2.18.1/` 是历史 Metaflow 定制基线，目录名只说明 upstream lineage，不表示与官方 tag 内容一致。机器身份、迁移前路径和摘要以 [`metadata/reference-snapshots.json`](../../metadata/reference-snapshots.json) 为准；历史 Version History 的原始 `sourcePath` 不回写。
 
 ## 发布镜像
 

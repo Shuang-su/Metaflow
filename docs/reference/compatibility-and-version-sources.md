@@ -23,6 +23,7 @@
 | Viewer 行为为什么改变、风险是什么 | [Viewer Ledger](../metaflow-viewer-change-ledger.md) | PR/Issue 和相关源码 | Version History 的短摘要 |
 | Editor 当前产品/上游/依赖/源码路径 | [`metadata/editor-version-history.json`](../../metadata/editor-version-history.json) 的 `current` | `data/editor-version-history.json`、`metaflow-editor/version.json` | `supersplat-v2.28.0/package.json` 的上游 package 版本 |
 | Editor 当前部署 bundle 是什么 | `metaflow-editor/version.json` 与 tracked bundle | Editor Version History、Netlify publish 副本 | `supersplat-v2.28.0/dist/` 单独存在 |
+| 上游参考快照的 tag/commit/tree/摘要与迁移位置 | [`metadata/reference-snapshots.json`](../../metadata/reference-snapshots.json) | `node scripts/validate_reference_snapshots.mjs`；需要时增加 `--verify-upstream` | 目录名、历史 Version History 的旧 `sourcePath`、release note 标题 |
 | 当前公开 route 和资源文件 | [`data/index.json`](../../data/index.json) | `scripts/generate_index.py`、真实 data 文件 | 手工 README 清单 |
 | 当前协作流程 | [MCL Revision 6](../metaflow-change-lifecycle-v1.0.md) 与 `AGENTS.md` | 实时 Issue、[Change 注册表](../changes/README.md) | 历史 Change 中的旧 Gate |
 

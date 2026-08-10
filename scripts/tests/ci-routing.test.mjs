@@ -54,6 +54,10 @@ test('Viewer, Editor, data, Design, and reference source routes stay independent
         route(['references/supersplat-viewer-v1.18.2/src/index.ts']).checks,
         ['governance', 'reference']
     );
+    assert.deepEqual(
+        route(['references/splat-transform-v3.2.0/README.md']).checks,
+        ['governance', 'reference']
+    );
 });
 
 test('dependency routes add review only for active products, never immutable references', () => {
