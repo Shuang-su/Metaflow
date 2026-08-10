@@ -35,11 +35,11 @@
 
 | 产品 | 当前值 | 上游基线 | 唯一事实来源 |
 |---|---|---|---|
-| Viewer | `5.18a`；package `5.18.0` | SuperSplat Viewer `1.26.2` | [`metadata/version-history.json`](../metadata/version-history.json) |
+| Viewer | `5.18.1`；package `5.18.1` | SuperSplat Viewer `1.26.2` | [`metadata/version-history.json`](../metadata/version-history.json) |
 | Editor | `1.1`；app `1.1.0` | SuperSplat Editor `2.28.0` | [`metadata/editor-version-history.json`](../metadata/editor-version-history.json) |
 | 资源索引 | schema `1.2` | 不适用 | [`data/index.json`](../data/index.json) |
 
-这些值只是便于定位的当前摘要。`5.18a / 5.18.0` 是保留的最后一个 Viewer 双轨历史状态；下一次真实 Viewer 发布为 `5.18.1`。发生冲突时，不用 README 或目录名覆盖机器事实源。
+这些值只是便于定位的当前摘要。`5.18a / 5.18.0` 是保留的最后一个 Viewer 双轨历史状态，`5.18.1` 是首个后续完整 SemVer 发布。发生冲突时，不用 README 或目录名覆盖机器事实源。
 
 ## 文档状态
 

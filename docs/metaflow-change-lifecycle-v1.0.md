@@ -184,9 +184,9 @@ Viewer Ledger 记录产品提交的动机、原行为、实现、用户结果、
 
 Viewer 版本从下一次真实发布起使用标准 SemVer：
 
-- 当前继续为 `5.18a` / package `5.18.0`，不创建空版本；
+- 当前为 `5.18.1`，display 与 package SemVer 一致；
 - `5.18a` 及更早字母版本和资源 `addedIn/updatedIn` 原样保留；
-- 下一次资源或兼容修复为 `5.18.1`，之后依次为 `5.18.2`、`5.18.3`；
+- 下一次 PATCH 资源或兼容修复为 `5.18.2`，之后依次递增；
 - PATCH：资源、thumbnail、settings、兼容 route/alias、Bug、小型兼容行为和部署修复；
 - MINOR：新的向后兼容产品、交互、Loader、数据或架构能力；
 - MAJOR：不兼容 URL/settings/index 契约或要求消费者迁移的变化；

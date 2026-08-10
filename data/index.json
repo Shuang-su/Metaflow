@@ -2,15 +2,15 @@
   "version": "1.0",
   "schemaVersion": "1.2",
   "release": {
-    "displayVersion": "5.18a",
-    "appSemver": "5.18.0",
+    "displayVersion": "5.18.1",
+    "appSemver": "5.18.1",
     "schemaVersion": "1.2",
     "historyUrl": "/data/version-history.json",
-    "updatedAt": "2026-06-27",
-    "gitRef": "c613a87"
+    "updatedAt": "2026-08-11",
+    "gitRef": "cdfb0d2"
   },
-  "lastUpdated": "2026-06-27",
-  "totalResources": 60,
+  "lastUpdated": "2026-08-11",
+  "totalResources": 87,
   "categories": {
     "acg": {
       "name": "二次元",
@@ -65,6 +65,14 @@
     "fes": {
       "name": "FES",
       "device": "FES"
+    },
+    "bitcity260711": {
+      "name": "BitCity 次元小镇 · 2026-07-11",
+      "device": "709"
+    },
+    "szcaf15": {
+      "name": "第十五届深圳动漫节",
+      "device": "PQWJ"
     }
   },
   "resources": [
@@ -2038,6 +2046,1008 @@
       "version": {
         "addedIn": "4.2",
         "updatedIn": "4.2b"
+      }
+    },
+    {
+      "id": "rem",
+      "title": "雷姆",
+      "titleEn": "Rem",
+      "category": [
+        "acg",
+        "bitcity260711"
+      ],
+      "route": "/acg/bitcity260711/rem",
+      "source": "photogrammetry",
+      "experienceType": "character",
+      "files": {
+        "model": "ACG/BitCity260711/4D_A002C0063_709_3840 雷姆/4D_A002C0063_709_3840 雷姆.sog",
+        "environment": null,
+        "settings": "ACG/BitCity260711/4D_A002C0063_709_3840 雷姆/settings-v2.json",
+        "thumbnail": "ACG/BitCity260711/4D_A002C0063_709_3840 雷姆/4D_A002C0063_709_3840 雷姆.jpg"
+      },
+      "fileSize": {
+        "model": 12503118,
+        "environment": 0,
+        "thumbnail": 3430480,
+        "total": 15933598
+      },
+      "meta": {
+        "date": "2026-07-11",
+        "device": "709",
+        "folderName": "4D_A002C0063_709_3840 雷姆"
+      },
+      "viewer": {
+        "syntheticAnimation": "figure8",
+        "animationFirstExitMode": "orbit"
+      },
+      "version": {
+        "addedIn": "5.18.1",
+        "updatedIn": "5.18.1"
+      }
+    },
+    {
+      "id": "xielian",
+      "title": "天官赐福 异域谢怜",
+      "titleEn": "Xie Lian",
+      "category": [
+        "acg",
+        "bitcity260711"
+      ],
+      "route": "/acg/bitcity260711/xielian",
+      "source": "photogrammetry",
+      "experienceType": "character",
+      "files": {
+        "model": "ACG/BitCity260711/4D_A002C0062_709_3840 天宫赐福_异域谢怜/4D_A002C0062_709_3840 天宫赐福_异域谢怜.sog",
+        "environment": null,
+        "settings": "ACG/BitCity260711/4D_A002C0062_709_3840 天宫赐福_异域谢怜/settings-v2.json",
+        "thumbnail": "ACG/BitCity260711/4D_A002C0062_709_3840 天宫赐福_异域谢怜/4D_A002C0062_709_3840 天宫赐福_异域谢怜.jpg"
+      },
+      "fileSize": {
+        "model": 13116158,
+        "environment": 0,
+        "thumbnail": 3752212,
+        "total": 16868370
+      },
+      "meta": {
+        "date": "2026-07-11",
+        "device": "709",
+        "folderName": "4D_A002C0062_709_3840 天宫赐福_异域谢怜"
+      },
+      "viewer": {
+        "syntheticAnimation": "figure8",
+        "animationFirstExitMode": "orbit"
+      },
+      "version": {
+        "addedIn": "5.18.1",
+        "updatedIn": "5.18.1"
+      }
+    },
+    {
+      "id": "xielian2",
+      "title": "天官赐福 异域谢怜 2",
+      "titleEn": "Xie Lian 2",
+      "category": [
+        "acg",
+        "bitcity260711"
+      ],
+      "route": "/acg/bitcity260711/xielian2",
+      "source": "photogrammetry",
+      "experienceType": "character",
+      "files": {
+        "model": "ACG/BitCity260711/P4P_20260711203735_0514_709 天宫赐福_异域谢怜2/P4P_20260711203735_0514_709 天宫赐福_异域谢怜2.sog",
+        "environment": null,
+        "settings": "ACG/BitCity260711/P4P_20260711203735_0514_709 天宫赐福_异域谢怜2/settings-v2.json",
+        "thumbnail": "ACG/BitCity260711/P4P_20260711203735_0514_709 天宫赐福_异域谢怜2/P4P_20260711203735_0514_709 天宫赐福_异域谢怜2.jpg"
+      },
+      "fileSize": {
+        "model": 8890360,
+        "environment": 0,
+        "thumbnail": 3811821,
+        "total": 12702181
+      },
+      "meta": {
+        "date": "2026-07-11",
+        "device": "709",
+        "folderName": "P4P_20260711203735_0514_709 天宫赐福_异域谢怜2"
+      },
+      "viewer": {
+        "syntheticAnimation": "figure8",
+        "animationFirstExitMode": "orbit"
+      },
+      "version": {
+        "addedIn": "5.18.1",
+        "updatedIn": "5.18.1"
+      }
+    },
+    {
+      "id": "dajishi",
+      "title": "傩戏大祭司",
+      "titleEn": "Dajishi",
+      "category": [
+        "acg",
+        "szcaf15"
+      ],
+      "route": "/acg/szcaf15/dajishi",
+      "source": "photogrammetry",
+      "experienceType": "character",
+      "files": {
+        "model": "ACG/SZCAF15/A001C0033_260724_PQWJ 傩戏大祭司/A001C0033_260724_PQWJ 傩戏大祭司.sog",
+        "environment": null,
+        "settings": "ACG/SZCAF15/A001C0033_260724_PQWJ 傩戏大祭司/settings-v2.json",
+        "thumbnail": "ACG/SZCAF15/A001C0033_260724_PQWJ 傩戏大祭司/A001C0033_260724_PQWJ 傩戏大祭司.jpg"
+      },
+      "fileSize": {
+        "model": 23568571,
+        "environment": 0,
+        "thumbnail": 4827275,
+        "total": 28395846
+      },
+      "meta": {
+        "date": "2026-07-24",
+        "device": "PQWJ",
+        "folderName": "A001C0033_260724_PQWJ 傩戏大祭司"
+      },
+      "viewer": {
+        "syntheticAnimation": "figure8",
+        "animationFirstExitMode": "orbit"
+      },
+      "version": {
+        "addedIn": "5.18.1",
+        "updatedIn": "5.18.1"
+      }
+    },
+    {
+      "id": "hackclaw",
+      "title": "麦晓雯 维什戴尔",
+      "titleEn": "Hackclaw (Mai Xiaowen)",
+      "category": [
+        "acg",
+        "szcaf15"
+      ],
+      "route": "/acg/szcaf15/hackclaw",
+      "source": "photogrammetry",
+      "experienceType": "character",
+      "files": {
+        "model": "ACG/SZCAF15/A001C0028_260724_PQWJ 麦晓雯 维什戴尔/A001C0028_260724_PQWJ 麦晓雯 维什戴尔.sog",
+        "environment": null,
+        "settings": "ACG/SZCAF15/A001C0028_260724_PQWJ 麦晓雯 维什戴尔/settings-v2.json",
+        "thumbnail": "ACG/SZCAF15/A001C0028_260724_PQWJ 麦晓雯 维什戴尔/A001C0028_260724_PQWJ 麦晓雯 维什戴尔.jpg"
+      },
+      "fileSize": {
+        "model": 20682351,
+        "environment": 0,
+        "thumbnail": 3815096,
+        "total": 24497447
+      },
+      "meta": {
+        "date": "2026-07-24",
+        "device": "PQWJ",
+        "folderName": "A001C0028_260724_PQWJ 麦晓雯 维什戴尔"
+      },
+      "viewer": {
+        "syntheticAnimation": "figure8",
+        "animationFirstExitMode": "orbit"
+      },
+      "version": {
+        "addedIn": "5.18.1",
+        "updatedIn": "5.18.1"
+      }
+    },
+    {
+      "id": "luna",
+      "title": "露娜 霜月吟",
+      "titleEn": "Luna",
+      "category": [
+        "acg",
+        "szcaf15"
+      ],
+      "route": "/acg/szcaf15/luna",
+      "source": "photogrammetry",
+      "experienceType": "character",
+      "files": {
+        "model": "ACG/SZCAF15/A001C0034_260724_PQWJ 露娜霜月吟/A001C0034_260724_PQWJ 露娜霜月吟.sog",
+        "environment": null,
+        "settings": "ACG/SZCAF15/A001C0034_260724_PQWJ 露娜霜月吟/settings-v2.json",
+        "thumbnail": "ACG/SZCAF15/A001C0034_260724_PQWJ 露娜霜月吟/A001C0034_260724_PQWJ 露娜霜月吟.jpg"
+      },
+      "fileSize": {
+        "model": 21517592,
+        "environment": 0,
+        "thumbnail": 3855443,
+        "total": 25373035
+      },
+      "meta": {
+        "date": "2026-07-24",
+        "device": "PQWJ",
+        "folderName": "A001C0034_260724_PQWJ 露娜霜月吟"
+      },
+      "viewer": {
+        "syntheticAnimation": "figure8",
+        "animationFirstExitMode": "orbit"
+      },
+      "version": {
+        "addedIn": "5.18.1",
+        "updatedIn": "5.18.1"
+      }
+    },
+    {
+      "id": "new-jersey",
+      "title": "花园 新泽西 花嫁",
+      "titleEn": "New Jersey",
+      "category": [
+        "acg",
+        "szcaf15"
+      ],
+      "route": "/acg/szcaf15/new-jersey",
+      "source": "photogrammetry",
+      "experienceType": "character",
+      "files": {
+        "model": "ACG/SZCAF15/A001C0035_260724_PQWJ 花园新泽西花嫁/A001C0035_260724_PQWJ 花园新泽西花嫁.sog",
+        "environment": null,
+        "settings": "ACG/SZCAF15/A001C0035_260724_PQWJ 花园新泽西花嫁/settings-v2.json",
+        "thumbnail": "ACG/SZCAF15/A001C0035_260724_PQWJ 花园新泽西花嫁/A001C0035_260724_PQWJ 花园新泽西花嫁.jpg"
+      },
+      "fileSize": {
+        "model": 20361408,
+        "environment": 0,
+        "thumbnail": 4539157,
+        "total": 24900565
+      },
+      "meta": {
+        "date": "2026-07-24",
+        "device": "PQWJ",
+        "folderName": "A001C0035_260724_PQWJ 花园新泽西花嫁"
+      },
+      "viewer": {
+        "syntheticAnimation": "figure8",
+        "animationFirstExitMode": "orbit"
+      },
+      "version": {
+        "addedIn": "5.18.1",
+        "updatedIn": "5.18.1"
+      }
+    },
+    {
+      "id": "rem",
+      "title": "女警雷姆",
+      "titleEn": "Rem",
+      "category": [
+        "acg",
+        "szcaf15"
+      ],
+      "route": "/acg/szcaf15/rem",
+      "source": "photogrammetry",
+      "experienceType": "character",
+      "files": {
+        "model": "ACG/SZCAF15/A001C0026_260724_PQWJ 女警雷姆/A001C0026_260724_PQWJ 女警雷姆.sog",
+        "environment": null,
+        "settings": "ACG/SZCAF15/A001C0026_260724_PQWJ 女警雷姆/settings-v2.json",
+        "thumbnail": "ACG/SZCAF15/A001C0026_260724_PQWJ 女警雷姆/A001C0026_260724_PQWJ 女警雷姆.jpg"
+      },
+      "fileSize": {
+        "model": 14455892,
+        "environment": 0,
+        "thumbnail": 3686501,
+        "total": 18142393
+      },
+      "meta": {
+        "date": "2026-07-24",
+        "device": "PQWJ",
+        "folderName": "A001C0026_260724_PQWJ 女警雷姆"
+      },
+      "viewer": {
+        "syntheticAnimation": "figure8",
+        "animationFirstExitMode": "orbit"
+      },
+      "version": {
+        "addedIn": "5.18.1",
+        "updatedIn": "5.18.1"
+      }
+    },
+    {
+      "id": "sandrone",
+      "title": "桑多涅",
+      "titleEn": "Sandrone",
+      "category": [
+        "acg",
+        "szcaf15"
+      ],
+      "route": "/acg/szcaf15/sandrone",
+      "source": "photogrammetry",
+      "experienceType": "character",
+      "files": {
+        "model": "ACG/SZCAF15/A001C0024_260724_PQWJ 茄皇/A001C0024_260724_PQWJ 茄皇.sog",
+        "environment": null,
+        "settings": "ACG/SZCAF15/A001C0024_260724_PQWJ 茄皇/settings-v2.json",
+        "thumbnail": "ACG/SZCAF15/A001C0024_260724_PQWJ 茄皇/A001C0024_260724_PQWJ 茄皇.jpg"
+      },
+      "fileSize": {
+        "model": 14664809,
+        "environment": 0,
+        "thumbnail": 4342546,
+        "total": 19007355
+      },
+      "meta": {
+        "date": "2026-07-24",
+        "device": "PQWJ",
+        "folderName": "A001C0024_260724_PQWJ 茄皇"
+      },
+      "viewer": {
+        "syntheticAnimation": "figure8",
+        "animationFirstExitMode": "orbit"
+      },
+      "version": {
+        "addedIn": "5.18.1",
+        "updatedIn": "5.18.1"
+      }
+    },
+    {
+      "id": "shi",
+      "title": "西施 续相思",
+      "titleEn": "Shi",
+      "category": [
+        "acg",
+        "szcaf15"
+      ],
+      "route": "/acg/szcaf15/shi",
+      "source": "photogrammetry",
+      "experienceType": "character",
+      "files": {
+        "model": "ACG/SZCAF15/A001C0044_260724_PQWJ 西施续相思/A001C0044_260724_PQWJ 西施续相思.sog",
+        "environment": null,
+        "settings": "ACG/SZCAF15/A001C0044_260724_PQWJ 西施续相思/settings-v2.json",
+        "thumbnail": "ACG/SZCAF15/A001C0044_260724_PQWJ 西施续相思/A001C0044_260724_PQWJ 西施续相思.jpg"
+      },
+      "fileSize": {
+        "model": 13446577,
+        "environment": 0,
+        "thumbnail": 3709726,
+        "total": 17156303
+      },
+      "meta": {
+        "date": "2026-07-24",
+        "device": "PQWJ",
+        "folderName": "A001C0044_260724_PQWJ 西施续相思"
+      },
+      "viewer": {
+        "syntheticAnimation": "figure8",
+        "animationFirstExitMode": "orbit"
+      },
+      "version": {
+        "addedIn": "5.18.1",
+        "updatedIn": "5.18.1"
+      }
+    },
+    {
+      "id": "bloody-queen",
+      "title": "红夫人 虚妄",
+      "titleEn": "Bloody Queen",
+      "category": [
+        "acg",
+        "szcaf15"
+      ],
+      "route": "/acg/szcaf15/bloody-queen",
+      "source": "photogrammetry",
+      "experienceType": "character",
+      "files": {
+        "model": "ACG/SZCAF15/A001C0084_260725_PQWJ 红夫人虚妄/A001C0084_260725_PQWJ 红夫人虚妄.sog",
+        "environment": null,
+        "settings": "ACG/SZCAF15/A001C0084_260725_PQWJ 红夫人虚妄/settings-v2.json",
+        "thumbnail": "ACG/SZCAF15/A001C0084_260725_PQWJ 红夫人虚妄/A001C0084_260725_PQWJ 红夫人虚妄.jpg"
+      },
+      "fileSize": {
+        "model": 23589914,
+        "environment": 0,
+        "thumbnail": 4160674,
+        "total": 27750588
+      },
+      "meta": {
+        "date": "2026-07-25",
+        "device": "PQWJ",
+        "folderName": "A001C0084_260725_PQWJ 红夫人虚妄"
+      },
+      "viewer": {
+        "syntheticAnimation": "figure8",
+        "animationFirstExitMode": "orbit"
+      },
+      "version": {
+        "addedIn": "5.18.1",
+        "updatedIn": "5.18.1"
+      }
+    },
+    {
+      "id": "chang-e",
+      "title": "嫦娥 落星盏",
+      "titleEn": "Chang'e",
+      "category": [
+        "acg",
+        "szcaf15"
+      ],
+      "route": "/acg/szcaf15/chang-e",
+      "source": "photogrammetry",
+      "experienceType": "character",
+      "files": {
+        "model": "ACG/SZCAF15/A001C0087_260725_PQWJ 嫦娥落星盏/A001C0087_260725_PQWJ 嫦娥落星盏.sog",
+        "environment": null,
+        "settings": "ACG/SZCAF15/A001C0087_260725_PQWJ 嫦娥落星盏/settings-v2.json",
+        "thumbnail": "ACG/SZCAF15/A001C0087_260725_PQWJ 嫦娥落星盏/A001C0087_260725_PQWJ 嫦娥落星盏.jpg"
+      },
+      "fileSize": {
+        "model": 22380578,
+        "environment": 0,
+        "thumbnail": 3996987,
+        "total": 26377565
+      },
+      "meta": {
+        "date": "2026-07-25",
+        "device": "PQWJ",
+        "folderName": "A001C0087_260725_PQWJ 嫦娥落星盏"
+      },
+      "viewer": {
+        "syntheticAnimation": "figure8",
+        "animationFirstExitMode": "orbit"
+      },
+      "version": {
+        "addedIn": "5.18.1",
+        "updatedIn": "5.18.1"
+      }
+    },
+    {
+      "id": "denia",
+      "title": "达妮娅",
+      "titleEn": "Denia",
+      "category": [
+        "acg",
+        "szcaf15"
+      ],
+      "route": "/acg/szcaf15/denia",
+      "source": "photogrammetry",
+      "experienceType": "character",
+      "files": {
+        "model": "ACG/SZCAF15/A001C0090_260725_PQWJ 达妮娅/A001C0090_260725_PQWJ 达妮娅.sog",
+        "environment": null,
+        "settings": "ACG/SZCAF15/A001C0090_260725_PQWJ 达妮娅/settings-v2.json",
+        "thumbnail": "ACG/SZCAF15/A001C0090_260725_PQWJ 达妮娅/A001C0090_260725_PQWJ 达妮娅.jpg"
+      },
+      "fileSize": {
+        "model": 16809325,
+        "environment": 0,
+        "thumbnail": 3845559,
+        "total": 20654884
+      },
+      "meta": {
+        "date": "2026-07-25",
+        "device": "PQWJ",
+        "folderName": "A001C0090_260725_PQWJ 达妮娅"
+      },
+      "viewer": {
+        "syntheticAnimation": "figure8",
+        "animationFirstExitMode": "orbit"
+      },
+      "version": {
+        "addedIn": "5.18.1",
+        "updatedIn": "5.18.1"
+      }
+    },
+    {
+      "id": "denia2",
+      "title": "达妮娅 2",
+      "titleEn": "Denia 2",
+      "category": [
+        "acg",
+        "szcaf15"
+      ],
+      "route": "/acg/szcaf15/denia2",
+      "source": "photogrammetry",
+      "experienceType": "character",
+      "files": {
+        "model": "ACG/SZCAF15/A001C0091_260725_PQWJ 达妮娅2/A001C0091_260725_PQWJ 达妮娅2.sog",
+        "environment": null,
+        "settings": "ACG/SZCAF15/A001C0091_260725_PQWJ 达妮娅2/settings-v2.json",
+        "thumbnail": "ACG/SZCAF15/A001C0091_260725_PQWJ 达妮娅2/A001C0091_260725_PQWJ 达妮娅2.jpg"
+      },
+      "fileSize": {
+        "model": 17917547,
+        "environment": 0,
+        "thumbnail": 3791569,
+        "total": 21709116
+      },
+      "meta": {
+        "date": "2026-07-25",
+        "device": "PQWJ",
+        "folderName": "A001C0091_260725_PQWJ 达妮娅2"
+      },
+      "viewer": {
+        "syntheticAnimation": "figure8",
+        "animationFirstExitMode": "orbit"
+      },
+      "version": {
+        "addedIn": "5.18.1",
+        "updatedIn": "5.18.1"
+      }
+    },
+    {
+      "id": "isolde",
+      "title": "重返未来 1999 伊索尔德 若向死振翅",
+      "titleEn": "Isolde",
+      "category": [
+        "acg",
+        "szcaf15"
+      ],
+      "route": "/acg/szcaf15/isolde",
+      "source": "photogrammetry",
+      "experienceType": "character",
+      "files": {
+        "model": "ACG/SZCAF15/A001C0086_260725_PQWJ 1999伊索尔德若向死振翅/A001C0086_260725_PQWJ 1999伊索尔德若向死振翅.sog",
+        "environment": null,
+        "settings": "ACG/SZCAF15/A001C0086_260725_PQWJ 1999伊索尔德若向死振翅/settings-v2.json",
+        "thumbnail": "ACG/SZCAF15/A001C0086_260725_PQWJ 1999伊索尔德若向死振翅/A001C0086_260725_PQWJ 1999伊索尔德若向死振翅.jpg"
+      },
+      "fileSize": {
+        "model": 20791606,
+        "environment": 0,
+        "thumbnail": 4184486,
+        "total": 24976092
+      },
+      "meta": {
+        "date": "2026-07-25",
+        "device": "PQWJ",
+        "folderName": "A001C0086_260725_PQWJ 1999伊索尔德若向死振翅"
+      },
+      "viewer": {
+        "syntheticAnimation": "figure8",
+        "animationFirstExitMode": "orbit"
+      },
+      "version": {
+        "addedIn": "5.18.1",
+        "updatedIn": "5.18.1"
+      }
+    },
+    {
+      "id": "navia",
+      "title": "娜维娅",
+      "titleEn": "Navia",
+      "category": [
+        "acg",
+        "szcaf15"
+      ],
+      "route": "/acg/szcaf15/navia",
+      "source": "photogrammetry",
+      "experienceType": "character",
+      "files": {
+        "model": "ACG/SZCAF15/A001C0092_260725_PQWJ 娜维娅/A001C0092_260725_PQWJ 娜维娅.sog",
+        "environment": null,
+        "settings": "ACG/SZCAF15/A001C0092_260725_PQWJ 娜维娅/settings-v2.json",
+        "thumbnail": "ACG/SZCAF15/A001C0092_260725_PQWJ 娜维娅/A001C0092_260725_PQWJ 娜维娅.jpg"
+      },
+      "fileSize": {
+        "model": 21888387,
+        "environment": 0,
+        "thumbnail": 4345145,
+        "total": 26233532
+      },
+      "meta": {
+        "date": "2026-07-25",
+        "device": "PQWJ",
+        "folderName": "A001C0092_260725_PQWJ 娜维娅"
+      },
+      "viewer": {
+        "syntheticAnimation": "figure8",
+        "animationFirstExitMode": "orbit"
+      },
+      "version": {
+        "addedIn": "5.18.1",
+        "updatedIn": "5.18.1"
+      }
+    },
+    {
+      "id": "rem-duo",
+      "title": "雷姆 双人",
+      "titleEn": "Rem Duo",
+      "category": [
+        "acg",
+        "szcaf15"
+      ],
+      "route": "/acg/szcaf15/rem-duo",
+      "source": "photogrammetry",
+      "experienceType": "character",
+      "files": {
+        "model": "ACG/SZCAF15/A001C0105_260725_PQWJ 雷姆双人/A001C0105_260725_PQWJ 雷姆双人.sog",
+        "environment": null,
+        "settings": "ACG/SZCAF15/A001C0105_260725_PQWJ 雷姆双人/settings-v2.json",
+        "thumbnail": "ACG/SZCAF15/A001C0105_260725_PQWJ 雷姆双人/A001C0105_260725_PQWJ 雷姆双人.jpg"
+      },
+      "fileSize": {
+        "model": 20149918,
+        "environment": 0,
+        "thumbnail": 3936397,
+        "total": 24086315
+      },
+      "meta": {
+        "date": "2026-07-25",
+        "device": "PQWJ",
+        "folderName": "A001C0105_260725_PQWJ 雷姆双人"
+      },
+      "viewer": {
+        "syntheticAnimation": "figure8",
+        "animationFirstExitMode": "orbit"
+      },
+      "version": {
+        "addedIn": "5.18.1",
+        "updatedIn": "5.18.1"
+      }
+    },
+    {
+      "id": "robin",
+      "title": "知更鸟",
+      "titleEn": "Robin",
+      "category": [
+        "acg",
+        "szcaf15"
+      ],
+      "route": "/acg/szcaf15/robin",
+      "source": "photogrammetry",
+      "experienceType": "character",
+      "files": {
+        "model": "ACG/SZCAF15/A001C0093_260725_PQWJ 知更鸟/A001C0093_260725_PQWJ 知更鸟.sog",
+        "environment": null,
+        "settings": "ACG/SZCAF15/A001C0093_260725_PQWJ 知更鸟/settings-v2.json",
+        "thumbnail": "ACG/SZCAF15/A001C0093_260725_PQWJ 知更鸟/A001C0093_260725_PQWJ 知更鸟.jpg"
+      },
+      "fileSize": {
+        "model": 21153863,
+        "environment": 0,
+        "thumbnail": 3975851,
+        "total": 25129714
+      },
+      "meta": {
+        "date": "2026-07-25",
+        "device": "PQWJ",
+        "folderName": "A001C0093_260725_PQWJ 知更鸟"
+      },
+      "viewer": {
+        "syntheticAnimation": "figure8",
+        "animationFirstExitMode": "orbit"
+      },
+      "version": {
+        "addedIn": "5.18.1",
+        "updatedIn": "5.18.1"
+      }
+    },
+    {
+      "id": "yaria",
+      "title": "瑶 时之祈愿",
+      "titleEn": "Yaria",
+      "category": [
+        "acg",
+        "szcaf15"
+      ],
+      "route": "/acg/szcaf15/yaria",
+      "source": "photogrammetry",
+      "experienceType": "character",
+      "files": {
+        "model": "ACG/SZCAF15/A001C0085_260725_PQWJ 瑶时之祈愿/A001C0085_260725_PQWJ 瑶时之祈愿.sog",
+        "environment": null,
+        "settings": "ACG/SZCAF15/A001C0085_260725_PQWJ 瑶时之祈愿/settings-v2.json",
+        "thumbnail": "ACG/SZCAF15/A001C0085_260725_PQWJ 瑶时之祈愿/A001C0085_260725_PQWJ 瑶时之祈愿.jpg"
+      },
+      "fileSize": {
+        "model": 20826850,
+        "environment": 0,
+        "thumbnail": 3885607,
+        "total": 24712457
+      },
+      "meta": {
+        "date": "2026-07-25",
+        "device": "PQWJ",
+        "folderName": "A001C0085_260725_PQWJ 瑶时之祈愿"
+      },
+      "viewer": {
+        "syntheticAnimation": "figure8",
+        "animationFirstExitMode": "orbit"
+      },
+      "version": {
+        "addedIn": "5.18.1",
+        "updatedIn": "5.18.1"
+      }
+    },
+    {
+      "id": "yunuo",
+      "title": "雨诺 Akari",
+      "titleEn": "Akari",
+      "category": [
+        "acg",
+        "szcaf15"
+      ],
+      "route": "/acg/szcaf15/yunuo",
+      "source": "photogrammetry",
+      "experienceType": "character",
+      "files": {
+        "model": "ACG/SZCAF15/A001C0049_260725_PQWJ 雨诺/A001C0049_260725_PQWJ 雨诺.sog",
+        "environment": null,
+        "settings": "ACG/SZCAF15/A001C0049_260725_PQWJ 雨诺/settings-v2.json",
+        "thumbnail": "ACG/SZCAF15/A001C0049_260725_PQWJ 雨诺/A001C0049_260725_PQWJ 雨诺.jpg"
+      },
+      "fileSize": {
+        "model": 9645845,
+        "environment": 0,
+        "thumbnail": 3496449,
+        "total": 13142294
+      },
+      "meta": {
+        "date": "2026-07-25",
+        "device": "PQWJ",
+        "folderName": "A001C0049_260725_PQWJ 雨诺"
+      },
+      "viewer": {
+        "syntheticAnimation": "figure8",
+        "animationFirstExitMode": "orbit"
+      },
+      "aliases": [
+        "/acg/szcaf15/akari"
+      ],
+      "version": {
+        "addedIn": "5.18.1",
+        "updatedIn": "5.18.1"
+      }
+    },
+    {
+      "id": "arli",
+      "title": "公孙离 离恨烟",
+      "titleEn": "Arli",
+      "category": [
+        "acg",
+        "szcaf15"
+      ],
+      "route": "/acg/szcaf15/arli",
+      "source": "photogrammetry",
+      "experienceType": "character",
+      "files": {
+        "model": "ACG/SZCAF15/A001C0223_260726_PQWJ 公孙离 离恨烟/A001C0223_260726_PQWJ 公孙离 离恨烟.sog",
+        "environment": null,
+        "settings": "ACG/SZCAF15/A001C0223_260726_PQWJ 公孙离 离恨烟/settings-v2.json",
+        "thumbnail": "ACG/SZCAF15/A001C0223_260726_PQWJ 公孙离 离恨烟/A001C0223_260726_PQWJ 公孙离 离恨烟.jpg"
+      },
+      "fileSize": {
+        "model": 16838703,
+        "environment": 0,
+        "thumbnail": 4147796,
+        "total": 20986499
+      },
+      "meta": {
+        "date": "2026-07-26",
+        "device": "PQWJ",
+        "folderName": "A001C0223_260726_PQWJ 公孙离 离恨烟"
+      },
+      "viewer": {
+        "syntheticAnimation": "figure8",
+        "animationFirstExitMode": "orbit"
+      },
+      "version": {
+        "addedIn": "5.18.1",
+        "updatedIn": "5.18.1"
+      }
+    },
+    {
+      "id": "diaochan2",
+      "title": "貂蝉 馥梦繁花 2",
+      "titleEn": "Diaochan 2",
+      "category": [
+        "acg",
+        "szcaf15"
+      ],
+      "route": "/acg/szcaf15/diaochan2",
+      "source": "photogrammetry",
+      "experienceType": "character",
+      "files": {
+        "model": "ACG/SZCAF15/A001C0214_260726_PQWJ 貂蝉馥梦繁花2/A001C0214_260726_PQWJ 貂蝉馥梦繁花2.sog",
+        "environment": null,
+        "settings": "ACG/SZCAF15/A001C0214_260726_PQWJ 貂蝉馥梦繁花2/settings-v2.json",
+        "thumbnail": "ACG/SZCAF15/A001C0214_260726_PQWJ 貂蝉馥梦繁花2/A001C0214_260726_PQWJ 貂蝉馥梦繁花2.jpg"
+      },
+      "fileSize": {
+        "model": 17135187,
+        "environment": 0,
+        "thumbnail": 4107609,
+        "total": 21242796
+      },
+      "meta": {
+        "date": "2026-07-26",
+        "device": "PQWJ",
+        "folderName": "A001C0214_260726_PQWJ 貂蝉馥梦繁花2"
+      },
+      "viewer": {
+        "syntheticAnimation": "figure8",
+        "animationFirstExitMode": "orbit"
+      },
+      "version": {
+        "addedIn": "5.18.1",
+        "updatedIn": "5.18.1"
+      }
+    },
+    {
+      "id": "female-dancer",
+      "title": "舞女 琉璃的月光",
+      "titleEn": "Female Dancer",
+      "category": [
+        "acg",
+        "szcaf15"
+      ],
+      "route": "/acg/szcaf15/female-dancer",
+      "source": "photogrammetry",
+      "experienceType": "character",
+      "files": {
+        "model": "ACG/SZCAF15/A001C0221_260726_PQWJ 舞女琉璃的月光/A001C0221_260726_PQWJ 舞女琉璃的月光.sog",
+        "environment": null,
+        "settings": "ACG/SZCAF15/A001C0221_260726_PQWJ 舞女琉璃的月光/settings-v2.json",
+        "thumbnail": "ACG/SZCAF15/A001C0221_260726_PQWJ 舞女琉璃的月光/A001C0221_260726_PQWJ 舞女琉璃的月光.jpg"
+      },
+      "fileSize": {
+        "model": 15586978,
+        "environment": 0,
+        "thumbnail": 3795327,
+        "total": 19382305
+      },
+      "meta": {
+        "date": "2026-07-26",
+        "device": "PQWJ",
+        "folderName": "A001C0221_260726_PQWJ 舞女琉璃的月光"
+      },
+      "viewer": {
+        "syntheticAnimation": "figure8",
+        "animationFirstExitMode": "orbit"
+      },
+      "version": {
+        "addedIn": "5.18.1",
+        "updatedIn": "5.18.1"
+      }
+    },
+    {
+      "id": "lixin",
+      "title": "李信 问剑心",
+      "titleEn": "Li Xin",
+      "category": [
+        "acg",
+        "szcaf15"
+      ],
+      "route": "/acg/szcaf15/lixin",
+      "source": "photogrammetry",
+      "experienceType": "character",
+      "files": {
+        "model": "ACG/SZCAF15/A001C0222_260726_PQWJ 李信问剑心/A001C0222_260726_PQWJ 李信问剑心.sog",
+        "environment": null,
+        "settings": "ACG/SZCAF15/A001C0222_260726_PQWJ 李信问剑心/settings-v2.json",
+        "thumbnail": "ACG/SZCAF15/A001C0222_260726_PQWJ 李信问剑心/A001C0222_260726_PQWJ 李信问剑心.jpg"
+      },
+      "fileSize": {
+        "model": 17724568,
+        "environment": 0,
+        "thumbnail": 4203358,
+        "total": 21927926
+      },
+      "meta": {
+        "date": "2026-07-26",
+        "device": "PQWJ",
+        "folderName": "A001C0222_260726_PQWJ 李信问剑心"
+      },
+      "viewer": {
+        "syntheticAnimation": "figure8",
+        "animationFirstExitMode": "orbit"
+      },
+      "version": {
+        "addedIn": "5.18.1",
+        "updatedIn": "5.18.1"
+      }
+    },
+    {
+      "id": "racing-miku",
+      "title": "赛车初音",
+      "titleEn": "Racing Miku",
+      "category": [
+        "acg",
+        "szcaf15"
+      ],
+      "route": "/acg/szcaf15/racing-miku",
+      "source": "photogrammetry",
+      "experienceType": "character",
+      "files": {
+        "model": "ACG/SZCAF15/A001C0224_260726_PQWJ 赛车初音/A001C0224_260726_PQWJ 赛车初音.sog",
+        "environment": null,
+        "settings": "ACG/SZCAF15/A001C0224_260726_PQWJ 赛车初音/settings-v2.json",
+        "thumbnail": "ACG/SZCAF15/A001C0224_260726_PQWJ 赛车初音/A001C0224_260726_PQWJ 赛车初音.jpg"
+      },
+      "fileSize": {
+        "model": 14233993,
+        "environment": 0,
+        "thumbnail": 4000872,
+        "total": 18234865
+      },
+      "meta": {
+        "date": "2026-07-26",
+        "device": "PQWJ",
+        "folderName": "A001C0224_260726_PQWJ 赛车初音"
+      },
+      "viewer": {
+        "syntheticAnimation": "figure8",
+        "animationFirstExitMode": "orbit"
+      },
+      "version": {
+        "addedIn": "5.18.1",
+        "updatedIn": "5.18.1"
+      }
+    },
+    {
+      "id": "xiaoqiao",
+      "title": "小乔",
+      "titleEn": "Xiao Qiao",
+      "category": [
+        "acg",
+        "szcaf15"
+      ],
+      "route": "/acg/szcaf15/xiaoqiao",
+      "source": "photogrammetry",
+      "experienceType": "character",
+      "files": {
+        "model": "ACG/SZCAF15/A001C0225_260726_PQWJ 小乔/A001C0225_260726_PQWJ 小乔.sog",
+        "environment": null,
+        "settings": "ACG/SZCAF15/A001C0225_260726_PQWJ 小乔/settings-v2.json",
+        "thumbnail": "ACG/SZCAF15/A001C0225_260726_PQWJ 小乔/A001C0225_260726_PQWJ 小乔.jpg"
+      },
+      "fileSize": {
+        "model": 13433119,
+        "environment": 0,
+        "thumbnail": 3744154,
+        "total": 17177273
+      },
+      "meta": {
+        "date": "2026-07-26",
+        "device": "PQWJ",
+        "folderName": "A001C0225_260726_PQWJ 小乔"
+      },
+      "viewer": {
+        "syntheticAnimation": "figure8",
+        "animationFirstExitMode": "orbit"
+      },
+      "version": {
+        "addedIn": "5.18.1",
+        "updatedIn": "5.18.1"
+      }
+    },
+    {
+      "id": "zipingyin",
+      "title": "殷紫萍 天禄瑞光",
+      "titleEn": "Ziping Yin",
+      "category": [
+        "acg",
+        "szcaf15"
+      ],
+      "route": "/acg/szcaf15/zipingyin",
+      "source": "photogrammetry",
+      "experienceType": "character",
+      "files": {
+        "model": "ACG/SZCAF15/A001C0226_260726_PQWJ 殷紫萍 天禄瑞光/A001C0226_260726_PQWJ 殷紫萍 天禄瑞光.sog",
+        "environment": null,
+        "settings": "ACG/SZCAF15/A001C0226_260726_PQWJ 殷紫萍 天禄瑞光/settings-v2.json",
+        "thumbnail": "ACG/SZCAF15/A001C0226_260726_PQWJ 殷紫萍 天禄瑞光/A001C0226_260726_PQWJ 殷紫萍 天禄瑞光.jpg"
+      },
+      "fileSize": {
+        "model": 15318353,
+        "environment": 0,
+        "thumbnail": 3972315,
+        "total": 19290668
+      },
+      "meta": {
+        "date": "2026-07-26",
+        "device": "PQWJ",
+        "folderName": "A001C0226_260726_PQWJ 殷紫萍 天禄瑞光"
+      },
+      "viewer": {
+        "syntheticAnimation": "figure8",
+        "animationFirstExitMode": "orbit"
+      },
+      "version": {
+        "addedIn": "5.18.1",
+        "updatedIn": "5.18.1"
       }
     },
     {

@@ -126,12 +126,6 @@ test('legacy display versions remain valid and future releases require full SemV
     const compatibleFuture = [
         ...manifest.entries,
         {
-            displayVersion: '5.18.1',
-            appSemver: '5.18.1',
-            type: 'fix',
-            scope: 'viewer'
-        },
-        {
             displayVersion: '5.18.2',
             appSemver: '5.18.2',
             type: 'resource',
@@ -165,15 +159,19 @@ test('legacy display versions remain valid and future releases require full SemV
     assert.throws(() => assertVersionPolicy([
         ...manifest.entries,
         {
-            displayVersion: '5.18.1',
-            appSemver: '5.18.0',
+            displayVersion: '5.18.2',
+            appSemver: '5.18.1',
             type: 'fix',
             scope: 'viewer'
         }
     ]), /must match appSemver/);
 
+    const legacyEntries = manifest.entries.slice(
+        0,
+        manifest.entries.findIndex((entry) => entry.displayVersion === LEGACY_DISPLAY_CUTOFF) + 1
+    );
     assert.throws(() => assertVersionPolicy([
-        ...manifest.entries,
+        ...legacyEntries,
         {
             displayVersion: '5.18.2',
             appSemver: '5.18.2',
@@ -377,7 +375,7 @@ test('package and public release versions match the structured current version',
     assert.equal(pkg.version, manifest.current.appSemver);
     assert.equal(lock.version, manifest.current.appSemver);
     assert.equal(lock.packages[''].version, manifest.current.appSemver);
-    assert.equal(manifest.current.displayVersion, '5.18a');
+    assert.equal(manifest.current.displayVersion, '5.18.1');
     assert.equal(manifest.current.gitRef, manifest.documentedThrough);
     assert.equal(manifest.current.upstream.repository, 'playcanvas/supersplat-viewer');
     assert.equal(manifest.current.upstream.version, '1.26.2');

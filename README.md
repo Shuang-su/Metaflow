@@ -20,7 +20,7 @@ Metaflow 把基于 [SuperSplat](https://github.com/playcanvas/supersplat) 的 Ed
 
 | 产品 | 当前版本 | 上游基线 | 唯一事实来源 |
 |---|---|---|---|
-| Viewer | `5.18a` / package `5.18.0` | SuperSplat Viewer `1.26.2` | [`metadata/version-history.json`](metadata/version-history.json) |
+| Viewer | `5.18.1` / package `5.18.1` | SuperSplat Viewer `1.26.2` | [`metadata/version-history.json`](metadata/version-history.json) |
 | Editor | `1.1` / app `1.1.0` | SuperSplat Editor `2.28.0` | [`metadata/editor-version-history.json`](metadata/editor-version-history.json) |
 | 资源索引 | schema `1.2` | 不适用 | [`data/index.json`](data/index.json) |
 
@@ -154,12 +154,12 @@ location / {
 
 | 字段 | 值 |
 |------|----|
-| 展示版本 | `5.18a` |
-| 包版本 | `5.18.0` |
+| 展示版本 | `5.18.1` |
+| 包版本 | `5.18.1` |
 | 索引 schema | `1.2` |
 | 上游 SuperSplat Viewer | `v1.26.2` |
 | PlayCanvas | `2.19.2` |
-| 已审计至 commit | `c613a87` |
+| 已审计至 commit | `cdfb0d2` |
 
 ## 当前 Editor
 
@@ -176,6 +176,7 @@ location / {
 
 | 版本 | commit | 摘要 |
 |------|--------|------|
+| `5.18.1` | `cdfb0d2` | 发布 BitCity 260711 与第十五届深圳动漫节 27 条人物资源及默认 figure8 动画策略 |
 | `5.18a` | `c613a87` | 新增并对齐深圳笔架山动态 voxel 场景 |
 | `5.18` | `7ce294a` | 优化移动端触控游戏控制 |
 | `5.17` | `f371f48` | 对照支付宝式数据面板补齐全局筛选、指标口径、D30 留存、访问时长/时段画像、可信机型明细、机型质量排行和转化目标 |
@@ -207,7 +208,7 @@ location / {
 - [当前同步差异审计](docs/metaflow-current-sync-diff-audit.md)
 - [SuperSplat 同步对比](docs/metaflow-viewer-sync-comparison.md)
 
-当前 `5.18a / 5.18.0` 是最后一个双轨历史版本。旧字母版本保持原样；下一次真实 Viewer 资源发布或兼容修复从 `5.18.1` 开始，之后统一使用 SemVer PATCH/MINOR/MAJOR。
+`5.18a / 5.18.0` 是最后一个双轨历史版本，`5.18.1` 是此后的首个完整 SemVer 发布。旧字母版本保持原样；后续统一使用 SemVer PATCH/MINOR/MAJOR。
 
 ## URL 查询参数详解
 

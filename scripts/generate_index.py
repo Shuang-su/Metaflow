@@ -34,6 +34,8 @@ SUBCATEGORIES = {
     "phoenixfes26": {"name": "PhoenixFes26", "device": "PhoenixFes26"},
     "fireflyfes38": {"name": "FireflyFes38", "device": "FireflyFes38"},
     "fes": {"name": "FES", "device": "FES"},
+    "bitcity260711": {"name": "BitCity 次元小镇 · 2026-07-11", "device": "709"},
+    "szcaf15": {"name": "第十五届深圳动漫节", "device": "PQWJ"},
 }
 
 STREAMING_SUBDIR_GLOB = "*/lod-meta.json"
@@ -138,6 +140,216 @@ RESOURCE_ROUTE_ALIASES = {
     ("sztu", None, "c1-bdi-206"): ["/c1-bdi-206"],
     ("sztu", "fes", "top10-26"): ["/top10-26", "/fes/top10-26"],
 }
+
+# These event resources intentionally use explicit public naming. Chinese names
+# do not fall back to the generic slug parser, and only genuine multi-word
+# English names use hyphens.
+EVENT_RESOURCE_DEFINITIONS = {
+    ("bitcity260711", "4D_A002C0062_709_3840 天宫赐福_异域谢怜"): {
+        "slug": "xielian",
+        "title": "天官赐福 异域谢怜",
+        "titleEn": "Xie Lian",
+        "date": "2026-07-11",
+        "device": "709",
+    },
+    ("bitcity260711", "4D_A002C0063_709_3840 雷姆"): {
+        "slug": "rem",
+        "title": "雷姆",
+        "titleEn": "Rem",
+        "date": "2026-07-11",
+        "device": "709",
+    },
+    ("bitcity260711", "P4P_20260711203735_0514_709 天宫赐福_异域谢怜2"): {
+        "slug": "xielian2",
+        "title": "天官赐福 异域谢怜 2",
+        "titleEn": "Xie Lian 2",
+        "date": "2026-07-11",
+        "device": "709",
+    },
+    ("szcaf15", "A001C0024_260724_PQWJ 茄皇"): {
+        "slug": "sandrone",
+        "title": "桑多涅",
+        "titleEn": "Sandrone",
+        "date": "2026-07-24",
+        "device": "PQWJ",
+    },
+    ("szcaf15", "A001C0026_260724_PQWJ 女警雷姆"): {
+        "slug": "rem",
+        "title": "女警雷姆",
+        "titleEn": "Rem",
+        "date": "2026-07-24",
+        "device": "PQWJ",
+    },
+    ("szcaf15", "A001C0028_260724_PQWJ 麦晓雯 维什戴尔"): {
+        "slug": "hackclaw",
+        "title": "麦晓雯 维什戴尔",
+        "titleEn": "Hackclaw (Mai Xiaowen)",
+        "date": "2026-07-24",
+        "device": "PQWJ",
+    },
+    ("szcaf15", "A001C0033_260724_PQWJ 傩戏大祭司"): {
+        "slug": "dajishi",
+        "title": "傩戏大祭司",
+        "titleEn": "Dajishi",
+        "date": "2026-07-24",
+        "device": "PQWJ",
+    },
+    ("szcaf15", "A001C0034_260724_PQWJ 露娜霜月吟"): {
+        "slug": "luna",
+        "title": "露娜 霜月吟",
+        "titleEn": "Luna",
+        "date": "2026-07-24",
+        "device": "PQWJ",
+    },
+    ("szcaf15", "A001C0035_260724_PQWJ 花园新泽西花嫁"): {
+        "slug": "new-jersey",
+        "title": "花园 新泽西 花嫁",
+        "titleEn": "New Jersey",
+        "date": "2026-07-24",
+        "device": "PQWJ",
+    },
+    ("szcaf15", "A001C0044_260724_PQWJ 西施续相思"): {
+        "slug": "shi",
+        "title": "西施 续相思",
+        "titleEn": "Shi",
+        "date": "2026-07-24",
+        "device": "PQWJ",
+    },
+    ("szcaf15", "A001C0049_260725_PQWJ 雨诺"): {
+        "slug": "yunuo",
+        "title": "雨诺 Akari",
+        "titleEn": "Akari",
+        "date": "2026-07-25",
+        "device": "PQWJ",
+    },
+    ("szcaf15", "A001C0084_260725_PQWJ 红夫人虚妄"): {
+        "slug": "bloody-queen",
+        "title": "红夫人 虚妄",
+        "titleEn": "Bloody Queen",
+        "date": "2026-07-25",
+        "device": "PQWJ",
+    },
+    ("szcaf15", "A001C0085_260725_PQWJ 瑶时之祈愿"): {
+        "slug": "yaria",
+        "title": "瑶 时之祈愿",
+        "titleEn": "Yaria",
+        "date": "2026-07-25",
+        "device": "PQWJ",
+    },
+    ("szcaf15", "A001C0086_260725_PQWJ 1999伊索尔德若向死振翅"): {
+        "slug": "isolde",
+        "title": "重返未来 1999 伊索尔德 若向死振翅",
+        "titleEn": "Isolde",
+        "date": "2026-07-25",
+        "device": "PQWJ",
+    },
+    ("szcaf15", "A001C0087_260725_PQWJ 嫦娥落星盏"): {
+        "slug": "chang-e",
+        "title": "嫦娥 落星盏",
+        "titleEn": "Chang'e",
+        "date": "2026-07-25",
+        "device": "PQWJ",
+    },
+    ("szcaf15", "A001C0090_260725_PQWJ 达妮娅"): {
+        "slug": "denia",
+        "title": "达妮娅",
+        "titleEn": "Denia",
+        "date": "2026-07-25",
+        "device": "PQWJ",
+    },
+    ("szcaf15", "A001C0091_260725_PQWJ 达妮娅2"): {
+        "slug": "denia2",
+        "title": "达妮娅 2",
+        "titleEn": "Denia 2",
+        "date": "2026-07-25",
+        "device": "PQWJ",
+    },
+    ("szcaf15", "A001C0092_260725_PQWJ 娜维娅"): {
+        "slug": "navia",
+        "title": "娜维娅",
+        "titleEn": "Navia",
+        "date": "2026-07-25",
+        "device": "PQWJ",
+    },
+    ("szcaf15", "A001C0093_260725_PQWJ 知更鸟"): {
+        "slug": "robin",
+        "title": "知更鸟",
+        "titleEn": "Robin",
+        "date": "2026-07-25",
+        "device": "PQWJ",
+    },
+    ("szcaf15", "A001C0105_260725_PQWJ 雷姆双人"): {
+        "slug": "rem-duo",
+        "title": "雷姆 双人",
+        "titleEn": "Rem Duo",
+        "date": "2026-07-25",
+        "device": "PQWJ",
+    },
+    ("szcaf15", "A001C0214_260726_PQWJ 貂蝉馥梦繁花2"): {
+        "slug": "diaochan2",
+        "title": "貂蝉 馥梦繁花 2",
+        "titleEn": "Diaochan 2",
+        "date": "2026-07-26",
+        "device": "PQWJ",
+    },
+    ("szcaf15", "A001C0221_260726_PQWJ 舞女琉璃的月光"): {
+        "slug": "female-dancer",
+        "title": "舞女 琉璃的月光",
+        "titleEn": "Female Dancer",
+        "date": "2026-07-26",
+        "device": "PQWJ",
+    },
+    ("szcaf15", "A001C0222_260726_PQWJ 李信问剑心"): {
+        "slug": "lixin",
+        "title": "李信 问剑心",
+        "titleEn": "Li Xin",
+        "date": "2026-07-26",
+        "device": "PQWJ",
+    },
+    ("szcaf15", "A001C0223_260726_PQWJ 公孙离 离恨烟"): {
+        "slug": "arli",
+        "title": "公孙离 离恨烟",
+        "titleEn": "Arli",
+        "date": "2026-07-26",
+        "device": "PQWJ",
+    },
+    ("szcaf15", "A001C0224_260726_PQWJ 赛车初音"): {
+        "slug": "racing-miku",
+        "title": "赛车初音",
+        "titleEn": "Racing Miku",
+        "date": "2026-07-26",
+        "device": "PQWJ",
+    },
+    ("szcaf15", "A001C0225_260726_PQWJ 小乔"): {
+        "slug": "xiaoqiao",
+        "title": "小乔",
+        "titleEn": "Xiao Qiao",
+        "date": "2026-07-26",
+        "device": "PQWJ",
+    },
+    ("szcaf15", "A001C0226_260726_PQWJ 殷紫萍 天禄瑞光"): {
+        "slug": "zipingyin",
+        "title": "殷紫萍 天禄瑞光",
+        "titleEn": "Ziping Yin",
+        "date": "2026-07-26",
+        "device": "PQWJ",
+    },
+}
+
+for (event_subcategory, event_folder_name), event_definition in EVENT_RESOURCE_DEFINITIONS.items():
+    event_slug = event_definition["slug"]
+    RESOURCE_SLUG_OVERRIDES[("acg", event_subcategory, event_folder_name)] = event_slug
+    RESOURCE_METADATA_OVERRIDES[("acg", event_subcategory, event_slug)] = {
+        "title": event_definition["title"],
+        "titleEn": event_definition["titleEn"],
+        "meta": {
+            "date": event_definition["date"],
+            "device": event_definition["device"],
+        },
+        "viewer": {"syntheticAnimation": "figure8"},
+    }
+
+RESOURCE_ROUTE_ALIASES[("acg", "szcaf15", "yunuo")] = ["/acg/szcaf15/akari"]
 
 
 def infer_experience_type(category, folder_name, route):
@@ -689,11 +901,17 @@ def scan_resource_folder(folder_path, category, subcategory=None):
     metadata_override = RESOURCE_METADATA_OVERRIDES.get((category, subcategory, slug))
     if metadata_override:
         viewer_override = metadata_override.get("viewer")
+        meta_override = metadata_override.get("meta")
         resource.update({
             key: value
             for key, value in metadata_override.items()
-            if key != "viewer"
+            if key not in {"viewer", "meta"}
         })
+        if meta_override:
+            resource["meta"] = {
+                **resource.get("meta", {}),
+                **meta_override,
+            }
         if viewer_override:
             resource["viewer"] = {
                 **resource.get("viewer", {}),

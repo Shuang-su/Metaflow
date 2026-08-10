@@ -6,12 +6,12 @@ Metaflow 同时存在产品版本、上游版本、资源历史和源码快照�
 
 [`metadata/version-history.json`](../../metadata/version-history.json) 的 `current` 是 Viewer 当前事实：
 
-- `displayVersion`：用户可见版本；当前 `5.18a`。
-- `appSemver`：包与代码线 SemVer；当前 `5.18.0`。
+- `displayVersion`：用户可见版本；当前 `5.18.1`。
+- `appSemver`：包与代码线 SemVer；当前 `5.18.1`。
 - `upstream.version`：当前同步的 SuperSplat Viewer；当前 `1.26.2`。
 - `indexSchemaVersion`：发布索引契约；当前 `1.2`。
 
-`5.18a / 5.18.0` 是最后一个双轨历史状态，不应被回填成一个并未发生的 `5.18.1` 发布。下一次真实 Viewer 资源发布或兼容修复使用 `5.18.1`，之后统一使用完整 SemVer：PATCH 处理资源和兼容修复，MINOR 处理向后兼容新能力，MAJOR 处理破坏性公共契约。
+`5.18a / 5.18.0` 是最后一个双轨历史状态，保持原样；`5.18.1` 是此后的首个完整 SemVer 发布。后续 PATCH 处理资源和兼容修复，MINOR 处理向后兼容新能力，MAJOR 处理破坏性公共契约。
 
 历史 `1.0a`、`1.12b`、`5.3a`、`5.18a` 及资源 `addedIn/updatedIn` 保持不变。新 entry 继续保留 `displayVersion` 和 `appSemver` 两个兼容字段，但两者必须相等。
 

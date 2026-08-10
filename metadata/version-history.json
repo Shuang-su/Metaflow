@@ -1,14 +1,14 @@
 {
   "schemaVersion": "1.1",
   "cutoffGitRef": "c613a87",
-  "documentedThrough": "c613a87",
+  "documentedThrough": "cdfb0d2",
   "defaultResourceVersion": "1.0a",
   "current": {
-    "displayVersion": "5.18a",
-    "appSemver": "5.18.0",
+    "displayVersion": "5.18.1",
+    "appSemver": "5.18.1",
     "indexSchemaVersion": "1.2",
-    "date": "2026-06-27",
-    "gitRef": "c613a87",
+    "date": "2026-08-11",
+    "gitRef": "cdfb0d2",
     "historyUrl": "/data/version-history.json",
     "upstream": {
       "repository": "playcanvas/supersplat-viewer",
@@ -21,7 +21,7 @@
     "displayVersion": "legacy major.minor plus optional resource suffix through 5.18a; full semver thereafter",
     "rules": [
       "Published display versions through 5.18a are immutable legacy history.",
-      "The next real Viewer release is 5.18.1; releases after 5.18a use full SemVer and displayVersion equals appSemver.",
+      "Viewer 5.18.1 is the first release after the 5.18a legacy cutoff; later releases use full SemVer and displayVersion equals appSemver.",
       "Patch releases cover resources, thumbnails, settings, compatible routes, bug fixes, and other backwards-compatible corrections.",
       "Minor releases add backwards-compatible product, interaction, loader, data, or architecture capabilities.",
       "Major releases change public contracts incompatibly or require consumer migration.",
@@ -150,6 +150,21 @@
       "gitRef": "65a5fb6",
       "date": "2026-06-27",
       "summary": "Document Bijiashan 5.18a release"
+    },
+    {
+      "gitRef": "1df8bb6",
+      "date": "2026-08-11",
+      "summary": "feat(data): stage BitCity 260711 resources before the 5.18.1 route release"
+    },
+    {
+      "gitRef": "6847eb1",
+      "date": "2026-08-11",
+      "summary": "feat(data): stage SZCAF15 resources before the 5.18.1 route release"
+    },
+    {
+      "gitRef": "bdf3276",
+      "date": "2026-08-11",
+      "summary": "chore(release): prepare Viewer 5.18.1"
     }
   ],
   "entries": [
@@ -1325,6 +1340,34 @@
           "action": "add",
           "routes": [
             "/shenzhen/bijiashan"
+          ]
+        }
+      ]
+    },
+    {
+      "displayVersion": "5.18.1",
+      "appSemver": "5.18.1",
+      "type": "resource",
+      "scope": "data",
+      "date": "2026-08-11",
+      "gitRef": "cdfb0d2",
+      "summary": "feat(data): publish BitCity 260711 and SZCAF15 character resources",
+      "trace": {
+        "changeId": "MF-34",
+        "issue": "https://github.com/Shuang-su/Metaflow/issues/34",
+        "plan": "https://github.com/Shuang-su/Metaflow/issues/34",
+        "pullRequest": "https://github.com/Shuang-su/Metaflow/pull/35",
+        "evidence": "https://github.com/Shuang-su/Metaflow/pull/35#validation",
+        "completionManifest": "https://github.com/Shuang-su/Metaflow/pull/35#completion-manifest",
+        "completionDossier": "https://github.com/Shuang-su/Metaflow/pull/35#completion-dossier",
+        "releaseTag": "viewer-v5.18.1"
+      },
+      "resourceChanges": [
+        {
+          "action": "add",
+          "routePatterns": [
+            "/acg/bitcity260711/*",
+            "/acg/szcaf15/*"
           ]
         }
       ]
