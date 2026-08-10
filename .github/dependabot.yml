@@ -5,7 +5,7 @@ updates:
     schedule:
       interval: weekly
     labels: ["component/viewer", "type/maintenance"]
-    open-pull-requests-limit: 5
+    open-pull-requests-limit: 0
   - package-ecosystem: github-actions
     directory: /
     schedule:
