@@ -275,6 +275,7 @@ flowchart TD
 | `65a5fb6` | 将 5.18a 的结构化历史、公开镜像、index release gitRef 和总账对齐到最终产品提交 `c613a87`。 | 发布记录维护，不创建独立展示版本；由 `maintenanceCommits` 显式登记。 |
 | `1df8bb6` | 在公开 route 接入前暂存 BitCity 260711 的 3 条三件套资源。 | 未公开 staging，不创建独立展示版本；由 `maintenanceCommits` 显式登记。 |
 | `6847eb1` | 在公开 route 接入前暂存 SZCAF15 的 24 条三件套资源。 | 未公开 staging，不创建独立展示版本；由 `maintenanceCommits` 显式登记。 |
+| `bdf3276` | 同步 `5.18.1` 的结构化历史、公开索引/镜像、package、当前版本摘要、测试夹具和 PR trace。 | 发布准备记录，不创建独立展示版本；由 `maintenanceCommits` 显式登记。 |
 
 ## 能力到提交的反向索引
 

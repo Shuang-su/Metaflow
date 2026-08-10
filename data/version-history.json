@@ -160,6 +160,11 @@
       "gitRef": "6847eb1",
       "date": "2026-08-11",
       "summary": "feat(data): stage SZCAF15 resources before the 5.18.1 route release"
+    },
+    {
+      "gitRef": "bdf3276",
+      "date": "2026-08-11",
+      "summary": "chore(release): prepare Viewer 5.18.1"
     }
   ],
   "entries": [
