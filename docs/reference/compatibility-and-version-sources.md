@@ -6,11 +6,11 @@
 
 | 产品面 | 当前状态 |
 |---|---|
-| Viewer | display `5.18a`；app/package `5.18.0`；上游 SuperSplat Viewer `1.26.2` |
+| Viewer | display/app/package `5.18.1`；上游 SuperSplat Viewer `1.26.2` |
 | Editor | Metaflow `1.1 / 1.1.0`；上游 SuperSplat Editor `2.28.0` |
 | Editor 内部 Viewer 依赖 | `@playcanvas/supersplat-viewer 1.26.3`；不要求与 Viewer 产品上游相同 |
 | 资源索引 | schema `1.2` |
-| 下一次 Viewer 产品发布 | `5.18.1`；不再新增 `5.18b` 等字母版本 |
+| 下一次 Viewer 产品发布 | 从 `5.18.1` 按变化类型递增 SemVer；不再新增 `5.18b` 等字母版本 |
 
 这些值来自下表机器来源，不是由本文独立维护。
 

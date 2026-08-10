@@ -2,12 +2,12 @@
   "version": "1.0",
   "schemaVersion": "1.2",
   "release": {
-    "displayVersion": "5.18a",
-    "appSemver": "5.18.0",
+    "displayVersion": "5.18.1",
+    "appSemver": "5.18.1",
     "schemaVersion": "1.2",
     "historyUrl": "/data/version-history.json",
-    "updatedAt": "2026-06-27",
-    "gitRef": "c613a87"
+    "updatedAt": "2026-08-11",
+    "gitRef": "cdfb0d2"
   },
   "lastUpdated": "2026-08-11",
   "totalResources": 87,
@@ -2081,8 +2081,8 @@
         "animationFirstExitMode": "orbit"
       },
       "version": {
-        "addedIn": "1.0a",
-        "updatedIn": "1.0a"
+        "addedIn": "5.18.1",
+        "updatedIn": "5.18.1"
       }
     },
     {
@@ -2118,8 +2118,8 @@
         "animationFirstExitMode": "orbit"
       },
       "version": {
-        "addedIn": "1.0a",
-        "updatedIn": "1.0a"
+        "addedIn": "5.18.1",
+        "updatedIn": "5.18.1"
       }
     },
     {
@@ -2155,8 +2155,8 @@
         "animationFirstExitMode": "orbit"
       },
       "version": {
-        "addedIn": "1.0a",
-        "updatedIn": "1.0a"
+        "addedIn": "5.18.1",
+        "updatedIn": "5.18.1"
       }
     },
     {
@@ -2192,8 +2192,8 @@
         "animationFirstExitMode": "orbit"
       },
       "version": {
-        "addedIn": "1.0a",
-        "updatedIn": "1.0a"
+        "addedIn": "5.18.1",
+        "updatedIn": "5.18.1"
       }
     },
     {
@@ -2229,8 +2229,8 @@
         "animationFirstExitMode": "orbit"
       },
       "version": {
-        "addedIn": "1.0a",
-        "updatedIn": "1.0a"
+        "addedIn": "5.18.1",
+        "updatedIn": "5.18.1"
       }
     },
     {
@@ -2266,8 +2266,8 @@
         "animationFirstExitMode": "orbit"
       },
       "version": {
-        "addedIn": "1.0a",
-        "updatedIn": "1.0a"
+        "addedIn": "5.18.1",
+        "updatedIn": "5.18.1"
       }
     },
     {
@@ -2303,8 +2303,8 @@
         "animationFirstExitMode": "orbit"
       },
       "version": {
-        "addedIn": "1.0a",
-        "updatedIn": "1.0a"
+        "addedIn": "5.18.1",
+        "updatedIn": "5.18.1"
       }
     },
     {
@@ -2340,8 +2340,8 @@
         "animationFirstExitMode": "orbit"
       },
       "version": {
-        "addedIn": "1.0a",
-        "updatedIn": "1.0a"
+        "addedIn": "5.18.1",
+        "updatedIn": "5.18.1"
       }
     },
     {
@@ -2377,8 +2377,8 @@
         "animationFirstExitMode": "orbit"
       },
       "version": {
-        "addedIn": "1.0a",
-        "updatedIn": "1.0a"
+        "addedIn": "5.18.1",
+        "updatedIn": "5.18.1"
       }
     },
     {
@@ -2414,8 +2414,8 @@
         "animationFirstExitMode": "orbit"
       },
       "version": {
-        "addedIn": "1.0a",
-        "updatedIn": "1.0a"
+        "addedIn": "5.18.1",
+        "updatedIn": "5.18.1"
       }
     },
     {
@@ -2451,8 +2451,8 @@
         "animationFirstExitMode": "orbit"
       },
       "version": {
-        "addedIn": "1.0a",
-        "updatedIn": "1.0a"
+        "addedIn": "5.18.1",
+        "updatedIn": "5.18.1"
       }
     },
     {
@@ -2488,8 +2488,8 @@
         "animationFirstExitMode": "orbit"
       },
       "version": {
-        "addedIn": "1.0a",
-        "updatedIn": "1.0a"
+        "addedIn": "5.18.1",
+        "updatedIn": "5.18.1"
       }
     },
     {
@@ -2525,8 +2525,8 @@
         "animationFirstExitMode": "orbit"
       },
       "version": {
-        "addedIn": "1.0a",
-        "updatedIn": "1.0a"
+        "addedIn": "5.18.1",
+        "updatedIn": "5.18.1"
       }
     },
     {
@@ -2562,8 +2562,8 @@
         "animationFirstExitMode": "orbit"
       },
       "version": {
-        "addedIn": "1.0a",
-        "updatedIn": "1.0a"
+        "addedIn": "5.18.1",
+        "updatedIn": "5.18.1"
       }
     },
     {
@@ -2599,8 +2599,8 @@
         "animationFirstExitMode": "orbit"
       },
       "version": {
-        "addedIn": "1.0a",
-        "updatedIn": "1.0a"
+        "addedIn": "5.18.1",
+        "updatedIn": "5.18.1"
       }
     },
     {
@@ -2636,8 +2636,8 @@
         "animationFirstExitMode": "orbit"
       },
       "version": {
-        "addedIn": "1.0a",
-        "updatedIn": "1.0a"
+        "addedIn": "5.18.1",
+        "updatedIn": "5.18.1"
       }
     },
     {
@@ -2673,8 +2673,8 @@
         "animationFirstExitMode": "orbit"
       },
       "version": {
-        "addedIn": "1.0a",
-        "updatedIn": "1.0a"
+        "addedIn": "5.18.1",
+        "updatedIn": "5.18.1"
       }
     },
     {
@@ -2710,8 +2710,8 @@
         "animationFirstExitMode": "orbit"
       },
       "version": {
-        "addedIn": "1.0a",
-        "updatedIn": "1.0a"
+        "addedIn": "5.18.1",
+        "updatedIn": "5.18.1"
       }
     },
     {
@@ -2747,8 +2747,8 @@
         "animationFirstExitMode": "orbit"
       },
       "version": {
-        "addedIn": "1.0a",
-        "updatedIn": "1.0a"
+        "addedIn": "5.18.1",
+        "updatedIn": "5.18.1"
       }
     },
     {
@@ -2787,8 +2787,8 @@
         "/acg/szcaf15/akari"
       ],
       "version": {
-        "addedIn": "1.0a",
-        "updatedIn": "1.0a"
+        "addedIn": "5.18.1",
+        "updatedIn": "5.18.1"
       }
     },
     {
@@ -2824,8 +2824,8 @@
         "animationFirstExitMode": "orbit"
       },
       "version": {
-        "addedIn": "1.0a",
-        "updatedIn": "1.0a"
+        "addedIn": "5.18.1",
+        "updatedIn": "5.18.1"
       }
     },
     {
@@ -2861,8 +2861,8 @@
         "animationFirstExitMode": "orbit"
       },
       "version": {
-        "addedIn": "1.0a",
-        "updatedIn": "1.0a"
+        "addedIn": "5.18.1",
+        "updatedIn": "5.18.1"
       }
     },
     {
@@ -2898,8 +2898,8 @@
         "animationFirstExitMode": "orbit"
       },
       "version": {
-        "addedIn": "1.0a",
-        "updatedIn": "1.0a"
+        "addedIn": "5.18.1",
+        "updatedIn": "5.18.1"
       }
     },
     {
@@ -2935,8 +2935,8 @@
         "animationFirstExitMode": "orbit"
       },
       "version": {
-        "addedIn": "1.0a",
-        "updatedIn": "1.0a"
+        "addedIn": "5.18.1",
+        "updatedIn": "5.18.1"
       }
     },
     {
@@ -2972,8 +2972,8 @@
         "animationFirstExitMode": "orbit"
       },
       "version": {
-        "addedIn": "1.0a",
-        "updatedIn": "1.0a"
+        "addedIn": "5.18.1",
+        "updatedIn": "5.18.1"
       }
     },
     {
@@ -3009,8 +3009,8 @@
         "animationFirstExitMode": "orbit"
       },
       "version": {
-        "addedIn": "1.0a",
-        "updatedIn": "1.0a"
+        "addedIn": "5.18.1",
+        "updatedIn": "5.18.1"
       }
     },
     {
@@ -3046,8 +3046,8 @@
         "animationFirstExitMode": "orbit"
       },
       "version": {
-        "addedIn": "1.0a",
-        "updatedIn": "1.0a"
+        "addedIn": "5.18.1",
+        "updatedIn": "5.18.1"
       }
     },
     {

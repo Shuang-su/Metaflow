@@ -16,7 +16,7 @@ test.beforeEach(async ({ page }) => {
 test('loads the deterministic fixture and exposes versioned controls', async ({ page }) => {
     await page.locator('#info').click();
     await expect(page.locator('#infoPanel')).not.toHaveClass(/hidden/);
-    await expect(page.locator('#appVersionLabel')).toHaveText('5.18.0');
+    await expect(page.locator('#appVersionLabel')).toHaveText('5.18.1');
 
     await page.keyboard.press('Escape');
     await expect(page.locator('#infoPanel')).toHaveClass(/hidden/);

@@ -2,12 +2,12 @@
   "version": "1.0",
   "schemaVersion": "1.2",
   "release": {
-    "displayVersion": "5.18a",
-    "appSemver": "5.18.0",
+    "displayVersion": "5.18.1",
+    "appSemver": "5.18.1",
     "schemaVersion": "1.2",
     "historyUrl": "/data/version-history.json",
-    "updatedAt": "2026-06-27",
-    "gitRef": "c613a87"
+    "updatedAt": "2026-08-11",
+    "gitRef": "cdfb0d2"
   },
   "lastUpdated": "2026-08-10",
   "totalResources": 1,
@@ -34,7 +34,7 @@
       "fileSize": {"model": 428, "environment": 0, "thumbnail": 0, "total": 428, "voxel": 0},
       "meta": {"date": "2026-08-10", "device": "generated", "folderName": "e2e"},
       "viewer": {"defaultCameraMode": "orbit"},
-      "version": {"addedIn": "5.18a", "updatedIn": "5.18a"}
+      "version": {"addedIn": "5.18.1", "updatedIn": "5.18.1"}
     }
   ]
 }

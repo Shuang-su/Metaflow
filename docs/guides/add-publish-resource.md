@@ -71,7 +71,7 @@ git diff -- data/index.json
 - `data/index.json.release`、Viewer package/lock 和当前版本摘要；
 - [Viewer 变更总账](../metaflow-viewer-change-ledger.md)。
 
-当前仍为 `5.18a / 5.18.0`。旧字母版本不改写；下一次真实资源发布为 `5.18.1`，之后依次使用 `5.18.2`、`5.18.3`，不再新增 `5.18b`。完整职责见 [版本与发布](../maintenance/versioning-and-release.md)。
+当前为 `5.18.1`。旧字母版本不改写；下一次 PATCH 资源发布使用 `5.18.2`，之后依次递增，不再新增 `5.18b`。完整职责见 [版本与发布](../maintenance/versioning-and-release.md)。
 
 常规 Direct Commit 发布使用两个本地原子提交并一次 push：先提交资源/index，再以 `chore(release)` 引用前一个真实 SHA 并更新版本记录。PR 使用 squash merge 时，合并后以极小 release-record commit 回填最终 SHA；在回填完成前不标记稳定完成。
 
