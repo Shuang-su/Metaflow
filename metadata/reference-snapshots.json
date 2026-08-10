@@ -1,0 +1,67 @@
+{
+  "$schema": "./schemas/reference-snapshots.schema.json",
+  "schemaVersion": "1.0",
+  "canonicalFormat": "lexicographically sorted complete <mode> <git-blob-sha1>\\t<relative-path>\\n lines",
+  "snapshots": [
+    {
+      "id": "supersplat-viewer-v1.11.1",
+      "path": "references/supersplat-viewer-v1.11.1",
+      "kind": "upstream",
+      "repository": "https://github.com/playcanvas/supersplat-viewer",
+      "tag": "v1.11.1",
+      "tagObject": "938a377bca896235b0a35e31734d9cf9bf7436ec",
+      "commit": "0aef9bfb210a4e702d4aebaa6ff0f4eb75b62166",
+      "tree": "036f3deac9e0722ca5e8d514c796ed953cbd6e02",
+      "trackedFileCount": 41,
+      "canonicalContentSha256": "52fd6e6b4f0d14d5f77edec350f84f08d0820e51d81b3186d9df2493db0a4760",
+      "canonicalFormat": "lexicographically sorted complete <mode> <git-blob-sha1>\\t<relative-path>\\n lines",
+      "identityVerification": "exact-upstream-tree",
+      "previousPath": "supersplat-viewer-v1.11.1",
+      "license": "MIT",
+      "mutable": false
+    },
+    {
+      "id": "supersplat-viewer-v1.18.2",
+      "path": "references/supersplat-viewer-v1.18.2",
+      "kind": "upstream",
+      "repository": "https://github.com/playcanvas/supersplat-viewer",
+      "tag": "v1.18.2",
+      "tagObject": "9811691ab845ad9f924e1dfba3b177761bc5f9d6",
+      "commit": "cf1ae4f0271be812bb33d0f208458e75feff4217",
+      "tree": "bad2201bd6a139b00c11bbe25dbcb3382b771bf2",
+      "trackedFileCount": 51,
+      "canonicalContentSha256": "7579aae403927c6b56b132fbd0c09e71d7ca27b54749e5176432bfe439303d5f",
+      "canonicalFormat": "lexicographically sorted complete <mode> <git-blob-sha1>\\t<relative-path>\\n lines",
+      "identityVerification": "exact-upstream-tree",
+      "previousPath": "supersplat-viewer-v1.18.2",
+      "license": "MIT",
+      "mutable": false
+    },
+    {
+      "id": "supersplat-v2.18.1",
+      "path": "references/supersplat-v2.18.1",
+      "kind": "metaflow-history",
+      "repository": "https://github.com/Shuang-su/Metaflow",
+      "tag": null,
+      "tagObject": null,
+      "commit": "a8eb80dc3e3e3a5d0b2fe5148bc03c0e480e1038",
+      "tree": "1415a338ef786043d25bab1fdf18bea99f9639be",
+      "trackedFileCount": 214,
+      "canonicalContentSha256": "fa6e3f8ae83ed3bb9bec8c38bb312cbca5d821bc68ba664df88a489138ff36cc",
+      "canonicalFormat": "lexicographically sorted complete <mode> <git-blob-sha1>\\t<relative-path>\\n lines",
+      "identityVerification": "local-content-only",
+      "previousPath": "supersplat-v2.18.1",
+      "license": "MIT",
+      "mutable": false,
+      "upstreamLineage": {
+        "repository": "https://github.com/playcanvas/supersplat",
+        "tag": "v2.18.1",
+        "tagObject": "55042d57189a6f3753e9277fa025249052234486",
+        "commit": "194a4d21278917d7bd689f53e75bcca93f4ac0de",
+        "tree": "c12719fc73ce3c9bd6891e9593e50d25dc39f4c3",
+        "contentMatch": false,
+        "note": "Historical Metaflow customization descended from v2.18.1; lineage is not an upstream-content identity claim."
+      }
+    }
+  ]
+}

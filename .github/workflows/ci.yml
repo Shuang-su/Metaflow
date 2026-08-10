@@ -135,6 +135,7 @@ jobs:
             data/editor-version-history.json
             docs
             metadata
+            references
             scripts
             supabase
             AGENTS.md
@@ -189,7 +190,7 @@ jobs:
           sparse-checkout: |
             metaflow-viewer
             metaflow-editor
-            supersplat-v2.18.1/src/ui/timeline-panel.ts
+            references/supersplat-v2.18.1/src/ui/timeline-panel.ts
             supersplat-v2.28.0/src
             analytics
             supabase
@@ -368,16 +369,14 @@ jobs:
         with:
           lfs: false
           sparse-checkout: |
-            supersplat-viewer-v1.11.1/LICENSE
-            supersplat-viewer-v1.11.1/package.json
-            supersplat-viewer-v1.18.2/LICENSE
-            supersplat-viewer-v1.18.2/package.json
-            supersplat-v2.18.1/LICENSE
-            supersplat-v2.18.1/package.json
+            metadata/reference-snapshots.json
+            references
+            scripts/validate_reference_snapshots.mjs
           sparse-checkout-cone-mode: false
-      - name: Validate reference licenses and versions
+      - name: Validate reference contents, licenses, and versions
         run: |
-          for directory in supersplat-viewer-v1.11.1 supersplat-viewer-v1.18.2 supersplat-v2.18.1; do
+          node scripts/validate_reference_snapshots.mjs
+          for directory in $(node -e "for(const item of require('./metadata/reference-snapshots.json').snapshots)console.log(item.path)"); do
             test -s "$directory/LICENSE"
             node -e "const p=require('./$directory/package.json');if(!p.name||!p.version||!p.license)process.exit(1)"
           done

@@ -105,7 +105,7 @@ class PlatformValidationTests(unittest.TestCase):
                     schedule:
                       interval: weekly
                   - package-ecosystem: npm
-                    directory: /archive/supersplat-viewer-v1.18.2
+                    directory: /references/supersplat-viewer-v1.18.2
                     schedule:
                       interval: weekly
                 """

@@ -17,7 +17,7 @@
       "id": "documentation",
       "category": "docs",
       "includePaths": ["*.md", "**/*.md", "docs/**"],
-      "excludePaths": [],
+      "excludePaths": ["references/**"],
       "checks": ["docs"]
     },
     {
@@ -32,6 +32,7 @@
         "CONTRIBUTING.md",
         "metadata/components.json",
         "metadata/ci-routing.json",
+        "metadata/reference-snapshots.json",
         "metadata/schemas/**",
         "docs/metaflow-change-lifecycle-v1.0.md",
         "docs/changes/**",
@@ -45,7 +46,7 @@
         "scripts/tests/ci-routing.test.mjs",
         "scripts/tests/test_validate_platform.py"
       ],
-      "excludePaths": [],
+      "excludePaths": ["references/**"],
       "checks": ["governance"]
     },
     {
@@ -72,7 +73,7 @@
         ".github/dependabot.yml",
         ".nvmrc"
       ],
-      "excludePaths": [],
+      "excludePaths": ["references/**"],
       "checks": ["dependency-review"]
     },
     {
@@ -181,31 +182,21 @@
     {
       "id": "reference-source",
       "category": "reference",
-      "includePaths": ["supersplat-viewer-v*/**", "supersplat-v2.18.1/**"],
-      "excludePaths": [
-        "**/*.md",
-        "**/package.json",
-        "**/package-lock.json",
-        "**/pnpm-lock.yaml",
-        "**/yarn.lock"
-      ],
-      "checks": ["reference"]
+      "includePaths": ["references/**", "metadata/reference-snapshots.json"],
+      "excludePaths": [],
+      "checks": ["governance", "reference"]
     },
     {
       "id": "reference-dependency",
-      "category": "dependency",
+      "category": "reference",
       "includePaths": [
-        "supersplat-viewer-v*/package.json",
-        "supersplat-viewer-v*/package-lock.json",
-        "supersplat-viewer-v*/pnpm-lock.yaml",
-        "supersplat-viewer-v*/yarn.lock",
-        "supersplat-v2.18.1/package.json",
-        "supersplat-v2.18.1/package-lock.json",
-        "supersplat-v2.18.1/pnpm-lock.yaml",
-        "supersplat-v2.18.1/yarn.lock"
+        "references/**/package.json",
+        "references/**/package-lock.json",
+        "references/**/pnpm-lock.yaml",
+        "references/**/yarn.lock"
       ],
       "excludePaths": [],
-      "checks": ["reference"]
+      "checks": ["governance", "reference"]
     },
     {
       "id": "release",
