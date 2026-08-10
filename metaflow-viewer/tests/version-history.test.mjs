@@ -1,7 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
-import { createHash } from 'node:crypto';
 import { readFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import { classifyPaths, loadComponentRegistry } from '../../scripts/mcl.mjs';
@@ -357,12 +356,15 @@ test('commits after the legacy cutoff require records only for affected product 
     }
 });
 
-test('root README preserves the original usage guide and exposes the audit entrypoint', async () => {
+test('root README retains the usage guide while allowing factual documentation corrections', async () => {
     const readme = await readFile(new URL('../../README.md', import.meta.url), 'utf8');
-    const originalGuide = `${readme.split('\n## 当前版本\n')[0]}\n`;
-    const digest = createHash('sha256').update(originalGuide).digest('hex');
 
-    assert.equal(digest, 'c2d7995084cc957259cfc25f7f549a360c08c31f5f35dc3f7f88b8006999d319');
+    for (const heading of ['快速开始', '开发模式', '使用方式', '项目结构', '数据目录', '部署']) {
+        assert.match(readme, new RegExp(`^## ${heading}$`, 'm'));
+    }
+    assert.match(readme, /docs\/README\.md/);
+    assert.match(readme, /npx --no-install serve -s public -l 3000/);
+    assert.match(readme, /`content` 时会完全跳过 route\/index/);
     assert.match(readme, /docs\/metaflow-viewer-change-ledger\.md/);
     assert.match(readme, /metadata\/version-history\.json/);
 });

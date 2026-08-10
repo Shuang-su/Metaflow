@@ -15,8 +15,10 @@ nvm use
 ```bash
 cd metaflow-viewer
 npm ci
-npm run develop
+npm run watch
 ```
+
+另一个终端运行 `npx --no-install serve -s public -l 3000`，才能验证深层 route 的 SPA fallback。当前 `npm run develop` 内部服务器没有 `-s`，只用于根路径或直接 query；完整准备见 [Viewer 快速开始](../getting-started/viewer.md)。
 
 定向验证：
 
@@ -43,7 +45,7 @@ npm run lint
 npm run build
 ```
 
-构建输出位于 `dist/`。发布镜像更新必须核对 `metaflow-editor/version.json` 与 Editor version history。
+构建输出位于 `dist/`，不会自动更新 tracked `metaflow-editor/`。发布镜像必须按 [部署说明](deployment.md#editor-release-staging) 显式同步，并核对 `metaflow-editor/version.json` 与 Editor Version History。
 
 ## 数据
 

@@ -16,6 +16,8 @@ canonical_path: docs/changes/18-mcl-lightweight/plan.md
 
 # MCL 轻量化实施计划
 
+> **Revision 5 历史完成计划。** frontmatter 的 `in-progress` 与下方 Gate 步骤保留原始实施语境；Issue #18 已完成，当前流程由 MF-28 / Revision 6 定义。状态关系见 [`../README.md`](../README.md)。
+
 ## 目标
 
 把 MCL 从默认的全文档案模型调整为 Issue/Commit/PR/唯一 Spec/Plan 分层，同时保留 MF-1 legacy 档案的可读性和确定性校验。

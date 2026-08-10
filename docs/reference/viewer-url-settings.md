@@ -1,77 +1,25 @@
-# Viewer URL 与 settings 参考
+# Viewer URL 与 settings 兼容入口
 
-权威实现是 `metaflow-viewer/src/index.html` 与 `metaflow-viewer/src/schemas/`。本页提供当前可查摘要。
+> **路径保留。** 这条旧路径曾把 URL 参数和 settings schema 放在同一页。原有内容没有丢弃：现已按事实职责拆分并校正，避免 route/query 优先级、运行时参数和持久化 schema 再次混在一起。新文档入口如下。
 
-## 资源 URL 参数
+## URL、route 与运行时开关
 
-| 参数 | 值 | 作用 |
-|---|---|---|
-| `content` | URL | 主模型；SOG、压缩 PLY 或 streaming JSON |
-| `settings` | URL | settings JSON；加载器兼容 JSONC 注释与尾逗号 |
-| `poster` | URL | 加载封面 |
-| `skybox` | URL | 天空盒图片 |
-| `environment` | URL | 独立 Gaussian Splat 环境 |
-| `collision` | URL | GLB 网格或兼容碰撞资源 |
-| `voxel` | URL | 单体 voxel JSON |
-| `voxelManifest` | URL | tiled voxel manifest |
+阅读 [Viewer URL 参数参考](viewer-url-parameters.md)，其中包括：
 
-Route 模式先从 index 取得默认值，显式参数对相应资源地址优先。
+- `content`、`settings`、poster、environment、collision 与 voxel 参数；
+- route 与 query 的真实覆盖顺序；
+- UI、渲染、调试、Analytics 和隐私开关；
+- direct URL 与稳定 index route 的边界。
 
-## 界面、渲染与调试
+重要修正：当前实现不是“所有显式参数都覆盖 route”。`content` 会跳过 route/index；route 命中后会覆盖 query 中的 `settings`；部分其他资源参数才保留显式值。
 
-| 参数 | 作用 |
-|---|---|
-| `noui` | 隐藏 Viewer UI |
-| `noanim` | 禁止默认动画自动播放 |
-| `webgl` | 强制 WebGL；默认优先 WebGPU |
-| `aa` | Gaussian Splat 抗锯齿 |
-| `nofx` | 禁用 CameraFrame 后处理 |
-| `noreveal` | 禁用首帧 radial reveal |
-| `hpr` | 空、`1`、`true`、`enable` 表示强制高精度；其他显式值表示关闭 |
-| `budget` | 以百万为单位覆盖 splat budget |
-| `fullload` | 等待完整 LOD 质量 |
-| `colorize` | 显示 LOD 层级颜色 |
-| `unified` | 统一加载兼容开关 |
-| `ministats` | 显示性能统计 |
-| `heatmap` | 以热力图初始化可用碰撞叠层 |
-| `debug` | 打开相机调试面板 |
-| `lang` | UI 语言，例如 `zh-CN`、`en` |
+## 持久化 Viewer settings
 
-## Analytics 与隐私开关
+阅读 [Viewer settings schema 参考](viewer-settings-schema.md)，其中包括：
 
-| 参数 | 作用 |
-|---|---|
-| `noanalytics` 或 `analytics=0` | 禁用页面 Analytics |
-| `noreplay` | 禁用 replay |
-| `analyticsSink` / `analytics_sink` | `supabase`、`posthog` 或 `dual` |
-| `analyticsEndpoint` | 显式事件 endpoint |
-| `analyticsReplayRate` | replay 采样率 |
-| `posthogKey` / `posthog_key` | PostHog project key |
-| `posthogHost` / `posthog_host` | PostHog host |
-| `posthogReplay` / `posthog_replay` | 启用 PostHog replay |
+- v1 兼容与 v2 当前格式；
+- 必需字段、动画、相机和标注；
+- JSONC 运行时兼容边界；
+- 当前 Editor 固定导出空 annotations 的限制。
 
-不要把敏感凭据放进公开 URL。Analytics 的专项维护说明见 [`analytics-implementation.md`](../analytics-implementation.md)。
-
-## Settings 版本
-
-- v1：没有 `version`；包含 `camera`、`background`、可选 `animTracks`。Viewer 会迁移到 v2。
-- v2：`version: 2`；当前推荐与 Editor 导出格式。
-- 其他版本：不支持。
-
-## Settings v2 字段
-
-| 字段 | 说明 |
-|---|---|
-| `version` | 必须为 `2` |
-| `tonemapping` | `none`、`linear`、`filmic`、`hejl`、`aces`、`aces2`、`neutral` |
-| `highPrecisionRendering` | 高精度默认值 |
-| `soundUrl` | 可选音频 |
-| `background.color` | RGB 三元数组；可选 skybox/gradient |
-| `postEffectSettings` | sharpness、bloom、grading、vignette、fringing 的完整对象 |
-| `animTracks[]` | 动画元数据与 times/position/target/fov 数组 |
-| `cameras[]` | 初始 position、target、fov |
-| `annotations[]` | position、title、text 与目标 camera |
-| `startMode` | `default`、`animTrack`、`annotation` |
-| `hasStartPose` | 可选，是否存在明确起始姿态 |
-
-资源级 `defaultCameraMode`、`syntheticAnimation`、`animationFirstExitMode` 和 `voxelCoordinateSpace` 属于 index 的 `viewer` 对象，不属于 settings v2。
+本页只保留既有深度链接，不再独立维护参数或 schema 副本。当前文档总入口见 [Metaflow 文档中心](../README.md)。

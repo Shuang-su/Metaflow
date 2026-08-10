@@ -11,6 +11,9 @@ Metaflow 把基于 [SuperSplat](https://github.com/playcanvas/supersplat) 的 Ed
 | [Editor 快速开始](docs/getting-started/editor.md) | 本地运行当前 Editor 源码 |
 | [Editor 到 Viewer](docs/guides/editor-to-viewer.md) | 导出模型/settings 并进入稳定路由 |
 | [资源索引参考](docs/reference/resource-index.md) | `data/index.json` schema 与生成规则 |
+| [兼容边界与版本事实源](docs/reference/compatibility-and-version-sources.md) | Viewer、Editor、index、上游与发布事实从哪里读取 |
+| [版本与发布](docs/maintenance/versioning-and-release.md) | SemVer、Version History 与 Ledger 的更新边界 |
+| [部署](docs/maintenance/deployment.md) | Viewer、data 与 Editor 镜像怎样进入 Netlify publish 目录 |
 | [仓库地图](docs/reference/repository-map.md) | 活跃源码、生成物与历史快照边界 |
 
 ## 当前发布基线
@@ -41,20 +44,25 @@ ln -s ../../data public/data
 # 构建项目
 npm run build
 
-# 启动服务器
-npm run serve
-# 或
-npm start
+# 用 SPA fallback 启动服务器，稳定 route 才不会直接 404
+npx --no-install serve -s public -l 3000
 ```
 
 服务器将在 http://localhost:3000 启动。
 
 ## 开发模式
 
+稳定 route 的开发模式使用两个终端：
+
 ```bash
-# 开发模式（自动重新构建 + 服务器）
-npm run develop
+# 终端 1：自动重新构建
+npm run watch
+
+# 终端 2：为未知路径提供 index.html fallback
+npx --no-install serve -s public -l 3000
 ```
+
+当前 `npm run develop` 内部使用不带 `-s` 的 `serve public`，适合根路径或直接 query 调试，不能单独验证 `/acg/...` 之类的深层 route。完整说明见 [Viewer 快速开始](docs/getting-started/viewer.md)。
 
 ## 使用方式
 
@@ -68,7 +76,7 @@ http://localhost:3000/acg/ad05/frieren
 http://localhost:3000/acg/yzx/yzx
 ```
 
-路由信息来自 `/data/index.json`。
+路由信息来自 `/data/index.json`。本地服务器必须提供 SPA fallback；否则资源即使存在，直接打开深层路径也会先得到静态服务器 404。
 
 ### 2. URL 参数
 
@@ -130,7 +138,7 @@ metaflow-viewer/
 
 ## 部署
 
-`npm run build` 生成 Viewer 文件；完整平台发布还要把仓库根 `data/` 和 `metaflow-editor/` 同步到 `public/data/`、`public/editor/`。当前 Netlify 命令已执行这一步，手工部署时也不能漏掉。
+`npm run build` 生成 Viewer 文件；完整平台发布还要把仓库根 `data/` 和 `metaflow-editor/` 同步到 `public/data/`、`public/editor/`。当前 Netlify 命令已执行这一步，手工部署时也不能漏掉。Editor 源码的 `dist/` 不会被 Netlify 自动采用；完整 staging 和发布步骤见 [部署](docs/maintenance/deployment.md)。
 
 **注意**：需要配置服务器支持 SPA 路由（将所有路径重定向到 index.html，除了 /data/ 等静态资源）。
 
@@ -210,7 +218,7 @@ http://localhost:3000/acg/fireflyfes38/cyrene?debug&ministats
 http://localhost:3000/?content=/data/model.sog&settings=/data/settings.json
 ```
 
-包含空格或中文的路径应进行 URL 编码。路由索引提供的资源配置会作为默认值，显式 URL 参数可覆盖对应的资源地址。
+包含空格或中文的路径应进行 URL 编码。当前覆盖规则不是统一的“query 优先”：存在 `content` 时会完全跳过 route/index；route 命中后会覆盖 query 中的 `settings`；`poster`、`environment`、`collision`、`voxel` 和 `voxelManifest` 则保留显式 query 值。完整矩阵和当前实现来源见 [Viewer URL 参数参考](docs/reference/viewer-url-parameters.md)。
 
 ### 资源参数
 

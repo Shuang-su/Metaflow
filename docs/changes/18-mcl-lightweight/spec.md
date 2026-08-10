@@ -15,6 +15,8 @@ canonical_path: docs/changes/18-mcl-lightweight/spec.md
 
 # MCL 轻量协作契约
 
+> **Revision 5 历史契约，已由 MF-28 / Revision 6 取代。** 本文的四个 Gate 和较长状态链只用于理解演进，不定义当前任务。现行 candidate 规范见 [`../../metaflow-change-lifecycle-v1.0.md`](../../metaflow-change-lifecycle-v1.0.md)。
+
 ## 背景与决策
 
 MF-1 建立了可验证的治理基础，但把一次任务的原始请求、完整计划、行动摘要和完成材料重复写入 Task Record、聚合 transcript、Dossier 与 Manifest。Revision 5 保留历史校验能力，同时把日常协作重新落到 GitHub 原生对象和唯一技术文档上。

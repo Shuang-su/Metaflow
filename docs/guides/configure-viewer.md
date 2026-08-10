@@ -1,6 +1,6 @@
 # 配置 Viewer
 
-Viewer 配置由两层组成：URL/资源索引负责“加载什么”，`settings.json` 负责“怎样展示”。显式 URL 参数可以覆盖 route 解析出的部分资源地址和运行开关。
+Viewer 配置由两层组成：URL/资源索引负责“加载什么”，`settings.json` 负责“怎样展示”。显式参数只会覆盖 route 的部分资源地址：`content` 会让加载器完全跳过 route，而 route 命中又会覆盖 query 中的 `settings`。先读 [Viewer URL 参数](../reference/viewer-url-parameters.md#实际-routequery-优先级)，不要假设统一的 query 优先规则。
 
 ## 1. 优先从 Editor 导出
 
@@ -47,7 +47,7 @@ Viewer 配置由两层组成：URL/资源索引负责“加载什么”，`setti
 }
 ```
 
-完整字段以 `metaflow-viewer/src/schemas/v2.ts` 为准，摘要见 [Viewer URL 与 settings](../reference/viewer-url-settings.md)。
+完整字段以 `metaflow-viewer/src/schemas/v2.ts` 为准，查表见 [Viewer settings schema](../reference/viewer-settings-schema.md)。
 
 ## 3. 配置相机与启动方式
 
@@ -58,17 +58,23 @@ Viewer 配置由两层组成：URL/资源索引负责“加载什么”，`setti
 
 不要把相机模式、体验分类和碰撞坐标系全塞进 settings；这些与资源路由相关的策略应由 index 的 `viewer` 对象表达。
 
-## 4. 配置动画和标注
+## 4. 配置动画
 
-动画轨道必须同时提供 `duration`、`frameRate`、`loopMode`、`interpolation`、`smoothness`，以及对齐的 times/position/target/fov 数组。标注必须包含空间位置、标题、正文和目标相机。
+动画轨道必须同时提供 `duration`、`frameRate`、`loopMode`、`interpolation`、`smoothness`，以及对齐的 times/position/target/fov 数组。
 
-优先在 Editor 中建立并导出；手改后至少运行 Viewer settings 校验相关测试。
+动画可以优先在 Editor 中建立并导出；手改后至少运行 Viewer settings 校验相关测试。
 
-## 5. JSONC 兼容边界
+## 5. 标注的当前限制
+
+Viewer schema 支持 `annotations[]`，每项需要空间位置、标题、正文和目标相机。但当前 Editor 的 Viewer export 和 publish settings 都固定生成 `annotations: []`，不能创作或保留已有标注。
+
+需要标注时，把手工 settings 作为受审查的独立来源；每次从 Editor 重新导出后显式合并并验证，避免静默清空。若需要 Editor 内完整往返，应先实现对应产品能力。字段见 [Viewer settings schema](../reference/viewer-settings-schema.md#标注及当前-editor-限制)。
+
+## 6. JSONC 兼容边界
 
 页面加载器接受 JSON 注释和尾逗号，便于兼容现有资源；公共契约与 Editor 导出仍是标准 JSON。不要因为加载器宽容就把 JSONC 当成跨工具标准。
 
-## 6. 验证覆盖关系
+## 7. 验证覆盖关系
 
 用同一 route 分别测试：
 
@@ -79,3 +85,5 @@ Viewer 配置由两层组成：URL/资源索引负责“加载什么”，`setti
 ```
 
 若只有显式 URL 正常，优先检查 index 的 `files`；若两者都失败，检查模型、settings 与浏览器日志。
+
+调试开关和对照矩阵见 [调试与性能分析](debug-and-profile.md)。
