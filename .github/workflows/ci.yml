@@ -1,15 +1,13 @@
-name: MCL CI
+name: On-demand validation
 
 on:
-  pull_request:
-  push:
-    branches: [main]
+  workflow_dispatch:
 
 permissions:
   contents: read
 
 concurrency:
-  group: mcl-ci-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  group: on-demand-validation-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
@@ -149,7 +147,7 @@ jobs:
         uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
         with:
           node-version: 20
-      - name: Run Completion Contract tests
+      - name: Run governance contract tests
         run: node --test scripts/tests/*.test.mjs
       - name: Run platform unit tests
         run: python3 -m unittest discover -s scripts/tests -p 'test_validate_platform.py' -v
@@ -458,20 +456,20 @@ jobs:
       - name: Review dependency changes
         uses: actions/dependency-review-action@a1d282b36b6f3519aa1f3fc636f609c47dddb294 # v5
 
-  gate:
-    name: required / gate
+  summary:
+    name: manual / summary
     if: always()
     needs: [classify, docs, governance, viewer, editor, design, data, reference, release, codeql, dependency_review]
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
-      - name: Check out the aggregate gate evaluator
+      - name: Check out the manual summary evaluator
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           lfs: false
           sparse-checkout: scripts/ci-routing.mjs
           sparse-checkout-cone-mode: false
-      - name: Require selected jobs to succeed and unselected jobs to skip
+      - name: Summarize selected on-demand jobs
         env:
           CI_SELECTED_CHECKS: ${{ needs.classify.outputs.selected }}
           CI_EVENT_NAME: ${{ github.event_name }}

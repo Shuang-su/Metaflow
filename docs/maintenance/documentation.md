@@ -57,7 +57,7 @@ node scripts/scan_repository.mjs
 git diff --check
 ```
 
-Hosted CI 应只有 classify、documentation checks 和 stable gate 成功。若改了模板、MCL、router、代码或依赖，运行额外路线是正确行为，不要为了保持 docs-only 拆错文件位置。
+普通 GitHub CI 只按需手动运行。若改了模板、MCL、router、代码或依赖，按照本地路径路由运行额外检查是正确行为；不要为了保持 docs-only 拆错文件位置。
 
 ## 完成定义
 
@@ -65,4 +65,4 @@ Hosted CI 应只有 classify、documentation checks 和 stable gate 成功。若
 - 当前事实可追溯；
 - 旧内容保留或明确迁移；
 - 链接与敏感信息检查通过；
-- Issue 回填 PR、Commit、Hosted run、未运行检查和遗留事项。
+- 有 Issue 时回填 PR/Commit、本地验证、按需远端结果、未运行检查和遗留事项；无 Issue 时由直接提交 trailer 与最终交付记录。
