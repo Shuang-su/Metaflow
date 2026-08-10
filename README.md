@@ -171,7 +171,7 @@ location / {
 | 历史基线源码目录 | [`references/supersplat-v2.18.1`](references/supersplat-v2.18.1)；其 `v2.18.1` 仅表示 lineage，内容身份见 [`metadata/reference-snapshots.json`](metadata/reference-snapshots.json) |
 | `/editor` 运行时版本 | [`metaflow-editor/version.json`](metaflow-editor/version.json) |
 | 版本历史 | [`metadata/editor-version-history.json`](metadata/editor-version-history.json) |
-| 三方审查快照登记 | [`metadata/reference-snapshots.json`](metadata/reference-snapshots.json)：Viewer `v1.26.2/v1.28.0`、Editor `v2.28.0/v2.32.3`、Transform CLI `v2.5.1/v3.2.0` |
+| 三方审查快照登记 | [`metadata/reference-snapshots.json`](metadata/reference-snapshots.json)：Viewer `v1.26.2/v1.29.0`、Editor `v2.28.0/v2.32.3`、Transform CLI `v2.5.1/v3.3.0`；执行中发布的前一候选 `v1.28.0/v3.2.0` 仍作为不可变中间快照保留 |
 
 ## 最近版本
 

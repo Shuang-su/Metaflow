@@ -64,10 +64,12 @@ test('checked-in registry validates every reference directory and preserves hist
             'supersplat-v2.18.1',
             'supersplat-viewer-v1.26.2',
             'supersplat-viewer-v1.28.0',
+            'supersplat-viewer-v1.29.0',
             'supersplat-v2.28.0',
             'supersplat-v2.32.3',
             'splat-transform-v2.5.1',
-            'splat-transform-v3.2.0'
+            'splat-transform-v3.2.0',
+            'splat-transform-v3.3.0'
         ]
     );
     const history = registry.snapshots.find((snapshot) => snapshot.id === 'supersplat-v2.18.1');
@@ -79,10 +81,12 @@ test('checked-in registry validates every reference directory and preserves hist
     const expectedCommits = new Map([
         ['supersplat-viewer-v1.26.2', 'f1327060f0a17c342de518712aabf7f30f2747c5'],
         ['supersplat-viewer-v1.28.0', 'f6378f066d803a7b9dd4b86e5eb78b03f8a37730'],
+        ['supersplat-viewer-v1.29.0', 'c8226406b87e232f9a20cdd79f83bedd54325344'],
         ['supersplat-v2.28.0', '9f4dfe1ff4e94876fb2054353497c8e2eb93b423'],
         ['supersplat-v2.32.3', 'b9e3cb6f072179f0d49ae52d6c256d70b2079174'],
         ['splat-transform-v2.5.1', 'ed9162f927fa4af22d2ef18973bc93704aa1b7a0'],
-        ['splat-transform-v3.2.0', '8d6b801f06dd61b4ed215e9cfd9f314d2f509102']
+        ['splat-transform-v3.2.0', '8d6b801f06dd61b4ed215e9cfd9f314d2f509102'],
+        ['splat-transform-v3.3.0', '57883c2c7bda5bcfb60a8b402ababacc286e49ae']
     ]);
     for (const [id, commit] of expectedCommits) {
         assert.equal(registry.snapshots.find((snapshot) => snapshot.id === id)?.commit, commit);
