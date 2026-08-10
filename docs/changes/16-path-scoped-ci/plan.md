@@ -1,5 +1,7 @@
 # MF-16 路径级 CI 实施计划
 
+> **历史完成计划。** 下方“实施中”和 Hosted Gate 步骤保留为当时执行记录；Issue #16 已完成，托管 `required / gate` 后由 MCL Revision 6 取消。不要把本文当成当前 CI 操作手册；先读 [`../README.md`](../README.md)。
+
 ## 1. 当前状态
 
 实施中。Issue #16 是状态真相源；本文件只记录文件步骤与验证命令。

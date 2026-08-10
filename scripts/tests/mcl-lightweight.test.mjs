@@ -9,6 +9,34 @@ async function read(relativePath) {
     return readFile(join(REPO_ROOT, relativePath), 'utf8');
 }
 
+const CORE_CHINESE_DOCS = [
+    'docs/README.md',
+    'docs/getting-started/overview.md',
+    'docs/getting-started/viewer.md',
+    'docs/getting-started/editor.md',
+    'docs/guides/editor-to-viewer.md',
+    'docs/guides/add-publish-resource.md',
+    'docs/guides/configure-viewer.md',
+    'docs/guides/embed-share.md',
+    'docs/guides/debug-and-profile.md',
+    'docs/concepts/architecture.md',
+    'docs/concepts/resource-loading.md',
+    'docs/concepts/version-upstream-local.md',
+    'docs/reference/repository-map.md',
+    'docs/reference/viewer-url-parameters.md',
+    'docs/reference/viewer-settings-schema.md',
+    'docs/reference/resource-index.md',
+    'docs/reference/editor-export-contract.md',
+    'docs/reference/compatibility-and-version-sources.md',
+    'docs/maintenance/development.md',
+    'docs/maintenance/upstream-sync.md',
+    'docs/maintenance/versioning-and-release.md',
+    'docs/maintenance/deployment.md',
+    'docs/maintenance/troubleshooting.md',
+    'docs/maintenance/documentation.md',
+    'docs/history/README.md'
+];
+
 test('MCL revision 6 defines the local-first lifecycle and conditional artifacts', async () => {
     const mcl = await read('docs/metaflow-change-lifecycle-v1.0.md');
 
@@ -80,7 +108,7 @@ test('resource tiers and forward Viewer SemVer are documented without changing c
     const [mcl, guide, release, ledger, metadata, published] = await Promise.all([
         read('docs/metaflow-change-lifecycle-v1.0.md'),
         read('docs/guides/add-publish-resource.md'),
-        read('docs/maintenance/release-deploy.md'),
+        read('docs/maintenance/versioning-and-release.md'),
         read('docs/metaflow-viewer-change-ledger.md'),
         read('metadata/version-history.json'),
         read('data/version-history.json')
@@ -94,9 +122,9 @@ test('resource tiers and forward Viewer SemVer are documented without changing c
         assert.match(body, /20 个文件|20 个/);
         assert.match(body, /100 MiB/);
     }
-    assert.match(release, /PATCH，例如 `5\.18\.1`/);
-    assert.match(release, /MINOR，例如 `5\.19\.0`/);
-    assert.match(release, /MAJOR，例如 `6\.0\.0`/);
+    assert.match(release, /PATCH[\s\S]*`5\.18\.1`/);
+    assert.match(release, /MINOR[\s\S]*`5\.19\.0`/);
+    assert.match(release, /MAJOR[\s\S]*`6\.0\.0`/);
     assert.match(ledger, /从该边界之后只审计 Viewer、data 和 Viewer 发布支撑提交/);
     assert.match(ledger, /### X\.Y\.Z/);
     assert.equal(manifest.versioning.mode, 'semver-forward');
@@ -141,6 +169,53 @@ test('legacy completion templates remain available but are audit-only', async ()
 
     const manifest = await read('docs/changes/1-adopt-mcl-v1/completion/manifest.json');
     assert.match(manifest, /"schemaVersion": "1\.1"/);
+});
+
+test('active templates and the Change registry expose Revision 6 without rewriting history', async () => {
+    const [issue, spec, plan, changes, templates, agents] = await Promise.all([
+        read('docs/templates/mcl/issue-body.md'),
+        read('docs/templates/mcl/spec.md'),
+        read('docs/templates/mcl/plan.md'),
+        read('docs/changes/README.md'),
+        read('docs/templates/mcl/README.md'),
+        read('AGENTS.md')
+    ]);
+
+    assert.match(issue, /Open \/ In Progress \/ In Review \/ Done/);
+    assert.doesNotMatch(issue, /Proposed \/ Ready \/ In Progress/);
+    assert.match(spec, /^status: specified$/m);
+    assert.match(plan, /^status: approved$/m);
+    assert.match(changes, /MF-1[\s\S]*Legacy 审计档案/);
+    assert.match(changes, /MF-9[\s\S]*Legacy 审计档案/);
+    assert.match(changes, /MF-28[\s\S]*当前 Revision 6 契约/);
+    assert.match(templates, /仅显式审计模式/);
+    assert.match(agents, /不能用 MF-1、MF-9/);
+});
+
+test('the Chinese handbook has 25 substantive, indexed core pages', async () => {
+    const [index, oldUrlSettings, oldReleaseDeploy] = await Promise.all([
+        read('docs/README.md'),
+        read('docs/reference/viewer-url-settings.md'),
+        read('docs/maintenance/release-deploy.md')
+    ]);
+
+    assert.equal(CORE_CHINESE_DOCS.length, 25);
+    for (const relativePath of CORE_CHINESE_DOCS) {
+        const body = await read(relativePath);
+        assert.ok(body.trim().split(/\r?\n/).length >= 12, `${relativePath}: expected substantive content`);
+
+        if (relativePath !== 'docs/README.md') {
+            const indexTarget = relativePath.replace(/^docs\//, '');
+            assert.ok(index.includes(`(${indexTarget})`), `${relativePath}: missing from docs/README.md`);
+        }
+    }
+
+    assert.doesNotMatch(index, /viewer-url-settings\.md/);
+    assert.doesNotMatch(index, /release-deploy\.md/);
+    assert.match(oldUrlSettings, /viewer-url-parameters\.md/);
+    assert.match(oldUrlSettings, /viewer-settings-schema\.md/);
+    assert.match(oldReleaseDeploy, /versioning-and-release\.md/);
+    assert.match(oldReleaseDeploy, /deployment\.md/);
 });
 
 test('check-all discovers manifests, not lightweight Spec and Plan directories', async () => {

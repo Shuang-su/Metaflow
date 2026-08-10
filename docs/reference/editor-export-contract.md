@@ -31,7 +31,9 @@ scene.compressed.ply
 
 ### Settings-only
 
-`settingsJson` 只写入格式化的 `ExperienceSettings`，文件名为 `settings.json`。它不会同时写模型，因此适合更新相机、动画、标注或后处理而保持既有模型路径。
+`settingsJson` 只写入格式化的 `ExperienceSettings`，文件名为 `settings.json`。它不会同时写模型，因此适合更新相机、动画、背景或后处理而保持既有模型路径。
+
+当前 `export-popup.ts` 和 `publish-settings-dialog.ts` 都构造 `annotations: []`；Editor 没有把已有 Viewer annotations 导入、创作并原样导出的往返能力。重新导出可能清空手工标注，具体维护边界见 [Viewer settings schema](viewer-settings-schema.md#标注及当前-editor-限制)。
 
 ## 文件选择器与下载回退
 
@@ -45,3 +47,5 @@ scene.compressed.ply
 - 只更新体验配置：settings-only，并重新验证 route。
 
 不要把 Editor 的 HTML/ZIP 文件名结构当成 `data/index.json` schema；两者是不同交付契约。
+
+进入稳定 route 的主体模型还必须符合 [资源索引 schema](resource-index.md#可索引模型边界)：当前是 SOG 或 streaming JSON，独立 compressed PLY 只适合 direct URL/legacy package。

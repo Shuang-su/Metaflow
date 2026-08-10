@@ -20,10 +20,11 @@
 
 ## 3. 准备文件
 
-一个可发布资源至少需要可识别的模型。常见组合：
+一个可发布 route 至少需要生成器可识别的主体模型。当前组合：
 
 - legacy：`*.sog` + `settings.json`；
 - streaming：`lod-meta.json` + 分块文件 + `settings.json`；
+- 独立 compressed PLY：只能通过 Viewer direct URL 或 legacy package 使用，当前不会被生成器选为 route 主模型；
 - 可选环境：文件名包含 `environment` 的压缩 PLY；
 - 可选缩略图：`loading.*`、`thumbnail.*` 等生成器支持的命名；
 - 可选碰撞：单体 voxel 或 tiled `voxel-tiles.json`。
@@ -34,14 +35,14 @@
 
 ## 4. 处理 Git 与 LFS
 
-先检查文件大小和 `.gitattributes`。当前策略是只有精确列出的超大资产进入 LFS，较小的 SOG、PLY 和 voxel 文件保持普通 Git。
+先检查文件大小和 `.gitattributes`。当前规则是混合策略：多数 LFS 资产按精确路径列出，但 `data/Shenzhen/250917 Dayun/**` 是目录级规则。Dayun 目录下即使新增较小的 settings、thumbnail、SOG、PLY 或 voxel，也会命中 LFS；不能用“文件较小”推断它会进入普通 Git。
 
 ```bash
 git check-attr filter -- "data/<资源路径>/<文件>"
 git lfs ls-files
 ```
 
-若目标被标记为 LFS，确认提交的是 pointer，且托管端已有对象。不要为了让本地 checkout 变小而扩大 LFS glob；这会改变部署和历史可用性。
+若目标被标记为 LFS，确认提交的是 pointer，且托管端已有对象。目录级例外是否合理应在独立存储/部署变更中调整；不要在一次资源上传中顺手扩大或缩小 LFS glob，这会改变部署和历史可用性。
 
 ## 5. 生成并审查 index
 
@@ -59,7 +60,7 @@ git diff -- data/index.json
 - `fileSize`、`totalResources`、release 元数据由生成器更新；
 - 没有把环境文件误选为主体模型。
 
-字段说明见 [资源索引参考](../reference/resource-index.md)。
+字段和可索引模型边界见 [资源索引 schema](../reference/resource-index.md)。
 
 ## 6. 更新版本历史与 Ledger
 
@@ -70,7 +71,7 @@ git diff -- data/index.json
 - `data/index.json.release`、Viewer package/lock 和当前版本摘要；
 - [Viewer 变更总账](../metaflow-viewer-change-ledger.md)。
 
-当前仍为 `5.18a / 5.18.0`。旧字母版本不改写；下一次真实资源发布为 `5.18.1`，之后依次使用 `5.18.2`、`5.18.3`，不再新增 `5.18b`。
+当前仍为 `5.18a / 5.18.0`。旧字母版本不改写；下一次真实资源发布为 `5.18.1`，之后依次使用 `5.18.2`、`5.18.3`，不再新增 `5.18b`。完整职责见 [版本与发布](../maintenance/versioning-and-release.md)。
 
 常规 Direct Commit 发布使用两个本地原子提交并一次 push：先提交资源/index，再以 `chore(release)` 引用前一个真实 SHA 并更新版本记录。PR 使用 squash merge 时，合并后以极小 release-record commit 回填最终 SHA；在回填完成前不标记稳定完成。
 

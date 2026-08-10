@@ -25,7 +25,7 @@ npm run lint
 npm run build
 ```
 
-构建结果位于 `supersplat-v2.28.0/dist/`。仓库中的 `metaflow-editor/` 是部署镜像，更新它必须按发布流程从当前源码生成。
+构建结果位于 `supersplat-v2.28.0/dist/`。这一步不会更新仓库中的 `metaflow-editor/`，Netlify 也不会自动读取 `dist/`；Editor 发布必须按 [部署说明](../maintenance/deployment.md#editor-release-staging) 显式预览并执行 `dist → metaflow-editor` staging。
 
 ## 基本工作流
 
@@ -46,3 +46,5 @@ Metaflow Editor `1.1` 基于 SuperSplat Editor `2.28.0`，保留：
 - 大项目流式 ZIP 读取。
 
 完整、可核对的契约见 [Editor 导出契约](../reference/editor-export-contract.md)。
+
+当前 Viewer export 会生成相机、动画和后处理，但固定写入空的 `annotations`；Editor 尚不能完成标注的创作与往返。需要标注时先读 [Viewer settings schema](../reference/viewer-settings-schema.md#标注及当前-editor-限制)。

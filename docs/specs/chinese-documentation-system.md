@@ -10,13 +10,14 @@
 
 ## 2. 信息架构
 
-文档借鉴 Diátaxis，但按仓库规模收敛为五组：
+文档借鉴 Diátaxis，但按仓库规模收敛为五组正文和一个历史入口：
 
 - `getting-started/`：第一次完成一条可运行路径；
 - `guides/`：围绕具体任务给出操作步骤；
 - `concepts/`：解释系统为什么这样组织；
 - `reference/`：稳定、可查的字段和契约；
 - `maintenance/`：开发、同步、发布、排障和文档治理。
+- `history/`：只分类并链接历史、审计和快照资料，不承载当前操作说明。
 
 `docs/README.md` 是唯一总入口。根 `README.md` 是仓库门户，不复制全部手册。
 
@@ -40,16 +41,16 @@
 | Editor 运行时版本 | `metaflow-editor/version.json` |
 | 资源索引 schema 与当前资源 | `data/index.json` |
 | index 生成规则 | `scripts/generate_index.py` |
-| Viewer URL 参数 | `metaflow-viewer/src/index.html` |
+| Viewer URL 参数与实际优先级 | `metaflow-viewer/src/index.html`、`src/localization.ts` |
 | Viewer settings schema | `metaflow-viewer/src/schemas/v1.ts`、`v2.ts` |
-| Editor 导出行为 | `supersplat-v2.28.0/src/ui/export-popup.ts`、`src/splat-serialize.ts` |
-| 构建与发布流水线 | package scripts、`netlify.toml`、release workflow |
+| Editor 导出行为 | `supersplat-v2.28.0/src/ui/export-popup.ts`、`src/ui/publish-settings-dialog.ts`、`src/splat-serialize.ts` |
+| 构建、Editor staging 与部署 | package scripts、`supersplat-v2.28.0/dist/`、tracked `metaflow-editor/`、`netlify.toml`、release workflow |
 
 文档可以展示当前值，但必须同时链接事实源；不得让手工摘要取代机器可读来源。
 
 ## 5. 核心文件集
 
-核心手册共 20 篇：
+核心手册共 25 篇。它们不是为了凑数量：URL 参数与 settings schema、版本发布与部署分别承担不同事实和操作职责；历史入口隔离旧资料；调试指南提供可复现的排查矩阵。
 
 1. `docs/README.md`
 2. `docs/getting-started/overview.md`
@@ -59,18 +60,23 @@
 6. `docs/guides/add-publish-resource.md`
 7. `docs/guides/configure-viewer.md`
 8. `docs/guides/embed-share.md`
-9. `docs/concepts/architecture.md`
-10. `docs/concepts/resource-loading.md`
-11. `docs/concepts/version-upstream-local.md`
-12. `docs/reference/repository-map.md`
-13. `docs/reference/viewer-url-settings.md`
-14. `docs/reference/resource-index.md`
-15. `docs/reference/editor-export-contract.md`
-16. `docs/maintenance/development.md`
-17. `docs/maintenance/upstream-sync.md`
-18. `docs/maintenance/release-deploy.md`
-19. `docs/maintenance/troubleshooting.md`
-20. `docs/maintenance/documentation.md`
+9. `docs/guides/debug-and-profile.md`
+10. `docs/concepts/architecture.md`
+11. `docs/concepts/resource-loading.md`
+12. `docs/concepts/version-upstream-local.md`
+13. `docs/reference/repository-map.md`
+14. `docs/reference/viewer-url-parameters.md`
+15. `docs/reference/viewer-settings-schema.md`
+16. `docs/reference/resource-index.md`
+17. `docs/reference/editor-export-contract.md`
+18. `docs/reference/compatibility-and-version-sources.md`
+19. `docs/maintenance/development.md`
+20. `docs/maintenance/upstream-sync.md`
+21. `docs/maintenance/versioning-and-release.md`
+22. `docs/maintenance/deployment.md`
+23. `docs/maintenance/troubleshooting.md`
+24. `docs/maintenance/documentation.md`
+25. `docs/history/README.md`
 
 ## 6. 既有资料处置
 
@@ -79,13 +85,15 @@
 - Viewer/Editor change ledger 继续作为审计总账，链接当前事实来源。
 - sync comparison、current diff audit 等阶段性结论原位保留，并增加“不代表当前状态”的提示。
 - analytics 专项资料继续保留，但不扩张为核心手册分支。
-- MCL 与 Change 历史档案保持原位，不纳入产品教程导航。
+- MCL 与 Change 历史档案保持原位，通过 `docs/history/README.md` 和 `docs/changes/README.md` 分类，不纳入产品教程主线。
+- 已拆分的 `reference/viewer-url-settings.md` 与 `maintenance/release-deploy.md` 保留为简短迁移入口，避免破坏既有深度链接；正文只在 25 篇核心文档维护。
 
 ## 7. 维护约束
 
 - 教程不承担完整字段参考；参考文档不写成长篇实施计划。
 - 同一命令只在最相关文档完整解释，其余位置链接过去。
 - 相对链接必须通过 `scripts/check_markdown_links.mjs`。
+- 25 篇核心手册必须从 `docs/README.md` 可达，并注明现行、指南、事实参考或历史职责。
 - 新增或变更版本事实时，同一 PR 更新机器来源及受影响摘要。
 - 历史文档使用显眼提示，不改写当时事实。
 - 文档 PR 应命中 `docs` route；若触及治理、源码或依赖，必须接受相应检查，不能通过改路径规避。

@@ -16,7 +16,9 @@ route 来自 `data/index.json`，可以额外声明 `aliases` 兼容短链或旧
 https://metaflow.shuang-su.com/?content=%2Fdata%2Fpath%2Fmodel.sog&settings=%2Fdata%2Fpath%2Fsettings.json
 ```
 
-参数值应使用 URL 编码。需要环境或封面时追加 `environment`、`poster`；完整列表见 [Viewer URL 与 settings](../reference/viewer-url-settings.md)。
+参数值应使用 URL 编码。需要环境或封面时追加 `environment`、`poster`；完整列表和 route/query 的实际优先级见 [Viewer URL 参数](../reference/viewer-url-parameters.md)。
+
+不要在稳定 route 后追加 `content` 并期待保留 route 的 settings 或 Viewer 策略：当前 `content` 会跳过整个 index 解析。临时直链需要显式提供所需资源参数。
 
 ## iframe 嵌入
 

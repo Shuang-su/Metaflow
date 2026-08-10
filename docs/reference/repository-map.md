@@ -10,7 +10,9 @@
 | `data/` | 产品数据 | 模型、settings、缩略图、碰撞、index 与版本镜像 |
 | `metadata/` | 事实与治理 | 版本源、组件 ownership、CI routing 和 schemas |
 | `scripts/` | 工具 | index 生成、数据/平台/文档/MCL/CI 验证 |
-| `docs/` | 文档 | 当前手册、审计总账、MCL 与历史 Change 资料 |
+| `docs/` | 文档 | 25 篇中文核心手册、审计总账、MCL 与历史 Change 资料 |
+| `docs/history/` | 历史入口 | 区分 Change、Version History、Ledger、旧快照和专项资料 |
+| `docs/changes/` | Change 资料 | 当前契约与历史 Change；先读目录注册表，再进入具体档案 |
 | `.github/` | 托管治理 | Issue/PR 模板、Actions、Ruleset、CODEOWNERS |
 | `supabase/`、`analytics/` | 支撑 | 可选观测与数据基础设施 |
 | `netlify.toml` | 发布配置 | Viewer build、data/Editor 同步、redirect 与 cache headers |
@@ -33,6 +35,8 @@
 - `ROADMAP.md`：方向性计划，不是当前版本事实源。
 - `PROJECT_INDEX.md`：历史模块索引。
 - `MIGRATION_VALIDATION.md`：阶段性迁移验证资料；按文件提示判断时效。
+
+活动 MCL 模板从 [`docs/templates/mcl/README.md`](../templates/mcl/README.md) 进入。MF-1、MF-9 等 legacy `completion/` 保留审计证据，但不作为新协作范本；分类见 [Change 状态与历史注册表](../changes/README.md)。
 
 ## 谁拥有、跑什么检查
 

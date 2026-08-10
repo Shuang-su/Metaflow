@@ -4,7 +4,15 @@ Viewer 和 Editor 都是带本地定制的上游 fork。同步目标不是“让
 
 ## 何时建立同步任务
 
-发现新上游 release 后先创建自描述 Issue，记录当前版本、候选版本、变化信号、包含/排除范围、风险和验收。同步通常属于 T3：需要 Proposal/RFC、唯一 Spec/Plan、必要 ADR、回滚和观察方案。
+仓库 `AGENTS.md` 要求把上游同步作为 Change，而不是直接覆盖活跃源码。发现新 release 后先创建自描述 Issue，记录当前版本、候选版本、变化信号、包含/排除范围、风险和验收。
+
+MCL 仍是 candidate，只对 MF-1 和明确 opt-in 的 Proposal/Spec/Plan 试点生效；不能仅凭本指南把每次上游观察都强制展开成 T3 全套工件。按实际性质选择：
+
+- 只做版本发现与 Adopt/Defer/Skip 判断：自描述 Issue 通常足够；
+- 已批准的小型兼容同步：Issue + 定向 Plan/PR，按影响验证；
+- 重大上游同步、跨组件移植、公共契约或迁移：按风险增加唯一 Spec/Plan、Proposal/ADR、回滚与观察。
+
+T0–T3 是风险标签，不自动要求固定文件链。若某个 Change 明确 opt-in MCL，则按它已接受的 Spec/Plan 执行。
 
 定时 `upstream-watch` 只负责发现和维护 proposal，不授权修改或合并。
 
@@ -45,7 +53,7 @@ Viewer 和 Editor 都是带本地定制的上游 fork。同步目标不是“让
 
 新 Editor 上游基线使用 `supersplat-v<version>/` 形式保留可审计源码。旧目录降为 reference，不在原目录上“滚动升级”。Viewer 当前活跃源码始终在 `metaflow-viewer/`，上游 snapshot 只用于差异。
 
-同步完成后更新 metadata current、依赖、运行时 version、change ledger 和受影响手册。不要只改 README 中的版本数字。
+同步完成后更新 metadata current、依赖、运行时 version、change ledger 和受影响手册。不要只改 README 中的版本数字。版本职责见 [版本与发布](versioning-and-release.md)，Editor 部署镜像还必须完成 [显式 staging](deployment.md#editor-release-staging)。
 
 ## 验证与回退
 

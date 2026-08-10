@@ -1,7 +1,7 @@
 ---
 change_id: MF-000
 title: Replace with an execution title
-status: ready
+status: approved
 component:
   - viewer
 risk: T2
@@ -16,6 +16,8 @@ plan_revision: 1
 # Implementation Plan
 
 > 这是本 Change 唯一规范 Plan。不要在 Task Record、PR 或其他文档复制全文。
+
+> `status` 表示 Plan 工件成熟度，不是 Issue 生命周期；通用任务状态以 Issue 为准。
 
 ## Goal
 

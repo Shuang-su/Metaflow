@@ -1,5 +1,7 @@
 # MF-16 路径级 CI 规范
 
+> **历史实施规范，已完成并被 Revision 6 的本地优先规则取代。** 本文中的自动 PR/push 工作流与 `required / gate` 描述记录 MF-16 当时的真实契约，不代表当前托管配置。当前规则见 [`../../metaflow-change-lifecycle-v1.0.md`](../../metaflow-change-lifecycle-v1.0.md)，历史关系见 [`../README.md`](../README.md)。
+
 ## 1. 决策
 
 Metaflow 将组件所有权与 CI 检查路由拆成两个版本化清单：
