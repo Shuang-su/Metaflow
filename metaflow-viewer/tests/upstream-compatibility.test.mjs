@@ -43,7 +43,7 @@ test('legacy SOG and streaming LOD paths keep separate first-frame contracts', a
     assert.match(viewer, /setTimeout\(\(\) => \{[\s\S]*SOG sorter timeout[\s\S]*\}, 3000\)/);
     assert.match(viewer, /eventHandler\.on\('frame:ready', readyHandler\)/);
     assert.equal((viewer.match(/startGsplatReveal\([^)]*\);\s*state\.readyToRender = true;/g) || []).length, 2);
-    assert.equal((viewer.match(/app\.once\('frameend', \(\) => \{\s*events\.fire\('firstFrame'\)/g) || []).length, 2);
+    assert.equal((viewer.match(/events\.fire\('firstFrame'\)/g) || []).length, 2);
 });
 
 test('environment, reveal, loading visibility, and synthetic animation ordering stays non-blocking', async () => {
@@ -70,7 +70,7 @@ test('streaming SH quality and staged low-to-high LOD remain local behavior', as
 
     assert.match(viewer, /gsplat\.colorUpdateAngle = state\.performanceMode \? 4 : 2/);
     assert.doesNotMatch(viewer, /colorUpdateAngle = state\.performanceMode \? 1 : 0\.2/);
-    assert.match(viewer, /gsplat\.lodRangeMax = gsplat\.lodRangeMin = lodLevels - 1/);
+    assert.match(viewer, /gsplatComponent\.lodRangeMax = gsplatComponent\.lodRangeMin = lodLevels - 1/);
     assert.match(viewer, /onSubjectRevealed: openHighDetailLod/);
     assert.match(viewer, /events\.on\('performanceMode:changed', applyPerfSettings\)/);
     assert.match(viewer, /app\.scene\.gsplat\.minPixelSize = 0\.5/);

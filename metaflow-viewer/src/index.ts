@@ -550,9 +550,9 @@ const main = async (canvas: HTMLCanvasElement, settingsJson: any, config: Config
     initCanvas(global);
     app.start();
 
-    if (config.poster) {
-        initPoster(events);
-    }
+    // This listener also reveals the canvas on firstFrame, so it must be
+    // installed even for routes that do not provide a poster image.
+    initPoster(events);
 
     camera.addComponent('camera');
     initXr(global);

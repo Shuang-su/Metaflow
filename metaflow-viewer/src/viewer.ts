@@ -241,8 +241,6 @@ class Viewer {
 
     annotations: Annotations;
 
-    forceRenderNextFrame = false;
-
     voxelOverlay: VoxelDebugOverlay | TiledVoxelDebugOverlay | null = null;
 
     tiledVoxelCollision: TiledVoxelCollision | null = null;
@@ -399,8 +397,11 @@ class Viewer {
             }
         };
 
-        // disable auto render, we'll render only when camera changes
-        app.autoRender = false;
+        // Streaming progress and readiness are advanced from rendered frames.
+        // Render continuously while either loading path prepares its first valid
+        // frame, then switch to frame:request + camera-driven on-demand rendering.
+        // The canvas remains hidden by the loading contract until firstFrame.
+        app.autoRender = true;
 
         // configure the camera
         this.configureCamera(settings);
@@ -460,10 +461,6 @@ class Viewer {
                 app.renderNextFrame = false;
             }
 
-            if (this.forceRenderNextFrame) {
-                app.renderNextFrame = true;
-            }
-
             if (app.renderNextFrame) {
                 prevWorld.copy(world);
                 prevProj.copy(proj);
@@ -490,7 +487,7 @@ class Viewer {
             const near = Math.max(dist - boundRadius, far / (1024 * 16));
 
             cameraEntity.camera.farClip = far;
-            cameraEntity.camera.nearClip = near;
+            cameraEntity.camera.nearClip = Math.min(1.0, near);
         };
 
         // handle application update
@@ -827,6 +824,9 @@ class Viewer {
                     state.progress = 100;
                     app.renderNextFrame = true;
                     app.once('frameend', () => {
+                        // Legacy SOG is now stable; camera changes and explicit
+                        // dynamic surfaces drive subsequent frames on demand.
+                        app.autoRender = false;
                         events.fire('firstFrame');
                         window.firstFrame?.();
                     });
@@ -884,14 +884,15 @@ class Viewer {
                 };
 
                 gsplat.splatBudget = budget() * 1000000;
-                gsplat.lodRangeMin = 0;
-                gsplat.lodRangeMax = 1000;
                 gsplat.colorUpdateAngle = state.performanceMode ? 4 : 2;
-                gsplat.minContribution = 1;
-                gsplat.alphaClip = 1 / 255;
-                gsplat.antiAlias = config.aa;
+                gsplatComponent.lodRangeMin = 0;
+                gsplatComponent.lodRangeMax = 1000;
                 // Restore the default cull threshold lowered during the streaming reveal.
                 app.scene.gsplat.minPixelSize = 2;
+
+                // Parameter changes rebuild streaming work buffers. Ensure that
+                // rebuild is submitted even when the camera is idle on demand.
+                app.renderNextFrame = true;
             };
 
             if (config.fullload) {
@@ -902,7 +903,7 @@ class Viewer {
                 const resource = gsplatEntity.gsplat.resource as GSplatOctreeResourceLike | null;
                 const lodLevels = resource?.octree?.lodLevels;
                 if (lodLevels) {
-                    gsplat.lodRangeMax = gsplat.lodRangeMin = lodLevels - 1;
+                    gsplatComponent.lodRangeMax = gsplatComponent.lodRangeMin = lodLevels - 1;
                 }
             }
 
@@ -914,35 +915,25 @@ class Viewer {
             // these two allow LOD behind camera to drop, saves lots of splats
             gsplat.lodUpdateAngle = 90;
             gsplat.lodBehindPenalty = 5;
+            gsplat.minContribution = 1;
+            gsplat.alphaClip = 1 / 255;
+            gsplat.antiAlias = config.aa;
 
             // same performance, but rotating on slow devices does not give us unsorted splats on sides
             gsplat.radialSorting = true;
 
+            // These values are copied into persistent work-buffer data. They
+            // must be set before the first streaming frame creates that buffer.
+            gsplat.debug = config.colorize ? GSPLAT_DEBUG_LOD : GSPLAT_DEBUG_NONE;
+
             const eventHandler = app.systems.gsplat;
 
-            // idle timer: force continuous rendering until 4s of inactivity
-            let idleTime = 0;
-            this.forceRenderNextFrame = true;
-
-            app.on('update', (dt: number) => {
-                idleTime += dt;
-                this.forceRenderNextFrame = idleTime < 4;
+            // Streaming continues to schedule LOD and sorting work while
+            // autoRender is off. Submit a frame whenever that work becomes
+            // visible, keeping work-buffer lifetime coupled to its render.
+            eventHandler.on('frame:request', () => {
+                app.renderNextFrame = true;
             });
-
-            events.on('inputEvent', (type: string) => {
-                if (type !== 'interact') {
-                    idleTime = 0;
-                }
-            });
-
-            eventHandler.on(
-                'frame:ready',
-                (_camera: CameraComponent, _layer: Layer, ready: boolean, loading: number) => {
-                    if (loading > 0 || !ready) {
-                        idleTime = 0;
-                    }
-                }
-            );
 
             let current = 0;
             let watermark = 1;
@@ -950,6 +941,10 @@ class Viewer {
                 if (ready && loading === 0) {
                     // scene is done loading
                     eventHandler.off('frame:ready', readyHandler);
+
+                    // Initial streaming work is complete. Subsequent frames are
+                    // driven by frame:request, camera changes, or local effects.
+                    app.autoRender = false;
 
                     // Keep lowest LOD through the dot wave; unlock high detail once the lift
                     // wave clears the main subject (environment may still be revealing).
@@ -977,8 +972,6 @@ class Viewer {
                         openHighDetailLod();
                     }
 
-                    // debug colorize lods
-                    gsplat.debug = config.colorize ? GSPLAT_DEBUG_LOD : GSPLAT_DEBUG_NONE;
                     gsplat.renderer = rendererTable[renderer];
 
                     // wait for the first valid frame to complete rendering
