@@ -206,6 +206,10 @@ button {
             background-size: 200% 100%;
             animation: loading-indeterminate 1.2s infinite linear;
         }
+
+        &.failed {
+            background: rgba(255, 108, 108, 0.9);
+        }
     }
 
     > #loadingStatus {

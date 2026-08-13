@@ -165,6 +165,43 @@
             const stripTrailingCommas = (source) => source.replace(/,\s*([}\]])/g, '$1');
             const parseJsonc = (source) => JSON.parse(stripTrailingCommas(stripJsonComments(source)));
 
+            const retryableResponseStatuses = new Set([408, 425, 429]);
+            const isRetryableResponse = (response) =>
+                retryableResponseStatuses.has(response.status) || response.status >= 500;
+            const waitForRetry = (delayMs) => new Promise((resolve) => window.setTimeout(resolve, delayMs));
+            const fetchWithRetry = async (resourceUrl, options) => {
+                const maxAttempts = 3;
+                for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+                    try {
+                        const response = await fetch(resourceUrl, options);
+                        if (response.ok || !isRetryableResponse(response) || attempt === maxAttempts) {
+                            return response;
+                        }
+
+                        console.warn(
+                            `[Loader] Transient HTTP ${response.status} for ${resourceUrl}; retrying (${attempt}/${maxAttempts - 1})`
+                        );
+                        try {
+                            await response.body?.cancel();
+                        } catch {
+                            // The failed response body may already be closed.
+                        }
+                    } catch (error) {
+                        if (attempt === maxAttempts) {
+                            throw error;
+                        }
+                        console.warn(
+                            `[Loader] Transient network failure for ${resourceUrl}; retrying (${attempt}/${maxAttempts - 1})`,
+                            error
+                        );
+                    }
+
+                    await waitForRetry(500 * 2 ** (attempt - 1));
+                }
+
+                throw new Error(`Failed to fetch ${resourceUrl}`);
+            };
+
             const loadSettings = async (settingsUrl) => {
                 const response = await fetch(settingsUrl);
                 if (!response.ok) return {};
@@ -291,7 +328,7 @@
                         ? voxelCoordinateSpace
                         : undefined,
                     environmentUrl,
-                    environmentContents: environmentUrl ? fetch(environmentUrl) : null,
+                    environmentContents: environmentUrl ? fetchWithRetry(environmentUrl) : null,
                     defaultCameraMode: ['anim', 'orbit', 'fly', 'walk'].includes(defaultCameraMode)
                         ? defaultCameraMode
                         : undefined,
@@ -319,7 +356,7 @@
                     analyticsRouteMatched,
                     revealEffect: url.searchParams.has('noreveal') ? 'none' : 'radial',
                     contentUrl,
-                    contents: fetch(contentUrl),
+                    contents: fetchWithRetry(contentUrl),
                     noui: url.searchParams.has('noui'),
                     noanalytics: url.searchParams.has('noanalytics') || url.searchParams.get('analytics') === '0',
                     noanim: url.searchParams.has('noanim'),

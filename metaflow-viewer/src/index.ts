@@ -609,15 +609,21 @@ const main = async (canvas: HTMLCanvasElement, settingsJson: any, config: Config
             state.progress = -1;
             return entity;
         } catch (err) {
+            const error = formatError(err);
             analytics.track(
                 'resource_load_failed',
                 {
                     loading_stage: state.loadingStage,
                     loading_mode: state.loadingMode,
-                    ...formatError(err)
+                    ...error
                 },
                 { beacon: true }
             );
+            state.progress = 100;
+            state.loadingStage = 'error';
+            state.loadingStatus = `主体模型加载失败：${error.error_message}。请检查网络后刷新页面重试。`;
+            app.autoRender = false;
+            app.renderNextFrame = false;
             throw err;
         }
     })();

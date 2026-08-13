@@ -82,3 +82,30 @@ test('XR detection is backend-aware while retaining Metaflow navigation and relo
     assert.match(ui, /location\.replace\(reloadUrl\.toString\(\)\)/);
     assert.match(ui, /global\.analytics\.track\('xr_requested'/);
 });
+
+test('model and environment prefetches retry only transient failures and expose a terminal model error', async () => {
+    const [html, index, types, ui, viewer] = await Promise.all([
+        readText('../src/index.html'),
+        readText('../src/index.ts'),
+        readText('../src/types.ts'),
+        readText('../src/ui.ts'),
+        readText('../src/viewer.ts')
+    ]);
+
+    assert.match(html, /retryableResponseStatuses = new Set\(\[408, 425, 429\]\)/);
+    assert.match(html, /response\.status >= 500/);
+    assert.match(html, /const maxAttempts = 3/);
+    assert.match(html, /waitForRetry\(500 \* 2 \*\* \(attempt - 1\)\)/);
+    assert.match(html, /environmentContents: environmentUrl \? fetchWithRetry\(environmentUrl\) : null/);
+    assert.match(html, /contents: fetchWithRetry\(contentUrl\)/);
+    assert.doesNotMatch(html, /retryableResponseStatuses[^;]*404/);
+
+    assert.match(types, /\| 'error'/);
+    assert.match(index, /state\.progress = 100;[\s\S]*state\.loadingStage = 'error'/);
+    assert.match(index, /请检查网络后刷新页面重试/);
+    assert.match(index, /app\.autoRender = false;[\s\S]*app\.renderNextFrame = false;/);
+    assert.match(ui, /error: '加载失败'/);
+    assert.match(ui, /loadingBar\.classList\.toggle\('failed', stage === 'error'\)/);
+    assert.match(viewer, /const viewerReady = Promise\.all/);
+    assert.match(viewer, /viewerReady\.catch[\s\S]*Initialization stopped after resource load failure/);
+});

@@ -716,6 +716,7 @@ const initUI = (global: Global) => {
         'stream-loading': '流式加载',
         'legacy-lod-loading': 'LOD 加载',
         timeout: '超时兜底',
+        error: '加载失败',
         complete: '完成'
     };
 
@@ -901,6 +902,16 @@ const initUI = (global: Global) => {
         if (progress >= 0) {
             stopStatusTimer();
             dom.loadingStatus.textContent = statusBaseText;
+        }
+    });
+
+    events.on('loadingStage:changed', (stage: string) => {
+        dom.loadingBar.classList.toggle('failed', stage === 'error');
+        if (stage === 'error') {
+            stopStatusTimer();
+            dom.loadingBar.classList.remove('indeterminate');
+            dom.loadingBar.style.backgroundImage = '';
+            dom.loadingText.textContent = '加载失败';
         }
     });
 

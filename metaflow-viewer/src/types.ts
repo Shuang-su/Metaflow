@@ -40,6 +40,7 @@ type LoadingStage =
     | 'stream-loading'
     | 'legacy-lod-loading'
     | 'timeout'
+    | 'error'
     | 'complete';
 
 // configuration options are immutable at runtime

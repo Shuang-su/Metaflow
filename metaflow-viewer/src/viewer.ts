@@ -678,7 +678,7 @@ class Viewer {
         // Wait only for render-critical resources. Tiled manifests and mesh
         // collision are lightweight/immediate; legacy single voxels are passed
         // through deferredCollisionLoad and begin after the first rendered frame.
-        Promise.all([gsplatLoad, skyboxLoad, collisionLoad]).then((results) => {
+        const viewerReady = Promise.all([gsplatLoad, skyboxLoad, collisionLoad]).then((results) => {
             const gsplatEntity = results[0];
             const gsplatComponent = gsplatEntity.gsplat as GSplatComponent;
             let environmentEntity: Entity | null = null;
@@ -1064,6 +1064,11 @@ class Viewer {
             };
 
             eventHandler.on('frame:ready', readyHandler);
+        });
+        viewerReady.catch((err: unknown) => {
+            app.autoRender = false;
+            app.renderNextFrame = false;
+            console.error('[Viewer] Initialization stopped after resource load failure:', err);
         });
     }
 
