@@ -283,7 +283,7 @@ test('commits after the legacy cutoff require records only for affected product 
     ]);
     const editorSourcePrefixes = [
         'metaflow-editor/',
-        'supersplat-v2.18.1/',
+        'references/supersplat-v2.18.1/',
         'supersplat-v2.28.0/'
     ];
     const documentedEditorReleaseRefs = new Set(

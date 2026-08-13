@@ -107,6 +107,7 @@
 - [MCL 模板使用说明](templates/mcl/README.md)
 - [Viewer 逐提交变更总账](metaflow-viewer-change-ledger.md)
 - [Editor 变更总账](metaflow-editor-change-ledger.md)
+- [2026-08-10 SuperSplat 三基线独立审查](history/upstream-reviews/2026-08-10/README.md)
 - [MCL v1.0 candidate](metaflow-change-lifecycle-v1.0.md)
 - [Analytics 专项资料](analytics-implementation.md)
 

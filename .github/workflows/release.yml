@@ -51,7 +51,7 @@ jobs:
             supabase
             metaflow-viewer
             metaflow-editor
-            supersplat-v2.18.1/src/ui/timeline-panel.ts
+            references/supersplat-v2.18.1/src/ui/timeline-panel.ts
             supersplat-v2.28.0
             AGENTS.md
             CONTRIBUTING.md

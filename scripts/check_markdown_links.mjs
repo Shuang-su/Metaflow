@@ -22,7 +22,12 @@ const output = execFileSync(
     { cwd: root, encoding: 'utf8' }
 );
 const knownPaths = new Set(output.split('\n').filter(Boolean));
-const files = [...knownPaths].filter((file) => file.endsWith('.md')).sort();
+// Immutable upstream snapshots preserve the exact tag, including any links to
+// release assets that upstream did not commit. Maintained Metaflow documents
+// must stay valid; reference Markdown is verified by snapshot identity instead.
+const files = [...knownPaths]
+    .filter((file) => file.endsWith('.md') && !file.startsWith('references/'))
+    .sort();
 const errors = [];
 
 async function registeredNonNormativeMaterials() {

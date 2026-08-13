@@ -51,7 +51,9 @@ T0–T3 是风险标签，不自动要求固定文件链。若某个 Change 明�
 
 ## 版本和目录
 
-新 Editor 上游基线使用 `supersplat-v<version>/` 形式保留可审计源码。旧目录降为 reference，不在原目录上“滚动升级”。Viewer 当前活跃源码始终在 `metaflow-viewer/`，上游 snapshot 只用于差异。
+纯上游 tag 统一导出到 `references/<repository>-v<version>/`，身份由 [`metadata/reference-snapshots.json`](../../metadata/reference-snapshots.json) 固定，目录不可直接修改、构建或接收依赖更新。Viewer 当前活跃源码始终在 `metaflow-viewer/`；Editor 当前活跃源码仍是根目录 `supersplat-v2.28.0/`。是否为下一次 Editor 实现改用新的活跃源码目录，必须由独立三方审查和 Adopt 计划决定，不能靠移动 reference 或恢复已关闭分支完成。
+
+最近一次固定时间窗的三方证据和独立决策见 [2026-08-10 SuperSplat 三基线审查](../history/upstream-reviews/2026-08-10/README.md)。该历史报告不会自动追踪后续 stable release；真正实施前仍必须重新查询上游。
 
 同步完成后更新 metadata current、依赖、运行时 version、change ledger 和受影响手册。不要只改 README 中的版本数字。版本职责见 [版本与发布](versioning-and-release.md)，Editor 部署镜像还必须完成 [显式 staging](deployment.md#editor-release-staging)。
 
