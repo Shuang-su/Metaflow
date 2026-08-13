@@ -22,10 +22,8 @@ class Annotations {
         const { state } = global;
 
         const updateVisibility = () => {
-            const firstPersonGamingControls = (
-                (state.cameraMode === 'walk' || state.cameraMode === 'fly') &&
-                state.gamingControls
-            );
+            const firstPersonGamingControls =
+                (state.cameraMode === 'walk' || state.cameraMode === 'fly') && state.gamingControls;
             const hidden = state.controlsHidden || firstPersonGamingControls;
             parentDom.style.display = hidden ? 'none' : 'block';
             Annotation.opacity = hidden ? 0.0 : 1.0;
@@ -75,7 +73,7 @@ class Annotations {
             });
 
             // re-render if hover state changes
-            script.annotation.on('hover', (hover: boolean) => {
+            script.annotation.on('hover', () => {
                 global.app.renderNextFrame = true;
             });
         }

@@ -39,9 +39,10 @@ const detectLocale = (): string => {
         // 1. exact tag match (case-insensitive: "DE" → "de", "pt-br" → "pt-BR")
         // 2. base-language match ("fr-CA" → "fr")
         // 3. any region variant sharing the base ("pt" → "pt-BR", "zh" → "zh-CN")
-        const match = keys.find(k => k.toLowerCase() === lc) ??
-            keys.find(k => k.toLowerCase() === base) ??
-            keys.find(k => k.toLowerCase().split('-')[0] === base);
+        const match =
+            keys.find((k) => k.toLowerCase() === lc) ??
+            keys.find((k) => k.toLowerCase() === base) ??
+            keys.find((k) => k.toLowerCase().split('-')[0] === base);
         if (match) return match;
     }
     return 'en';

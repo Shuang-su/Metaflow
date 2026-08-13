@@ -1,28 +1,28 @@
-import { loadVoxelCollision, VoxelCollision } from './voxel-collision';
-import type { LoadVoxelCollisionOptions } from './voxel-collision';
 import type { Collision, PushOut, RayHit } from './collision';
+import { loadVoxelCollision } from './voxel-collision';
+import type { LoadVoxelCollisionOptions, VoxelCollision } from './voxel-collision';
 
 type Bounds3 = {
-    min: [number, number, number],
-    max: [number, number, number]
+    min: [number, number, number];
+    max: [number, number, number];
 };
 
 type VoxelTileEntry = {
-    id: string,
-    ix: number,
-    iz: number,
-    coreBounds: Bounds3,
-    dataBounds: Bounds3,
-    url: string
+    id: string;
+    ix: number;
+    iz: number;
+    coreBounds: Bounds3;
+    dataBounds: Bounds3;
+    url: string;
 };
 
 type VoxelTileManifest = {
-    version: 1,
-    voxelResolution: number,
-    tileSize: number,
-    overlap: number,
-    fullBounds: Bounds3,
-    tiles: VoxelTileEntry[]
+    version: 1;
+    voxelResolution: number;
+    tileSize: number;
+    overlap: number;
+    fullBounds: Bounds3;
+    tiles: VoxelTileEntry[];
 };
 
 class TiledVoxelCollision implements Collision {
@@ -59,7 +59,7 @@ class TiledVoxelCollision implements Collision {
         if (!response.ok) {
             throw new Error(`Failed to fetch voxel tile manifest: ${response.statusText}`);
         }
-        const manifest = await response.json() as VoxelTileManifest;
+        const manifest = (await response.json()) as VoxelTileManifest;
         return new TiledVoxelCollision(manifest, manifestUrl, options);
     }
 
@@ -121,11 +121,18 @@ class TiledVoxelCollision implements Collision {
     }
 
     querySurfaceNormal(
-        x: number, y: number, z: number,
-        rdx: number, rdy: number, rdz: number
+        x: number,
+        y: number,
+        z: number,
+        rdx: number,
+        rdy: number,
+        rdz: number
     ): { nx: number; ny: number; nz: number } {
         for (const collision of this.getActiveColliders()) {
-            if (collision.isFreeAt(x, y, z) || collision.querySphere(x, y, z, collision.voxelResolution * 0.5, this._scratchPush)) {
+            if (
+                collision.isFreeAt(x, y, z) ||
+                collision.querySphere(x, y, z, collision.voxelResolution * 0.5, this._scratchPush)
+            ) {
                 return collision.querySurfaceNormal(x, y, z, rdx, rdy, rdz);
             }
         }
@@ -135,11 +142,7 @@ class TiledVoxelCollision implements Collision {
         return this._resultNormal;
     }
 
-    queryRay(
-        ox: number, oy: number, oz: number,
-        dx: number, dy: number, dz: number,
-        maxDist: number
-    ): RayHit | null {
+    queryRay(ox: number, oy: number, oz: number, dx: number, dy: number, dz: number, maxDist: number): RayHit | null {
         let best: RayHit | null = null;
         let bestDistSq = Infinity;
         for (const collision of this.getActiveColliders()) {
@@ -170,17 +173,14 @@ class TiledVoxelCollision implements Collision {
         return this._queryVolume(cx, cy, cz, radius, 0, out, false);
     }
 
-    queryCapsule(
-        cx: number, cy: number, cz: number,
-        halfHeight: number,
-        radius: number,
-        out: PushOut
-    ): boolean {
+    queryCapsule(cx: number, cy: number, cz: number, halfHeight: number, radius: number, out: PushOut): boolean {
         return this._queryVolume(cx, cy, cz, radius, halfHeight, out, true);
     }
 
     private _queryVolume(
-        cx: number, cy: number, cz: number,
+        cx: number,
+        cy: number,
+        cz: number,
         radius: number,
         halfHeight: number,
         out: PushOut,
@@ -197,9 +197,9 @@ class TiledVoxelCollision implements Collision {
         for (let pass = 0; pass < 3; pass++) {
             let passHit = false;
             for (const collision of this.getActiveColliders()) {
-                const collided = capsule ?
-                    collision.queryCapsule(resolvedX, resolvedY, resolvedZ, halfHeight, radius, this._scratchPush) :
-                    collision.querySphere(resolvedX, resolvedY, resolvedZ, radius, this._scratchPush);
+                const collided = capsule
+                    ? collision.queryCapsule(resolvedX, resolvedY, resolvedZ, halfHeight, radius, this._scratchPush)
+                    : collision.querySphere(resolvedX, resolvedY, resolvedZ, radius, this._scratchPush);
                 if (!collided) continue;
 
                 resolvedX += this._scratchPush.x;
@@ -259,18 +259,18 @@ class TiledVoxelCollision implements Collision {
 
         const jsonUrl = new URL(tile.url, new URL(this.manifestUrl, location.href)).href;
         const promise = loadVoxelCollision(jsonUrl, this.loadOptions)
-        .then((collision) => {
-            this._loading.delete(id);
-            if (!this._activeIds.has(id)) {
-                return;
-            }
-            this._loaded.set(id, collision);
-            this.onTilesChanged?.();
-        })
-        .catch((err: Error) => {
-            this._loading.delete(id);
-            console.warn(`Failed to load voxel tile ${id}:`, err);
-        });
+            .then((collision) => {
+                this._loading.delete(id);
+                if (!this._activeIds.has(id)) {
+                    return;
+                }
+                this._loaded.set(id, collision);
+                this.onTilesChanged?.();
+            })
+            .catch((err: Error) => {
+                this._loading.delete(id);
+                console.warn(`Failed to load voxel tile ${id}:`, err);
+            });
         this._loading.set(id, promise);
     }
 }

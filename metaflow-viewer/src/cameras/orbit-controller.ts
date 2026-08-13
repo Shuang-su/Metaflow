@@ -1,8 +1,4 @@
-import {
-    OrbitController as OrbitControllerPC,
-    Pose,
-    Vec2
-} from 'playcanvas';
+import { OrbitController as OrbitControllerPC, Pose, Vec2 } from 'playcanvas';
 
 import type { Camera, CameraFrame, CameraController } from './camera';
 import { DEFAULT_CONTROLLER_DAMPING } from './camera-utils';
@@ -37,7 +33,7 @@ class OrbitController implements CameraController {
     }
 
     onExit(_camera: Camera): void {
-
+        // Orbit mode has no controller-local state to release.
     }
 
     goto(camera: Camera) {

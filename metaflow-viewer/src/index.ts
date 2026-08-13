@@ -8,12 +8,10 @@ import {
     Mouse,
     platform,
     TouchDevice,
-    type Texture,
-    type TextureHandler,
-    type AppBase,
     revision as engineRevision,
     version as engineVersion
 } from 'playcanvas';
+import type { Texture, TextureHandler, AppBase } from 'playcanvas';
 
 import { App } from './app';
 import { createAnalyticsClient } from './analytics/client';
@@ -29,20 +27,20 @@ import { initXr } from './xr';
 import versionHistory from '../../metadata/version-history.json';
 import { version as appVersion } from '../package.json';
 
-interface LoadCallbacks {
+type LoadCallbacks = {
     onProgress: (progress: number) => void;
     onStatus: (status: string) => void;
     onMode: (mode: LoadMode) => void;
     onStage: (stage: LoadingStage) => void;
     onConflict: (conflict: boolean) => void;
-}
+};
 
 const formatSize = (bytes: number) => {
     if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(0)} KB`;
     return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
 };
 
-const formatSplats = (n: number) => n >= 10000 ? `${(n / 10000).toFixed(1)} 万` : `${n}`;
+const formatSplats = (n: number) => (n >= 10000 ? `${(n / 10000).toFixed(1)} 万` : `${n}`);
 
 const formatError = (err: unknown) => {
     if (err instanceof Error) {
@@ -61,44 +59,28 @@ const detectStreamingLodByStructure = (data: any) => {
     if (!data || typeof data !== 'object') return false;
 
     const root = data as Record<string, any>;
-    const meta = (root.meta && typeof root.meta === 'object') ? root.meta : undefined;
-    const octree = (root.octree && typeof root.octree === 'object') ? root.octree : undefined;
-    const stream = (root.stream && typeof root.stream === 'object') ? root.stream : undefined;
+    const meta = root.meta && typeof root.meta === 'object' ? root.meta : undefined;
+    const octree = root.octree && typeof root.octree === 'object' ? root.octree : undefined;
+    const stream = root.stream && typeof root.stream === 'object' ? root.stream : undefined;
 
-    const hasCoreLodArrays = (
+    const hasCoreLodArrays =
         Array.isArray(root.lods) ||
         Array.isArray(root.levels) ||
         Array.isArray(meta?.lods) ||
-        Array.isArray(meta?.levels)
-    );
+        Array.isArray(meta?.levels);
 
-    const hasCoreNumericHints = (
+    const hasCoreNumericHints =
         typeof root.lodCount === 'number' ||
         typeof root.maxLod === 'number' ||
         typeof root.minLod === 'number' ||
         typeof meta?.lodCount === 'number' ||
-        typeof octree?.lodLevels === 'number'
-    );
+        typeof octree?.lodLevels === 'number';
 
-    const hasStrongStreamingShape = (
-        typeof octree === 'object' &&
-        (
-            typeof octree?.lodLevels === 'number' ||
-            Array.isArray(octree?.nodes)
-        )
-    ) || (
-        typeof stream === 'object' &&
-        (
-            typeof stream?.chunkCount === 'number' ||
-            Array.isArray(stream?.chunks)
-        )
-    );
+    const hasStrongStreamingShape =
+        (typeof octree === 'object' && (typeof octree?.lodLevels === 'number' || Array.isArray(octree?.nodes))) ||
+        (typeof stream === 'object' && (typeof stream?.chunkCount === 'number' || Array.isArray(stream?.chunks)));
 
-    const hasWeakHints = (
-        typeof root.chunkCount === 'number' ||
-        Array.isArray(root.chunks) ||
-        Array.isArray(root.nodes)
-    );
+    const hasWeakHints = typeof root.chunkCount === 'number' || Array.isArray(root.chunks) || Array.isArray(root.nodes);
 
     if (hasCoreLodArrays || hasStrongStreamingShape) return true;
     if (hasCoreNumericHints && hasWeakHints) return true;
@@ -117,7 +99,9 @@ const loadGsplat = async (app: AppBase, config: Config, callbacks: LoadCallbacks
     const hasStructurePayload = !!(data && typeof data === 'object');
     const loadMode: LoadMode = streamingByName
         ? 'streaming-json'
-        : (hasStructurePayload && streamingByStructure ? 'streaming-json' : 'legacy-sog');
+        : hasStructurePayload && streamingByStructure
+          ? 'streaming-json'
+          : 'legacy-sog';
 
     callbacks.onConflict(false);
     if (isJsonFile && streamingByName && !streamingByStructure) {
@@ -140,7 +124,9 @@ const loadGsplat = async (app: AppBase, config: Config, callbacks: LoadCallbacks
 
     callbacks.onMode(loadMode);
     callbacks.onStage('detect');
-    callbacks.onStatus(loadMode === 'streaming-json' ? '已识别流式 LOD 资源，准备加载索引...' : '已识别传统 SOG 资源，准备加载模型...');
+    callbacks.onStatus(
+        loadMode === 'streaming-json' ? '已识别流式 LOD 资源，准备加载索引...' : '已识别传统 SOG 资源，准备加载模型...'
+    );
 
     const asset = new Asset(filename, 'gsplat', { url: contentUrl, filename, contents: c }, data);
 
@@ -162,9 +148,11 @@ const loadGsplat = async (app: AppBase, config: Config, callbacks: LoadCallbacks
         asset.on('load:data', (data: any) => {
             callbacks.onStage('parse');
             const numSplats = data?.numSplats;
-            callbacks.onStatus(numSplats ?
-                `已解析 ${formatSplats(numSplats)} 个高斯点，正在创建 GPU 资源...` :
-                '正在解析模型结构数据...');
+            callbacks.onStatus(
+                numSplats
+                    ? `已解析 ${formatSplats(numSplats)} 个高斯点，正在创建 GPU 资源...`
+                    : '正在解析模型结构数据...'
+            );
         });
 
         let watermark = 0;
@@ -233,14 +221,19 @@ const loadEnvironment = async (app: AppBase, config: Config) => {
 
 const loadSkybox = (app: AppBase, url: string) => {
     return new Promise<Asset>((resolve, reject) => {
-        const asset = new Asset('skybox', 'texture', {
-            url
-        }, {
-            type: 'rgbp',
-            mipmaps: false,
-            addressu: 'repeat',
-            addressv: 'clamp'
-        });
+        const asset = new Asset(
+            'skybox',
+            'texture',
+            {
+                url
+            },
+            {
+                type: 'rgbp',
+                mipmaps: false,
+                addressu: 'repeat',
+                addressv: 'clamp'
+            }
+        );
 
         asset.on('load', () => resolve(asset));
         asset.on('error', (err) => reject(err));
@@ -340,7 +333,7 @@ const initCanvas = (global: Global) => {
 
     app.on('framerender', apply);
 
-    // @ts-ignore
+    // @ts-expect-error PlayCanvas keeps this resize switch private.
     app._allowResize = false;
     set(canvas.clientWidth, canvas.clientHeight);
     apply();
@@ -586,61 +579,68 @@ const main = async (canvas: HTMLCanvasElement, settingsJson: any, config: Config
         state.loadingStatus = '正在识别资源结构...';
         state.progress = 0;
         try {
-            const entity = await loadGsplat(
-                app,
-                config,
-                {
-                    onProgress: (progress: number) => {
-                        state.progress = progress;
-                    },
-                    onStatus: (status: string) => {
-                        state.loadingStatus = status;
-                    },
-                    onMode: (mode: LoadMode) => {
-                        state.loadingMode = mode;
-                    },
-                    onStage: (stage: LoadingStage) => {
-                        state.loadingStage = stage;
-                    },
-                    onConflict: (conflict: boolean) => {
-                        state.loadingConflict = conflict;
-                    }
+            const entity = await loadGsplat(app, config, {
+                onProgress: (progress: number) => {
+                    state.progress = progress;
+                },
+                onStatus: (status: string) => {
+                    state.loadingStatus = status;
+                },
+                onMode: (mode: LoadMode) => {
+                    state.loadingMode = mode;
+                },
+                onStage: (stage: LoadingStage) => {
+                    state.loadingStage = stage;
+                },
+                onConflict: (conflict: boolean) => {
+                    state.loadingConflict = conflict;
                 }
-            );
+            });
             state.loadingStage = 'prepare';
             state.loadingStatus = '主体模型已就绪，正在准备首帧...';
             state.progress = -1;
             return entity;
         } catch (err) {
-            analytics.track('resource_load_failed', {
-                loading_stage: state.loadingStage,
-                loading_mode: state.loadingMode,
-                ...formatError(err)
-            }, { beacon: true });
+            analytics.track(
+                'resource_load_failed',
+                {
+                    loading_stage: state.loadingStage,
+                    loading_mode: state.loadingMode,
+                    ...formatError(err)
+                },
+                { beacon: true }
+            );
             throw err;
         }
     })();
 
-    const skyboxLoad = config.skyboxUrl &&
-        loadSkybox(app, config.skyboxUrl).then((asset) => {
-            app.scene.envAtlas = asset.resource as Texture;
-        }).catch((err: Error) => {
-            console.warn('Failed to load skybox:', err);
-        });
+    const skyboxLoad =
+        config.skyboxUrl &&
+        loadSkybox(app, config.skyboxUrl)
+            .then((asset) => {
+                app.scene.envAtlas = asset.resource as Texture;
+            })
+            .catch((err: Error) => {
+                console.warn('Failed to load skybox:', err);
+            });
 
     const collisionLoadPlan = createCollisionLoadPlan(app, config, state);
 
     if (global.settings.soundUrl) {
         const sound = new Audio(global.settings.soundUrl);
         sound.crossOrigin = 'anonymous';
-        document.body.addEventListener('click', () => {
-            if (sound) {
-                sound.play();
+        document.body.addEventListener(
+            'click',
+            () => {
+                if (sound) {
+                    sound.play();
+                }
+            },
+            {
+                capture: true,
+                once: true
             }
-        }, {
-            capture: true,
-            once: true
-        });
+        );
     }
 
     return new Viewer(
@@ -655,9 +655,9 @@ const main = async (canvas: HTMLCanvasElement, settingsJson: any, config: Config
 
 console.log(
     `Metaflow Viewer ${versionHistory.current.displayVersion} ` +
-    `(semver ${appVersion}, index schema ${versionHistory.current.indexSchemaVersion}) | ` +
-    `Metaflow fork synced toward SSV v1.26.2 (PlayCanvas 2.19.2) | ` +
-    `Engine v${engineVersion} (${engineRevision})`
+        `(semver ${appVersion}, index schema ${versionHistory.current.indexSchemaVersion}) | ` +
+        `Metaflow fork synced toward SSV v1.26.2 (PlayCanvas 2.19.2) | ` +
+        `Engine v${engineVersion} (${engineRevision})`
 );
 
 export { main };

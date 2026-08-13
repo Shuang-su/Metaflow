@@ -48,8 +48,8 @@ const buildCss = {
             runtime: sass,
             processor: (css) => {
                 return postcss([autoprefixer])
-                .process(css, { from: undefined })
-                .then(result => result.css);
+                    .process(css, { from: undefined })
+                    .then((result) => result.css);
             }
         }),
         {
@@ -117,14 +117,7 @@ const buildSettings = {
         format: 'esm',
         sourcemap: true
     },
-    plugins: [
-        typescript({ noEmit: true })
-    ]
+    plugins: [typescript({ noEmit: true })]
 };
 
-export default [
-    buildCss,
-    buildPublic,
-    buildDist,
-    buildSettings
-];
+export default [buildCss, buildPublic, buildDist, buildSettings];

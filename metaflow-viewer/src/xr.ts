@@ -1,13 +1,8 @@
-import {
-    Color,
-    Entity,
-    Quat,
-    Vec3,
-    type CameraComponent
-} from 'playcanvas';
+import { Color, Quat, Vec3 } from 'playcanvas';
+import type { Entity, CameraComponent } from 'playcanvas';
 import { XrControllers } from 'playcanvas/scripts/esm/xr/xr-controllers.mjs';
 
-import { Global } from './types';
+import type { Global } from './types';
 import { XrVrNavigation } from './xr-navigation';
 
 // XR clipping planes optimized for headset navigation in large Metaflow scenes.

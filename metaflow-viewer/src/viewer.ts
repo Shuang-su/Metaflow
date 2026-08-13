@@ -1,10 +1,7 @@
 import {
     BoundingBox,
     CameraFrame,
-    type CameraComponent,
     Color,
-    type Entity,
-    type Layer,
     RenderTarget,
     Mat4,
     MiniStats,
@@ -23,18 +20,19 @@ import {
     GSPLAT_DEBUG_NONE,
     GSPLAT_RENDERER_RASTER_CPU_SORT,
     GSPLAT_RENDERER_RASTER_GPU_SORT,
-    GSplatComponent,
     platform
 } from 'playcanvas';
+import type { GSplatComponent, CameraComponent, Entity, Layer } from 'playcanvas';
 
 import { Annotations } from './annotations';
 import { CameraManager, isWalkAllowed } from './camera-manager';
-import { Camera } from './cameras/camera';
+import type { Camera } from './cameras/camera';
 import type { Collision } from './collision';
 import { MeshCollision, TiledVoxelCollision, VoxelCollision } from './collision';
 import { nearlyEquals } from './core/math';
 import { DebugPanel } from './debug';
-import { GsplatRevealRadial, type RevealDotProfile } from './gsplat-reveal-radial';
+import { GsplatRevealRadial } from './gsplat-reveal-radial';
+import type { RevealDotProfile } from './gsplat-reveal-radial';
 import { InputController } from './input-controller';
 import { MeshDebugOverlay } from './mesh-debug-overlay';
 import { NavCursor } from './nav-cursor';
@@ -58,7 +56,9 @@ function resolveRevealDotProfile(config: Config, loadingMode: LoadMode): RevealD
 // producing the original chunk.
 const patchChunk = (source: string, search: string, replacement: string, name: string): string => {
     if (!source.includes(search)) {
-        console.warn(`patchChunk: substring not found in '${name}', shader chunk patch may be out of sync with the engine.`);
+        console.warn(
+            `patchChunk: substring not found in '${name}', shader chunk patch may be out of sync with the engine.`
+        );
     }
     return source.replace(search, replacement);
 };
@@ -76,8 +76,8 @@ fn prepareOutputFromGamma(gammaColor: vec3f, depth: f32) -> vec3f {
 `;
 
 const rendererTable: Record<Config['renderer'], number> = {
-    'webgl': GSPLAT_RENDERER_RASTER_CPU_SORT,
-    'webgpu': GSPLAT_RENDERER_RASTER_GPU_SORT
+    webgl: GSPLAT_RENDERER_RASTER_CPU_SORT,
+    webgpu: GSPLAT_RENDERER_RASTER_GPU_SORT
 };
 
 type GSplatOctreeResourceLike = {
@@ -141,15 +141,18 @@ const applyPostEffectSettings = (cameraFrame: CameraFrame, settings: PostEffectS
 };
 
 const anyPostEffectEnabled = (settings: PostEffectSettings): boolean => {
-    return (settings.sharpness.enabled && settings.sharpness.amount > 0) ||
+    return (
+        (settings.sharpness.enabled && settings.sharpness.amount > 0) ||
         (settings.bloom.enabled && settings.bloom.intensity > 0) ||
-        (settings.grading.enabled) ||
+        settings.grading.enabled ||
         (settings.vignette.enabled && settings.vignette.intensity > 0) ||
-        (settings.fringing.enabled && settings.fringing.intensity > 0);
+        (settings.fringing.enabled && settings.fringing.intensity > 0)
+    );
 };
 
 const clamp01 = (value: number) => Math.max(0, Math.min(1, value));
-const toCssColor = (color: [number, number, number]) => `rgb(${color.map((v) => Math.round(clamp01(v) * 255)).join(' ')})`;
+const toCssColor = (color: [number, number, number]) =>
+    `rgb(${color.map((v) => Math.round(clamp01(v) * 255)).join(' ')})`;
 const toShaderFloat = (value: number) => clamp01(value).toFixed(8);
 const toShaderVec3 = (color: [number, number, number]) => {
     // Compose runs before gamma output. Convert CSS/sRGB colors to linear so
@@ -260,17 +263,17 @@ class Viewer {
 
     origChunks: {
         glsl: {
-            gsplatOutputVS: string,
-            skyboxPS: string,
-            composePS: string,
-            composeMainEndPS: string
-        },
+            gsplatOutputVS: string;
+            skyboxPS: string;
+            composePS: string;
+            composeMainEndPS: string;
+        };
         wgsl: {
-            gsplatOutputVS: string,
-            skyboxPS: string,
-            composePS: string,
-            composeMainEndPS: string
-        }
+            gsplatOutputVS: string;
+            skyboxPS: string;
+            composePS: string;
+            composeMainEndPS: string;
+        };
     };
 
     applyBackground(settings: ExperienceSettings) {
@@ -331,7 +334,8 @@ class Viewer {
         if (this.cameraFrame && gradient) {
             glsl.set('composeMainEndPS', `${glslComposeMainEndPS}\n${composeGradientGlsl(gradient)}`);
             wgsl.set('composeMainEndPS', `${wgslComposeMainEndPS}\n${composeGradientWgsl(gradient)}`);
-            glsl.set('composePS',
+            glsl.set(
+                'composePS',
                 patchChunk(
                     glslComposePS,
                     'gl_FragColor = vec4(result, scene.a);',
@@ -339,7 +343,8 @@ class Viewer {
                     'glsl composePS Metaflow gradient alpha'
                 )
             );
-            wgsl.set('composePS',
+            wgsl.set(
+                'composePS',
                 patchChunk(
                     wgslComposePS,
                     'output.color = vec4f(result, scene.a);',
@@ -374,7 +379,10 @@ class Viewer {
         glsl.set('skyboxPS', patchChunk(glsl.get('skyboxPS'), 'mapRoughnessUv(uv, mipLevel)', 'uv', 'glsl skyboxPS'));
 
         const wgsl = ShaderChunks.get(graphicsDevice, 'wgsl');
-        wgsl.set('skyboxPS', patchChunk(wgsl.get('skyboxPS'), 'mapRoughnessUv(uv, uniform.mipLevel)', 'uv', 'wgsl skyboxPS'));
+        wgsl.set(
+            'skyboxPS',
+            patchChunk(wgsl.get('skyboxPS'), 'mapRoughnessUv(uv, uniform.mipLevel)', 'uv', 'wgsl skyboxPS')
+        );
 
         this.origChunks = {
             glsl: {
@@ -406,23 +414,25 @@ class Viewer {
             const options = MiniStats.getDefaultOptions() as any;
             options.cpu.enabled = false;
             options.stats = options.stats.filter((s: any) => s.name !== 'DrawCalls');
-            options.stats.push({
-                name: 'VRAM',
-                stats: ['vram.tex'],
-                decimalPlaces: 1,
-                multiplier: 1 / (1024 * 1024),
-                unitsName: 'MB',
-                watermark: 1024
-            }, {
-                name: 'Splats',
-                stats: ['frame.gsplats'],
-                decimalPlaces: 3,
-                multiplier: 1 / 1000000,
-                unitsName: 'M',
-                watermark: 5
-            });
+            options.stats.push(
+                {
+                    name: 'VRAM',
+                    stats: ['vram.tex'],
+                    decimalPlaces: 1,
+                    multiplier: 1 / (1024 * 1024),
+                    unitsName: 'MB',
+                    watermark: 1024
+                },
+                {
+                    name: 'Splats',
+                    stats: ['frame.gsplats'],
+                    decimalPlaces: 3,
+                    multiplier: 1 / 1000000,
+                    unitsName: 'M',
+                    watermark: 5
+                }
+            );
 
-            // eslint-disable-next-line no-new
             new MiniStats(app, options);
         }
 
@@ -436,9 +446,11 @@ class Viewer {
             const proj = camera.camera.projectionMatrix;
 
             if (!app.renderNextFrame) {
-                if (config.ministats ||
+                if (
+                    config.ministats ||
                     !nearlyEquals(world.data, prevWorld.data) ||
-                    !nearlyEquals(proj.data, prevProj.data)) {
+                    !nearlyEquals(proj.data, prevProj.data)
+                ) {
                     app.renderNextFrame = true;
                 }
             }
@@ -503,7 +515,6 @@ class Viewer {
                     this.tiledVoxelCollision.updateForQueryPosition(-p.x, p.z);
                 }
             }
-
         });
 
         // Render voxel debug overlay
@@ -549,11 +560,11 @@ class Viewer {
                         round6(activeCamera.position.y),
                         round6(activeCamera.position.z)
                     ] as [number, number, number],
-                    target: [
-                        round6(focusPoint.x),
-                        round6(focusPoint.y),
-                        round6(focusPoint.z)
-                    ] as [number, number, number],
+                    target: [round6(focusPoint.x), round6(focusPoint.y), round6(focusPoint.z)] as [
+                        number,
+                        number,
+                        number
+                    ],
                     angles: [
                         round6(activeCamera.angles.x),
                         round6(activeCamera.angles.y),
@@ -587,13 +598,20 @@ class Viewer {
                 }
 
                 console.log('Current camera pose:', pose);
-                console.log('Settings snippet:\n' + JSON.stringify({
-                    initial: {
-                        position: pose.position,
-                        target: pose.target,
-                        fov: pose.fov
-                    }
-                }, null, 2));
+                console.log(
+                    'Settings snippet:\n' +
+                        JSON.stringify(
+                            {
+                                initial: {
+                                    position: pose.position,
+                                    target: pose.target,
+                                    fov: pose.fov
+                                }
+                            },
+                            null,
+                            2
+                        )
+                );
                 return pose;
             };
             console.info('Camera debug helpers ready: logCameraPose() / getCameraPose()');
@@ -722,10 +740,10 @@ class Viewer {
             if (deferredCollisionLoad) {
                 events.once('firstFrame', () => {
                     deferredCollisionLoad()
-                    .then(attachCollision)
-                    .catch((err: Error) => {
-                        console.warn('[Collision] Failed to attach deferred collision:', err);
-                    });
+                        .then(attachCollision)
+                        .catch((err: Error) => {
+                            console.warn('[Collision] Failed to attach deferred collision:', err);
+                        });
                 });
             }
 
@@ -789,9 +807,7 @@ class Viewer {
                 // Metaflow still publishes both formats, so preserve this
                 // dedicated first-frame path alongside upstream LOD loading.
                 const numSplats = instance.resource?.numSplats ?? 0;
-                const splatLabel = numSplats >= 10000
-                    ? `${(numSplats / 10000).toFixed(1)} 万`
-                    : `${numSplats}`;
+                const splatLabel = numSplats >= 10000 ? `${(numSplats / 10000).toFixed(1)} 万` : `${numSplats}`;
                 let firstFrameScheduled = false;
                 let sortTimeout: ReturnType<typeof setTimeout> | null = null;
 
@@ -817,9 +833,7 @@ class Viewer {
                 };
 
                 state.loadingStage = 'sort';
-                state.loadingStatus = numSplats > 0
-                    ? `正在排序 ${splatLabel} 个高斯点...`
-                    : '正在排序高斯点...';
+                state.loadingStatus = numSplats > 0 ? `正在排序 ${splatLabel} 个高斯点...` : '正在排序高斯点...';
                 state.progress = -1;
 
                 if (instance.sorter) {
@@ -893,9 +907,8 @@ class Viewer {
             }
 
             state.loadingStage = state.loadingMode === 'streaming-json' ? 'stream-schedule' : 'legacy-lod-loading';
-            state.loadingStatus = state.loadingMode === 'streaming-json'
-                ? '正在建立流式 LOD 调度...'
-                : '正在加载 LOD 数据...';
+            state.loadingStatus =
+                state.loadingMode === 'streaming-json' ? '正在建立流式 LOD 调度...' : '正在加载 LOD 数据...';
             state.progress = 0;
 
             // these two allow LOD behind camera to drop, saves lots of splats
@@ -922,11 +935,14 @@ class Viewer {
                 }
             });
 
-            eventHandler.on('frame:ready', (_camera: CameraComponent, _layer: Layer, ready: boolean, loading: number) => {
-                if (loading > 0 || !ready) {
-                    idleTime = 0;
+            eventHandler.on(
+                'frame:ready',
+                (_camera: CameraComponent, _layer: Layer, ready: boolean, loading: number) => {
+                    if (loading > 0 || !ready) {
+                        idleTime = 0;
+                    }
                 }
-            });
+            );
 
             let current = 0;
             let watermark = 1;
@@ -978,12 +994,14 @@ class Viewer {
                 if (loading !== current) {
                     watermark = Math.max(watermark, loading);
                     current = watermark - loading;
-                    state.progress = Math.trunc(current / watermark * 100);
+                    state.progress = Math.trunc((current / watermark) * 100);
                     if (loading > 0) {
-                        state.loadingStage = state.loadingMode === 'streaming-json' ? 'stream-loading' : 'legacy-lod-loading';
-                        state.loadingStatus = state.loadingMode === 'streaming-json'
-                            ? `流式 LOD 拉取中 (剩余 ${loading} 个分块)`
-                            : `正在加载 LOD 数据 (剩余 ${loading} 个文件)`;
+                        state.loadingStage =
+                            state.loadingMode === 'streaming-json' ? 'stream-loading' : 'legacy-lod-loading';
+                        state.loadingStatus =
+                            state.loadingMode === 'streaming-json'
+                                ? `流式 LOD 拉取中 (剩余 ${loading} 个分块)`
+                                : `正在加载 LOD 数据 (剩余 ${loading} 个文件)`;
                     }
                 }
             };
@@ -1002,8 +1020,7 @@ class Viewer {
         // hpr override takes precedence over settings.highPrecisionRendering
         const highPrecisionRendering = config.hpr ?? settings.highPrecisionRendering;
 
-        const postFxRequested = !config.nofx &&
-            (anyPostEffectEnabled(postEffectSettings) || highPrecisionRendering);
+        const postFxRequested = !config.nofx && (anyPostEffectEnabled(postEffectSettings) || highPrecisionRendering);
 
         const enableCameraFrame = !app.xr.active && postFxRequested;
 
@@ -1016,7 +1033,9 @@ class Viewer {
             const { cameraFrame } = this;
             cameraFrame.enabled = true;
             cameraFrame.rendering.toneMapping = tonemapTable[settings.tonemapping];
-            cameraFrame.rendering.renderFormats = highPrecisionRendering ? [PIXELFORMAT_RGBA16F, PIXELFORMAT_RGBA32F] : [];
+            cameraFrame.rendering.renderFormats = highPrecisionRendering
+                ? [PIXELFORMAT_RGBA16F, PIXELFORMAT_RGBA32F]
+                : [];
             applyPostEffectSettings(cameraFrame, postEffectSettings);
             cameraFrame.update();
 
@@ -1026,7 +1045,8 @@ class Viewer {
 
             // force skybox shader to write gamma-space colors (inline pow replaces the
             // gammaCorrectOutput call which is a no-op under CameraFrame's GAMMA_NONE)
-            ShaderChunks.get(app.graphicsDevice, 'glsl').set('skyboxPS',
+            ShaderChunks.get(app.graphicsDevice, 'glsl').set(
+                'skyboxPS',
                 patchChunk(
                     this.origChunks.glsl.skyboxPS,
                     'gammaCorrectOutput(toneMap(processEnvironment(linear)))',
@@ -1034,7 +1054,8 @@ class Viewer {
                     'glsl skyboxPS gamma override'
                 )
             );
-            ShaderChunks.get(app.graphicsDevice, 'wgsl').set('skyboxPS',
+            ShaderChunks.get(app.graphicsDevice, 'wgsl').set(
+                'skyboxPS',
                 patchChunk(
                     this.origChunks.wgsl.skyboxPS,
                     'gammaCorrectOutput(toneMap(processEnvironment(linear)))',
@@ -1049,7 +1070,6 @@ class Viewer {
             RenderTarget.prototype.isColorBufferSrgb = function (index) {
                 return this === app.graphicsDevice.backBuffer ? true : origIsColorBufferSrgb.call(this, index);
             };
-
         } else {
             // no post effects needed, destroy camera frame if it exists
             if (this.cameraFrame) {

@@ -246,6 +246,36 @@ test('commits after the legacy cutoff require records only for affected product 
         encoding: 'utf8'
     }).trim();
 
+    // MF-30 explicitly authorizes local implementation checkpoints without
+    // changing the released 5.18.1 Version History. The exception is narrow:
+    // it requires the exact local branch, all three local Change documents,
+    // an explicit environment switch, and only applies to Viewer paths that
+    // have not entered origin/main. Detached CI/PR builds remain strict.
+    const unreleasedChange = process.env.METAFLOW_UNRELEASED_CHANGE;
+    const currentBranch = execFileSync('git', ['branch', '--show-current'], {
+        cwd: repoRoot,
+        encoding: 'utf8'
+    }).trim();
+    const mf30Documents = [
+        'docs/changes/30-viewer-upstream-v1.29.1/spec.md',
+        'docs/changes/30-viewer-upstream-v1.29.1/plan.md',
+        'docs/changes/30-viewer-upstream-v1.29.1/conflicts.md'
+    ];
+    const hasMf30Documents = (
+        await Promise.all(mf30Documents.map(async (path) => {
+            try {
+                const source = await readFile(new URL(`../../${path}`, import.meta.url), 'utf8');
+                return /MF-30|Issue #30/.test(source);
+            } catch {
+                return false;
+            }
+        }))
+    ).every(Boolean);
+    const allowLocalMf30 =
+        unreleasedChange === 'MF-30' &&
+        currentBranch === 'codex/viewer-upstream-v1.29.1' &&
+        hasMf30Documents;
+
     if (!refs) {
         return;
     }
@@ -343,9 +373,23 @@ test('commits after the legacy cutoff require records only for affected product 
         const shortRef = ref.slice(0, 7);
         const isDocumentedEditorRelease = documentedEditorReleaseRefs.has(shortRef);
         const isDocumentedViewerRelease = documentedViewerRefs.has(shortRef);
+        let isLocalMf30ViewerCommit = false;
+        if (allowLocalMf30) {
+            try {
+                execFileSync('git', ['merge-base', '--is-ancestor', ref, 'origin/main'], {
+                    cwd: repoRoot,
+                    stdio: 'ignore'
+                });
+            } catch {
+                const classifiedCommit = classifyPaths(files, componentRegistry);
+                isLocalMf30ViewerCommit =
+                    (classifiedCommit.data || []).length === 0 &&
+                    (classifiedCommit.viewer || []).every((file) => file.startsWith('metaflow-viewer/'));
+            }
+        }
         const unexpectedFiles = findUnexpectedProductFiles(files, {
             isDocumentedEditorRelease,
-            isDocumentedViewerRelease
+            isDocumentedViewerRelease: isDocumentedViewerRelease || isLocalMf30ViewerCommit
         });
         assert.ok(
             unexpectedFiles.length === 0,

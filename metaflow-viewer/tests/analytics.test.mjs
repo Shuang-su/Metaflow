@@ -93,7 +93,7 @@ test('frontend SDK implements heartbeat, beacon flushing, and replay privacy def
     assert.match(source, /capture_pageleave: false/);
     assert.match(source, /disable_session_recording: !this\.posthogReplay/);
     assert.match(source, /ip: false/);
-    assert.match(source, /if \(!this\.supabaseEnabled \|\| rate <= 0/);
+    assert.match(source, /if \(\s*!this\.supabaseEnabled \|\|\s*rate <= 0/s);
     assert.match(source, /maskAllInputs: true/);
     assert.match(source, /maskTextSelector: '\*'/);
     assert.match(source, /recordCanvas: false/);

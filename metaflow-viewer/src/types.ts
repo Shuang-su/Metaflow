@@ -78,29 +78,29 @@ type Config = {
     noui: boolean;
     noanalytics?: boolean;
     noanim: boolean;
-    nofx: boolean;                              // disable post effects
-    hpr?: boolean;                              // override highPrecisionRendering (undefined = use settings)
+    nofx: boolean; // disable post effects
+    hpr?: boolean; // override highPrecisionRendering (undefined = use settings)
     ministats: boolean;
-    colorize: boolean;                          // render with LOD colorization
-    unified: boolean;                           // preserved URL flag for Metaflow compatibility
-    fullload: boolean;                          // load all streaming LOD data before first frame
-    aa: boolean;                                // render with antialiasing
-    budget?: number;                            // override splat budget in millions
-    renderer: 'webgl' | 'webgpu';               // requested renderer
-    heatmap: boolean;                           // render heatmap debug overlay
-    debug: boolean;                             // auto-open developer debug panel
+    colorize: boolean; // render with LOD colorization
+    unified: boolean; // preserved URL flag for Metaflow compatibility
+    fullload: boolean; // load all streaming LOD data before first frame
+    aa: boolean; // render with antialiasing
+    budget?: number; // override splat budget in millions
+    renderer: 'webgl' | 'webgpu'; // requested renderer
+    heatmap: boolean; // render heatmap debug overlay
+    debug: boolean; // auto-open developer debug panel
 };
 
 // observable state that can change at runtime
 type State = {
-    loaded: boolean;                            // true once first frame is rendered
-    readyToRender: boolean;                     // don't render till this is set
+    loaded: boolean; // true once first frame is rendered
+    readyToRender: boolean; // don't render till this is set
     performanceMode: boolean;
-    progress: number;                           // content loading progress 0-100, -1 indeterminate
-    loadingMode: LoadMode;                      // current model loading strategy
-    loadingStage: LoadingStage;                 // structured loading stage for UI/logging
-    loadingConflict: boolean;                   // true when structure/name detection conflict occurs
-    loadingStatus: string;                      // current localized loading status
+    progress: number; // content loading progress 0-100, -1 indeterminate
+    loadingMode: LoadMode; // current model loading strategy
+    loadingStage: LoadingStage; // structured loading stage for UI/logging
+    loadingConflict: boolean; // true when structure/name detection conflict occurs
+    loadingStatus: string; // current localized loading status
     inputMode: InputMode;
     cameraMode: CameraMode;
     hasAnimation: boolean;
@@ -111,8 +111,8 @@ type State = {
     hasVR: boolean;
     hasCollision: boolean;
     hasCollisionOverlay: boolean;
-    walkCapability: boolean;                    // resource declares walk/collision data, so show the walk affordance
-    walkAllowed: boolean;                       // collision under the user is ready, so walk can be entered
+    walkCapability: boolean; // resource declares walk/collision data, so show the walk affordance
+    walkAllowed: boolean; // collision under the user is ready, so walk can be entered
     collisionOverlayEnabled: boolean;
     isFullscreen: boolean;
     controlsHidden: boolean;
@@ -127,7 +127,7 @@ type Global = {
     events: EventHandler;
     analytics: AnalyticsClient;
     camera: Entity;
-    renderer: 'webgl' | 'webgpu';               // actual renderer after engine fallback
+    renderer: 'webgl' | 'webgpu'; // actual renderer after engine fallback
 };
 
 export {

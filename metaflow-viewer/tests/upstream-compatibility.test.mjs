@@ -34,7 +34,7 @@ test('legacy SOG and streaming LOD paths keep separate first-frame contracts', a
         readText('../src/viewer.ts')
     ]);
 
-    assert.match(index, /interface LoadCallbacks/);
+    assert.match(index, /(?:interface|type) LoadCallbacks/);
     assert.match(index, /detectStreamingLodByStructure/);
     assert.match(index, /streamingByName[\s\S]*'streaming-json'[\s\S]*'legacy-sog'/);
     assert.match(index, /callbacks\.onMode\(loadMode\)/);
@@ -147,7 +147,7 @@ test('every locale keeps key parity and the branded/debug query surface', async 
         readText('../src/index.html'),
         readText('../src/ui.ts')
     ]);
-    assert.match(html, /id="logoContainer" href="https:\/\/metaflow\.shuang-su\.com\/"/);
+    assert.match(html, /id="logoContainer"\s+href="https:\/\/metaflow\.shuang-su\.com\/"/s);
     assert.match(html, /url\.searchParams\.has\('noreveal'\) \? 'none' : 'radial'/);
     assert.match(html, /heatmap: url\.searchParams\.has\('heatmap'\)/);
     assert.match(html, /debug: url\.searchParams\.has\('debug'\)/);

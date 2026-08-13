@@ -1,10 +1,11 @@
-import { EventHandler } from 'playcanvas';
+import type { EventHandler } from 'playcanvas';
 
 import { version as appVersion } from '../package.json';
+
 import { localize } from './localization';
 import type { Annotation } from './settings';
 import { Tooltip } from './tooltip';
-import { Global } from './types';
+import type { Global } from './types';
 
 const METAFLOW_ACCENT = '#42d2f6';
 
@@ -51,9 +52,7 @@ const initJoystick = (
         const viewportHeight = window.innerHeight;
         const isLandscape = viewportWidth > viewportHeight;
         const shortSide = Math.min(viewportWidth, viewportHeight);
-        const scale = isLandscape ?
-            clamp(shortSide / 390, 0.86, 1.12) :
-            clamp(viewportWidth / 390, 0.92, 1.12);
+        const scale = isLandscape ? clamp(shortSide / 390, 0.86, 1.12) : clamp(viewportWidth / 390, 0.92, 1.12);
         const size = (value: number) => Math.round(value * scale);
         const joystickSize = size(isLandscape ? 150 : 130);
         const stickSize = size(isLandscape ? 65 : 56);
@@ -69,10 +68,7 @@ const initJoystick = (
         const actionGap = Math.max(0, actionStackHeight - actionButtonSize * 2 - actionPadding * 2);
         const jumpWrapperSize = actionStackWidth;
         const accessoryGap = size(12);
-        const centerInsetX = Math.max(
-            joystickSize / 2 + size(20),
-            Math.min(size(157), viewportWidth * 0.186)
-        );
+        const centerInsetX = Math.max(joystickSize / 2 + size(20), Math.min(size(157), viewportWidth * 0.186));
         const leftJoystickEdge = centerInsetX - joystickSize / 2;
         const leftControlCenterX = Math.max(
             actionStackWidth / 2 + size(16),
@@ -80,14 +76,8 @@ const initJoystick = (
         );
         const controlsRect = dom.controlsWrap.getBoundingClientRect();
         const controlsTop = controlsRect.height > 0 ? controlsRect.top : viewportHeight - size(80);
-        const bottomLimit = Math.min(
-            viewportHeight - size(24),
-            controlsTop - size(isLandscape ? 18 : 24)
-        );
-        const centerY = Math.max(
-            joystickSize / 2 + size(18),
-            bottomLimit - joystickSize / 2
-        );
+        const bottomLimit = Math.min(viewportHeight - size(24), controlsTop - size(isLandscape ? 18 : 24));
+        const centerY = Math.max(joystickSize / 2 + size(18), bottomLimit - joystickSize / 2);
         const controlBottomY = centerY + joystickSize / 2;
         const stackCenterY = isLandscape ? controlBottomY - actionStackHeight / 2 : centerY;
         const jumpCenterY = isLandscape ? controlBottomY - jumpWrapperSize / 2 : centerY;
@@ -108,9 +98,9 @@ const initJoystick = (
             maxStickTravel,
             railStickOffset,
             railWidth,
-            rightFlyControlCenterX: isLandscape ?
-                viewportWidth - leftControlCenterX :
-                viewportWidth - leftJoystickEdge - actionStackWidth / 2,
+            rightFlyControlCenterX: isLandscape
+                ? viewportWidth - leftControlCenterX
+                : viewportWidth - leftJoystickEdge - actionStackWidth / 2,
             rightJumpControlCenterX: isLandscape ? viewportWidth - leftControlCenterX : viewportWidth - centerInsetX,
             rightJoystickCenterX: viewportWidth - centerInsetX,
             stackCenterY,
@@ -135,8 +125,14 @@ const initJoystick = (
         dom.touchGameControls.style.setProperty('--touch-action-gap', `${layout.actionGap}px`);
         dom.touchGameControls.style.setProperty('--touch-action-button-size', `${layout.actionButtonSize}px`);
         dom.touchGameControls.style.setProperty('--touch-jump-wrapper-size', `${layout.jumpWrapperSize}px`);
-        dom.touchGameControls.style.setProperty('--touch-arrow-icon-size', `${Math.round(15 * (layout.actionButtonSize / 38))}px`);
-        dom.touchGameControls.style.setProperty('--touch-zoom-icon-size', `${Math.round(20 * (layout.actionButtonSize / 38))}px`);
+        dom.touchGameControls.style.setProperty(
+            '--touch-arrow-icon-size',
+            `${Math.round(15 * (layout.actionButtonSize / 38))}px`
+        );
+        dom.touchGameControls.style.setProperty(
+            '--touch-zoom-icon-size',
+            `${Math.round(20 * (layout.actionButtonSize / 38))}px`
+        );
     };
 
     const centerJoystickStick = (stick: HTMLElement, layout = getTouchControlLayout(), mode: JoystickMode = '2d') => {
@@ -221,7 +217,8 @@ const initJoystick = (
 
     // Update joystick visibility based on camera mode and input mode
     const updateJoystickVisibility = () => {
-        const visible = (state.cameraMode === 'fly' || state.cameraMode === 'walk') &&
+        const visible =
+            (state.cameraMode === 'fly' || state.cameraMode === 'walk') &&
             state.inputMode === 'touch' &&
             state.gamingControls &&
             !modalOpen;
@@ -597,8 +594,7 @@ const initAnnotationNav = (
 
     let currentIndex = 0;
     const isTopOverlayOpen = () =>
-        dom.ui.classList.contains('modal-open') ||
-        dom.ui.classList.contains('walk-hint-open');
+        dom.ui.classList.contains('modal-open') || dom.ui.classList.contains('walk-hint-open');
 
     const updateDisplay = () => {
         dom.annotationNavTitle.textContent = annotations[currentIndex].title || '';
@@ -723,31 +719,76 @@ const initUI = (global: Global) => {
     const dom = [
         'ui',
         'controlsWrap',
-        'arMode', 'vrMode',
-        'enterFullscreen', 'exitFullscreen',
-        'info', 'infoPanel', 'desktopTab', 'touchTab', 'desktopInfoPanel', 'touchInfoPanel',
-        'timelineContainer', 'handle', 'time',
+        'arMode',
+        'vrMode',
+        'enterFullscreen',
+        'exitFullscreen',
+        'info',
+        'infoPanel',
+        'desktopTab',
+        'touchTab',
+        'desktopInfoPanel',
+        'touchInfoPanel',
+        'timelineContainer',
+        'handle',
+        'time',
         'buttonContainer',
-        'play', 'pause',
-        'settings', 'settingsPanel',
-        'orbitCamera', 'flyCamera', 'fpsCamera',
-        'performanceModeRow', 'performanceModeCheck', 'performanceModeOption',
-        'gamingControlsDivider', 'gamingControlsRow', 'gamingControlsCheck', 'gamingControlsOption',
-        'desktopFlyClickToFly', 'desktopFlyGamingControls', 'desktopClickToWalk', 'desktopGamingControls',
-        'touchFlyClickToWalk', 'touchFlyGamingControls',
-        'touchClickToWalk', 'touchGamingControls',
+        'play',
+        'pause',
+        'settings',
+        'settingsPanel',
+        'orbitCamera',
+        'flyCamera',
+        'fpsCamera',
+        'performanceModeRow',
+        'performanceModeCheck',
+        'performanceModeOption',
+        'gamingControlsDivider',
+        'gamingControlsRow',
+        'gamingControlsCheck',
+        'gamingControlsOption',
+        'desktopFlyClickToFly',
+        'desktopFlyGamingControls',
+        'desktopClickToWalk',
+        'desktopGamingControls',
+        'touchFlyClickToWalk',
+        'touchFlyGamingControls',
+        'touchClickToWalk',
+        'touchGamingControls',
         'walkHint',
-        'reset', 'frame',
-        'loadingText', 'loadingBar', 'loadingStatus',
-        'joystickBase', 'joystick',
-        'lookJoystickBase', 'lookJoystick',
-        'touchGameControls', 'touchZoomControls', 'touchZoomIn', 'touchZoomOut',
-        'touchActionControls', 'touchFlyVerticalControls', 'touchMoveUp', 'touchMoveDown', 'touchJumpControls', 'touchJumpButton',
-        'showCollision', 'desktopShowCollisionHelp',
+        'reset',
+        'frame',
+        'loadingText',
+        'loadingBar',
+        'loadingStatus',
+        'joystickBase',
+        'joystick',
+        'lookJoystickBase',
+        'lookJoystick',
+        'touchGameControls',
+        'touchZoomControls',
+        'touchZoomIn',
+        'touchZoomOut',
+        'touchActionControls',
+        'touchFlyVerticalControls',
+        'touchMoveUp',
+        'touchMoveDown',
+        'touchJumpControls',
+        'touchJumpButton',
+        'showCollision',
+        'desktopShowCollisionHelp',
         'tooltip',
-        'annotationNav', 'annotationPrev', 'annotationNext', 'annotationInfo', 'annotationNavTitle',
-        'logoContainer', 'viewerTitle', 'appVersionLabel',
-        'xrModal', 'xrModalOk', 'xrModalCancel'
+        'annotationNav',
+        'annotationPrev',
+        'annotationNext',
+        'annotationInfo',
+        'annotationNavTitle',
+        'logoContainer',
+        'viewerTitle',
+        'appVersionLabel',
+        'xrModal',
+        'xrModalOk',
+        'xrModalCancel'
     ].reduce((acc: Record<string, HTMLElement>, id) => {
         acc[id] = document.getElementById(id);
         return acc;
@@ -780,19 +821,25 @@ const initUI = (global: Global) => {
     // the trackpad-vs-mouse classifier in input-controller.ts behaves the same
     // whether the event originated on the canvas or was forwarded from the UI.
     const canvas = global.app.graphicsDevice.canvas as HTMLCanvasElement;
-    dom.ui.addEventListener('wheel', (event: WheelEvent) => {
-        event.preventDefault();
-        const forwarded = new WheelEvent(event.type, event);
-        const src = event as WheelEvent & {
-            wheelDelta?: number, wheelDeltaX?: number, wheelDeltaY?: number
-        };
-        for (const key of ['wheelDelta', 'wheelDeltaX', 'wheelDeltaY'] as const) {
-            if (typeof src[key] === 'number') {
-                Object.defineProperty(forwarded, key, { value: src[key], configurable: true });
+    dom.ui.addEventListener(
+        'wheel',
+        (event: WheelEvent) => {
+            event.preventDefault();
+            const forwarded = new WheelEvent(event.type, event);
+            const src = event as WheelEvent & {
+                wheelDelta?: number;
+                wheelDeltaX?: number;
+                wheelDeltaY?: number;
+            };
+            for (const key of ['wheelDelta', 'wheelDeltaX', 'wheelDeltaY'] as const) {
+                if (typeof src[key] === 'number') {
+                    Object.defineProperty(forwarded, key, { value: src[key], configurable: true });
+                }
             }
-        }
-        canvas.dispatchEvent(forwarded);
-    }, { passive: false });
+            canvas.dispatchEvent(forwarded);
+        },
+        { passive: false }
+    );
 
     // Handle loading progress updates
     events.on('progress:changed', (progress) => {
@@ -806,11 +853,9 @@ const initUI = (global: Global) => {
         dom.loadingBar.classList.remove('indeterminate');
         dom.loadingText.textContent = `${progress}%`;
         if (progress < 100) {
-            dom.loadingBar.style.backgroundImage =
-                `linear-gradient(90deg, ${METAFLOW_ACCENT} 0%, ${METAFLOW_ACCENT} ${progress}%, white ${progress}%, white 100%)`;
+            dom.loadingBar.style.backgroundImage = `linear-gradient(90deg, ${METAFLOW_ACCENT} 0%, ${METAFLOW_ACCENT} ${progress}%, white ${progress}%, white 100%)`;
         } else {
-            dom.loadingBar.style.backgroundImage =
-                `linear-gradient(90deg, ${METAFLOW_ACCENT} 0%, ${METAFLOW_ACCENT} 100%)`;
+            dom.loadingBar.style.backgroundImage = `linear-gradient(90deg, ${METAFLOW_ACCENT} 0%, ${METAFLOW_ACCENT} 100%)`;
         }
     });
 
@@ -872,7 +917,9 @@ const initUI = (global: Global) => {
     const exitFullscreen = () => {
         if (hasFullscreenAPI) {
             if (document.fullscreenElement) {
-                document.exitFullscreen().catch(() => {});
+                document.exitFullscreen().catch(() => {
+                    // A fullscreenchange event remains the source of truth.
+                });
             }
         } else {
             window.parent.postMessage('exitFullscreen', '*');
@@ -891,7 +938,7 @@ const initUI = (global: Global) => {
 
     // toggle fullscreen when user switches between landscape portrait
     // orientation
-    screen?.orientation?.addEventListener('change', (event) => {
+    screen?.orientation?.addEventListener('change', () => {
         if (['landscape-primary', 'landscape-secondary'].includes(screen.orientation.type)) {
             requestFullscreen();
         } else {
@@ -1073,11 +1120,10 @@ const initUI = (global: Global) => {
     let uiTimeout: ReturnType<typeof setTimeout> | null = null;
     let annotationVisible = false;
 
-    const isPointerCapturedMode = () => (
+    const isPointerCapturedMode = () =>
         state.inputMode === 'desktop' &&
         state.gamingControls &&
-        (state.cameraMode === 'walk' || state.cameraMode === 'fly')
-    );
+        (state.cameraMode === 'walk' || state.cameraMode === 'fly');
 
     let walkHintVisible = false;
 
@@ -1152,7 +1198,7 @@ const initUI = (global: Global) => {
     });
 
     // Animation controls
-    events.on('hasAnimation:changed', (value, prev) => {
+    events.on('hasAnimation:changed', () => {
         // Start and Stop animation
         dom.play.addEventListener('click', () => {
             state.cameraMode = 'anim';
@@ -1185,8 +1231,8 @@ const initUI = (global: Global) => {
         events.on('animationPaused:changed', updatePlayPause);
 
         const updateSlider = () => {
-            dom.handle.style.left = `${state.animationTime / state.animationDuration * 100}%`;
-            dom.time.style.left = `${state.animationTime / state.animationDuration * 100}%`;
+            dom.handle.style.left = `${(state.animationTime / state.animationDuration) * 100}%`;
+            dom.time.style.left = `${(state.animationTime / state.animationDuration) * 100}%`;
             dom.time.innerText = `${state.animationTime.toFixed(1)}s`;
         };
 
@@ -1366,7 +1412,7 @@ const initUI = (global: Global) => {
     const isThirdPartyEmbedded = () => {
         try {
             return window.location.hostname !== window.parent.location.hostname;
-        } catch (e) {
+        } catch {
             // cross-origin iframe — parent location is inaccessible
             return true;
         }
