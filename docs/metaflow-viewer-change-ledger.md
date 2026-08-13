@@ -248,6 +248,7 @@ flowchart TD
 | `5.18` · `7ce294a` | 移动端开启游戏控制后，fly 模式只有左摇杆导致用户不知道可升降，walk 模式缺少明显跳跃按钮；横屏控件相对参考站仍不够协调，Zoom/升降胶囊和摇杆底边没有统一，小屏横屏容易压近底部菜单。 | 参考 UnrealTwin 移动端横屏布局，横屏改成左 Zoom 胶囊、左移动摇杆、右环顾摇杆、右升降/跳跃控件；升降按钮改为世界空间高度移动；胶囊按下态复刻参考站的轻微下压动画；walk 跳跃改为无图标单格圆形胶囊；尺寸、间距和底部避让按视口自适应，设置/帮助等弹窗打开时隐藏触控游戏控件。 | 移动用户在游戏控制开启时能直接看到移动、环顾、Zoom、绝对升降和跳跃入口；横屏控件左右更均衡，小屏/平板布局更稳，关闭游戏控制、切到 orbit/anim 或打开二级菜单时仍隐藏。 | 桌面端、键盘、鼠标、物理 gamepad 和 pointer-lock 逻辑不变；Zoom 只在横屏 fly gaming controls 出现；证据为 typecheck、build、版本测试和本地真移动 Playwright fly/walk/竖屏/modal/默认关闭验证。 |
 | `5.18a` · `c613a87` | 深圳笔架山新数据需要按正式路径 `/shenzhen/bijiashan` 上线，并使用当前动态/tiled voxel 流程，而不是旧 query-string 入口或单文件 voxel manifest；本地验证发现体素坐标需要完全复用 Dayun 的 legacy RZ180 路径。 | 增加 Bijiashan LOD 模型、`settings-merged-2.json`、thumbnail 与 320 tile 的 tiled voxel 数据；`scripts/generate_index.py` 为 Bijiashan 固定 slug 与 `/shenzhen/bijiashanpark`、`/shenzhen/bijiashan-park` alias，并让 voxel manifest 发现逻辑支持资源目录下一层的 `*/voxel-tiles.json`；Bijiashan 加入 `LEGACY_VOXEL_RZ180_ROUTES`，生成 `viewer.voxelCoordinateSpace: "metaflow-rz180"`。 | `/shenzhen/bijiashan` 可通过正常 route/index 路径打开，别名继续兼容；viewer 获取 `files.voxelManifest` 并按需请求 tile 级 `walk.voxel.json/bin`，碰撞/overlay 与 Dayun 使用同一坐标空间。 | 不新增 LFS 规则，最大单文件约 7.3MB；未提交 `.DS_Store`、`full-run.log`、`progress.json`；证据为本地生产同等 build/public sync、typecheck、build、版本测试、线上 production deploy 和 route/index 验证。 |
 | `5.18.1` · `578272c` | BitCity 260711 与第十五届深圳动漫节的 27 条人物资源需要迁入正式 route；源设置一类包含静止 explicit track，另一类包含 24 个显式 figure8 关键帧，不能继续作为两套发布策略。 | 仅迁移外层正式 SOG、3840×2160 JPG 与规范 `settings-v2.json`；规范设置保留原始相机及全部非动画字段，只写 `animTracks: []`、`startMode: "default"`、`hasStartPose: true`。生成器增加 `bitcity260711`、`szcaf15`、27 项显式 title/titleEn/slug/date/device、`viewer.syntheticAnimation: "figure8"`，仅为雨诺增加 `/acg/szcaf15/akari` alias。 | 索引由 60 增至 87 条；27 条人物从源 initial camera 自动进入 Viewer 现有默认 figure8，首次交互退出到 Orbit；公开路由遵循拼音连写、英文多词连字符、数字直接后缀和 `chang-e` 歧义例外。 | 共 81 个资源文件、576,023,824 字节；SOG/JPG SHA-256 与源一致，settings 除三项策略字段外深度一致；外层模型优先，ZIP/PLY/SSProj/嵌套包及训练中间文件均排除；证据为 `data/ACG/{BitCity260711,SZCAF15}`、`scripts/generate_index.py`、事件路由测试及 Issue #34。 |
+| `5.19.0` · `cb4a3f1` | Viewer `5.18.1` 的活跃源码仍建立在 SuperSplat Viewer `v1.26.2` / PlayCanvas `2.19.2`；上游七个稳定版本已引入 on-demand rendering、near-clip clamp、streaming work-buffer 时序、capture、Annotation preference 和 backend-aware XR，同时 Metaflow 必须保留 route、双加载链、首帧/reveal、移动输入、Analytics 与 tiled voxel collision。 | 分阶段升级到 Viewer `v1.29.1` / PlayCanvas `2.21.3`：加载期 auto-render、完成后 `frame:request` 驱动 on-demand；LOD range 写入组件并在 work-buffer 前应用参数；新增串行且异常恢复的 `captureFrame`、品牌化 Annotation 开关、heatmap WebGL 降级、XR 检测和首包有界 retry/终态错误 UI；最终按产品决策采用 SH performance `1°` / quality `0.2°`。所有 Metaflow route、legacy/streaming、settings v1/v2、environment、reveal、walk/fly、single/tiled voxel、`metaflow-rz180`、九 locale、Analytics 和 debug 合同继续保留。 | 静止场景停止持续 GPU 提交；streaming 参数从首批 work buffer 起一致；Viewer 获得稳定截图与 Annotation 偏好；暂时性 `503` 可恢复，永久失败不再无限挂起；现有 87 条资源无需迁移。 | 风险集中在 streaming SH 工作量、on-demand 漏帧、新 Engine 的 GPU/asset lifecycle、移动真机与 immersive XR。WebGPU/WebGL、8 条代表 route、移动 viewport、tile 404、capture 失败、Analytics 阻断和 retry 已验证；iOS/Android 真机与 XR 硬件未验证。生产仍为 `5.18.1`，合并后必须回填最终 squash SHA，之后才可授权 tag/deploy。证据为 [MF-30 Spec](changes/30-viewer-upstream-v1.29.1/spec.md)、[研究补充](changes/30-viewer-upstream-v1.29.1/research-supplement.md)、[冲突登记](changes/30-viewer-upstream-v1.29.1/conflicts.md) 与 [运行证据](changes/30-viewer-upstream-v1.29.1/evidence.md)。 |
 
 ### 不产生产品版本的维护提交
 
@@ -274,21 +275,30 @@ flowchart TD
 | `bdf46c9` | 将笔架山数据发布的版本文档先行补齐，随后由最终 5.18a 提交更新 gitRef 和总账说明。 | 发布文档维护，不创建独立展示版本；由 `maintenanceCommits` 显式登记。 |
 | `65a5fb6` | 将 5.18a 的结构化历史、公开镜像、index release gitRef 和总账对齐到最终产品提交 `c613a87`。 | 发布记录维护，不创建独立展示版本；由 `maintenanceCommits` 显式登记。 |
 | `8f4ffc2` | 将 5.18.1 的结构化历史、公开镜像、index release gitRef、总账和测试夹具对齐到 PR #35 的最终 squash 提交 `578272c`，并移除仅存在于 squash 前分支历史的临时提交引用。 | 发布记录维护，不创建独立展示版本；由 `maintenanceCommits` 显式登记。 |
+| `3f7baa0` | 在升级依赖前锁定 route/index/alias、legacy/streaming、settings、reveal、相机/输入、single/tiled voxel、Analytics、locale、debug 和当时的 SH `4/2` 行为。 | 测试维护；作为 5.19.0 上游同步的前置兼容证据，由 `maintenanceCommits` 登记。 |
+| `04051b5` | 将 PlayCanvas 精确升级到 `2.21.3`，对齐 Viewer v1.29.1 的 Rollup/PostCSS/Sass/ESLint/Prettier/publint 工具链，并保留 Analytics、rrweb、Playwright 和多入口构建。 | 5.19.0 的依赖/API 前置提交，由 `maintenanceCommits` 登记，不单独创建版本。 |
+| `1a86d23` | 以独立提交应用上游格式基线，避免机械 diff 与渲染/加载行为混在同一 checkpoint。 | 行为中性格式维护，由 `maintenanceCommits` 登记。 |
+| `0d67ac5` | 移植 on-demand rendering、`frame:request`、near clip、组件级 LOD range、work-buffer 参数时序和 settings 兼容。 | 5.19.0 核心实现前置提交，由 `maintenanceCommits` 登记。 |
+| `773468a` | 移植串行 `captureFrame`、Annotation 显隐持久化、heatmap backend 降级和 WebGPU/WebXR 能力检测，同时保留品牌 UI 与本地导航。 | 5.19.0 公共能力前置提交，由 `maintenanceCommits` 登记。 |
+| `332ad44` | 为初始模型/environment prefetch 增加限定状态码的三次有界重试、退避和明确终态错误 UI，永久 4xx 不重试。 | 5.19.0 可靠性前置提交，由 `maintenanceCommits` 登记。 |
+| `874149f` | 固化真实 route、WebGL/WebGPU、移动 viewport、capture、tile、retry、Analytics 和限制项证据，并增加一次诊断性上游/Engine 版本输出。 | 证据与诊断维护，由 `maintenanceCommits` 登记。 |
 
 ## 能力到提交的反向索引
 
 | 能力 | 形成与修正提交 |
 |---|---|
 | Poster / 加载 reveal | `1.5`、`1.6`、`1.18`、`3.19`、`3.20`、`5.0` |
-| 首帧与超时 | `1.14`、`1.15`、`1.16`、`2.1`、`5.0`、`5.1` |
+| 首帧与超时 | `1.14`、`1.15`、`1.16`、`2.1`、`5.0`、`5.1`、`5.19.0` |
 | 短路由与索引 | `1.19`、`1.21`、`1.22`、`2.5`、`2.8`、`3.15`、`5.2`、`5.14`、`5.15` |
 | 埋点、分析与看板 | `5.10`、`5.11`、`5.12`、`5.13`、`5.16`、`5.17` |
-| XR / PICO | `1.31`–`1.36`、`2.9`、`5.0` |
-| Walk / voxel | `3.0`、`3.5`–`3.7`、`4.4`、`5.0`、`5.4`、`5.18a` |
+| XR / PICO | `1.31`–`1.36`、`2.9`、`5.0`、`5.19.0` |
+| Walk / voxel | `3.0`、`3.5`–`3.7`、`4.4`、`5.0`、`5.4`、`5.18a`、`5.19.0` |
 | 移动端控制 | `2.7`、`3.2`–`3.3`、`3.8`–`3.16`、`5.0`、`5.18` |
 | 渐变天空 | `3.19`、`3.20`、`5.0` |
 | Figure8 / ACG | `2.11`、`3.14`、`4.0`、`4.1`、`4.2`、`5.3a`、`5.4`、`5.18.1` |
 | 部署 / LFS | `1.2`、`1.3`、`3.17`、`3.20a`、`4.4`、`5.2`、`5.3`、`5.13` |
+| On-demand / streaming work buffer / SH | `2.6`、`5.8`、`5.9`、`5.19.0` |
+| Capture / Annotation preference | `1.0`、`5.19.0` |
 
 ## 后续提交维护模板
 

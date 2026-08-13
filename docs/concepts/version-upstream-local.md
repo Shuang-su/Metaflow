@@ -6,12 +6,12 @@ Metaflow 同时存在产品版本、上游版本、资源历史和源码快照�
 
 [`metadata/version-history.json`](../../metadata/version-history.json) 的 `current` 是 Viewer 当前事实：
 
-- `displayVersion`：用户可见版本；当前 `5.18.1`。
-- `appSemver`：包与代码线 SemVer；当前 `5.18.1`。
-- `upstream.version`：当前同步的 SuperSplat Viewer；当前 `1.26.2`。
+- `displayVersion`：用户可见版本；当前 PR 候选 `5.19.0`。
+- `appSemver`：包与代码线 SemVer；当前 PR 候选 `5.19.0`。
+- `upstream.version`：当前同步的 SuperSplat Viewer；当前 `1.29.1`。
 - `indexSchemaVersion`：发布索引契约；当前 `1.2`。
 
-`5.18a / 5.18.0` 是最后一个双轨历史状态，保持原样；`5.18.1` 是此后的首个完整 SemVer 发布。后续 PATCH 处理资源和兼容修复，MINOR 处理向后兼容新能力，MAJOR 处理破坏性公共契约。
+`5.18a / 5.18.0` 是最后一个双轨历史状态，保持原样；`5.18.1` 是此后的首个完整 SemVer 发布。`5.19.0` 因新增向后兼容的渲染、capture、Annotation、XR 与 Loader 能力而作为 MINOR PR 候选。生产仍为 `5.18.1`，候选记录不等于已部署发布。后续 PATCH 处理资源和兼容修复，MINOR 处理向后兼容新能力，MAJOR 处理破坏性公共契约。
 
 历史 `1.0a`、`1.12b`、`5.3a`、`5.18a` 及资源 `addedIn/updatedIn` 保持不变。新 entry 继续保留 `displayVersion` 和 `appSemver` 两个兼容字段，但两者必须相等。
 
@@ -26,7 +26,7 @@ Metaflow 同时存在产品版本、上游版本、资源历史和源码快照�
 - 活跃源码目录：`supersplat-v2.28.0/`；
 - 依赖版本，包括 `@playcanvas/supersplat-viewer 1.26.3` 和 PlayCanvas `2.19.2`。
 
-Viewer 产品上游 `1.26.2` 与 Editor 内部使用的 Viewer package `1.26.3` 可以不同；这是两个依赖面，不应“统一数字”后再写文档。Viewer 的 SemVer 迁移也不会自动改变 Editor 版本。
+Viewer 产品上游 `1.29.1` 与 Editor 内部使用的 Viewer package `1.26.3` 可以不同；这是两个依赖面，不应“统一数字”后再写文档。Viewer 的 SemVer 迁移也不会自动改变 Editor 版本。
 
 ## Ledger 与 Version History
 

@@ -65,5 +65,5 @@ node scripts/mcl.mjs check docs/changes/1-adopt-mcl-v1 --strict
 - Design 研究没有获准 Experiment Promotion Proposal 时不构成产品行为。
 - 上游快照是不可变参考；同步必须作为 Change，而不是覆盖。
 - Version History 与 Ledger 只追加；回滚通过新记录表达。
-- Viewer 当前保持 `5.18a / 5.18.0`；下一次真实发布为 `5.18.1`，此后新 entry 使用完整 SemVer 且 `displayVersion === appSemver`。历史字母版本不改写。
+- Viewer `5.18.1` 是首个完整 SemVer 发布；当前 MF-30 代码/记录候选为 `5.19.0`，生产在 merge、最终 SHA 回填、tag、deploy 与观察完成前仍为 `5.18.1`。此后新 entry 使用完整 SemVer 且 `displayVersion === appSemver`；历史字母版本不改写。
 - Editor 保持独立版本、Ledger 和 Version History。

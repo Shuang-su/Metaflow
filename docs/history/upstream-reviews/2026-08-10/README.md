@@ -1,6 +1,6 @@
 # SuperSplat 三基线独立审查（2026-08-10 至 2026-08-11）
 
-> **状态：审查完成，未发布。** 本目录记录一次固定时间窗内的上游比较、运行证据和独立决策。它不改变 Viewer/Editor 当前产品版本，不是发布 Ledger，也不表示任何候选已经部署。当前产品事实仍以 `metadata/version-history.json`、`metadata/editor-version-history.json` 和运行时版本文件为准。
+> **状态：审查完成；Viewer 已进入 5.19.0 PR 候选，尚未部署。** 本目录记录一次固定时间窗内的上游比较、运行证据和独立决策。后续 MF-30 已单独实现 Viewer Adopt 并准备版本/Ledger；Editor 与 Transform 结论不变。当前代码候选事实以 `metadata/version-history.json` 为准，生产是否发布仍以最终 SHA、tag、部署与观察记录为准。
 
 ## 最新稳定版保护的处理
 
@@ -18,7 +18,7 @@
 
 | 组件 | 当前上游基准 B | 当前 Metaflow M | 最新候选 N | 区间中间快照 | 独立结论 |
 |---|---|---|---|---|---|
-| Viewer | SuperSplat Viewer `v1.26.2` | `metaflow-viewer/`，产品 `5.18.1` | `v1.29.1`，commit `3a61fa606e12640b1e87f9a733ed43d7fbc5d925` | `v1.28.0`、`v1.29.0` | **Adopt**：分阶段向 `metaflow-viewer/` 移植；不替换活跃目录，不在本轮发布 |
+| Viewer | SuperSplat Viewer `v1.26.2` | 审查时 `metaflow-viewer/` / 产品 `5.18.1`；当前 MF-30 候选 `5.19.0` | `v1.29.1`，commit `3a61fa606e12640b1e87f9a733ed43d7fbc5d925` | `v1.28.0`、`v1.29.0` | **Adopt**：已分阶段移植并进入 Draft PR 候选；不替换活跃目录，生产仍未发布 |
 | Editor | SuperSplat `v2.28.0` | 根目录 `supersplat-v2.28.0/`，Metaflow Editor `1.1`；`metaflow-editor/` 是部署产物 | `v2.32.3`，commit `b9e3cb6f072179f0d49ae52d6c256d70b2079174` | 无 | **Defer**：Node 契约、Viewer 视觉兼容和关键运行矩阵尚未闭环 |
 | Transform CLI | `splat-transform v2.5.1` | 当前 SOG/LOD/voxel/collision 资产契约与未来 Agent 需求；没有独立产品 | `v3.3.0`，commit `57883c2c7bda5bcfb60a8b402ababacc286e49ae` | `v3.2.0` | **Adopt**：仅规划版本固定的离线包装器；不进入产品版本史或 Editor 依赖 |
 
@@ -52,7 +52,7 @@
 
 ## 审查边界与实际未变更项
 
-本阶段只整理参考快照、建立登记/校验接口、运行审查并形成决策。以下项目没有被审查阶段改变：
+原始审查阶段只整理参考快照、建立登记/校验接口、运行审查并形成决策。后续 MF-30 Viewer 实施和版本候选是独立 Change；以下陈述只描述原始审查阶段：
 
 - `metaflow-viewer/`、根目录 `supersplat-v2.28.0/` 和 `metaflow-editor/` 的产品内容；
 - Viewer/Editor 版本号、Version History、Ledger 和发布状态；

@@ -14,11 +14,13 @@ Checkpoint order is normative:
 
 1. Merge the latest `origin/main` and the four baseline-review checkpoints, retaining Viewer `5.18.1`, newly released route contracts, registry, and review navigation.
 2. Add and verify the immutable `v1.29.1` snapshot; update the three-way review, this Spec/Plan, and the conflict register.
-3. Add pre-upgrade compatibility tests for routes, loading phases, settings, camera/input, collision, SH `4/2`, Analytics, locale, and debug contracts.
+3. Add pre-upgrade compatibility tests for routes, loading phases, settings, camera/input, collision, the original SH `4/2` behavior, Analytics, locale, and debug contracts.
 4. Upgrade PlayCanvas and the build chain. Keep required API/type changes separate from any broad upstream formatting.
 5. Port on-demand rendering, near clip, `GSplatComponent` LOD range, work-buffer parameter timing, settings normalization, and canvas readiness.
 6. Port `captureFrame`, annotation visibility, heatmap semantics, and backend-aware XR detection.
 7. Run route, negative, renderer, viewport, dependency, repository, and snapshot validation; finalize conflict evidence.
+8. Apply the follow-up product decision to adopt Viewer `v1.29.1` SH `1/0.2`, replace the compatibility lock, and retain the earlier `4/2` A/B only as decision evidence.
+9. Prepare Viewer `5.19.0` package, Version History, public index/history, Ledger, research supplement, Issue, and detailed draft PR. Merge/tag/deploy remain out of scope.
 
 Each checkpoint stages only its intended files. No commit may include `.codex-work/`, `node_modules`, `dist`, generated public assets, `.DS_Store`, downloads, or unrelated user files.
 
@@ -31,7 +33,7 @@ Before engine changes, tests must assert:
 - radial reveal, synthetic animation, `?noreveal`, Orbit/walk/fly, and first animation exit;
 - single/tiled voxel, missing-tile degradation, cache, and `metaflow-rz180` transforms;
 - settings v1/v2 normalization for partial post effects;
-- SH `colorUpdateAngle` remains `4/2`;
+- the pre-upgrade compatibility checkpoint records SH `4/2`; the final release candidate explicitly adopts upstream `1/0.2` by later product authorization;
 - nine-locale key parity, branding, Analytics failure isolation, and debug flags.
 
 These tests form the `test(viewer): lock Metaflow upstream compatibility` checkpoint.
@@ -45,7 +47,7 @@ These tests form the `test(viewer): lock Metaflow upstream compatibility` checkp
 5. Wire `frame:request` and all Metaflow dynamic paths to explicit frame requests.
 6. Remove the four-second fallback only after tests prove every dynamic path schedules rendering.
 7. Clamp near clip, move LOD range to `GSplatComponent`, and apply streaming work-buffer parameters before creation.
-8. Keep SH `4/2`; make upstream `1/0.2` injectable only in test/A-B instrumentation that does not alter default behavior.
+8. Initially compare SH `4/2` and upstream `1/0.2`; after the explicit follow-up decision, set the product default to `1/0.2` and lock both performance modes in tests/runtime evidence.
 
 ## 4. Public capability port
 
@@ -79,4 +81,4 @@ For each representative run, retain a selected screenshot and a concise DOM/cons
 - Markdown links, repository scan, reference digests, and `git diff --check`;
 - raw/gzip JS/CSS size comparison and disk/status cleanup.
 
-The final worktree must be clean. The handoff must list every checkpoint SHA, the rollback SHA, resolved conflicts, remaining risks, and unverified hardware. It must not claim mobile-device or immersive-XR verification without actual hardware evidence.
+The final worktree must be clean. The handoff must list every checkpoint SHA, the rollback SHA, resolved conflicts, remaining risks, and unverified hardware. It must not claim mobile-device or immersive-XR verification without actual hardware evidence. The GitHub delivery must stop at an open draft PR and an `In Review` Issue; a final squash SHA, release tag, deployment, and production observation require later authorization.

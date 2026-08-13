@@ -2,15 +2,17 @@
 
 ## 1. Status and authority
 
-- **Status:** local implementation authorized; release not authorized.
+- **Status:** implementation complete; remote review and Viewer `5.19.0` release-candidate records authorized. Merge, tag, deploy, and production release remain separately controlled.
 - **Component:** `viewer`.
 - **Risk:** T3 upstream synchronization.
 - **Discovery record:** [Issue #30](https://github.com/Shuang-su/Metaflow/issues/30).
+- **Draft review:** [PR #41](https://github.com/Shuang-su/Metaflow/pull/41).
 - **Decision evidence:** [`viewer-v1.26.2-to-v1.28.0.md`](../../history/upstream-reviews/2026-08-10/viewer-v1.26.2-to-v1.28.0.md).
 - **Implementation target:** SuperSplat Viewer tag `v1.29.1`, commit `3a61fa606e12640b1e87f9a733ed43d7fbc5d925`, tree `671059c4b4a3693115ad010207b66312f5cbbc8c`.
 - **Implementation base:** `origin/main` commit `dbbd0015a8d13d4380d100fad4e5121dc2b29746`, Metaflow Viewer `5.18.1`.
+- **Research supplement:** [`research-supplement.md`](research-supplement.md), distilled from `codex://threads/019ff933-fc9b-7063-9f4e-dc5cbee87df2` and rechecked against official releases, diffs, issues, and PRs.
 
-Issue #30 remains an Open discovery-only remote record. The current Codex task separately authorizes local implementation and local checkpoint commits. It does not authorize updating the Issue, pushing, creating a PR, merging, tagging, changing product versions, changing Ledger/Version History, or deploying. Before any later remote delivery, the Issue and this local implementation state must be reconciled explicitly.
+Issue #30 began as an Open discovery-only record. The 2026-08-13 follow-up authorizes synchronizing that Issue, pushing this implementation branch, preparing Viewer `5.19.0` version records, and opening a detailed draft PR. It does not authorize merging, tagging, deploying, publishing a GitHub Release, or closing the Issue as released. Because a squash merge produces a new commit, a later release-record commit must replace the provisional implementation ref before the release can be called stable.
 
 ## 2. Objective
 
@@ -31,7 +33,7 @@ The immutable source snapshot is `references/supersplat-viewer-v1.29.1/`. It is 
 | MFV-05 | Single voxel, tiled voxel, cache behavior, missing-tile controlled degradation, collision overlay, and `metaflow-rz180` coordinate conversion must remain compatible. |
 | MFV-06 | Settings v1/v2 and partial post-effect objects, including `{ enabled: false }`, must be normalized before Viewer construction or post-effect access. Existing data must not be rewritten. |
 | MFV-07 | Gradient background, branding, all nine locales, Analytics, debug tools, and route-specific product UI must remain present. Analytics failures must not block loading or flood error beacons. |
-| MFV-08 | Streaming SH behavior must remain `colorUpdateAngle = performanceMode ? 4 : 2`. Upstream `1/0.2` is an A/B comparison value, not the shipped value in this implementation. |
+| MFV-08 | Streaming SH behavior must match Viewer `v1.29.1`: `colorUpdateAngle = performanceMode ? 1 : 0.2`. The earlier local `4/2` candidate remains A/B evidence, not the final product policy. |
 
 ### 3.2 Upstream rendering and streaming behavior
 
@@ -60,7 +62,7 @@ The immutable source snapshot is `references/supersplat-viewer-v1.29.1/`. It is 
 | MFV-19 | PlayCanvas must be exactly `2.21.3`. Applicable Rollup, PostCSS, Sass, Autoprefixer, ESLint, Prettier, and publint versions must align with `v1.29.1` while preserving PostHog, rrweb, Playwright, Analytics injection, and multi-entry Rollup output. |
 | MFV-20 | Root and Viewer Node remain `20.19.0`. API migration must use PlayCanvas 2.21.3 APIs without an implicit old-API shim. Mechanical formatting must be isolated from behavioral changes. |
 | MFV-21 | `npm audit --omit=dev` must not introduce production high or critical vulnerabilities. No automatic `npm audit fix` is permitted. Development-only findings must be recorded rather than hidden through unrelated major upgrades. |
-| MFV-22 | The product package and metadata remain Viewer `5.18.1`. This Change must not update Version History or Ledger. A future release requires a new authorization and SemVer decision; `5.19.0` is only the current expectation for a compatible feature release. |
+| MFV-22 | The PR candidate is Viewer `5.19.0`, because it adds backwards-compatible public, interaction, loader, and rendering capabilities. Package/lock, Version History, public history/index release metadata, Viewer Ledger, tests, and current-version documentation must agree on `5.19.0 / upstream 1.29.1`. This is a release candidate until merge, final-SHA reconciliation, tag, deployment, smoke, and observation are separately completed. |
 
 ## 4. Evidence and acceptance
 
@@ -76,7 +78,8 @@ Mobile viewport does not equal iOS/Android hardware. XR API checks do not equal 
 - Do not edit existing resource data, routes, aliases, settings, collision metadata, or schemas to evade a compatibility failure.
 - Do not change Editor or Transform product source, version, dependency, decision, or release state.
 - Do not install or build inside `references/**`.
-- Do not push, create a PR, merge, tag, bump product versions, update Ledger/Version History, deploy, or modify remote Issue state under this authorization.
+- Do not merge, tag, deploy, publish a GitHub Release, close Issue #30 as released, or claim production observation under this authorization.
+- Do not claim Viewer `v1.29.1` adds voxel conversion or byte-range/page/LOD voxel streaming. Preserve Metaflow tiled voxel runtime and its coordinate compatibility layer.
 
 ## 6. Rollback and stop boundary
 

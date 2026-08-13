@@ -7,12 +7,12 @@
 
 ## 当前版本
 
-- 展示版本：`5.18.1`
-- 包版本：`5.18.1`
+- 展示版本：`5.19.0`（release candidate）
+- 包版本：`5.19.0`
 - 活跃源码底层：SuperSplat Viewer `v1.29.1`
 - PlayCanvas：`2.21.3`
 
-`metadata/version-history.json` 仍记录已发布产品 `5.18.1` 的 `v1.26.2` 基线；本页的底层版本描述仅适用于尚未发布的 MF-30 实现分支，不改写发布事实。
+Viewer `5.19.0` release candidate 在 `metadata/version-history.json` 记录 `v1.29.1` 基线；生产仍为 `5.18.1`。候选需要在 squash merge 后回填最终 SHA，并另行授权 tag、部署、smoke 和观察，才能称为稳定发布。
 
 ## 本地运行
 

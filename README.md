@@ -16,15 +16,15 @@ Metaflow 把基于 [SuperSplat](https://github.com/playcanvas/supersplat) 的 Ed
 | [部署](docs/maintenance/deployment.md) | Viewer、data 与 Editor 镜像怎样进入 Netlify publish 目录 |
 | [仓库地图](docs/reference/repository-map.md) | 活跃源码、生成物与历史快照边界 |
 
-## 当前发布基线
+## 当前代码候选基线
 
 | 产品 | 当前版本 | 上游基线 | 唯一事实来源 |
 |---|---|---|---|
-| Viewer | `5.18.1` / package `5.18.1` | SuperSplat Viewer `1.26.2` | [`metadata/version-history.json`](metadata/version-history.json) |
+| Viewer | `5.19.0` / package `5.19.0` | SuperSplat Viewer `1.29.1` / PlayCanvas `2.21.3` | [`metadata/version-history.json`](metadata/version-history.json) |
 | Editor | `1.1` / app `1.1.0` | SuperSplat Editor `2.28.0` | [`metadata/editor-version-history.json`](metadata/editor-version-history.json) |
 | 资源索引 | schema `1.2` | 不适用 | [`data/index.json`](data/index.json) |
 
-Viewer 源码在 `metaflow-viewer/`；Editor 源码在 `supersplat-v2.28.0/`，`metaflow-editor/` 是发布构建。贡献与变更流程见 [`CONTRIBUTING.md`](CONTRIBUTING.md) 和 [MCL v1.0 candidate](docs/metaflow-change-lifecycle-v1.0.md)。
+Viewer 源码在 `metaflow-viewer/`；Editor 源码在 `supersplat-v2.28.0/`，`metaflow-editor/` 是发布构建。`5.19.0` 是 MF-30 的 PR 候选：生产仍为 `5.18.1`，在 squash merge 后回填最终 SHA、打 tag、部署、smoke 和观察之前不得称为稳定发布。贡献与变更流程见 [`CONTRIBUTING.md`](CONTRIBUTING.md) 和 [MCL v1.0 candidate](docs/metaflow-change-lifecycle-v1.0.md)。
 
 下方保留原有 Viewer 快速参考，方便已有读者继续使用；新的分层手册和当前契约以 [`docs/README.md`](docs/README.md) 为入口。
 
@@ -154,12 +154,12 @@ location / {
 
 | 字段 | 值 |
 |------|----|
-| 展示版本 | `5.18.1` |
-| 包版本 | `5.18.1` |
+| 展示版本 | `5.19.0`（PR 候选） |
+| 包版本 | `5.19.0` |
 | 索引 schema | `1.2` |
-| 上游 SuperSplat Viewer | `v1.26.2` |
-| PlayCanvas | `2.19.2` |
-| 已审计至 commit | `578272c` |
+| 上游 SuperSplat Viewer | `v1.29.1` |
+| PlayCanvas | `2.21.3` |
+| 候选实现 commit | `cb4a3f1` |
 
 ## 当前 Editor
 
@@ -178,6 +178,7 @@ location / {
 
 | 版本 | commit | 摘要 |
 |------|--------|------|
+| `5.19.0` | `cb4a3f1` | MF-30 PR 候选：同步 Viewer v1.29.1 / PlayCanvas 2.21.3，采用 on-demand、capture、Annotation/XR 更新及 SH `1°/0.2°`，保留 Metaflow route、加载、reveal、碰撞、移动和 Analytics 合同 |
 | `5.18.1` | `578272c` | 发布 BitCity 260711 与第十五届深圳动漫节 27 条人物资源及默认 figure8 动画策略 |
 | `5.18a` | `c613a87` | 新增并对齐深圳笔架山动态 voxel 场景 |
 | `5.18` | `7ce294a` | 优化移动端触控游戏控制 |
@@ -210,7 +211,7 @@ location / {
 - [当前同步差异审计](docs/metaflow-current-sync-diff-audit.md)
 - [SuperSplat 同步对比](docs/metaflow-viewer-sync-comparison.md)
 
-`5.18a / 5.18.0` 是最后一个双轨历史版本，`5.18.1` 是此后的首个完整 SemVer 发布。旧字母版本保持原样；后续统一使用 SemVer PATCH/MINOR/MAJOR。
+`5.18a / 5.18.0` 是最后一个双轨历史版本，`5.18.1` 是此后的首个完整 SemVer 发布。`5.19.0` 是新的 MINOR 候选；旧字母版本保持原样，后续统一使用 SemVer PATCH/MINOR/MAJOR。
 
 ## URL 查询参数详解
 
