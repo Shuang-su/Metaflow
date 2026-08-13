@@ -17,24 +17,35 @@
       "import": "./dist/settings.js"
     }
   },
+  "files": [
+    "dist",
+    "public",
+    "package.json",
+    "README.md"
+  ],
   "dependencies": {
     "posthog-js": "^1.386.8",
     "rrweb": "^2.0.1"
   },
   "devDependencies": {
+    "@playcanvas/eslint-config": "3.0.0-beta.8",
     "@rollup/plugin-json": "6.1.0",
     "@rollup/plugin-node-resolve": "16.0.3",
     "@rollup/plugin-typescript": "12.3.0",
     "@playwright/test": "1.62.1",
-    "autoprefixer": "10.5.0",
+    "autoprefixer": "10.5.4",
     "concurrently": "9.2.4",
-    "playcanvas": "2.19.2",
-    "postcss": "8.5.26",
-    "rollup": "4.61.0",
+    "eslint": "9.39.5",
+    "globals": "17.9.0",
+    "playcanvas": "2.21.3",
+    "postcss": "8.5.23",
+    "prettier": "3.9.6",
+    "publint": "0.3.23",
+    "rollup": "4.62.4",
     "rollup-plugin-copy": "3.5.0",
     "rollup-plugin-scss": "4.0.1",
     "rollup-plugin-string": "3.0.0",
-    "sass": "1.100.0",
+    "sass": "1.102.0",
     "serve": "14.2.6",
     "typescript": "5.9.3"
   },
@@ -45,6 +56,11 @@
     "e2e:dev": "E2E_MODE=dev playwright test",
     "e2e:extended": "E2E_MODE=build E2E_EXTENDED=1 playwright test --grep-invert='visual baseline'",
     "e2e:prepare": "node e2e/prepare-fixture.mjs",
+    "fmt": "prettier --check src rollup.config.mjs eslint.config.mjs prettier.config.mjs",
+    "fmt:fix": "prettier --write src rollup.config.mjs eslint.config.mjs prettier.config.mjs",
+    "lint": "eslint src rollup.config.mjs eslint.config.mjs prettier.config.mjs",
+    "lint:fix": "eslint src rollup.config.mjs eslint.config.mjs prettier.config.mjs --fix",
+    "publint": "publint --pack npm",
     "serve": "serve public -l 3000",
     "serve:e2e:build": "npm run build && npm run e2e:prepare && serve -s public -l 4174",
     "serve:e2e:dev": "npm run e2e:prepare && concurrently --kill-others \"rollup -c -w\" \"serve -s public -l 4173\"",

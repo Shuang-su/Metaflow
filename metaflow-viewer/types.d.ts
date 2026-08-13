@@ -17,7 +17,7 @@ interface Window {
     setCameraState?: (snapshot: any) => void;
 }
 
-declare module 'playcanvas/scripts/esm/xr-controllers.mjs' {
+declare module 'playcanvas/scripts/esm/xr/xr-controllers.mjs' {
     const XrControllers: any;
     export { XrControllers };
 }

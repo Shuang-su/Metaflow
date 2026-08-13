@@ -5,7 +5,7 @@ import {
     Vec3,
     type CameraComponent
 } from 'playcanvas';
-import { XrControllers } from 'playcanvas/scripts/esm/xr-controllers.mjs';
+import { XrControllers } from 'playcanvas/scripts/esm/xr/xr-controllers.mjs';
 
 import { Global } from './types';
 import { XrVrNavigation } from './xr-navigation';
