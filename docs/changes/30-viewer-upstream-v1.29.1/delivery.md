@@ -38,8 +38,9 @@ The candidate ref identifies the last product-behavior checkpoint before release
 | `332ad44` | Add bounded retry and explicit terminal resource-load failure state. | Reliability checkpoint. |
 | `874149f` | Add route/browser/negative evidence and upstream/Engine runtime diagnostics. | Evidence checkpoint; no version bump. |
 | `cb4a3f1` | Replace the early local SH `4°/2°` policy with Viewer v1.29.1 `1°/0.2°`. | Final product-behavior ref for Viewer `5.19.0` candidate. |
+| `b30a15e` | Prepare `5.19.0` package/public version surfaces, Ledger, deep-research supplement, final validation record, and Issue/PR navigation. | Release-review support record; does not replace `cb4a3f1` as the provisional product behavior ref. |
 
-The release-record and remote-link commit created after the product checkpoint is a support record. It does not replace `cb4a3f1` as the provisional product implementation ref.
+The release-record commit after the product checkpoint is a support record. It does not replace `cb4a3f1` as the provisional product implementation ref. The following delivery-checkpoint commit only registers `b30a15e` in the permitted version and review records; it likewise creates no product behavior.
 
 ## 3. Version decision
 

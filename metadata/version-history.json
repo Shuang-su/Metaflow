@@ -190,6 +190,11 @@
       "gitRef": "874149f",
       "date": "2026-08-13",
       "summary": "docs(viewer): record v1.29.1 upgrade evidence"
+    },
+    {
+      "gitRef": "b30a15e",
+      "date": "2026-08-13",
+      "summary": "chore(release): prepare Viewer 5.19.0 review"
     }
   ],
   "entries": [

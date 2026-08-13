@@ -282,6 +282,7 @@ flowchart TD
 | `773468a` | 移植串行 `captureFrame`、Annotation 显隐持久化、heatmap backend 降级和 WebGPU/WebXR 能力检测，同时保留品牌 UI 与本地导航。 | 5.19.0 公共能力前置提交，由 `maintenanceCommits` 登记。 |
 | `332ad44` | 为初始模型/environment prefetch 增加限定状态码的三次有界重试、退避和明确终态错误 UI，永久 4xx 不重试。 | 5.19.0 可靠性前置提交，由 `maintenanceCommits` 登记。 |
 | `874149f` | 固化真实 route、WebGL/WebGPU、移动 viewport、capture、tile、retry、Analytics 和限制项证据，并增加一次诊断性上游/Engine 版本输出。 | 证据与诊断维护，由 `maintenanceCommits` 登记。 |
+| `b30a15e` | 将 Viewer 5.19.0 PR 候选的 package、公开 release 头、Version History、Ledger、E2E 版本断言、深度研究补充、冲突和交付证据一次对齐。 | 发布审查支撑提交，不改变 `cb4a3f1` 作为候选产品行为 ref；由 `maintenanceCommits` 登记。 |
 
 ## 能力到提交的反向索引
 
