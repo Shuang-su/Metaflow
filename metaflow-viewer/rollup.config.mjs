@@ -65,6 +65,8 @@ const buildCss = {
     ]
 };
 
+const debugEngine = process.env.ENGINE === 'debug';
+
 const buildPublic = {
     input: 'src/index.ts',
     output: {
@@ -73,7 +75,7 @@ const buildPublic = {
         sourcemap: true
     },
     plugins: [
-        resolve(),
+        resolve(debugEngine ? { exportConditions: ['development'] } : {}),
         typescript(),
         json(),
         htmlPlugin(),

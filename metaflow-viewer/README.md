@@ -24,6 +24,14 @@ npx --no-install serve -s public -l 3000
 
 服务运行在 `http://localhost:3000`，`-s` 为 `/acg/...` 等深层路径提供 SPA fallback。
 
+排查 PlayCanvas 引擎断言或内部状态时，可以显式选择 development export：
+
+```bash
+ENGINE=debug npm run build
+```
+
+该命令只用于诊断；普通 `npm run build` 仍使用 PlayCanvas production/default export，部署流程也不会自动启用 Debug Engine。
+
 稳定 route 的开发模式分两个终端：
 
 ```bash

@@ -97,6 +97,18 @@ test('configured locale selection preserves URL defaults and browser fallback', 
     assert.match(localization, /return 'en'/);
 });
 
+test('PlayCanvas debug engine is opt-in and leaves the default build unchanged', async () => {
+    const [rollup, readme] = await Promise.all([
+        readText('../rollup.config.mjs'),
+        readText('../README.md')
+    ]);
+
+    assert.match(rollup, /const debugEngine = process\.env\.ENGINE === 'debug'/);
+    assert.match(rollup, /resolve\(debugEngine \? \{ exportConditions: \['development'\] \} : \{\}\)/);
+    assert.match(readme, /ENGINE=debug npm run build/);
+    assert.match(readme, /普通 `npm run build` 仍使用 PlayCanvas production\/default export/);
+});
+
 test('heatmap keeps one URL flag and degrades explicitly on WebGL', async () => {
     const [html, viewer, types] = await Promise.all([
         readText('../src/index.html'),
