@@ -26,11 +26,8 @@ const dictionaries: Record<string, Dictionary> = {
 
 let current: Dictionary = en;
 
-const detectLocale = (): string => {
-    const candidates = [
-        new URLSearchParams(location.search).get('lang'),
-        ...(navigator.languages ?? [navigator.language])
-    ];
+const detectLocale = (lang?: string): string => {
+    const candidates = [lang, ...(navigator.languages ?? [navigator.language])];
     const keys = Object.keys(dictionaries);
     for (const c of candidates) {
         if (!c) continue;
@@ -55,8 +52,8 @@ const localize = (key: string): string => current[key] ?? en[key] ?? key;
 // Detect the preferred locale and replace the text of every `[data-i18n]`
 // element with its translation. Call once after the DOM is parsed and before
 // any code reads localized strings.
-const initLocalization = () => {
-    const locale = detectLocale();
+const initLocalization = (lang?: string) => {
+    const locale = detectLocale(lang);
     current = dictionaries[locale];
     document.documentElement.lang = locale;
     document.querySelectorAll<HTMLElement>('[data-i18n]').forEach((el) => {

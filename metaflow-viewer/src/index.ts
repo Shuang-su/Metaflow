@@ -568,7 +568,7 @@ const main = async (canvas: HTMLCanvasElement, settingsJson: any, config: Config
 
     camera.addComponent('camera');
     initXr(global);
-    initLocalization();
+    initLocalization(config.lang);
     initUI(global);
 
     state.loadingStage = 'renderer';

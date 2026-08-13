@@ -1,7 +1,7 @@
 /* eslint-disable no-unused-vars */
 interface Window {
     sse: {
-        config: Record<string, unknown>,
+        config: Record<string, unknown> & { lang?: string },
         settings: Promise<object>,
         viewer?: object,
     }

@@ -90,6 +90,7 @@ type Config = {
     renderer: 'webgl' | 'webgpu'; // requested renderer
     heatmap: boolean; // render heatmap debug overlay
     debug: boolean; // auto-open developer debug panel
+    lang?: string; // override the UI language (default: detect from browser)
 };
 
 // observable state that can change at runtime

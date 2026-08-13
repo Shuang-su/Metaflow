@@ -77,6 +77,26 @@ test('5.19.0 clears inferred controls once and only persists subsequent state ch
     assert.doesNotMatch(index, /removeItem\('showAnnotations'\)/);
 });
 
+test('configured locale selection preserves URL defaults and browser fallback', async () => {
+    const [html, index, localization, types, globals] = await Promise.all([
+        readText('../src/index.html'),
+        readText('../src/index.ts'),
+        readText('../src/localization.ts'),
+        readText('../src/types.ts'),
+        readText('../types.d.ts')
+    ]);
+
+    assert.match(types, /lang\?: string; \/\/ override the UI language/);
+    assert.match(globals, /config: Record<string, unknown> & \{ lang\?: string \}/);
+    assert.match(html, /lang: url\.searchParams\.get\('lang'\) \|\| undefined/);
+    assert.match(index, /initLocalization\(config\.lang\)/);
+    assert.match(localization, /const detectLocale = \(lang\?: string\)/);
+    assert.match(localization, /const candidates = \[lang, \.\.\.\(navigator\.languages \?\? \[navigator\.language\]\)\]/);
+    assert.match(localization, /const initLocalization = \(lang\?: string\)/);
+    assert.doesNotMatch(localization, /location\.search/);
+    assert.match(localization, /return 'en'/);
+});
+
 test('heatmap keeps one URL flag and degrades explicitly on WebGL', async () => {
     const [html, viewer, types] = await Promise.all([
         readText('../src/index.html'),
