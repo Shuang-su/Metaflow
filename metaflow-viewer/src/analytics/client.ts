@@ -801,10 +801,11 @@ class AnalyticsClient {
         }
     }
 
-    markFirstFrame() {
+    markFirstFrame(properties: AnalyticsProperties = {}) {
         const elapsed = Math.max(0, Date.now() - this.startedAt);
         this.track('first_frame_ready', {
-            time_to_first_frame_ms: elapsed
+            time_to_first_frame_ms: elapsed,
+            ...properties
         });
         this.trackWebVitals('first_frame');
         this.trackResourceTimings('first_frame');

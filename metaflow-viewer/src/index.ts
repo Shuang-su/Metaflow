@@ -19,6 +19,7 @@ import { MeshCollision, loadTiledVoxelCollision, loadVoxelCollision } from './co
 import type { Collision } from './collision';
 import { observe } from './core/observe';
 import { initLocalization } from './localization';
+import { classifyPrimarySource, getResourceComposition, validateStreamingLodManifest } from './resource-source';
 import { importSettings } from './settings';
 import type { Config, Global, LoadMode, LoadingStage } from './types';
 import { initPoster, initUI } from './ui';
@@ -55,78 +56,48 @@ const formatError = (err: unknown) => {
     };
 };
 
-const detectStreamingLodByStructure = (data: any) => {
-    if (!data || typeof data !== 'object') return false;
-
-    const root = data as Record<string, any>;
-    const meta = root.meta && typeof root.meta === 'object' ? root.meta : undefined;
-    const octree = root.octree && typeof root.octree === 'object' ? root.octree : undefined;
-    const stream = root.stream && typeof root.stream === 'object' ? root.stream : undefined;
-
-    const hasCoreLodArrays =
-        Array.isArray(root.lods) ||
-        Array.isArray(root.levels) ||
-        Array.isArray(meta?.lods) ||
-        Array.isArray(meta?.levels);
-
-    const hasCoreNumericHints =
-        typeof root.lodCount === 'number' ||
-        typeof root.maxLod === 'number' ||
-        typeof root.minLod === 'number' ||
-        typeof meta?.lodCount === 'number' ||
-        typeof octree?.lodLevels === 'number';
-
-    const hasStrongStreamingShape =
-        (typeof octree === 'object' && (typeof octree?.lodLevels === 'number' || Array.isArray(octree?.nodes))) ||
-        (typeof stream === 'object' && (typeof stream?.chunkCount === 'number' || Array.isArray(stream?.chunks)));
-
-    const hasWeakHints = typeof root.chunkCount === 'number' || Array.isArray(root.chunks) || Array.isArray(root.nodes);
-
-    if (hasCoreLodArrays || hasStrongStreamingShape) return true;
-    if (hasCoreNumericHints && hasWeakHints) return true;
-    return false;
-};
-
 const loadGsplat = async (app: AppBase, config: Config, callbacks: LoadCallbacks) => {
     const { contents, contentUrl, aa } = config;
     const c = contents as unknown as ArrayBuffer;
-    const filename = new URL(contentUrl, location.href).pathname.split('/').pop() || '';
-    const lowerFilename = filename.toLowerCase();
-    const isJsonFile = lowerFilename.endsWith('.json');
-    const data = isJsonFile ? await (await contents).json() : undefined;
-    const streamingByStructure = detectStreamingLodByStructure(data);
-    const streamingByName = lowerFilename === 'meta.json' || lowerFilename.endsWith('lod-meta.json');
-    const hasStructurePayload = !!(data && typeof data === 'object');
-    const loadMode: LoadMode = streamingByName
-        ? 'streaming-json'
-        : hasStructurePayload && streamingByStructure
-          ? 'streaming-json'
-          : 'legacy-sog';
+    const filename = contentUrl ? new URL(contentUrl, location.href).pathname.split('/').pop() || '' : '';
+    const primarySourceKind = classifyPrimarySource(contentUrl, location.href);
+    const loadMode: LoadMode = primarySourceKind === 'streaming-lod' ? 'streaming-json' : 'legacy-sog';
 
     callbacks.onConflict(false);
-    if (isJsonFile && streamingByName && !streamingByStructure) {
-        console.info('[Loader] 已按文件名强制使用流式 LOD 入口', {
-            filename,
-            streamingByStructure,
-            decision: 'streaming-json(文件名优先)'
-        });
-    } else if (isJsonFile && hasStructurePayload && streamingByStructure !== streamingByName) {
-        callbacks.onConflict(true);
-        const decision = streamingByStructure ? 'streaming-json(结构优先)' : 'legacy-sog(结构优先)';
-        console.warn('[Loader] 资源识别冲突: 结构特征与文件名不一致', {
-            filename,
-            streamingByStructure,
-            streamingByName,
-            decision
-        });
-        callbacks.onStatus(`资源识别冲突，已采用 ${decision}`);
-    }
-
     callbacks.onMode(loadMode);
     callbacks.onStage('detect');
-    callbacks.onStatus(
-        loadMode === 'streaming-json' ? '已识别流式 LOD 资源，准备加载索引...' : '已识别传统 SOG 资源，准备加载模型...'
-    );
+
+    if (primarySourceKind === 'unsupported') {
+        callbacks.onConflict(true);
+        callbacks.onStatus(`不支持的主体资源入口：${filename || '(empty)'}`);
+        throw new Error(`Unsupported primary resource entry: ${filename || '(empty)'}`);
+    }
+
+    const sourceStatuses = {
+        'streaming-lod': '已识别流式 LOD 资源，准备加载索引...',
+        'sog-bundle': '已识别 SOG Bundle，准备加载模型...',
+        'sog-meta': '已识别 Loose SOG 元数据，准备加载模型...',
+        ply: '已识别 PLY 模型，准备加载模型...'
+    } as const;
+    callbacks.onStatus(sourceStatuses[primarySourceKind]);
+
+    let data: object | undefined;
+    if (primarySourceKind === 'streaming-lod') {
+        if (!contents) {
+            throw new Error('Streaming LOD entry is missing its prefetched response');
+        }
+        const response = await contents;
+        try {
+            const manifest: unknown = await response.clone().json();
+            validateStreamingLodManifest(manifest);
+            data = manifest as object;
+        } catch (err) {
+            callbacks.onConflict(true);
+            const error = formatError(err);
+            callbacks.onStatus(`流式 LOD 清单无效：${error.error_message}`);
+            throw new Error(`Invalid streaming LOD manifest: ${error.error_message}`, { cause: err });
+        }
+    }
 
     const asset = new Asset(filename, 'gsplat', { url: contentUrl, filename, contents: c }, data);
 
@@ -397,6 +368,8 @@ const createCollisionLoadPlan = (app: AppBase, config: Config, state: Global['st
 const main = async (canvas: HTMLCanvasElement, settingsJson: any, config: Config) => {
     const { app, camera, renderer } = await createApp(canvas, config);
     const events = new EventHandler();
+    const primarySourceKind = classifyPrimarySource(config.contentUrl, location.href);
+    const resourceComposition = getResourceComposition(config.environmentUrl);
 
     const preferenceMigrationKey = 'metaflowViewerPreferenceMigration';
     const preferenceMigrationVersion = '5.19.0';
@@ -480,7 +453,9 @@ const main = async (canvas: HTMLCanvasElement, settingsJson: any, config: Config
         route_matched: config.analyticsRouteMatched,
         has_environment: !!config.environmentUrl,
         has_collision: !!(config.voxelManifestUrl || config.voxelUrl || config.collisionUrl),
-        requested_renderer: config.renderer
+        requested_renderer: config.renderer,
+        primary_source_kind: primarySourceKind,
+        resource_composition: resourceComposition
     });
 
     const analyticsPageStartedAt = Date.now();
@@ -493,12 +468,17 @@ const main = async (canvas: HTMLCanvasElement, settingsJson: any, config: Config
             stage_elapsed_ms: Math.max(0, now - analyticsLoadingStageStartedAt),
             page_elapsed_ms: Math.max(0, now - analyticsPageStartedAt),
             progress: state.progress,
-            loading_mode: state.loadingMode
+            loading_mode: state.loadingMode,
+            primary_source_kind: primarySourceKind,
+            resource_composition: resourceComposition
         });
         analyticsLoadingStageStartedAt = now;
     });
     events.on('firstFrame', () => {
-        analytics.markFirstFrame();
+        analytics.markFirstFrame({
+            primary_source_kind: primarySourceKind,
+            resource_composition: resourceComposition
+        });
         void analytics.flush();
     });
     events.on('cameraMode:changed', (cameraMode: string, previousCameraMode: string) => {
@@ -619,6 +599,8 @@ const main = async (canvas: HTMLCanvasElement, settingsJson: any, config: Config
                 {
                     loading_stage: state.loadingStage,
                     loading_mode: state.loadingMode,
+                    primary_source_kind: primarySourceKind,
+                    resource_composition: resourceComposition,
                     ...error
                 },
                 { beacon: true }

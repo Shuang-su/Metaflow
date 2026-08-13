@@ -604,10 +604,9 @@ def find_voxel_manifest_file(folder_path):
 
 
 def find_streaming_model_file(folder_path):
-    for name in ("lod-meta.json", "meta.json"):
-        candidate = folder_path / name
-        if candidate.exists():
-            return candidate
+    candidate = folder_path / "lod-meta.json"
+    if candidate.exists():
+        return candidate
 
     nested_candidates = sorted(
         file for file in folder_path.glob(STREAMING_SUBDIR_GLOB)
@@ -629,7 +628,7 @@ def has_direct_resource_files(folder_path):
     if list(folder_path.glob("*.sog")):
         return True
 
-    return any((folder_path / name).exists() for name in ("lod-meta.json", "meta.json"))
+    return (folder_path / "lod-meta.json").exists()
 
 
 def strip_json_comments(text):

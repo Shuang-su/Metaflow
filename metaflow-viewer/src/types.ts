@@ -9,6 +9,10 @@ type InputMode = 'desktop' | 'touch';
 
 type LoadMode = 'legacy-sog' | 'streaming-json';
 
+type PrimarySourceKind = 'streaming-lod' | 'sog-bundle' | 'sog-meta' | 'ply' | 'unsupported';
+
+type ResourceComposition = 'subject-only' | 'subject-with-environment';
+
 type VoxelCoordinateSpace = 'world' | 'metaflow-rz180';
 
 type AnimationFirstExitMode = 'orbit' | 'default';
@@ -101,7 +105,7 @@ type State = {
     progress: number; // content loading progress 0-100, -1 indeterminate
     loadingMode: LoadMode; // current model loading strategy
     loadingStage: LoadingStage; // structured loading stage for UI/logging
-    loadingConflict: boolean; // true when structure/name detection conflict occurs
+    loadingConflict: boolean; // true when the selected entry conflicts with its format contract
     loadingStatus: string; // current localized loading status
     inputMode: InputMode;
     cameraMode: CameraMode;
@@ -137,6 +141,8 @@ export {
     CameraMode,
     InputMode,
     LoadMode,
+    PrimarySourceKind,
+    ResourceComposition,
     VoxelCoordinateSpace,
     AnimationFirstExitMode,
     RevealEffect,

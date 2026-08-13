@@ -28,15 +28,18 @@ test('route and explicit-query precedence remains the Metaflow contract', async 
     assert.match(html, /fetch\('\/data\/index\.json', \{\s*cache: 'no-store'\s*\}\)/s);
 });
 
-test('legacy SOG and streaming LOD paths keep separate first-frame contracts', async () => {
-    const [index, viewer] = await Promise.all([
+test('engine parser identity and public loading modes keep separate first-frame contracts', async () => {
+    const [index, resourceSource, viewer] = await Promise.all([
         readText('../src/index.ts'),
+        readText('../src/resource-source.ts'),
         readText('../src/viewer.ts')
     ]);
 
     assert.match(index, /(?:interface|type) LoadCallbacks/);
-    assert.match(index, /detectStreamingLodByStructure/);
-    assert.match(index, /streamingByName[\s\S]*'streaming-json'[\s\S]*'legacy-sog'/);
+    assert.doesNotMatch(index, /detectStreamingLodByStructure/);
+    assert.match(index, /primarySourceKind === 'streaming-lod' \? 'streaming-json' : 'legacy-sog'/);
+    assert.match(resourceSource, /filename === 'lod-meta\.json'/);
+    assert.match(resourceSource, /filename\.endsWith\('\.json'\).*'sog-meta'/);
     assert.match(index, /callbacks\.onMode\(loadMode\)/);
     assert.match(viewer, /const instance = gsplatComponent\.instance/);
     assert.match(viewer, /instance\.sorter\.on\('updated', onSorterUpdated\)/);

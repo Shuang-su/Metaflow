@@ -143,7 +143,9 @@ test('viewer wires analytics into route, load, UI, navigation, and XR surfaces',
     assert.match(index, /createAnalyticsClient/);
     assert.match(index, /analytics\.track\('resource_load_started'/);
     assert.match(index, /analytics\.track\('loading_stage_changed'/);
-    assert.match(index, /analytics\.markFirstFrame\(\)/);
+    assert.match(index, /analytics\.markFirstFrame\(\{/);
+    assert.match(index, /primary_source_kind: primarySourceKind/);
+    assert.match(index, /resource_composition: resourceComposition/);
     assert.match(index, /analytics\.track\('navigation_requested'/);
     assert.match(ui, /TRACKED_UI_ACTIONS/);
     assert.match(ui, /analytics\.track\('ui_clicked'/);
