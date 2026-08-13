@@ -27,10 +27,12 @@ import type { GSplatComponent, CameraComponent, Entity, Layer } from 'playcanvas
 import { Annotations } from './annotations';
 import { CameraManager, isWalkAllowed } from './camera-manager';
 import type { Camera } from './cameras/camera';
+import { Capture } from './capture';
 import type { Collision } from './collision';
 import { MeshCollision, TiledVoxelCollision, VoxelCollision } from './collision';
 import { nearlyEquals } from './core/math';
 import { DebugPanel } from './debug';
+import { captureCameraState, restoreCameraState } from './debug/camera-state';
 import { GsplatRevealRadial } from './gsplat-reveal-radial';
 import type { RevealDotProfile } from './gsplat-reveal-radial';
 import { InputController } from './input-controller';
@@ -586,6 +588,65 @@ class Viewer {
             };
 
             window.animationDuration = state.animationDuration;
+            window.app = app;
+
+            // Capture owns temporary render targets and camera redirects, so
+            // calls are serialized. The outer restore also covers Metaflow's
+            // CameraManager pose and animation state on success or failure.
+            let capture: Capture | null = null;
+            let captureQueue: Promise<unknown> = Promise.resolve();
+            const waitForFrame = () =>
+                new Promise<void>((resolve) => {
+                    app.once('frameend', () => resolve());
+                    app.renderNextFrame = true;
+                });
+
+            window.captureFrame = (options = {}) => {
+                const run = async () => {
+                    const savedCameraState = captureCameraState(this.cameraManager, state);
+                    const savedAnimationTime = state.animationTime;
+                    const savedAnimationPaused = state.animationPaused;
+
+                    // Freeze animation while the offscreen frame is prepared so
+                    // dimensions/readback latency cannot advance the visible pose.
+                    if (state.hasAnimation) {
+                        state.animationPaused = true;
+                    }
+
+                    try {
+                        if (!capture) {
+                            capture = new Capture(app, camera.camera, () => this.cameraFrame ?? null);
+                        }
+                        return await capture.grab({
+                            ...options,
+                            scrub: (time) => {
+                                if (state.hasAnimation) {
+                                    events.fire('scrubAnim', time);
+                                }
+                            }
+                        });
+                    } finally {
+                        if (state.hasAnimation) {
+                            // Reset the animation cursor without changing mode;
+                            // the following frame evaluates the saved time.
+                            events.fire('scrubAnim', savedAnimationTime, false);
+                            await waitForFrame();
+                        }
+
+                        restoreCameraState(this.cameraManager, state, savedCameraState);
+                        await waitForFrame();
+                        state.animationPaused = savedAnimationPaused;
+                    }
+                };
+
+                const result = captureQueue.then(run, run);
+                captureQueue = result.then<void>(
+                    () => undefined,
+                    () => undefined
+                );
+                return result;
+            };
+
             window.getCameraPose = getCameraPose;
             window.logCameraPose = () => {
                 const pose = getCameraPose();
@@ -652,6 +713,9 @@ class Viewer {
             const createCollisionOverlay = (nextCollision: Collision) => {
                 // Voxel overlays use compute shaders and therefore remain
                 // WebGPU-only; mesh collision uses standard line rendering.
+                if (config.heatmap && renderer === 'webgl') {
+                    console.warn('[Heatmap] WebGPU is required; continuing without the voxel heatmap overlay.');
+                }
                 if (nextCollision instanceof VoxelCollision && renderer !== 'webgl') {
                     setOverlayLoadingStatus('正在准备体素调试叠层...');
                     const overlay = new VoxelDebugOverlay(app, nextCollision, camera);

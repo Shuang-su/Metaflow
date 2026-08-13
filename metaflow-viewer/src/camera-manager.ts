@@ -326,9 +326,11 @@ class CameraManager {
         });
 
         // handle user scrubbing the animation timeline
-        events.on('scrubAnim', (time) => {
+        events.on('scrubAnim', (time, activate = true) => {
             // switch to animation camera if we're not already there
-            state.cameraMode = 'anim';
+            if (activate) {
+                state.cameraMode = 'anim';
+            }
 
             // set time
             controllers.anim.animState.cursor.value = time;

@@ -116,6 +116,7 @@ type State = {
     collisionOverlayEnabled: boolean;
     isFullscreen: boolean;
     controlsHidden: boolean;
+    showAnnotations: boolean;
     gamingControls: boolean;
 };
 

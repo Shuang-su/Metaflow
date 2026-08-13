@@ -1,4 +1,5 @@
 import { Entity } from 'playcanvas';
+import type { ScriptComponent } from 'playcanvas';
 
 import { Annotation } from './annotation';
 import type { Annotation as AnnotationSettings } from './settings';
@@ -24,15 +25,20 @@ class Annotations {
         const updateVisibility = () => {
             const firstPersonGamingControls =
                 (state.cameraMode === 'walk' || state.cameraMode === 'fly') && state.gamingControls;
-            const hidden = state.controlsHidden || firstPersonGamingControls;
+            const hidden = !state.showAnnotations || state.controlsHidden || firstPersonGamingControls;
             parentDom.style.display = hidden ? 'none' : 'block';
             Annotation.opacity = hidden ? 0.0 : 1.0;
+
+            if (hidden && Annotation.activeAnnotation) {
+                Annotation.activeAnnotation.hideTooltip();
+            }
             if (this.annotations.length > 0) {
                 global.app.renderNextFrame = true;
             }
         };
 
         global.events.on('controlsHidden:changed', updateVisibility);
+        global.events.on('showAnnotations:changed', updateVisibility);
         global.events.on('cameraMode:changed', updateVisibility);
         global.events.on('gamingControls:changed', updateVisibility);
         updateVisibility();
@@ -52,7 +58,7 @@ class Annotations {
             const entity = new Entity();
             entity.addComponent('script');
             entity.script.create(Annotation);
-            const script = entity.script as any;
+            const script = entity.script as ScriptComponent & { annotation: Annotation };
             script.annotation.label = (i + 1).toString();
             script.annotation.title = ann.title;
             script.annotation.text = ann.text;

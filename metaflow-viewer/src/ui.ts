@@ -24,6 +24,7 @@ const TRACKED_UI_ACTIONS: Record<string, string> = {
     exitFullscreen: 'fullscreen_exit',
     performanceModeRow: 'performance_mode_toggle',
     gamingControlsRow: 'gaming_controls_toggle',
+    annotationsRow: 'annotations_toggle',
     frame: 'frame_scene',
     reset: 'reset_camera',
     desktopTab: 'help_desktop_tab',
@@ -586,7 +587,7 @@ const initJoystick = (
 const initAnnotationNav = (
     dom: Record<string, HTMLElement>,
     events: EventHandler,
-    state: { loaded: boolean; inputMode: string; controlsHidden: boolean },
+    state: { loaded: boolean; inputMode: string; controlsHidden: boolean; showAnnotations: boolean },
     annotations: Annotation[]
 ) => {
     // Only show navigator when there are at least 2 annotations
@@ -604,7 +605,7 @@ const initAnnotationNav = (
         // Metaflow mobile annotation navigation sits near the screen edge.
         // Hide it while higher-priority overlays are open so it never covers
         // walk instructions, help/settings, or XR prompts.
-        if (!state.loaded || isTopOverlayOpen()) {
+        if (!state.loaded || !state.showAnnotations || isTopOverlayOpen()) {
             dom.annotationNav.classList.add('hidden');
             return;
         }
@@ -613,7 +614,7 @@ const initAnnotationNav = (
     };
 
     const updateFade = () => {
-        if (!state.loaded || isTopOverlayOpen()) {
+        if (!state.loaded || !state.showAnnotations || isTopOverlayOpen()) {
             dom.annotationNav.classList.remove('faded-in');
             dom.annotationNav.classList.add('faded-out');
             return;
@@ -655,6 +656,10 @@ const initAnnotationNav = (
     });
     events.on('inputMode:changed', updateMode);
     events.on('controlsHidden:changed', updateFade);
+    events.on('showAnnotations:changed', () => {
+        updateMode();
+        updateFade();
+    });
     events.on('uiModal:changed', () => {
         updateMode();
         updateFade();
@@ -737,6 +742,9 @@ const initUI = (global: Global) => {
         'pause',
         'settings',
         'settingsPanel',
+        'annotationsRow',
+        'annotationsOption',
+        'annotationsCheck',
         'orbitCamera',
         'flyCamera',
         'fpsCamera',
@@ -994,6 +1002,24 @@ const initUI = (global: Global) => {
     events.on('inputMode:changed', updateGamingControls);
     updateGamingControls();
 
+    // Annotation visibility toggle. Routes without annotations do not expose
+    // an inert setting, while the stored preference survives route changes.
+    const updateAnnotationsVisibility = () => {
+        dom.annotationsRow.classList.toggle('hidden', global.settings.annotations.length === 0);
+        dom.annotationsCheck.classList.toggle('active', state.showAnnotations);
+        global.app.renderNextFrame = true;
+    };
+
+    dom.annotationsRow.addEventListener('click', () => {
+        state.showAnnotations = !state.showAnnotations;
+    });
+
+    events.on('showAnnotations:changed', updateAnnotationsVisibility);
+    events.on('showAnnotations:changed', (value: boolean) => {
+        localStorage.setItem('showAnnotations', String(value));
+    });
+    updateAnnotationsVisibility();
+
     // AR/VR
     const arChanged = () => dom.arMode.classList[state.hasAR ? 'remove' : 'add']('hidden');
     const vrChanged = () => dom.vrMode.classList[state.hasVR ? 'remove' : 'add']('hidden');
@@ -1035,14 +1061,19 @@ const initUI = (global: Global) => {
             xr_mode: type,
             renderer: global.renderer
         });
-        if (global.renderer !== 'webgl') {
+        if (global.app.xr.isAvailable(type === 'AR' ? 'immersive-ar' : 'immersive-vr')) {
+            events.fire(type === 'AR' ? 'startAR' : 'startVR');
+        } else if (global.renderer === 'webgpu') {
             global.analytics.track('xr_failed', {
                 xr_mode: type,
                 reason: 'webgpu_requires_reload'
             });
             showXrModal();
         } else {
-            events.fire(type === 'AR' ? 'startAR' : 'startVR');
+            global.analytics.track('xr_failed', {
+                xr_mode: type,
+                reason: 'current_backend_unavailable'
+            });
         }
     };
 

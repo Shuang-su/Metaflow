@@ -404,6 +404,7 @@ const main = async (canvas: HTMLCanvasElement, settingsJson: any, config: Config
         localStorage.removeItem('retinaDisplay');
     }
     const storedPerformanceMode = localStorage.getItem('performanceMode');
+    const storedShowAnnotations = localStorage.getItem('showAnnotations');
 
     const state = observe(events, {
         loaded: false,
@@ -429,6 +430,7 @@ const main = async (canvas: HTMLCanvasElement, settingsJson: any, config: Config
         collisionOverlayEnabled: false,
         isFullscreen: false,
         controlsHidden: false,
+        showAnnotations: storedShowAnnotations !== null ? storedShowAnnotations === 'true' : true,
         gamingControls: localStorage.getItem('gamingControls') === 'true'
     });
 
@@ -510,6 +512,12 @@ const main = async (canvas: HTMLCanvasElement, settingsJson: any, config: Config
     events.on('gamingControls:changed', (value: boolean) => {
         analytics.track('settings_changed', {
             setting: 'gaming_controls',
+            value
+        });
+    });
+    events.on('showAnnotations:changed', (value: boolean) => {
+        analytics.track('settings_changed', {
+            setting: 'show_annotations',
             value
         });
     });
