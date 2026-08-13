@@ -670,7 +670,7 @@ const main = async (canvas: HTMLCanvasElement, settingsJson: any, config: Config
 console.log(
     `Metaflow Viewer ${versionHistory.current.displayVersion} ` +
         `(semver ${appVersion}, index schema ${versionHistory.current.indexSchemaVersion}) | ` +
-        `Metaflow fork synced toward SSV v1.26.2 (PlayCanvas 2.19.2) | ` +
+        `Metaflow fork synced toward SSV v1.29.1 (PlayCanvas 2.21.3) | ` +
         `Engine v${engineVersion} (${engineRevision})`
 );
 

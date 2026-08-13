@@ -1,13 +1,13 @@
 # Viewer 三方审查：v1.26.2 / Metaflow 5.18.1 / v1.29.1
 
-> **独立决策：Adopt（分阶段移植；本地实现进行中，尚未发布）。** 文件名保留原计划的 `...to-v1.28.0` 稳定入口；执行期间出现的 `v1.29.0` 和实施预检出现的 `v1.29.1` 均按停止条件固定并扩入真实比较区间，`v1.28.0/v1.29.0` 作为不可变中间快照。
+> **独立决策：Adopt（本地实现与验证已完成，尚未发布）。** 文件名保留原计划的 `...to-v1.28.0` 稳定入口；执行期间出现的 `v1.29.0` 和实施预检出现的 `v1.29.1` 均按停止条件固定并扩入真实比较区间，`v1.28.0/v1.29.0` 作为不可变中间快照。实现结果、冲突定案和浏览器证据见 [MF-30 evidence](../../../changes/30-viewer-upstream-v1.29.1/evidence.md) 与 [conflict register](../../../changes/30-viewer-upstream-v1.29.1/conflicts.md)。
 
 ## 1. 对象、身份与结论边界
 
 | 角色 | 对象 | 精确身份 |
 |---|---|---|
 | B：当前上游基准 | `references/supersplat-viewer-v1.26.2/` | tag `v1.26.2`；commit `f1327060f0a17c342de518712aabf7f30f2747c5`；tree `21469f8e5944e60c4f02fd8b47e97e4a38946ef0`；83 tracked files |
-| M：当前 Metaflow | `metaflow-viewer/` | Viewer `5.18.1`；上游事实源仍为 `v1.26.2`；唯一活跃 Viewer 源码 |
+| M：审查时 Metaflow | `metaflow-viewer/` | Viewer `5.18.1`；审查时上游事实源为 `v1.26.2`；唯一活跃 Viewer 源码。MF-30 本地分支现已把活跃源码底层移植至 `v1.29.1 / PlayCanvas 2.21.3`，产品仍未发布 |
 | N：最新候选 | `references/supersplat-viewer-v1.29.1/` | tag `v1.29.1`；tag object `7bfbc192cba2cceedaffc7b9a9738c59af6de022`；commit `3a61fa606e12640b1e87f9a733ed43d7fbc5d925`；tree `671059c4b4a3693115ad010207b66312f5cbbc8c`；85 tracked files |
 | 区间中间快照 | `references/supersplat-viewer-v1.28.0/`、`references/supersplat-viewer-v1.29.0/` | 保留用于定位 annotation/heatmap、streaming 参数时序与 `colorUpdateAngle` 最终 patch 的边界 |
 
@@ -49,10 +49,10 @@ Adopt 的含义是：以 N 的上游行为为输入，分阶段移植到 `metafl
 | streaming SH 更新阈值 | B 默认值；没有 M 的 4/2 策略 | M 明确使用 `colorUpdateAngle = performanceMode ? 4 : 2` | N 使用 `performanceMode ? 1 : 0.2` | **Conflict → Keep**：最终保留 M `4/2`，把 N `1/0.2` 仅作为固定相机、同 renderer 的 A/B 对照 | 高 / M | 已锁定源码合同；WebGL/WebGPU 的提交帧数、耗时与画面对照在实现验收补齐。这是有意的上游偏差 |
 | environment | 支持 environment | 环境单独加载且不阻塞主体首帧，route 可配置 | 基础支持保留 | **Port** | 中 / M | Xunyangpai 环境可见；需大环境弱网行为 |
 | 首帧与 loading complete | 上游基础加载 UI | `frame:ready`、sort/LOD timeout、loading→visible→animation 顺序 | on-demand rendering 改变何时安排帧 | **Port** | 高 / L | Cyrene、Xun、Dayun 完成；必须增加“没有持续 render loop”回归 |
-| radial reveal / LOD reveal | 无 M 的粒子揭示合同 | legacy、streaming、environment 分路径揭示，支持 `?noreveal` | 无等价能力；会受 GSplat 参数和 render-next-frame 影响 | **Port** | 高 / M | 多 route 目视通过；尚无视觉阈值基线覆盖所有资源 |
+| radial reveal / LOD reveal | 无 M 的粒子揭示合同 | legacy、streaming、environment 分路径揭示，支持 `?noreveal` | 无等价能力；会受 GSplat 参数和 render-next-frame 影响 | **Port** | 高 / M | MF-30 在 Cyrene、Xunyangpai、Dayun、Bijiashan 运行并保存代表截图；未建立全资源像素阈值基线 |
 | Orbit / walk / fly | 有基础相机模式 | route settings 控制 walk/fly，M 调整控制器、cursor 与退出策略 | camera/engine 接口继续演进 | **Port** | 高 / M | Xun fly、Cyrene/C2 Orbit 运行；手柄未实测 |
 | single voxel collision | 有 voxel 基础 | 加载单一 voxel，WebGPU 查询与 debug overlay | 基础类存在 | **Keep + Port** | 中 / M | Xunyangpai single voxel 运行；CPU/WebGL collision 语义需复核 |
-| tiled voxel collision | 无 | manifest、按位置装载、缓存、坐标转换与 active collider | 无等价能力 | **Keep** | 高 / L | Dayun、Bijiashan 运行；需补 tile 缺失/重试/边界穿越自动测试 |
+| tiled voxel collision | 无 | manifest、按位置装载、缓存、坐标转换与 active collider | 无等价能力 | **Keep** | 高 / L | Dayun 数值化 tile 切换与坐标映射、Bijiashan 缺 tile 局部降级和恢复均已运行；跨 tile 长时间漫游未覆盖 |
 | voxel coordinate space | 单一上游空间 | 支持默认与 `metaflow-rz180`，tiled scene 有明确空间映射 | 无 M 兼容层 | **Keep** | 高 / M | Dayun/Bijiashan 目视；需数值化边界与法向 fixture |
 | 相机与 synthetic animation 首次退出 | 上游退出策略 | 首次用户 Orbit 输入可退出 synthetic animation，并按资源策略隐藏/恢复 timeline | 无资源级策略 | **Keep + Port** | 高 / M | C2-Lib 实测 timeline/pause 隐藏、play 出现；触摸退出需重跑 |
 | settings v1/v2 | 上游 schema v1/v2 | 扩展 post effects、loading、collision、route 产品字段 | N 的 `anyPostEffectEnabled` 假设字段存在 | **Conflict**：在 M 增加版本归一化/默认值适配，禁止要求现有资源重写后才可升级 | 高 / L | N 读取 Cyrene settings-v2 在 `postEffectSettings.*.enabled` 报错；这是 Adopt 的发布阻断项 |
@@ -62,11 +62,11 @@ Adopt 的含义是：以 N 的上游行为为输入，分阶段移植到 `metafl
 | 品牌与产品导航 | SuperSplat 品牌 | Metaflow logo、域名、标题、分享入口 | SuperSplat 品牌 | **Keep** | 低 / S | 截图确认；需要无障碍名称回归 |
 | locale | 上游 9 locale | M 为产品文案与新增控制补齐 locale | N 新增 annotation 文案并更新同一批 locale | **Port** | 中 / M | 当前中文/英文可见；所有 9 locale key 一致性需自动化 |
 | voxel/reveal 调试工具 | 上游基础 debug | M 增加 voxel overlay、streaming/loading conflict、reveal 逃生参数 | N 有 opt-in debug engine 与 streaming debug 参数 | **Port + Replace** | 中 / M | 静态和手工 URL 开关；发布构建体积/暴露边界需检查 |
-| on-demand rendering 与 near clip | 持续渲染旧路径 | M 依赖首帧、reveal 和调试主动调度 | N 以 on-demand 为准并 clamp near clip | **Replace**，同时为每个 M 动画/状态更新显式请求帧 | 高 / M | N Xun运行；M 功能未在 N 代码上组合验证，属实现 Gate |
-| `captureFrame` | 无 | 无稳定公共 capture 合同 | `window.captureFrame` 可用 | **Replace**：采用 N API，不另造本地接口 | 中 / S | N Xun返回 function；输出尺寸/色彩/透明度矩阵待实现分支验证 |
+| on-demand rendering 与 near clip | 持续渲染旧路径 | M 依赖首帧、reveal 和调试主动调度 | N 以 on-demand 为准并 clamp near clip | **Replace**，同时为每个 M 动画/状态更新显式请求帧 | 高 / M | MF-30 已组合验证 legacy/streaming、reveal、animation、collision/debug、capture、WebGL/WebGPU；所有完成态均保持 `autoRender=false` |
+| `captureFrame` | 无 | 无稳定公共 capture 合同 | `window.captureFrame` 可用 | **Replace**：采用 N API，不另造本地接口 | 中 / S | MF-30 已验证 WebGL/WebGPU、默认/非法尺寸、supersample、并发、动画 scrub、后处理和注入 readback 失败后的状态恢复 |
 | annotation 显隐 | 没有 sticky toggle | M 保留 annotation 展示但无 N 的持久化开关 | UI 开关并写 `showAnnotations=false` | **Replace + Port**：采用 N 状态与 UI，合并 M locale/品牌 | 低 / S | N Xun active→inactive，localStorage 正确；route 切换持久性待自动化 |
 | heatmap 参数 | 旧行为含糊 | M 不建立另一套公开定义 | N 文档明确 URL 参数 | **Replace** | 低 / S | 静态参数路径；没有合适 heatmap 视觉 fixture |
-| PlayCanvas / 构建链 | PC `2.19.2` | PC `2.19.2`，M 增加 analytics 与 Playwright | PC `2.21.3`、ESLint config v3 beta、Prettier | **Conflict**：PC 升级必须独立一批并跑 collision/XR/后处理/移动回归；不把格式化噪音和功能 port 混在同一提交 | 高 / L | N install/fmt/lint/typecheck/build 通过；组合 M 后尚未验证 |
+| PlayCanvas / 构建链 | PC `2.19.2` | PC `2.19.2`，M 增加 analytics 与 Playwright | PC `2.21.3`、ESLint config v3 beta、Prettier | **Conflict → Replace + Keep**：PC/工具升级和格式化分别提交，保留 Analytics、rrweb、Playwright 与多入口构建 | 高 / L | MF-30 clean install/fmt/lint/typecheck/publint/build 通过；collision、后处理、WebGL/WebGPU 与移动 emulation 已组合运行，XR 硬件仍未验证 |
 
 本地能力的主要源码证据位于 [`metaflow-viewer/src/index.ts`](../../../../metaflow-viewer/src/index.ts)、[`viewer.ts`](../../../../metaflow-viewer/src/viewer.ts)、[`camera-manager.ts`](../../../../metaflow-viewer/src/camera-manager.ts)、[`collision/`](../../../../metaflow-viewer/src/collision)、[`settings.ts`](../../../../metaflow-viewer/src/settings.ts)、[`schemas/v2.ts`](../../../../metaflow-viewer/src/schemas/v2.ts)、[`xr-navigation.ts`](../../../../metaflow-viewer/src/xr-navigation.ts)、[`analytics/client.ts`](../../../../metaflow-viewer/src/analytics/client.ts) 与 [`voxel-debug-overlay.ts`](../../../../metaflow-viewer/src/voxel-debug-overlay.ts)。
 
@@ -78,7 +78,7 @@ Adopt 的含义是：以 N 的上游行为为输入，分阶段移植到 `metafl
 | M `5.18` | `20.19.0` | install/build：通过；`node --test tests/*.mjs`：52/52 通过 | e2e fixture 使用一次性副本准备，产品目录未写入 |
 | 中间 `v1.28.0` | `20.19.0` | install/build：通过 | annotation toggle 浏览器实测通过 |
 | 中间 N `v1.29.0` | `20.19.0` | `npm ci`、`npm run fmt`、lint、typecheck、build：全部通过 | build 79.11 s，最大 RSS 949,870,592 bytes；npm audit 5 high；需在实现 Change 中处置而非自动修包 |
-| 目标 N `v1.29.1` | `20.19.0` | 精确 tag/commit/tree/85 files/规范化摘要已验证；实现分支 clean build 尚未在本节更新时间运行 | `v1.29.0 → v1.29.1` 仅 package/lock 版本和 `colorUpdateAngle` 三文件变化；最终构建证据回填 MF-30 冲突登记 |
+| 目标 N `v1.29.1` | `20.19.0` | 精确 tag/commit/tree/85 files/规范化摘要已验证；MF-30 活跃源码 clean install、fmt、lint、typecheck、publint、build 与全量 Viewer tests 通过 | `v1.29.0 → v1.29.1` 的 SH 阈值没有机械采用；最终结果见 MF-30 证据 |
 
 N 的 disposable build 只在 `.codex-work/` 副本中读取现有 data；`references/supersplat-viewer-v1.29.0/` 与 `references/supersplat-viewer-v1.29.1/` 本身保持无依赖、无 dist。
 
@@ -99,15 +99,17 @@ N 的 disposable build 只在 `.codex-work/` 副本中读取现有 data；`refer
 
 原始 console 与 DOM 快照见 [`evidence/viewer/raw/`](evidence/viewer/raw/)。本次没有保留完整 HAR；network 结论仅限上表中实际观察的完成请求、404 与 tile parse warning，不宣称拥有请求瀑布的长期原始副本。
 
+MF-30 实现后的完整必测 route、WebGL/WebGPU、移动 viewport、capture、annotation、retry、Analytics、missing tile 和 SH A/B 结果已单独归档到 [MF-30 implementation evidence](../../../changes/30-viewer-upstream-v1.29.1/evidence.md)。该记录区分了升级前 M/N 审查证据和移植后的组合运行证据，避免用后验结果改写原始三方观察。
+
 ## 7. 未验证与失败项
 
 - XR 头显、immersive session、controller/hand input：硬件不可用，**未验证**。
 - iOS Safari、Android Chrome 真机、多点触控、手柄：**未验证**；移动 viewport 不能替代真机。
-- 弱网、XHR timeout、retry slot、首帧长期挂起、analytics error-beacon storm：本轮没有做网络整形，**未验证**。
-- B/N 直接读取 M 的 Cyrene settings-v2：已验证失败，是必须解决的兼容问题。
-- Bijiashan 两个缺失 tile：已保留 warning，未在本轮修改数据或 fallback。
-- `captureFrame` 的 WebGL/WebGPU 色彩、透明度、supersample 与自动化输出稳定性：仅验证 API 存在，完整矩阵未运行。
-- heatmap 视觉结果和真实 XR：没有用静态检查冒充运行结果。
+- MF-30 已补 delayed SOG/environment、bounded retry、终态错误 UI 与 Analytics error-beacon 节流；没有做操作系统级带宽/丢包整形。
+- B/N 直接读取 Cyrene settings-v2 的既有失败已由 MF-30 归一化层解决，现有数据没有重写。
+- Bijiashan 缺失 tile 已验证为局部关闭 walk、主场景不中断、回到完整 tile 后恢复；没有修改缺失数据。
+- `captureFrame` 已覆盖 WebGL/WebGPU、post effects、supersample、并发、动画 scrub 和注入 readback 失败后的恢复；没有把单机截图当作跨 GPU 字节稳定性声明。
+- heatmap WebGL 受控降级已运行；真实 XR 仍未验证。
 
 ## 8. 决策：Adopt
 
@@ -196,4 +198,4 @@ N 的 disposable build 只在 `.codex-work/` 副本中读取现有 data；`refer
 | XR | 有硬件才可标记通过；无硬件时必须保留未验证，不得阻塞非 XR Adopt 实现，但可以阻塞“XR 已验证”的发布声明 |
 | Compatibility | 现有 settings v1/v2、legacy SOG、streaming LOD、single/tiled voxel 无需数据迁移 |
 
-本报告的 Adopt 结论只完成“是否值得升级”和“如何安全实施”的决策；产品源码仍保持审查前状态。
+本报告的 Adopt 结论已在 `codex/viewer-upstream-v1.29.1` 本地分支实现并验证；产品发布状态仍保持审查前的 Viewer `5.18.1`，远端与生产未改变。

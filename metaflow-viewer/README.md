@@ -9,10 +9,10 @@
 
 - 展示版本：`5.18.1`
 - 包版本：`5.18.1`
-- 上游 SuperSplat Viewer：`v1.26.2`
-- PlayCanvas：`2.19.2`
+- 活跃源码底层：SuperSplat Viewer `v1.29.1`
+- PlayCanvas：`2.21.3`
 
-权威来源是 [`metadata/version-history.json`](../metadata/version-history.json)，本页只是当前摘要。
+`metadata/version-history.json` 仍记录已发布产品 `5.18.1` 的 `v1.26.2` 基线；本页的底层版本描述仅适用于尚未发布的 MF-30 实现分支，不改写发布事实。
 
 ## 本地运行
 
