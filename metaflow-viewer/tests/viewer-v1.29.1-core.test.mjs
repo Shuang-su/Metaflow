@@ -31,11 +31,11 @@ test('loading visibility remains gated and the v1.29.1 near clip is clamped', as
     assert.match(ui, /loaded:changed[\s\S]*setProperty\('--canvas-opacity', '1'\)/);
 });
 
-test('streaming quality keeps Metaflow SH while writing LOD range on the component', async () => {
+test('streaming quality uses v1.29.1 SH while writing LOD range on the component', async () => {
     const viewer = await readText('../src/viewer.ts');
     const applyPerf = viewer.slice(viewer.indexOf('const applyPerfSettings'), viewer.indexOf('if (config.fullload)'));
 
-    assert.match(applyPerf, /gsplat\.colorUpdateAngle = state\.performanceMode \? 4 : 2/);
+    assert.match(applyPerf, /gsplat\.colorUpdateAngle = state\.performanceMode \? 1 : 0\.2/);
     assert.match(applyPerf, /gsplatComponent\.lodRangeMin = 0/);
     assert.match(applyPerf, /gsplatComponent\.lodRangeMax = 1000/);
     assert.match(applyPerf, /app\.renderNextFrame = true/);

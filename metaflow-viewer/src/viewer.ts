@@ -948,7 +948,10 @@ class Viewer {
                 };
 
                 gsplat.splatBudget = budget() * 1000000;
-                gsplat.colorUpdateAngle = state.performanceMode ? 4 : 2;
+                // Match SuperSplat Viewer v1.29.1. A non-zero quality
+                // threshold avoids the v1.29.0 every-frame SH regression,
+                // while 1° / 0.2° keeps view-dependent color responsive.
+                gsplat.colorUpdateAngle = state.performanceMode ? 1 : 0.2;
                 gsplatComponent.lodRangeMin = 0;
                 gsplatComponent.lodRangeMax = 1000;
                 // Restore the default cull threshold lowered during the streaming reveal.
