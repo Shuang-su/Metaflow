@@ -25,7 +25,7 @@
 | `references/supersplat-viewer-v1.11.1/` | 早期 Viewer 纯上游基线；由根目录迁入 |
 | `references/supersplat-viewer-v1.18.2/` | 中间 Viewer 纯上游快照；由根目录迁入 |
 | `references/supersplat-v2.18.1/` | 历史 Metaflow Editor 定制基线；由根目录迁入，不是纯上游内容 |
-| `references/supersplat-viewer-v1.26.2/`、`references/supersplat-viewer-v1.28.0/`、`references/supersplat-viewer-v1.29.0/` | Viewer 当前纯上游基准、执行中保留的前一候选与本轮最新候选 |
+| `references/supersplat-viewer-v1.26.2/`、`references/supersplat-viewer-v1.28.0/`、`references/supersplat-viewer-v1.29.0/`、`references/supersplat-viewer-v1.29.1/` | Viewer 当前纯上游基准、执行中保留的中间候选与当前精确升级候选 |
 | `references/supersplat-v2.28.0/`、`references/supersplat-v2.32.3/` | Editor 当前纯上游基准与本轮最新候选；根目录同名 `supersplat-v2.28.0/` 仍是独立的活跃 Metaflow 定制源码 |
 | `references/splat-transform-v2.5.1/`、`references/splat-transform-v3.2.0/`、`references/splat-transform-v3.3.0/` | Transform CLI 离线研究基准、执行中保留的前一候选与本轮最新候选；不是 Metaflow 产品源码 |
 

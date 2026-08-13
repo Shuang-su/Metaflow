@@ -112,6 +112,22 @@
       "mutable": false
     },
     {
+      "id": "supersplat-viewer-v1.29.1",
+      "path": "references/supersplat-viewer-v1.29.1",
+      "kind": "upstream",
+      "repository": "https://github.com/playcanvas/supersplat-viewer",
+      "tag": "v1.29.1",
+      "tagObject": "7bfbc192cba2cceedaffc7b9a9738c59af6de022",
+      "commit": "3a61fa606e12640b1e87f9a733ed43d7fbc5d925",
+      "tree": "671059c4b4a3693115ad010207b66312f5cbbc8c",
+      "trackedFileCount": 85,
+      "canonicalContentSha256": "d7af7e94c5de704bec1bb79bb8e55b53769c0f8b77514a67ebc5d9aebeda633d",
+      "canonicalFormat": "lexicographically sorted complete <mode> <git-blob-sha1>\\t<relative-path>\\n lines",
+      "identityVerification": "exact-upstream-tree",
+      "license": "MIT",
+      "mutable": false
+    },
+    {
       "id": "supersplat-v2.28.0",
       "path": "references/supersplat-v2.28.0",
       "kind": "upstream",

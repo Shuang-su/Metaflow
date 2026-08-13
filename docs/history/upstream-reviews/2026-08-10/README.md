@@ -4,12 +4,12 @@
 
 ## 最新稳定版保护的处理
 
-审查开始时，计划候选为 Viewer `v1.28.0` 和 Transform CLI `v3.2.0`。执行期间，官方分别于 2026-08-10 15:46:10 UTC（北京时间 23:46:10）和 15:51:30 UTC（北京时间 23:51:30）发布了 Viewer `v1.29.0` 与 Transform CLI `v3.3.0`。按照计划中的停止条件，本轮没有静默替换后继续：
+审查开始时，计划候选为 Viewer `v1.28.0` 和 Transform CLI `v3.2.0`。执行期间，官方分别于 2026-08-10 15:46:10 UTC（北京时间 23:46:10）和 15:51:30 UTC（北京时间 23:51:30）发布了 Viewer `v1.29.0` 与 Transform CLI `v3.3.0`。Viewer 实施预检又在 2026-08-13 确认 2026-08-12 发布的 `v1.29.1` 为最新稳定版。每次候选变化都先停止、固定精确 tag/commit/tree 并扩展比较区间，没有静默替换：
 
 1. 停止按旧候选形成最终结论；
 2. 将新 stable tag、commit、tree 和内容摘要登记为新的最新候选；
 3. 保留 `v1.28.0` 与 `v3.2.0` 为不可变的区间中间快照；
-4. 将 Viewer 比较区间扩展到 `v1.29.0`，将 Transform CLI 比较区间扩展到 `v3.3.0`；
+4. 将 Viewer 比较区间先扩展到 `v1.29.0`、再扩展到 `v1.29.1`，将 Transform CLI 比较区间扩展到 `v3.3.0`；
 5. 对新增版本重新执行静态差异、构建和针对性运行审查。
 
 为保留已批准计划中的稳定文档入口，Viewer 和 Transform 报告仍使用原计划文件名；每份报告标题和正文均明确写出扩展后的真实比较区间，不应从文件名推断最新候选。
@@ -18,7 +18,7 @@
 
 | 组件 | 当前上游基准 B | 当前 Metaflow M | 最新候选 N | 区间中间快照 | 独立结论 |
 |---|---|---|---|---|---|
-| Viewer | SuperSplat Viewer `v1.26.2` | `metaflow-viewer/`，产品 `5.18a / 5.18.0` | `v1.29.0`，commit `c8226406b87e232f9a20cdd79f83bedd54325344` | `v1.28.0` | **Adopt**：分阶段向 `metaflow-viewer/` 移植；不替换活跃目录，不在本轮发布 |
+| Viewer | SuperSplat Viewer `v1.26.2` | `metaflow-viewer/`，产品 `5.18.1` | `v1.29.1`，commit `3a61fa606e12640b1e87f9a733ed43d7fbc5d925` | `v1.28.0`、`v1.29.0` | **Adopt**：分阶段向 `metaflow-viewer/` 移植；不替换活跃目录，不在本轮发布 |
 | Editor | SuperSplat `v2.28.0` | 根目录 `supersplat-v2.28.0/`，Metaflow Editor `1.1`；`metaflow-editor/` 是部署产物 | `v2.32.3`，commit `b9e3cb6f072179f0d49ae52d6c256d70b2079174` | 无 | **Defer**：Node 契约、Viewer 视觉兼容和关键运行矩阵尚未闭环 |
 | Transform CLI | `splat-transform v2.5.1` | 当前 SOG/LOD/voxel/collision 资产契约与未来 Agent 需求；没有独立产品 | `v3.3.0`，commit `57883c2c7bda5bcfb60a8b402ababacc286e49ae` | `v3.2.0` | **Adopt**：仅规划版本固定的离线包装器；不进入产品版本史或 Editor 依赖 |
 
@@ -26,7 +26,7 @@
 
 ## 报告入口
 
-- [Viewer：v1.26.2 / Metaflow 5.18 / v1.29.0](viewer-v1.26.2-to-v1.28.0.md)
+- [Viewer：v1.26.2 / Metaflow 5.18.1 / v1.29.1](viewer-v1.26.2-to-v1.28.0.md)
 - [Editor：v2.28.0 / Metaflow Editor 1.1 / v2.32.3](editor-v2.28.0-to-v2.32.3.md)
 - [Transform CLI：v2.5.1 / 当前资产契约 / v3.3.0](splat-transform-cli-v2.5.1-to-v3.2.0.md)
 - [机器可读快照登记](../../../../metadata/reference-snapshots.json)

@@ -21,6 +21,7 @@
 | [MF-16](https://github.com/Shuang-su/Metaflow/issues/16) | Done | 已完成、操作契约已取代 | 建立路径路由器时的 Spec/Plan；其中 PR/push 自动 CI 和 `required / gate` 已由 Revision 6 取消，路由器现在是本地检查选择器 |
 | [MF-18](https://github.com/Shuang-su/Metaflow/issues/18) | Done | Revision 5，已取代 | 建立 Issue/Commit/PR/Spec/Plan 分层；四个 Gate 和旧状态链由 MF-28 进一步精简 |
 | [MF-28](https://github.com/Shuang-su/Metaflow/issues/28) | Done | 当前 Revision 6 契约 | 本地优先流程、分级资源发布、Ledger/Version History 边界和 Viewer SemVer 前向规则 |
+| [MF-30](https://github.com/Shuang-su/Metaflow/issues/30) | Open；远端仍为 discovery-only | 当前本地 Viewer 实施契约 | [`30-viewer-upstream-v1.29.1/spec.md`](30-viewer-upstream-v1.29.1/spec.md) 与 [`plan.md`](30-viewer-upstream-v1.29.1/plan.md) 记录当前用户另行授权的本地 v1.29.1 实施；不授权 PR、发布或部署，任何远端交付前必须先同步 Issue 状态 |
 | [MF-32](https://github.com/Shuang-su/Metaflow/issues/32) | Done（本注册表进入 `main` 后） | 文档维护 | 分类历史工件、修正活动模板，并完善 25 篇中文 Viewer/Editor 手册；PR、Commit 与验证以实时 Issue 完成交付为准 |
 
 ## 权威顺序

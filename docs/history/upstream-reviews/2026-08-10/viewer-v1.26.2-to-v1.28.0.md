@@ -1,23 +1,23 @@
-# Viewer 三方审查：v1.26.2 / Metaflow 5.18 / v1.29.0
+# Viewer 三方审查：v1.26.2 / Metaflow 5.18.1 / v1.29.1
 
-> **独立决策：Adopt（分阶段移植，尚未实现或发布）。** 文件名保留原计划的 `...to-v1.28.0` 稳定入口；执行期间出现的 `v1.29.0` 已按最新稳定版保护扩入真实比较区间，`v1.28.0` 只作为不可变中间快照。
+> **独立决策：Adopt（分阶段移植；本地实现进行中，尚未发布）。** 文件名保留原计划的 `...to-v1.28.0` 稳定入口；执行期间出现的 `v1.29.0` 和实施预检出现的 `v1.29.1` 均按停止条件固定并扩入真实比较区间，`v1.28.0/v1.29.0` 作为不可变中间快照。
 
 ## 1. 对象、身份与结论边界
 
 | 角色 | 对象 | 精确身份 |
 |---|---|---|
 | B：当前上游基准 | `references/supersplat-viewer-v1.26.2/` | tag `v1.26.2`；commit `f1327060f0a17c342de518712aabf7f30f2747c5`；tree `21469f8e5944e60c4f02fd8b47e97e4a38946ef0`；83 tracked files |
-| M：当前 Metaflow | `metaflow-viewer/` | Viewer `5.18a / 5.18.0`；上游事实源仍为 `v1.26.2`；唯一活跃 Viewer 源码 |
-| N：最新候选 | `references/supersplat-viewer-v1.29.0/` | tag `v1.29.0`；commit `c8226406b87e232f9a20cdd79f83bedd54325344`；tree `b1443321432e434b5ffcc2b11ee8956f63b12af2`；85 tracked files |
-| 区间中间快照 | `references/supersplat-viewer-v1.28.0/` | 原计划候选；在 `v1.29.0` 发布后保留，用于定位 annotation/heatmap 与后续 streaming 修复的边界 |
+| M：当前 Metaflow | `metaflow-viewer/` | Viewer `5.18.1`；上游事实源仍为 `v1.26.2`；唯一活跃 Viewer 源码 |
+| N：最新候选 | `references/supersplat-viewer-v1.29.1/` | tag `v1.29.1`；tag object `7bfbc192cba2cceedaffc7b9a9738c59af6de022`；commit `3a61fa606e12640b1e87f9a733ed43d7fbc5d925`；tree `671059c4b4a3693115ad010207b66312f5cbbc8c`；85 tracked files |
+| 区间中间快照 | `references/supersplat-viewer-v1.28.0/`、`references/supersplat-viewer-v1.29.0/` | 保留用于定位 annotation/heatmap、streaming 参数时序与 `colorUpdateAngle` 最终 patch 的边界 |
 
-静态目录差异：B→N 为 70 files、4,768 insertions、2,439 deletions，共 24 个上游 commit；B→M 为 72 files、9,729 insertions、4,966 deletions。行数包含格式、测试和依赖文件，不能单独代表功能工作量。
+静态目录差异：B→N 为 70 files、4,768 insertions、2,439 deletions，共 26 个上游 commit；B→M 为 72 files、9,729 insertions、4,966 deletions。行数包含格式、测试和依赖文件，不能单独代表功能工作量。
 
 Adopt 的含义是：以 N 的上游行为为输入，分阶段移植到 `metaflow-viewer/`，保留所有明确分类的 Metaflow 契约。它不允许把 N 目录覆盖到活跃源码，不修改 `references/**`，也不在本轮提升版本、更新 Ledger 或部署。
 
 ## 2. 证据方法与时间
 
-- 官方 release 与 compare 区间最后查询：2026-08-11（Asia/Shanghai）。
+- 官方 release 与 compare 区间最后查询：2026-08-13（Asia/Shanghai）；`v1.29.1` 仍为 latest stable。
 - 静态证据：精确 tag/commit 快照、B→N、B→M、M↔N 文件与行为比较。
 - 构建证据：三个上游节点与 M 均复制到 `.codex-work/tmp/upstream-review-2026-08-10/viewer/` 后运行；没有在 `references/**` 内安装或构建。
 - 浏览器证据：真实 Metaflow data、桌面与移动 viewport、WebGL 与本机可用 WebGPU；原始 DOM/console 记录位于 [`evidence/viewer/raw/`](evidence/viewer/raw/)。
@@ -33,6 +33,7 @@ Adopt 的含义是：以 N 的上游行为为输入，分阶段移植到 `metafl
 | [`v1.27.1`](https://github.com/playcanvas/supersplat-viewer/releases/tag/v1.27.1) | WebGPU 下的 WebXR backend-aware detection | 依赖更新 | WebGPU renderer 不再被旧能力判断错误排除 XR | 与 M 自定义 XR navigation 重叠；需组合而非二选一 |
 | [`v1.28.0`](https://github.com/playcanvas/supersplat-viewer/releases/tag/v1.28.0) | sticky “Show Annotations” 设置开关 | 明确 heatmap URL 参数语义 | annotation 显隐状态可持久化 | 增加 localStorage/UI 合同；与 M locale/settings 合并 |
 | [`v1.29.0`](https://github.com/playcanvas/supersplat-viewer/releases/tag/v1.29.0) | — | PlayCanvas `2.20.6 → 2.21.3`；ESLint config v3 beta、Prettier 与依赖/security 更新 | 在 streaming 启动前应用 work-buffer 的 `minContribution`、`alphaClip`、`antiAlias`、`debug` 参数；性能设置变化触发 `app.renderNextFrame` | PC `2.21.3` 是本轮新增的主要回归面；streaming 修复应优先移植，不能只停在 `v1.28.0` |
+| [`v1.29.1`](https://github.com/playcanvas/supersplat-viewer/releases/tag/v1.29.1) | — | streaming SH 更新阈值从 `performanceMode ? 2 : 0` 改为 `performanceMode ? 1 : 0.2`；package/lock 版本更新 | — | 与 M 已发布的 `performanceMode ? 4 : 2` 可观察画质/性能策略冲突；采用本地行为优先，必须用同机 A/B 记录偏差，不能机械抄入上游值 |
 
 区间最终依赖差异：PlayCanvas `2.19.2 → 2.21.3`；`@playcanvas/eslint-config 2.1.0 → 3.0.0-beta.8`；新增 Prettier `3.9.6`；TypeScript 保持 `5.9.3`。上游没有声明 URL/settings breaking change，但 M 的 settings-v2 运行失败证明“没有 release-note breaking”不等于兼容。
 
@@ -45,6 +46,7 @@ Adopt 的含义是：以 N 的上游行为为输入，分阶段移植到 `metafl
 | route、index、alias | 只解析显式 query | 从稳定 route/alias 查询 `data/index.json`，再解析 settings/content/environment/collision | 仍以 query 为主 | **Keep** | 高 / M | 四条真实 route 已运行；需要全 index route 自动回归 |
 | legacy SOG | 单 SOG 加载 | 保留 legacy SOG、排序完成或超时后的首帧兜底 | 可加载 SOG，但 on-demand/engine 路径已变化 | **Port** | 高 / L | Cyrene 完整加载；需弱网、重试和 timeout 专项 |
 | streaming LOD | 上游 streamed SOG | M 同时识别结构、阶段、预算与 streaming LOD | N 修复 work-buffer 参数生效时序 | **Port + Replace**：保留 M 状态机，采用 N 的参数初始化顺序 | 高 / L | Xunyangpai、Dayun、Bijiashan 完成；缺失 tile 恢复策略仍需回归 |
+| streaming SH 更新阈值 | B 默认值；没有 M 的 4/2 策略 | M 明确使用 `colorUpdateAngle = performanceMode ? 4 : 2` | N 使用 `performanceMode ? 1 : 0.2` | **Conflict → Keep**：最终保留 M `4/2`，把 N `1/0.2` 仅作为固定相机、同 renderer 的 A/B 对照 | 高 / M | 已锁定源码合同；WebGL/WebGPU 的提交帧数、耗时与画面对照在实现验收补齐。这是有意的上游偏差 |
 | environment | 支持 environment | 环境单独加载且不阻塞主体首帧，route 可配置 | 基础支持保留 | **Port** | 中 / M | Xunyangpai 环境可见；需大环境弱网行为 |
 | 首帧与 loading complete | 上游基础加载 UI | `frame:ready`、sort/LOD timeout、loading→visible→animation 顺序 | on-demand rendering 改变何时安排帧 | **Port** | 高 / L | Cyrene、Xun、Dayun 完成；必须增加“没有持续 render loop”回归 |
 | radial reveal / LOD reveal | 无 M 的粒子揭示合同 | legacy、streaming、environment 分路径揭示，支持 `?noreveal` | 无等价能力；会受 GSplat 参数和 render-next-frame 影响 | **Port** | 高 / M | 多 route 目视通过；尚无视觉阈值基线覆盖所有资源 |
@@ -75,9 +77,10 @@ Adopt 的含义是：以 N 的上游行为为输入，分阶段移植到 `metafl
 | B `v1.26.2` | `20.19.0` | disposable copy `npm ci`、build：通过 | 没有把 Cyrene settings-v2 的运行失败误写成构建失败 |
 | M `5.18` | `20.19.0` | install/build：通过；`node --test tests/*.mjs`：52/52 通过 | e2e fixture 使用一次性副本准备，产品目录未写入 |
 | 中间 `v1.28.0` | `20.19.0` | install/build：通过 | annotation toggle 浏览器实测通过 |
-| N `v1.29.0` | `20.19.0` | `npm ci`、`npm run fmt`、lint、typecheck、build：全部通过 | build 79.11 s，最大 RSS 949,870,592 bytes；npm audit 5 high；需在实现 Change 中处置而非本轮自动修包 |
+| 中间 N `v1.29.0` | `20.19.0` | `npm ci`、`npm run fmt`、lint、typecheck、build：全部通过 | build 79.11 s，最大 RSS 949,870,592 bytes；npm audit 5 high；需在实现 Change 中处置而非自动修包 |
+| 目标 N `v1.29.1` | `20.19.0` | 精确 tag/commit/tree/85 files/规范化摘要已验证；实现分支 clean build 尚未在本节更新时间运行 | `v1.29.0 → v1.29.1` 仅 package/lock 版本和 `colorUpdateAngle` 三文件变化；最终构建证据回填 MF-30 冲突登记 |
 
-N 的 disposable build 通过软链接读取现有 data，仅用于测试；`references/supersplat-viewer-v1.29.0/` 本身保持无依赖、无 dist。
+N 的 disposable build 只在 `.codex-work/` 副本中读取现有 data；`references/supersplat-viewer-v1.29.0/` 与 `references/supersplat-viewer-v1.29.1/` 本身保持无依赖、无 dist。
 
 ## 6. 浏览器、DOM、console 与 network 证据
 
@@ -117,7 +120,7 @@ N 的 disposable build 通过软链接读取现有 data，仅用于测试；`ref
 
 ### 必须移植或替换
 
-- 优先移植 `v1.29.0` 的 streaming 参数初始化顺序；
+- 优先移植 `v1.29.0` 的 streaming 参数初始化顺序；保留 M 的 SH `4/2` 阈值，把 `v1.29.1` 的 `1/0.2` 明确登记为不采用的上游行为；
 - 采用上游 on-demand/near-clip、`captureFrame`、annotation toggle、heatmap 定义和 WebGPU XR 检测；
 - 把 route/index、legacy/streaming 双路径、environment、首帧/reveal/LOD、walk/fly、single/tiled voxel、坐标空间、相机退出、settings v1/v2、移动输入、Analytics、品牌、locale 和 debug 工具移植到新的上游代码面；
 - 增加 settings-v2 归一化层，使现有资源无需批量迁移即可继续打开；
@@ -127,7 +130,7 @@ N 的 disposable build 通过软链接读取现有 data，仅用于测试；`ref
 
 - 风险：高。风险集中在 settings、first-frame/on-demand、streaming/reveal、collision 坐标、camera、mobile、XR 与 PC 大版本面。
 - 估算：9–14 个工程人日，外加一次可获得 XR 硬件的验证窗口。估算不包含生产观察、全资源视觉基线重录或数据修复。
-- 回退目标：实现分支基点的 `metaflow-viewer/` tree，当前明确基准为 `origin/main` commit `a8eb80dc` 上的 Viewer `5.18a / 5.18.0`。回退不得修改不可变 reference，也不得回写已发布历史。
+- 回退目标：实现分支基点 `origin/main` commit `dbbd0015a8d13d4380d100fad4e5121dc2b29746` 上的 `metaflow-viewer/` tree，即 Viewer `5.18.1`。回退不得修改不可变 reference，也不得回写已发布历史。
 
 ## 9. 后续唯一实现 Spec
 
@@ -150,13 +153,13 @@ N 的 disposable build 通过软链接读取现有 data，仅用于测试；`ref
 | V-07 | single voxel、tiled voxel、tile cache、缺失 tile 降级和 `metaflow-rz180` 坐标空间保持兼容。 |
 | V-08 | 采用 upstream `captureFrame`，在 WebGL/WebGPU 上提供一致的成功/失败 Promise 合同，并补充自动测试。 |
 | V-09 | 采用 upstream annotation toggle 与 localStorage key，合并 M locale/品牌；route 切换后状态保持。 |
-| V-10 | heatmap 参数按 upstream `v1.29.0` 定义，不建立第二套同名语义。 |
+| V-10 | heatmap 参数按 upstream `v1.29.1` 定义，不建立第二套同名语义。 |
 | V-11 | 采用 upstream WebGPU XR detection，保留 M teleport/smooth/snap navigation；没有 XR 硬件证据时发布记录必须继续标记未验证。 |
 | V-12 | Analytics 不得阻断资源加载、首帧或错误 UI；相同错误必须受节流，测试不得向生产后端写入。 |
 | V-13 | 品牌、9 个 locale、debug/voxel overlay 和 `?noreveal` 逃生参数继续存在。 |
 | V-14 | PlayCanvas `2.21.3` 升级后，WebGL/WebGPU、后处理、camera、collision 和 XR 类型检查均通过；不保留隐式旧 API shim。 |
 | V-15 | references 保持摘要不变，构建与浏览器产物仅写 `.codex-work/tmp/`。 |
-| V-16 | 只有全部发布 Gate 满足并另获发布授权后，才按仓库规则发布为 Viewer `5.18.1`、追加 Version History/Ledger 并部署；Adopt 实现本身不等于发布。 |
+| V-16 | 实现分支保持已发布事实 Viewer `5.18.1`；只有另获发布授权后，才在独立发布 Change 中重新判断兼容 feature 版本（当前预期 `5.19.0`）、追加 Version History/Ledger 并部署。Adopt 实现本身不等于发布。 |
 
 ### 9.3 明确非目标
 
@@ -168,17 +171,17 @@ N 的 disposable build 通过软链接读取现有 data，仅用于测试；`ref
 
 ## 10. 后续唯一实现 Plan
 
-1. **重新预检并隔离**：从实施时最新 `origin/main` 新建 `codex/viewer-upstream-v1.29`；重新查询 stable release。若高于 `v1.29.0`，先更新本 Spec 的候选与差异，不静默继续。
+1. **重新预检并隔离**：从实施时最新 `origin/main` 新建 `codex/viewer-upstream-v1.29.1`；重新查询 stable release。若高于 `v1.29.1`，先更新本 Spec 的候选与差异，不静默继续。
 2. **固定兼容 fixture**：为 Cyrene、Xunyangpai、Dayun、Bijiashan、C2-Lib 建立不包含大资产的 route/settings/collision 契约 fixture；先锁定 V-01～V-07 的当前行为。
 3. **移植低耦合上游能力**：以行为为提交边界移植 annotation toggle、heatmap 和 `captureFrame`；每项分别补测试，不整树复制。
-4. **移植渲染/streaming 核心**：采用 on-demand、near-clip、LOD range 与 `v1.29.0` work-buffer 时序；为 reveal、first-frame 和 debug 的每个更新点补 `renderNextFrame`。
+4. **移植渲染/streaming 核心**：采用 on-demand、near-clip、LOD range 与 `v1.29.1` work-buffer 时序；为 reveal、first-frame 和 debug 的每个更新点补 `renderNextFrame`；保留 M 的 SH `4/2` 阈值并记录 A/B。
 5. **实现 settings 归一化**：在 schema 解析后、post-effect 访问前补完整默认值；Cyrene 失败 fixture 必须转绿，禁止批量改 data 规避。
 6. **升级 PlayCanvas 与构建链**：独立提交 PC `2.21.3` 和必要类型/API 修复；格式化变化单独提交或限制 hunk，便于回退。
 7. **重新叠加 M 能力**：route/index、legacy/streaming、environment、camera、mobile、collision/tiled/space、XR navigation、Analytics、brand/locale/debug 逐组通过 matrix，不以文件“看起来保留”代替行为验证。
 8. **浏览器验收**：WebGL/WebGPU、桌面/360×732、五条 route；保存 screenshot、DOM、console 和 network。Bijiashan 缺 tile 必须表现为受控降级；新错误不得被 favicon 噪音掩盖。
 9. **硬件与负面验收**：可获得 XR 硬件时跑 immersive session；另跑弱网、timeout、retry、error-beacon 节流、captureFrame 失败、settings 缺字段和 tile 404。
 10. **实现 checkpoint**：只暂存 Viewer 相关文件并形成原子本地 commit。若未获远端/发布授权，到此停止；不 push、不建 PR、不更新版本、不部署。
-11. **可选发布阶段**：另获明确授权后才创建 PR、更新 `5.18.1` Version History/Ledger、执行 staging/smoke/观察；失败时回退到实施分支基点的 `5.18.0` tree，并以新记录表达回退。
+11. **可选发布阶段**：另获明确授权后才创建 PR，并在独立发布 Change 中重新判断下一 Viewer SemVer、更新 Version History/Ledger、执行 staging/smoke/观察；失败时回退到实施分支基点的 `5.18.1` tree，并以新记录表达回退。
 
 ### 10.1 实现验证矩阵
 
