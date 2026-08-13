@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import test from 'node:test';
+import vm from 'node:vm';
 
 const readText = (path) => readFile(new URL(path, import.meta.url), 'utf8');
 const readJson = async (path) => JSON.parse(await readText(path));
@@ -151,8 +152,9 @@ test('model and environment prefetches retry only transient failures and expose 
 
     assert.match(html, /retryableResponseStatuses = new Set\(\[408, 425, 429\]\)/);
     assert.match(html, /response\.status >= 500/);
-    assert.match(html, /const maxAttempts = 3/);
+    assert.match(html, /const maxAttempts = 4/);
     assert.match(html, /waitForRetry\(500 \* 2 \*\* \(attempt - 1\)\)/);
+    assert.match(html, /releaseFailedResponse\(response\)/);
     assert.match(html, /environmentContents: environmentUrl \? fetchWithRetry\(environmentUrl\) : null/);
     assert.match(html, /contents: fetchWithRetry\(contentUrl\)/);
     assert.doesNotMatch(html, /retryableResponseStatuses[^;]*404/);
@@ -165,4 +167,76 @@ test('model and environment prefetches retry only transient failures and expose 
     assert.match(ui, /loadingBar\.classList\.toggle\('failed', stage === 'error'\)/);
     assert.match(viewer, /const viewerReady = Promise\.all/);
     assert.match(viewer, /viewerReady\.catch[\s\S]*Initialization stopped after resource load failure/);
+});
+
+test('bounded resource retries use four attempts, release failures, and stop on permanent 4xx', async () => {
+    const html = await readText('../src/index.html');
+    const retryBlock = html.match(
+        /const retryableResponseStatuses[\s\S]*?const fetchWithRetry = async[\s\S]*?\n            };/
+    )?.[0];
+    assert.ok(retryBlock, 'retry implementation must remain extractable for behavior tests');
+
+    const createScenario = (statuses) => {
+        const calls = [];
+        const delays = [];
+        const cancelled = [];
+        const responses = statuses.map((status, index) => ({
+            ok: status >= 200 && status < 300,
+            status,
+            body: {
+                cancel: async () => cancelled.push(index)
+            }
+        }));
+        const context = {
+            console: { warn: () => {} },
+            fetch: async () => {
+                calls.push(calls.length);
+                return responses[calls.length - 1];
+            },
+            window: {
+                setTimeout: (callback, delay) => {
+                    delays.push(delay);
+                    callback();
+                }
+            }
+        };
+        vm.runInNewContext(`${retryBlock}\nglobalThis.fetchWithRetryForTest = fetchWithRetry;`, context);
+        return {
+            execute: () => context.fetchWithRetryForTest('/model.sog'),
+            calls,
+            delays,
+            cancelled
+        };
+    };
+
+    const fourthAttemptSuccess = createScenario([503, 503, 503, 200]);
+    assert.equal((await fourthAttemptSuccess.execute()).status, 200);
+    assert.equal(fourthAttemptSuccess.calls.length, 4);
+    assert.deepEqual(fourthAttemptSuccess.delays, [500, 1000, 2000]);
+    assert.deepEqual(fourthAttemptSuccess.cancelled, [0, 1, 2]);
+
+    const exhausted = createScenario([503, 503, 503, 503]);
+    await assert.rejects(() => exhausted.execute(), /HTTP 503/);
+    assert.equal(exhausted.calls.length, 4);
+    assert.deepEqual(exhausted.delays, [500, 1000, 2000]);
+    assert.deepEqual(exhausted.cancelled, [0, 1, 2, 3]);
+
+    let permanentCalls = 0;
+    let permanentCancelled = 0;
+    const permanentContext = {
+        console: { warn: () => {} },
+        fetch: async () => {
+            permanentCalls++;
+            return {
+                ok: false,
+                status: 404,
+                body: { cancel: async () => permanentCancelled++ }
+            };
+        },
+        window: { setTimeout: () => assert.fail('permanent 4xx must not wait for a retry') }
+    };
+    vm.runInNewContext(`${retryBlock}\nglobalThis.fetchWithRetryForTest = fetchWithRetry;`, permanentContext);
+    await assert.rejects(() => permanentContext.fetchWithRetryForTest('/missing.sog'), /HTTP 404/);
+    assert.equal(permanentCalls, 1);
+    assert.equal(permanentCancelled, 1);
 });

@@ -169,33 +169,45 @@
             const isRetryableResponse = (response) =>
                 retryableResponseStatuses.has(response.status) || response.status >= 500;
             const waitForRetry = (delayMs) => new Promise((resolve) => window.setTimeout(resolve, delayMs));
+            const releaseFailedResponse = async (response) => {
+                try {
+                    await response.body?.cancel();
+                } catch {
+                    // The failed response body may already be closed.
+                }
+            };
             const fetchWithRetry = async (resourceUrl, options) => {
-                const maxAttempts = 3;
+                const maxAttempts = 4;
                 for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+                    let response;
                     try {
-                        const response = await fetch(resourceUrl, options);
-                        if (response.ok || !isRetryableResponse(response) || attempt === maxAttempts) {
-                            return response;
-                        }
-
-                        console.warn(
-                            `[Loader] Transient HTTP ${response.status} for ${resourceUrl}; retrying (${attempt}/${maxAttempts - 1})`
-                        );
-                        try {
-                            await response.body?.cancel();
-                        } catch {
-                            // The failed response body may already be closed.
-                        }
+                        response = await fetch(resourceUrl, options);
                     } catch (error) {
                         if (attempt === maxAttempts) {
                             throw error;
                         }
                         console.warn(
-                            `[Loader] Transient network failure for ${resourceUrl}; retrying (${attempt}/${maxAttempts - 1})`,
+                            `[Loader] Transient network failure for ${resourceUrl}; retrying attempt ${attempt + 1}/${maxAttempts}`,
                             error
                         );
+                        await waitForRetry(500 * 2 ** (attempt - 1));
+                        continue;
                     }
 
+                    if (response.ok) {
+                        return response;
+                    }
+
+                    const retryable = isRetryableResponse(response);
+                    if (!retryable || attempt === maxAttempts) {
+                        await releaseFailedResponse(response);
+                        throw new Error(`Failed to fetch ${resourceUrl}: HTTP ${response.status}`);
+                    }
+
+                    console.warn(
+                        `[Loader] Transient HTTP ${response.status} for ${resourceUrl}; retrying attempt ${attempt + 1}/${maxAttempts}`
+                    );
+                    await releaseFailedResponse(response);
                     await waitForRetry(500 * 2 ** (attempt - 1));
                 }
 
