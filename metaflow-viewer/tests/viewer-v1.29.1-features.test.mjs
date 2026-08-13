@@ -52,6 +52,31 @@ test('annotation visibility is branded, persistent, route-stable, and hides acti
     }
 });
 
+test('5.19.0 clears inferred controls once and only persists subsequent state changes', async () => {
+    const [index, ui] = await Promise.all([
+        readText('../src/index.ts'),
+        readText('../src/ui.ts')
+    ]);
+
+    assert.match(index, /preferenceMigrationKey = 'metaflowViewerPreferenceMigration'/);
+    assert.match(index, /preferenceMigrationVersion = '5\.19\.0'/);
+    assert.match(
+        index,
+        /getItem\(preferenceMigrationKey\) !== preferenceMigrationVersion[\s\S]*removeItem\('performanceMode'\)[\s\S]*removeItem\('gamingControls'\)[\s\S]*removeItem\('retinaDisplay'\)[\s\S]*setItem\(preferenceMigrationKey, preferenceMigrationVersion\)/
+    );
+    assert.match(index, /performanceMode: storedPerformanceMode !== null \? storedPerformanceMode === 'true' : platform\.mobile/);
+    assert.match(index, /gamingControls: localStorage\.getItem\('gamingControls'\) === 'true'/);
+    assert.match(ui, /events\.on\('performanceMode:changed', \(value: boolean\) => \{\s*localStorage\.setItem\('performanceMode', String\(value\)\)/);
+    assert.match(ui, /events\.on\('gamingControls:changed', \(value: boolean\) => \{\s*localStorage\.setItem\('gamingControls', String\(value\)\)/);
+
+    const performanceUi = ui.slice(ui.indexOf('const updatePerformanceMode'), ui.indexOf('// Gaming mode toggle'));
+    const gamingUi = ui.slice(ui.indexOf('const updateGamingControls'), ui.indexOf('// Annotation visibility toggle'));
+    assert.doesNotMatch(performanceUi.match(/const updatePerformanceMode = \(\) => \{[\s\S]*?\n    \};/)?.[0] ?? '', /localStorage\.setItem/);
+    assert.doesNotMatch(gamingUi.match(/const updateGamingControls = \(\) => \{[\s\S]*?\n    \};/)?.[0] ?? '', /localStorage\.setItem/);
+    assert.match(index, /storedShowAnnotations/);
+    assert.doesNotMatch(index, /removeItem\('showAnnotations'\)/);
+});
+
 test('heatmap keeps one URL flag and degrades explicitly on WebGL', async () => {
     const [html, viewer, types] = await Promise.all([
         readText('../src/index.html'),

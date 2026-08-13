@@ -978,9 +978,11 @@ const initUI = (global: Global) => {
 
     const updatePerformanceMode = () => {
         dom.performanceModeCheck.classList.toggle('active', state.performanceMode);
-        localStorage.setItem('performanceMode', String(state.performanceMode));
     };
     events.on('performanceMode:changed', updatePerformanceMode);
+    events.on('performanceMode:changed', (value: boolean) => {
+        localStorage.setItem('performanceMode', String(value));
+    });
     updatePerformanceMode();
 
     // Gaming mode toggle (settings row visible on mobile only)
@@ -1006,10 +1008,12 @@ const initUI = (global: Global) => {
         dom.touchFlyGamingControls.classList.toggle('hidden', !state.gamingControls);
         dom.touchClickToWalk.classList.toggle('hidden', state.gamingControls);
         dom.touchGamingControls.classList.toggle('hidden', !state.gamingControls);
-        localStorage.setItem('gamingControls', String(state.gamingControls));
     };
 
     events.on('gamingControls:changed', updateGamingControls);
+    events.on('gamingControls:changed', (value: boolean) => {
+        localStorage.setItem('gamingControls', String(value));
+    });
     events.on('inputMode:changed', updateGamingControls);
     updateGamingControls();
 

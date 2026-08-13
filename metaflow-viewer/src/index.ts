@@ -398,11 +398,15 @@ const main = async (canvas: HTMLCanvasElement, settingsJson: any, config: Config
     const { app, camera, renderer } = await createApp(canvas, config);
     const events = new EventHandler();
 
-    const legacyRetina = localStorage.getItem('retinaDisplay');
-    if (legacyRetina !== null && localStorage.getItem('performanceMode') === null) {
-        localStorage.setItem('performanceMode', String(legacyRetina === 'false'));
+    const preferenceMigrationKey = 'metaflowViewerPreferenceMigration';
+    const preferenceMigrationVersion = '5.19.0';
+    if (localStorage.getItem(preferenceMigrationKey) !== preferenceMigrationVersion) {
+        localStorage.removeItem('performanceMode');
+        localStorage.removeItem('gamingControls');
         localStorage.removeItem('retinaDisplay');
+        localStorage.setItem(preferenceMigrationKey, preferenceMigrationVersion);
     }
+
     const storedPerformanceMode = localStorage.getItem('performanceMode');
     const storedShowAnnotations = localStorage.getItem('showAnnotations');
 
