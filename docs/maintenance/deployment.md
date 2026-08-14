@@ -85,7 +85,7 @@ git diff --check
 
 受控 release workflow 要求与组件匹配的 namespaced tag 和受治理 Change；只有显式 production promotion 才能触发外部发布副作用。文档、研究和未公开 staging 不手动触发部署。
 
-Viewer `5.19.1` 起，Netlify 的触发边界固定为：普通 Git `main` push 由 `[build].ignore` 跳过，PR/feature branch 仍保留 Deploy Preview，正式 production 只由 GitHub `production` Environment 内的受控 release build hook 触发。Build hook 按 Netlify 合同不受 ignore 命令取消，但 workflow 仍必须核对 selected deploy 的 Tag 标题、production context、Tag target `commit_ref`，以及 immutable/production index 的精确版本和产品 `gitRef`。`viewer-v5.19.0` 的 prepare 在 deployment 前失败，因此没有生产 deploy 或 GitHub Release；当前 `5.19.1` 在新的 Tag、受控部署、smoke 和观察完成前仍是 release pending。
+Viewer `5.19.1` 起，Netlify 的正常触发边界是：普通 Git `main` push 由 `[build].ignore` 跳过，PR/feature branch 保留 Deploy Preview，正式 production 由 GitHub `production` Environment 内的 controlled release path 触发。`viewer-v5.19.0` 的 prepare 在 deployment 前失败，因此没有生产 deploy 或 GitHub Release。`viewer-v5.19.1` 的 D2 controlled Prepare 已通过；由于真实 F/D2 Git jobs 均停滞且没有得到远端 skipped 证据，二者被精确取消，随后按用户授权从 clean detached D2 使用 CLI/API fallback 发布 deploy `6a7efc396f36c800cfa0702e`。该 deploy 的真实字段为 `deploy_source=api`、`commit_ref=null`；身份由 main/Tag=D2、detached tree、摘要、在线 `5.19.1 / 534b013`、smoke 和观察共同证明。此 fallback 不是今后任意手工上传的默认授权。
 
 ## 回滚
 

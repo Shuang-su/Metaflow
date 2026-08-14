@@ -41,7 +41,7 @@ Editor 的 `npm run build` 只生成 `supersplat-v2.28.0/dist/`；正式发布�
 
 ## 当前版本
 
-- Viewer：发布恢复记录与 npm package 均为 `5.19.1`，上游 SuperSplat Viewer `1.29.1`、PlayCanvas `2.21.3`；运行时产品 SHA 为 `26e311c`，发布控制 SHA 为 `534b013`。`5.19.0` 在部署前失败，生产仍为 `5.18.1`；`5.19.1` 尚未完成 Tag、受控部署和观察。
+- Viewer：生产稳定版与 npm package 均为 `5.19.1`，上游 SuperSplat Viewer `1.29.1`、PlayCanvas `2.21.3`；运行时产品 SHA 为 `26e311c`，发布控制 SHA 为 `534b013`。`5.19.0` 在部署前失败且未进入生产；`5.19.1` 已完成不可变 Tag、D2 Prepare、精确 D2 CLI/API 发布、smoke 和 15 分钟观察。
 - Editor：Metaflow `1.1`，上游 SuperSplat Editor `2.28.0`。
 - Index：schema `1.2`。
 

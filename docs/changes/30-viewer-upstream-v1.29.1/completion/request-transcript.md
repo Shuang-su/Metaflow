@@ -1,8 +1,8 @@
 ---
 change_id: MF-30
 source: task-records
-generated_at: 2026-08-14T10:29:15.000Z
-message_count: 9
+generated_at: 2026-08-14T12:17:14.000Z
+message_count: 13
 redactions: 0
 ---
 
@@ -44,14 +44,14 @@ The user explicitly replaced the early SH 4/2 retention with upstream 1/0.2 and 
 
 ## MF-30-T02
 
-- Request SHA-256: `64d06bd28900efcf393a082fa8c199be5623e9b176075091717f8f72d072c110`
-- Message count: 5
+- Request SHA-256: `ec3e8e4bdd4af98213996c4a2f1346ec8d65f78c859c1619e05d2cd1a03320c9`
+- Message count: 9
 
 ````markdown
 ---
 change_id: MF-30
 task_id: MF-30-T02
-message_count: 5
+message_count: 9
 redactions: 0
 ---
 
@@ -75,5 +75,21 @@ The user approved a separate recovery PR that repairs the sparse fixture, build/
 
 <!-- user-message:5 -->
 The user explicitly instructed implementation through the new release packet, `viewer-v5.19.1` Tag, controlled Netlify production deploy, real-browser smoke, 15-minute observation, final Completion Dossier, Release/PR/Issue readback, and Completed closure. Viewer runtime, routes, data schema and payloads, Editor, Transform, source switching, and LICENSE remain excluded; approved worktree cleanup follows only after closure.
+<!-- /user-message -->
+
+<!-- user-message:6 -->
+The user instructed the task to continue through the remaining release and closure work.
+<!-- /user-message -->
+
+<!-- user-message:7 -->
+The user authorized releasing the blocked Netlify queue and, if necessary, forcing production through a CLI deployment sourced from the current formally prepared main history rather than waiting indefinitely for Git builds.
+<!-- /user-message -->
+
+<!-- user-message:8 -->
+The user approved the exact-D2 queue-release and CLI-fallback plan: cancel every pre-existing non-published Preview job without deleting history, push R2/D2, create the immutable `viewer-v5.19.1` Tag, require controlled Prepare success, build a clean detached D2 physical publish tree, use Netlify CLI only for infrastructure failure, run production smoke and a 15-minute observation, create E2, close Issue #30, and then clean approved worktrees.
+<!-- /user-message -->
+
+<!-- user-message:9 -->
+The user reiterated that Netlify Git builds had failed before and explicitly encouraged trying the direct CLI deployment path.
 <!-- /user-message -->
 ````

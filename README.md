@@ -24,7 +24,7 @@ Metaflow 把基于 [SuperSplat](https://github.com/playcanvas/supersplat) 的 Ed
 | Editor | `1.1` / app `1.1.0` | SuperSplat Editor `2.28.0` | [`metadata/editor-version-history.json`](metadata/editor-version-history.json) |
 | 资源索引 | schema `1.2` | 不适用 | [`data/index.json`](data/index.json) |
 
-Viewer 源码在 `metaflow-viewer/`；Editor 源码在 `supersplat-v2.28.0/`，`metaflow-editor/` 是发布构建。MF-30 的 v1.29.1 运行时产品 SHA 为 `26e311c`；`viewer-v5.19.0` 的 prepare 在部署前失败且生产从未切换。发布控制已由 recovery PR #45 以 SHA `534b013` 修复，当前机器版本为 `5.19.1`，生产仍为 `5.18.1`；在新的 release packet、`viewer-v5.19.1` Tag、受控部署、smoke 和 15 分钟观察完成前不得称为稳定发布。贡献与变更流程见 [`CONTRIBUTING.md`](CONTRIBUTING.md) 和 [MCL v1.0 candidate](docs/metaflow-change-lifecycle-v1.0.md)。
+Viewer 源码在 `metaflow-viewer/`；Editor 源码在 `supersplat-v2.28.0/`，`metaflow-editor/` 是发布构建。MF-30 的 v1.29.1 运行时产品 SHA 为 `26e311c`，发布控制 SHA 为 `534b013`。`viewer-v5.19.0` 的 prepare 在部署前失败且生产从未切换；`viewer-v5.19.1` 已通过 D2 Prepare、精确 D2 CLI/API 生产发布、真实浏览器 smoke 与 15 分钟观察，当前生产稳定版为 `5.19.1`。贡献与变更流程见 [`CONTRIBUTING.md`](CONTRIBUTING.md) 和 [MCL v1.0 candidate](docs/metaflow-change-lifecycle-v1.0.md)。
 
 下方保留原有 Viewer 快速参考，方便已有读者继续使用；新的分层手册和当前契约以 [`docs/README.md`](docs/README.md) 为入口。
 
@@ -154,7 +154,7 @@ location / {
 
 | 字段 | 值 |
 |------|----|
-| 展示版本 | `5.19.1`（发布恢复记录已对齐，生产待完成） |
+| 展示版本 | `5.19.1`（生产稳定） |
 | 包版本 | `5.19.1` |
 | 索引 schema | `1.2` |
 | 上游 SuperSplat Viewer | `v1.29.1` |
@@ -179,7 +179,7 @@ location / {
 
 | 版本 | commit | 摘要 |
 |------|--------|------|
-| `5.19.1` | `534b013` | MF-30 发布恢复：补齐 release/CI sparse fixture 与 build-before-test 顺序，精确核验 Tag、Version History、index 和生产 smoke，并让普通 main Git build 跳过、PR Preview 保留、生产只由受控 release hook 触发；正式生产发布仍在等待新 Tag、受控部署、smoke 与观察 |
+| `5.19.1` | `534b013` | MF-30 正式生产发布：修复 release/CI sparse fixture 与 build-before-test 顺序；D2 controlled Prepare 通过后，因 Netlify Git build 再次停滞，经明确授权使用精确 D2 CLI/API 发布 deploy `6a7efc396f36c800cfa0702e`；真实浏览器 smoke、15 分钟观察与 GitHub Release 均完成 |
 | `5.19.0` | `26e311c` | MF-30 同步 Viewer v1.29.1 / PlayCanvas 2.21.3 并保留 Metaflow 合同；不可变 Tag 已建立，但 workflow run `31779246997` 在 prepare 的 sparse/order 校验阶段失败，production job 未执行、没有 GitHub Release，生产从未切换到 5.19.0 |
 | `5.18.1` | `578272c` | 发布 BitCity 260711 与第十五届深圳动漫节 27 条人物资源及默认 figure8 动画策略 |
 | `5.18a` | `c613a87` | 新增并对齐深圳笔架山动态 voxel 场景 |

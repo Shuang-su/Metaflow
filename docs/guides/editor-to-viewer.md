@@ -78,4 +78,4 @@ python3 scripts/validate_data.py --check-files
 
 ## 6. 准备发布证据
 
-资源或行为发布需要同步 Viewer Version History 与 Ledger。`5.18.1` 已进入完整 SemVer，当前发布恢复记录为 `5.19.1 / 534b013`；它在受控部署与观察完成前仍不是生产稳定事实。完成后，后续真实资源或兼容修复从 `5.19.2` 起递增 PATCH。提交前记录 route、变更类型、验证范围和未运行检查。版本记录见 [版本与发布](../maintenance/versioning-and-release.md)，静态交付见 [部署](../maintenance/deployment.md)。
+资源或行为发布需要同步 Viewer Version History 与 Ledger。`5.18.1` 已进入完整 SemVer，当前生产稳定版为 `5.19.1 / 534b013`；后续真实资源或兼容修复从 `5.19.2` 起递增 PATCH。提交前记录 route、变更类型、验证范围和未运行检查。版本记录见 [版本与发布](../maintenance/versioning-and-release.md)，静态交付见 [部署](../maintenance/deployment.md)。

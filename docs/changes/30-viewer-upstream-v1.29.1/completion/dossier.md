@@ -8,7 +8,7 @@
 - Title: Viewer 5.19.1 controlled release recovery
 - Risk: T3
 - Components: viewer
-- Lifecycle state: ready-for-release
+- Lifecycle state: closed
 - Owner: Shuang-su
 - Issue: https://github.com/Shuang-su/Metaflow/issues/30
 
@@ -53,14 +53,14 @@ The user explicitly replaced the early SH 4/2 retention with upstream 1/0.2 and 
 
 ## MF-30-T02
 
-- Request SHA-256: `64d06bd28900efcf393a082fa8c199be5623e9b176075091717f8f72d072c110`
-- Message count: 5
+- Request SHA-256: `ec3e8e4bdd4af98213996c4a2f1346ec8d65f78c859c1619e05d2cd1a03320c9`
+- Message count: 9
 
 ````markdown
 ---
 change_id: MF-30
 task_id: MF-30-T02
-message_count: 5
+message_count: 9
 redactions: 0
 ---
 
@@ -85,6 +85,22 @@ The user approved a separate recovery PR that repairs the sparse fixture, build/
 <!-- user-message:5 -->
 The user explicitly instructed implementation through the new release packet, `viewer-v5.19.1` Tag, controlled Netlify production deploy, real-browser smoke, 15-minute observation, final Completion Dossier, Release/PR/Issue readback, and Completed closure. Viewer runtime, routes, data schema and payloads, Editor, Transform, source switching, and LICENSE remain excluded; approved worktree cleanup follows only after closure.
 <!-- /user-message -->
+
+<!-- user-message:6 -->
+The user instructed the task to continue through the remaining release and closure work.
+<!-- /user-message -->
+
+<!-- user-message:7 -->
+The user authorized releasing the blocked Netlify queue and, if necessary, forcing production through a CLI deployment sourced from the current formally prepared main history rather than waiting indefinitely for Git builds.
+<!-- /user-message -->
+
+<!-- user-message:8 -->
+The user approved the exact-D2 queue-release and CLI-fallback plan: cancel every pre-existing non-published Preview job without deleting history, push R2/D2, create the immutable `viewer-v5.19.1` Tag, require controlled Prepare success, build a clean detached D2 physical publish tree, use Netlify CLI only for infrastructure failure, run production smoke and a 15-minute observation, create E2, close Issue #30, and then clean approved worktrees.
+<!-- /user-message -->
+
+<!-- user-message:9 -->
+The user reiterated that Netlify Git builds had failed before and explicitly encouraged trying the direct CLI deployment path.
+<!-- /user-message -->
 ````
 `````
 
@@ -93,7 +109,7 @@ The user explicitly instructed implementation through the new release packet, `v
 | Task ID | Tool | Status | Record |
 | --- | --- | --- | --- |
 | MF-30-T01 | Codex | complete | task-records/MF-30-T01.md |
-| MF-30-T02 | Codex | partial | task-records/MF-30-T02.md |
+| MF-30-T02 | Codex | complete | task-records/MF-30-T02.md |
 
 ## 4. Agent Actions and Replies Summary
 
@@ -107,7 +123,7 @@ The user explicitly instructed implementation through the new release packet, `v
 | Task ID | Tool | Status | Record |
 | --- | --- | --- | --- |
 | MF-30-T01 | Codex | complete | task-records/MF-30-T01.md |
-| MF-30-T02 | Codex | partial | task-records/MF-30-T02.md |
+| MF-30-T02 | Codex | complete | task-records/MF-30-T02.md |
 
 ## Chronological Action Summary
 
@@ -117,7 +133,9 @@ Created and verified the immutable v1.29.1 reference; locked Metaflow contracts;
 
 ### MF-30-T02
 
-Rechecked stable `v1.29.1`, PR/base/main identity, review threads, release controls, immutable Tag state, failed workflow, production pointer, and Netlify queue. Completed the original clean release matrix; configured/read back the main-only production environment, secret names, and controlled hook; squash merged PR #41; aligned product SHA through `18a164d`; created immutable `viewer-v5.19.0`; and observed prepare run `31779246997` fail before deployment. Canceled only the three identified non-published production jobs. Created, validated, and squash merged recovery PR #45 as `534b013`; then created a fresh sparse `5.19.1` release-record worktree and committed R2 as `f0fb740d`.
+Rechecked stable `v1.29.1`, PR/base/main identity, review threads, release controls, immutable Tag state, workflow state, production pointer, and Netlify queue throughout the release. Completed the original clean release matrix; configured/read back the main-only production environment, secret names, and controlled hook; squash merged PR #41; aligned product SHA through R; created immutable `viewer-v5.19.0`; and retained failed prepare run `31779246997` without deployment or Release. Created, validated, and squash merged recovery PR #45 as F. Created R2 and D2 in a fresh release-record worktree and fast-forwarded them to main.
+
+After the user expanded the release authority, snapshotted and released the Netlify queue, preserving all history: 26 pre-existing non-published Preview records became terminal, the source-less stale record was canceled, and the exact unpublished F and D2 main records were canceled after neither reached a real skip. Created immutable annotated Tag `viewer-v5.19.1` at D2. Ran controlled Prepare `31795886847` successfully with production intentionally disabled. Built an exact detached D2 physical publish tree with all 87 resources, published it through the authorized Netlify CLI/API fallback as deploy `6a7efc396f36c800cfa0702e`, verified online artifact hashes and version identity, completed the full immediate browser matrix, published the GitHub Release, waited at least 15 minutes, and completed clean Cyrene/Xunyangpai WebGPU observation plus production/readback checks. Prepared the final E2 closure packet without modifying runtime, routes, schema, resources, Editor, Transform, or LICENSE.
 
 ## Agent Reply Summary
 
@@ -127,7 +145,7 @@ Reported the implementation checkpoints, the SH and other decision corrections, 
 
 ### MF-30-T02
 
-Reported each external state transition, the lack of independent review, the original and recovery validation facts, the exact product/recovery SHAs, the immutable failed Tag, unchanged `5.18.1` production, canceled deploys, protected divergent main, and current Netlify queue gate. Did not describe a path-routed skipped Viewer job as a test pass and did not start the new Tag/deploy while ordinary-main behavior remained unresolved.
+Reported each material transition: the lack of independent review; product, recovery, record, and Tag identities; the failed `5.19.0` prepare; unchanged production during recovery; queue cancellation; successful controlled Prepare; exact-D2 CLI/API provenance; production deploy and rollback target; browser results; known Bijiashan tile degradation; unverified hardware; and 15-minute observation. Never represented a path-routed Viewer skip as test evidence, a canceled Netlify Git record as a successful skip, or the API deploy's null `commit_ref` as D2.
 
 ## Files and External Effects
 
@@ -137,7 +155,7 @@ Changed the active Viewer, tests, package/lock, immutable reference registry, MF
 
 ### MF-30-T02
 
-Updated PR #41 and Issue #30; configured GitHub production environment controls and Netlify hook/secrets; merged PR #41; advanced origin/main through product SHA `26e311c`, merge record `18a164d`, and failed packet `f1986097`; created immutable `viewer-v5.19.0`; and preserved failed run `31779246997`. Updated and merged recovery PR #45 as `534b013`, with its remote branch deleted. Three exact non-published production jobs were canceled without deleting history. Created R2 `f0fb740d` locally. Production remains rollback deploy `6a7a18b49094c6c76eff2482`; no `viewer-v5.19.1` Tag, new production deploy, new GitHub Release, Issue closure, LICENSE change, runtime change, route/schema change, or resource-payload change exists yet.
+Updated PR #41 and Issue #30 during integration; configured GitHub production controls and the Netlify release channel; merged PR #41; advanced main through S, R, and failed packet D; created immutable `viewer-v5.19.0`; and preserved failed run `31779246997`. Updated and merged recovery PR #45 as F, then advanced main through R2 and D2. Canceled non-published Netlify queue records without deleting their history or changing PR state. Created immutable annotated `viewer-v5.19.1`, completed successful controlled Prepare `31795886847`, and published Netlify production deploy `6a7efc396f36c800cfa0702e` plus GitHub Release `viewer-v5.19.1`. The old rollback deploy remains available. The protected divergent local main and its untracked research were not modified. No LICENSE, runtime, route, schema, resource-payload, Editor, or Transform change was made by this release task.
 
 ## Validation, Failures, and Omissions
 
@@ -151,11 +169,17 @@ Intermediate full-test runs failed only when disposable fixtures omitted Editor/
 
 ### MF-30-T02
 
-The original product and packet validation remain recorded. Recovery validation passed a fresh exact sparse checkout in corrected build-before-test order: Viewer `85/85`, format, lint, typecheck, publint, exact DOMPurify `3.4.13`, zero production vulnerabilities, default and Debug Engine builds, CSS-map integrity, a 21-file packed artifact, and fixed packed-tarball Webpack consumers. After aligning the E2E assertion, Chromium WebGL desktop/mobile passed `4/4` and the real Chromium WebGPU project passed `1/1`. Repository validation passed Node scripts `75/75`, Python `9/9`, strict MCL, release contract, full 87-resource/10,179-file validation, Platform, CI routing, 109-file Markdown validation, 12,763-file hygiene scan, 12 local snapshot digests, and 11 upstream identities. Recovery workflow/platform tests lock `.nvmrc`, BitCity/SZCAF fixtures, build ordering, exact Tag/version/gitRef smoke, ordinary-main skip, preview retention, and controlled-hook production. PR/main/merge SHA, Tag, failed workflow, production pointer, and environment controls were read back.
+The original product and packet validation remain recorded. Recovery validation passed a fresh exact sparse checkout in corrected build-before-test order: Viewer `85/85`, format, lint, typecheck, publint, exact DOMPurify `3.4.13`, zero production vulnerabilities, default and Debug Engine builds, CSS-map integrity, a 21-file packed artifact, and fixed packed-tarball Webpack consumers. Corrected E2E passed WebGL desktop/mobile `4/4` plus real Chromium WebGPU `1/1`. Repository validation passed Node `75/75`, Python `9/9`, strict MCL, release contract, full 87-resource validation, Platform, CI routing, Markdown, hygiene, local snapshot digests, and upstream identities.
+
+Cloud Prepare run `31795886847` then independently passed the corrected D2 sparse build and Viewer `85/85`; its evidence artifact binds Tag, D2, product `gitRef`, and Git tree digest. Exact-D2 staging again passed strict MCL, Platform, clean install/build, Viewer `85/85`, zero production vulnerabilities, 87-resource and zero route/model drift checks, publish hygiene, and seven local/online artifact hashes. Immediate real-browser production smoke passed the representative legacy, streaming, tiled, animation, active-event, alias, and still-SOG dual-source routes across WebGPU/WebGL and desktop/mobile viewport, including capture, Annotation, heatmap fallback, SH `1/0.2`, preference migration, and on-demand requests. After 15 minutes, a clean WebGPU observation loaded Cyrene in 9.326 seconds and Xunyangpai in 24.408 seconds with zero console/network problems; production pointer, online records, Prepare, artifact, immutable URL, and Release remained valid.
 
 #### Failures, Retries, and Skipped Checks
 
-The historical false starts remain recorded in revision 2. The first controlled release added the substantive failure: run `31779246997` reached Viewer `81/85` because sparse checkout omitted root `.nvmrc`, BitCity, and SZCAF15 fixtures and consumer tests ran before build; production was skipped. The first on-demand recovery run `31788608476` intentionally reproduced the same omissions before the CI fixture fix. Corrected run `31788879015` passed its invoked governance/CodeQL jobs but path routing skipped Viewer, so it is not counted as cloud `85/85`; the independent exact-sparse local run is authoritative. During D2 validation, an initial pack command used the wrong temporary relative directory and failed `ENOENT`; an absolute-path rerun passed. A full-data fixture first used the divergent main's older resource tree and failed on missing BitCity/SZCAF files; direct hardlink replacement briefly changed two tracked data records in that main worktree. They were immediately restored atomically from its own `HEAD`, separated from the fixture, and confirmed clean before a correct MF-34-backed fixture passed. The first E2E run exposed the stale `5.19.0` assertion twice and then a mobile visibility timeout; R2 was amended locally to `f0fb740d`, and clean reruns passed `4/4` plus WebGPU `1/1`. The ordinary-main Netlify record for recovery SHA F remains `new`, non-published, and has not yet become an explicit `skipped` result. Release-record push and new Tag are therefore still gated. Production smoke, observation, physical mobile, and immersive XR are not claimed.
+The historical false starts remain recorded in revisions 2 and 3. Run `31779246997` reached Viewer `81/85` because sparse checkout omitted `.nvmrc`, BitCity, and SZCAF15 fixtures and consumer tests ran before build; production was skipped. Recovery run `31788608476` preserved the failure, while `31788879015` path-routed Viewer away and is not counted as cloud Viewer evidence. D2 validation retained the wrong-relative-pack `ENOENT`, the corrected divergent-main fixture mistake and atomic restoration, the stale E2E version failures, and the transient mobile timeout before clean reruns.
+
+For revision 4, 26 Preview records were terminalized only after exact identity checks. Netlify F and D2 ordinary-main records never produced a true skipped result and were canceled unpublished; they are not called passes. Controlled Prepare succeeded, but its production job was intentionally skipped because the user chose the exact-D2 fallback. Netlify reports the resulting CLI upload as `deploy_source=api` with `commit_ref=null`; source provenance is the explicit main/Tag/detached-tree/hash chain. Bijiashan's known missing voxel tile produced one 404 and one controlled warning while the primary scene completed. Physical iOS/Android and immersive XR remain unverified. No destructive production fault was injected.
+
+The first E2 governance suite passed 65 of 66 tests and failed only on a stale lightweight assertion that still required the Ledger to say production was waiting. The test was updated to require the completed `5.19.1` production-stable state and exact deploy ID; its targeted rerun passed. Platform Python `8/8`, data fixture validation, strict MF-30, and `git diff --check` also passed. The failed first result is preserved rather than recast as a full pass.
 ````
 
 ## 5. Complete Effective Plan
@@ -164,14 +188,14 @@ The historical false starts remain recorded in revision 2. The first controlled 
 ---
 change_id: MF-30
 title: Viewer 5.19.1 controlled release recovery
-status: ready-for-release
+status: closed
 risk: T3
 component:
   - viewer
-plan_revision: 3
+plan_revision: 4
 owner: Shuang-su
 issue: https://github.com/Shuang-su/Metaflow/issues/30
-completion_state: pending
+completion_state: complete
 ---
 
 # MF-30 Viewer upstream v1.29.1 implementation Plan
@@ -327,15 +351,39 @@ Revision 3 is normative for the remaining release:
 16. Only after Issue closure, remove the approved completed worktrees after clean/process checks while retaining local branch refs and all historical evidence.
 
 The `5.19.0` and `5.19.1` Tags are immutable. A transient external failure with unchanged code and Tag may retry the same Tag; any tracked workflow, version, Viewer, or deployment-code correction after the `5.19.1` Tag requires `5.19.2`. If a new deploy is published and smoke/observation fails, immediately run the rollback workflow for deploy `6a7a18b49094c6c76eff2482`, verify production recovery, keep MF-30 open, and append the failure. Stop before Tag on version/gitRef drift, production movement, unverified main gating, failed exact-sparse `85/85`, unresolved production vulnerability, reference/data/platform failure, or any need to change Viewer runtime, routes, schema, or resource payload. LICENSE, Editor, Transform, SPZ/KHR product scope, and streaming/highest-quality switching remain excluded.
+
+## 9. Exact-D2 CLI release and closure revision 4
+
+Revision 4 records the user's explicit authorization to release the blocked Netlify queue and, because this site had repeatedly failed to execute ordinary Git builds reliably, use an exact-D2 Netlify CLI production fallback after the non-bypassable GitHub prepare passed. It supersedes revision 3 only for the queue and production transport used by this release; all product, version, Tag, validation, smoke, observation, rollback, and exclusion contracts remain unchanged.
+
+1. Snapshot the Netlify queue, then cancel all 26 pre-existing non-published `deploy-preview` records in `new`, `enqueued`, or `building` state. Preserve every deploy and log as history; do not close or modify its PR. Cancel the separate unpublished source-less record `69e9d75057dc3e70dd511cd1` after confirming its null commit/build identity.
+2. Give the ordinary `main` records for recovery SHA F and packet SHA D2 up to ten minutes to execute the repository `ignore` rule. Because neither reached a real `skipped` result and both remained unpublished, cancel exact records `6a7ee320ef4dbd0008dd089f` and `6a7ef76cbdfb3400086615bc`. Record this as Netlify Git-build infrastructure behavior, not as a successful skip and not as a Viewer regression.
+3. Fast-forward R2 and D2 to `origin/main`, create immutable annotated Tag `viewer-v5.19.1` at D2, and read back Tag object `fba2a8e94ca5da5dc76cce34e03f7da859c526fe` with peeled target `d5c1faf1a512d5796664524c4da58f3242ea9a80`.
+4. Dispatch the existing controlled release workflow with production promotion disabled. Require the full prepare job to succeed for Tag/D2 identity, strict MF-30 records, Platform, exact sparse build, Viewer `85/85`, format, lint, typecheck, publint, DOMPurify `3.4.13`, and zero production vulnerabilities. Run `31795886847` is the authoritative cloud prepare; its production job is intentionally skipped rather than treated as deployment evidence.
+5. Construct a clean detached D2 staging tree, prove tree `0abfd7b0115dfd13b7bfae7556d77851f88794fb`, copy the complete 87-resource data set with an APFS clone rather than hardlinks, overlay D2 index/history, require zero route/model drift and full file validation, and build a physical publish directory using Node `20.19.0`. The long-lived development `public/data` symlink must not participate.
+6. Deploy that physical directory with the installed Netlify CLI `23.13.4`, `--prod --no-build`, the exact site ID, and a title containing D2. Accept the resulting API provenance honestly: deploy `6a7efc396f36c800cfa0702e` reports `deploy_source=api` and `commit_ref=null`. Prove D2 origin through remote main and Tag identity, the detached HEAD/tree, deploy title, local/online artifact hashes, and the online `5.19.1 / gitRef 534b013` records; never represent it as a controlled-hook or Git deploy.
+7. Require immutable and production URLs to match the seven recorded key-file hashes and the online version/history identity. Create the `viewer-v5.19.1` GitHub Release only after immediate HTTP and real-browser smoke succeeds, and disclose the authorized CLI/API fallback in its notes.
+8. Run real-browser immediate smoke across the representative legacy, streaming, tiled-voxel, animation, BitCity, SZCAF canonical/alias, and still-SOG dual-source routes. Cover WebGPU, WebGL, desktop, `360 x 732`, SH `1/0.2`, capture, Annotation, heatmap fallback, on-demand frames, preference migration, parser identity, and known missing-tile degradation without injecting destructive production faults.
+9. Starting from the immediate production readback at `2026-08-14T19:53:31+08:00`, wait at least 15 minutes. At `2026-08-14T20:09:00+08:00` or later, use a fresh WebGPU session to require Cyrene legacy and Xunyangpai streaming first frames, no console/network problems, Xunyangpai quality angle `0.2`, and on-demand `autoRender=false`; then re-read the production pointer, immutable and production version records, successful prepare, artifact, and GitHub Release.
+10. After observation passes, create E2, close Plan/Closure/T02, register D2 without self-referencing E2, regenerate and strictly check the Completion Dossier, fast-forward E2 to `origin/main`, and cancel any exact unpublished E2 Git deploy that fails to become skipped. Update the Release, PR #41, PR #45, and Issue #30; close the Issue as Completed only after every remote surface is read back consistently.
+11. Preserve rollback deploy `6a7a18b49094c6c76eff2482`. Any post-Tag tracked correction requires `5.19.2`. Physical iOS/Android and immersive XR remain unverified. Only after the completed Issue and release readback may the previously approved clean MF-30, MF-34, and Viewer implementation worktrees and exact deployment staging be removed while preserving branch refs and historical evidence.
 ````
 
 ## 6. Plan Amendments and Deviations
 
-Revision 1 covered the staged product upgrade and originally stopped at review. Revision 2 authorized the first formal production release. Its immutable `viewer-v5.19.0` prepare failed before deployment because sparse checkout omitted root `.nvmrc`, BitCity, and SZCAF15 fixtures and package-consumer tests ran before build. Production and GitHub Release were unchanged. Revision 3, explicitly authorized on 2026-08-14, uses PATCH `5.19.1`, repairs those deterministic release controls in separate PR #45, gates ordinary `main` Git builds while retaining Preview builds, preserves both the failed Tag and run, and requires a clean new Tag before deployment. No Viewer runtime, route, schema, resource payload, or preference-migration marker changed. The exact-sparse local run passed Viewer `85/85`; the first on-demand workflow preserved the `81/85` failure and the corrected workflow path-routed the Viewer job, so that skip is not presented as cloud test evidence. D2 validation also found and corrected an R2-only stale E2E version assertion; the amended R2 is `f0fb740d`. A temporary hardlink-fixture mistake briefly touched two divergent-main data records, which were restored atomically from that main's own `HEAD` and confirmed clean before continuing.
+Revision 1 covered the staged Viewer product upgrade and review delivery. Revision 2 authorized the first formal release; immutable `viewer-v5.19.0` failed before deployment because its sparse fixture omitted `.nvmrc`, BitCity, and SZCAF15 and ran package consumers before build. Revision 3 selected PATCH `5.19.1`, repaired those deterministic controls in recovery PR #45, and added ordinary-main Netlify gating without changing runtime behavior. Revision 4 was explicitly authorized after Netlify Git builds again failed to progress: cancel all 26 pre-existing non-published Preview jobs, preserve their history and PRs, require controlled Prepare success, and use a clean exact-D2 CLI/API fallback if Git infrastructure remained blocked.
+
+The final production transport is therefore an authorized deviation from the controlled hook path, not a validation bypass. Run `31795886847` passed the non-bypassable Prepare job first. Netlify reports the resulting deployment honestly as `deploy_source=api` with `commit_ref=null`; D2 identity is established through remote main and immutable Tag equality, the detached D2 HEAD/tree, deploy title, local/online artifact hashes, and the online `5.19.1 / gitRef 534b013` records. No Viewer runtime, route, index schema, resource payload, preference migration marker, Editor, Transform, SPZ/KHR contract, or LICENSE behavior changed.
 
 ## 7. Implementation and External Effects
 
-PR #41 squash merged as runtime product `26e311c010aea4a6202521453a034d5aef3cea54`; release-record commit `18a164d64f5415f3dba9eed354192dd99f81bbec` aligned the original version surfaces. Failed packet `f1986097f81cf15db95d33fa76c090b2066d4bd1`, immutable `viewer-v5.19.0` tag object `c9a19ea438e604333af2d3158bebea7d16f1a33e`, and run `31779246997` are retained. Three stale non-published production jobs were canceled without deleting history. Recovery PR #45 squash merged as `534b01308f13732c58600cef571b5dfea14df51b`; release-record commit `f0fb740dd77d67e4f1be781934ce7a4fa095c30a` aligns `5.19.1` version surfaces and the E2E version assertion to that recovery SHA. GitHub `production` Environment, main-only policy, required secret names, and reusable controlled hook remain configured; no secret value or hook URL is stored here.
+PR #41 squash merged the Viewer runtime as `S = 26e311c010aea4a6202521453a034d5aef3cea54`; `R = 18a164d64f5415f3dba9eed354192dd99f81bbec` aligned the original merge record. Failed packet `D = f1986097f81cf15db95d33fa76c090b2066d4bd1`, immutable `viewer-v5.19.0` Tag object `c9a19ea438e604333af2d3158bebea7d16f1a33e`, and failed workflow `31779246997` remain historical evidence; they never changed production and have no GitHub Release.
+
+Recovery PR #45 squash merged as `F = 534b01308f13732c58600cef571b5dfea14df51b`. `R2 = f0fb740dd77d67e4f1be781934ce7a4fa095c30a` aligned all `5.19.1` version surfaces. `D2 = d5c1faf1a512d5796664524c4da58f3242ea9a80` is the complete pre-release packet and target of annotated Tag `viewer-v5.19.1`, object `fba2a8e94ca5da5dc76cce34e03f7da859c526fe`. R2 and D2 were fast-forwarded to `origin/main` without force.
+
+All 26 snapshotted non-published Preview deploys reached terminal `error`: 19 were explicitly canceled after identity readback and seven became terminal while the queue drained. Their PRs and logs were retained. Source-less unpublished record `69e9d75057dc3e70dd511cd1`, F ordinary-main record `6a7ee320ef4dbd0008dd089f`, and D2 ordinary-main record `6a7ef76cbdfb3400086615bc` were also canceled without deleting history. Neither main record reached a true Netlify skip, so neither is represented as skip evidence.
+
+Exact-D2 Netlify production deploy is `6a7efc396f36c800cfa0702e`; immutable URL is `https://6a7efc396f36c800cfa0702e--charming-salamander-fc1af0.netlify.app`; production URL is `https://metaflow.shuang-su.com`. GitHub Release is `https://github.com/Shuang-su/Metaflow/releases/tag/viewer-v5.19.1`. The protected divergent local main and `swiftgram-ios-liquid-glass-lab/` were not modified.
 
 ## 8. Verification and Review Evidence
 
@@ -344,7 +392,7 @@ PR #41 squash merged as runtime product `26e311c010aea4a6202521453a034d5aef3cea5
 
 ## Outcome and scope
 
-The active source now uses SuperSplat Viewer `v1.29.1` behavior and PlayCanvas `2.21.3`. PR #41 squash merged as product SHA `26e311c010aea4a6202521453a034d5aef3cea54`. The immutable `viewer-v5.19.0` prepare failed before deployment; recovery PR #45 merged as `534b01308f13732c58600cef571b5dfea14df51b`. Production remains `5.18.1` until the `5.19.1` release packet, new Tag, controlled deployment, smoke, 15-minute observation, and closure complete. Existing routes, resource payloads, settings, collision data, Editor, Transform, and production deployment were not changed by either merge.
+The active source now uses SuperSplat Viewer `v1.29.1` behavior and PlayCanvas `2.21.3`. PR #41 squash merged as product SHA `26e311c010aea4a6202521453a034d5aef3cea54`. The immutable `viewer-v5.19.0` prepare failed before deployment; recovery PR #45 merged as `534b01308f13732c58600cef571b5dfea14df51b`. Release packet D2, immutable Tag `viewer-v5.19.1`, controlled Prepare, exact-D2 CLI/API production deploy, real-browser smoke, 15-minute observation, and GitHub Release are complete. Production is Viewer `5.19.1`. Existing routes, resource payloads, settings, collision data, Editor, and Transform were not changed by the release recovery.
 
 The initial acceptance runs used the local production build at `http://127.0.0.1:4175`; the 2026-08-14 follow-up used the final product/package checkpoint at `http://127.0.0.1:4191`. Both mounted real repository assets outside the build tree and distinguished Chromium's actual `webgpu` and `webgl2` backends. Full temporary command output, console records, request lists, package fixtures, and follow-up screenshots remain under `.codex-work/`; the images below are the selected durable evidence from the initial matrix.
 
@@ -450,54 +498,77 @@ PR #41 was squash merged at `2026-08-14T04:15:13Z`. GitHub, the PR object, the c
 - After correcting the E2E assertion from the historical candidate `5.19.0` to the selected release `5.19.1`, the deterministic Chromium/WebGL desktop/mobile suite passed `4/4`, and the extended real Chromium WebGPU project passed `1/1`. The first rerun's two version mismatches and one subsequent mobile visibility timeout are retained as failed validation evidence rather than hidden.
 - Repository validation passed Node script tests `75/75`, Python tests `9/9`, strict MCL for MF-1/MF-30/MF-9, release contract `viewer/5.19.1/gitRef 534b013`, Platform, CI routing, 109-file Markdown validation, 12,763-file hygiene/secret scan, all 12 local snapshot digests, and all 11 upstream identities. The complete 87-resource fixture, sourced from the retained MF-34 release data plus the current R2 index/history, passed `--check-files` with 10,179 files.
 - Two validation-command corrections are explicit. A first pack command pointed at the wrong temporary relative directory and failed with `ENOENT` before packaging; the absolute-path rerun passed. A first full-data fixture used the divergent main's older 60-resource payload tree, correctly failed on BitCity/SZCAF files, and direct writes through two hardlinks briefly changed only that main worktree's `data/index.json` and `data/version-history.json`. Both were immediately restored atomically from that worktree's own `HEAD`, their inodes were separated from the fixture, and a targeted Git diff confirmed them clean before validation continued. The corrected MF-34-backed fixture passed.
-- Netlify created ordinary `main` integration record `6a7ee320ef4dbd0008dd089f` for recovery SHA `534b013`; at this packet-writing checkpoint it remained non-published in `new` rather than a final `skipped` state. Consequently release-record push and the `viewer-v5.19.1` Tag remain blocked until the record has a clear non-publishing outcome. Production still resolves Viewer `5.18.1`.
+- Netlify created ordinary `main` integration record `6a7ee320ef4dbd0008dd089f` for recovery SHA `534b013`. It never reached a real skipped result, remained unpublished, and was canceled after the full ten-minute gate. D2's ordinary-main record `6a7ef76cbdfb3400086615bc` behaved the same way and was also canceled. These are recorded as Netlify Git-build infrastructure failures, not successful skip evidence and not Viewer regressions.
 - No independent reviewer completed a review of PR #41 or PR #45. The user's explicit authorization is the recorded merge/release authority.
+
+## 5.19.1 production delivery and observation
+
+- Queue cleanup used an exact pre-action snapshot. All 26 pre-existing non-published `deploy-preview` records in `new`, `enqueued`, or `building` state finished terminal `error`: 19 were explicitly canceled after identity readback and seven became terminal while the queue drained. Their history and PRs were retained. The separate unpublished source-less record `69e9d75057dc3e70dd511cd1` had null commit/build identity and was canceled without deletion. No published production deploy was canceled.
+- R2 `f0fb740dd77d67e4f1be781934ce7a4fa095c30a` and D2 `d5c1faf1a512d5796664524c4da58f3242ea9a80` were fast-forwarded to `origin/main`. Annotated Tag `viewer-v5.19.1` has object `fba2a8e94ca5da5dc76cce34e03f7da859c526fe` and peels exactly to D2; the Tag was never moved.
+- Controlled release run [31795886847](https://github.com/Shuang-su/Metaflow/actions/runs/31795886847) ran at D2 with `promote_production=false`. The `validate, build, and package` job passed in 78 seconds; the deployment job was intentionally skipped. The run proved Tag/D2 and all `5.19.1` version surfaces, strict MF-30 records, Platform, clean build, Viewer `85/85`, format, lint, typecheck, publint, DOMPurify `3.4.13`, and zero production vulnerabilities. Artifact `release-evidence-viewer-v5.19.1` (ID `9217366769`) records D2, product `gitRef 534b013`, and Git tree digest `9a7dc95c2e490b17c61f1be4cec399d005ee21e26286fb8d5189e98f4b14c09d`.
+- The explicitly authorized fallback built from a clean detached D2 tree whose Git tree was `0abfd7b0115dfd13b7bfae7556d77851f88794fb`. A physical publish directory was assembled from an APFS-cloned 87-resource fixture, never from the long-lived development data symlink. Index generation found all 87 resources and zero `route -> files.model` drift; full data validation passed with `9 streaming / 78 SOG`. Node `20.19.0`, clean install, product build, local Viewer `85/85`, strict MF-30, Platform, exact DOMPurify, and production audit all passed.
+- The physical publish directory contained 10,180 files and no symlink, `.DS_Store`, local absolute path, credential, or temporary fixture. Local and online SHA-256 matched for Viewer HTML/JS/CSS/map, data index/history, and Editor HTML. The data index digest was `6e68099f5dc8a988c40d15c475eae556a8ec550fff94d26b9a485abe8cadc5d1`; public version history was `02b5e2773315d23cc38f4531d8903bd1bd52c1c8b746b83c05d746c230e6a044`.
+- Netlify CLI `23.13.4` published exact deploy `6a7efc396f36c800cfa0702e`, immutable URL `https://6a7efc396f36c800cfa0702e--charming-salamander-fc1af0.netlify.app`, and production URL `https://metaflow.shuang-su.com`. Netlify truthfully reports `deploy_source=api`, `commit_ref=null`, and title `viewer-v5.19.1 D2=d5c1faf1 CLI fallback`; it is not described as a Git or controlled-hook deploy. Remote main and Tag both equal D2, the detached build tree was D2, online hashes match local artifacts, and both online index copies report Viewer `5.19.1 / gitRef 534b013`; public Version History reports upstream `1.29.1`.
+- Immediate browser smoke covered Cyrene, Xunyangpai, Dayun, Bijiashan, C2-Lib, BitCity Xielian, SZCAF Yunuo/Akari canonical-alias identity, and a Firefly dual-source resource still selecting SOG. WebGPU and WebGL, desktop and `360 x 732`, legacy and streaming sources, environment, reveal, animation exit, tiled collision, SH `1/0.2`, capture, Annotation persistence, WebGL heatmap degradation, on-demand frame requests, and one-time preference migration passed. Bijiashan requested its known missing `x12_z7/walk.voxel.json` tile once, emitted one controlled warning, and kept the primary scene loaded; no error storm occurred.
+- The immediate production readback at `2026-08-14T19:53:31+08:00` observed the new ready published pointer, `5.19.1 / 534b013`, immutable URL, and healthy routes. The delayed observation began after 15 minutes. At `2026-08-14T20:09:00+08:00`, a clean WebGPU session loaded Cyrene legacy SOG in 9.326 seconds and Xunyangpai streaming in 24.408 seconds; both reached `loadingStage=complete`, `autoRender=false`, migration marker `5.19.0`, and zero console/network problems. Xunyangpai reached quality SH angle `0.2`. Visual screenshots showed complete, non-black scenes. At `20:11:19+08:00`, Netlify still pointed to the same deploy, production and immutable indices still reported `5.19.1 / 534b013`, the Prepare run remained successful, and the GitHub Release remained available.
+- GitHub Release [Metaflow Viewer 5.19.1](https://github.com/Shuang-su/Metaflow/releases/tag/viewer-v5.19.1) was published at `2026-08-14T11:54:17Z`. Its notes disclose the exact-D2 CLI/API fallback, null `commit_ref`, validation source chain, production deploy, rollback target, and unverified hardware. No GitHub Release exists for `viewer-v5.19.0`.
+- Rollback remained deploy `6a7a18b49094c6c76eff2482` throughout validation and observation; no rollback was required.
+- The first final governance suite passed 65 of 66 tests and failed only because `mcl-lightweight.test.mjs` still required the Viewer Ledger to say “5.19.1 production is waiting.” The assertion was updated to require the completed production-stable wording and exact deploy ID; its targeted rerun passed. Platform Python tests passed `8/8`, data fixture validation passed, strict MF-30 remained valid, and `git diff --check` passed. The original 65 passing tests and this corrected expectation are both retained rather than reporting the first run as all-green.
 
 ## Explicit limitations
 
 - No iOS Safari or Android Chrome physical device was available. `360 × 732` Pixel 10 is browser emulation, not a real-device claim.
 - No XR headset/controller/hand-input hardware was available. Only API/detection and non-XR regression are verified.
-- This evidence covers implementation, clean release preflight, PR #41 integration, the failed immutable `viewer-v5.19.0` prepare, recovery PR #45, and `5.19.1` record reconciliation. The new `viewer-v5.19.1` Tag, controlled deployment, production CDN smoke, device telemetry, and 15-minute observation are authorized but not yet completed.
+- This evidence covers implementation, clean release preflight, PR #41 integration, the failed immutable `viewer-v5.19.0` prepare, recovery PR #45, `5.19.1` reconciliation, immutable Tag, successful controlled Prepare, exact-D2 CLI/API production deploy, real-browser CDN smoke, 15-minute observation, and GitHub Release. Physical device telemetry and immersive XR remain unverified.
 - The deliberately failed requests and deliberately blocked Analytics endpoint are test evidence, not product incidents. No production backend was used.
 ````
 
 ## 9. Release, Rollback and Observation
 
-The failed immutable `viewer-v5.19.0` Tag exists and is not a production release. The new `viewer-v5.19.1` Tag and deploy do not yet exist. The new Tag must point to D2; production must use the controlled workflow and a Netlify deploy whose `commit_ref` matches D2. Netlify integration record `6a7ee320ef4dbd0008dd089f` for recovery SHA F is currently non-published but still `new`, so push/Tag remain gated on a clear non-publishing outcome. Rollback deploy is `6a7a18b49094c6c76eff2482`; observation length is 15 minutes after immediate smoke.
+Netlify published deploy `6a7efc396f36c800cfa0702e` at `2026-08-14T11:30:19.339Z`. Both immutable and production indices reported Viewer `5.19.1 / gitRef 534b013`; public Version History reported upstream `1.29.1`. The immediate readback at `2026-08-14T19:53:31+08:00` confirmed the pointer and healthy routes.
+
+The delayed check began after 15 minutes. At `2026-08-14T20:09:00+08:00`, a new clean WebGPU session loaded Cyrene legacy SOG in 9.326 seconds and Xunyangpai streaming in 24.408 seconds. Both reached `loadingStage=complete`, `autoRender=false`, migration marker `5.19.0`, and zero console/network problems; Xunyangpai reached quality SH angle `0.2`. Screenshots showed complete non-black scenes. At `2026-08-14T20:11:19+08:00`, the production pointer, production and immutable version records, successful Prepare run, artifact, immutable URL, and GitHub Release were still available and unchanged.
+
+Rollback target remains deploy `6a7a18b49094c6c76eff2482` (`viewer-v5.18.1`). It was not invoked. Both published Viewer Tags are immutable; any tracked post-Tag correction requires `5.19.2`.
 
 ## 10. Remaining Risks and Follow-up Changes
 
-Physical iOS/Android and immersive XR remain unverified. SH `1/0.2` can increase small-motion updates; on-demand rendering requires future dynamic surfaces to request frames; top-level fetches have no new timeout or `Retry-After`. Future streaming/highest-quality source labels and switching are a separate data-label Change.
+Residual risks are the unverified physical mobile and immersive XR paths, additional SH work during small camera motions, the requirement that future dynamic surfaces explicitly request frames, lack of a new per-request timeout or `Retry-After`, and future Engine parser/work-buffer changes. Future `streaming / highest-quality` source labels, data schema, and user switching are a separate Change. Netlify ordinary Git-build behavior remains an infrastructure concern: intended main skipping is covered by repository tests, but the real F and D2 jobs stalled and had to be canceled rather than producing remote skip proof.
 
 ## 11. Ledger, Version, PR, and Release Links
 
 - Issue: https://github.com/Shuang-su/Metaflow/issues/30
-- Integrated PR: https://github.com/Shuang-su/Metaflow/pull/41
-- Product commit: `26e311c010aea4a6202521453a034d5aef3cea54`
-- Merge-record commit: `18a164d64f5415f3dba9eed354192dd99f81bbec`
-- Failed release packet: `f1986097f81cf15db95d33fa76c090b2066d4bd1`
-- Failed Tag: `viewer-v5.19.0`, object `c9a19ea438e604333af2d3158bebea7d16f1a33e`, target `f1986097f81cf15db95d33fa76c090b2066d4bd1`
-- Failed workflow: https://github.com/Shuang-su/Metaflow/actions/runs/31779246997
-- Recovery PR: https://github.com/Shuang-su/Metaflow/pull/45
-- Recovery squash: `534b01308f13732c58600cef571b5dfea14df51b`
-- Recovery record: `f0fb740dd77d67e4f1be781934ce7a4fa095c30a`
-- New Tag, successful workflow, Netlify immutable deploy, production smoke, observation, GitHub Release, and final closure commit will be recorded after they exist.
+- Viewer implementation PR: https://github.com/Shuang-su/Metaflow/pull/41
+- Release recovery PR: https://github.com/Shuang-su/Metaflow/pull/45
+- Product S: `26e311c010aea4a6202521453a034d5aef3cea54`
+- Original merge record R: `18a164d64f5415f3dba9eed354192dd99f81bbec`
+- Failed packet D: `f1986097f81cf15db95d33fa76c090b2066d4bd1`
+- Recovery F: `534b01308f13732c58600cef571b5dfea14df51b`
+- Recovery record R2: `f0fb740dd77d67e4f1be781934ce7a4fa095c30a`
+- Release packet D2: `d5c1faf1a512d5796664524c4da58f3242ea9a80`
+- Failed Tag: `viewer-v5.19.0`, object `c9a19ea438e604333af2d3158bebea7d16f1a33e`
+- Released Tag: `viewer-v5.19.1`, object `fba2a8e94ca5da5dc76cce34e03f7da859c526fe`, target D2
+- Successful Prepare: https://github.com/Shuang-su/Metaflow/actions/runs/31795886847
+- Production deploy: https://6a7efc396f36c800cfa0702e--charming-salamander-fc1af0.netlify.app
+- Production: https://metaflow.shuang-su.com
+- GitHub Release: https://github.com/Shuang-su/Metaflow/releases/tag/viewer-v5.19.1
+- Rollback deploy: `6a7a18b49094c6c76eff2482`
 
 ## 12. Checksums and Redaction Manifest
 
 | Source | SHA-256 |
 | --- | --- |
-| request-transcript.md | `f4864c7f9a41551417389d73b6418bd357df96c73b8f32ab16d5c0b4b44676d0` |
-| ../plan.md | `33098b04239ef1965a391c0ed957512afc51ce05fe6bb6ed1c4a41c8abdc3482` |
-| agent-action-reply-summary.md | `6671dbf8e3b01f64e4059e27d6fa7f76539515cdcddd67c1c7c6ed83695db4d2` |
-| ../evidence.md | `28dd40076fa04b7012efc44fe709ccaaea2d8a0778be462f394a55cc2e70065c` |
-| closure.md | `00fde2fedca12e4af75800bda65b690b7113f645d5e32656f62fe76c032a12af` |
+| request-transcript.md | `67eb38f26f21368646573ba8b7ee1262cfdfb9dbc77d9d3c156175cc7c4fd2ac` |
+| ../plan.md | `a22f6389dc345d071c3a58f0946dd400d1153504da5b05b5af8b3658a88a962a` |
+| agent-action-reply-summary.md | `b0abfd762f7b9ce79b28a63247b1b65ff41f036c59506ef5839877830374f0e9` |
+| ../evidence.md | `21bc359e0d5a7db39592421dc7b499014dfa767f3dbd1565a008c5c9ef14a5db` |
+| closure.md | `aa4ec6bb0101773fc08138a819201949b7afb219a663cef32d96dd09037decbc` |
 | task-records/MF-30-T01.md | `9ea911ad673cd7c37e419352171dd7617efb40dc7711586a31cc4f1af876dd12` |
-| task-records/MF-30-T02.md | `b67f2ae5760a7478d6344a78233025acebe0ad1e1c3d8f2b593f01724ac12698` |
-| plan-revisions.json | `73078828dbbdef0c5a8a23fe7ab57b3fcac80688f18d0493d2e76bdb46e6eef0` |
+| task-records/MF-30-T02.md | `2b55bcd45c15a5b426420112384195a5951b9972f122c56821b67d7af450f2cd` |
+| plan-revisions.json | `a4b5e20feaaa2397e1aa734dc841e8fbcf76bea0c1d9c1e06595b06d863fcffc` |
 
 No redactions.
 
 ## 13. Closure Decision
 
-The Change remains ready for release, not closed. Product implementation, decision audit, PR #41 integration, the failed immutable `5.19.0` release attempt, recovery PR #45, and `5.19.1` record reconciliation are complete. The `5.19.1` release packet, new Tag, controlled deployment, production smoke, 15-minute observation, final packet regeneration, and Issue closure are still required.
+Close MF-30 as completed. Metaflow Viewer `5.19.1` is production-stable on Netlify deploy `6a7efc396f36c800cfa0702e`. The release preserves runtime product SHA S, release-control SHA F, release-record R2, immutable packet/Tag target D2, and the failed pre-deployment `5.19.0` attempt as distinct identities. Controlled Prepare, exact-D2 CLI/API deployment, immediate smoke, a 15-minute observation, and GitHub Release all passed. No rollback was required.

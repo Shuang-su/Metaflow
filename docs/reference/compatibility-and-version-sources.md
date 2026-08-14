@@ -6,11 +6,11 @@
 
 | 产品面 | 当前状态 |
 |---|---|
-| Viewer | 发布恢复 display/app/package `5.19.1`；运行时产品 SHA `26e311c`、发布控制 SHA `534b013`；上游 SuperSplat Viewer `1.29.1` / PlayCanvas `2.21.3`；生产仍为 `5.18.1` |
+| Viewer | 生产稳定 display/app/package `5.19.1`；运行时产品 SHA `26e311c`、发布控制 SHA `534b013`；上游 SuperSplat Viewer `1.29.1` / PlayCanvas `2.21.3`；生产 deploy `6a7efc396f36c800cfa0702e` |
 | Editor | Metaflow `1.1 / 1.1.0`；上游 SuperSplat Editor `2.28.0` |
 | Editor 内部 Viewer 依赖 | `@playcanvas/supersplat-viewer 1.26.3`；不要求与 Viewer 产品上游相同 |
 | 资源索引 | schema `1.2` |
-| 下一次 Viewer 产品发布 | `5.19.0` Tag 在 deployment 前失败且未进入生产；MF-30 以 `5.19.1` PATCH 恢复，仍须完成新 release packet、Tag、受控部署、smoke 与 15 分钟观察 |
+| 下一次 Viewer 产品发布 | `5.19.0` Tag 在 deployment 前失败且未进入生产；MF-30 已以 `5.19.1` PATCH 恢复并完成生产发布，下一次兼容修复从 `5.19.2` 起，新向后兼容能力使用 `5.20.0` |
 
 这些值来自下表机器来源，不是由本文独立维护。
 

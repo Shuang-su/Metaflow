@@ -11,7 +11,7 @@
 | 不兼容 URL/settings/index 契约或要求消费者迁移 | MAJOR | `6.0.0` |
 | 普通文档、MCL/治理、研究、无行为 refactor、测试维护、未公开 staging | 不提升产品版本 | — |
 
-当前运行时产品是 SuperSplat Viewer `v1.29.1` / PlayCanvas `2.21.3`，产品 SHA 为 `26e311c`。`viewer-v5.19.0` 已建立但 prepare 在 deployment 前失败，没有 GitHub Release，生产从未切换；发布控制修复通过 recovery PR #45 以 SHA `534b013` 合入，当前 display/package 为 `5.19.1`。生产仍为 `5.18.1`；新的 release packet、Tag、部署、smoke 和观察完成前不等于稳定发布。`5.18a` 及更早字母版本保持不变；`5.18.1` 是首个后续完整 SemVer 发布，之后不再创建 `5.18b`。
+当前生产运行 SuperSplat Viewer `v1.29.1` / PlayCanvas `2.21.3`，产品 SHA 为 `26e311c`，发布控制 SHA 为 `534b013`，display/package 为 `5.19.1`。`viewer-v5.19.0` 已建立但 prepare 在 deployment 前失败，没有 GitHub Release，生产从未切换；`viewer-v5.19.1` 已在 D2 controlled Prepare 后通过经授权的精确 D2 CLI/API fallback 发布，并完成 production smoke、15 分钟观察和 GitHub Release。`5.18a` 及更早字母版本保持不变；`5.18.1` 是首个后续完整 SemVer 发布，之后不再创建 `5.18b`。
 
 同一发布同时含资源和兼容修复时共用一个 PATCH；若包含新产品能力则按 MINOR。文件数量与体积影响审查路线，不改变 SemVer 含义。
 

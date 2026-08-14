@@ -1,25 +1,25 @@
 {
   "schemaVersion": "1.1",
   "changeId": "MF-30",
-  "terminalState": "ready-for-release",
+  "terminalState": "closed",
   "risk": "T3",
   "components": [
     "viewer"
   ],
   "request": {
     "path": "request-transcript.md",
-    "sha256": "f4864c7f9a41551417389d73b6418bd357df96c73b8f32ab16d5c0b4b44676d0",
-    "messageCount": 9
+    "sha256": "67eb38f26f21368646573ba8b7ee1262cfdfb9dbc77d9d3c156175cc7c4fd2ac",
+    "messageCount": 13
   },
   "plan": {
     "path": "approved-plan.md",
-    "sha256": "33098b04239ef1965a391c0ed957512afc51ce05fe6bb6ed1c4a41c8abdc3482",
-    "revision": 3,
+    "sha256": "a22f6389dc345d071c3a58f0946dd400d1153504da5b05b5af8b3658a88a962a",
+    "revision": 4,
     "source": "../plan.md"
   },
   "agentSummary": {
     "path": "agent-action-reply-summary.md",
-    "sha256": "6671dbf8e3b01f64e4059e27d6fa7f76539515cdcddd67c1c7c6ed83695db4d2"
+    "sha256": "b0abfd762f7b9ce79b28a63247b1b65ff41f036c59506ef5839877830374f0e9"
   },
   "planRevisions": [
     {
@@ -41,11 +41,18 @@
     {
       "revision": 3,
       "sha256": "33098b04239ef1965a391c0ed957512afc51ce05fe6bb6ed1c4a41c8abdc3482",
+      "taskIds": [],
+      "amendmentReason": "Preserves the failed immutable 5.19.0 attempt and recovers the controlled release as PATCH 5.19.1 through a separate workflow/platform PR, exact-sparse validation, ordinary-main production gating, a new immutable Tag, controlled deployment, observation, and closure.",
+      "approvalSource": "Explicit user approval of the MF-30 Viewer 5.19.1 controlled release recovery and final closure plan on 2026-08-14."
+    },
+    {
+      "revision": 4,
+      "sha256": "a22f6389dc345d071c3a58f0946dd400d1153504da5b05b5af8b3658a88a962a",
       "taskIds": [
         "MF-30-T02"
       ],
-      "amendmentReason": "Preserves the failed immutable 5.19.0 attempt and recovers the controlled release as PATCH 5.19.1 through a separate workflow/platform PR, exact-sparse validation, ordinary-main production gating, a new immutable Tag, controlled deployment, observation, and closure.",
-      "approvalSource": "Explicit user approval of the MF-30 Viewer 5.19.1 controlled release recovery and final closure plan on 2026-08-14."
+      "amendmentReason": "Releases all pre-existing non-published Netlify Preview jobs, requires a successful exact-D2 controlled Prepare, authorizes a clean exact-D2 CLI/API production fallback for Git-build infrastructure failure, and closes only after immediate smoke and a 15-minute observation.",
+      "approvalSource": "Explicit user approval of the MF-30 queue-release and exact-D2 CLI production fallback plan, reinforced by the user's direction to use CLI because Netlify Git builds had failed before."
     }
   ],
   "taskRecords": [
@@ -69,28 +76,28 @@
       "taskId": "MF-30-T02",
       "tool": "Codex",
       "sourceTaskId": null,
-      "status": "partial",
+      "status": "complete",
       "record": "task-records/MF-30-T02.md",
-      "sha256": "b67f2ae5760a7478d6344a78233025acebe0ad1e1c3d8f2b593f01724ac12698",
+      "sha256": "2b55bcd45c15a5b426420112384195a5951b9972f122c56821b67d7af450f2cd",
       "request": {
-        "sha256": "64d06bd28900efcf393a082fa8c199be5623e9b176075091717f8f72d072c110",
-        "messageCount": 5
+        "sha256": "ec3e8e4bdd4af98213996c4a2f1346ec8d65f78c859c1619e05d2cd1a03320c9",
+        "messageCount": 9
       },
       "plan": {
-        "revision": 3,
-        "sha256": "33098b04239ef1965a391c0ed957512afc51ce05fe6bb6ed1c4a41c8abdc3482"
+        "revision": 4,
+        "sha256": "a22f6389dc345d071c3a58f0946dd400d1153504da5b05b5af8b3658a88a962a"
       }
     }
   ],
   "sourceMaterials": [],
   "closure": {
     "path": "closure.md",
-    "sha256": "00fde2fedca12e4af75800bda65b690b7113f645d5e32656f62fe76c032a12af"
+    "sha256": "aa4ec6bb0101773fc08138a819201949b7afb219a663cef32d96dd09037decbc"
   },
   "dossier": {
     "path": "dossier.md",
-    "sha256": "a25c8a0b86cbf837525e9ad1d0d13855523412f7845384a9cbb95c72a8209283"
+    "sha256": "34d762c1e6837b97001a286cdcf639ffcf878643f667d1edea64aadbd67c19c0"
   },
   "redactions": [],
-  "generatedAt": "2026-08-14T10:29:15.000Z"
+  "generatedAt": "2026-08-14T12:17:14.000Z"
 }

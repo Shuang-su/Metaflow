@@ -20,11 +20,18 @@
     {
       "revision": 3,
       "sha256": "33098b04239ef1965a391c0ed957512afc51ce05fe6bb6ed1c4a41c8abdc3482",
+      "taskIds": [],
+      "amendmentReason": "Preserves the failed immutable 5.19.0 attempt and recovers the controlled release as PATCH 5.19.1 through a separate workflow/platform PR, exact-sparse validation, ordinary-main production gating, a new immutable Tag, controlled deployment, observation, and closure.",
+      "approvalSource": "Explicit user approval of the MF-30 Viewer 5.19.1 controlled release recovery and final closure plan on 2026-08-14."
+    },
+    {
+      "revision": 4,
+      "sha256": "a22f6389dc345d071c3a58f0946dd400d1153504da5b05b5af8b3658a88a962a",
       "taskIds": [
         "MF-30-T02"
       ],
-      "amendmentReason": "Preserves the failed immutable 5.19.0 attempt and recovers the controlled release as PATCH 5.19.1 through a separate workflow/platform PR, exact-sparse validation, ordinary-main production gating, a new immutable Tag, controlled deployment, observation, and closure.",
-      "approvalSource": "Explicit user approval of the MF-30 Viewer 5.19.1 controlled release recovery and final closure plan on 2026-08-14."
+      "amendmentReason": "Releases all pre-existing non-published Netlify Preview jobs, requires a successful exact-D2 controlled Prepare, authorizes a clean exact-D2 CLI/API production fallback for Git-build infrastructure failure, and closes only after immediate smoke and a 15-minute observation.",
+      "approvalSource": "Explicit user approval of the MF-30 queue-release and exact-D2 CLI production fallback plan, reinforced by the user's direction to use CLI because Netlify Git builds had failed before."
     }
   ]
 }

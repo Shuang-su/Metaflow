@@ -1,14 +1,14 @@
 ---
 change_id: MF-30
 title: Viewer 5.19.1 controlled release recovery
-status: ready-for-release
+status: closed
 risk: T3
 component:
   - viewer
-plan_revision: 3
+plan_revision: 4
 owner: Shuang-su
 issue: https://github.com/Shuang-su/Metaflow/issues/30
-completion_state: pending
+completion_state: complete
 ---
 
 # MF-30 Viewer upstream v1.29.1 implementation Plan
@@ -164,3 +164,19 @@ Revision 3 is normative for the remaining release:
 16. Only after Issue closure, remove the approved completed worktrees after clean/process checks while retaining local branch refs and all historical evidence.
 
 The `5.19.0` and `5.19.1` Tags are immutable. A transient external failure with unchanged code and Tag may retry the same Tag; any tracked workflow, version, Viewer, or deployment-code correction after the `5.19.1` Tag requires `5.19.2`. If a new deploy is published and smoke/observation fails, immediately run the rollback workflow for deploy `6a7a18b49094c6c76eff2482`, verify production recovery, keep MF-30 open, and append the failure. Stop before Tag on version/gitRef drift, production movement, unverified main gating, failed exact-sparse `85/85`, unresolved production vulnerability, reference/data/platform failure, or any need to change Viewer runtime, routes, schema, or resource payload. LICENSE, Editor, Transform, SPZ/KHR product scope, and streaming/highest-quality switching remain excluded.
+
+## 9. Exact-D2 CLI release and closure revision 4
+
+Revision 4 records the user's explicit authorization to release the blocked Netlify queue and, because this site had repeatedly failed to execute ordinary Git builds reliably, use an exact-D2 Netlify CLI production fallback after the non-bypassable GitHub prepare passed. It supersedes revision 3 only for the queue and production transport used by this release; all product, version, Tag, validation, smoke, observation, rollback, and exclusion contracts remain unchanged.
+
+1. Snapshot the Netlify queue, then cancel all 26 pre-existing non-published `deploy-preview` records in `new`, `enqueued`, or `building` state. Preserve every deploy and log as history; do not close or modify its PR. Cancel the separate unpublished source-less record `69e9d75057dc3e70dd511cd1` after confirming its null commit/build identity.
+2. Give the ordinary `main` records for recovery SHA F and packet SHA D2 up to ten minutes to execute the repository `ignore` rule. Because neither reached a real `skipped` result and both remained unpublished, cancel exact records `6a7ee320ef4dbd0008dd089f` and `6a7ef76cbdfb3400086615bc`. Record this as Netlify Git-build infrastructure behavior, not as a successful skip and not as a Viewer regression.
+3. Fast-forward R2 and D2 to `origin/main`, create immutable annotated Tag `viewer-v5.19.1` at D2, and read back Tag object `fba2a8e94ca5da5dc76cce34e03f7da859c526fe` with peeled target `d5c1faf1a512d5796664524c4da58f3242ea9a80`.
+4. Dispatch the existing controlled release workflow with production promotion disabled. Require the full prepare job to succeed for Tag/D2 identity, strict MF-30 records, Platform, exact sparse build, Viewer `85/85`, format, lint, typecheck, publint, DOMPurify `3.4.13`, and zero production vulnerabilities. Run `31795886847` is the authoritative cloud prepare; its production job is intentionally skipped rather than treated as deployment evidence.
+5. Construct a clean detached D2 staging tree, prove tree `0abfd7b0115dfd13b7bfae7556d77851f88794fb`, copy the complete 87-resource data set with an APFS clone rather than hardlinks, overlay D2 index/history, require zero route/model drift and full file validation, and build a physical publish directory using Node `20.19.0`. The long-lived development `public/data` symlink must not participate.
+6. Deploy that physical directory with the installed Netlify CLI `23.13.4`, `--prod --no-build`, the exact site ID, and a title containing D2. Accept the resulting API provenance honestly: deploy `6a7efc396f36c800cfa0702e` reports `deploy_source=api` and `commit_ref=null`. Prove D2 origin through remote main and Tag identity, the detached HEAD/tree, deploy title, local/online artifact hashes, and the online `5.19.1 / gitRef 534b013` records; never represent it as a controlled-hook or Git deploy.
+7. Require immutable and production URLs to match the seven recorded key-file hashes and the online version/history identity. Create the `viewer-v5.19.1` GitHub Release only after immediate HTTP and real-browser smoke succeeds, and disclose the authorized CLI/API fallback in its notes.
+8. Run real-browser immediate smoke across the representative legacy, streaming, tiled-voxel, animation, BitCity, SZCAF canonical/alias, and still-SOG dual-source routes. Cover WebGPU, WebGL, desktop, `360 x 732`, SH `1/0.2`, capture, Annotation, heatmap fallback, on-demand frames, preference migration, parser identity, and known missing-tile degradation without injecting destructive production faults.
+9. Starting from the immediate production readback at `2026-08-14T19:53:31+08:00`, wait at least 15 minutes. At `2026-08-14T20:09:00+08:00` or later, use a fresh WebGPU session to require Cyrene legacy and Xunyangpai streaming first frames, no console/network problems, Xunyangpai quality angle `0.2`, and on-demand `autoRender=false`; then re-read the production pointer, immutable and production version records, successful prepare, artifact, and GitHub Release.
+10. After observation passes, create E2, close Plan/Closure/T02, register D2 without self-referencing E2, regenerate and strictly check the Completion Dossier, fast-forward E2 to `origin/main`, and cancel any exact unpublished E2 Git deploy that fails to become skipped. Update the Release, PR #41, PR #45, and Issue #30; close the Issue as Completed only after every remote surface is read back consistently.
+11. Preserve rollback deploy `6a7a18b49094c6c76eff2482`. Any post-Tag tracked correction requires `5.19.2`. Physical iOS/Android and immersive XR remain unverified. Only after the completed Issue and release readback may the previously approved clean MF-30, MF-34, and Viewer implementation worktrees and exact deployment staging be removed while preserving branch refs and historical evidence.
