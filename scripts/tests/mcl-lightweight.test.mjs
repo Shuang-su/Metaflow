@@ -159,6 +159,32 @@ test('ordinary GitHub validation is manual and main has no required status check
     )));
 });
 
+test('controlled Viewer release uses a complete sparse fixture and exact deploy identity', async () => {
+    const workflow = await read('.github/workflows/release.yml');
+    const viewerStep = workflow.match(
+        /- name: Build Viewer release payload[\s\S]*?run: \|(?<body>[\s\S]*?)\n      - name:/
+    );
+
+    assert.ok(viewerStep?.groups?.body, 'Viewer release step must be present');
+    assert.match(workflow, /^            \.nvmrc$/m);
+    assert.match(workflow, /^            data\/ACG\/BitCity260711$/m);
+    assert.match(workflow, /^            data\/ACG\/SZCAF15$/m);
+    assert.match(workflow, /node scripts\/validate_release_contract\.mjs/);
+    assert.match(workflow, /item\.title === process\.env\.RELEASE_TAG/);
+    assert.match(workflow, /item\.context === 'production'/);
+    assert.match(workflow, /EXPECTED_VERSION: \$\{\{ needs\.prepare\.outputs\.version \}\}/);
+    assert.match(workflow, /EXPECTED_PRODUCT_GIT_REF:/);
+    assert.match(workflow, /smoke-production-version\.json/);
+
+    const buildAt = viewerStep.groups.body.indexOf('npm run build');
+    const testAt = viewerStep.groups.body.indexOf('MCL_SMALL_FIXTURES=1 npm test');
+    assert.ok(buildAt >= 0 && testAt > buildAt, 'Viewer package must be built before consumer tests');
+    for (const command of ['npm run fmt', 'npm run lint', 'npm run type:check', 'npm run publint']) {
+        assert.ok(viewerStep.groups.body.includes(command), `missing release gate: ${command}`);
+    }
+    assert.ok(viewerStep.groups.body.includes('npm audit --omit=dev'));
+});
+
 test('legacy completion templates remain available but are audit-only', async () => {
     for (const relativePath of [
         'docs/templates/mcl/agent-completion.md',
