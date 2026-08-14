@@ -49,6 +49,36 @@ class PlatformValidationTests(unittest.TestCase):
         self.assertTrue(any("npm ci" in error for error in errors))
         self.assertTrue(any("final redirect" in error for error in errors))
         self.assertTrue(any("MCL check" in error for error in errors))
+        self.assertTrue(any("build.ignore" in error for error in errors))
+
+    def test_netlify_skips_only_ordinary_main_builds(self):
+        (self.root / "netlify.toml").write_text(
+            textwrap.dedent(
+                '''
+                [build]
+                base = "metaflow-viewer"
+                command = "node ../scripts/mcl.mjs check-all && python3 ../scripts/validate_platform.py && npm ci && npm run build"
+                ignore = "test \\"$BRANCH\\" = \\"main\\""
+                publish = "public"
+
+                [[redirects]]
+                from = "/*"
+                to = "/index.html"
+                status = 200
+                '''
+            ),
+            encoding="utf-8",
+        )
+
+        self.assertEqual(validate_netlify(self.root), [])
+
+        config = (self.root / "netlify.toml").read_text(encoding="utf-8")
+        (self.root / "netlify.toml").write_text(
+            config.replace('test \\"$BRANCH\\" = \\"main\\"', "exit 0"),
+            encoding="utf-8",
+        )
+        errors = validate_netlify(self.root)
+        self.assertTrue(any("build.ignore" in error for error in errors))
 
     def test_supabase_requires_rls_and_definer_search_path(self):
         (self.root / "supabase" / "migrations").mkdir(parents=True)
