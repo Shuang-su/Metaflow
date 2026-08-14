@@ -7,12 +7,12 @@
 
 ## 当前版本
 
-- 展示版本：`5.19.0`（release candidate）
+- 展示版本：`5.19.0`（merged / release pending）
 - 包版本：`5.19.0`
 - 活跃源码底层：SuperSplat Viewer `v1.29.1`
 - PlayCanvas：`2.21.3`
 
-Viewer `5.19.0` release candidate 在 `metadata/version-history.json` 记录 `v1.29.1` 基线；生产仍为 `5.18.1`。候选需要在 squash merge 后回填最终 SHA，并另行授权 tag、部署、smoke 和观察，才能称为稳定发布。
+Viewer `5.19.0` 已合并，正式生产发布仍在等待 release packet、`viewer-v5.19.0` Tag、受控部署、smoke 和 15 分钟观察。`metadata/version-history.json` 记录 `v1.29.1` 基线与产品 SHA `26e311c`；生产在这些步骤完成前仍为 `5.18.1`。
 
 ## 本地运行
 

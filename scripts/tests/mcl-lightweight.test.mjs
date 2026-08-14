@@ -130,8 +130,8 @@ test('resource tiers and forward Viewer SemVer preserve production while trackin
     assert.equal(manifest.versioning.mode, 'semver-forward');
     assert.equal(manifest.current.displayVersion, '5.19.0');
     assert.equal(manifest.current.appSemver, '5.19.0');
-    assert.equal(manifest.current.gitRef, '72bd201');
-    assert.match(ledger, /生产仍为 `5\.18\.1`/);
+    assert.equal(manifest.current.gitRef, '26e311c');
+    assert.match(ledger, /正式生产发布仍在等待 Tag、受控部署、smoke 与观察/);
     assert.deepEqual(JSON.parse(published), manifest);
 });
 

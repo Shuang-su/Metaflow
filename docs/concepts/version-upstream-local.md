@@ -6,12 +6,12 @@ Metaflow 同时存在产品版本、上游版本、资源历史和源码快照�
 
 [`metadata/version-history.json`](../../metadata/version-history.json) 的 `current` 是 Viewer 当前事实：
 
-- `displayVersion`：用户可见版本；当前 PR 候选 `5.19.0`。
-- `appSemver`：包与代码线 SemVer；当前 PR 候选 `5.19.0`。
+- `displayVersion`：用户可见版本；当前已合并、发布待完成版本 `5.19.0`。
+- `appSemver`：包与代码线 SemVer；当前已合并、发布待完成版本 `5.19.0`。
 - `upstream.version`：当前同步的 SuperSplat Viewer；当前 `1.29.1`。
 - `indexSchemaVersion`：发布索引契约；当前 `1.2`。
 
-`5.18a / 5.18.0` 是最后一个双轨历史状态，保持原样；`5.18.1` 是此后的首个完整 SemVer 发布。`5.19.0` 因新增向后兼容的渲染、capture、Annotation、XR 与 Loader 能力而作为 MINOR PR 候选。生产仍为 `5.18.1`，候选记录不等于已部署发布。后续 PATCH 处理资源和兼容修复，MINOR 处理向后兼容新能力，MAJOR 处理破坏性公共契约。
+`5.18a / 5.18.0` 是最后一个双轨历史状态，保持原样；`5.18.1` 是此后的首个完整 SemVer 发布。`5.19.0` 因新增向后兼容的渲染、capture、Annotation、XR 与 Loader 能力而作为 MINOR 合并到产品 SHA `26e311c`。生产仍为 `5.18.1`，合并记录不等于已部署发布。后续 PATCH 处理资源和兼容修复，MINOR 处理向后兼容新能力，MAJOR 处理破坏性公共契约。
 
 历史 `1.0a`、`1.12b`、`5.3a`、`5.18a` 及资源 `addedIn/updatedIn` 保持不变。新 entry 继续保留 `displayVersion` 和 `appSemver` 两个兼容字段，但两者必须相等。
 

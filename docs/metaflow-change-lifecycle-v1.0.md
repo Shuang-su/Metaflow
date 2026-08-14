@@ -184,7 +184,7 @@ Viewer Ledger 记录产品提交的动机、原行为、实现、用户结果、
 
 Viewer 版本从下一次真实发布起使用标准 SemVer：
 
-- 当前 PR 候选为 `5.19.0`，display 与 package SemVer 一致；生产仍为 `5.18.1`；
+- 当前已合并、发布待完成的 Viewer 版本为 `5.19.0`，display 与 package SemVer 一致；生产仍为 `5.18.1`；
 - `5.18a` 及更早字母版本和资源 `addedIn/updatedIn` 原样保留；
 - `5.19.0` 合并并完成最终 SHA 对齐后，下一次 PATCH 资源或兼容修复为 `5.19.1`；
 - PATCH：资源、thumbnail、settings、兼容 route/alias、Bug、小型兼容行为和部署修复；
@@ -217,5 +217,5 @@ Viewer 版本从下一次真实发布起使用标准 SemVer：
 - 已创建 Issue 仍可仅凭正文判断合理性、范围、风险、状态与完成度。
 - 三档资源路线区分规模与契约风险，常规发布也不会漏掉 Ledger/Version History。
 - Ledger 保持行为审计职责，向前只覆盖 Viewer/data/发布支撑提交。
-- 历史字母版本保持不变；`5.18.1` 已是首个完整 SemVer 发布，当前 Viewer MINOR 候选为 `5.19.0`。
+- 历史字母版本保持不变；`5.18.1` 已是首个完整 SemVer 发布，当前 Viewer MINOR `5.19.0` 已合并、正式生产发布待完成。
 - MF-1/MF-9 legacy 校验继续通过，本 revision 不修改产品运行时 API、资源或部署。
