@@ -17,6 +17,7 @@
 | Change | 实时状态 | 仓库工件分类 | 当前含义 |
 |---|---|---|---|
 | [MF-1](https://github.com/Shuang-su/Metaflow/issues/1) | Open；等待独立激活决策 | Bootstrap + legacy 审计档案 | 初始 MCL candidate 和历史完成证据。`completion/`、旧 Gate 与全量归档要求不代表 Revision 6 默认流程；激活必须按实时 Issue 重新决策 |
+| [MF-2](https://github.com/Shuang-su/Metaflow/issues/2) | Open；人工 advisory 审查 | 实时 Issue；无独立 Change 工件 | Dependabot alerts 保留为只读信号，自动 security/version update PR 已关闭；只对当前 active Viewer/Editor dependency graph 人工判断和修复，reference snapshots 永不原位更新 |
 | [MF-9](https://github.com/Shuang-su/Metaflow/issues/9) | Done | Legacy 审计档案 | Reference dependency/Editor ownership 的历史决策快照；严格档案兼容保留，不作为新任务模板 |
 | [MF-16](https://github.com/Shuang-su/Metaflow/issues/16) | Done | 已完成、操作契约已取代 | 建立路径路由器时的 Spec/Plan；其中 PR/push 自动 CI 和 `required / gate` 已由 Revision 6 取消，路由器现在是本地检查选择器 |
 | [MF-18](https://github.com/Shuang-su/Metaflow/issues/18) | Done | Revision 5，已取代 | 建立 Issue/Commit/PR/Spec/Plan 分层；四个 Gate 和旧状态链由 MF-28 进一步精简 |

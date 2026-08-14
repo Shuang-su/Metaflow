@@ -29,7 +29,7 @@
 | `references/supersplat-v2.28.0/`、`references/supersplat-v2.32.3/` | Editor 当前纯上游基准与本轮最新候选；根目录同名 `supersplat-v2.28.0/` 仍是独立的活跃 Metaflow 定制源码 |
 | `references/splat-transform-v2.5.1/`、`references/splat-transform-v3.2.0/`、`references/splat-transform-v3.3.0/` | Transform CLI 离线研究基准、执行中保留的前一候选与本轮最新候选；不是 Metaflow 产品源码 |
 
-这些目录用于 diff、license、provenance 和回归判断。身份、原路径及规范化摘要由 [`metadata/reference-snapshots.json`](../../metadata/reference-snapshots.json) 登记；校验脚本会拒绝内容/执行位变化、未登记文件、嵌套 Git 和生成物。不要直接在其中实现当前产品修复，也不要让 Dependabot 把它们当活跃 package。
+这些目录用于 diff、license、provenance 和回归判断。身份、原路径及规范化摘要由 [`metadata/reference-snapshots.json`](../../metadata/reference-snapshots.json) 登记；校验脚本会拒绝内容/执行位变化、未登记文件、嵌套 Git 和生成物。不要直接在其中实现当前产品修复，也不得通过 Dependabot 或其他自动更新流程改写其中的 manifest、lockfile 或源码。
 
 ## 根文件
 
