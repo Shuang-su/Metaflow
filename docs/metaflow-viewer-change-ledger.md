@@ -280,6 +280,8 @@ flowchart TD
 | `65a5fb6` | 将 5.18a 的结构化历史、公开镜像、index release gitRef 和总账对齐到最终产品提交 `c613a87`。 | 发布记录维护，不创建独立展示版本；由 `maintenanceCommits` 显式登记。 |
 | `8f4ffc2` | 将 5.18.1 的结构化历史、公开镜像、index release gitRef、总账和测试夹具对齐到 PR #35 的最终 squash 提交 `578272c`，并移除仅存在于 squash 前分支历史的临时提交引用。 | 发布记录维护，不创建独立展示版本；由 `maintenanceCommits` 显式登记。 |
 | `18a164d` | 将 Viewer 5.19.0 的机器事实源、公开镜像、index release、E2E fixture、README 导航和总账对齐到 PR #41 的真实 squash 产品提交 `26e311c`，并移除仅存在于 squash 前分支历史的临时 Viewer maintenance refs。 | 正式发布前的 merge-record 维护，不创建新版本；由本 release-packet 提交登记到 `maintenanceCommits`。 |
+| `f198609` | 生成 Viewer 5.19.0 的首个正式 release packet，并成为不可变 `viewer-v5.19.0` Tag 目标；controlled prepare 因 sparse fixture 与 build/test 顺序问题在部署前失败，生产从未切换。 | 保留为失败发布尝试的审计证据，不创建 GitHub Release、不冒充已部署版本；由 5.19.1 recovery packet 登记到 `maintenanceCommits`。 |
+| `f0fb740` | 将 package、Version History、公开 index/history、E2E fixture与断言、README 导航和总账对齐到 recovery PR #45 的真实 squash SHA `534b013`，并追加 Viewer 5.19.1 PATCH 恢复记录。 | 正式恢复发布前的版本记录维护，不改变 Viewer runtime、route、schema 或资源 payload；由后续 release-packet 提交登记到 `maintenanceCommits`。 |
 
 ## 能力到提交的反向索引
 

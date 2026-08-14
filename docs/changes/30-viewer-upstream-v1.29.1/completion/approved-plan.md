@@ -1,11 +1,11 @@
 ---
 change_id: MF-30
-title: Viewer 5.19.0 upstream v1.29.1 release
+title: Viewer 5.19.1 controlled release recovery
 status: ready-for-release
 risk: T3
 component:
   - viewer
-plan_revision: 2
+plan_revision: 3
 owner: Shuang-su
 issue: https://github.com/Shuang-su/Metaflow/issues/30
 completion_state: pending
@@ -110,7 +110,7 @@ For each representative run, retain a selected screenshot and a concise DOM/cons
 - Markdown links, repository scan, reference digests, and `git diff --check`;
 - raw/gzip JS/CSS size comparison and disk/status cleanup.
 
-The final worktree must be clean. The handoff must list every checkpoint SHA, the rollback SHA, resolved conflicts, remaining risks, and unverified hardware. It must not claim mobile-device or immersive-XR verification without actual hardware evidence. The initial GitHub delivery stopped at PR review; revision 2 below governs the now-authorized merge and formal release.
+The final worktree must be clean. The handoff must list every checkpoint SHA, the rollback SHA, resolved conflicts, remaining risks, and unverified hardware. It must not claim mobile-device or immersive-XR verification without actual hardware evidence. The initial GitHub delivery stopped at PR review; revision 2 records the first formal-release attempt and revision 3 governs its controlled recovery.
 
 ## 7. Formal release revision 2
 
@@ -129,3 +129,38 @@ The user explicitly authorized the full formal release on 2026-08-14. This is an
 11. If observation passes, create `docs(release): close MF-30 Viewer 5.19.0 delivery`, mark the Task and Change complete, regenerate/strict-check the packet, fast-forward it to `main`, update Release/PR/Issue, close Issue #30, and read back every remote surface.
 
 Stop before Tag if validation or ancestry fails. If deployment publishes and smoke/observation fails, invoke the repository rollback workflow for deploy `6a7a18b49094c6c76eff2482`, verify production recovery, keep MF-30 open, and append the failure evidence. If product code must change after Tag, open a separate `5.19.1` fix; never move `viewer-v5.19.0`.
+
+## 8. Controlled release recovery revision 3
+
+The immutable `viewer-v5.19.0` release attempt failed before deployment, so it is historical evidence rather than a production release. The user explicitly selected Viewer `5.19.1` instead of `5.20.0`: PR #41 already delivered the backwards-compatible Viewer capabilities, while this revision repairs release validation and the production trigger boundary only. Production therefore moves directly from `5.18.1` to `5.19.1` if and only if this recovery completes.
+
+The fixed identities are:
+
+- runtime product `S = 26e311c010aea4a6202521453a034d5aef3cea54`;
+- merge record `R = 18a164d64f5415f3dba9eed354192dd99f81bbec`;
+- failed release packet `D = f1986097f81cf15db95d33fa76c090b2066d4bd1`;
+- immutable `viewer-v5.19.0` tag object `c9a19ea438e604333af2d3158bebea7d16f1a33e`, peeled to `D`;
+- failed workflow [31779246997](https://github.com/Shuang-su/Metaflow/actions/runs/31779246997), whose prepare job stopped at Viewer `81/85` and skipped production;
+- recovery PR [#45](https://github.com/Shuang-su/Metaflow/pull/45), squash commit `F = 534b01308f13732c58600cef571b5dfea14df51b`;
+- production rollback deploy `6a7a18b49094c6c76eff2482` (`viewer-v5.18.1`).
+
+Revision 3 is normative for the remaining release:
+
+1. Re-read official stable, `origin/main`, PR/Issue/Tag/Release state, the failed run, GitHub `production` Environment, secret names, Netlify production pointer, and deploy queue. Stop if upstream exceeds `v1.29.1` or Viewer/version/data contracts drift.
+2. Cancel only stale non-published production deploys after exact identity checks. Do not delete deploy history or touch PR/branch Deploy Previews.
+3. Repair the release sparse checkout with root `.nvmrc`, BitCity, and SZCAF15 fixtures; build before the package-consumer tests; parse `viewer-vX.Y.Z` exactly; verify package/lock, metadata/public history, index version, and expected product `gitRef`; require exact immutable and production index smoke; and select only a Netlify deploy matching Tag target, Tag title, and production context.
+4. Gate ordinary Netlify `main` Git builds with `ignore = "test \"$BRANCH\" = \"main\""`, retain PR/feature previews, and leave the controlled build hook as the only production path. Apply the same sparse/build-order contract to the repository's on-demand Viewer job after its first run reproduces the identical four omissions.
+5. Validate the recovery in a fresh exact sparse checkout. The authoritative Viewer result must be `85/85` after build, plus fmt, lint, typecheck, publint, DOMPurify `3.4.13`, and zero production vulnerabilities. A path-routed skipped Viewer job must never be presented as a pass.
+6. Squash merge the Ready recovery PR with explicit user authority while disclosing that no independent reviewer completed a review. Re-read `F`, deleted remote branch, open Issue, main ancestry, and unchanged production.
+7. From `F`, create a fresh isolated release-record worktree. Commit `R2 = chore(release): align Viewer 5.19.1 recovery record` to bump package/lock, append the `5.19.1` fix entry, align metadata/public/index/E2E/Ledger/current docs to `F`, and preserve `5.19.0` as a pre-deployment failure. The one-time `metaflowViewerPreferenceMigration` value remains `5.19.0`.
+8. Commit `D2 = chore(release): prepare Viewer 5.19.1 production` to update this revision, keep T02 partial, add the failure/recovery evidence, register only real main-ancestor maintenance refs, and regenerate the strict Completion Dossier. D2 must not self-reference.
+9. Before pushing R2+D2, require complete release validation, unchanged `origin/main=F`, an unchanged `5.18.1` production pointer, and a clear non-publishing outcome for ordinary main Git integration. Push the two record commits by one fast-forward only; no executable workflow, runtime, route, schema, or payload change may be added.
+10. Create immutable annotated Tag `viewer-v5.19.1` at D2. Its annotation distinguishes S, F, R2, D2, the failed 5.19.0 attempt, Issue #30, PR #41, and PR #45. Read back both tag object and peeled target; never move or rebuild it.
+11. Dispatch `.github/workflows/release.yml` from D2 on `main` with the MF-30 directory, `viewer-v5.19.1`, and production promotion. Prepare must prove Tag/D2 identity, all `5.19.1` version surfaces, strict dossier, platform, exact sparse Viewer `85/85`, build/tooling/security gates, and immutable Git evidence.
+12. Require the production job to use the existing main-only Environment and controlled hook, find a ready production deploy whose `commit_ref=D2`, publish that exact deploy, and observe both immutable and production `/data/index.json` as Viewer `5.19.1`, upstream `1.29.1`, `gitRef=F`. GitHub Release creation may occur only after workflow HTTP smoke succeeds.
+13. Run clean-browser immediate smoke on both URLs for Cyrene, Xunyangpai, Dayun, Bijiashan, C2-Lib, BitCity, SZCAF canonical/alias, and a dual-source resource still selecting SOG. Cover legacy/streaming, environment, first frame/reveal, WebGPU/WebGL, desktop/`360×732`, SH `1/0.2`, capture, Annotation, heatmap fallback, on-demand frames, unchanged routes, and migration marker `5.19.0`. Do not inject destructive production faults.
+14. Observe for 15 minutes, then re-read the production pointer/index, Cyrene and Xunyangpai first frames, console/network health, workflow, artifacts, Release, and immutable URL. Physical iOS/Android and immersive XR remain explicitly unverified.
+15. If observation passes, create `E2 = docs(release): close MF-30 Viewer 5.19.1 delivery`. Mark Plan/Closure/T02 complete, record every real SHA/Tag/workflow/deploy/smoke/observation/rollback fact, regenerate strict artifacts, push E2, update Release notes and both merged PRs, update and close Issue #30 as Completed, then re-read every external surface.
+16. Only after Issue closure, remove the approved completed worktrees after clean/process checks while retaining local branch refs and all historical evidence.
+
+The `5.19.0` and `5.19.1` Tags are immutable. A transient external failure with unchanged code and Tag may retry the same Tag; any tracked workflow, version, Viewer, or deployment-code correction after the `5.19.1` Tag requires `5.19.2`. If a new deploy is published and smoke/observation fails, immediately run the rollback workflow for deploy `6a7a18b49094c6c76eff2482`, verify production recovery, keep MF-30 open, and append the failure. Stop before Tag on version/gitRef drift, production movement, unverified main gating, failed exact-sparse `85/85`, unresolved production vulnerability, reference/data/platform failure, or any need to change Viewer runtime, routes, schema, or resource payload. LICENSE, Editor, Transform, SPZ/KHR product scope, and streaming/highest-quality switching remain excluded.

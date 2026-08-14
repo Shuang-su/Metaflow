@@ -1,7 +1,7 @@
 ---
 change_id: MF-30
 status: ready-for-release
-generated_at: 2026-08-14T04:24:34.000Z
+generated_at: 2026-08-14T10:29:15.000Z
 ---
 
 # Agent Actions and Replies Summary
@@ -23,7 +23,7 @@ Created and verified the immutable v1.29.1 reference; locked Metaflow contracts;
 
 ### MF-30-T02
 
-Rechecked stable v1.29.1, PR/base/main identity, review threads, merge policy, and release controls; completed the clean release matrix; configured and read back the main-only production environment, secret names, and Netlify hook; updated/read back the remote contracts; squash merged PR #41; verified product SHA 26e311c and remote branch deletion; created a 119 MiB sparse release worktree; and committed real-SHA reconciliation as 18a164d.
+Rechecked stable `v1.29.1`, PR/base/main identity, review threads, release controls, immutable Tag state, failed workflow, production pointer, and Netlify queue. Completed the original clean release matrix; configured/read back the main-only production environment, secret names, and controlled hook; squash merged PR #41; aligned product SHA through `18a164d`; created immutable `viewer-v5.19.0`; and observed prepare run `31779246997` fail before deployment. Canceled only the three identified non-published production jobs. Created, validated, and squash merged recovery PR #45 as `534b013`; then created a fresh sparse `5.19.1` release-record worktree and committed R2 as `f0fb740d`.
 
 ## Agent Reply Summary
 
@@ -33,7 +33,7 @@ Reported the implementation checkpoints, the SH and other decision corrections, 
 
 ### MF-30-T02
 
-Reported each external state transition, the lack of independent review, the clean preflight, the exact squash SHA, the protected local-main boundary, the release-pending production fact, and the separate disk-cleanup audit without deleting worktrees.
+Reported each external state transition, the lack of independent review, the original and recovery validation facts, the exact product/recovery SHAs, the immutable failed Tag, unchanged `5.18.1` production, canceled deploys, protected divergent main, and current Netlify queue gate. Did not describe a path-routed skipped Viewer job as a test pass and did not start the new Tag/deploy while ordinary-main behavior remained unresolved.
 
 ## Files and External Effects
 
@@ -43,7 +43,7 @@ Changed the active Viewer, tests, package/lock, immutable reference registry, MF
 
 ### MF-30-T02
 
-Updated PR #41 and Issue #30; configured GitHub production environment controls and Netlify hook/secrets; merged PR #41; advanced origin/main to product SHA 26e311c; created isolated branch codex/mf-30-viewer-5.19.0-release-record; and created merge-record commit 18a164d. No Tag, new Netlify production deploy, GitHub Release, Issue closure, or LICENSE change exists yet.
+Updated PR #41 and Issue #30; configured GitHub production environment controls and Netlify hook/secrets; merged PR #41; advanced origin/main through product SHA `26e311c`, merge record `18a164d`, and failed packet `f1986097`; created immutable `viewer-v5.19.0`; and preserved failed run `31779246997`. Updated and merged recovery PR #45 as `534b013`, with its remote branch deleted. Three exact non-published production jobs were canceled without deleting history. Created R2 `f0fb740d` locally. Production remains rollback deploy `6a7a18b49094c6c76eff2482`; no `viewer-v5.19.1` Tag, new production deploy, new GitHub Release, Issue closure, LICENSE change, runtime change, route/schema change, or resource-payload change exists yet.
 
 ## Validation, Failures, and Omissions
 
@@ -57,8 +57,8 @@ Intermediate full-test runs failed only when disposable fixtures omitted Editor/
 
 ### MF-30-T02
 
-The clean preflight passed Viewer 85/85, format/lint/typecheck/publint, production/debug builds, production audit 0, package/maps/consumers, E2E 4/4 plus WebGPU 1/1, data/platform/governance, script 68/68, Python 8/8, 12 local reference digests, and 11 upstream online identities. The release packet then passed the expanded script suite 70/70, Python 8/8, 109-file Markdown validation, the 12,761-file repository scan, a fresh Viewer 85/85, default/Debug builds, production audit 0, E2E 4/4 plus WebGPU 1/1, CSS-map and packed-tarball Webpack checks, complete 87-resource validation, 12 local snapshot identities, and 11 online upstream identities. The release-record tarball measured 3,109,757 B packed / 16,272,611 B unpacked; its only unpacked change from the earlier product-checkpoint pack was the 31-byte pending-release README wording. PR/main/merge SHA and environment controls were read back.
+The original product and packet validation remain recorded. Recovery validation passed a fresh exact sparse checkout in corrected build-before-test order: Viewer `85/85`, format, lint, typecheck, publint, exact DOMPurify `3.4.13`, zero production vulnerabilities, default and Debug Engine builds, CSS-map integrity, a 21-file packed artifact, and fixed packed-tarball Webpack consumers. After aligning the E2E assertion, Chromium WebGL desktop/mobile passed `4/4` and the real Chromium WebGPU project passed `1/1`. Repository validation passed Node scripts `75/75`, Python `9/9`, strict MCL, release contract, full 87-resource/10,179-file validation, Platform, CI routing, 109-file Markdown validation, 12,763-file hygiene scan, 12 local snapshot digests, and 11 upstream identities. Recovery workflow/platform tests lock `.nvmrc`, BitCity/SZCAF fixtures, build ordering, exact Tag/version/gitRef smoke, ordinary-main skip, preview retention, and controlled-hook production. PR/main/merge SHA, Tag, failed workflow, production pointer, and environment controls were read back.
 
 #### Failures, Retries, and Skipped Checks
 
-One long GitHub body update failed with HTTP 400 because interactive terminal transport corrupted the JSON; a non-interactive encoded request succeeded and was read back. Reference checks first used unsupported `--local` and then pointed `--upstream-cache` at an empty directory even though that option requires pre-populated bare repositories; supported local validation and the validator's isolated temporary online fetches then passed. A reused release-record fixture initially pointed at stale `node_modules` and made `npm ls` report `ELSPROBLEMS`; a clean `npm ci` resolved the fixture dependency state. The first release-record script run passed 67/68 and exposed an over-narrow new test phrase that omitted the release-packet and 15-minute boundaries; the assertion was corrected to the fuller Ledger contract before rerunning. Generated approved-plan, dossier, and task-record links then produced 17 false missing-target reports because the checker ignored their source-document base; a completion-only Change-root fallback and positive/negative fixtures resolved the defect. The first full rerun was 69/70 because Finder created `references/.DS_Store`; immutable-reference validation rejected it, the exact file was removed, and the suite passed 70/70. A WebGPU rerun used a removed standalone spec path and returned `No tests found`; the current extended-project command subsequently passed 1/1. Production smoke, observation, and physical mobile/immersive XR are not claimed.
+The historical false starts remain recorded in revision 2. The first controlled release added the substantive failure: run `31779246997` reached Viewer `81/85` because sparse checkout omitted root `.nvmrc`, BitCity, and SZCAF15 fixtures and consumer tests ran before build; production was skipped. The first on-demand recovery run `31788608476` intentionally reproduced the same omissions before the CI fixture fix. Corrected run `31788879015` passed its invoked governance/CodeQL jobs but path routing skipped Viewer, so it is not counted as cloud `85/85`; the independent exact-sparse local run is authoritative. During D2 validation, an initial pack command used the wrong temporary relative directory and failed `ENOENT`; an absolute-path rerun passed. A full-data fixture first used the divergent main's older resource tree and failed on missing BitCity/SZCAF files; direct hardlink replacement briefly changed two tracked data records in that main worktree. They were immediately restored atomically from its own `HEAD`, separated from the fixture, and confirmed clean before a correct MF-34-backed fixture passed. The first E2E run exposed the stale `5.19.0` assertion twice and then a mobile visibility timeout; R2 was amended locally to `f0fb740d`, and clean reruns passed `4/4` plus WebGPU `1/1`. The ordinary-main Netlify record for recovery SHA F remains `new`, non-published, and has not yet become an explicit `skipped` result. Release-record push and new Tag are therefore still gated. Production smoke, observation, physical mobile, and immersive XR are not claimed.

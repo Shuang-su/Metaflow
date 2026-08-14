@@ -160,6 +160,16 @@
       "gitRef": "18a164d",
       "date": "2026-08-14",
       "summary": "chore(release): align Viewer 5.19.0 merge record"
+    },
+    {
+      "gitRef": "f198609",
+      "date": "2026-08-14",
+      "summary": "chore(release): prepare Viewer 5.19.0 production"
+    },
+    {
+      "gitRef": "f0fb740",
+      "date": "2026-08-14",
+      "summary": "chore(release): align Viewer 5.19.1 recovery record"
     }
   ],
   "entries": [

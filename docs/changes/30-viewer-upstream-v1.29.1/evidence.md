@@ -1,11 +1,11 @@
 ---
 change_id: MF-30
-title: Viewer 5.19.0 upstream v1.29.1 release
+title: Viewer 5.19.1 controlled release recovery
 status: ready-for-release
 risk: T3
 component:
   - viewer
-plan_revision: 2
+plan_revision: 3
 owner: Shuang-su
 issue: https://github.com/Shuang-su/Metaflow/issues/30
 completion_state: pending
@@ -15,7 +15,7 @@ completion_state: pending
 
 ## Outcome and scope
 
-The active source now uses SuperSplat Viewer `v1.29.1` behavior and PlayCanvas `2.21.3`. PR #41 squash merged as product SHA `26e311c010aea4a6202521453a034d5aef3cea54`; production remains `5.18.1` until the release packet, Tag, controlled deployment, smoke, 15-minute observation, and closure complete. Existing routes, resource payloads, settings, collision data, Editor, Transform, and production deployment were not changed by the product merge.
+The active source now uses SuperSplat Viewer `v1.29.1` behavior and PlayCanvas `2.21.3`. PR #41 squash merged as product SHA `26e311c010aea4a6202521453a034d5aef3cea54`. The immutable `viewer-v5.19.0` prepare failed before deployment; recovery PR #45 merged as `534b01308f13732c58600cef571b5dfea14df51b`. Production remains `5.18.1` until the `5.19.1` release packet, new Tag, controlled deployment, smoke, 15-minute observation, and closure complete. Existing routes, resource payloads, settings, collision data, Editor, Transform, and production deployment were not changed by either merge.
 
 The initial acceptance runs used the local production build at `http://127.0.0.1:4175`; the 2026-08-14 follow-up used the final product/package checkpoint at `http://127.0.0.1:4191`. Both mounted real repository assets outside the build tree and distinguished Chromium's actual `webgpu` and `webgl2` backends. Full temporary command output, console records, request lists, package fixtures, and follow-up screenshots remain under `.codex-work/`; the images below are the selected durable evidence from the initial matrix.
 
@@ -108,9 +108,25 @@ The GitHub `production` environment was configured with no required reviewer or 
 
 PR #41 was squash merged at `2026-08-14T04:15:13Z`. GitHub, the PR object, the commit API, and `origin/main` all returned product SHA `26e311c010aea4a6202521453a034d5aef3cea54`; the remote head branch was deleted and Issue #30 remained open. Release-record commit `18a164d64f5415f3dba9eed354192dd99f81bbec` then aligned the machine/public records to that real product SHA.
 
+## 5.19.0 failure and 5.19.1 recovery evidence
+
+- Immutable `viewer-v5.19.0` Tag object `c9a19ea438e604333af2d3158bebea7d16f1a33e` peels to release packet `f1986097f81cf15db95d33fa76c090b2066d4bd1`. Controlled run [31779246997](https://github.com/Shuang-su/Metaflow/actions/runs/31779246997) failed its prepare job at Viewer `81/85`; production was skipped, no GitHub Release was created, and Netlify production stayed at deploy `6a7a18b49094c6c76eff2482` / Viewer `5.18.1`.
+- The four deterministic failures were missing root `.nvmrc`, missing BitCity fixture, missing SZCAF15 fixture, and package-consumer tests running before `dist/index.js` existed. They were release-fixture/order failures, not Viewer runtime regressions.
+- The non-published production deploy records for product SHA `26e311c`, failed packet `f1986097`, and the older `dbbd0015` main build were canceled without deleting their history: `6a7e9653ed05fc000860e6eb`, `6a7ec0412d39a900099bd842`, and `6a7a1578054f92000826d114`.
+- Recovery branch commits `609912d0`, `4698fdf6`, and `c4a7072c` repaired the release workflow, gated ordinary `main` Git builds behind release Tags, and aligned the manual Viewer CI fixture. Ready recovery PR [#45](https://github.com/Shuang-su/Metaflow/pull/45) squash merged as `534b01308f13732c58600cef571b5dfea14df51b`.
+- A fresh exact sparse checkout matching the corrected release job passed production build, Viewer `85/85`, format, lint, typecheck, publint, exact DOMPurify `3.4.13`, and zero production audit vulnerabilities. On-demand run [31788608476](https://github.com/Shuang-su/Metaflow/actions/runs/31788608476) intentionally preserved the original `81/85` failure evidence; corrected run [31788879015](https://github.com/Shuang-su/Metaflow/actions/runs/31788879015) passed governance, CodeQL, and summary, while the path router skipped its Viewer job. That skip is not represented as a cloud `85/85`; the exact-sparse local run is the authoritative Viewer result.
+- Release-record commit `f0fb740dd77d67e4f1be781934ce7a4fa095c30a` aligns package, Version History, public index/history, E2E fixture and assertion, Viewer Ledger, and current documentation to `5.19.1 / gitRef 534b013` while preserving `5.19.0` as a tagged pre-deployment failure. It does not change Viewer runtime, routes, schemas, or resource payloads, and the migration marker remains `5.19.0`.
+- D2 pre-commit validation passed the corrected sparse job end-to-end: Node `20.19.0`, clean `npm ci`, default build, Viewer `85/85`, format, lint, typecheck, publint, exact DOMPurify `3.4.13`, and zero production vulnerabilities. The Debug Engine build also passed, after which the default build was restored byte-for-byte to the existing runtime sizes (`public/index.js` 3,130,946 B / 682,864 B gzip; `dist/index.js` 3,510,686 B / 715,215 B gzip).
+- The `5.19.1` tarball contains 21 files and measures 3,108,191 B packed / 16,270,253 B unpacked. CSS map v3 remains 30,993 B with source `src/index.scss`, exactly one relative map reference, and no local-path/cache disclosure. A fresh packed-tarball consumer using exact `webpack@5.109.2` and `webpack-cli@7.2.2` retained named root/settings exports and reduced the unused bare import to 55 B; its install audit reported zero vulnerabilities.
+- After correcting the E2E assertion from the historical candidate `5.19.0` to the selected release `5.19.1`, the deterministic Chromium/WebGL desktop/mobile suite passed `4/4`, and the extended real Chromium WebGPU project passed `1/1`. The first rerun's two version mismatches and one subsequent mobile visibility timeout are retained as failed validation evidence rather than hidden.
+- Repository validation passed Node script tests `75/75`, Python tests `9/9`, strict MCL for MF-1/MF-30/MF-9, release contract `viewer/5.19.1/gitRef 534b013`, Platform, CI routing, 109-file Markdown validation, 12,763-file hygiene/secret scan, all 12 local snapshot digests, and all 11 upstream identities. The complete 87-resource fixture, sourced from the retained MF-34 release data plus the current R2 index/history, passed `--check-files` with 10,179 files.
+- Two validation-command corrections are explicit. A first pack command pointed at the wrong temporary relative directory and failed with `ENOENT` before packaging; the absolute-path rerun passed. A first full-data fixture used the divergent main's older 60-resource payload tree, correctly failed on BitCity/SZCAF files, and direct writes through two hardlinks briefly changed only that main worktree's `data/index.json` and `data/version-history.json`. Both were immediately restored atomically from that worktree's own `HEAD`, their inodes were separated from the fixture, and a targeted Git diff confirmed them clean before validation continued. The corrected MF-34-backed fixture passed.
+- Netlify created ordinary `main` integration record `6a7ee320ef4dbd0008dd089f` for recovery SHA `534b013`; at this packet-writing checkpoint it remained non-published in `new` rather than a final `skipped` state. Consequently release-record push and the `viewer-v5.19.1` Tag remain blocked until the record has a clear non-publishing outcome. Production still resolves Viewer `5.18.1`.
+- No independent reviewer completed a review of PR #41 or PR #45. The user's explicit authorization is the recorded merge/release authority.
+
 ## Explicit limitations
 
 - No iOS Safari or Android Chrome physical device was available. `360 × 732` Pixel 10 is browser emulation, not a real-device claim.
 - No XR headset/controller/hand-input hardware was available. Only API/detection and non-XR regression are verified.
-- This evidence covers implementation, clean release preflight, squash merge, and real product-SHA reconciliation. Tag, controlled deployment, production CDN smoke, device telemetry, and 15-minute observation are authorized but not yet completed.
+- This evidence covers implementation, clean release preflight, PR #41 integration, the failed immutable `viewer-v5.19.0` prepare, recovery PR #45, and `5.19.1` record reconciliation. The new `viewer-v5.19.1` Tag, controlled deployment, production CDN smoke, device telemetry, and 15-minute observation are authorized but not yet completed.
 - The deliberately failed requests and deliberately blocked Analytics endpoint are test evidence, not product incidents. No production backend was used.

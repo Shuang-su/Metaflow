@@ -8,18 +8,18 @@
   ],
   "request": {
     "path": "request-transcript.md",
-    "sha256": "b51e1b04fec83df1d286aa40de578c8156028f8c1d98e3f5f0f8280d2fb3e87e",
-    "messageCount": 6
+    "sha256": "f4864c7f9a41551417389d73b6418bd357df96c73b8f32ab16d5c0b4b44676d0",
+    "messageCount": 9
   },
   "plan": {
     "path": "approved-plan.md",
-    "sha256": "4c6fdaa6fe528cd5befb35dbf3ab76bf3d2d9ca01eebabbbbfd16ae91ffbe24c",
-    "revision": 2,
+    "sha256": "33098b04239ef1965a391c0ed957512afc51ce05fe6bb6ed1c4a41c8abdc3482",
+    "revision": 3,
     "source": "../plan.md"
   },
   "agentSummary": {
     "path": "agent-action-reply-summary.md",
-    "sha256": "424d0f74279f04694f71b5ab1a43ea6c5dfde0aaf5ed990b02ff0db911e57f4c"
+    "sha256": "6671dbf8e3b01f64e4059e27d6fa7f76539515cdcddd67c1c7c6ed83695db4d2"
   },
   "planRevisions": [
     {
@@ -34,11 +34,18 @@
     {
       "revision": 2,
       "sha256": "4c6fdaa6fe528cd5befb35dbf3ab76bf3d2d9ca01eebabbbbfd16ae91ffbe24c",
+      "taskIds": [],
+      "amendmentReason": "Adds the user-authorized squash merge, real-SHA reconciliation, strict release packet, immutable Tag, controlled Netlify deployment, production smoke, 15-minute observation, and final closure.",
+      "approvalSource": "Explicit user approval of the MF-30 / PR #41 formal merge, release, observation, and closure plan on 2026-08-14."
+    },
+    {
+      "revision": 3,
+      "sha256": "33098b04239ef1965a391c0ed957512afc51ce05fe6bb6ed1c4a41c8abdc3482",
       "taskIds": [
         "MF-30-T02"
       ],
-      "amendmentReason": "Adds the user-authorized squash merge, real-SHA reconciliation, strict release packet, immutable Tag, controlled Netlify deployment, production smoke, 15-minute observation, and final closure.",
-      "approvalSource": "Explicit user approval of the MF-30 / PR #41 formal merge, release, observation, and closure plan on 2026-08-14."
+      "amendmentReason": "Preserves the failed immutable 5.19.0 attempt and recovers the controlled release as PATCH 5.19.1 through a separate workflow/platform PR, exact-sparse validation, ordinary-main production gating, a new immutable Tag, controlled deployment, observation, and closure.",
+      "approvalSource": "Explicit user approval of the MF-30 Viewer 5.19.1 controlled release recovery and final closure plan on 2026-08-14."
     }
   ],
   "taskRecords": [
@@ -64,26 +71,26 @@
       "sourceTaskId": null,
       "status": "partial",
       "record": "task-records/MF-30-T02.md",
-      "sha256": "81d2f77cddbfdd85fffea017e936ca7beb41d228ca291235f3778b45c9208ae1",
+      "sha256": "b67f2ae5760a7478d6344a78233025acebe0ad1e1c3d8f2b593f01724ac12698",
       "request": {
-        "sha256": "08ba9248dd45aba4d33dfd364a9d4dec3e7f7a046c0fd2ddda0f684e5e1b7c7a",
-        "messageCount": 2
+        "sha256": "64d06bd28900efcf393a082fa8c199be5623e9b176075091717f8f72d072c110",
+        "messageCount": 5
       },
       "plan": {
-        "revision": 2,
-        "sha256": "4c6fdaa6fe528cd5befb35dbf3ab76bf3d2d9ca01eebabbbbfd16ae91ffbe24c"
+        "revision": 3,
+        "sha256": "33098b04239ef1965a391c0ed957512afc51ce05fe6bb6ed1c4a41c8abdc3482"
       }
     }
   ],
   "sourceMaterials": [],
   "closure": {
     "path": "closure.md",
-    "sha256": "db07e95d940ca6dc85b91fd484b6e7182311786e16ae2deada05b625bdfc2837"
+    "sha256": "00fde2fedca12e4af75800bda65b690b7113f645d5e32656f62fe76c032a12af"
   },
   "dossier": {
     "path": "dossier.md",
-    "sha256": "c98c8bb2c21bb6d8698c66434d4c2b95634e47602593e505c2fcbda7189cc8ec"
+    "sha256": "a25c8a0b86cbf837525e9ad1d0d13855523412f7845384a9cbb95c72a8209283"
   },
   "redactions": [],
-  "generatedAt": "2026-08-14T04:24:34.000Z"
+  "generatedAt": "2026-08-14T10:29:15.000Z"
 }

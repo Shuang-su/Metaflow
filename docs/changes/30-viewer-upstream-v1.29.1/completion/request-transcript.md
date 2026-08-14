@@ -1,8 +1,8 @@
 ---
 change_id: MF-30
 source: task-records
-generated_at: 2026-08-14T04:24:34.000Z
-message_count: 6
+generated_at: 2026-08-14T10:29:15.000Z
+message_count: 9
 redactions: 0
 ---
 
@@ -44,14 +44,14 @@ The user explicitly replaced the early SH 4/2 retention with upstream 1/0.2 and 
 
 ## MF-30-T02
 
-- Request SHA-256: `08ba9248dd45aba4d33dfd364a9d4dec3e7f7a046c0fd2ddda0f684e5e1b7c7a`
-- Message count: 2
+- Request SHA-256: `64d06bd28900efcf393a082fa8c199be5623e9b176075091717f8f72d072c110`
+- Message count: 5
 
 ````markdown
 ---
 change_id: MF-30
 task_id: MF-30-T02
-message_count: 2
+message_count: 5
 redactions: 0
 ---
 
@@ -63,5 +63,17 @@ The user explicitly approved the MF-30 / PR #41 formal merge, release, and closu
 
 <!-- user-message:2 -->
 The user selected automatic production after prepare with no environment approval, secure reuse of the existing local Netlify login, and a 15-minute observation. The user also required protection of the divergent local main, immutable Tag behavior, exact rollback deploy 6a7a18b49094c6c76eff2482, no LICENSE work, no Editor/Transform/source-switch changes, and no claim of physical mobile or immersive XR validation.
+<!-- /user-message -->
+
+<!-- user-message:3 -->
+After the first controlled prepare failed before deployment, the user selected Viewer `5.19.1` rather than `5.20.0`. The user required the immutable `viewer-v5.19.0` Tag, failed workflow, and non-deployment evidence to remain intact, while the actual production upgrade becomes `5.18.1 → 5.19.1`.
+<!-- /user-message -->
+
+<!-- user-message:4 -->
+The user approved a separate recovery PR that repairs the sparse fixture, build/test ordering, exact Tag/version/gitRef smoke, and Netlify ordinary-main boundary. PR/feature previews must remain available, production must be triggered only by the controlled hook, and the new Tag may be created only after clean prepare evidence and unchanged production are established.
+<!-- /user-message -->
+
+<!-- user-message:5 -->
+The user explicitly instructed implementation through the new release packet, `viewer-v5.19.1` Tag, controlled Netlify production deploy, real-browser smoke, 15-minute observation, final Completion Dossier, Release/PR/Issue readback, and Completed closure. Viewer runtime, routes, data schema and payloads, Editor, Transform, source switching, and LICENSE remain excluded; approved worktree cleanup follows only after closure.
 <!-- /user-message -->
 ````

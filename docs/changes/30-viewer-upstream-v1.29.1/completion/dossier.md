@@ -5,7 +5,7 @@
 ## 1. Change Metadata
 
 - Change ID: MF-30
-- Title: Viewer 5.19.0 upstream v1.29.1 release
+- Title: Viewer 5.19.1 controlled release recovery
 - Risk: T3
 - Components: viewer
 - Lifecycle state: ready-for-release
@@ -53,14 +53,14 @@ The user explicitly replaced the early SH 4/2 retention with upstream 1/0.2 and 
 
 ## MF-30-T02
 
-- Request SHA-256: `08ba9248dd45aba4d33dfd364a9d4dec3e7f7a046c0fd2ddda0f684e5e1b7c7a`
-- Message count: 2
+- Request SHA-256: `64d06bd28900efcf393a082fa8c199be5623e9b176075091717f8f72d072c110`
+- Message count: 5
 
 ````markdown
 ---
 change_id: MF-30
 task_id: MF-30-T02
-message_count: 2
+message_count: 5
 redactions: 0
 ---
 
@@ -72,6 +72,18 @@ The user explicitly approved the MF-30 / PR #41 formal merge, release, and closu
 
 <!-- user-message:2 -->
 The user selected automatic production after prepare with no environment approval, secure reuse of the existing local Netlify login, and a 15-minute observation. The user also required protection of the divergent local main, immutable Tag behavior, exact rollback deploy 6a7a18b49094c6c76eff2482, no LICENSE work, no Editor/Transform/source-switch changes, and no claim of physical mobile or immersive XR validation.
+<!-- /user-message -->
+
+<!-- user-message:3 -->
+After the first controlled prepare failed before deployment, the user selected Viewer `5.19.1` rather than `5.20.0`. The user required the immutable `viewer-v5.19.0` Tag, failed workflow, and non-deployment evidence to remain intact, while the actual production upgrade becomes `5.18.1 → 5.19.1`.
+<!-- /user-message -->
+
+<!-- user-message:4 -->
+The user approved a separate recovery PR that repairs the sparse fixture, build/test ordering, exact Tag/version/gitRef smoke, and Netlify ordinary-main boundary. PR/feature previews must remain available, production must be triggered only by the controlled hook, and the new Tag may be created only after clean prepare evidence and unchanged production are established.
+<!-- /user-message -->
+
+<!-- user-message:5 -->
+The user explicitly instructed implementation through the new release packet, `viewer-v5.19.1` Tag, controlled Netlify production deploy, real-browser smoke, 15-minute observation, final Completion Dossier, Release/PR/Issue readback, and Completed closure. Viewer runtime, routes, data schema and payloads, Editor, Transform, source switching, and LICENSE remain excluded; approved worktree cleanup follows only after closure.
 <!-- /user-message -->
 ````
 `````
@@ -105,7 +117,7 @@ Created and verified the immutable v1.29.1 reference; locked Metaflow contracts;
 
 ### MF-30-T02
 
-Rechecked stable v1.29.1, PR/base/main identity, review threads, merge policy, and release controls; completed the clean release matrix; configured and read back the main-only production environment, secret names, and Netlify hook; updated/read back the remote contracts; squash merged PR #41; verified product SHA 26e311c and remote branch deletion; created a 119 MiB sparse release worktree; and committed real-SHA reconciliation as 18a164d.
+Rechecked stable `v1.29.1`, PR/base/main identity, review threads, release controls, immutable Tag state, failed workflow, production pointer, and Netlify queue. Completed the original clean release matrix; configured/read back the main-only production environment, secret names, and controlled hook; squash merged PR #41; aligned product SHA through `18a164d`; created immutable `viewer-v5.19.0`; and observed prepare run `31779246997` fail before deployment. Canceled only the three identified non-published production jobs. Created, validated, and squash merged recovery PR #45 as `534b013`; then created a fresh sparse `5.19.1` release-record worktree and committed R2 as `f0fb740d`.
 
 ## Agent Reply Summary
 
@@ -115,7 +127,7 @@ Reported the implementation checkpoints, the SH and other decision corrections, 
 
 ### MF-30-T02
 
-Reported each external state transition, the lack of independent review, the clean preflight, the exact squash SHA, the protected local-main boundary, the release-pending production fact, and the separate disk-cleanup audit without deleting worktrees.
+Reported each external state transition, the lack of independent review, the original and recovery validation facts, the exact product/recovery SHAs, the immutable failed Tag, unchanged `5.18.1` production, canceled deploys, protected divergent main, and current Netlify queue gate. Did not describe a path-routed skipped Viewer job as a test pass and did not start the new Tag/deploy while ordinary-main behavior remained unresolved.
 
 ## Files and External Effects
 
@@ -125,7 +137,7 @@ Changed the active Viewer, tests, package/lock, immutable reference registry, MF
 
 ### MF-30-T02
 
-Updated PR #41 and Issue #30; configured GitHub production environment controls and Netlify hook/secrets; merged PR #41; advanced origin/main to product SHA 26e311c; created isolated branch codex/mf-30-viewer-5.19.0-release-record; and created merge-record commit 18a164d. No Tag, new Netlify production deploy, GitHub Release, Issue closure, or LICENSE change exists yet.
+Updated PR #41 and Issue #30; configured GitHub production environment controls and Netlify hook/secrets; merged PR #41; advanced origin/main through product SHA `26e311c`, merge record `18a164d`, and failed packet `f1986097`; created immutable `viewer-v5.19.0`; and preserved failed run `31779246997`. Updated and merged recovery PR #45 as `534b013`, with its remote branch deleted. Three exact non-published production jobs were canceled without deleting history. Created R2 `f0fb740d` locally. Production remains rollback deploy `6a7a18b49094c6c76eff2482`; no `viewer-v5.19.1` Tag, new production deploy, new GitHub Release, Issue closure, LICENSE change, runtime change, route/schema change, or resource-payload change exists yet.
 
 ## Validation, Failures, and Omissions
 
@@ -139,11 +151,11 @@ Intermediate full-test runs failed only when disposable fixtures omitted Editor/
 
 ### MF-30-T02
 
-The clean preflight passed Viewer 85/85, format/lint/typecheck/publint, production/debug builds, production audit 0, package/maps/consumers, E2E 4/4 plus WebGPU 1/1, data/platform/governance, script 68/68, Python 8/8, 12 local reference digests, and 11 upstream online identities. The release packet then passed the expanded script suite 70/70, Python 8/8, 109-file Markdown validation, the 12,761-file repository scan, a fresh Viewer 85/85, default/Debug builds, production audit 0, E2E 4/4 plus WebGPU 1/1, CSS-map and packed-tarball Webpack checks, complete 87-resource validation, 12 local snapshot identities, and 11 online upstream identities. The release-record tarball measured 3,109,757 B packed / 16,272,611 B unpacked; its only unpacked change from the earlier product-checkpoint pack was the 31-byte pending-release README wording. PR/main/merge SHA and environment controls were read back.
+The original product and packet validation remain recorded. Recovery validation passed a fresh exact sparse checkout in corrected build-before-test order: Viewer `85/85`, format, lint, typecheck, publint, exact DOMPurify `3.4.13`, zero production vulnerabilities, default and Debug Engine builds, CSS-map integrity, a 21-file packed artifact, and fixed packed-tarball Webpack consumers. After aligning the E2E assertion, Chromium WebGL desktop/mobile passed `4/4` and the real Chromium WebGPU project passed `1/1`. Repository validation passed Node scripts `75/75`, Python `9/9`, strict MCL, release contract, full 87-resource/10,179-file validation, Platform, CI routing, 109-file Markdown validation, 12,763-file hygiene scan, 12 local snapshot digests, and 11 upstream identities. Recovery workflow/platform tests lock `.nvmrc`, BitCity/SZCAF fixtures, build ordering, exact Tag/version/gitRef smoke, ordinary-main skip, preview retention, and controlled-hook production. PR/main/merge SHA, Tag, failed workflow, production pointer, and environment controls were read back.
 
 #### Failures, Retries, and Skipped Checks
 
-One long GitHub body update failed with HTTP 400 because interactive terminal transport corrupted the JSON; a non-interactive encoded request succeeded and was read back. Reference checks first used unsupported `--local` and then pointed `--upstream-cache` at an empty directory even though that option requires pre-populated bare repositories; supported local validation and the validator's isolated temporary online fetches then passed. A reused release-record fixture initially pointed at stale `node_modules` and made `npm ls` report `ELSPROBLEMS`; a clean `npm ci` resolved the fixture dependency state. The first release-record script run passed 67/68 and exposed an over-narrow new test phrase that omitted the release-packet and 15-minute boundaries; the assertion was corrected to the fuller Ledger contract before rerunning. Generated approved-plan, dossier, and task-record links then produced 17 false missing-target reports because the checker ignored their source-document base; a completion-only Change-root fallback and positive/negative fixtures resolved the defect. The first full rerun was 69/70 because Finder created `references/.DS_Store`; immutable-reference validation rejected it, the exact file was removed, and the suite passed 70/70. A WebGPU rerun used a removed standalone spec path and returned `No tests found`; the current extended-project command subsequently passed 1/1. Production smoke, observation, and physical mobile/immersive XR are not claimed.
+The historical false starts remain recorded in revision 2. The first controlled release added the substantive failure: run `31779246997` reached Viewer `81/85` because sparse checkout omitted root `.nvmrc`, BitCity, and SZCAF15 fixtures and consumer tests ran before build; production was skipped. The first on-demand recovery run `31788608476` intentionally reproduced the same omissions before the CI fixture fix. Corrected run `31788879015` passed its invoked governance/CodeQL jobs but path routing skipped Viewer, so it is not counted as cloud `85/85`; the independent exact-sparse local run is authoritative. During D2 validation, an initial pack command used the wrong temporary relative directory and failed `ENOENT`; an absolute-path rerun passed. A full-data fixture first used the divergent main's older resource tree and failed on missing BitCity/SZCAF files; direct hardlink replacement briefly changed two tracked data records in that main worktree. They were immediately restored atomically from its own `HEAD`, separated from the fixture, and confirmed clean before a correct MF-34-backed fixture passed. The first E2E run exposed the stale `5.19.0` assertion twice and then a mobile visibility timeout; R2 was amended locally to `f0fb740d`, and clean reruns passed `4/4` plus WebGPU `1/1`. The ordinary-main Netlify record for recovery SHA F remains `new`, non-published, and has not yet become an explicit `skipped` result. Release-record push and new Tag are therefore still gated. Production smoke, observation, physical mobile, and immersive XR are not claimed.
 ````
 
 ## 5. Complete Effective Plan
@@ -151,12 +163,12 @@ One long GitHub body update failed with HTTP 400 because interactive terminal tr
 ````markdown
 ---
 change_id: MF-30
-title: Viewer 5.19.0 upstream v1.29.1 release
+title: Viewer 5.19.1 controlled release recovery
 status: ready-for-release
 risk: T3
 component:
   - viewer
-plan_revision: 2
+plan_revision: 3
 owner: Shuang-su
 issue: https://github.com/Shuang-su/Metaflow/issues/30
 completion_state: pending
@@ -261,7 +273,7 @@ For each representative run, retain a selected screenshot and a concise DOM/cons
 - Markdown links, repository scan, reference digests, and `git diff --check`;
 - raw/gzip JS/CSS size comparison and disk/status cleanup.
 
-The final worktree must be clean. The handoff must list every checkpoint SHA, the rollback SHA, resolved conflicts, remaining risks, and unverified hardware. It must not claim mobile-device or immersive-XR verification without actual hardware evidence. The initial GitHub delivery stopped at PR review; revision 2 below governs the now-authorized merge and formal release.
+The final worktree must be clean. The handoff must list every checkpoint SHA, the rollback SHA, resolved conflicts, remaining risks, and unverified hardware. It must not claim mobile-device or immersive-XR verification without actual hardware evidence. The initial GitHub delivery stopped at PR review; revision 2 records the first formal-release attempt and revision 3 governs its controlled recovery.
 
 ## 7. Formal release revision 2
 
@@ -280,15 +292,50 @@ The user explicitly authorized the full formal release on 2026-08-14. This is an
 11. If observation passes, create `docs(release): close MF-30 Viewer 5.19.0 delivery`, mark the Task and Change complete, regenerate/strict-check the packet, fast-forward it to `main`, update Release/PR/Issue, close Issue #30, and read back every remote surface.
 
 Stop before Tag if validation or ancestry fails. If deployment publishes and smoke/observation fails, invoke the repository rollback workflow for deploy `6a7a18b49094c6c76eff2482`, verify production recovery, keep MF-30 open, and append the failure evidence. If product code must change after Tag, open a separate `5.19.1` fix; never move `viewer-v5.19.0`.
+
+## 8. Controlled release recovery revision 3
+
+The immutable `viewer-v5.19.0` release attempt failed before deployment, so it is historical evidence rather than a production release. The user explicitly selected Viewer `5.19.1` instead of `5.20.0`: PR #41 already delivered the backwards-compatible Viewer capabilities, while this revision repairs release validation and the production trigger boundary only. Production therefore moves directly from `5.18.1` to `5.19.1` if and only if this recovery completes.
+
+The fixed identities are:
+
+- runtime product `S = 26e311c010aea4a6202521453a034d5aef3cea54`;
+- merge record `R = 18a164d64f5415f3dba9eed354192dd99f81bbec`;
+- failed release packet `D = f1986097f81cf15db95d33fa76c090b2066d4bd1`;
+- immutable `viewer-v5.19.0` tag object `c9a19ea438e604333af2d3158bebea7d16f1a33e`, peeled to `D`;
+- failed workflow [31779246997](https://github.com/Shuang-su/Metaflow/actions/runs/31779246997), whose prepare job stopped at Viewer `81/85` and skipped production;
+- recovery PR [#45](https://github.com/Shuang-su/Metaflow/pull/45), squash commit `F = 534b01308f13732c58600cef571b5dfea14df51b`;
+- production rollback deploy `6a7a18b49094c6c76eff2482` (`viewer-v5.18.1`).
+
+Revision 3 is normative for the remaining release:
+
+1. Re-read official stable, `origin/main`, PR/Issue/Tag/Release state, the failed run, GitHub `production` Environment, secret names, Netlify production pointer, and deploy queue. Stop if upstream exceeds `v1.29.1` or Viewer/version/data contracts drift.
+2. Cancel only stale non-published production deploys after exact identity checks. Do not delete deploy history or touch PR/branch Deploy Previews.
+3. Repair the release sparse checkout with root `.nvmrc`, BitCity, and SZCAF15 fixtures; build before the package-consumer tests; parse `viewer-vX.Y.Z` exactly; verify package/lock, metadata/public history, index version, and expected product `gitRef`; require exact immutable and production index smoke; and select only a Netlify deploy matching Tag target, Tag title, and production context.
+4. Gate ordinary Netlify `main` Git builds with `ignore = "test \"$BRANCH\" = \"main\""`, retain PR/feature previews, and leave the controlled build hook as the only production path. Apply the same sparse/build-order contract to the repository's on-demand Viewer job after its first run reproduces the identical four omissions.
+5. Validate the recovery in a fresh exact sparse checkout. The authoritative Viewer result must be `85/85` after build, plus fmt, lint, typecheck, publint, DOMPurify `3.4.13`, and zero production vulnerabilities. A path-routed skipped Viewer job must never be presented as a pass.
+6. Squash merge the Ready recovery PR with explicit user authority while disclosing that no independent reviewer completed a review. Re-read `F`, deleted remote branch, open Issue, main ancestry, and unchanged production.
+7. From `F`, create a fresh isolated release-record worktree. Commit `R2 = chore(release): align Viewer 5.19.1 recovery record` to bump package/lock, append the `5.19.1` fix entry, align metadata/public/index/E2E/Ledger/current docs to `F`, and preserve `5.19.0` as a pre-deployment failure. The one-time `metaflowViewerPreferenceMigration` value remains `5.19.0`.
+8. Commit `D2 = chore(release): prepare Viewer 5.19.1 production` to update this revision, keep T02 partial, add the failure/recovery evidence, register only real main-ancestor maintenance refs, and regenerate the strict Completion Dossier. D2 must not self-reference.
+9. Before pushing R2+D2, require complete release validation, unchanged `origin/main=F`, an unchanged `5.18.1` production pointer, and a clear non-publishing outcome for ordinary main Git integration. Push the two record commits by one fast-forward only; no executable workflow, runtime, route, schema, or payload change may be added.
+10. Create immutable annotated Tag `viewer-v5.19.1` at D2. Its annotation distinguishes S, F, R2, D2, the failed 5.19.0 attempt, Issue #30, PR #41, and PR #45. Read back both tag object and peeled target; never move or rebuild it.
+11. Dispatch `.github/workflows/release.yml` from D2 on `main` with the MF-30 directory, `viewer-v5.19.1`, and production promotion. Prepare must prove Tag/D2 identity, all `5.19.1` version surfaces, strict dossier, platform, exact sparse Viewer `85/85`, build/tooling/security gates, and immutable Git evidence.
+12. Require the production job to use the existing main-only Environment and controlled hook, find a ready production deploy whose `commit_ref=D2`, publish that exact deploy, and observe both immutable and production `/data/index.json` as Viewer `5.19.1`, upstream `1.29.1`, `gitRef=F`. GitHub Release creation may occur only after workflow HTTP smoke succeeds.
+13. Run clean-browser immediate smoke on both URLs for Cyrene, Xunyangpai, Dayun, Bijiashan, C2-Lib, BitCity, SZCAF canonical/alias, and a dual-source resource still selecting SOG. Cover legacy/streaming, environment, first frame/reveal, WebGPU/WebGL, desktop/`360×732`, SH `1/0.2`, capture, Annotation, heatmap fallback, on-demand frames, unchanged routes, and migration marker `5.19.0`. Do not inject destructive production faults.
+14. Observe for 15 minutes, then re-read the production pointer/index, Cyrene and Xunyangpai first frames, console/network health, workflow, artifacts, Release, and immutable URL. Physical iOS/Android and immersive XR remain explicitly unverified.
+15. If observation passes, create `E2 = docs(release): close MF-30 Viewer 5.19.1 delivery`. Mark Plan/Closure/T02 complete, record every real SHA/Tag/workflow/deploy/smoke/observation/rollback fact, regenerate strict artifacts, push E2, update Release notes and both merged PRs, update and close Issue #30 as Completed, then re-read every external surface.
+16. Only after Issue closure, remove the approved completed worktrees after clean/process checks while retaining local branch refs and all historical evidence.
+
+The `5.19.0` and `5.19.1` Tags are immutable. A transient external failure with unchanged code and Tag may retry the same Tag; any tracked workflow, version, Viewer, or deployment-code correction after the `5.19.1` Tag requires `5.19.2`. If a new deploy is published and smoke/observation fails, immediately run the rollback workflow for deploy `6a7a18b49094c6c76eff2482`, verify production recovery, keep MF-30 open, and append the failure. Stop before Tag on version/gitRef drift, production movement, unverified main gating, failed exact-sparse `85/85`, unresolved production vulnerability, reference/data/platform failure, or any need to change Viewer runtime, routes, schema, or resource payload. LICENSE, Editor, Transform, SPZ/KHR product scope, and streaming/highest-quality switching remain excluded.
 ````
 
 ## 6. Plan Amendments and Deviations
 
-Revision 1 covered the staged product upgrade and originally stopped at review. Revision 2 was explicitly authorized on 2026-08-14 and adds the formal production release. The clean package has 21 files rather than the earlier 25-file branch result because the clean fixture excludes stale local `public/editor` output; required runtime entries and maps remain present. No product-source deviation was required. A first long GitHub body update failed with HTTP 400 because an interactive terminal corrupted the payload; the non-interactive encoded retry succeeded and was read back. A reused release-record fixture initially retained an old `node_modules` symlink and made `npm ls` report `ELSPROBLEMS`; replacing it with a clean `npm ci` made dependency validation pass. The first release-record script run passed 67/68 and revealed that the new assertion described a shorter pending-release phrase than the Ledger; the test was corrected to require the full release-packet, Tag, controlled deploy, smoke, and 15-minute observation boundary. The generated completion documents then exposed 17 false missing-link reports because embedded source links were resolved from `completion/`; the checker received a completion-only Change-root fallback plus positive and negative fixtures. Its first full rerun was 69/70 because Finder created `references/.DS_Store`; immutable-reference validation rejected the pollution, the exact local file was removed, and the suite passed 70/70. Reference-validator attempts with unsupported `--local` and an empty `--upstream-cache` were corrected to the supported local mode and isolated online shallow-fetch mode. A WebGPU rerun first named a removed standalone spec and returned `No tests found`; the configured extended WebGPU project then passed 1/1. The final release-record pack added only the 31-byte pending-release README change relative to the prior product-checkpoint pack; runtime bundle bytes were unchanged.
+Revision 1 covered the staged product upgrade and originally stopped at review. Revision 2 authorized the first formal production release. Its immutable `viewer-v5.19.0` prepare failed before deployment because sparse checkout omitted root `.nvmrc`, BitCity, and SZCAF15 fixtures and package-consumer tests ran before build. Production and GitHub Release were unchanged. Revision 3, explicitly authorized on 2026-08-14, uses PATCH `5.19.1`, repairs those deterministic release controls in separate PR #45, gates ordinary `main` Git builds while retaining Preview builds, preserves both the failed Tag and run, and requires a clean new Tag before deployment. No Viewer runtime, route, schema, resource payload, or preference-migration marker changed. The exact-sparse local run passed Viewer `85/85`; the first on-demand workflow preserved the `81/85` failure and the corrected workflow path-routed the Viewer job, so that skip is not presented as cloud test evidence. D2 validation also found and corrected an R2-only stale E2E version assertion; the amended R2 is `f0fb740d`. A temporary hardlink-fixture mistake briefly touched two divergent-main data records, which were restored atomically from that main's own `HEAD` and confirmed clean before continuing.
 
 ## 7. Implementation and External Effects
 
-PR #41 squash merged as `26e311c010aea4a6202521453a034d5aef3cea54`; `origin/main` matched and the remote head branch was deleted. Release-record commit `18a164d64f5415f3dba9eed354192dd99f81bbec` aligns Version History, public mirrors/index, E2E fixture, README navigation, and Viewer Ledger to that real SHA and removes branch-only maintenance refs from main ancestry records. GitHub `production` Environment, main-only branch policy, required secret names, and the reusable Netlify controlled-release hook were configured and read back. No secret value or hook URL is stored here.
+PR #41 squash merged as runtime product `26e311c010aea4a6202521453a034d5aef3cea54`; release-record commit `18a164d64f5415f3dba9eed354192dd99f81bbec` aligned the original version surfaces. Failed packet `f1986097f81cf15db95d33fa76c090b2066d4bd1`, immutable `viewer-v5.19.0` tag object `c9a19ea438e604333af2d3158bebea7d16f1a33e`, and run `31779246997` are retained. Three stale non-published production jobs were canceled without deleting history. Recovery PR #45 squash merged as `534b01308f13732c58600cef571b5dfea14df51b`; release-record commit `f0fb740dd77d67e4f1be781934ce7a4fa095c30a` aligns `5.19.1` version surfaces and the E2E version assertion to that recovery SHA. GitHub `production` Environment, main-only policy, required secret names, and reusable controlled hook remain configured; no secret value or hook URL is stored here.
 
 ## 8. Verification and Review Evidence
 
@@ -297,7 +344,7 @@ PR #41 squash merged as `26e311c010aea4a6202521453a034d5aef3cea54`; `origin/main
 
 ## Outcome and scope
 
-The active source now uses SuperSplat Viewer `v1.29.1` behavior and PlayCanvas `2.21.3`. PR #41 squash merged as product SHA `26e311c010aea4a6202521453a034d5aef3cea54`; production remains `5.18.1` until the release packet, Tag, controlled deployment, smoke, 15-minute observation, and closure complete. Existing routes, resource payloads, settings, collision data, Editor, Transform, and production deployment were not changed by the product merge.
+The active source now uses SuperSplat Viewer `v1.29.1` behavior and PlayCanvas `2.21.3`. PR #41 squash merged as product SHA `26e311c010aea4a6202521453a034d5aef3cea54`. The immutable `viewer-v5.19.0` prepare failed before deployment; recovery PR #45 merged as `534b01308f13732c58600cef571b5dfea14df51b`. Production remains `5.18.1` until the `5.19.1` release packet, new Tag, controlled deployment, smoke, 15-minute observation, and closure complete. Existing routes, resource payloads, settings, collision data, Editor, Transform, and production deployment were not changed by either merge.
 
 The initial acceptance runs used the local production build at `http://127.0.0.1:4175`; the 2026-08-14 follow-up used the final product/package checkpoint at `http://127.0.0.1:4191`. Both mounted real repository assets outside the build tree and distinguished Chromium's actual `webgpu` and `webgl2` backends. Full temporary command output, console records, request lists, package fixtures, and follow-up screenshots remain under `.codex-work/`; the images below are the selected durable evidence from the initial matrix.
 
@@ -390,17 +437,33 @@ The GitHub `production` environment was configured with no required reviewer or 
 
 PR #41 was squash merged at `2026-08-14T04:15:13Z`. GitHub, the PR object, the commit API, and `origin/main` all returned product SHA `26e311c010aea4a6202521453a034d5aef3cea54`; the remote head branch was deleted and Issue #30 remained open. Release-record commit `18a164d64f5415f3dba9eed354192dd99f81bbec` then aligned the machine/public records to that real product SHA.
 
+## 5.19.0 failure and 5.19.1 recovery evidence
+
+- Immutable `viewer-v5.19.0` Tag object `c9a19ea438e604333af2d3158bebea7d16f1a33e` peels to release packet `f1986097f81cf15db95d33fa76c090b2066d4bd1`. Controlled run [31779246997](https://github.com/Shuang-su/Metaflow/actions/runs/31779246997) failed its prepare job at Viewer `81/85`; production was skipped, no GitHub Release was created, and Netlify production stayed at deploy `6a7a18b49094c6c76eff2482` / Viewer `5.18.1`.
+- The four deterministic failures were missing root `.nvmrc`, missing BitCity fixture, missing SZCAF15 fixture, and package-consumer tests running before `dist/index.js` existed. They were release-fixture/order failures, not Viewer runtime regressions.
+- The non-published production deploy records for product SHA `26e311c`, failed packet `f1986097`, and the older `dbbd0015` main build were canceled without deleting their history: `6a7e9653ed05fc000860e6eb`, `6a7ec0412d39a900099bd842`, and `6a7a1578054f92000826d114`.
+- Recovery branch commits `609912d0`, `4698fdf6`, and `c4a7072c` repaired the release workflow, gated ordinary `main` Git builds behind release Tags, and aligned the manual Viewer CI fixture. Ready recovery PR [#45](https://github.com/Shuang-su/Metaflow/pull/45) squash merged as `534b01308f13732c58600cef571b5dfea14df51b`.
+- A fresh exact sparse checkout matching the corrected release job passed production build, Viewer `85/85`, format, lint, typecheck, publint, exact DOMPurify `3.4.13`, and zero production audit vulnerabilities. On-demand run [31788608476](https://github.com/Shuang-su/Metaflow/actions/runs/31788608476) intentionally preserved the original `81/85` failure evidence; corrected run [31788879015](https://github.com/Shuang-su/Metaflow/actions/runs/31788879015) passed governance, CodeQL, and summary, while the path router skipped its Viewer job. That skip is not represented as a cloud `85/85`; the exact-sparse local run is the authoritative Viewer result.
+- Release-record commit `f0fb740dd77d67e4f1be781934ce7a4fa095c30a` aligns package, Version History, public index/history, E2E fixture and assertion, Viewer Ledger, and current documentation to `5.19.1 / gitRef 534b013` while preserving `5.19.0` as a tagged pre-deployment failure. It does not change Viewer runtime, routes, schemas, or resource payloads, and the migration marker remains `5.19.0`.
+- D2 pre-commit validation passed the corrected sparse job end-to-end: Node `20.19.0`, clean `npm ci`, default build, Viewer `85/85`, format, lint, typecheck, publint, exact DOMPurify `3.4.13`, and zero production vulnerabilities. The Debug Engine build also passed, after which the default build was restored byte-for-byte to the existing runtime sizes (`public/index.js` 3,130,946 B / 682,864 B gzip; `dist/index.js` 3,510,686 B / 715,215 B gzip).
+- The `5.19.1` tarball contains 21 files and measures 3,108,191 B packed / 16,270,253 B unpacked. CSS map v3 remains 30,993 B with source `src/index.scss`, exactly one relative map reference, and no local-path/cache disclosure. A fresh packed-tarball consumer using exact `webpack@5.109.2` and `webpack-cli@7.2.2` retained named root/settings exports and reduced the unused bare import to 55 B; its install audit reported zero vulnerabilities.
+- After correcting the E2E assertion from the historical candidate `5.19.0` to the selected release `5.19.1`, the deterministic Chromium/WebGL desktop/mobile suite passed `4/4`, and the extended real Chromium WebGPU project passed `1/1`. The first rerun's two version mismatches and one subsequent mobile visibility timeout are retained as failed validation evidence rather than hidden.
+- Repository validation passed Node script tests `75/75`, Python tests `9/9`, strict MCL for MF-1/MF-30/MF-9, release contract `viewer/5.19.1/gitRef 534b013`, Platform, CI routing, 109-file Markdown validation, 12,763-file hygiene/secret scan, all 12 local snapshot digests, and all 11 upstream identities. The complete 87-resource fixture, sourced from the retained MF-34 release data plus the current R2 index/history, passed `--check-files` with 10,179 files.
+- Two validation-command corrections are explicit. A first pack command pointed at the wrong temporary relative directory and failed with `ENOENT` before packaging; the absolute-path rerun passed. A first full-data fixture used the divergent main's older 60-resource payload tree, correctly failed on BitCity/SZCAF files, and direct writes through two hardlinks briefly changed only that main worktree's `data/index.json` and `data/version-history.json`. Both were immediately restored atomically from that worktree's own `HEAD`, their inodes were separated from the fixture, and a targeted Git diff confirmed them clean before validation continued. The corrected MF-34-backed fixture passed.
+- Netlify created ordinary `main` integration record `6a7ee320ef4dbd0008dd089f` for recovery SHA `534b013`; at this packet-writing checkpoint it remained non-published in `new` rather than a final `skipped` state. Consequently release-record push and the `viewer-v5.19.1` Tag remain blocked until the record has a clear non-publishing outcome. Production still resolves Viewer `5.18.1`.
+- No independent reviewer completed a review of PR #41 or PR #45. The user's explicit authorization is the recorded merge/release authority.
+
 ## Explicit limitations
 
 - No iOS Safari or Android Chrome physical device was available. `360 × 732` Pixel 10 is browser emulation, not a real-device claim.
 - No XR headset/controller/hand-input hardware was available. Only API/detection and non-XR regression are verified.
-- This evidence covers implementation, clean release preflight, squash merge, and real product-SHA reconciliation. Tag, controlled deployment, production CDN smoke, device telemetry, and 15-minute observation are authorized but not yet completed.
+- This evidence covers implementation, clean release preflight, PR #41 integration, the failed immutable `viewer-v5.19.0` prepare, recovery PR #45, and `5.19.1` record reconciliation. The new `viewer-v5.19.1` Tag, controlled deployment, production CDN smoke, device telemetry, and 15-minute observation are authorized but not yet completed.
 - The deliberately failed requests and deliberately blocked Analytics endpoint are test evidence, not product incidents. No production backend was used.
 ````
 
 ## 9. Release, Rollback and Observation
 
-The immutable Tag and production deploy do not yet exist. The Tag must point to the complete release-packet commit. Production must use the controlled workflow and a Netlify deploy whose `commit_ref` matches that Tag target. Rollback deploy is `6a7a18b49094c6c76eff2482`; observation length is 15 minutes after immediate smoke.
+The failed immutable `viewer-v5.19.0` Tag exists and is not a production release. The new `viewer-v5.19.1` Tag and deploy do not yet exist. The new Tag must point to D2; production must use the controlled workflow and a Netlify deploy whose `commit_ref` matches D2. Netlify integration record `6a7ee320ef4dbd0008dd089f` for recovery SHA F is currently non-published but still `new`, so push/Tag remain gated on a clear non-publishing outcome. Rollback deploy is `6a7a18b49094c6c76eff2482`; observation length is 15 minutes after immediate smoke.
 
 ## 10. Remaining Risks and Follow-up Changes
 
@@ -412,23 +475,29 @@ Physical iOS/Android and immersive XR remain unverified. SH `1/0.2` can increase
 - Integrated PR: https://github.com/Shuang-su/Metaflow/pull/41
 - Product commit: `26e311c010aea4a6202521453a034d5aef3cea54`
 - Merge-record commit: `18a164d64f5415f3dba9eed354192dd99f81bbec`
-- Tag, workflow run, Netlify immutable deploy, production smoke, observation, GitHub Release, and final closure commit will be recorded after they exist.
+- Failed release packet: `f1986097f81cf15db95d33fa76c090b2066d4bd1`
+- Failed Tag: `viewer-v5.19.0`, object `c9a19ea438e604333af2d3158bebea7d16f1a33e`, target `f1986097f81cf15db95d33fa76c090b2066d4bd1`
+- Failed workflow: https://github.com/Shuang-su/Metaflow/actions/runs/31779246997
+- Recovery PR: https://github.com/Shuang-su/Metaflow/pull/45
+- Recovery squash: `534b01308f13732c58600cef571b5dfea14df51b`
+- Recovery record: `f0fb740dd77d67e4f1be781934ce7a4fa095c30a`
+- New Tag, successful workflow, Netlify immutable deploy, production smoke, observation, GitHub Release, and final closure commit will be recorded after they exist.
 
 ## 12. Checksums and Redaction Manifest
 
 | Source | SHA-256 |
 | --- | --- |
-| request-transcript.md | `b51e1b04fec83df1d286aa40de578c8156028f8c1d98e3f5f0f8280d2fb3e87e` |
-| ../plan.md | `4c6fdaa6fe528cd5befb35dbf3ab76bf3d2d9ca01eebabbbbfd16ae91ffbe24c` |
-| agent-action-reply-summary.md | `424d0f74279f04694f71b5ab1a43ea6c5dfde0aaf5ed990b02ff0db911e57f4c` |
-| ../evidence.md | `ddbe05844df68943182a35437f6d6120cfd792ccbafa99c2cd5be39959df698f` |
-| closure.md | `db07e95d940ca6dc85b91fd484b6e7182311786e16ae2deada05b625bdfc2837` |
+| request-transcript.md | `f4864c7f9a41551417389d73b6418bd357df96c73b8f32ab16d5c0b4b44676d0` |
+| ../plan.md | `33098b04239ef1965a391c0ed957512afc51ce05fe6bb6ed1c4a41c8abdc3482` |
+| agent-action-reply-summary.md | `6671dbf8e3b01f64e4059e27d6fa7f76539515cdcddd67c1c7c6ed83695db4d2` |
+| ../evidence.md | `28dd40076fa04b7012efc44fe709ccaaea2d8a0778be462f394a55cc2e70065c` |
+| closure.md | `00fde2fedca12e4af75800bda65b690b7113f645d5e32656f62fe76c032a12af` |
 | task-records/MF-30-T01.md | `9ea911ad673cd7c37e419352171dd7617efb40dc7711586a31cc4f1af876dd12` |
-| task-records/MF-30-T02.md | `81d2f77cddbfdd85fffea017e936ca7beb41d228ca291235f3778b45c9208ae1` |
-| plan-revisions.json | `f75711832ff6f43a45f8288b8a8040d6e1e5bf216675b369f9a56c1ebabfe76a` |
+| task-records/MF-30-T02.md | `b67f2ae5760a7478d6344a78233025acebe0ad1e1c3d8f2b593f01724ac12698` |
+| plan-revisions.json | `73078828dbbdef0c5a8a23fe7ab57b3fcac80688f18d0493d2e76bdb46e6eef0` |
 
 No redactions.
 
 ## 13. Closure Decision
 
-The Change is ready for release, not closed. Product implementation, decision audit, clean release preflight, squash merge, real product-SHA reconciliation, and the formal release packet are complete. Tag, controlled deployment, production smoke, 15-minute observation, final packet regeneration, and Issue closure are still required.
+The Change remains ready for release, not closed. Product implementation, decision audit, PR #41 integration, the failed immutable `5.19.0` release attempt, recovery PR #45, and `5.19.1` record reconciliation are complete. The `5.19.1` release packet, new Tag, controlled deployment, production smoke, 15-minute observation, final packet regeneration, and Issue closure are still required.

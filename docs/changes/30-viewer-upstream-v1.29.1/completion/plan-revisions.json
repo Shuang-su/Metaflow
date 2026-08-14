@@ -13,11 +13,18 @@
     {
       "revision": 2,
       "sha256": "4c6fdaa6fe528cd5befb35dbf3ab76bf3d2d9ca01eebabbbbfd16ae91ffbe24c",
+      "taskIds": [],
+      "amendmentReason": "Adds the user-authorized squash merge, real-SHA reconciliation, strict release packet, immutable Tag, controlled Netlify deployment, production smoke, 15-minute observation, and final closure.",
+      "approvalSource": "Explicit user approval of the MF-30 / PR #41 formal merge, release, observation, and closure plan on 2026-08-14."
+    },
+    {
+      "revision": 3,
+      "sha256": "33098b04239ef1965a391c0ed957512afc51ce05fe6bb6ed1c4a41c8abdc3482",
       "taskIds": [
         "MF-30-T02"
       ],
-      "amendmentReason": "Adds the user-authorized squash merge, real-SHA reconciliation, strict release packet, immutable Tag, controlled Netlify deployment, production smoke, 15-minute observation, and final closure.",
-      "approvalSource": "Explicit user approval of the MF-30 / PR #41 formal merge, release, observation, and closure plan on 2026-08-14."
+      "amendmentReason": "Preserves the failed immutable 5.19.0 attempt and recovers the controlled release as PATCH 5.19.1 through a separate workflow/platform PR, exact-sparse validation, ordinary-main production gating, a new immutable Tag, controlled deployment, observation, and closure.",
+      "approvalSource": "Explicit user approval of the MF-30 Viewer 5.19.1 controlled release recovery and final closure plan on 2026-08-14."
     }
   ]
 }

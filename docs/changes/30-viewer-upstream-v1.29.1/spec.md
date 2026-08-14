@@ -1,11 +1,11 @@
 ---
 change_id: MF-30
-title: Viewer 5.19.0 upstream v1.29.1 release
+title: Viewer 5.19.1 controlled release recovery
 status: ready-for-release
 risk: T3
 component:
   - viewer
-plan_revision: 2
+plan_revision: 3
 owner: Shuang-su
 issue: https://github.com/Shuang-su/Metaflow/issues/30
 completion_state: pending
@@ -15,17 +15,17 @@ completion_state: pending
 
 ## 1. Status and authority
 
-- **Status:** implementation, decision audit, clean release preflight, and squash merge are complete. Product SHA is `26e311c010aea4a6202521453a034d5aef3cea54`; release packet, tag, controlled deployment, smoke, observation, and final closure are authorized and in progress.
+- **Status:** Viewer runtime implementation and PR #41 squash integration are complete at product SHA `26e311c010aea4a6202521453a034d5aef3cea54`. The immutable `viewer-v5.19.0` prepare failed before deployment; recovery PR #45 merged as `534b01308f13732c58600cef571b5dfea14df51b`. The `5.19.1` release packet, new immutable Tag, controlled deployment, smoke, observation, and final closure are authorized and in progress.
 - **Component:** `viewer`.
 - **Risk:** T3 upstream synchronization.
 - **Discovery record:** [Issue #30](https://github.com/Shuang-su/Metaflow/issues/30).
-- **Integrated review record:** [PR #41](https://github.com/Shuang-su/Metaflow/pull/41), squash merged 2026-08-14. No independent reviewer completed a review; the user's explicit authorization is the merge/release authority.
+- **Integrated review records:** [PR #41](https://github.com/Shuang-su/Metaflow/pull/41), squash merged 2026-08-14 as the Viewer product; and recovery [PR #45](https://github.com/Shuang-su/Metaflow/pull/45), squash merged the same day as the release-control fix. No independent reviewer completed a review; the user's explicit authorization is the merge/release authority.
 - **Decision evidence:** [`viewer-v1.26.2-to-v1.28.0.md`](../../history/upstream-reviews/2026-08-10/viewer-v1.26.2-to-v1.28.0.md).
 - **Implementation target:** SuperSplat Viewer tag `v1.29.1`, commit `3a61fa606e12640b1e87f9a733ed43d7fbc5d925`, tree `671059c4b4a3693115ad010207b66312f5cbbc8c`.
 - **Implementation base:** `origin/main` commit `dbbd0015a8d13d4380d100fad4e5121dc2b29746`, Metaflow Viewer `5.18.1`.
 - **Research supplement:** [`research-supplement.md`](research-supplement.md), distilled from `codex://threads/019ff933-fc9b-7063-9f4e-dc5cbee87df2` and rechecked against official releases, diffs, issues, and PRs.
 
-Issue #30 began as an Open discovery-only record. The 2026-08-13 follow-up authorized implementation, decision completion, branch delivery, and PR review. On 2026-08-14 the user explicitly authorized squash merge and the complete formal release flow. PR #41 produced product SHA `26e311c`; the successor release-record commit aligns machine/public records to that real SHA. Viewer `5.19.0` does not become a production-stable fact until the immutable Tag, controlled Netlify deployment, smoke, 15-minute observation, final dossier, and Issue closure all complete.
+Issue #30 began as an Open discovery-only record. The 2026-08-13 follow-up authorized implementation, decision completion, branch delivery, and PR review. On 2026-08-14 the user explicitly authorized squash merge and the complete formal release flow. PR #41 produced product SHA `26e311c`; release-record commits aligned machine/public records to that real SHA. The `viewer-v5.19.0` Tag was created, but its controlled prepare failed at `81/85` because the release fixture omitted `.nvmrc`, BitCity, and SZCAF15 inputs and ran package consumers before build; production never left `5.18.1`. The user selected PATCH `5.19.1`, recovery PR #45, and a new Tag only after deterministic recovery validation. Viewer `5.19.1` does not become production-stable until its controlled deployment, smoke, 15-minute observation, final dossier, and Issue closure all complete.
 
 ## 2. Objective
 
@@ -75,13 +75,13 @@ The immutable source snapshot is `references/supersplat-viewer-v1.29.1/`. It is 
 | MFV-19 | PlayCanvas must be exactly `2.21.3`. Applicable Rollup, PostCSS, Sass, Autoprefixer, ESLint, Prettier, and publint versions must align with `v1.29.1` while preserving PostHog, rrweb, Playwright, Analytics injection, and multi-entry Rollup output. |
 | MFV-20 | Root and Viewer Node remain `20.19.0`. API migration must use PlayCanvas 2.21.3 APIs without an implicit old-API shim. Mechanical formatting must be isolated from behavioral changes. |
 | MFV-21 | `npm audit --omit=dev` must report zero production vulnerabilities. DOMPurify must resolve to exactly `3.4.13` through the existing PostHog range; PostHog must not be upgraded and DOMPurify must not become a direct dependency. No automatic `npm audit fix` is permitted. Development-only findings must be recorded separately rather than hidden through unrelated major upgrades. |
-| MFV-22 | Viewer `5.19.0` is the merged MINOR because it adds backwards-compatible public, interaction, loader, and rendering capabilities. Package/lock, Version History, public history/index release metadata, Viewer Ledger, tests, and current-version documentation must agree on `5.19.0 / upstream 1.29.1 / product SHA 26e311c`. It remains release-pending until tag, controlled deployment, smoke, and observation complete. |
+| MFV-22 | Viewer `5.19.0` identifies the merged MINOR capability set but remains an immutable pre-deployment failure. The controlled release recovery is PATCH `5.19.1`, because it changes release validation and production-trigger compatibility without adding Viewer runtime capability. Package/lock, Version History, public history/index release metadata, Viewer Ledger, tests, and current-version documentation must agree on `5.19.1 / upstream 1.29.1 / recovery SHA 534b013`; the runtime product remains SHA `26e311c`. It remains release-pending until the new Tag, controlled deployment, smoke, and observation complete. |
 
 ### 3.5 Follow-up preference, parser, and failure contracts
 
 | ID | Contract |
 |---|---|
-| MFV-23 | On the first `5.19.0` run, `metaflowViewerPreferenceMigration=5.19.0` must clear `performanceMode`, `gamingControls`, and legacy `retinaDisplay` exactly once. The current session then derives mobile/desktop defaults. Startup and UI redraw must not persist those defaults; only later state changes caused by user interaction may write `performanceMode` or `gamingControls`. `showAnnotations` is not cleared. |
+| MFV-23 | On the first post-`5.18.1` run, `metaflowViewerPreferenceMigration=5.19.0` must clear `performanceMode`, `gamingControls`, and legacy `retinaDisplay` exactly once. The marker intentionally remains `5.19.0` under package version `5.19.1`, so users who exercised the candidate are not cleared twice. The current session then derives mobile/desktop defaults. Startup and UI redraw must not persist those defaults; only later state changes caused by user interaction may write `performanceMode` or `gamingControls`. `showAnnotations` is not cleared. |
 | MFV-24 | `Config.lang?: string` is the single programmatic language input. The bundled HTML maps `?lang=` into `config.lang`; localization then resolves configured value, `navigator.languages` / `navigator.language`, and English in that order while retaining all nine locales, normalization, and base-language matching. |
 | MFV-25 | `ENGINE=debug npm run build` must opt into PlayCanvas's `development` export condition. Ordinary production builds must continue to use the default export and must not expose a new UI, URL parameter, or deployment default. |
 | MFV-26 | The selected entry identity decides the Engine parser: basename `lod-meta.json` is `streaming-lod`; `.sog` is `sog-bundle`; any other `.json`, including `meta.json`, is `sog-meta`; `.ply` is `ply`; everything else fails before load. Public `State.loadingMode` remains `legacy-sog | streaming-json`. JSON structure may validate an entry but must never silently select a different parser. |
