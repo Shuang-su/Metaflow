@@ -85,6 +85,8 @@ git diff --check
 
 受控 release workflow 要求与组件匹配的 namespaced tag 和受治理 Change；只有显式 production promotion 才能触发外部发布副作用。文档、研究和未公开 staging 不手动触发部署。
 
+Viewer `5.19.1` 起，Netlify 的触发边界固定为：普通 Git `main` push 由 `[build].ignore` 跳过，PR/feature branch 仍保留 Deploy Preview，正式 production 只由 GitHub `production` Environment 内的受控 release build hook 触发。Build hook 按 Netlify 合同不受 ignore 命令取消，但 workflow 仍必须核对 selected deploy 的 Tag 标题、production context、Tag target `commit_ref`，以及 immutable/production index 的精确版本和产品 `gitRef`。`viewer-v5.19.0` 的 prepare 在 deployment 前失败，因此没有生产 deploy 或 GitHub Release；当前 `5.19.1` 在新的 Tag、受控部署、smoke 和观察完成前仍是 release pending。
+
 ## 回滚
 
 托管 rollback 必须指定已成功 deploy ID、原因和明确确认，恢复后重新核对 production 指向与关键 route。回滚不会重写原 Version History 或 Ledger；应追加回滚记录和跟进 Change。

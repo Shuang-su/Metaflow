@@ -104,7 +104,7 @@ test('every Issue Form exposes the self-contained Issue contract and current sta
     }
 });
 
-test('resource tiers and forward Viewer SemVer preserve production while tracking the 5.19.0 candidate', async () => {
+test('resource tiers and forward Viewer SemVer preserve production while tracking the 5.19.1 recovery', async () => {
     const [mcl, guide, release, ledger, metadata, published] = await Promise.all([
         read('docs/metaflow-change-lifecycle-v1.0.md'),
         read('docs/guides/add-publish-resource.md'),
@@ -122,16 +122,17 @@ test('resource tiers and forward Viewer SemVer preserve production while trackin
         assert.match(body, /20 个文件|20 个/);
         assert.match(body, /100 MiB/);
     }
-    assert.match(release, /PATCH[\s\S]*`5\.18\.1`/);
-    assert.match(release, /MINOR[\s\S]*`5\.19\.0`/);
+    assert.match(release, /PATCH[\s\S]*`5\.19\.2`/);
+    assert.match(release, /MINOR[\s\S]*`5\.20\.0`/);
     assert.match(release, /MAJOR[\s\S]*`6\.0\.0`/);
     assert.match(ledger, /从该边界之后只审计 Viewer、data 和 Viewer 发布支撑提交/);
     assert.match(ledger, /### X\.Y\.Z/);
     assert.equal(manifest.versioning.mode, 'semver-forward');
-    assert.equal(manifest.current.displayVersion, '5.19.0');
-    assert.equal(manifest.current.appSemver, '5.19.0');
-    assert.equal(manifest.current.gitRef, '26e311c');
-    assert.match(ledger, /正式生产发布仍在等待 release packet、Tag、受控部署、smoke 与 15 分钟观察/);
+    assert.equal(manifest.current.displayVersion, '5.19.1');
+    assert.equal(manifest.current.appSemver, '5.19.1');
+    assert.equal(manifest.current.gitRef, '534b013');
+    assert.match(ledger, /5\.19\.0[^\n]*deployment 前失败/);
+    assert.match(ledger, /5\.19\.1[^\n]*正式生产发布仍在等待/);
     assert.deepEqual(JSON.parse(published), manifest);
 });
 

@@ -175,7 +175,7 @@ test('Metaflow dynamic surfaces already request frames explicitly', async () => 
     assert.match(sources.get('canvas'), /performanceMode:changed/);
 });
 
-test('merged release-pending record preserves the upstream and Node contracts', async () => {
+test('5.19.1 release-recovery record preserves the upstream and Node contracts', async () => {
     const [packageJson, rootNode, viewerNode, versionHistory, index, readme] = await Promise.all([
         readJson('../package.json'),
         readText('../../.nvmrc'),
@@ -185,13 +185,13 @@ test('merged release-pending record preserves the upstream and Node contracts', 
         readText('../README.md')
     ]);
 
-    assert.equal(packageJson.version, '5.19.0');
+    assert.equal(packageJson.version, '5.19.1');
     assert.equal(packageJson.devDependencies.playcanvas, '2.21.3');
-    assert.equal(versionHistory.current.displayVersion, '5.19.0');
-    assert.equal(versionHistory.current.appSemver, '5.19.0');
+    assert.equal(versionHistory.current.displayVersion, '5.19.1');
+    assert.equal(versionHistory.current.appSemver, '5.19.1');
     assert.equal(rootNode.trim(), '20.19.0');
     assert.equal(viewerNode.trim(), '20.19.0');
     assert.match(index, /SSV v1\.29\.1 \(PlayCanvas 2\.21\.3\)/);
     assert.match(readme, /活跃源码底层：SuperSplat Viewer `v1\.29\.1`/);
-    assert.match(readme, /Viewer `5\.19\.0` 已合并，正式生产发布仍在等待/);
+    assert.match(readme, /Viewer `5\.19\.1` 发布恢复记录已对齐，正式生产发布仍在等待/);
 });

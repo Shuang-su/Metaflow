@@ -1,14 +1,14 @@
 {
   "schemaVersion": "1.1",
   "cutoffGitRef": "c613a87",
-  "documentedThrough": "26e311c",
+  "documentedThrough": "534b013",
   "defaultResourceVersion": "1.0a",
   "current": {
-    "displayVersion": "5.19.0",
-    "appSemver": "5.19.0",
+    "displayVersion": "5.19.1",
+    "appSemver": "5.19.1",
     "indexSchemaVersion": "1.2",
     "date": "2026-08-14",
-    "gitRef": "26e311c",
+    "gitRef": "534b013",
     "historyUrl": "/data/version-history.json",
     "upstream": {
       "repository": "playcanvas/supersplat-viewer",
@@ -1385,11 +1385,33 @@
         "evidence": "docs/changes/30-viewer-upstream-v1.29.1/evidence.md",
         "completionManifest": "docs/changes/30-viewer-upstream-v1.29.1/completion/manifest.json",
         "completionDossier": "docs/changes/30-viewer-upstream-v1.29.1/completion/dossier.md",
+        "releaseTag": "viewer-v5.19.0",
         "upstream": {
           "repository": "playcanvas/supersplat-viewer",
           "from": "v1.26.2",
           "to": "v1.29.1"
         }
+      }
+    },
+    {
+      "displayVersion": "5.19.1",
+      "appSemver": "5.19.1",
+      "type": "fix",
+      "scope": "viewer",
+      "date": "2026-08-14",
+      "gitRef": "534b013",
+      "summary": "fix(release): recover controlled Viewer validation and production gating",
+      "trace": {
+        "changeId": "MF-30",
+        "issue": "https://github.com/Shuang-su/Metaflow/issues/30",
+        "proposal": "docs/changes/30-viewer-upstream-v1.29.1/proposal.md",
+        "spec": "docs/changes/30-viewer-upstream-v1.29.1/spec.md",
+        "plan": "docs/changes/30-viewer-upstream-v1.29.1/plan.md",
+        "pullRequest": "https://github.com/Shuang-su/Metaflow/pull/45",
+        "evidence": "docs/changes/30-viewer-upstream-v1.29.1/evidence.md",
+        "completionManifest": "docs/changes/30-viewer-upstream-v1.29.1/completion/manifest.json",
+        "completionDossier": "docs/changes/30-viewer-upstream-v1.29.1/completion/dossier.md",
+        "releaseTag": "viewer-v5.19.1"
       }
     }
   ]
