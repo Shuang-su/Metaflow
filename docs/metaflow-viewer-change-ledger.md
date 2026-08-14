@@ -38,7 +38,7 @@ flowchart LR
     B --> B4["JSONC / settings schema"]
     A --> C["加载与首帧"]
     C --> C1["下载进度 + 阶段状态"]
-    C --> C2["结构优先识别"]
+    C --> C2["入口身份决定 parser；结构验证"]
     C --> C3["Sorter / frame:ready / timeout"]
     C --> C4["Poster 与背景 reveal"]
     A --> D["导航与交互"]
@@ -248,7 +248,7 @@ flowchart TD
 | `5.18` · `7ce294a` | 移动端开启游戏控制后，fly 模式只有左摇杆导致用户不知道可升降，walk 模式缺少明显跳跃按钮；横屏控件相对参考站仍不够协调，Zoom/升降胶囊和摇杆底边没有统一，小屏横屏容易压近底部菜单。 | 参考 UnrealTwin 移动端横屏布局，横屏改成左 Zoom 胶囊、左移动摇杆、右环顾摇杆、右升降/跳跃控件；升降按钮改为世界空间高度移动；胶囊按下态复刻参考站的轻微下压动画；walk 跳跃改为无图标单格圆形胶囊；尺寸、间距和底部避让按视口自适应，设置/帮助等弹窗打开时隐藏触控游戏控件。 | 移动用户在游戏控制开启时能直接看到移动、环顾、Zoom、绝对升降和跳跃入口；横屏控件左右更均衡，小屏/平板布局更稳，关闭游戏控制、切到 orbit/anim 或打开二级菜单时仍隐藏。 | 桌面端、键盘、鼠标、物理 gamepad 和 pointer-lock 逻辑不变；Zoom 只在横屏 fly gaming controls 出现；证据为 typecheck、build、版本测试和本地真移动 Playwright fly/walk/竖屏/modal/默认关闭验证。 |
 | `5.18a` · `c613a87` | 深圳笔架山新数据需要按正式路径 `/shenzhen/bijiashan` 上线，并使用当前动态/tiled voxel 流程，而不是旧 query-string 入口或单文件 voxel manifest；本地验证发现体素坐标需要完全复用 Dayun 的 legacy RZ180 路径。 | 增加 Bijiashan LOD 模型、`settings-merged-2.json`、thumbnail 与 320 tile 的 tiled voxel 数据；`scripts/generate_index.py` 为 Bijiashan 固定 slug 与 `/shenzhen/bijiashanpark`、`/shenzhen/bijiashan-park` alias，并让 voxel manifest 发现逻辑支持资源目录下一层的 `*/voxel-tiles.json`；Bijiashan 加入 `LEGACY_VOXEL_RZ180_ROUTES`，生成 `viewer.voxelCoordinateSpace: "metaflow-rz180"`。 | `/shenzhen/bijiashan` 可通过正常 route/index 路径打开，别名继续兼容；viewer 获取 `files.voxelManifest` 并按需请求 tile 级 `walk.voxel.json/bin`，碰撞/overlay 与 Dayun 使用同一坐标空间。 | 不新增 LFS 规则，最大单文件约 7.3MB；未提交 `.DS_Store`、`full-run.log`、`progress.json`；证据为本地生产同等 build/public sync、typecheck、build、版本测试、线上 production deploy 和 route/index 验证。 |
 | `5.18.1` · `578272c` | BitCity 260711 与第十五届深圳动漫节的 27 条人物资源需要迁入正式 route；源设置一类包含静止 explicit track，另一类包含 24 个显式 figure8 关键帧，不能继续作为两套发布策略。 | 仅迁移外层正式 SOG、3840×2160 JPG 与规范 `settings-v2.json`；规范设置保留原始相机及全部非动画字段，只写 `animTracks: []`、`startMode: "default"`、`hasStartPose: true`。生成器增加 `bitcity260711`、`szcaf15`、27 项显式 title/titleEn/slug/date/device、`viewer.syntheticAnimation: "figure8"`，仅为雨诺增加 `/acg/szcaf15/akari` alias。 | 索引由 60 增至 87 条；27 条人物从源 initial camera 自动进入 Viewer 现有默认 figure8，首次交互退出到 Orbit；公开路由遵循拼音连写、英文多词连字符、数字直接后缀和 `chang-e` 歧义例外。 | 共 81 个资源文件、576,023,824 字节；SOG/JPG SHA-256 与源一致，settings 除三项策略字段外深度一致；外层模型优先，ZIP/PLY/SSProj/嵌套包及训练中间文件均排除；证据为 `data/ACG/{BitCity260711,SZCAF15}`、`scripts/generate_index.py`、事件路由测试及 Issue #34。 |
-| `5.19.0` · `cb4a3f1` | Viewer `5.18.1` 的活跃源码仍建立在 SuperSplat Viewer `v1.26.2` / PlayCanvas `2.19.2`；上游七个稳定版本已引入 on-demand rendering、near-clip clamp、streaming work-buffer 时序、capture、Annotation preference 和 backend-aware XR，同时 Metaflow 必须保留 route、双加载链、首帧/reveal、移动输入、Analytics 与 tiled voxel collision。 | 分阶段升级到 Viewer `v1.29.1` / PlayCanvas `2.21.3`：加载期 auto-render、完成后 `frame:request` 驱动 on-demand；LOD range 写入组件并在 work-buffer 前应用参数；新增串行且异常恢复的 `captureFrame`、品牌化 Annotation 开关、heatmap WebGL 降级、XR 检测和首包有界 retry/终态错误 UI；最终按产品决策采用 SH performance `1°` / quality `0.2°`。所有 Metaflow route、legacy/streaming、settings v1/v2、environment、reveal、walk/fly、single/tiled voxel、`metaflow-rz180`、九 locale、Analytics 和 debug 合同继续保留。 | 静止场景停止持续 GPU 提交；streaming 参数从首批 work buffer 起一致；Viewer 获得稳定截图与 Annotation 偏好；暂时性 `503` 可恢复，永久失败不再无限挂起；现有 87 条资源无需迁移。 | 风险集中在 streaming SH 工作量、on-demand 漏帧、新 Engine 的 GPU/asset lifecycle、移动真机与 immersive XR。WebGPU/WebGL、8 条代表 route、移动 viewport、tile 404、capture 失败、Analytics 阻断和 retry 已验证；iOS/Android 真机与 XR 硬件未验证。生产仍为 `5.18.1`，合并后必须回填最终 squash SHA，之后才可授权 tag/deploy。证据为 [MF-30 Spec](changes/30-viewer-upstream-v1.29.1/spec.md)、[研究补充](changes/30-viewer-upstream-v1.29.1/research-supplement.md)、[冲突登记](changes/30-viewer-upstream-v1.29.1/conflicts.md) 与 [运行证据](changes/30-viewer-upstream-v1.29.1/evidence.md)。 |
+| `5.19.0` · `72bd201` | Viewer `5.18.1` 的活跃源码仍建立在 SuperSplat Viewer `v1.26.2` / PlayCanvas `2.19.2`；上游七个稳定版本已引入 on-demand rendering、near-clip clamp、streaming work-buffer 时序、capture、Annotation preference、偏好生命周期、可编程语言配置、诊断构建和 backend-aware XR，同时 Metaflow 必须保留 route、双加载链、首帧/reveal、移动输入、Analytics 与 tiled voxel collision。 | 分阶段升级到 Viewer `v1.29.1` / PlayCanvas `2.21.3`：加载期 auto-render、完成后 `frame:request` 驱动 on-demand；LOD range 写入组件并在 work-buffer 前应用参数；新增串行且异常恢复的 `captureFrame`、品牌化 Annotation 开关、heatmap WebGL 降级与 XR 检测。最终按产品决策采用 SH performance `1°` / quality `0.2°`；`5.19.0` 首次运行一次性清理旧 performance/Gaming Controls/retina 偏好，之后启动只读、用户变更才写；增加 `Config.lang` 与 opt-in Debug Engine。主体入口身份决定 parser，结构只验证所选格式；顶层主体/environment 对 transient failure 共尝试 4 次并进入明确终态。生产构建发布组合 CSS map，DOMPurify 精确修到 `3.4.13`，Node/Rollup/Webpack 证据支持 package `sideEffects:false`。所有 Metaflow route、legacy/streaming、settings v1/v2、environment、reveal、walk/fly、single/tiled voxel、`metaflow-rz180`、九 locale、Analytics 和 debug 合同继续保留。 | 静止场景停止持续 GPU 提交；streaming 参数从首批 work buffer 起一致；Viewer 获得稳定截图、Annotation 与可编程语言合同；设备推导默认不再被启动写入固化；暂时性 `503` 最多在第四次成功，永久失败不再无限挂起；production audit 为 0，npm package 可安全 tree-shake。当前 87 条 route、9 个 streaming 入口和 78 个 SOG 入口全部不变，无需迁移数据。未来数据标签系统可把双源资产标记为默认 `streaming`、可选 `highest-quality` SOG，但本候选没有 schema/UI/运行时换源。 | 风险集中在 streaming SH 工作量、on-demand 漏帧、新 Engine 的 GPU/asset lifecycle、没有单请求 timeout/`Retry-After`、移动真机与 immersive XR。WebGPU/WebGL、代表 route、移动 viewport、tile 404、capture 失败、Analytics 阻断、四次尝试、CSS map、package consumer 和 production audit 已验证；iOS/Android 真机与 XR 硬件未验证。生产仍为 `5.18.1`，squash merge 后必须回填最终 SHA，之后才可另行授权 tag/deploy。证据为 [MF-30 Spec](changes/30-viewer-upstream-v1.29.1/spec.md)、[研究补充](changes/30-viewer-upstream-v1.29.1/research-supplement.md)、[冲突登记](changes/30-viewer-upstream-v1.29.1/conflicts.md) 与 [运行证据](changes/30-viewer-upstream-v1.29.1/evidence.md)。 |
 
 ### 不产生产品版本的维护提交
 
@@ -283,6 +283,16 @@ flowchart TD
 | `332ad44` | 为初始模型/environment prefetch 增加限定状态码的三次有界重试、退避和明确终态错误 UI，永久 4xx 不重试。 | 5.19.0 可靠性前置提交，由 `maintenanceCommits` 登记。 |
 | `874149f` | 固化真实 route、WebGL/WebGPU、移动 viewport、capture、tile、retry、Analytics 和限制项证据，并增加一次诊断性上游/Engine 版本输出。 | 证据与诊断维护，由 `maintenanceCommits` 登记。 |
 | `b30a15e` | 将 Viewer 5.19.0 PR 候选的 package、公开 release 头、Version History、Ledger、E2E 版本断言、深度研究补充、冲突和交付证据一次对齐。 | 发布审查支撑提交，不改变 `cb4a3f1` 作为候选产品行为 ref；由 `maintenanceCommits` 登记。 |
+| `cb4a3f1` | 将 streamed SH 更新阈值从早期候选保留的 performance `4°` / quality `2°` 明确替换为 upstream v1.29.1 的 `1°/0.2°`，并补源码锁定和 A/B 证据。 | 5.19.0 的明确产品决策提交；转入 `maintenanceCommits` 保留决策链，最终产品/package ref 为 `72bd201`。 |
+| `af63b51` | 记录 SH 决策后 MF-30 的实现、浏览器、限制、回退和当时远端 Draft 状态。 | 中间交付审计，不创建新版本；由 `maintenanceCommits` 登记。 |
+| `4f20ac2` | 增加 `5.19.0` 一次性偏好迁移：清理旧 performance/Gaming Controls/retina 值，启动只读，初始化后的真实状态变化才写入。 | 5.19.0 偏好生命周期前置提交，由 `maintenanceCommits` 登记。 |
+| `f507541` | 将语言选择纳入 `Config.lang`，保留 `?lang=` 入口、九 locale、navigator 与 English fallback，并开放嵌入式配置。 | 5.19.0 公共配置前置提交，由 `maintenanceCommits` 登记。 |
+| `8d115d5` | 增加 `ENGINE=debug npm run build` 的 PlayCanvas development export condition；普通 production build 保持默认。 | 诊断构建维护，不改变部署默认值；由 `maintenanceCommits` 登记。 |
+| `d41a28c` | 按 PlayCanvas parser 事实改为入口身份分类；只有 `lod-meta.json` 是 streaming，其他 JSON 为 loose SOG meta；增加严格 LOD manifest 验证、Analytics 分类和 generator 零漂移检查。 | 5.19.0 资源加载正确性前置提交，由 `maintenanceCommits` 登记。 |
+| `0c1a2f6` | 将顶层主体/environment transient failure 从早期三次策略改为四次总尝试与 `500/1000/2000 ms` 退避，永久 4xx 一次失败，environment 终态不阻塞主体。 | 5.19.0 可靠性最终政策提交，由 `maintenanceCommits` 登记；`332ad44` 仍如实保留当时三次策略。 |
+| `cc0e106` | 组合 Sass/PostCSS source map，生产发布 `index.css.map` 与单一相对引用，并阻止本机绝对路径进入工件。 | 5.19.0 构建/诊断前置提交，由 `maintenanceCommits` 登记。 |
+| `bc1f4a9` | 在不升级 PostHog、不增加直接依赖且不运行 `npm audit fix` 的前提下，将间接 DOMPurify 精确更新到 `3.4.13`，使 production audit 清零。 | 5.19.0 安全修复前置提交，由 `maintenanceCommits` 登记。 |
+| `fda17f5` | 补全 MF-30 决策来源、冲突处置、Engine parser 事实、资源加载文档、未来 streaming/highest-quality 标签边界和最终验证证据。 | 审查与资源合同文档维护，不创建新版本；由 `maintenanceCommits` 登记。 |
 
 ## 能力到提交的反向索引
 
@@ -300,6 +310,9 @@ flowchart TD
 | 部署 / LFS | `1.2`、`1.3`、`3.17`、`3.20a`、`4.4`、`5.2`、`5.3`、`5.13` |
 | On-demand / streaming work buffer / SH | `2.6`、`5.8`、`5.9`、`5.19.0` |
 | Capture / Annotation preference | `1.0`、`5.19.0` |
+| 偏好生命周期 / `Config.lang` | `5.19.0` |
+| 主体入口 parser / 四次有界尝试 | `2.5`、`2.8`、`5.19.0` |
+| Debug Engine / CSS map / package metadata / production audit | `5.19.0` |
 
 ## 后续提交维护模板
 

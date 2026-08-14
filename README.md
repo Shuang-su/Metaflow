@@ -159,7 +159,7 @@ location / {
 | 索引 schema | `1.2` |
 | 上游 SuperSplat Viewer | `v1.29.1` |
 | PlayCanvas | `2.21.3` |
-| 候选实现 commit | `cb4a3f1` |
+| 候选实现 commit | `72bd201` |
 
 ## 当前 Editor
 
@@ -178,7 +178,7 @@ location / {
 
 | 版本 | commit | 摘要 |
 |------|--------|------|
-| `5.19.0` | `cb4a3f1` | MF-30 PR 候选：同步 Viewer v1.29.1 / PlayCanvas 2.21.3，采用 on-demand、capture、Annotation/XR 更新及 SH `1°/0.2°`，保留 Metaflow route、加载、reveal、碰撞、移动和 Analytics 合同 |
+| `5.19.0` | `72bd201` | MF-30 PR 候选：同步 Viewer v1.29.1 / PlayCanvas 2.21.3，采用 on-demand、capture、Annotation/XR、SH `1°/0.2°`、偏好/语言生命周期、入口 parser、四次有界尝试、Debug Engine、CSS map、安全补丁与 package metadata，同时保留 Metaflow route、加载、reveal、碰撞、移动和 Analytics 合同；生产仍为 `5.18.1` |
 | `5.18.1` | `578272c` | 发布 BitCity 260711 与第十五届深圳动漫节 27 条人物资源及默认 figure8 动画策略 |
 | `5.18a` | `c613a87` | 新增并对齐深圳笔架山动态 voxel 场景 |
 | `5.18` | `7ce294a` | 优化移动端触控游戏控制 |

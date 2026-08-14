@@ -1,14 +1,14 @@
 {
   "schemaVersion": "1.1",
   "cutoffGitRef": "c613a87",
-  "documentedThrough": "cb4a3f1",
+  "documentedThrough": "72bd201",
   "defaultResourceVersion": "1.0a",
   "current": {
     "displayVersion": "5.19.0",
     "appSemver": "5.19.0",
     "indexSchemaVersion": "1.2",
     "date": "2026-08-13",
-    "gitRef": "cb4a3f1",
+    "gitRef": "72bd201",
     "historyUrl": "/data/version-history.json",
     "upstream": {
       "repository": "playcanvas/supersplat-viewer",
@@ -195,6 +195,56 @@
       "gitRef": "b30a15e",
       "date": "2026-08-13",
       "summary": "chore(release): prepare Viewer 5.19.0 review"
+    },
+    {
+      "gitRef": "cb4a3f1",
+      "date": "2026-08-13",
+      "summary": "fix(viewer): adopt v1.29.1 SH thresholds"
+    },
+    {
+      "gitRef": "af63b51",
+      "date": "2026-08-13",
+      "summary": "docs(review): record MF-30 delivery checkpoint"
+    },
+    {
+      "gitRef": "4f20ac2",
+      "date": "2026-08-14",
+      "summary": "fix(viewer): adopt v1.29.1 preference lifecycle"
+    },
+    {
+      "gitRef": "f507541",
+      "date": "2026-08-14",
+      "summary": "feat(viewer): expose configured locale selection"
+    },
+    {
+      "gitRef": "8d115d5",
+      "date": "2026-08-14",
+      "summary": "build(viewer): add opt-in PlayCanvas debug engine"
+    },
+    {
+      "gitRef": "d41a28c",
+      "date": "2026-08-14",
+      "summary": "fix(viewer): align source identity with engine parsers"
+    },
+    {
+      "gitRef": "0c1a2f6",
+      "date": "2026-08-14",
+      "summary": "fix(viewer): extend bounded resource retries"
+    },
+    {
+      "gitRef": "cc0e106",
+      "date": "2026-08-14",
+      "summary": "build(viewer): publish composed CSS source maps"
+    },
+    {
+      "gitRef": "bc1f4a9",
+      "date": "2026-08-14",
+      "summary": "fix(deps): update DOMPurify security patch"
+    },
+    {
+      "gitRef": "fda17f5",
+      "date": "2026-08-14",
+      "summary": "docs(review): close MF-30 decision audit"
     }
   ],
   "entries": [
@@ -1408,7 +1458,7 @@
       "type": "feature",
       "scope": "viewer",
       "date": "2026-08-13",
-      "gitRef": "cb4a3f1",
+      "gitRef": "72bd201",
       "summary": "feat(viewer): upgrade active source to SuperSplat Viewer v1.29.1",
       "trace": {
         "changeId": "MF-30",
