@@ -31,6 +31,8 @@
 
 生成器对部分历史目录有明确 override。不要依赖“碰巧按字母排序选中正确文件”；存在多个 settings 或 model 候选时应写规则。
 
+`files.model` 是当前 route 的唯一运行时主体来源。目录中同时存在 SOG 与 `lod-meta.json` 时，本轮不会自动改成 streaming，也没有用户切换 UI；既有 route 继续使用 index 已选入口。未来数据标签系统会另行登记 `streaming` 与 `highest-quality` 来源及默认值，不要提前手写未定义字段。
+
 同一路径覆盖大型 immutable 文件前必须评估缓存；优先采用新文件名或内容地址，避免客户端继续命中旧内容。
 
 ## 4. 处理 Git 与 LFS

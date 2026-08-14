@@ -34,14 +34,16 @@ Version History 是结构化发布事实，Ledger 是人类可读的动机、行
 | 契约面 | 当前支持 | 边界 |
 |---|---|---|
 | Settings | 无 `version` 的 v1；`version: 2` 的 v2 | 新资源只写 v2；其他版本拒绝 |
-| 稳定 index 主模型 | SOG；`lod-meta.json` / `meta.json` streaming 入口 | 当前生成器不会把独立 compressed PLY 作为 route 主模型 |
-| Viewer 直接 `content` | SOG、compressed PLY、streaming JSON | 直接参数跳过 route/index 和 route 元数据 |
+| 稳定 index 主模型 | SOG；`lod-meta.json` streaming 入口 | `files.model` 是当前唯一运行时权威；生成器不会把 `meta.json` 或独立 compressed PLY 作为 streaming/route 主模型 |
+| Viewer 直接 `content` | SOG、PLY（含 compressed PLY）、loose SOG `meta.json`、streamed `lod-meta.json` | 直接参数跳过 route/index 和 route 元数据；入口 basename/extension 决定 parser，结构只负责验证 |
 | Environment | 文件名包含 `environment` 或 `point_cloud` 的 compressed PLY | 只作为环境候选，不会因此成为主体模型 |
 | Route | `resources[].route` 与 `aliases[]` | 必须唯一；公开后按 URL 契约维护 |
 | Collision | GLB、单体 voxel、tiled voxel manifest | 具体坐标系由 index `viewer.voxelCoordinateSpace` 表达 |
 | URL/settings 覆盖 | poster/environment/collision/voxel 等 query 可优先 | `content` 会跳过 route；route 会覆盖 query `settings`，不是统一覆盖模型 |
 
 精确字段见 [Viewer URL 参数](viewer-url-parameters.md)、[Viewer settings schema](viewer-settings-schema.md) 和 [资源索引 schema](resource-index.md)。
+
+当前来源分类不等于未来的精度切换合同：同一目录即使同时存在 SOG 与 streamed LOD，也不会自动改变 `files.model`。后续数据标签系统计划把 `streaming` 作为双源资产默认，把 `highest-quality` SOG 作为用户可选来源；schema、UI 和运行时换源生命周期尚未在本候选中实现。
 
 ## Editor 兼容矩阵
 

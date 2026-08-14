@@ -2,7 +2,7 @@
 
 ## 1. Status and authority
 
-- **Status:** implementation complete; remote review and Viewer `5.19.0` release-candidate records authorized. Merge, tag, deploy, and production release remain separately controlled.
+- **Status:** implementation and follow-up decision audit complete; remote review and Viewer `5.19.0` release-candidate records authorized. Merge, tag, deploy, and production release remain separately controlled.
 - **Component:** `viewer`.
 - **Risk:** T3 upstream synchronization.
 - **Discovery record:** [Issue #30](https://github.com/Shuang-su/Metaflow/issues/30).
@@ -61,12 +61,32 @@ The immutable source snapshot is `references/supersplat-viewer-v1.29.1/`. It is 
 |---|---|
 | MFV-19 | PlayCanvas must be exactly `2.21.3`. Applicable Rollup, PostCSS, Sass, Autoprefixer, ESLint, Prettier, and publint versions must align with `v1.29.1` while preserving PostHog, rrweb, Playwright, Analytics injection, and multi-entry Rollup output. |
 | MFV-20 | Root and Viewer Node remain `20.19.0`. API migration must use PlayCanvas 2.21.3 APIs without an implicit old-API shim. Mechanical formatting must be isolated from behavioral changes. |
-| MFV-21 | `npm audit --omit=dev` must not introduce production high or critical vulnerabilities. No automatic `npm audit fix` is permitted. Development-only findings must be recorded rather than hidden through unrelated major upgrades. |
+| MFV-21 | `npm audit --omit=dev` must report zero production vulnerabilities. DOMPurify must resolve to exactly `3.4.13` through the existing PostHog range; PostHog must not be upgraded and DOMPurify must not become a direct dependency. No automatic `npm audit fix` is permitted. Development-only findings must be recorded separately rather than hidden through unrelated major upgrades. |
 | MFV-22 | The PR candidate is Viewer `5.19.0`, because it adds backwards-compatible public, interaction, loader, and rendering capabilities. Package/lock, Version History, public history/index release metadata, Viewer Ledger, tests, and current-version documentation must agree on `5.19.0 / upstream 1.29.1`. This is a release candidate until merge, final-SHA reconciliation, tag, deployment, smoke, and observation are separately completed. |
+
+### 3.5 Follow-up preference, parser, and failure contracts
+
+| ID | Contract |
+|---|---|
+| MFV-23 | On the first `5.19.0` run, `metaflowViewerPreferenceMigration=5.19.0` must clear `performanceMode`, `gamingControls`, and legacy `retinaDisplay` exactly once. The current session then derives mobile/desktop defaults. Startup and UI redraw must not persist those defaults; only later state changes caused by user interaction may write `performanceMode` or `gamingControls`. `showAnnotations` is not cleared. |
+| MFV-24 | `Config.lang?: string` is the single programmatic language input. The bundled HTML maps `?lang=` into `config.lang`; localization then resolves configured value, `navigator.languages` / `navigator.language`, and English in that order while retaining all nine locales, normalization, and base-language matching. |
+| MFV-25 | `ENGINE=debug npm run build` must opt into PlayCanvas's `development` export condition. Ordinary production builds must continue to use the default export and must not expose a new UI, URL parameter, or deployment default. |
+| MFV-26 | The selected entry identity decides the Engine parser: basename `lod-meta.json` is `streaming-lod`; `.sog` is `sog-bundle`; any other `.json`, including `meta.json`, is `sog-meta`; `.ply` is `ply`; everything else fails before load. Public `State.loadingMode` remains `legacy-sog | streaming-json`. JSON structure may validate an entry but must never silently select a different parser. |
+| MFV-27 | Before Engine load, `lod-meta.json` must pass a bounded manifest contract covering positive `lodLevels`, nonempty filenames, finite root bounds, a nonempty recursive tree, at least one leaf, valid LOD file indices, and nonnegative byte spans. Invalid manifests set `loadingConflict=true` and terminate as manifest-invalid rather than guessing another format. |
+| MFV-28 | Initial subject and environment prefetches retry only network errors and HTTP `408/425/429/5xx`, for four total attempts with `500/1000/2000 ms` waits. Other `4xx` stop after one request. Every abandoned response body is released. Subject exhaustion enters the actionable terminal UI; environment exhaustion remains non-blocking. The policy does not apply to streaming children, voxel tiles, settings, or Analytics and does not claim a per-request timeout or `Retry-After` implementation. |
+| MFV-29 | Existing `files.model` remains the sole runtime source authority: all 87 route mappings stay byte-for-byte unchanged, including six Firefly resources that have an unselected streaming candidate but currently use SOG. Future `streaming | highest-quality` choice belongs to a separate data-label contract; this Change adds no schema, switch UI, URL parameter, or runtime source swap. |
+
+### 3.6 Build and package contracts
+
+| ID | Contract |
+|---|---|
+| MFV-30 | Production SCSS must emit a valid composed source-map-v3 pair `index.css` / `index.css.map` with exactly one relative `sourceMappingURL=index.css.map`; map sources must be repository-relative and must not contain local absolute paths. The map is a debug artifact and is excluded from runtime gzip-growth comparisons. |
+| MFV-31 | The npm package may declare `sideEffects: false` only while Node import purity, Rollup named/settings/bare-import behavior, and Webpack `5.109.2` + `webpack-cli 7.2.2` consumers installed from the packed tarball all retain used exports and remove only an unused bare import. |
+| MFV-32 | PlayCanvas parser availability alone does not establish a Metaflow route, upload, error, lifecycle, or public-format contract. This Change does not advertise SPZ or KHR Gaussian formats and does not modify route/index/upload schemas for them. |
 
 ## 4. Evidence and acceptance
 
-Static and automated acceptance requires clean `npm ci`, formatting check, lint, typecheck, publint, production build, Viewer unit tests, reference registry local and upstream identity checks, CI routing, platform validation, Markdown link checks, repository scan, and `git diff --check`. Build JS/CSS raw and gzip size must be recorded; unexplained growth above 10% is a reported conflict.
+Static and automated acceptance requires clean `npm ci`, formatting check, lint, typecheck, publint, default and Debug Engine production builds, Viewer unit tests, package/pack consumers, CSS-map integrity, production audit, reference registry local and upstream identity checks, CI routing, platform validation, Markdown link checks, repository scan, and `git diff --check`. Build JS/CSS raw and gzip size must be recorded; unexplained growth above 10% is a reported conflict.
 
 Browser evidence must distinguish static, DOM, runtime, console, network, WebGL, WebGPU, desktop viewport, and `360 × 732` mobile viewport results. It must cover Cyrene, Xunyangpai, Dayun, Bijiashan, C2-Lib, BitCity Xielian, SZCAF15 Yunuo, and the Akari alias. Negative coverage must include delayed SOG, delayed environment, missing tile, request retry, capture validation/serialization/failure, and blocked Analytics.
 
@@ -78,6 +98,8 @@ Mobile viewport does not equal iOS/Android hardware. XR API checks do not equal 
 - Do not edit existing resource data, routes, aliases, settings, collision metadata, or schemas to evade a compatibility failure.
 - Do not change Editor or Transform product source, version, dependency, decision, or release state.
 - Do not install or build inside `references/**`.
+- Do not change any current route's `files.model`, infer a runtime default from discovered files, or introduce the future source-label schema/switch in this Change.
+- Do not advertise SPZ/KHR Gaussian as a Metaflow Viewer product contract.
 - Do not merge, tag, deploy, publish a GitHub Release, close Issue #30 as released, or claim production observation under this authorization.
 - Do not claim Viewer `v1.29.1` adds voxel conversion or byte-range/page/LOD voxel streaming. Preserve Metaflow tiled voxel runtime and its coordinate compatibility layer.
 

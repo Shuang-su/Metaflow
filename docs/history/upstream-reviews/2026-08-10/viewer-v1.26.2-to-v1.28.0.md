@@ -45,8 +45,9 @@ Adopt 的含义是：以 N 的上游行为为输入，分阶段移植到 `metafl
 |---|---|---|---|---|---|---|
 | route、index、alias | 只解析显式 query | 从稳定 route/alias 查询 `data/index.json`，再解析 settings/content/environment/collision | 仍以 query 为主 | **Keep** | 高 / M | 四条真实 route 已运行；需要全 index route 自动回归 |
 | legacy SOG | 单 SOG 加载 | 保留 legacy SOG、排序完成或超时后的首帧兜底 | 可加载 SOG，但 on-demand/engine 路径已变化 | **Port** | 高 / L | Cyrene 完整加载；需弱网、重试和 timeout 专项 |
-| streaming LOD | 上游 streamed SOG | M 同时识别结构、阶段、预算与 streaming LOD | N 修复 work-buffer 参数生效时序 | **Port + Replace**：保留 M 状态机，采用 N 的参数初始化顺序 | 高 / L | Xunyangpai、Dayun、Bijiashan 完成；缺失 tile 恢复策略仍需回归 |
+| streaming LOD | 上游 streamed SOG | M 保留 loading 阶段、预算、reveal 与 streaming 状态机 | N 修复 work-buffer 参数生效时序；PlayCanvas 以入口身份选择 parser | **Port + Replace**：保留 M 状态机，采用 N 的参数初始化顺序，并由 `lod-meta.json` 身份选择 octree parser | 高 / L | 当前 9 条 streaming route 的入口未变化；Xunyangpai、Dayun、Bijiashan 已完成真实运行，Bijiashan 缺 tile 局部降级不阻断主体 |
 | streaming SH 更新阈值 | B 默认值；没有 M 的 4/2 策略 | M 明确使用 `colorUpdateAngle = performanceMode ? 4 : 2` | N 使用 `performanceMode ? 1 : 0.2` | **Conflict → Replace**：按后续用户决策采用 N `1/0.2`；M `4/2` 仅保留为迁移前行为和 A/B 证据 | 高 / M | `cb4a3f1` 锁定源码与单测；WebGPU/WebGL 真实运行均确认 quality `0.2`、performance `1`。更小阈值可能增加小幅相机运动时的 SH 工作量 |
+| 主体来源身份与 parser | B/N 由 `.sog`、`.ply`、`.json` basename/extension 选择 Engine parser | M 曾用 JSON 结构参与 legacy/streaming 判定，可能与 Engine 实际 parser 不一致 | N/PC `2.21.3`：`lod-meta.json` 为 octree，其他 JSON（含 `meta.json`）为 loose SOG meta | **Conflict → Replace**：入口身份决定 parser，结构只验证所选格式；保留公开 `legacy-sog` / `streaming-json` 两态 | 高 / M | 当前 87 条 `files.model` 逐字不变：9 streaming、78 SOG；6 个具备未选 streaming 候选的 Firefly route 继续使用既有 SOG；实际 LOD manifest 全部通过严格校验 |
 | environment | 支持 environment | 环境单独加载且不阻塞主体首帧，route 可配置 | 基础支持保留 | **Port** | 中 / M | Xunyangpai 环境可见；需大环境弱网行为 |
 | 首帧与 loading complete | 上游基础加载 UI | `frame:ready`、sort/LOD timeout、loading→visible→animation 顺序 | on-demand rendering 改变何时安排帧 | **Port** | 高 / L | Cyrene、Xun、Dayun 完成；必须增加“没有持续 render loop”回归 |
 | radial reveal / LOD reveal | 无 M 的粒子揭示合同 | legacy、streaming、environment 分路径揭示，支持 `?noreveal` | 无等价能力；会受 GSplat 参数和 render-next-frame 影响 | **Port** | 高 / M | MF-30 在 Cyrene、Xunyangpai、Dayun、Bijiashan 运行并保存代表截图；未建立全资源像素阈值基线 |
@@ -61,12 +62,18 @@ Adopt 的含义是：以 N 的上游行为为输入，分阶段移植到 `metafl
 | Analytics | 无 | PostHog/rrweb/自有事件、首帧与错误遥测、隐私/节流边界 | 无 | **Keep** | 中 / M | 52 项 M 测试含 analytics；本轮不向生产后端发送验证事件 |
 | 品牌与产品导航 | SuperSplat 品牌 | Metaflow logo、域名、标题、分享入口 | SuperSplat 品牌 | **Keep** | 低 / S | 截图确认；需要无障碍名称回归 |
 | locale | 上游 9 locale | M 为产品文案与新增控制补齐 locale | N 新增 annotation 文案并更新同一批 locale | **Port** | 中 / M | 当前中文/英文可见；所有 9 locale key 一致性需自动化 |
-| voxel/reveal 调试工具 | 上游基础 debug | M 增加 voxel overlay、streaming/loading conflict、reveal 逃生参数 | N 有 opt-in debug engine 与 streaming debug 参数 | **Port + Replace** | 中 / M | 静态和手工 URL 开关；发布构建体积/暴露边界需检查 |
+| voxel/reveal 调试工具 | 上游基础 debug | M 增加 voxel overlay、streaming/loading conflict、reveal 逃生参数 | N 有 opt-in Debug Engine 与 streaming debug 参数 | **Port + Replace**：保留运行时调试合同，并增加 `ENGINE=debug npm run build`；普通 build 仍解析 production export | 中 / M | production 与 Debug Engine 构建均通过；Debug 只用于本地诊断，不成为部署默认值 |
 | on-demand rendering 与 near clip | 持续渲染旧路径 | M 依赖首帧、reveal 和调试主动调度 | N 以 on-demand 为准并 clamp near clip | **Replace**，同时为每个 M 动画/状态更新显式请求帧 | 高 / M | MF-30 已组合验证 legacy/streaming、reveal、animation、collision/debug、capture、WebGL/WebGPU；所有完成态均保持 `autoRender=false` |
 | `captureFrame` | 无 | 无稳定公共 capture 合同 | `window.captureFrame` 可用 | **Replace**：采用 N API，不另造本地接口 | 中 / S | MF-30 已验证 WebGL/WebGPU、默认/非法尺寸、supersample、并发、动画 scrub、后处理和注入 readback 失败后的状态恢复 |
 | annotation 显隐 | 没有 sticky toggle | M 保留 annotation 展示但无 N 的持久化开关 | UI 开关并写 `showAnnotations=false` | **Replace + Port**：采用 N 状态与 UI，合并 M locale/品牌 | 低 / S | N Xun active→inactive，localStorage 正确；route 切换持久性待自动化 |
+| 用户偏好生命周期 | B 在 UI 初始化路径可写性能/Gaming Controls | M 启动时把设备推导默认写入 localStorage，并保留旧 `retinaDisplay` 映射 | N 启动只读取，用户修改后才持久化 | **Conflict → Replace**：`5.19.0` 一次性清理三个旧键，之后只持久化初始化完成后的状态变化；Annotation 不参与迁移 | 中 / M | 桌面/移动默认、迁移幂等、启动不写、用户修改恢复和 Annotation 保留均有自动测试；移动 viewport 不等于真机 |
+| `Config.lang` | localization 自行从浏览器推导 | M 支持 9 locale 与 `?lang=`，但 URL 读取耦合在 localization 模块 | N 把语言纳入 `Config` 初始化链 | **Replace + Port**：入口把 `?lang=` 写入 `config.lang`；支持 programmatic config，再按 navigator、English 回退 | 低 / S | `zh-CN`、`pt-BR`、大小写/base-language、无效值和 programmatic config 已覆盖；九 locale 不改格式 |
 | heatmap 参数 | 旧行为含糊 | M 不建立另一套公开定义 | N 文档明确 URL 参数 | **Replace** | 低 / S | 静态参数路径；没有合适 heatmap 视觉 fixture |
 | PlayCanvas / 构建链 | PC `2.19.2` | PC `2.19.2`，M 增加 analytics 与 Playwright | PC `2.21.3`、ESLint config v3 beta、Prettier | **Conflict → Replace + Keep**：PC/工具升级和格式化分别提交，保留 Analytics、rrweb、Playwright 与多入口构建 | 高 / L | MF-30 clean install/fmt/lint/typecheck/publint/build 通过；collision、后处理、WebGL/WebGPU 与移动 emulation 已组合运行，XR 硬件仍未验证 |
+| 生产 CSS source map | B/M production SCSS 未形成可交付的组合 map | M 的 Sass processor 只返回 CSS，map 链在 PostCSS 后丢失 | N 开启 CSS source map | **Replace**：发布有效 v3 map、单一相对 annotation，并拒绝本机绝对路径 | 低 / S | `index.css.map` JSON、引用、sources 路径与 `npm pack` 内容已检查；map 不计入运行时 gzip 增长 |
+| production 依赖安全 | DOMPurify 间接版本未形成当前风险结论 | M 由 `posthog-js@1.386.8` 间接解析 DOMPurify | 锁文件更新但仍须按当前 advisory 核验 | **Replace**：只把间接 DOMPurify 精确更新为 `3.4.13`，不升级 PostHog、不运行 `npm audit fix` | 中 / S | clean install 后 `npm ls` 为 `3.4.13`，`npm audit --omit=dev` 为 0；开发依赖 4 high 分开披露 |
+| npm package tree-shaking | B/M 未声明 `sideEffects` | root/settings exports 不应在 import 时初始化 DOM 或全局状态 | N/publint 建议声明副作用合同 | **Replace**：仅在 Node import、Rollup 与 packed-tarball Webpack 同意后声明 `sideEffects:false` | 中 / M | Node、Rollup、Webpack `5.109.2` 均验证 named/settings import 保留、bare import 可移除；Webpack 不进入 Viewer devDependencies |
+| 双源默认与未来标签 | 无数据标签产品合同 | 当前 `files.model` 是每条 route 唯一运行时权威 | 上游 parser 能力不自动决定产品默认 | **Keep + scope boundary**：当前默认零变化；未来标签同时存在时以 streaming 为默认、highest-quality SOG 由用户切换 | 高 / L（未来） | 本 PR 不改 schema/UI/URL/运行时换源；未来必须处理旧主体释放、相机/动画、environment、collision、失败回退与移动内存峰值 |
 
 本地能力的主要源码证据位于 [`metaflow-viewer/src/index.ts`](../../../../metaflow-viewer/src/index.ts)、[`viewer.ts`](../../../../metaflow-viewer/src/viewer.ts)、[`camera-manager.ts`](../../../../metaflow-viewer/src/camera-manager.ts)、[`collision/`](../../../../metaflow-viewer/src/collision)、[`settings.ts`](../../../../metaflow-viewer/src/settings.ts)、[`schemas/v2.ts`](../../../../metaflow-viewer/src/schemas/v2.ts)、[`xr-navigation.ts`](../../../../metaflow-viewer/src/xr-navigation.ts)、[`analytics/client.ts`](../../../../metaflow-viewer/src/analytics/client.ts) 与 [`voxel-debug-overlay.ts`](../../../../metaflow-viewer/src/voxel-debug-overlay.ts)。
 
@@ -78,7 +85,7 @@ Adopt 的含义是：以 N 的上游行为为输入，分阶段移植到 `metafl
 | M `5.18` | `20.19.0` | install/build：通过；`node --test tests/*.mjs`：52/52 通过 | e2e fixture 使用一次性副本准备，产品目录未写入 |
 | 中间 `v1.28.0` | `20.19.0` | install/build：通过 | annotation toggle 浏览器实测通过 |
 | 中间 N `v1.29.0` | `20.19.0` | `npm ci`、`npm run fmt`、lint、typecheck、build：全部通过 | build 79.11 s，最大 RSS 949,870,592 bytes；npm audit 5 high；需在实现 Change 中处置而非自动修包 |
-| 目标 N `v1.29.1` | `20.19.0` | 精确 tag/commit/tree/85 files/规范化摘要已验证；MF-30 活跃源码 clean install、fmt、lint、typecheck、publint、build 与全量 Viewer tests 通过 | SH 先经保守 A/B，再按明确产品决策采用 `1/0.2`；最终结果见 MF-30 证据 |
+| 目标 N `v1.29.1` | `20.19.0` | 精确 tag/commit/tree/85 files/规范化摘要已验证；MF-30 活跃源码 clean install、fmt、lint、typecheck、publint、production/Debug build 通过；完整只读 fixture 的产品/resource/package tests 为 77/77 | SH 先经保守 A/B，再按明确产品决策采用 `1/0.2`；production audit 为 0；release-record 全量测试在 SHA 对齐后复跑 |
 
 N 的 disposable build 只在 `.codex-work/` 副本中读取现有 data；`references/supersplat-viewer-v1.29.0/` 与 `references/supersplat-viewer-v1.29.1/` 本身保持无依赖、无 dist。
 
@@ -118,7 +125,9 @@ MF-30 实现后的完整必测 route、WebGL/WebGPU、移动 viewport、capture�
 1. on-demand rendering、near-clip clamp 和 streaming work-buffer 参数时序修复直接改善性能与 streaming 正确性；
 2. `captureFrame`、annotation 显隐持久化和明确 heatmap 参数增加可测试的公共能力；
 3. WebGPU XR 能力检测修复可与 M 的 XR navigation 组合；
-4. 依赖/security 更新把当前上游维护线推进到 PC `2.21.3`。
+4. 依赖/security 更新把当前上游维护线推进到 PC `2.21.3`；
+5. 偏好生命周期与 `Config.lang` 把设备默认、用户选择和可编程嵌入入口分开；
+6. Debug Engine、有效 CSS map、production audit 清零与经过双 bundler 验证的 package metadata 补齐诊断和消费合同。
 
 ### 必须移植或替换
 
@@ -162,6 +171,12 @@ MF-30 实现后的完整必测 route、WebGL/WebGPU、移动 viewport、capture�
 | V-14 | PlayCanvas `2.21.3` 升级后，WebGL/WebGPU、后处理、camera、collision 和 XR 类型检查均通过；不保留隐式旧 API shim。 |
 | V-15 | references 保持摘要不变，构建与浏览器产物仅写 `.codex-work/tmp/`。 |
 | V-16 | PR 候选使用 Viewer `5.19.0` 并同步 Version History/Ledger；生产仍为 `5.18.1`。Adopt 实现和候选记录都不等于已 merge、tag、deploy 或观察的稳定发布。 |
+| V-17 | streaming SH 最终使用 performance `1°` / quality `0.2°`；旧 `4°/2°` 只保留为候选历史与 A/B 证据。 |
+| V-18 | 性能模式、Gaming Controls 与旧 `retinaDisplay` 只在 `5.19.0` 首次运行时清理一次；启动不写偏好，初始化后的用户状态变化才持久化。 |
+| V-19 | 主体入口身份决定 parser；`lod-meta.json` 才是 streaming octree manifest，`meta.json` 是 loose SOG meta；结构验证不得覆盖 parser。 |
+| V-20 | 顶层主体和 environment prefetch 对 transient failure 共尝试 4 次，等待 `500/1000/2000ms`；永久 4xx 一次失败，environment 终态不阻塞主体。 |
+| V-21 | production build 交付无本机路径的组合 CSS source map，production audit 为 0；`sideEffects:false` 必须有 Node、Rollup 和 packed-tarball Webpack 证据。 |
+| V-22 | 当前 87 条 route 的 `files.model` 全部保持；未来 streaming/highest-quality 标签与换源在独立数据标签 Change 中实施。 |
 
 ### 9.3 明确非目标
 

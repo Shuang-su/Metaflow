@@ -22,6 +22,20 @@ Checkpoint order is normative:
 8. Apply the follow-up product decision to adopt Viewer `v1.29.1` SH `1/0.2`, replace the compatibility lock, and retain the earlier `4/2` A/B only as decision evidence.
 9. Prepare Viewer `5.19.0` package, Version History, public index/history, Ledger, research supplement, Issue, and detailed draft PR. Merge/tag/deploy remain out of scope.
 
+The subsequent decision-completion pass is also normative and keeps `5.19.0` because the candidate has not been released:
+
+10. `fix(viewer): adopt v1.29.1 preference lifecycle` — one-time preference cleanup, read-only startup, and interaction-only persistence.
+11. `feat(viewer): expose configured locale selection` — `Config.lang`, URL injection, programmatic configuration, and fallback tests.
+12. `build(viewer): add opt-in PlayCanvas debug engine` — `ENGINE=debug` without changing the default build.
+13. `fix(viewer): align source identity with engine parsers` — internal source classification, strict LOD manifest validation, Analytics classification, and zero route/model drift.
+14. `fix(viewer): extend bounded resource retries` — four total attempts and `500/1000/2000 ms` backoff for the initial subject/environment prefetch only.
+15. `build(viewer): publish composed CSS source maps` — valid production CSS map with no local-path disclosure.
+16. `fix(deps): update DOMPurify security patch` — lockfile-only `3.4.13` resolution and zero production audit findings.
+17. `build(viewer): declare side-effect-free package exports` — commit only after Rollup and packed-tarball Webpack consumers agree.
+18. `docs(review): close MF-30 decision audit` — update the Spec, Plan, conflict sources, research, evidence, upstream review, and resource-loading documentation.
+19. `chore(release): reconcile Viewer 5.19.0 follow-up` — point candidate version surfaces at the actual step-17 product checkpoint and register preceding Viewer work.
+20. `docs(review): record MF-30 follow-up delivery` — record actual validation, remote state, commit manifest, and the step-19 release-support commit.
+
 Each checkpoint stages only its intended files. No commit may include `.codex-work/`, `node_modules`, `dist`, generated public assets, `.DS_Store`, downloads, or unrelated user files.
 
 ## 2. Test-first compatibility lock
@@ -73,9 +87,11 @@ For each representative run, retain a selected screenshot and a concise DOM/cons
 
 ## 6. Final validation
 
-- `npm ci`, format check, lint, typecheck, publint, production build;
-- all current and new Viewer tests, including event resource contracts;
-- `npm audit --omit=dev` with no high/critical production finding;
+- `npm ci`, format check, lint, typecheck, publint, default production build, and `ENGINE=debug npm run build`;
+- all current and new Viewer tests, including event resource contracts, using a complete read-only data/Editor/reference fixture and retaining TAP plus the shell exit code;
+- `npm ls dompurify` must resolve `3.4.13`; `npm audit --omit=dev` must report zero production vulnerabilities;
+- `npm pack --json`, CSS-map JSON/reference/path checks, Node import purity, Rollup consumers, and fixed Webpack `5.109.2` / `webpack-cli 7.2.2` consumers installed from the local tarball;
+- exact `route → files.model` equality for all 87 resources, the expected `9 streaming / 78 SOG / 44 SOG+environment / 34 SOG-only` classification, six still-SOG Firefly dual-source candidates, and validation of all nine current `lod-meta.json` manifests;
 - local and online reference identity validation;
 - CI routing and platform checks selected for the changed paths;
 - Markdown links, repository scan, reference digests, and `git diff --check`;

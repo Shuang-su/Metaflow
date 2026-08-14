@@ -31,10 +31,10 @@ Editor 负责创作和导出；生成器负责公开 route。自包含 HTML/ZIP�
 
 面向 Metaflow 路由，推荐分别导出：
 
-1. 模型：使用 SOG，或已经由现有流水线生成的 streaming `lod-meta.json` / `meta.json`。
+1. 模型：使用 SOG，或已经由现有流水线生成并验证的 streaming `lod-meta.json`。`meta.json` 是 loose SOG metadata，不是 streamed LOD manifest。
 2. Viewer 配置：在 Viewer 导出类型中选择 `settings.json`。
 
-Viewer 能通过显式 `content` 直接加载 compressed PLY，`Metaflow legacy ZIP` 也固定包含 `scene.compressed.ply`；但当前 `generate_index.py` 不会把独立 compressed PLY 识别为稳定 route 主模型。它只把 compressed PLY 用作符合命名规则的 environment。完整边界见 [资源索引 schema](../reference/resource-index.md#可索引模型边界) 和 [Editor 导出契约](../reference/editor-export-contract.md)。
+Viewer 能通过显式 `content` 直接加载 compressed PLY 或 loose SOG `meta.json`，`Metaflow legacy ZIP` 也固定包含 `scene.compressed.ply`；但当前 `generate_index.py` 不会把它们识别为稳定 route 主模型。生成器只把符合命名规则的 compressed PLY 用作 environment。完整边界见 [资源索引 schema](../reference/resource-index.md#可索引模型边界) 和 [Editor 导出契约](../reference/editor-export-contract.md)。
 
 ## 3. 放入资源目录
 

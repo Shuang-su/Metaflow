@@ -26,7 +26,8 @@ MF-30 进入仓库、可由源码和外部链接复核的长期记录。
 2. 这不是 voxel conversion 或 voxel streaming 升级；
 3. Metaflow 的 tiled voxel runtime 没有上游等价实现，必须保留；
 4. Viewer、Editor 和 Transform 继续独立决策；
-5. 本次最终按用户决策采用 `v1.29.1` SH `1°/0.2°`，而不是本地候选早期保留的 `4°/2°`。
+5. 本次最终按用户决策采用 `v1.29.1` SH `1°/0.2°`，而不是本地候选早期保留的 `4°/2°`；
+6. PlayCanvas 的 parser 由所选入口身份决定，不能由探测到的 JSON 结构静默改选；当前 `files.model` 继续是唯一运行时权威，未来双源选择要与数据标签系统一起设计。
 
 ## 2. 逐版本累计变化
 
@@ -97,8 +98,56 @@ quality/performance 切换后的运行时值。
   关闭时收起 tooltip，并保持九个 locale 的 key parity。
 - XR 采用 backend-aware capability detection；可用 WebGPU XR 时直接进入，不可用但 WebGL
   可用时保留 reload fallback。Metaflow teleport/smooth/snap navigation 和品牌 UI 不被覆盖。
+- 上游偏好生命周期把“设备推导默认值”和“用户明确选择”分开。本次以一次性
+  `metaflowViewerPreferenceMigration=5.19.0` 清理过去自动写入的 performance、Gaming Controls
+  和 legacy retina 值；初始化只读，初始化后的状态变化才持久化。
+- `Config.lang` 成为可编程入口；自带 HTML 仍从 `?lang=` 赋值，localization 不再重复读取 URL，
+  无配置时继续按浏览器语言和英文回退。
 
-## 6. Engine `2.19.2→2.21.3` 的相关收益
+## 6. 入口身份、资源组成与未来数据标签
+
+### 6.1 Engine parser 的真实选择边界
+
+PlayCanvas `2.21.3` 不会先读取任意 JSON 再决定 parser。所选主体入口的 basename/扩展名已经
+决定 parser，结构检查只能验证该格式合同：
+
+| 主体入口 | Engine parser / 内部来源类型 | Metaflow 公共 `loadingMode` |
+|---|---|---|
+| basename `lod-meta.json` | `GSplatOctreeParser` / `streaming-lod` | `streaming-json` |
+| `.sog` | `SogBundleParser` / `sog-bundle` | `legacy-sog` |
+| 其他 `.json`，包括 `meta.json` | `SogParser` / `sog-meta` | `legacy-sog` |
+| `.ply`，包括 compressed PLY | `PlyParser` / `ply` | `legacy-sog` |
+| 其他入口 | unsupported | 加载前终止 |
+
+因此旧“结构优先、文件名兜底”不能继续作为 parser 政策。MF-30 保留公共
+`legacy-sog | streaming-json` 状态以兼容 reveal、LOD、UI 和调试脚本，同时增加内部来源类型。
+`lod-meta.json` 在 Engine 前验证 `lodLevels`、filenames、bounds、递归 tree、leaf、LOD file index
+和非负 byte span；失败时以 manifest-invalid 终止，不能猜测另一个 parser。`meta.json` 明确属于
+loose SOG meta，不是 octree streaming manifest。
+
+### 6.2 当前资源事实与默认权威
+
+完整索引复核得到 87 条 route：9 条选择 streaming，78 条选择 SOG；78 条 SOG 中 44 条带非阻塞
+environment，34 条为纯主体。Cyrene、Diaochan、Fursuit、Nangong Yu、Remielle Dan 和
+Remielle Dan B 六个 Firefly 资源存在未选的 `lod-meta.json` 候选，但当前 `files.model` 仍明确选择
+SOG。重新运行生成器后，全部 87 条 `route → files.model` 映射摘要保持一致；文件扫描不得静默
+覆盖发布选择。
+
+SOG + environment 只是 `subject-with-environment` 资源组成，不是第三种主体 parser，也不是
+“同时加载两种精度”。Analytics 只增加安全的 `primary_source_kind` 与
+`resource_composition` 属性，不新增事件，也不发送完整 URL、文件内容或用户数据。
+
+### 6.3 后续 `streaming / highest-quality` 标签边界
+
+未来数据标签系统应为每个可用主体来源记录 mode、实际 format、资源引用、大小、点数、SH bands、
+bounds、availability 和 default。只有同一资源的两个来源都经过验证时，默认才可标为
+`streaming`，并把 `highest-quality` SOG 作为用户主动切换选项。
+
+该能力不属于 MF-30。本次不改 index schema、UI、URL 或运行时来源。后续切换必须成组解决旧主体
+GPU/CPU/网络资源释放、相机姿态、animation time、camera mode、environment、settings、Annotation、
+collision/voxel 连续性、首帧遮罩、失败回退、移动内存峰值和选择持久化，不能只增加一个下拉框。
+
+## 7. Engine `2.19.2→2.21.3` 与工程链相关收益
 
 只统计进入 Viewer GSplat/SOG/asset/XR 链路的变化：
 
@@ -112,28 +161,46 @@ quality/performance 切换后的运行时值。
 Engine 底层出现 SPZ/KHR gaussian 能力不等于 Metaflow Viewer 已建立新的 URL、route、schema
 或上传格式合同；本次不宣称新增这些公共格式。
 
-## 7. 明确不属于 Viewer v1.29.1 的能力
+### 7.1 重试层与 Engine loader 修复不是同一件事
 
-### 7.1 没有新增 voxel conversion
+Engine 的 loader queue 修复保证失败任务释放底层槽位；Metaflow 的顶层政策决定用户层是否重试、
+重试哪些错误以及何时进入可操作终态。本次最终采用四次总尝试和 `500/1000/2000 ms` 退避，仅覆盖
+初始主体与 environment prefetch。它不扩展到 streaming child、voxel tile、settings 或 Analytics，
+也没有实现新的 per-request timeout 或 `Retry-After`。
+
+### 7.2 Debug、CSS map、包纯度与依赖安全
+
+- `ENGINE=debug npm run build` 通过 PlayCanvas `development` export condition 提供可选诊断构建；默认
+  生产构建不变。
+- Sass map 必须继续穿过 PostCSS/Autoprefixer，最终 `index.css` 只引用一个相对
+  `index.css.map`，map 不能泄露本机绝对路径。
+- 包根入口只导出构建后的 HTML/CSS/JS 字符串，`./settings` 是纯函数接口。Node import、Rollup 与从
+  本地 tarball 安装的固定 Webpack consumer 一致后，才可声明 `sideEffects:false`。
+- PostHog 保持 `1.386.8`；其允许范围内把 DOMPurify 精确解析到 `3.4.13`，避免把 production
+  moderate advisory 当作长期接受项。开发依赖审计继续单独披露。
+
+## 8. 明确不属于 Viewer v1.29.1 的能力
+
+### 8.1 没有新增 voxel conversion
 
 大型 voxel processing 优化属于 `@playcanvas/splat-transform v3.1+`，不是 Viewer。
 Transform 的 typed-array map、cleanup、octree direct path 只改善离线转换；启用 exterior/floor
 fill、navigation carve 或 collision mesh 时仍可能需要完整可变 voxel grid。
 
-### 7.2 没有新增真正的 voxel streaming
+### 8.2 没有新增真正的 voxel streaming
 
 官方 Viewer 仍完整 `fetch()` 单对 `.voxel.json + .voxel.bin`，没有 Range、`206`、page
 manifest、camera-driven voxel residency、eviction、voxel LOD 或 partial decode。Transform voxel
 writer 也没有生成这些运行时协议。
 
-### 7.3 Metaflow tiled voxel 必须保留
+### 8.3 Metaflow tiled voxel 必须保留
 
 Metaflow 通过 `voxel-tiles.json`、相机位置周围 `3×3` tile、远 tile 移除、缺 tile 局部降级和
 `metaflow-rz180` 坐标策略处理 Dayun/Bijiashan。每个 tile 内部仍是完整 voxel 文件，因此应
 准确称为“空间分片、按位置加载的 tiled voxel collision”，而不是 byte-range/page streaming
 voxel。Viewer v1.29.1 没有等价能力，不能替换本地 collision 层。
 
-## 8. 产品含义与后续边界
+## 9. 产品含义与后续边界
 
 MF-30 可以宣称：
 
@@ -141,12 +208,16 @@ MF-30 可以宣称：
 - 空闲 on-demand 渲染；
 - PlayCanvas 资源生命周期与 GPU 稳定性累计修复；
 - `captureFrame`、Annotation preference、backend-aware XR 和有界初始资源重试；
+- 一次性偏好迁移、`Config.lang`、opt-in Debug Engine、有效 CSS map、已验证的包纯度声明和
+  DOMPurify production 修复；
+- parser 入口身份与严格 streaming manifest 校验，同时保持全部既有 `files.model` 默认；
 - 保留 Metaflow route、settings、reveal、移动端、Analytics 和 tiled voxel。
 
 MF-30 不可以宣称：
 
 - 新增 voxel conversion 或流式 voxel；
 - Viewer 自动支持新的 SPZ/KHR 上传/route 合同；
+- 已经实现 streaming/highest-quality 来源标签或运行时切换；
 - Editor 或 Transform 已随 Viewer 一起升级；
 - 浏览器移动 viewport 等于 iOS/Android 真机；
 - XR API detection 等于沉浸式硬件验证；
