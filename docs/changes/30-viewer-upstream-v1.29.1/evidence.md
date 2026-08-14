@@ -1,8 +1,21 @@
+---
+change_id: MF-30
+title: Viewer 5.19.0 upstream v1.29.1 release
+status: ready-for-release
+risk: T3
+component:
+  - viewer
+plan_revision: 2
+owner: Shuang-su
+issue: https://github.com/Shuang-su/Metaflow/issues/30
+completion_state: pending
+---
+
 # MF-30 Viewer v1.29.1 implementation evidence
 
 ## Outcome and scope
 
-The active source now uses SuperSplat Viewer `v1.29.1` behavior and PlayCanvas `2.21.3`. The review candidate is Metaflow Viewer `5.19.0`; production remains `5.18.1` until merge, final-SHA reconciliation, tag, deployment, smoke, and observation. Existing routes, resource payloads, settings, collision data, Editor, Transform, and deployment state were not changed.
+The active source now uses SuperSplat Viewer `v1.29.1` behavior and PlayCanvas `2.21.3`. PR #41 squash merged as product SHA `26e311c010aea4a6202521453a034d5aef3cea54`; production remains `5.18.1` until the release packet, Tag, controlled deployment, smoke, 15-minute observation, and closure complete. Existing routes, resource payloads, settings, collision data, Editor, Transform, and production deployment were not changed by the product merge.
 
 The initial acceptance runs used the local production build at `http://127.0.0.1:4175`; the 2026-08-14 follow-up used the final product/package checkpoint at `http://127.0.0.1:4191`. Both mounted real repository assets outside the build tree and distinguished Chromium's actual `webgpu` and `webgl2` backends. Full temporary command output, console records, request lists, package fixtures, and follow-up screenshots remain under `.codex-work/`; the images below are the selected durable evidence from the initial matrix.
 
@@ -79,9 +92,25 @@ The complete read-only fixture contained current Viewer source plus Editor/refer
 
 Final governance passed local validation for all 12 registered snapshots and online tag/commit/tree verification for all 11 pure-upstream snapshots; the historical Metaflow snapshot was correctly skipped for upstream identity and retained local-content-only verification. Reference/CI-routing tests passed `22/22`; targeted Version History/Ledger/MCL tests passed `17/17`; data validation, full resource-file validation, direct platform validation, combined platform/data fixtures `8/8`, MCL `check-all`, CI route selection, 101-file Markdown-link validation, the 12,749-file repository scan, and `git diff --check` all passed. The earlier pre-reconciliation mismatch was the expected self-reference guard and disappeared once `3a711880` was registered by the successor delivery record.
 
+## Formal release preflight and merge evidence
+
+On 2026-08-14 the exact remote PR HEAD `8a5857ebec23a30f6d9eabd5050eaed55d911ce6` was rechecked against official stable `v1.29.1` and base `dbbd0015a8d13d4380d100fad4e5121dc2b29746`. It remained clean and mergeable, with zero unresolved review threads and no status checks. The repository allowed squash merge only. No independent reviewer completed a review: Copilot declined because the diff exceeded its file limit, Cursor review was disabled, and the Codex review quota was exhausted. The user's explicit authorization is therefore the recorded merge authority.
+
+The formal clean preflight used a full-data read-only fixture and passed Viewer tests `85/85`, 0 failures, exit 0, in 4.721 seconds; format, lint, typecheck, publint; default and Debug Engine builds; exact DOMPurify `3.4.13`; zero production audit vulnerabilities; CSS map; Rollup and packed-tarball Webpack consumers; E2E build `4/4` and extended WebGPU `1/1`; data/platform/governance; script tests `68/68`; Python tests `8/8`; all 12 local reference digests and all 11 pure-upstream online identities. The clean package contained 21 files, measured 3,108,353 B packed / 16,298,748 B unpacked, and excluded stale local `public/editor` output while retaining required runtime, entry points, JavaScript maps, and CSS map.
+
+The release-packet follow-up added two focused Markdown-link tests and passed the repository script suite `70/70`, Python suite `8/8`, 109-file maintained Markdown validation, and the 12,761-file repository hygiene/secret scan. The first post-change script run was `69/70` because Finder had created an untracked `references/.DS_Store`; immutable-reference validation correctly rejected it, the exact local file was removed, and the full suite then passed `70/70`. Generated MCL artifacts preserve or embed source Markdown without rewriting relative links, so the checker now prefers the artifact directory and, only for `completion/**` artifacts whose normal target is missing, resolves against the containing Change directory. Positive fixtures cover approved-plan, dossier, and task-record embeddings; a negative fixture proves a target missing from the Change still fails.
+
+The final release-packet revalidation again passed Viewer `85/85` in 7.299 seconds, formatting, lint, typecheck, publint, default and Debug Engine builds, exact DOMPurify `3.4.13`, zero production audit vulnerabilities, E2E build `4/4`, extended Chromium WebGPU `1/1`, CSS-map integrity, and fixed Webpack `5.109.2` / `webpack-cli 7.2.2` consumers installed from the newly packed tarball. Runtime build sizes remained byte-for-byte equal to the product checkpoint. The release-record tarball contained 25 files and measured 3,109,757 B packed / 16,272,611 B unpacked; the 31-byte unpacked difference from the earlier product-checkpoint pack is the intentional `merged / release pending` README wording, not runtime code. Data validation and full resource-file validation passed against the complete 87-resource fixture; local identities passed for all 12 snapshots and isolated online shallow fetches verified all 11 pure-upstream identities.
+
+Three command-level false starts were retained as failed evidence rather than recast as product failures. `--local` is not a supported reference-validator flag, and `--upstream-cache` expects an already populated bare Git cache rather than creating one; the authoritative local run used no flag and the online run used the validator's isolated temporary shallow fetches. A first WebGPU rerun targeted a removed `e2e/webgpu.spec.ts` filename and returned `No tests found`; the repository-defined `E2E_BROWSER=chromium E2E_RENDERER=webgpu npm run e2e:extended` command then passed `1/1`.
+
+The GitHub `production` environment was configured with no required reviewer or wait timer and a custom branch policy permitting only `main`. The three required secret names and the reusable Netlify `main` controlled-release hook were read back; values and the hook URL were never written to the repository or evidence. Current production rollback deploy is `6a7a18b49094c6c76eff2482` (`viewer-v5.18.1`).
+
+PR #41 was squash merged at `2026-08-14T04:15:13Z`. GitHub, the PR object, the commit API, and `origin/main` all returned product SHA `26e311c010aea4a6202521453a034d5aef3cea54`; the remote head branch was deleted and Issue #30 remained open. Release-record commit `18a164d64f5415f3dba9eed354192dd99f81bbec` then aligned the machine/public records to that real product SHA.
+
 ## Explicit limitations
 
 - No iOS Safari or Android Chrome physical device was available. `360 × 732` Pixel 10 is browser emulation, not a real-device claim.
 - No XR headset/controller/hand-input hardware was available. Only API/detection and non-XR regression are verified.
-- This evidence covers local implementation and the `5.19.0` PR candidate. Merge, final-squash-SHA reconciliation, tag, deployment, production CDN smoke, device telemetry, and observation remain outside it.
+- This evidence covers implementation, clean release preflight, squash merge, and real product-SHA reconciliation. Tag, controlled deployment, production CDN smoke, device telemetry, and 15-minute observation are authorized but not yet completed.
 - The deliberately failed requests and deliberately blocked Analytics endpoint are test evidence, not product incidents. No production backend was used.

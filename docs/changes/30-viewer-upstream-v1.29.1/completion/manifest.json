@@ -1,0 +1,89 @@
+{
+  "schemaVersion": "1.1",
+  "changeId": "MF-30",
+  "terminalState": "ready-for-release",
+  "risk": "T3",
+  "components": [
+    "viewer"
+  ],
+  "request": {
+    "path": "request-transcript.md",
+    "sha256": "b51e1b04fec83df1d286aa40de578c8156028f8c1d98e3f5f0f8280d2fb3e87e",
+    "messageCount": 6
+  },
+  "plan": {
+    "path": "approved-plan.md",
+    "sha256": "4c6fdaa6fe528cd5befb35dbf3ab76bf3d2d9ca01eebabbbbfd16ae91ffbe24c",
+    "revision": 2,
+    "source": "../plan.md"
+  },
+  "agentSummary": {
+    "path": "agent-action-reply-summary.md",
+    "sha256": "424d0f74279f04694f71b5ab1a43ea6c5dfde0aaf5ed990b02ff0db911e57f4c"
+  },
+  "planRevisions": [
+    {
+      "revision": 1,
+      "sha256": "14c0272d97d6245dd583f47ac3c34f86c00b680c239a587e77d2e06eaf2e63a3",
+      "taskIds": [
+        "MF-30-T01"
+      ],
+      "amendmentReason": "Initial Viewer v1.29.1 implementation, decision completion, validation, and review delivery; formal merge and production release remained separately controlled.",
+      "approvalSource": "User-approved MF-30 implementation and decision-completion plans through PR review."
+    },
+    {
+      "revision": 2,
+      "sha256": "4c6fdaa6fe528cd5befb35dbf3ab76bf3d2d9ca01eebabbbbfd16ae91ffbe24c",
+      "taskIds": [
+        "MF-30-T02"
+      ],
+      "amendmentReason": "Adds the user-authorized squash merge, real-SHA reconciliation, strict release packet, immutable Tag, controlled Netlify deployment, production smoke, 15-minute observation, and final closure.",
+      "approvalSource": "Explicit user approval of the MF-30 / PR #41 formal merge, release, observation, and closure plan on 2026-08-14."
+    }
+  ],
+  "taskRecords": [
+    {
+      "taskId": "MF-30-T01",
+      "tool": "Codex",
+      "sourceTaskId": "codex://threads/019ff933-fc9b-7063-9f4e-dc5cbee87df2",
+      "status": "complete",
+      "record": "task-records/MF-30-T01.md",
+      "sha256": "9ea911ad673cd7c37e419352171dd7617efb40dc7711586a31cc4f1af876dd12",
+      "request": {
+        "sha256": "f66060cec2826575e25c73dce391cc66c363ecb1ba58ca3aba73f3fbc24ddfc1",
+        "messageCount": 4
+      },
+      "plan": {
+        "revision": 1,
+        "sha256": "14c0272d97d6245dd583f47ac3c34f86c00b680c239a587e77d2e06eaf2e63a3"
+      }
+    },
+    {
+      "taskId": "MF-30-T02",
+      "tool": "Codex",
+      "sourceTaskId": null,
+      "status": "partial",
+      "record": "task-records/MF-30-T02.md",
+      "sha256": "81d2f77cddbfdd85fffea017e936ca7beb41d228ca291235f3778b45c9208ae1",
+      "request": {
+        "sha256": "08ba9248dd45aba4d33dfd364a9d4dec3e7f7a046c0fd2ddda0f684e5e1b7c7a",
+        "messageCount": 2
+      },
+      "plan": {
+        "revision": 2,
+        "sha256": "4c6fdaa6fe528cd5befb35dbf3ab76bf3d2d9ca01eebabbbbfd16ae91ffbe24c"
+      }
+    }
+  ],
+  "sourceMaterials": [],
+  "closure": {
+    "path": "closure.md",
+    "sha256": "db07e95d940ca6dc85b91fd484b6e7182311786e16ae2deada05b625bdfc2837"
+  },
+  "dossier": {
+    "path": "dossier.md",
+    "sha256": "c98c8bb2c21bb6d8698c66434d4c2b95634e47602593e505c2fcbda7189cc8ec"
+  },
+  "redactions": [],
+  "generatedAt": "2026-08-14T04:24:34.000Z"
+}

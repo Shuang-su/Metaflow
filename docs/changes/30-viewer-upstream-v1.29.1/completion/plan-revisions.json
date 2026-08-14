@@ -1,0 +1,23 @@
+{
+  "schemaVersion": "1.0",
+  "revisions": [
+    {
+      "revision": 1,
+      "sha256": "14c0272d97d6245dd583f47ac3c34f86c00b680c239a587e77d2e06eaf2e63a3",
+      "taskIds": [
+        "MF-30-T01"
+      ],
+      "amendmentReason": "Initial Viewer v1.29.1 implementation, decision completion, validation, and review delivery; formal merge and production release remained separately controlled.",
+      "approvalSource": "User-approved MF-30 implementation and decision-completion plans through PR review."
+    },
+    {
+      "revision": 2,
+      "sha256": "4c6fdaa6fe528cd5befb35dbf3ab76bf3d2d9ca01eebabbbbfd16ae91ffbe24c",
+      "taskIds": [
+        "MF-30-T02"
+      ],
+      "amendmentReason": "Adds the user-authorized squash merge, real-SHA reconciliation, strict release packet, immutable Tag, controlled Netlify deployment, production smoke, 15-minute observation, and final closure.",
+      "approvalSource": "Explicit user approval of the MF-30 / PR #41 formal merge, release, observation, and closure plan on 2026-08-14."
+    }
+  ]
+}

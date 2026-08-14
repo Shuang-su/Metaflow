@@ -58,6 +58,20 @@ async function registeredNonNormativeMaterials() {
 
 const nonNormativeMaterials = await registeredNonNormativeMaterials();
 
+async function validRepositoryTarget(resolved) {
+    if (!resolved.startsWith(`${root}/`)) return false;
+    const repositoryPath = relative(root, resolved).split(sep).join('/');
+    const trackedTarget = knownPaths.has(repositoryPath) ||
+        [...knownPaths].some((path) => path.startsWith(`${repositoryPath}/`));
+    return (await exists(resolved)) || trackedTarget;
+}
+
+function completionSourceBase(file) {
+    const marker = '/completion/';
+    const markerIndex = file.indexOf(marker);
+    return markerIndex === -1 ? undefined : file.slice(0, markerIndex);
+}
+
 for (const file of files) {
     // Byte-preserved historical inputs keep links relative to their original
     // location. MCL validates their registration, checksum and safety; they are
@@ -84,10 +98,18 @@ for (const file of files) {
             continue;
         }
         const resolved = resolve(root, dirname(file), target);
-        const repositoryPath = relative(root, resolved).split(sep).join('/');
-        const trackedTarget = knownPaths.has(repositoryPath) ||
-            [...knownPaths].some((path) => path.startsWith(`${repositoryPath}/`));
-        if (!resolved.startsWith(`${root}/`) || (!(await exists(resolved)) && !trackedTarget)) {
+        let valid = await validRepositoryTarget(resolved);
+
+        // MCL-generated completion artifacts preserve or embed source Markdown
+        // byte-for-byte, so their relative links retain the Change directory as
+        // their semantic base. Prefer the artifact's own directory and only use
+        // this narrow fallback when that normal target is missing.
+        const sourceBase = completionSourceBase(file);
+        if (!valid && sourceBase !== undefined) {
+            valid = await validRepositoryTarget(resolve(root, sourceBase, target));
+        }
+
+        if (!valid) {
             errors.push(`${file}: missing local link target ${match[1]}`);
         }
     }

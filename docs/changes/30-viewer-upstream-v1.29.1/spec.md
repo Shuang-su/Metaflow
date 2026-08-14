@@ -1,18 +1,31 @@
+---
+change_id: MF-30
+title: Viewer 5.19.0 upstream v1.29.1 release
+status: ready-for-release
+risk: T3
+component:
+  - viewer
+plan_revision: 2
+owner: Shuang-su
+issue: https://github.com/Shuang-su/Metaflow/issues/30
+completion_state: pending
+---
+
 # MF-30 Viewer upstream v1.29.1 implementation Spec
 
 ## 1. Status and authority
 
-- **Status:** implementation and follow-up decision audit complete; remote review and Viewer `5.19.0` release-candidate records authorized. Merge, tag, deploy, and production release remain separately controlled.
+- **Status:** implementation, decision audit, clean release preflight, and squash merge are complete. Product SHA is `26e311c010aea4a6202521453a034d5aef3cea54`; release packet, tag, controlled deployment, smoke, observation, and final closure are authorized and in progress.
 - **Component:** `viewer`.
 - **Risk:** T3 upstream synchronization.
 - **Discovery record:** [Issue #30](https://github.com/Shuang-su/Metaflow/issues/30).
-- **Draft review:** [PR #41](https://github.com/Shuang-su/Metaflow/pull/41).
+- **Integrated review record:** [PR #41](https://github.com/Shuang-su/Metaflow/pull/41), squash merged 2026-08-14. No independent reviewer completed a review; the user's explicit authorization is the merge/release authority.
 - **Decision evidence:** [`viewer-v1.26.2-to-v1.28.0.md`](../../history/upstream-reviews/2026-08-10/viewer-v1.26.2-to-v1.28.0.md).
 - **Implementation target:** SuperSplat Viewer tag `v1.29.1`, commit `3a61fa606e12640b1e87f9a733ed43d7fbc5d925`, tree `671059c4b4a3693115ad010207b66312f5cbbc8c`.
 - **Implementation base:** `origin/main` commit `dbbd0015a8d13d4380d100fad4e5121dc2b29746`, Metaflow Viewer `5.18.1`.
 - **Research supplement:** [`research-supplement.md`](research-supplement.md), distilled from `codex://threads/019ff933-fc9b-7063-9f4e-dc5cbee87df2` and rechecked against official releases, diffs, issues, and PRs.
 
-Issue #30 began as an Open discovery-only record. The 2026-08-13 follow-up authorizes synchronizing that Issue, pushing this implementation branch, preparing Viewer `5.19.0` version records, and opening a detailed draft PR. It does not authorize merging, tagging, deploying, publishing a GitHub Release, or closing the Issue as released. Because a squash merge produces a new commit, a later release-record commit must replace the provisional implementation ref before the release can be called stable.
+Issue #30 began as an Open discovery-only record. The 2026-08-13 follow-up authorized implementation, decision completion, branch delivery, and PR review. On 2026-08-14 the user explicitly authorized squash merge and the complete formal release flow. PR #41 produced product SHA `26e311c`; the successor release-record commit aligns machine/public records to that real SHA. Viewer `5.19.0` does not become a production-stable fact until the immutable Tag, controlled Netlify deployment, smoke, 15-minute observation, final dossier, and Issue closure all complete.
 
 ## 2. Objective
 
@@ -62,7 +75,7 @@ The immutable source snapshot is `references/supersplat-viewer-v1.29.1/`. It is 
 | MFV-19 | PlayCanvas must be exactly `2.21.3`. Applicable Rollup, PostCSS, Sass, Autoprefixer, ESLint, Prettier, and publint versions must align with `v1.29.1` while preserving PostHog, rrweb, Playwright, Analytics injection, and multi-entry Rollup output. |
 | MFV-20 | Root and Viewer Node remain `20.19.0`. API migration must use PlayCanvas 2.21.3 APIs without an implicit old-API shim. Mechanical formatting must be isolated from behavioral changes. |
 | MFV-21 | `npm audit --omit=dev` must report zero production vulnerabilities. DOMPurify must resolve to exactly `3.4.13` through the existing PostHog range; PostHog must not be upgraded and DOMPurify must not become a direct dependency. No automatic `npm audit fix` is permitted. Development-only findings must be recorded separately rather than hidden through unrelated major upgrades. |
-| MFV-22 | The PR candidate is Viewer `5.19.0`, because it adds backwards-compatible public, interaction, loader, and rendering capabilities. Package/lock, Version History, public history/index release metadata, Viewer Ledger, tests, and current-version documentation must agree on `5.19.0 / upstream 1.29.1`. This is a release candidate until merge, final-SHA reconciliation, tag, deployment, smoke, and observation are separately completed. |
+| MFV-22 | Viewer `5.19.0` is the merged MINOR because it adds backwards-compatible public, interaction, loader, and rendering capabilities. Package/lock, Version History, public history/index release metadata, Viewer Ledger, tests, and current-version documentation must agree on `5.19.0 / upstream 1.29.1 / product SHA 26e311c`. It remains release-pending until tag, controlled deployment, smoke, and observation complete. |
 
 ### 3.5 Follow-up preference, parser, and failure contracts
 
@@ -100,7 +113,7 @@ Mobile viewport does not equal iOS/Android hardware. XR API checks do not equal 
 - Do not install or build inside `references/**`.
 - Do not change any current route's `files.model`, infer a runtime default from discovered files, or introduce the future source-label schema/switch in this Change.
 - Do not advertise SPZ/KHR Gaussian as a Metaflow Viewer product contract.
-- Do not merge, tag, deploy, publish a GitHub Release, close Issue #30 as released, or claim production observation under this authorization.
+- Do not bypass the controlled release workflow with a manual production upload, move a pushed Tag, force-push, claim a smoke/observation result before it exists, or close Issue #30 before the final production evidence is recorded.
 - Do not claim Viewer `v1.29.1` adds voxel conversion or byte-range/page/LOD voxel streaming. Preserve Metaflow tiled voxel runtime and its coordinate compatibility layer.
 
 ## 6. Rollback and stop boundary
