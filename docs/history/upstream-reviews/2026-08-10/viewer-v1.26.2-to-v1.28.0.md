@@ -85,7 +85,7 @@ Adopt 的含义是：以 N 的上游行为为输入，分阶段移植到 `metafl
 | M `5.18` | `20.19.0` | install/build：通过；`node --test tests/*.mjs`：52/52 通过 | e2e fixture 使用一次性副本准备，产品目录未写入 |
 | 中间 `v1.28.0` | `20.19.0` | install/build：通过 | annotation toggle 浏览器实测通过 |
 | 中间 N `v1.29.0` | `20.19.0` | `npm ci`、`npm run fmt`、lint、typecheck、build：全部通过 | build 79.11 s，最大 RSS 949,870,592 bytes；npm audit 5 high；需在实现 Change 中处置而非自动修包 |
-| 目标 N `v1.29.1` | `20.19.0` | 精确 tag/commit/tree/85 files/规范化摘要已验证；MF-30 活跃源码 clean install、fmt、lint、typecheck、publint、production/Debug build 通过；完整只读 fixture 的产品/resource/package tests 为 77/77 | SH 先经保守 A/B，再按明确产品决策采用 `1/0.2`；production audit 为 0；release-record 全量测试在 SHA 对齐后复跑 |
+| 目标 N `v1.29.1` | `20.19.0` | 精确 tag/commit/tree/85 files/规范化摘要已本地及在线验证；MF-30 活跃源码 clean install、fmt、lint、typecheck、publint、production/Debug build 通过；release-record 对齐后的完整只读 fixture 为 85/85 | SH 先经保守 A/B，再按明确产品决策采用 `1/0.2`；production audit 为 0；当前 87 条 route 的 `files.model` 未变化 |
 
 N 的 disposable build 只在 `.codex-work/` 副本中读取现有 data；`references/supersplat-viewer-v1.29.0/` 与 `references/supersplat-viewer-v1.29.1/` 本身保持无依赖、无 dist。
 

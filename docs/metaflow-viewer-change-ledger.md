@@ -293,6 +293,7 @@ flowchart TD
 | `cc0e106` | 组合 Sass/PostCSS source map，生产发布 `index.css.map` 与单一相对引用，并阻止本机绝对路径进入工件。 | 5.19.0 构建/诊断前置提交，由 `maintenanceCommits` 登记。 |
 | `bc1f4a9` | 在不升级 PostHog、不增加直接依赖且不运行 `npm audit fix` 的前提下，将间接 DOMPurify 精确更新到 `3.4.13`，使 production audit 清零。 | 5.19.0 安全修复前置提交，由 `maintenanceCommits` 登记。 |
 | `fda17f5` | 补全 MF-30 决策来源、冲突处置、Engine parser 事实、资源加载文档、未来 streaming/highest-quality 标签边界和最终验证证据。 | 审查与资源合同文档维护，不创建新版本；由 `maintenanceCommits` 登记。 |
+| `3a71188` | 将 Version History/current、公开镜像、index release、E2E fixture、README 和本总账统一对齐到最终产品/package checkpoint `72bd201`，同时登记 SH 与后续 8 个前置/审查提交。 | 发布记录维护，不创建新版本；由本 delivery 提交登记到 `maintenanceCommits`。 |
 
 ## 能力到提交的反向索引
 
