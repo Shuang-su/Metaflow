@@ -44,12 +44,28 @@ const buildCss = {
         scss({
             exclude: ['static/**/*'],
             fileName: 'index.css',
-            sourceMap: false,
+            sourceMap: true,
             runtime: sass,
-            processor: (css) => {
+            processor: (css, map) => {
+                const previousMap = JSON.parse(map);
+                previousMap.sourceRoot = '';
+                previousMap.sources = previousMap.sources.map((source) => (source === 'stdin' ? 'index.scss' : source));
+
                 return postcss([autoprefixer])
-                .process(css, { from: undefined })
-                .then(result => result.css);
+                    .process(css, {
+                        from: 'src/index.scss',
+                        to: 'index.css',
+                        map: {
+                            prev: previousMap,
+                            inline: false,
+                            annotation: 'index.css.map',
+                            sourcesContent: true
+                        }
+                    })
+                    .then((result) => ({
+                        css: result.css,
+                        map: result.map.toString()
+                    }));
             }
         }),
         {
@@ -65,6 +81,8 @@ const buildCss = {
     ]
 };
 
+const debugEngine = process.env.ENGINE === 'debug';
+
 const buildPublic = {
     input: 'src/index.ts',
     output: {
@@ -73,7 +91,7 @@ const buildPublic = {
         sourcemap: true
     },
     plugins: [
-        resolve(),
+        resolve(debugEngine ? { exportConditions: ['development'] } : {}),
         typescript(),
         json(),
         htmlPlugin(),
@@ -117,14 +135,7 @@ const buildSettings = {
         format: 'esm',
         sourcemap: true
     },
-    plugins: [
-        typescript({ noEmit: true })
-    ]
+    plugins: [typescript({ noEmit: true })]
 };
 
-export default [
-    buildCss,
-    buildPublic,
-    buildDist,
-    buildSettings
-];
+export default [buildCss, buildPublic, buildDist, buildSettings];

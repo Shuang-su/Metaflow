@@ -104,7 +104,7 @@ test('every Issue Form exposes the self-contained Issue contract and current sta
     }
 });
 
-test('resource tiers and forward Viewer SemVer are documented without changing current release', async () => {
+test('resource tiers and forward Viewer SemVer preserve production while tracking the 5.19.0 candidate', async () => {
     const [mcl, guide, release, ledger, metadata, published] = await Promise.all([
         read('docs/metaflow-change-lifecycle-v1.0.md'),
         read('docs/guides/add-publish-resource.md'),
@@ -128,8 +128,10 @@ test('resource tiers and forward Viewer SemVer are documented without changing c
     assert.match(ledger, /从该边界之后只审计 Viewer、data 和 Viewer 发布支撑提交/);
     assert.match(ledger, /### X\.Y\.Z/);
     assert.equal(manifest.versioning.mode, 'semver-forward');
-    assert.equal(manifest.current.displayVersion, '5.18a');
-    assert.equal(manifest.current.appSemver, '5.18.0');
+    assert.equal(manifest.current.displayVersion, '5.19.0');
+    assert.equal(manifest.current.appSemver, '5.19.0');
+    assert.equal(manifest.current.gitRef, '72bd201');
+    assert.match(ledger, /生产仍为 `5\.18\.1`/);
     assert.deepEqual(JSON.parse(published), manifest);
 });
 

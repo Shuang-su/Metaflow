@@ -9,6 +9,7 @@
 | `metaflow-editor/` | 生成/发布物 | 部署到 `/editor` 的 Editor bundle 与 `version.json` |
 | `data/` | 产品数据 | 模型、settings、缩略图、碰撞、index 与版本镜像 |
 | `metadata/` | 事实与治理 | 版本源、组件 ownership、CI routing 和 schemas |
+| `references/` | 不可变参考 | 登记后的纯上游快照与历史 Metaflow 基线；不参与产品构建或依赖升级 |
 | `scripts/` | 工具 | index 生成、数据/平台/文档/MCL/CI 验证 |
 | `docs/` | 文档 | 25 篇中文核心手册、审计总账、MCL 与历史 Change 资料 |
 | `docs/history/` | 历史入口 | 区分 Change、Version History、Ledger、旧快照和专项资料 |
@@ -21,11 +22,14 @@
 
 | 路径 | 用途 |
 |---|---|
-| `supersplat-viewer-v1.11.1/` | 早期 Viewer 基线 |
-| `supersplat-viewer-v1.18.2/` | 中间 Viewer 上游快照 |
-| `supersplat-v2.18.1/` | 旧 Editor 基线 |
+| `references/supersplat-viewer-v1.11.1/` | 早期 Viewer 纯上游基线；由根目录迁入 |
+| `references/supersplat-viewer-v1.18.2/` | 中间 Viewer 纯上游快照；由根目录迁入 |
+| `references/supersplat-v2.18.1/` | 历史 Metaflow Editor 定制基线；由根目录迁入，不是纯上游内容 |
+| `references/supersplat-viewer-v1.26.2/`、`references/supersplat-viewer-v1.28.0/`、`references/supersplat-viewer-v1.29.0/`、`references/supersplat-viewer-v1.29.1/` | Viewer 当前纯上游基准、执行中保留的中间候选与当前精确升级候选 |
+| `references/supersplat-v2.28.0/`、`references/supersplat-v2.32.3/` | Editor 当前纯上游基准与本轮最新候选；根目录同名 `supersplat-v2.28.0/` 仍是独立的活跃 Metaflow 定制源码 |
+| `references/splat-transform-v2.5.1/`、`references/splat-transform-v3.2.0/`、`references/splat-transform-v3.3.0/` | Transform CLI 离线研究基准、执行中保留的前一候选与本轮最新候选；不是 Metaflow 产品源码 |
 
-这些目录用于 diff、license、provenance 和回归判断。不要直接在其中实现当前产品修复，也不要让 Dependabot 把它们当活跃 package。
+这些目录用于 diff、license、provenance 和回归判断。身份、原路径及规范化摘要由 [`metadata/reference-snapshots.json`](../../metadata/reference-snapshots.json) 登记；校验脚本会拒绝内容/执行位变化、未登记文件、嵌套 Git 和生成物。不要直接在其中实现当前产品修复，也不要让 Dependabot 把它们当活跃 package。
 
 ## 根文件
 

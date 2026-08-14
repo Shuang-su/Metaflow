@@ -93,7 +93,7 @@ test('frontend SDK implements heartbeat, beacon flushing, and replay privacy def
     assert.match(source, /capture_pageleave: false/);
     assert.match(source, /disable_session_recording: !this\.posthogReplay/);
     assert.match(source, /ip: false/);
-    assert.match(source, /if \(!this\.supabaseEnabled \|\| rate <= 0/);
+    assert.match(source, /if \(\s*!this\.supabaseEnabled \|\|\s*rate <= 0/s);
     assert.match(source, /maskAllInputs: true/);
     assert.match(source, /maskTextSelector: '\*'/);
     assert.match(source, /recordCanvas: false/);
@@ -143,7 +143,9 @@ test('viewer wires analytics into route, load, UI, navigation, and XR surfaces',
     assert.match(index, /createAnalyticsClient/);
     assert.match(index, /analytics\.track\('resource_load_started'/);
     assert.match(index, /analytics\.track\('loading_stage_changed'/);
-    assert.match(index, /analytics\.markFirstFrame\(\)/);
+    assert.match(index, /analytics\.markFirstFrame\(\{/);
+    assert.match(index, /primary_source_kind: primarySourceKind/);
+    assert.match(index, /resource_composition: resourceComposition/);
     assert.match(index, /analytics\.track\('navigation_requested'/);
     assert.match(ui, /TRACKED_UI_ACTIONS/);
     assert.match(ui, /analytics\.track\('ui_clicked'/);

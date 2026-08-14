@@ -39,11 +39,24 @@ route/query 的实际优先级并不统一：route 命中会覆盖 query `settin
 
 ## 模型与环境
 
-Viewer 根据文件扩展名和 JSON 结构区分 legacy SOG/PLY 与 streaming LOD。环境模型独立加载；有环境时会先进入 environment 阶段，但失败不应让主模型永久不可见。
+Viewer 由主体入口身份选择 PlayCanvas parser，JSON 结构只验证已选格式：
 
-“Viewer 能加载”不等于“index 生成器会发布为 route”。独立 compressed PLY 可用 direct `content` 或 legacy package 加载；当前生成器只把 SOG 或 streaming JSON 选为稳定 route 主模型，并把特定命名的 compressed PLY 作为 environment。
+| 主体入口 | parser / 内部来源 | `State.loadingMode` |
+|---|---|---|
+| basename 恰为 `lod-meta.json` | GSplat octree / `streaming-lod` | `streaming-json` |
+| `.sog` | SOG bundle / `sog-bundle` | `legacy-sog` |
+| 其他 `.json`（包括 `meta.json`） | loose SOG metadata / `sog-meta` | `legacy-sog` |
+| `.ply`（包括 compressed PLY） | PLY / `ply` | `legacy-sog` |
+
+不支持的入口会在加载前明确失败。`lod-meta.json` 会检查 LOD 层数、filenames、根 bounds、递归 tree、leaf、file index、offset/count；验证失败不会换用另一个 parser 猜测。环境模型独立加载，失败不应让主模型永久不可见。
+
+“Viewer 能加载”不等于“index 生成器会发布为 route”。独立 compressed PLY 与 loose SOG `meta.json` 可用 direct `content` 或既有明确入口加载；当前生成器只把 SOG 或 `lod-meta.json` 选为稳定 route 主模型，并把特定命名的 compressed PLY 作为 environment。
 
 资源 index 的 `files.model` 是首选入口；存在 `files.lod` 时，页面选择第一个有效 LOD 文件作为兼容入口。生成器负责让这些字段与真实文件一致。
+
+当前 `files.model` 也是 route 的唯一运行时来源权威。文件扫描不会把已有 SOG route 静默切到旁边的 `lod-meta.json`。未来 streaming/highest-quality 切换要在独立数据标签 Change 中同时解决来源元数据、旧主体释放、相机/动画连续性、environment/collision、首帧遮罩、失败回退与移动端内存峰值。
+
+顶层主体和 environment prefetch 对网络错误、`408`、`425`、`429` 与 `5xx` 共尝试 4 次，三次等待为 `500ms`、`1000ms`、`2000ms`；其他永久 `4xx` 只请求一次。第四次失败后主体进入可操作的终态错误 UI，environment 则保持非阻塞。此策略不扩展到 streaming child fragment、voxel tile、settings 或 Analytics，也不等于 PlayCanvas loader queue slot 修复；本轮没有新增单次请求 timeout 或 `Retry-After` 处理。
 
 ## 碰撞与行走
 

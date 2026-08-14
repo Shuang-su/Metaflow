@@ -41,7 +41,7 @@ Editor 的 `npm run build` 只生成 `supersplat-v2.28.0/dist/`；正式发布�
 
 ## 当前版本
 
-- Viewer：展示版本与 npm package 均为 `5.18.1`，上游 SuperSplat Viewer `1.26.2`。
+- Viewer：代码候选与 npm package 均为 `5.19.0`，上游 SuperSplat Viewer `1.29.1`、PlayCanvas `2.21.3`；生产仍为 `5.18.1`，尚未完成合并、tag 和部署。
 - Editor：Metaflow `1.1`，上游 SuperSplat Editor `2.28.0`。
 - Index：schema `1.2`。
 

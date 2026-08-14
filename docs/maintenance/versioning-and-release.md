@@ -6,12 +6,12 @@
 
 | 变化 | 版本处理 | 示例 |
 |---|---|---|
-| 资源、thumbnail、settings、兼容 route/alias、Bug、小型兼容行为或部署修复 | PATCH | `5.18.1` |
-| 新的向后兼容产品、交互、Loader、数据或架构能力 | MINOR | `5.19.0` |
+| 资源、thumbnail、settings、兼容 route/alias、Bug、小型兼容行为或部署修复 | PATCH | `5.19.1` |
+| 新的向后兼容产品、交互、Loader、数据或架构能力 | MINOR | `5.20.0` |
 | 不兼容 URL/settings/index 契约或要求消费者迁移 | MAJOR | `6.0.0` |
 | 普通文档、MCL/治理、研究、无行为 refactor、测试维护、未公开 staging | 不提升产品版本 | — |
 
-当前真实状态是 display/package `5.18.1`。`5.18a` 及更早字母版本保持不变；`5.18.1` 是首个后续完整 SemVer 发布，之后不再创建 `5.18b`。
+当前代码与记录候选是 display/package `5.19.0`；生产仍为 `5.18.1`。`5.18a` 及更早字母版本保持不变；`5.18.1` 是首个后续完整 SemVer 发布，之后不再创建 `5.18b`。PR 候选在 squash merge、最终 SHA 回填、tag、部署、smoke 和观察完成前不等于稳定发布。
 
 同一发布同时含资源和兼容修复时共用一个 PATCH；若包含新产品能力则按 MINOR。文件数量与体积影响审查路线，不改变 SemVer 含义。
 

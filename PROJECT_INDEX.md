@@ -20,10 +20,10 @@
 
 | 仓库 | 用途 | 版本 | 技术栈 | 本地运行 |
 |------|------|------|--------|----------|
-| **supersplat-viewer-v1.11.1** | 高斯泼溅查看器基线 | 1.11.1 | TypeScript + PlayCanvas + Rollup | `npm install && npm run develop` |
-| **supersplat-viewer-v1.18.2** | 高斯泼溅查看器上游 | 1.18.2 | TypeScript + PlayCanvas + Rollup | 对比用 |
+| **references/supersplat-viewer-v1.11.1** | 高斯泼溅查看器历史基线 | 1.11.1 | TypeScript + PlayCanvas + Rollup | 不可变参考 |
+| **references/supersplat-viewer-v1.18.2** | 高斯泼溅查看器历史上游 | 1.18.2 | TypeScript + PlayCanvas + Rollup | 不可变参考 |
 | **metaflow-viewer** | Metaflow 定制查看器 | 1.0.0 | TypeScript + 基于 v1.11.1 扩展 | `npm install && npm run develop` |
-| **supersplat-v2.18.1** | 高斯泼溅场景编辑器基线 | v2.18.1 / Metaflow Editor 1.0 | TypeScript + PlayCanvas + PCUI + Rollup | 对比用 |
+| **references/supersplat-v2.18.1** | 历史 Metaflow 编辑器基线 | v2.18.1 lineage / Metaflow Editor 1.0 | TypeScript + PlayCanvas + PCUI + Rollup | 不可变参考；非纯上游内容 |
 | **supersplat-v2.28.0** | Metaflow 定制编辑器 | v2.28.0 / Metaflow Editor 1.1 | TypeScript + PlayCanvas + PCUI + Rollup | `npm install && npm run develop` |
 | **pcui** | PlayCanvas 官方 UI 组件库 | - | TypeScript + SCSS + React + Storybook | `npm install && npm run storybook` |
 
@@ -34,7 +34,7 @@
 ### 文件结构
 
 ```
-supersplat-viewer-v1.11.1/
+references/supersplat-viewer-v1.11.1/
 ├── src/
 │   ├── index.ts                 # 入口：资源加载、main() 启动
 │   ├── viewer.ts                # 核心：渲染控制、后处理、CameraFrame
@@ -79,8 +79,8 @@ supersplat-viewer-v1.11.1/
 
 **当前本地结构：**
 
-- `supersplat-viewer-v1.11.1/` - 基线（PlayCanvas 2.15.2）
-- `supersplat-viewer-v1.18.2/` - 上游最新（PlayCanvas 2.17.1）
+- `references/supersplat-viewer-v1.11.1/` - 历史基线（PlayCanvas 2.15.2）
+- `references/supersplat-viewer-v1.18.2/` - 当时的上游快照（PlayCanvas 2.17.1）
 - `metaflow-viewer/` - 定制版本（基于 v1.11.1 + 扩展）
 
 **LOD 策略差异：v1.11.1 用固定 range 预设驱动 LOD，v1.18.2 用流式加载 + 动态等级。升级时将通过三方对比引入新方案，保留双通道加载能力。**

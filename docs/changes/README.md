@@ -21,6 +21,7 @@
 | [MF-16](https://github.com/Shuang-su/Metaflow/issues/16) | Done | 已完成、操作契约已取代 | 建立路径路由器时的 Spec/Plan；其中 PR/push 自动 CI 和 `required / gate` 已由 Revision 6 取消，路由器现在是本地检查选择器 |
 | [MF-18](https://github.com/Shuang-su/Metaflow/issues/18) | Done | Revision 5，已取代 | 建立 Issue/Commit/PR/Spec/Plan 分层；四个 Gate 和旧状态链由 MF-28 进一步精简 |
 | [MF-28](https://github.com/Shuang-su/Metaflow/issues/28) | Done | 当前 Revision 6 契约 | 本地优先流程、分级资源发布、Ledger/Version History 边界和 Viewer SemVer 前向规则 |
+| [MF-30](https://github.com/Shuang-su/Metaflow/issues/30) | In Review；[Draft PR #41](https://github.com/Shuang-su/Metaflow/pull/41) | 当前 Viewer `5.19.0` 发布候选契约 | [`30-viewer-upstream-v1.29.1/spec.md`](30-viewer-upstream-v1.29.1/spec.md)、[`plan.md`](30-viewer-upstream-v1.29.1/plan.md)、[`research-supplement.md`](30-viewer-upstream-v1.29.1/research-supplement.md) 与 [`evidence.md`](30-viewer-upstream-v1.29.1/evidence.md) 记录 v1.29.1 实施、深度研究、冲突和验证；授权 push/Issue/Draft PR，不授权 merge、tag 或 deploy |
 | [MF-32](https://github.com/Shuang-su/Metaflow/issues/32) | Done（本注册表进入 `main` 后） | 文档维护 | 分类历史工件、修正活动模板，并完善 25 篇中文 Viewer/Editor 手册；PR、Commit 与验证以实时 Issue 完成交付为准 |
 
 ## 权威顺序

@@ -31,15 +31,15 @@
 4. [部署](maintenance/deployment.md)
 5. [历史资料入口](history/README.md)
 
-## 当前发布基线
+## 当前代码候选基线
 
 | 产品 | 当前值 | 上游基线 | 唯一事实来源 |
 |---|---|---|---|
-| Viewer | `5.18.1`；package `5.18.1` | SuperSplat Viewer `1.26.2` | [`metadata/version-history.json`](../metadata/version-history.json) |
+| Viewer | `5.19.0`；package `5.19.0` | SuperSplat Viewer `1.29.1` / PlayCanvas `2.21.3` | [`metadata/version-history.json`](../metadata/version-history.json) |
 | Editor | `1.1`；app `1.1.0` | SuperSplat Editor `2.28.0` | [`metadata/editor-version-history.json`](../metadata/editor-version-history.json) |
 | 资源索引 | schema `1.2` | 不适用 | [`data/index.json`](../data/index.json) |
 
-这些值只是便于定位的当前摘要。`5.18a / 5.18.0` 是保留的最后一个 Viewer 双轨历史状态，`5.18.1` 是首个后续完整 SemVer 发布。发生冲突时，不用 README 或目录名覆盖机器事实源。
+这些值只是便于定位的当前摘要。Viewer `5.19.0` 是 MF-30 的 PR 候选，生产仍为 `5.18.1`；最终 squash SHA 回填、tag、部署、smoke 和观察尚未发生。`5.18a / 5.18.0` 是保留的最后一个 Viewer 双轨历史状态，`5.18.1` 是首个后续完整 SemVer 发布。发生冲突时，不用 README 或目录名覆盖机器事实源。
 
 ## 文档状态
 
@@ -107,6 +107,7 @@
 - [MCL 模板使用说明](templates/mcl/README.md)
 - [Viewer 逐提交变更总账](metaflow-viewer-change-ledger.md)
 - [Editor 变更总账](metaflow-editor-change-ledger.md)
+- [2026-08-10 SuperSplat 三基线独立审查](history/upstream-reviews/2026-08-10/README.md)
 - [MCL v1.0 candidate](metaflow-change-lifecycle-v1.0.md)
 - [Analytics 专项资料](analytics-implementation.md)
 

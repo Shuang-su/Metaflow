@@ -413,12 +413,15 @@ test('Metaflow theme and expandable logo are restored on top of the synced viewe
     assert.match(ui, /logoContainer\.classList\.add\('expanded'\)/);
 });
 
-test('Metaflow XR customization is kept while preserving the WebGPU guard', async () => {
+test('Metaflow XR customization is kept with backend-aware WebGPU support', async () => {
     const xr = await readFile(new URL('../src/xr.ts', import.meta.url), 'utf8');
 
     assert.match(xr, /XrVrNavigation/);
     assert.doesNotMatch(xr, /playcanvas\/scripts\/esm\/xr-navigation\.mjs/);
-    assert.match(xr, /renderer !== 'webgl'/);
+    assert.match(xr, /renderer === 'webgpu'/);
+    assert.match(xr, /XrManager\.isDeviceSupported\(DEVICETYPE_WEBGL2/);
+    assert.match(xr, /app\.xr\.on\('available', updateAvailable\)/);
+    assert.doesNotMatch(xr, /if \(renderer !== 'webgl'\) \{\s*return;/);
     assert.match(xr, /savedNearClip/);
     assert.match(xr, /savedFarClip/);
     assert.match(xr, /domOverlay\?\.supported/);

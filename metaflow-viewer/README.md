@@ -7,12 +7,12 @@
 
 ## 当前版本
 
-- 展示版本：`5.18.1`
-- 包版本：`5.18.1`
-- 上游 SuperSplat Viewer：`v1.26.2`
-- PlayCanvas：`2.19.2`
+- 展示版本：`5.19.0`（release candidate）
+- 包版本：`5.19.0`
+- 活跃源码底层：SuperSplat Viewer `v1.29.1`
+- PlayCanvas：`2.21.3`
 
-权威来源是 [`metadata/version-history.json`](../metadata/version-history.json)，本页只是当前摘要。
+Viewer `5.19.0` release candidate 在 `metadata/version-history.json` 记录 `v1.29.1` 基线；生产仍为 `5.18.1`。候选需要在 squash merge 后回填最终 SHA，并另行授权 tag、部署、smoke 和观察，才能称为稳定发布。
 
 ## 本地运行
 
@@ -23,6 +23,14 @@ npx --no-install serve -s public -l 3000
 ```
 
 服务运行在 `http://localhost:3000`，`-s` 为 `/acg/...` 等深层路径提供 SPA fallback。
+
+排查 PlayCanvas 引擎断言或内部状态时，可以显式选择 development export：
+
+```bash
+ENGINE=debug npm run build
+```
+
+该命令只用于诊断；普通 `npm run build` 仍使用 PlayCanvas production/default export，部署流程也不会自动启用 Debug Engine。
 
 稳定 route 的开发模式分两个终端：
 

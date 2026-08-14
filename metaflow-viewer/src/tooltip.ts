@@ -13,10 +13,9 @@ class Tooltip {
         style.display = 'none';
 
         const targets = new Map<HTMLElement, any>();
-        let timer: number = 0;
+        let timer = 0;
 
         this.register = (target: HTMLElement, textString: string, direction: Direction = 'bottom') => {
-
             const activate = () => {
                 const rect = target.getBoundingClientRect();
                 const midx = Math.floor((rect.left + rect.right) * 0.5);

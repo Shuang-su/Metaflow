@@ -1,13 +1,12 @@
-import {
-    type BoundingBox,
-    Vec3
-} from 'playcanvas';
+import { Vec3 } from 'playcanvas';
+import type { BoundingBox } from 'playcanvas';
 
-import policyUtils from './animation/resolve-animation-policy.js';
 import { createFigure8Track } from './animation/create-figure8-track';
 import { createRotateTrack } from './animation/create-rotate-track';
+import policyUtils from './animation/resolve-animation-policy.js';
 import { AnimController } from './cameras/anim-controller';
-import { Camera, type CameraFrame, type CameraController } from './cameras/camera';
+import { Camera } from './cameras/camera';
+import type { CameraFrame, CameraController } from './cameras/camera';
 import { FlyController } from './cameras/fly-controller';
 import { FlySource } from './cameras/fly-source';
 import { OrbitController } from './cameras/orbit-controller';
@@ -16,8 +15,8 @@ import { WalkController } from './cameras/walk-controller';
 import { WalkSource } from './cameras/walk-source';
 import type { Collision } from './collision';
 import { easeOut } from './core/math';
-import { Annotation } from './settings';
-import { CameraMode, Global } from './types';
+import type { Annotation } from './settings';
+import type { CameraMode, Global } from './types';
 
 const tmpCamera = new Camera();
 const tmpv = new Vec3();
@@ -44,12 +43,8 @@ const createCamera = (position: Vec3, target: Vec3, fov: number) => {
 
 const createFrameCamera = (bbox: BoundingBox, fov: number) => {
     const sceneSize = bbox.halfExtents.length();
-    const distance = sceneSize / Math.sin(fov / 180 * Math.PI * 0.5);
-    return createCamera(
-        new Vec3(2, 1, 2).normalize().mulScalar(distance).add(bbox.center),
-        bbox.center,
-        fov
-    );
+    const distance = sceneSize / Math.sin((fov / 180) * Math.PI * 0.5);
+    return createCamera(new Vec3(2, 1, 2).normalize().mulScalar(distance).add(bbox.center), bbox.center, fov);
 };
 
 class CameraManager {
@@ -81,9 +76,9 @@ class CameraManager {
         const camera0 = settings.cameras[0]?.initial;
         const defaultFov = camera0?.fov ?? 75;
         const frameCamera = createFrameCamera(bbox, defaultFov);
-        const resetCamera = camera0 ?
-            createCamera(new Vec3(camera0.position), new Vec3(camera0.target), camera0.fov) :
-            frameCamera;
+        const resetCamera = camera0
+            ? createCamera(new Vec3(camera0.position), new Vec3(camera0.target), camera0.fov)
+            : frameCamera;
 
         const hasExplicitStartPose = settings.hasStartPose ?? !!camera0;
 
@@ -151,9 +146,13 @@ class CameraManager {
         state.cameraMode = animationPolicy.initialCameraMode;
         this.camera.copy(resetCamera);
 
-        const target = new Camera(this.camera);             // the active controller updates this
-        const from = new Camera(this.camera);               // stores the previous camera state during transition
-        const defaultMode: CameraMode = resolvePreferredCameraMode(config.defaultCameraMode, isObjectExperience, walkAllowed);
+        const target = new Camera(this.camera); // the active controller updates this
+        const from = new Camera(this.camera); // stores the previous camera state during transition
+        const defaultMode: CameraMode = resolvePreferredCameraMode(
+            config.defaultCameraMode,
+            isObjectExperience,
+            walkAllowed
+        );
         let fromMode: CameraMode = defaultMode;
         let hasHandledFirstAnimExit = false;
 
@@ -187,7 +186,13 @@ class CameraManager {
             controllers.fly.collision = nextCollision;
             controllers.walk.collision = nextCollision;
 
-            if (!hadCollision && nextCollision && pendingDefaultWalk && state.walkAllowed && state.cameraMode === 'fly') {
+            if (
+                !hadCollision &&
+                nextCollision &&
+                pendingDefaultWalk &&
+                state.walkAllowed &&
+                state.cameraMode === 'fly'
+            ) {
                 pendingDefaultWalk = false;
                 state.cameraMode = 'walk';
             } else if (nextCollision) {
@@ -197,7 +202,6 @@ class CameraManager {
 
         // application update
         this.update = (deltaTime: number, frame: CameraFrame) => {
-
             // use dt of 0 if animation is paused
             const dt = state.cameraMode === 'anim' && state.animationPaused ? 0 : deltaTime;
 
@@ -322,9 +326,11 @@ class CameraManager {
         });
 
         // handle user scrubbing the animation timeline
-        events.on('scrubAnim', (time) => {
+        events.on('scrubAnim', (time, activate = true) => {
             // switch to animation camera if we're not already there
-            state.cameraMode = 'anim';
+            if (activate) {
+                state.cameraMode = 'anim';
+            }
 
             // set time
             controllers.anim.animState.cursor.value = time;
@@ -354,10 +360,7 @@ class CameraManager {
 
             // construct camera
             tmpCamera.fov = initial.fov;
-            tmpCamera.look(
-                new Vec3(initial.position),
-                new Vec3(initial.target)
-            );
+            tmpCamera.look(new Vec3(initial.position), new Vec3(initial.target));
 
             controllers.orbit.goto(tmpCamera);
             startTransition();

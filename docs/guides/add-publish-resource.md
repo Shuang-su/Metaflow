@@ -31,6 +31,8 @@
 
 生成器对部分历史目录有明确 override。不要依赖“碰巧按字母排序选中正确文件”；存在多个 settings 或 model 候选时应写规则。
 
+`files.model` 是当前 route 的唯一运行时主体来源。目录中同时存在 SOG 与 `lod-meta.json` 时，本轮不会自动改成 streaming，也没有用户切换 UI；既有 route 继续使用 index 已选入口。未来数据标签系统会另行登记 `streaming` 与 `highest-quality` 来源及默认值，不要提前手写未定义字段。
+
 同一路径覆盖大型 immutable 文件前必须评估缓存；优先采用新文件名或内容地址，避免客户端继续命中旧内容。
 
 ## 4. 处理 Git 与 LFS
@@ -71,7 +73,7 @@ git diff -- data/index.json
 - `data/index.json.release`、Viewer package/lock 和当前版本摘要；
 - [Viewer 变更总账](../metaflow-viewer-change-ledger.md)。
 
-当前为 `5.18.1`。旧字母版本不改写；下一次 PATCH 资源发布使用 `5.18.2`，之后依次递增，不再新增 `5.18b`。完整职责见 [版本与发布](../maintenance/versioning-and-release.md)。
+当前代码/记录候选为 `5.19.0`，生产仍为 `5.18.1`。旧字母版本不改写；`5.19.0` 合并并完成最终 SHA 对齐后，下一次 PATCH 资源发布使用 `5.19.1`，之后依次递增，不再新增 `5.18b`。完整职责见 [版本与发布](../maintenance/versioning-and-release.md)。
 
 常规 Direct Commit 发布使用两个本地原子提交并一次 push：先提交资源/index，再以 `chore(release)` 引用前一个真实 SHA 并更新版本记录。PR 使用 squash merge 时，合并后以极小 release-record commit 回填最终 SHA；在回填完成前不标记稳定完成。
 

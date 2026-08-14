@@ -126,14 +126,14 @@ test('legacy display versions remain valid and future releases require full SemV
     const compatibleFuture = [
         ...manifest.entries,
         {
-            displayVersion: '5.18.2',
-            appSemver: '5.18.2',
+            displayVersion: '5.19.1',
+            appSemver: '5.19.1',
             type: 'resource',
             scope: 'data'
         },
         {
-            displayVersion: '5.19.0',
-            appSemver: '5.19.0',
+            displayVersion: '5.20.0',
+            appSemver: '5.20.0',
             type: 'feature',
             scope: 'viewer'
         },
@@ -159,8 +159,8 @@ test('legacy display versions remain valid and future releases require full SemV
     assert.throws(() => assertVersionPolicy([
         ...manifest.entries,
         {
-            displayVersion: '5.18.2',
-            appSemver: '5.18.1',
+            displayVersion: '5.19.1',
+            appSemver: '5.19.0',
             type: 'fix',
             scope: 'viewer'
         }
@@ -173,8 +173,8 @@ test('legacy display versions remain valid and future releases require full SemV
     assert.throws(() => assertVersionPolicy([
         ...legacyEntries,
         {
-            displayVersion: '5.18.2',
-            appSemver: '5.18.2',
+            displayVersion: '5.19.1',
+            appSemver: '5.19.1',
             type: 'fix',
             scope: 'viewer'
         }
@@ -283,7 +283,7 @@ test('commits after the legacy cutoff require records only for affected product 
     ]);
     const editorSourcePrefixes = [
         'metaflow-editor/',
-        'supersplat-v2.18.1/',
+        'references/supersplat-v2.18.1/',
         'supersplat-v2.28.0/'
     ];
     const documentedEditorReleaseRefs = new Set(
@@ -375,8 +375,8 @@ test('package and public release versions match the structured current version',
     assert.equal(pkg.version, manifest.current.appSemver);
     assert.equal(lock.version, manifest.current.appSemver);
     assert.equal(lock.packages[''].version, manifest.current.appSemver);
-    assert.equal(manifest.current.displayVersion, '5.18.1');
+    assert.equal(manifest.current.displayVersion, '5.19.0');
     assert.equal(manifest.current.gitRef, manifest.documentedThrough);
     assert.equal(manifest.current.upstream.repository, 'playcanvas/supersplat-viewer');
-    assert.equal(manifest.current.upstream.version, '1.26.2');
+    assert.equal(manifest.current.upstream.version, '1.29.1');
 });

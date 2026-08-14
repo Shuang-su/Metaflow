@@ -1,10 +1,7 @@
 import {
     BoundingBox,
     CameraFrame,
-    type CameraComponent,
     Color,
-    type Entity,
-    type Layer,
     RenderTarget,
     Mat4,
     MiniStats,
@@ -23,18 +20,21 @@ import {
     GSPLAT_DEBUG_NONE,
     GSPLAT_RENDERER_RASTER_CPU_SORT,
     GSPLAT_RENDERER_RASTER_GPU_SORT,
-    GSplatComponent,
     platform
 } from 'playcanvas';
+import type { GSplatComponent, CameraComponent, Entity, Layer } from 'playcanvas';
 
 import { Annotations } from './annotations';
 import { CameraManager, isWalkAllowed } from './camera-manager';
-import { Camera } from './cameras/camera';
+import type { Camera } from './cameras/camera';
+import { Capture } from './capture';
 import type { Collision } from './collision';
 import { MeshCollision, TiledVoxelCollision, VoxelCollision } from './collision';
 import { nearlyEquals } from './core/math';
 import { DebugPanel } from './debug';
-import { GsplatRevealRadial, type RevealDotProfile } from './gsplat-reveal-radial';
+import { captureCameraState, restoreCameraState } from './debug/camera-state';
+import { GsplatRevealRadial } from './gsplat-reveal-radial';
+import type { RevealDotProfile } from './gsplat-reveal-radial';
 import { InputController } from './input-controller';
 import { MeshDebugOverlay } from './mesh-debug-overlay';
 import { NavCursor } from './nav-cursor';
@@ -58,7 +58,9 @@ function resolveRevealDotProfile(config: Config, loadingMode: LoadMode): RevealD
 // producing the original chunk.
 const patchChunk = (source: string, search: string, replacement: string, name: string): string => {
     if (!source.includes(search)) {
-        console.warn(`patchChunk: substring not found in '${name}', shader chunk patch may be out of sync with the engine.`);
+        console.warn(
+            `patchChunk: substring not found in '${name}', shader chunk patch may be out of sync with the engine.`
+        );
     }
     return source.replace(search, replacement);
 };
@@ -76,8 +78,8 @@ fn prepareOutputFromGamma(gammaColor: vec3f, depth: f32) -> vec3f {
 `;
 
 const rendererTable: Record<Config['renderer'], number> = {
-    'webgl': GSPLAT_RENDERER_RASTER_CPU_SORT,
-    'webgpu': GSPLAT_RENDERER_RASTER_GPU_SORT
+    webgl: GSPLAT_RENDERER_RASTER_CPU_SORT,
+    webgpu: GSPLAT_RENDERER_RASTER_GPU_SORT
 };
 
 type GSplatOctreeResourceLike = {
@@ -141,15 +143,18 @@ const applyPostEffectSettings = (cameraFrame: CameraFrame, settings: PostEffectS
 };
 
 const anyPostEffectEnabled = (settings: PostEffectSettings): boolean => {
-    return (settings.sharpness.enabled && settings.sharpness.amount > 0) ||
+    return (
+        (settings.sharpness.enabled && settings.sharpness.amount > 0) ||
         (settings.bloom.enabled && settings.bloom.intensity > 0) ||
-        (settings.grading.enabled) ||
+        settings.grading.enabled ||
         (settings.vignette.enabled && settings.vignette.intensity > 0) ||
-        (settings.fringing.enabled && settings.fringing.intensity > 0);
+        (settings.fringing.enabled && settings.fringing.intensity > 0)
+    );
 };
 
 const clamp01 = (value: number) => Math.max(0, Math.min(1, value));
-const toCssColor = (color: [number, number, number]) => `rgb(${color.map((v) => Math.round(clamp01(v) * 255)).join(' ')})`;
+const toCssColor = (color: [number, number, number]) =>
+    `rgb(${color.map((v) => Math.round(clamp01(v) * 255)).join(' ')})`;
 const toShaderFloat = (value: number) => clamp01(value).toFixed(8);
 const toShaderVec3 = (color: [number, number, number]) => {
     // Compose runs before gamma output. Convert CSS/sRGB colors to linear so
@@ -238,8 +243,6 @@ class Viewer {
 
     annotations: Annotations;
 
-    forceRenderNextFrame = false;
-
     voxelOverlay: VoxelDebugOverlay | TiledVoxelDebugOverlay | null = null;
 
     tiledVoxelCollision: TiledVoxelCollision | null = null;
@@ -260,17 +263,17 @@ class Viewer {
 
     origChunks: {
         glsl: {
-            gsplatOutputVS: string,
-            skyboxPS: string,
-            composePS: string,
-            composeMainEndPS: string
-        },
+            gsplatOutputVS: string;
+            skyboxPS: string;
+            composePS: string;
+            composeMainEndPS: string;
+        };
         wgsl: {
-            gsplatOutputVS: string,
-            skyboxPS: string,
-            composePS: string,
-            composeMainEndPS: string
-        }
+            gsplatOutputVS: string;
+            skyboxPS: string;
+            composePS: string;
+            composeMainEndPS: string;
+        };
     };
 
     applyBackground(settings: ExperienceSettings) {
@@ -331,7 +334,8 @@ class Viewer {
         if (this.cameraFrame && gradient) {
             glsl.set('composeMainEndPS', `${glslComposeMainEndPS}\n${composeGradientGlsl(gradient)}`);
             wgsl.set('composeMainEndPS', `${wgslComposeMainEndPS}\n${composeGradientWgsl(gradient)}`);
-            glsl.set('composePS',
+            glsl.set(
+                'composePS',
                 patchChunk(
                     glslComposePS,
                     'gl_FragColor = vec4(result, scene.a);',
@@ -339,7 +343,8 @@ class Viewer {
                     'glsl composePS Metaflow gradient alpha'
                 )
             );
-            wgsl.set('composePS',
+            wgsl.set(
+                'composePS',
                 patchChunk(
                     wgslComposePS,
                     'output.color = vec4f(result, scene.a);',
@@ -374,7 +379,10 @@ class Viewer {
         glsl.set('skyboxPS', patchChunk(glsl.get('skyboxPS'), 'mapRoughnessUv(uv, mipLevel)', 'uv', 'glsl skyboxPS'));
 
         const wgsl = ShaderChunks.get(graphicsDevice, 'wgsl');
-        wgsl.set('skyboxPS', patchChunk(wgsl.get('skyboxPS'), 'mapRoughnessUv(uv, uniform.mipLevel)', 'uv', 'wgsl skyboxPS'));
+        wgsl.set(
+            'skyboxPS',
+            patchChunk(wgsl.get('skyboxPS'), 'mapRoughnessUv(uv, uniform.mipLevel)', 'uv', 'wgsl skyboxPS')
+        );
 
         this.origChunks = {
             glsl: {
@@ -391,8 +399,11 @@ class Viewer {
             }
         };
 
-        // disable auto render, we'll render only when camera changes
-        app.autoRender = false;
+        // Streaming progress and readiness are advanced from rendered frames.
+        // Render continuously while either loading path prepares its first valid
+        // frame, then switch to frame:request + camera-driven on-demand rendering.
+        // The canvas remains hidden by the loading contract until firstFrame.
+        app.autoRender = true;
 
         // configure the camera
         this.configureCamera(settings);
@@ -406,23 +417,25 @@ class Viewer {
             const options = MiniStats.getDefaultOptions() as any;
             options.cpu.enabled = false;
             options.stats = options.stats.filter((s: any) => s.name !== 'DrawCalls');
-            options.stats.push({
-                name: 'VRAM',
-                stats: ['vram.tex'],
-                decimalPlaces: 1,
-                multiplier: 1 / (1024 * 1024),
-                unitsName: 'MB',
-                watermark: 1024
-            }, {
-                name: 'Splats',
-                stats: ['frame.gsplats'],
-                decimalPlaces: 3,
-                multiplier: 1 / 1000000,
-                unitsName: 'M',
-                watermark: 5
-            });
+            options.stats.push(
+                {
+                    name: 'VRAM',
+                    stats: ['vram.tex'],
+                    decimalPlaces: 1,
+                    multiplier: 1 / (1024 * 1024),
+                    unitsName: 'MB',
+                    watermark: 1024
+                },
+                {
+                    name: 'Splats',
+                    stats: ['frame.gsplats'],
+                    decimalPlaces: 3,
+                    multiplier: 1 / 1000000,
+                    unitsName: 'M',
+                    watermark: 5
+                }
+            );
 
-            // eslint-disable-next-line no-new
             new MiniStats(app, options);
         }
 
@@ -436,9 +449,11 @@ class Viewer {
             const proj = camera.camera.projectionMatrix;
 
             if (!app.renderNextFrame) {
-                if (config.ministats ||
+                if (
+                    config.ministats ||
                     !nearlyEquals(world.data, prevWorld.data) ||
-                    !nearlyEquals(proj.data, prevProj.data)) {
+                    !nearlyEquals(proj.data, prevProj.data)
+                ) {
                     app.renderNextFrame = true;
                 }
             }
@@ -446,10 +461,6 @@ class Viewer {
             // suppress rendering till we're ready, but let XR manage its own frame loop
             if (!state.readyToRender && !app.xr.active) {
                 app.renderNextFrame = false;
-            }
-
-            if (this.forceRenderNextFrame) {
-                app.renderNextFrame = true;
             }
 
             if (app.renderNextFrame) {
@@ -478,7 +489,7 @@ class Viewer {
             const near = Math.max(dist - boundRadius, far / (1024 * 16));
 
             cameraEntity.camera.farClip = far;
-            cameraEntity.camera.nearClip = near;
+            cameraEntity.camera.nearClip = Math.min(1.0, near);
         };
 
         // handle application update
@@ -503,7 +514,6 @@ class Viewer {
                     this.tiledVoxelCollision.updateForQueryPosition(-p.x, p.z);
                 }
             }
-
         });
 
         // Render voxel debug overlay
@@ -549,11 +559,11 @@ class Viewer {
                         round6(activeCamera.position.y),
                         round6(activeCamera.position.z)
                     ] as [number, number, number],
-                    target: [
-                        round6(focusPoint.x),
-                        round6(focusPoint.y),
-                        round6(focusPoint.z)
-                    ] as [number, number, number],
+                    target: [round6(focusPoint.x), round6(focusPoint.y), round6(focusPoint.z)] as [
+                        number,
+                        number,
+                        number
+                    ],
                     angles: [
                         round6(activeCamera.angles.x),
                         round6(activeCamera.angles.y),
@@ -578,6 +588,65 @@ class Viewer {
             };
 
             window.animationDuration = state.animationDuration;
+            window.app = app;
+
+            // Capture owns temporary render targets and camera redirects, so
+            // calls are serialized. The outer restore also covers Metaflow's
+            // CameraManager pose and animation state on success or failure.
+            let capture: Capture | null = null;
+            let captureQueue: Promise<unknown> = Promise.resolve();
+            const waitForFrame = () =>
+                new Promise<void>((resolve) => {
+                    app.once('frameend', () => resolve());
+                    app.renderNextFrame = true;
+                });
+
+            window.captureFrame = (options = {}) => {
+                const run = async () => {
+                    const savedCameraState = captureCameraState(this.cameraManager, state);
+                    const savedAnimationTime = state.animationTime;
+                    const savedAnimationPaused = state.animationPaused;
+
+                    // Freeze animation while the offscreen frame is prepared so
+                    // dimensions/readback latency cannot advance the visible pose.
+                    if (state.hasAnimation) {
+                        state.animationPaused = true;
+                    }
+
+                    try {
+                        if (!capture) {
+                            capture = new Capture(app, camera.camera, () => this.cameraFrame ?? null);
+                        }
+                        return await capture.grab({
+                            ...options,
+                            scrub: (time) => {
+                                if (state.hasAnimation) {
+                                    events.fire('scrubAnim', time);
+                                }
+                            }
+                        });
+                    } finally {
+                        if (state.hasAnimation) {
+                            // Reset the animation cursor without changing mode;
+                            // the following frame evaluates the saved time.
+                            events.fire('scrubAnim', savedAnimationTime, false);
+                            await waitForFrame();
+                        }
+
+                        restoreCameraState(this.cameraManager, state, savedCameraState);
+                        await waitForFrame();
+                        state.animationPaused = savedAnimationPaused;
+                    }
+                };
+
+                const result = captureQueue.then(run, run);
+                captureQueue = result.then<void>(
+                    () => undefined,
+                    () => undefined
+                );
+                return result;
+            };
+
             window.getCameraPose = getCameraPose;
             window.logCameraPose = () => {
                 const pose = getCameraPose();
@@ -587,13 +656,20 @@ class Viewer {
                 }
 
                 console.log('Current camera pose:', pose);
-                console.log('Settings snippet:\n' + JSON.stringify({
-                    initial: {
-                        position: pose.position,
-                        target: pose.target,
-                        fov: pose.fov
-                    }
-                }, null, 2));
+                console.log(
+                    'Settings snippet:\n' +
+                        JSON.stringify(
+                            {
+                                initial: {
+                                    position: pose.position,
+                                    target: pose.target,
+                                    fov: pose.fov
+                                }
+                            },
+                            null,
+                            2
+                        )
+                );
                 return pose;
             };
             console.info('Camera debug helpers ready: logCameraPose() / getCameraPose()');
@@ -602,7 +678,7 @@ class Viewer {
         // Wait only for render-critical resources. Tiled manifests and mesh
         // collision are lightweight/immediate; legacy single voxels are passed
         // through deferredCollisionLoad and begin after the first rendered frame.
-        Promise.all([gsplatLoad, skyboxLoad, collisionLoad]).then((results) => {
+        const viewerReady = Promise.all([gsplatLoad, skyboxLoad, collisionLoad]).then((results) => {
             const gsplatEntity = results[0];
             const gsplatComponent = gsplatEntity.gsplat as GSplatComponent;
             let environmentEntity: Entity | null = null;
@@ -637,6 +713,9 @@ class Viewer {
             const createCollisionOverlay = (nextCollision: Collision) => {
                 // Voxel overlays use compute shaders and therefore remain
                 // WebGPU-only; mesh collision uses standard line rendering.
+                if (config.heatmap && renderer === 'webgl') {
+                    console.warn('[Heatmap] WebGPU is required; continuing without the voxel heatmap overlay.');
+                }
                 if (nextCollision instanceof VoxelCollision && renderer !== 'webgl') {
                     setOverlayLoadingStatus('正在准备体素调试叠层...');
                     const overlay = new VoxelDebugOverlay(app, nextCollision, camera);
@@ -722,10 +801,10 @@ class Viewer {
             if (deferredCollisionLoad) {
                 events.once('firstFrame', () => {
                     deferredCollisionLoad()
-                    .then(attachCollision)
-                    .catch((err: Error) => {
-                        console.warn('[Collision] Failed to attach deferred collision:', err);
-                    });
+                        .then(attachCollision)
+                        .catch((err: Error) => {
+                            console.warn('[Collision] Failed to attach deferred collision:', err);
+                        });
                 });
             }
 
@@ -789,9 +868,7 @@ class Viewer {
                 // Metaflow still publishes both formats, so preserve this
                 // dedicated first-frame path alongside upstream LOD loading.
                 const numSplats = instance.resource?.numSplats ?? 0;
-                const splatLabel = numSplats >= 10000
-                    ? `${(numSplats / 10000).toFixed(1)} 万`
-                    : `${numSplats}`;
+                const splatLabel = numSplats >= 10000 ? `${(numSplats / 10000).toFixed(1)} 万` : `${numSplats}`;
                 let firstFrameScheduled = false;
                 let sortTimeout: ReturnType<typeof setTimeout> | null = null;
 
@@ -811,15 +888,16 @@ class Viewer {
                     state.progress = 100;
                     app.renderNextFrame = true;
                     app.once('frameend', () => {
+                        // Legacy SOG is now stable; camera changes and explicit
+                        // dynamic surfaces drive subsequent frames on demand.
+                        app.autoRender = false;
                         events.fire('firstFrame');
                         window.firstFrame?.();
                     });
                 };
 
                 state.loadingStage = 'sort';
-                state.loadingStatus = numSplats > 0
-                    ? `正在排序 ${splatLabel} 个高斯点...`
-                    : '正在排序高斯点...';
+                state.loadingStatus = numSplats > 0 ? `正在排序 ${splatLabel} 个高斯点...` : '正在排序高斯点...';
                 state.progress = -1;
 
                 if (instance.sorter) {
@@ -870,14 +948,18 @@ class Viewer {
                 };
 
                 gsplat.splatBudget = budget() * 1000000;
-                gsplat.lodRangeMin = 0;
-                gsplat.lodRangeMax = 1000;
-                gsplat.colorUpdateAngle = state.performanceMode ? 4 : 2;
-                gsplat.minContribution = 1;
-                gsplat.alphaClip = 1 / 255;
-                gsplat.antiAlias = config.aa;
+                // Match SuperSplat Viewer v1.29.1. A non-zero quality
+                // threshold avoids the v1.29.0 every-frame SH regression,
+                // while 1° / 0.2° keeps view-dependent color responsive.
+                gsplat.colorUpdateAngle = state.performanceMode ? 1 : 0.2;
+                gsplatComponent.lodRangeMin = 0;
+                gsplatComponent.lodRangeMax = 1000;
                 // Restore the default cull threshold lowered during the streaming reveal.
                 app.scene.gsplat.minPixelSize = 2;
+
+                // Parameter changes rebuild streaming work buffers. Ensure that
+                // rebuild is submitted even when the camera is idle on demand.
+                app.renderNextFrame = true;
             };
 
             if (config.fullload) {
@@ -888,44 +970,36 @@ class Viewer {
                 const resource = gsplatEntity.gsplat.resource as GSplatOctreeResourceLike | null;
                 const lodLevels = resource?.octree?.lodLevels;
                 if (lodLevels) {
-                    gsplat.lodRangeMax = gsplat.lodRangeMin = lodLevels - 1;
+                    gsplatComponent.lodRangeMax = gsplatComponent.lodRangeMin = lodLevels - 1;
                 }
             }
 
             state.loadingStage = state.loadingMode === 'streaming-json' ? 'stream-schedule' : 'legacy-lod-loading';
-            state.loadingStatus = state.loadingMode === 'streaming-json'
-                ? '正在建立流式 LOD 调度...'
-                : '正在加载 LOD 数据...';
+            state.loadingStatus =
+                state.loadingMode === 'streaming-json' ? '正在建立流式 LOD 调度...' : '正在加载 LOD 数据...';
             state.progress = 0;
 
             // these two allow LOD behind camera to drop, saves lots of splats
             gsplat.lodUpdateAngle = 90;
             gsplat.lodBehindPenalty = 5;
+            gsplat.minContribution = 1;
+            gsplat.alphaClip = 1 / 255;
+            gsplat.antiAlias = config.aa;
 
             // same performance, but rotating on slow devices does not give us unsorted splats on sides
             gsplat.radialSorting = true;
 
+            // These values are copied into persistent work-buffer data. They
+            // must be set before the first streaming frame creates that buffer.
+            gsplat.debug = config.colorize ? GSPLAT_DEBUG_LOD : GSPLAT_DEBUG_NONE;
+
             const eventHandler = app.systems.gsplat;
 
-            // idle timer: force continuous rendering until 4s of inactivity
-            let idleTime = 0;
-            this.forceRenderNextFrame = true;
-
-            app.on('update', (dt: number) => {
-                idleTime += dt;
-                this.forceRenderNextFrame = idleTime < 4;
-            });
-
-            events.on('inputEvent', (type: string) => {
-                if (type !== 'interact') {
-                    idleTime = 0;
-                }
-            });
-
-            eventHandler.on('frame:ready', (_camera: CameraComponent, _layer: Layer, ready: boolean, loading: number) => {
-                if (loading > 0 || !ready) {
-                    idleTime = 0;
-                }
+            // Streaming continues to schedule LOD and sorting work while
+            // autoRender is off. Submit a frame whenever that work becomes
+            // visible, keeping work-buffer lifetime coupled to its render.
+            eventHandler.on('frame:request', () => {
+                app.renderNextFrame = true;
             });
 
             let current = 0;
@@ -934,6 +1008,10 @@ class Viewer {
                 if (ready && loading === 0) {
                     // scene is done loading
                     eventHandler.off('frame:ready', readyHandler);
+
+                    // Initial streaming work is complete. Subsequent frames are
+                    // driven by frame:request, camera changes, or local effects.
+                    app.autoRender = false;
 
                     // Keep lowest LOD through the dot wave; unlock high detail once the lift
                     // wave clears the main subject (environment may still be revealing).
@@ -961,8 +1039,6 @@ class Viewer {
                         openHighDetailLod();
                     }
 
-                    // debug colorize lods
-                    gsplat.debug = config.colorize ? GSPLAT_DEBUG_LOD : GSPLAT_DEBUG_NONE;
                     gsplat.renderer = rendererTable[renderer];
 
                     // wait for the first valid frame to complete rendering
@@ -978,17 +1054,24 @@ class Viewer {
                 if (loading !== current) {
                     watermark = Math.max(watermark, loading);
                     current = watermark - loading;
-                    state.progress = Math.trunc(current / watermark * 100);
+                    state.progress = Math.trunc((current / watermark) * 100);
                     if (loading > 0) {
-                        state.loadingStage = state.loadingMode === 'streaming-json' ? 'stream-loading' : 'legacy-lod-loading';
-                        state.loadingStatus = state.loadingMode === 'streaming-json'
-                            ? `流式 LOD 拉取中 (剩余 ${loading} 个分块)`
-                            : `正在加载 LOD 数据 (剩余 ${loading} 个文件)`;
+                        state.loadingStage =
+                            state.loadingMode === 'streaming-json' ? 'stream-loading' : 'legacy-lod-loading';
+                        state.loadingStatus =
+                            state.loadingMode === 'streaming-json'
+                                ? `流式 LOD 拉取中 (剩余 ${loading} 个分块)`
+                                : `正在加载 LOD 数据 (剩余 ${loading} 个文件)`;
                     }
                 }
             };
 
             eventHandler.on('frame:ready', readyHandler);
+        });
+        viewerReady.catch((err: unknown) => {
+            app.autoRender = false;
+            app.renderNextFrame = false;
+            console.error('[Viewer] Initialization stopped after resource load failure:', err);
         });
     }
 
@@ -1002,8 +1085,7 @@ class Viewer {
         // hpr override takes precedence over settings.highPrecisionRendering
         const highPrecisionRendering = config.hpr ?? settings.highPrecisionRendering;
 
-        const postFxRequested = !config.nofx &&
-            (anyPostEffectEnabled(postEffectSettings) || highPrecisionRendering);
+        const postFxRequested = !config.nofx && (anyPostEffectEnabled(postEffectSettings) || highPrecisionRendering);
 
         const enableCameraFrame = !app.xr.active && postFxRequested;
 
@@ -1016,7 +1098,9 @@ class Viewer {
             const { cameraFrame } = this;
             cameraFrame.enabled = true;
             cameraFrame.rendering.toneMapping = tonemapTable[settings.tonemapping];
-            cameraFrame.rendering.renderFormats = highPrecisionRendering ? [PIXELFORMAT_RGBA16F, PIXELFORMAT_RGBA32F] : [];
+            cameraFrame.rendering.renderFormats = highPrecisionRendering
+                ? [PIXELFORMAT_RGBA16F, PIXELFORMAT_RGBA32F]
+                : [];
             applyPostEffectSettings(cameraFrame, postEffectSettings);
             cameraFrame.update();
 
@@ -1026,7 +1110,8 @@ class Viewer {
 
             // force skybox shader to write gamma-space colors (inline pow replaces the
             // gammaCorrectOutput call which is a no-op under CameraFrame's GAMMA_NONE)
-            ShaderChunks.get(app.graphicsDevice, 'glsl').set('skyboxPS',
+            ShaderChunks.get(app.graphicsDevice, 'glsl').set(
+                'skyboxPS',
                 patchChunk(
                     this.origChunks.glsl.skyboxPS,
                     'gammaCorrectOutput(toneMap(processEnvironment(linear)))',
@@ -1034,7 +1119,8 @@ class Viewer {
                     'glsl skyboxPS gamma override'
                 )
             );
-            ShaderChunks.get(app.graphicsDevice, 'wgsl').set('skyboxPS',
+            ShaderChunks.get(app.graphicsDevice, 'wgsl').set(
+                'skyboxPS',
                 patchChunk(
                     this.origChunks.wgsl.skyboxPS,
                     'gammaCorrectOutput(toneMap(processEnvironment(linear)))',
@@ -1049,7 +1135,6 @@ class Viewer {
             RenderTarget.prototype.isColorBufferSrgb = function (index) {
                 return this === app.graphicsDevice.backBuffer ? true : origIsColorBufferSrgb.call(this, index);
             };
-
         } else {
             // no post effects needed, destroy camera frame if it exists
             if (this.cameraFrame) {

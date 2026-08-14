@@ -1,0 +1,19 @@
+[    6891ms] [LOG] service worker registered ServiceWorkerRegistration @ http://127.0.0.1:4181/:17
+[    7629ms] [LOG] Metaflow Editor v1.1 (semver 1.1.0) | SuperSplat Editor v2.28.0 | SplatTransform v2.5.1 (ed9162f) | Engine v2.19.2 (3f52bb8) | PCUI v6.1.4 (89cf9a3) @ http://127.0.0.1:4181/index.js:140
+[   37477ms] TypeError: e is not a function
+    at HTMLInputElement.<anonymous> (http://127.0.0.1:4181/index.js:1:8374668)
+[   88321ms] [LOG] service worker registered ServiceWorkerRegistration @ http://127.0.0.1:4181/:17
+[   88419ms] [LOG] Metaflow Editor v1.1 (semver 1.1.0) | SuperSplat Editor v2.28.0 | SplatTransform v2.5.1 (ed9162f) | Engine v2.19.2 (3f52bb8) | PCUI v6.1.4 (89cf9a3) @ http://127.0.0.1:4181/index.js:140
+[  126910ms] [LOG] service worker registered ServiceWorkerRegistration @ http://127.0.0.1:4181/:17
+[  126999ms] [LOG] Metaflow Editor v1.1 (semver 1.1.0) | SuperSplat Editor v2.28.0 | SplatTransform v2.5.1 (ed9162f) | Engine v2.19.2 (3f52bb8) | PCUI v6.1.4 (89cf9a3) @ http://127.0.0.1:4181/index.js:140
+[  272623ms] [LOG] service worker registered ServiceWorkerRegistration @ http://127.0.0.1:4181/:17
+[  272725ms] [LOG] Metaflow Editor v1.1 (semver 1.1.0) | SuperSplat Editor v2.28.0 | SplatTransform v2.5.1 (ed9162f) | Engine v2.19.2 (3f52bb8) | PCUI v6.1.4 (89cf9a3) @ http://127.0.0.1:4181/index.js:140
+[  392521ms] [INFO] output.sog (73.4KB) @ http://127.0.0.1:4181/index.js:0
+[  436253ms] [INFO] output.html (3.0MB) @ http://127.0.0.1:4181/index.js:0
+[  439496ms] [INFO] index.sog (73.4KB) @ http://127.0.0.1:4181/index.js:0
+[  439496ms] [INFO] index.css (16.9KB) @ http://127.0.0.1:4181/index.js:0
+[  439507ms] [INFO] index.js (2.8MB) @ http://127.0.0.1:4181/index.js:0
+[  439507ms] [INFO] settings.json (3.2KB) @ http://127.0.0.1:4181/index.js:0
+[  439507ms] [INFO] index.html (48.1KB) @ http://127.0.0.1:4181/index.js:0
+[  706496ms] [LOG] service worker registered ServiceWorkerRegistration @ http://127.0.0.1:4181/:17
+[  706610ms] [LOG] Metaflow Editor v1.1 (semver 1.1.0) | SuperSplat Editor v2.28.0 | SplatTransform v2.5.1 (ed9162f) | Engine v2.19.2 (3f52bb8) | PCUI v6.1.4 (89cf9a3) @ http://127.0.0.1:4181/index.js:140

@@ -1,0 +1,9 @@
+[     107ms] [LOG] service worker registered ServiceWorkerRegistration @ http://127.0.0.1:4181/:17
+[     444ms] [LOG] Metaflow Editor v1.1 (semver 1.1.0) | SuperSplat Editor v2.28.0 | SplatTransform v2.5.1 (ed9162f) | Engine v2.19.2 (3f52bb8) | PCUI v6.1.4 (89cf9a3) @ http://127.0.0.1:4181/index.js:140
+[   66533ms] TypeError: Cannot read properties of null (reading 'isFile')
+    at HTMLDivElement.<anonymous> (http://127.0.0.1:4181/index.js:1:8397336)
+    at eval (eval at evaluate (:311:30), <anonymous>:28:24)
+    at UtilityScript.evaluate (<anonymous>:313:16)
+    at UtilityScript.<anonymous> (<anonymous>:1:44)
+[   94530ms] [LOG] service worker registered ServiceWorkerRegistration @ http://127.0.0.1:4181/:17
+[   94622ms] [LOG] Metaflow Editor v1.1 (semver 1.1.0) | SuperSplat Editor v2.28.0 | SplatTransform v2.5.1 (ed9162f) | Engine v2.19.2 (3f52bb8) | PCUI v6.1.4 (89cf9a3) @ http://127.0.0.1:4181/index.js:140

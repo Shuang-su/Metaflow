@@ -1,0 +1,4 @@
+[     362ms] [LOG] SuperSplat Viewer v1.28.0 | Engine v2.20.6 (9a2a8ef) @ http://127.0.0.1:4304/sample.html:91185
+[     391ms] [LOG] Renderer: webgpu @ http://127.0.0.1:4304/sample.html:91006
+[     419ms] [LOG] XrNavigation: Enabled methods - teleportation, smooth movement, snap vertical @ http://127.0.0.1:4304/sample.html:90523
+[    1051ms] [ERROR] Failed to load resource: the server responded with a status of 404 (File not found) @ http://127.0.0.1:4304/favicon.ico:0
