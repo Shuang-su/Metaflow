@@ -71,10 +71,15 @@ def _is_versioned_source_directory(directory: str) -> bool:
 
 
 def validate_dependabot(root: Path) -> list[str]:
-    """Reject npm update targets that point at immutable, versioned source snapshots."""
+    """Validate optional Dependabot version-update targets.
+
+    A missing configuration intentionally disables version-update pull requests.
+    If automation is reintroduced later, immutable versioned source trees remain
+    forbidden targets.
+    """
     path = root / ".github" / "dependabot.yml"
     if not path.is_file():
-        return [".github/dependabot.yml: missing"]
+        return []
 
     errors: list[str] = []
     current_ecosystem: str | None = None

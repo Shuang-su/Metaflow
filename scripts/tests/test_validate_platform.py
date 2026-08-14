@@ -171,19 +171,13 @@ class PlatformValidationTests(unittest.TestCase):
 
         self.assertEqual(validate_dependabot(self.root), [])
 
-    def test_repository_dependabot_keeps_security_only_viewer_and_actions_updates(self):
-        repository = Path(__file__).resolve().parents[2]
-        config = (repository / ".github" / "dependabot.yml").read_text(encoding="utf-8")
-        npm_block, actions_block = config.split(
-            "  - package-ecosystem: github-actions", maxsplit=1
-        )
+    def test_dependabot_allows_missing_config_to_disable_version_updates(self):
+        self.assertEqual(validate_dependabot(self.root), [])
 
-        self.assertEqual(config.count("package-ecosystem: npm"), 1)
-        self.assertEqual(config.count("package-ecosystem: github-actions"), 1)
-        self.assertIn("directory: /metaflow-viewer", npm_block)
-        self.assertIn("open-pull-requests-limit: 0", npm_block)
-        self.assertIn("directory: /", actions_block)
-        self.assertIn("open-pull-requests-limit: 5", actions_block)
+    def test_repository_dependabot_version_updates_are_disabled(self):
+        repository = Path(__file__).resolve().parents[2]
+        self.assertFalse((repository / ".github" / "dependabot.yml").exists())
+        self.assertEqual(validate_dependabot(repository), [])
 
     def test_public_json_never_contains_finding_details(self):
         finding = "sensitive-finding-detail-that-must-not-reach-logs"
