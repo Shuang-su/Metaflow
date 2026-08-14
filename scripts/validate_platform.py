@@ -122,6 +122,12 @@ def validate_netlify(root: Path) -> list[str]:
     if "python3 ../scripts/validate_platform.py" not in command:
         errors.append("netlify.toml: build.command must run the platform configuration check")
 
+    ignore = build.get("ignore")
+    if ignore != 'test "$BRANCH" = "main"':
+        errors.append(
+            'netlify.toml: build.ignore must skip ordinary main builds while preserving branch previews'
+        )
+
     redirects = document.get("redirects", [])
     catchalls = [index for index, redirect in enumerate(redirects) if redirect.get("from") == "/*"]
     if len(catchalls) != 1:

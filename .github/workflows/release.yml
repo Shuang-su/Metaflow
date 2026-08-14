@@ -31,6 +31,8 @@ jobs:
     timeout-minutes: 30
     outputs:
       component: ${{ steps.tag.outputs.component }}
+      version: ${{ steps.tag.outputs.version }}
+      product_git_ref: ${{ steps.tag.outputs.product_git_ref }}
     steps:
       - name: Check out release sources without large data blobs
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
@@ -39,11 +41,14 @@ jobs:
           lfs: false
           sparse-checkout: |
             .github
+            .nvmrc
             analytics
             data/index.json
             data/version-history.json
             data/editor-version-history.json
+            data/ACG/BitCity260711
             data/ACG/FireflyFes38/260502 172930 03 崩坏星穹铁道 昔涟/settings-v2.json
+            data/ACG/SZCAF15
             data/Shenzhen/250917 Dayun/tiled-voxel/voxel-tiles.json
             docs
             metadata
@@ -69,21 +74,23 @@ jobs:
           CHANGE_DIRECTORY: ${{ inputs.change_directory }}
           RELEASE_TAG: ${{ inputs.release_tag }}
         run: |
-          case "$RELEASE_TAG" in
-            viewer-v[0-9]*.[0-9]*.[0-9]*|viewer-v[0-9]*.[0-9]*.[0-9]*-beta.[0-9]*) component=viewer ;;
-            editor-v[0-9]*.[0-9]*.[0-9]*|editor-v[0-9]*.[0-9]*.[0-9]*-beta.[0-9]*) component=editor ;;
-            design-v[0-9]*.[0-9]*.[0-9]*|design-v[0-9]*.[0-9]*.[0-9]*-beta.[0-9]*) component=design ;;
-            *) printf '%s\n' "Invalid namespaced release tag: $RELEASE_TAG" >&2; exit 1 ;;
-          esac
           test "$(git rev-parse "$RELEASE_TAG^{commit}")" = "$GITHUB_SHA"
           node scripts/mcl.mjs check "$CHANGE_DIRECTORY" --strict
-          printf 'component=%s\n' "$component" >> "$GITHUB_OUTPUT"
+          node scripts/validate_release_contract.mjs --tag "$RELEASE_TAG" --github-output "$GITHUB_OUTPUT"
       - name: Validate platform configuration
         run: python3 scripts/validate_platform.py
       - name: Build Viewer release payload
         if: steps.tag.outputs.component == 'viewer'
         working-directory: metaflow-viewer
-        run: npm ci && MCL_SMALL_FIXTURES=1 npm test && npm run type:check && npm run build
+        run: |
+          npm ci
+          npm run build
+          MCL_SMALL_FIXTURES=1 npm test
+          npm run fmt
+          npm run lint
+          npm run type:check
+          npm run publint
+          npm audit --omit=dev
       - name: Build Editor release payload
         if: steps.tag.outputs.component == 'editor'
         working-directory: supersplat-v2.28.0
@@ -92,10 +99,23 @@ jobs:
         env:
           RELEASE_TAG: ${{ inputs.release_tag }}
           COMPONENT: ${{ steps.tag.outputs.component }}
+          RELEASE_VERSION: ${{ steps.tag.outputs.version }}
+          PRODUCT_GIT_REF: ${{ steps.tag.outputs.product_git_ref }}
         run: |
           mkdir -p release-evidence
           git ls-tree -r --full-tree "$GITHUB_SHA" | sha256sum | awk '{print $1}' > release-evidence/git-tree.sha256
-          printf '{"tag":"%s","component":"%s","commit":"%s","gitTreeSha256":"%s"}\n' "$RELEASE_TAG" "$COMPONENT" "$GITHUB_SHA" "$(cat release-evidence/git-tree.sha256)" > release-evidence/manifest.json
+          node --input-type=module <<'NODE'
+          import { readFileSync, writeFileSync } from 'node:fs';
+          const manifest = {
+            tag: process.env.RELEASE_TAG,
+            component: process.env.COMPONENT,
+            version: process.env.RELEASE_VERSION,
+            commit: process.env.GITHUB_SHA,
+            productGitRef: process.env.PRODUCT_GIT_REF,
+            gitTreeSha256: readFileSync('release-evidence/git-tree.sha256', 'utf8').trim()
+          };
+          writeFileSync('release-evidence/manifest.json', `${JSON.stringify(manifest)}\n`);
+          NODE
       - name: Upload release evidence
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         with:
@@ -135,6 +155,7 @@ jobs:
         env:
           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
           NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
+          RELEASE_TAG: ${{ inputs.release_tag }}
         run: |
           test -n "$NETLIFY_AUTH_TOKEN"
           test -n "$NETLIFY_SITE_ID"
@@ -143,7 +164,13 @@ jobs:
             node --input-type=module <<'NODE' > selected-deploy.json
           import { readFileSync } from 'node:fs';
           const deployments = JSON.parse(readFileSync('deploys.json', 'utf8'));
-          const match = deployments.find((item) => item.commit_ref === process.env.GITHUB_SHA);
+          const match = deployments
+            .filter((item) => (
+              item.commit_ref === process.env.GITHUB_SHA
+              && item.title === process.env.RELEASE_TAG
+              && item.context === 'production'
+            ))
+            .sort((left, right) => Date.parse(right.created_at) - Date.parse(left.created_at))[0];
           if (match) process.stdout.write(JSON.stringify(match));
           NODE
             state="$(node -e "const fs=require('fs');const p='selected-deploy.json';if(fs.existsSync(p)&&fs.statSync(p).size){process.stdout.write(JSON.parse(fs.readFileSync(p)).state||'')}" )"
@@ -157,6 +184,8 @@ jobs:
       - name: Run post-deploy smoke checks
         env:
           COMPONENT: ${{ needs.prepare.outputs.component }}
+          EXPECTED_VERSION: ${{ needs.prepare.outputs.version }}
+          EXPECTED_PRODUCT_GIT_REF: ${{ needs.prepare.outputs.product_git_ref }}
         run: |
           deploy_url="$(node -e "const d=require('./selected-deploy.json');process.stdout.write(d.deploy_ssl_url||d.ssl_url||d.url)")"
           production_url="$(node -e "const s=require('./selected-site.json');process.stdout.write(s.ssl_url||s.url)")"
@@ -164,7 +193,22 @@ jobs:
           curl --fail --silent --show-error --retry 4 --retry-delay 5 "$production_url/" > smoke-production-index.html
           if [ "$COMPONENT" = viewer ]; then
             curl --fail --silent --show-error --retry 4 --retry-delay 5 "$deploy_url/data/index.json" > smoke-version.json
-            node -e "const d=require('./smoke-version.json');if(!d.release?.appSemver)process.exit(1)"
+            curl --fail --silent --show-error --retry 4 --retry-delay 5 "$production_url/data/index.json" > smoke-production-version.json
+            node --input-type=module <<'NODE'
+          import { readFileSync } from 'node:fs';
+          for (const path of ['smoke-version.json', 'smoke-production-version.json']) {
+            const release = JSON.parse(readFileSync(path, 'utf8')).release;
+            if (release?.displayVersion !== process.env.EXPECTED_VERSION) {
+              throw new Error(`${path}: unexpected displayVersion`);
+            }
+            if (release?.appSemver !== process.env.EXPECTED_VERSION) {
+              throw new Error(`${path}: unexpected appSemver`);
+            }
+            if (release?.gitRef !== process.env.EXPECTED_PRODUCT_GIT_REF) {
+              throw new Error(`${path}: unexpected product gitRef`);
+            }
+          }
+          NODE
           fi
       - name: Publish GitHub Release after successful smoke
         env:
@@ -191,5 +235,6 @@ jobs:
             smoke-index.html
             smoke-production-index.html
             smoke-version.json
+            smoke-production-version.json
           if-no-files-found: warn
           retention-days: 90
