@@ -188,6 +188,7 @@ jobs:
           fetch-depth: 0
           lfs: false
           sparse-checkout: |
+            .nvmrc
             metaflow-viewer
             metaflow-editor
             references/supersplat-v2.18.1/src/ui/timeline-panel.ts
@@ -199,6 +200,8 @@ jobs:
             data/index.json
             data/version-history.json
             data/editor-version-history.json
+            data/ACG/BitCity260711
+            data/ACG/SZCAF15
             data/ACG/FireflyFes38/260502 172930 03 崩坏星穹铁道 昔涟/settings-v2.json
             data/Shenzhen/250917 Dayun/tiled-voxel/voxel-tiles.json
             docs/metaflow-viewer-change-ledger.md
@@ -215,6 +218,9 @@ jobs:
       - name: Install Viewer dependencies
         working-directory: metaflow-viewer
         run: npm ci
+      - name: Build Viewer
+        working-directory: metaflow-viewer
+        run: npm run build
       - name: Test Viewer
         working-directory: metaflow-viewer
         env:
@@ -223,9 +229,6 @@ jobs:
       - name: Typecheck Viewer
         working-directory: metaflow-viewer
         run: npm run type:check
-      - name: Build Viewer
-        working-directory: metaflow-viewer
-        run: npm run build
       - name: Install Chromium for Viewer E2E
         working-directory: metaflow-viewer
         run: npx playwright install --with-deps chromium
