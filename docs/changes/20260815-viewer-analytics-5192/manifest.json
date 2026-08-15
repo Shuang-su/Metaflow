@@ -1,0 +1,14 @@
+{
+  "changeId": "MF-T0-20260815-analytics-5192",
+  "component": "viewer",
+  "kind": "production-patch-release",
+  "releaseTag": "viewer-v5.19.2",
+  "productCommit": "92d11b0d",
+  "status": "complete",
+  "deployId": "6a80859837d9519cfb35968f",
+  "deploySource": "cli",
+  "commitRef": null,
+  "immutableUrl": "https://6a80859837d9519cfb35968f--charming-salamander-fc1af0.netlify.app",
+  "productionUrl": "https://metaflow.shuang-su.com",
+  "analyticsEndpoint": "https://bziyumtuzvfmhgghvpcs.functions.supabase.co/analytics-collect"
+}

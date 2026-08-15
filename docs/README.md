@@ -35,11 +35,11 @@
 
 | 产品 | 当前值 | 上游基线 | 唯一事实来源 |
 |---|---|---|---|
-| Viewer | `5.19.1`；package `5.19.1` | SuperSplat Viewer `1.29.1` / PlayCanvas `2.21.3` | [`metadata/version-history.json`](../metadata/version-history.json) |
+| Viewer | `5.19.2`；package `5.19.2` | SuperSplat Viewer `1.29.1` / PlayCanvas `2.21.3` | [`metadata/version-history.json`](../metadata/version-history.json) |
 | Editor | `1.1`；app `1.1.0` | SuperSplat Editor `2.28.0` | [`metadata/editor-version-history.json`](../metadata/editor-version-history.json) |
 | 资源索引 | schema `1.2` | 不适用 | [`data/index.json`](../data/index.json) |
 
-这些值只是便于定位的当前摘要。Viewer v1.29.1 运行时以产品 SHA `26e311c` 合并；`viewer-v5.19.0` prepare 在部署前失败，production 从未变化。`5.19.1` 以 recovery SHA `534b013` 为产品记录，通过 D2 controlled Prepare 后使用经授权的精确 D2 CLI/API fallback 发布，生产 smoke、15 分钟观察和 GitHub Release 均已完成。`5.18a / 5.18.0` 是保留的最后一个 Viewer 双轨历史状态，`5.18.1` 是首个后续完整 SemVer 发布。发生冲突时，不用 README 或目录名覆盖机器事实源。
+这些值只是便于定位的当前摘要。Viewer v1.29.1 运行时以产品 SHA `26e311c` 合并；`viewer-v5.19.0` prepare 在部署前失败，production 从未变化。`5.19.1` 以 recovery SHA `534b013` 为产品记录，通过 D2 controlled Prepare 后使用经授权的精确 D2 CLI/API fallback 发布；`5.19.2` 以 analytics/release 修复 SHA `92d11b0` 恢复 production endpoint，并把 endpoint 纳入构建硬失败和 release smoke。`5.18a / 5.18.0` 是保留的最后一个 Viewer 双轨历史状态，`5.18.1` 是首个后续完整 SemVer 发布。发生冲突时，不用 README 或目录名覆盖机器事实源。
 
 ## 文档状态
 

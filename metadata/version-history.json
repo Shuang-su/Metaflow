@@ -1,14 +1,14 @@
 {
   "schemaVersion": "1.1",
   "cutoffGitRef": "c613a87",
-  "documentedThrough": "534b013",
+  "documentedThrough": "92d11b0",
   "defaultResourceVersion": "1.0a",
   "current": {
-    "displayVersion": "5.19.1",
-    "appSemver": "5.19.1",
+    "displayVersion": "5.19.2",
+    "appSemver": "5.19.2",
     "indexSchemaVersion": "1.2",
-    "date": "2026-08-14",
-    "gitRef": "534b013",
+    "date": "2026-08-15",
+    "gitRef": "92d11b0",
     "historyUrl": "/data/version-history.json",
     "upstream": {
       "repository": "playcanvas/supersplat-viewer",
@@ -1427,6 +1427,22 @@
         "completionManifest": "docs/changes/30-viewer-upstream-v1.29.1/completion/manifest.json",
         "completionDossier": "docs/changes/30-viewer-upstream-v1.29.1/completion/dossier.md",
         "releaseTag": "viewer-v5.19.1"
+      }
+    },
+    {
+      "displayVersion": "5.19.2",
+      "appSemver": "5.19.2",
+      "type": "fix",
+      "scope": "analytics",
+      "date": "2026-08-15",
+      "gitRef": "92d11b0",
+      "summary": "fix(analytics): restore production telemetry endpoint and release smoke guard",
+      "trace": {
+        "changeId": "MF-T0-20260815-analytics-5192",
+        "pullRequest": "direct-commit:92d11b0d",
+        "completionManifest": "docs/changes/20260815-viewer-analytics-5192/manifest.json",
+        "completionDossier": "docs/changes/20260815-viewer-analytics-5192/completion.md",
+        "releaseTag": "viewer-v5.19.2"
       }
     }
   ]

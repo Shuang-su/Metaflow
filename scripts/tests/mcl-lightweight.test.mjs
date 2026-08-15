@@ -104,7 +104,7 @@ test('every Issue Form exposes the self-contained Issue contract and current sta
     }
 });
 
-test('resource tiers and forward Viewer SemVer track the completed 5.19.1 recovery', async () => {
+test('resource tiers and forward Viewer SemVer track the completed 5.19.2 analytics recovery', async () => {
     const [mcl, guide, release, ledger, metadata, published] = await Promise.all([
         read('docs/metaflow-change-lifecycle-v1.0.md'),
         read('docs/guides/add-publish-resource.md'),
@@ -128,12 +128,12 @@ test('resource tiers and forward Viewer SemVer track the completed 5.19.1 recove
     assert.match(ledger, /从该边界之后只审计 Viewer、data 和 Viewer 发布支撑提交/);
     assert.match(ledger, /### X\.Y\.Z/);
     assert.equal(manifest.versioning.mode, 'semver-forward');
-    assert.equal(manifest.current.displayVersion, '5.19.1');
-    assert.equal(manifest.current.appSemver, '5.19.1');
-    assert.equal(manifest.current.gitRef, '534b013');
+    assert.equal(manifest.current.displayVersion, '5.19.2');
+    assert.equal(manifest.current.appSemver, '5.19.2');
+    assert.equal(manifest.current.gitRef, '92d11b0');
     assert.match(ledger, /5\.19\.0[^\n]*deployment 前失败/);
     assert.match(ledger, /5\.19\.1[^\n]*生产稳定版/);
-    assert.match(ledger, /6a7efc396f36c800cfa0702e/);
+    assert.match(ledger, /5\.19\.2[^\n]*埋点/);
     assert.deepEqual(JSON.parse(published), manifest);
 });
 
