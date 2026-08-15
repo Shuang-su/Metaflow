@@ -2,7 +2,7 @@
 
 ## Result
 
-Viewer `5.19.2` analytics recovery was published to production on 2026-08-15. The immutable deploy `6a80859837d9519cfb35968f` is ready and the production alias points to it. Both immutable and production HTML expose the Supabase collector endpoint; `/data/index.json` reports `5.19.2`, `92d11b0`, and 87 resources.
+Viewer `5.19.2` analytics recovery was published to production on 2026-08-15. The final immutable deploy `6a8087d8ee37ee534090c5a2` is ready and the production alias points to it. Both immutable and production HTML expose the Supabase collector endpoint; `/data/index.json` reports `5.19.2`, `92d11b0`, and 87 resources. The final deploy also carries the exact public `data/version-history.json` mirror from the release checkpoint.
 
 ## Production evidence
 

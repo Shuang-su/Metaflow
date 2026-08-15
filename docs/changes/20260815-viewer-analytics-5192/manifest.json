@@ -5,10 +5,10 @@
   "releaseTag": "viewer-v5.19.2",
   "productCommit": "92d11b0d",
   "status": "complete",
-  "deployId": "6a80859837d9519cfb35968f",
+  "deployId": "6a8087d8ee37ee534090c5a2",
   "deploySource": "cli",
   "commitRef": null,
-  "immutableUrl": "https://6a80859837d9519cfb35968f--charming-salamander-fc1af0.netlify.app",
+  "immutableUrl": "https://6a8087d8ee37ee534090c5a2--charming-salamander-fc1af0.netlify.app",
   "productionUrl": "https://metaflow.shuang-su.com",
   "analyticsEndpoint": "https://bziyumtuzvfmhgghvpcs.functions.supabase.co/analytics-collect"
 }
