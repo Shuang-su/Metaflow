@@ -10,7 +10,7 @@ mirror low-frequency product analytics events.
 
 - Analytics is disabled unless an endpoint is configured.
 - Configure the endpoint with one of:
-  - Netlify build env `METAFLOW_ANALYTICS_ENDPOINT`
+  - Netlify production build env `METAFLOW_ANALYTICS_ENDPOINT`
   - URL param `analyticsEndpoint=...`
   - `localStorage.setItem('metaflow.analytics.endpoint', '...')`
 - Configure the sink with one of:
@@ -18,6 +18,11 @@ mirror low-frequency product analytics events.
   - URL param `analyticsSink=supabase|posthog|dual`
   - `localStorage.setItem('metaflow.analytics.sink', 'dual')`
 - The default sink is `supabase`.
+- Production Viewer builds fail before packaging when the Supabase/dual sink has
+  no endpoint. The controlled release smoke also checks the emitted HTML meta
+  tag, so a successful JavaScript build cannot silently ship with analytics
+  disabled. Deploy previews and local builds remain analytics-off unless an
+  endpoint is explicitly supplied.
 - Disable analytics with `?noanalytics`, `?analytics=0`, `localStorage.setItem('metaflow.analytics.disabled', 'true')`, or browser Do Not Track.
 - Heartbeats run every 15 seconds while the document is visible.
 - `page_hidden` and `session_ended` use `sendBeacon` when possible.
