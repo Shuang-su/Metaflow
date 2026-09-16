@@ -2,6 +2,7 @@ import type { EventHandler } from 'playcanvas';
 
 import { version as appVersion } from '../package.json';
 
+import { LoadingRecovery } from './loading-recovery';
 import { localize } from './localization';
 import type { Annotation } from './settings';
 import { Tooltip } from './tooltip';
@@ -867,6 +868,41 @@ const initUI = (global: Global) => {
             dom.loadingBar.style.backgroundImage = `linear-gradient(90deg, ${METAFLOW_ACCENT} 0%, ${METAFLOW_ACCENT} 100%)`;
         }
     });
+
+    const recovery = new LoadingRecovery();
+    const recoveryElement = document.getElementById('loadingRecovery');
+    const recoveryMessage = document.getElementById('loadingRecoveryMessage');
+    const retry = document.getElementById('loadingRetry') as HTMLButtonElement;
+    retry.textContent = localize('loading.retry');
+    retry.addEventListener('click', () => {
+        retry.disabled = true;
+        window.location.reload();
+    });
+    const updateRecovery = () => {
+        const reason = recovery.observe(performance.now(), {
+            loaded: state.loaded,
+            hidden: document.hidden,
+            frame: global.app.frame,
+            progress: state.progress,
+            stage: state.loadingStage,
+            status: state.loadingStatus
+        });
+        recoveryElement.hidden = !reason;
+        recoveryMessage.textContent = reason ? localize(`loading.${reason}`) : '';
+    };
+    const recoveryTimer = setInterval(updateRecovery, 1000);
+    events.on('loadingStage:changed', updateRecovery);
+    document.addEventListener('visibilitychange', updateRecovery);
+    const stopRecovery = () => {
+        clearInterval(recoveryTimer);
+        events.off('loadingStage:changed', updateRecovery);
+        document.removeEventListener('visibilitychange', updateRecovery);
+        recoveryElement.hidden = true;
+    };
+    events.on('loaded:changed', (loaded: boolean) => {
+        if (loaded) stopRecovery();
+    });
+    global.app.once('destroy', stopRecovery);
 
     let statusTimer: ReturnType<typeof setInterval> | null = null;
     let statusBaseText = '';

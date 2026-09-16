@@ -16,6 +16,7 @@ import { localize } from '../localization';
 import type { Global } from '../types';
 
 import { confirmSelection } from './feedback';
+import { xrGuidance } from './guidance';
 import { hasStick, headYaw } from './locomotion';
 import type { XrPreferences } from './preferences';
 import { WheelInput } from './wheel';
@@ -40,6 +41,7 @@ class XrSpatialMenu {
     open = false;
     private help = false;
     private settings = false;
+    private guidance: string[] = ['input-wait', 'tracking-hint'];
     private wheelOwner: XrInputSource | null = null;
     private readonly wheel = new WheelInput();
     private readonly entity: Entity;
@@ -288,6 +290,14 @@ class XrSpatialMenu {
             }
         }
         const sticks = [...valid].filter(hasStick).length;
+        this.guidance = xrGuidance(
+            sticks,
+            [...valid].some((source) => !!source.hand),
+            [...valid].some((source) => source.inputSource?.targetRayMode === 'transient-pointer'),
+            preferences.locomotion === 'comfort',
+            status === 'free-roam',
+            status === 'ar-status'
+        );
         this.inputHint = sticks > 1 ? 'help-move' : sticks === 1 ? 'continuous-hint' : 'hand-hint';
         if (!this.open) {
             this.width = 0.23;
@@ -336,6 +346,7 @@ class XrSpatialMenu {
             status,
             trackingLimited,
             this.inputHint,
+            this.guidance,
             this.global.state.hasCollisionOverlay,
             this.global.state.collisionOverlayEnabled
         ]);
@@ -434,16 +445,7 @@ class XrSpatialMenu {
         if (this.help) {
             ctx.fillStyle = '#d8e7eb';
             ctx.font = '28px system-ui, sans-serif';
-            [
-                'help-move',
-                'help-single',
-                'help-turn',
-                'help-select',
-                'help-vision',
-                'help-floor',
-                'help-posture',
-                'help-free'
-            ].forEach((key, i) => {
+            this.guidance.forEach((key, i) => {
                 ctx.fillText(text(key), 48, 490 + i * 65, 672);
             });
         }
@@ -455,13 +457,7 @@ class XrSpatialMenu {
                     ? 'tracking-recovery'
                     : this.status === 'ar-status' || this.help
                       ? 'tracking-hint'
-                      : this.status === 'free-roam'
-                        ? 'help-free'
-                        : this.inputHint === 'hand-hint'
-                          ? 'hand-hint'
-                          : preferences.locomotion === 'comfort'
-                            ? 'comfort-hint'
-                            : this.inputHint
+                      : this.guidance[0]
             ),
             48,
             977,

@@ -155,5 +155,15 @@
     "xr.mode-switch": "Switch mode",
     "xr.speed-slow": "Slow",
     "xr.speed-standard": "Standard",
-    "xr.speed-fast": "Fast"
+    "xr.speed-fast": "Fast",
+    "xr.input-wait": "Waiting for tracked input. Wake the controller or show your hands.",
+    "xr.help-wheel": "Application menu: open wheel; stick selects, trigger confirms.",
+    "xr.help-transient": "Look at a target and pinch to select.",
+    "xr.help-hand-menu": "Point at Menu and pinch to open settings.",
+    "xr.help-calibrate": "Use the panel for posture and floor calibration.",
+    "loading.retry": "Reload scene",
+    "loading.failed": "Loading failed. You can reload this scene to retry.",
+    "loading.waiting-frame": "Waiting for the first rendered frame. Wake your headset and return to this tab. Reload if it remains stuck.",
+    "loading.stalled": "Loading has not advanced recently. Check the connection or reload this scene.",
+    "xr.help-controller-select": "Point at the menu and press the trigger to select."
 }

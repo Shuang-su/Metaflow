@@ -619,3 +619,26 @@ test('last controller removal opens recovery even while a hand input remains',()
  controller.gamepad={axes:[0,0,0,0],buttons:[]};nav.addSource(controller);nav.addSource(hand);nav.removeSource(controller);
  assert.equal(nav.menu.open,true);assert.equal(nav.controllerDisconnected,true);assert.equal(nav.blockUntilNeutral,true);
 });
+
+const { xrGuidance } = await loadTs('../src/xr/guidance.ts');
+const { LoadingRecovery } = await loadTs('../src/loading-recovery.ts');
+test('guidance follows available input without claiming unsupported hand gestures',()=>{
+ assert.ok(xrGuidance(1,false,false,false,false,false).includes('help-single'));
+ assert.ok(!xrGuidance(1,false,false,false,false,false).includes('help-move'));
+ assert.ok(xrGuidance(2,false,false,false,false,false).includes('help-move'));
+ assert.ok(xrGuidance(1,false,false,true,false,false).includes('comfort-hint'));
+ assert.ok(xrGuidance(0,true,false,false,false,false).includes('hand-hint'));
+ assert.ok(xrGuidance(0,false,true,false,false,false).includes('help-transient'));
+ assert.deepEqual(xrGuidance(0,false,false,false,false,false),['input-wait','tracking-hint']);
+});
+test('loading recovery distinguishes missing frames, stalled resources and explicit failure',()=>{
+ const r=new LoadingRecovery(),s={loaded:false,hidden:false,frame:0,progress:0,stage:'stream-schedule',status:'starting'};
+ assert.equal(r.observe(0,s),null);assert.equal(r.observe(19999,s),null);assert.equal(r.observe(20000,s),'waiting-frame');
+ s.frame=1;s.progress=1;assert.equal(r.observe(21000,s),null);assert.equal(r.observe(51000,s),'stalled');
+ s.stage='error';assert.equal(r.observe(51001,s),'failed');s.loaded=true;assert.equal(r.observe(51002,s),null);
+});
+test('hidden time does not count as stalled loading after returning to the page',()=>{
+ const r=new LoadingRecovery(),s={loaded:false,hidden:false,frame:0,progress:0,stage:'download',status:''};
+ r.observe(0,s);s.hidden=true;assert.equal(r.observe(1000,s),null);s.hidden=false;assert.equal(r.observe(100000,s),null);
+ assert.equal(r.observe(119999,s),null);assert.equal(r.observe(120000,s),'waiting-frame');
+});
