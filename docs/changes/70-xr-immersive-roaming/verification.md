@@ -62,3 +62,11 @@ Vision Pro 模拟器启动为 visionOS 26.2。已打开本地 URL，但 Safari �
 5. Vision Pro 模拟器输入、菜单、相机与生命周期。
 
 原始截图、静态视频、性能 JSON 与窗口手势对照保存在主仓库未跟踪目录 `.codex-work/artifacts/mf-70/`；包含 `pico-native-resolution.png`、`pico-native-sample.json`、`pico-native-250k-sample.json`、`browser-input-positive-control.json`、`desktop-settings.png`、`mobile-settings.png`。未提交设备序列号、系统日志、安装包、生成构建或缓存。回退为撤回本分支提交；生产从未更改。
+
+## 追加真机反馈：窗口单触点与旧页面重入
+
+同日用户报告已开启“定位追踪”，并试用了普通窗口手势。此前安装的只读探针收集到 980 条画布／摇杆事件：6 次可信 touch pointerdown、2 次 pointercancel、4 次 pointerup，最大同时活动指针数为 **1**，touchstart 的 touches 均为 1，没有 wheel 事件。其中两次出现旧指针 pointercancel 后开始新 pointerId 的情况。结合用户双手操作反馈，这支持**当前配置普通窗口将输入串行化**的判断，但不是所有 PICO OS／浏览器版本均不支持双手的证明。原始记录：`pico-window-hand-events.json`。现有网页双触点缩放正向对照仍通过；沉浸 WebXR 的手部数据是独立通道。
+
+随后用户报告 VR/AR 又模糊。读取当时会话：immersive-ar、XR scale **0.85**、DPR 4、graphics maxPixelRatio 1.25、framebuffer **1020×510**。说明页面仍运行此前尚未刷新的旧代码，临时原生分辨率绑定未跨会话保留；不是已提交 scale 1 代码的重入结果。该会话已出现左手 XR 输入源（hand=true、axes=[]），说明至少该手部输入通道实际可用。
+
+已保存记录、退出该会话并刷新本地页面，新的 manager scale 为 **1**。页面显示 visible / focused，但 requestAnimationFrame 超时、应用 frame=0，初始流式加载等待画面刷新；已请用户戴上头显回到窗口。最终 framebuffer 和新 6DoF 位姿必须等实际 XR 帧后复核，尚不记通过。系统跟踪属性与之前不同，不能仅凭属性值代替 `emulatedPosition` 实测。
