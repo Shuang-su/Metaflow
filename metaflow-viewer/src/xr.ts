@@ -5,12 +5,9 @@ import { XrControllers } from 'playcanvas/scripts/esm/xr/xr-controllers.mjs';
 import { localize } from './localization';
 import type { Global } from './types';
 import { headYaw } from './xr/locomotion';
-import { ensureNativeXrResolution } from './xr/presentation';
+import { ensureNativeXrResolution, XR_NEAR_CLIP, XR_FAR_CLIP } from './xr/presentation';
 import { captureSessionState } from './xr/session-state';
 import { XrVrNavigation } from './xr-navigation';
-
-const XR_NEAR_CLIP = 0.03;
-const XR_FAR_CLIP = 1000;
 
 const initXr = (global: Global) => {
     const { app, events, state, camera, renderer, config } = global;

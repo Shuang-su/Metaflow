@@ -15,7 +15,8 @@ import type { XrInputSource } from 'playcanvas';
 import { localize } from '../localization';
 import type { Global } from '../types';
 
-import { headYaw } from './locomotion';
+import { confirmSelection } from './feedback';
+import { hasStick, headYaw } from './locomotion';
 import type { XrPreferences } from './preferences';
 
 type MenuAction = 'resume' | 'reset' | 'posture' | 'calibrate' | 'locomotion' | 'help' | 'exit' | 'collision';
@@ -41,6 +42,7 @@ class XrSpatialMenu {
     private height = 0.86;
     private status = '';
     private trackingLimited = false;
+    private inputHint = 'hand-hint';
 
     constructor(
         private readonly global: Global,
@@ -160,11 +162,13 @@ class XrSpatialMenu {
         if (index === undefined || index < 0 || this.hit(source) !== index) return;
         this.pressed.delete(source);
         if (!this.open) {
+            confirmSelection(source);
             this.show();
             return;
         }
         const row = this.rows[index];
         if (!row) return;
+        confirmSelection(source);
         if (row.action === 'help') {
             this.help = !this.help;
             this.signature = '';
@@ -185,6 +189,8 @@ class XrSpatialMenu {
         this.entity.enabled = true;
         this.status = status;
         this.trackingLimited = trackingLimited;
+        const sticks = [...valid].filter(hasStick).length;
+        this.inputHint = sticks > 1 ? 'help-move' : sticks === 1 ? 'continuous-hint' : 'hand-hint';
         if (!this.open) {
             this.width = 0.23;
             this.height = 0.075;
@@ -213,9 +219,11 @@ class XrSpatialMenu {
             this.open,
             this.help,
             this.hovered,
+            [...this.pressed.values()],
             preferences,
             status,
             trackingLimited,
+            this.inputHint,
             this.global.state.hasCollisionOverlay,
             this.global.state.collisionOverlayEnabled
         ]);
@@ -253,7 +261,14 @@ class XrSpatialMenu {
         ctx.fillStyle = '#a9c4cb';
         ctx.font = '28px system-ui, sans-serif';
         ctx.fillText(text(this.trackingLimited ? 'tracking-limited' : this.status), 48, 172, 672);
-        ctx.fillText(text('menu-hint'), 48, 213, 672);
+        ctx.fillText(
+            this.status === 'ar-status'
+                ? text('menu-hint')
+                : `${text(preferences.locomotion)} · ${text(preferences.posture)} · ${text('paused')}`,
+            48,
+            213,
+            672
+        );
         this.rows = this.help
             ? [
                   { action: 'help', label: text('back') },
@@ -262,9 +277,15 @@ class XrSpatialMenu {
             : [
                   { action: 'resume', label: text('resume') },
                   { action: 'reset', label: text('reset') },
-                  { action: 'posture', label: `${text('posture')}: ${text(preferences.posture)}` },
+                  {
+                      action: 'posture',
+                      label: text(preferences.posture === 'standing' ? 'switch-seated' : 'switch-standing')
+                  },
                   { action: 'calibrate', label: text('calibrate') },
-                  { action: 'locomotion', label: `${text('locomotion')}: ${text(preferences.locomotion)}` },
+                  {
+                      action: 'locomotion',
+                      label: text(preferences.locomotion === 'continuous' ? 'switch-comfort' : 'switch-continuous')
+                  },
                   { action: 'help', label: text('help') },
                   { action: 'exit', label: text('exit') }
               ];
@@ -277,7 +298,8 @@ class XrSpatialMenu {
             this.rows = this.rows.filter((row) => ['resume', 'help', 'exit', 'collision'].includes(row.action));
         this.rows.forEach((row, i) => {
             const y = 242 + i * 84;
-            ctx.fillStyle = i === this.hovered ? '#2b655f' : '#213b47';
+            const pressed = i === this.hovered && [...this.pressed.values()].includes(i);
+            ctx.fillStyle = pressed ? '#3b8276' : i === this.hovered ? '#2b655f' : '#213b47';
             ctx.beginPath();
             ctx.roundRect(32, y, 704, 70, 18);
             ctx.fill();
@@ -303,7 +325,24 @@ class XrSpatialMenu {
         }
         ctx.fillStyle = '#87a5ae';
         ctx.font = '24px system-ui, sans-serif';
-        ctx.fillText(text(this.trackingLimited ? 'tracking-recovery' : 'tracking-hint'), 48, 977, 672);
+        ctx.fillText(
+            text(
+                this.trackingLimited
+                    ? 'tracking-recovery'
+                    : this.status === 'ar-status' || this.help
+                      ? 'tracking-hint'
+                      : this.status === 'free-roam'
+                        ? 'help-free'
+                        : this.inputHint === 'hand-hint'
+                          ? 'hand-hint'
+                          : preferences.locomotion === 'comfort'
+                            ? 'comfort-hint'
+                            : this.inputHint
+            ),
+            48,
+            977,
+            672
+        );
         this.texture.setSource(this.canvas);
     }
 

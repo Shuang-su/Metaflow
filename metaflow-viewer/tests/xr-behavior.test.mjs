@@ -44,6 +44,7 @@ const { ensureNativeXrResolution } = await loadTs('../src/xr/presentation.ts');
 const { captureSessionState } = await loadTs('../src/xr/session-state.ts');
 const { XrVrNavigation } = await loadTs('../src/xr-navigation.ts');
 const { XrSpatialMenu } = await loadTs('../src/xr/menu.ts');
+const { confirmSelection } = await loadTs('../src/xr/feedback.ts');
 const { TiledVoxelCollision } = await loadTs('../src/collision/tiled-voxel-collision.ts');
 
 const { surfaceCells, appendCellEdges } = await loadTs('../src/voxel-wire-overlay.ts');
@@ -155,11 +156,15 @@ test('selectend cancellation and source loss do not teleport; menu selection is 
     nav.teleport=()=>teleports++;
     const source = new EventHandler(); source.inputSource={targetRaySpace:{}};
     nav.addSource(source);
-    const event={frame:{getPose:()=>({})}};
+    const event={frame:{getViewerPose:()=>({}),getPose:()=>({})}};
     source.fire('selectstart',event); source.fire('selectend',event);
     assert.equal(selections,0); assert.equal(teleports,0);
     source.fire('selectstart',event); source.fire('select',event); source.fire('selectend',event);
     assert.equal(selections,1); assert.equal(teleports,0);
+    source.fire('selectstart',event);
+    source.fire('select',{frame:{getViewerPose:()=>null,getPose:()=>({})}});
+    assert.equal(selections,1);
+    source.fire('selectend',event);
     nav.menu.open=false;nav.menu.begin=()=>false;
     source.fire('selectstart',event); nav.removeSource(source);source.fire('select',event);
     assert.equal(teleports,0);assert.equal(nav.handlers.size,0);
@@ -226,12 +231,15 @@ test('spatial panel selection matches the displayed row under rotation and consu
 
 test('XR resolution corrects a window-to-headset DPR change without altering desktop preferences', () => {
     for (const backend of ['webgl','webgpu']) {
-        const calls=[], session={};const onError=()=>{};
-        const global={renderer:backend,app:{graphicsDevice:{maxPixelRatio:1.25},xr:{session,xrBridge:{attachPresentation:(...args)=>calls.push(args)}}},camera:{camera:{nearClip:.03,farClip:1000}}};
+        const calls=[], session={}, properties={nearClip:.1,farClip:1000.53,fov:95};const onError=()=>{};
+        const global={renderer:backend,app:{graphicsDevice:{maxPixelRatio:1.25},xr:{session,xrBridge:{attachPresentation:(...args)=>calls.push(args)}}},camera:{camera:{nearClip:.1,farClip:1000.53,camera:{setXrProperties:p=>Object.assign(properties,p)}}}};
         ensureNativeXrResolution(global,1.25,onError);assert.equal(calls.length,0);
         ensureNativeXrResolution(global,4,onError);
         assert.equal(calls.length,1);assert.equal(calls[0][0],session);
         assert.equal(calls[0][1].framebufferScaleFactor,1);
+        assert.equal(calls[0][1].depthNear,.03);
+        assert.equal(calls[0][1].depthFar,1000);
+        assert.deepEqual(properties,{nearClip:.03,farClip:1000,fov:95});
         assert.equal(calls[0][1].onBindingError,onError);
         assert.equal(global.app.graphicsDevice.maxPixelRatio,1.25);
     }
@@ -272,4 +280,34 @@ test('voxel wire overlay preserves flipped cell bounds and emits twelve world-sp
     const xs=lines.filter((_,i)=>i%3===0),ys=lines.filter((_,i)=>i%3===1);
     assert.equal(Math.min(...xs),-2.5);assert.equal(Math.max(...xs),-2);
     assert.equal(Math.min(...ys),-4.5);assert.equal(Math.max(...ys),-4);
+});
+
+test('viewer tracking loss cancels held gestures and re-arms only after neutral input on recovery', () => {
+    const {nav,camera}=navigationHarness();
+    const source={gamepad:{axes:[0,0,0,-1],buttons:[]},handedness:'right',inputSource:{targetRaySpace:{}}};
+    nav.inputSources.add(source);nav.validSources.add(source);nav.blockUntilNeutral=false;
+    nav.gestures.set(source,'free');nav.lastFrame=performance.now();
+    const before=camera.getPosition().clone();
+    nav.onFrame({getViewerPose:()=>null,getPose:()=>({})});
+    assert.equal(nav.lastFrame,0);assert.equal(nav.gestures.size,0);assert.equal(nav.validSources.size,0);
+    const frame={getViewerPose:()=>({emulatedPosition:false}),getPose:()=>({})};
+    nav.onFrame(frame);nav.update(.02);close(camera.getPosition().distance(before),0);
+    source.gamepad.axes[3]=0;nav.onFrame(frame);nav.update(.02);
+    source.gamepad.axes[3]=-1;nav.onFrame(frame);nav.update(.02);
+    assert.ok(camera.getPosition().distance(before)>.01);
+    const recovered=camera.getPosition().clone();
+    nav.lastFrame=performance.now()-350;nav.gestures.set(source,'free');
+    nav.onFrame(frame);nav.update(.02);
+    assert.equal(nav.gestures.size,0);close(camera.getPosition().distance(recovered),0);
+});
+
+test('selection feedback is optional and controller disconnects cannot break an action', async () => {
+    const pulses=[];
+    confirmSelection({gamepad:{hapticActuators:[{pulse:(...args)=>{pulses.push(args);return Promise.resolve(true);}}]}});
+    assert.deepEqual(pulses,[[.2,35]]);
+    assert.doesNotThrow(()=>confirmSelection({gamepad:null}));
+    assert.doesNotThrow(()=>confirmSelection({gamepad:{hapticActuators:[]}}));
+    assert.doesNotThrow(()=>confirmSelection({gamepad:{hapticActuators:[{pulse:()=>{throw Error('disconnected');}}]}}));
+    confirmSelection({gamepad:{hapticActuators:[{pulse:()=>Promise.reject(Error('unavailable'))}]}});
+    await new Promise(resolve=>setImmediate(resolve));
 });

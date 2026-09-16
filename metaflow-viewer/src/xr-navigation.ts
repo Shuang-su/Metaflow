@@ -2,6 +2,7 @@ import { StandardMaterial, Color, Entity, Script, Vec3 } from 'playcanvas';
 import type { XrInputSource } from 'playcanvas';
 
 import type { Global } from './types';
+import { confirmSelection } from './xr/feedback';
 import {
     FOOT_CLEARANCE,
     findEntryFloor,
@@ -111,7 +112,10 @@ class XrVrNavigation extends Script {
         if (!frame || this.app.xr.visibilityState !== 'visible') return false;
         try {
             // PlayCanvas 2.21.3 exposes no public reference-space getter. Keep this access here.
-            return !!frame.getPose(source.inputSource.targetRaySpace, this.app.xr._referenceSpace);
+            return (
+                !!frame.getViewerPose(this.app.xr._referenceSpace) &&
+                !!frame.getPose(source.inputSource.targetRaySpace, this.app.xr._referenceSpace)
+            );
         } catch {
             return false;
         }
@@ -173,7 +177,12 @@ class XrVrNavigation extends Script {
         if (!this.global || this.app.xr.visibilityState !== 'visible') return;
         const pose = frame.getViewerPose(this.app.xr._referenceSpace);
         this.trackingLimited = !pose || pose.emulatedPosition;
-        this.lastFrame = performance.now();
+        const now = performance.now();
+        // The engine skips update events entirely when a viewer pose is unavailable.
+        // Detect the gap before overwriting lastFrame so resumed input must rearm.
+        if (!pose || (this.lastFrame > 0 && now - this.lastFrame > 250)) this.suspend();
+        if (!pose) return;
+        this.lastFrame = now;
         for (const source of this.inputSources) {
             if (this.validPose(source, frame)) this.validSources.add(source);
             else {
@@ -280,6 +289,7 @@ class XrVrNavigation extends Script {
         target.y += this.effectiveHeight() + FOOT_CLEARANCE;
         placeHead(this.entity, camera, target);
         this.blockUntilNeutral = true;
+        confirmSelection(source);
     }
 
     update(dt: number): void {

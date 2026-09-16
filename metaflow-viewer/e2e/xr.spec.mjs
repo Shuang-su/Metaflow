@@ -65,3 +65,42 @@ test('AR runtime rejection leaves camera and desktop controls usable', async ({ 
     await reject(page, 'NotAllowedError');
     await expect(page.locator('#vrMode')).toHaveAttribute('aria-disabled', 'false');
 });
+
+// Render the shipping spatial menu and exercise its ray selection path in the real viewer.
+// This does not emulate stereo optics, native tracking or controller hardware.
+test('spatial menu names the available mode switch and confirms the resulting posture and movement state', async ({ page }) => {
+    await page.evaluate(() => {
+        const g=viewer.global, nav=g.camera.parent.script.get('xrVrNavigation');
+        nav.sessionVR=true;
+        nav.preferences={locomotion:'continuous',posture:'standing'};
+        const refresh=()=>{
+            nav.menu.update(nav.preferences,'grounded',new Set(),new Set([{
+                gamepad:{axes:[0,0,0,0]}
+            }]));
+            g.app.renderNextFrame=true;
+        };
+        window.__xrMenuSelect=(action)=>{
+            const menu=nav.menu,index=menu.rows.findIndex(row=>row.action===action);
+            if(index<0)throw Error(`Missing menu action: ${action}`);
+            const transform=menu.entity.getWorldTransform();
+            const origin=transform.transformPoint(g.camera.getPosition().clone().set(0,0,1));
+            const target=transform.transformPoint(origin.clone().set(0,.5-(242+index*84+35)/1024,0));
+            const source={getOrigin:()=>origin,getDirection:()=>target.clone().sub(origin).normalize()};
+            menu.begin(source);menu.select(source);refresh();
+            return {preferences:{...nav.preferences},open:menu.open,rows:menu.rows.map(row=>row.label)};
+        };
+        nav.menu.show();refresh();
+    });
+    const initial=await page.evaluate(()=>viewer.global.camera.parent.script.get('xrVrNavigation').menu.rows.map(row=>row.label));
+    expect(initial).toContain('Switch to comfort mode (teleport)');
+    const comfort=await page.evaluate(()=>window.__xrMenuSelect('locomotion'));
+    expect(comfort.preferences.locomotion).toBe('comfort');
+    expect(comfort.rows).toContain('Switch to continuous movement');
+    expect(comfort.open).toBe(true);
+    const seated=await page.evaluate(()=>window.__xrMenuSelect('posture'));
+    expect(seated.preferences.posture).toBe('seated');
+    expect(seated.rows).toContain('Switch to standing posture');
+    const restored=await page.evaluate(()=>window.__xrMenuSelect('locomotion'));
+    expect(restored.preferences.locomotion).toBe('continuous');
+    expect(await page.evaluate(()=>window.__xrMenuSelect('resume').open)).toBe(false);
+});
