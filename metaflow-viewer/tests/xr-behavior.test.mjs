@@ -358,7 +358,7 @@ test('XR clearance matches Viewer walking throughout placement, teleport and res
 test('walking averages supported ground across a small hole while teleport still refuses it', () => {
     const c=ground();c.queryRay=(x,oy,z)=>Math.abs(x)<.06&&Math.abs(z)<.06?null:{x,y:x>0?2.08:2,z};
     const moved=moveOnGround(c,new Vec3(0,3.8,0),2,1.6,.03,0);
-    close(moved.x,.03);close(moved.y,(2+2.08*3)/4);
+    close(moved.x,.03);close(moved.y,(2+2.08*3)/4-.025);
     assert.equal(standableFloor(c,.03,2.25,0,1.6,.5),null);
     const steep=ground({normalY:0});close(moveOnGround(steep,new Vec3(0,3.8,0),2,1.6,.1,0).x,0);
     const drop=ground();drop.queryRay=(x,oy,z)=>({x,y:1.6,z});
@@ -516,4 +516,23 @@ test('aiming an existing teleport gesture at the compact menu cancels teleport c
     source.fire('selectstart',event);pointed=true;source.fire('select',event);source.fire('selectend');
     assert.equal(teleports,0);assert.equal(nav.gestures.size,0);
     pointed=false;source.fire('selectstart',event);source.fire('select',event);source.fire('selectend');assert.equal(teleports,1);
+});
+
+test('walking suppresses small height noise and follows cumulative slopes without staircase snaps', () => {
+    const c=ground();let level=2;
+    c.queryRay=(x,oy,z)=>({x,y:level,z});
+    let floor=2,x=0;
+    for(const y of [2.01,1.98,2.024,1.976,2]){level=y;const next=moveOnGround(c,new Vec3(x,floor+1.8,0),floor,1.6,.02,0);close(next.y,2);x=next.x;floor=next.y}
+    for(const sign of [1,-1]){
+        floor=2;x=0;
+        for(let i=1;i<=20;i++){
+            level=2+sign*i*.01;
+            const next=moveOnGround(c,new Vec3(x,floor+1.8,0),floor,1.6,.02,0);
+            close(next.y,2+sign*Math.max(0,i*.01-.025));
+            assert.ok(Math.abs(next.y-floor)<=.010001);x=next.x;floor=next.y;
+        }
+    }
+    // Hovering above a lower surface must still respect a low ceiling at the filtered height.
+    level=1.98;c.queryCapsule=(x,y,z,half,r,out)=>{out.x=out.z=0;out.y=-.01;return true};
+    assert.deepEqual(moveOnGround(c,new Vec3(0,3.8,0),2,1.6,.02,0).toArray(),[0,2,0]);
 });

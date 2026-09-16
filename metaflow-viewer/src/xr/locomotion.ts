@@ -6,6 +6,11 @@ import type { Collision, RayHit } from '../collision';
 const BODY_RADIUS = 0.18;
 // Match WalkController.hoverHeight, without its spring/damper camera motion.
 const FOOT_CLEARANCE = 0.2;
+const GROUND_HEIGHT_TOLERANCE = 0.025;
+// A bounded dead band, not temporal smoothing: slopes keep advancing once the
+// band is exceeded, without periodic full-height snaps or camera inertia.
+const filterGroundHeight = (ground: number, previous: number): number =>
+    Math.max(ground - GROUND_HEIGHT_TOLERANCE, Math.min(ground + GROUND_HEIGHT_TOLERANCE, previous));
 const MAX_STEP = 0.25;
 const MIN_FLOOR_NORMAL = Math.cos(Math.PI / 4);
 const FOOTPRINT = [
@@ -207,6 +212,7 @@ const moveOnGround = (
         const tryStep = (x: number, z: number): boolean => {
             let next = walkingFloor(collision, x, z, result.y);
             if (next === null) return false;
+            next = filterGroundHeight(next, result.y);
             const bodyHeight = Math.max(height, BODY_RADIUS * 2);
             const push = { x: 0, y: 0, z: 0 };
             const length = Math.hypot(x - result.x, z - result.z);
@@ -242,7 +248,7 @@ const moveOnGround = (
                     return false;
                 const support = walkingFloor(collision, x, z, result.y);
                 if (support === null) return false;
-                next = Math.max(support, next + push.y);
+                next = Math.max(filterGroundHeight(support, result.y), next + push.y);
                 if (Math.abs(next - result.y) > MAX_STEP + 1e-6) return false;
                 push.x = push.y = push.z = 0;
             }
