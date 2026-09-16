@@ -32,27 +32,58 @@ function* surfaceCells(collision: VoxelCollision, center: Vec3, radius = 2): Gen
     const c = [center.x * sign, center.y * sign, center.z];
     const lo = origin.map((v, i) => Math.max(0, Math.floor((c[i] - radius - v) / res)));
     const hi = origin.map((v, i) => Math.min(sizes[i] - 1, Math.floor((c[i] + radius - v) / res)));
+    if (lo.some((v, i) => v > hi[i])) return;
+    const cx = Math.max(lo[0], Math.min(hi[0], Math.floor((c[0] - origin[0]) / res)));
+    const cz = Math.max(lo[2], Math.min(hi[2], Math.floor((c[2] - origin[2]) / res)));
+    const extent = Math.max(cx - lo[0], hi[0] - cx, cz - lo[2], hi[2] - cz);
     const solid = (x: number, y: number, z: number) => collision.isVoxelSolid(x, y, z);
-    for (let z = lo[2]; z <= hi[2]; z++) {
+    function* column(x: number, z: number): Generator<Cell | null, void, unknown> {
+        if (x < lo[0] || x > hi[0] || z < lo[2] || z > hi[2]) return;
         for (let y = lo[1]; y <= hi[1]; y++) {
-            for (let x = lo[0]; x <= hi[0]; x++) {
-                if (
-                    solid(x, y, z) &&
-                    (!solid(x - 1, y, z) ||
-                        !solid(x + 1, y, z) ||
-                        !solid(x, y - 1, z) ||
-                        !solid(x, y + 1, z) ||
-                        !solid(x, y, z - 1) ||
-                        !solid(x, y, z + 1))
-                ) {
-                    // Negative axes reverse the cell bounds, not merely the minimum corner.
-                    yield [
-                        sign * (origin[0] + (x + (sign < 0 ? 1 : 0)) * res),
-                        sign * (origin[1] + (y + (sign < 0 ? 1 : 0)) * res),
-                        origin[2] + z * res,
-                        res
-                    ];
-                } else yield null;
+            if (
+                solid(x, y, z) &&
+                (!solid(x - 1, y, z) ||
+                    !solid(x + 1, y, z) ||
+                    !solid(x, y - 1, z) ||
+                    !solid(x, y + 1, z) ||
+                    !solid(x, y, z - 1) ||
+                    !solid(x, y, z + 1))
+            ) {
+                // Negative axes reverse the cell bounds, not merely the minimum corner.
+                yield [
+                    sign * (origin[0] + (x + (sign < 0 ? 1 : 0)) * res),
+                    sign * (origin[1] + (y + (sign < 0 ? 1 : 0)) * res),
+                    origin[2] + z * res,
+                    res
+                ];
+            } else yield null;
+        }
+    }
+    // Visit the column under the head first, then expand horizontal rings. A capped
+    // scan must not spend all its cells on the far side before reaching the feet.
+    yield* column(cx, cz);
+    for (let r = 1; r <= extent; r++) {
+        for (let x = cx - r; x <= cx + r; x++) {
+            yield* column(x, cz - r);
+            yield* column(x, cz + r);
+        }
+        for (let z = cz - r + 1; z < cz + r; z++) {
+            yield* column(cx - r, z);
+            yield* column(cx + r, z);
+        }
+    }
+}
+
+/** Interleave loaded tiles so one tile cannot exhaust the entire display budget. */
+function* nearbySurfaceCells(colliders: VoxelCollision[], center: Vec3): Generator<Cell | null, void, unknown> {
+    const scans = colliders.map((c) => surfaceCells(c, center));
+    while (scans.length) {
+        for (let i = 0; i < scans.length;) {
+            const next = scans[i].next();
+            if (next.done === true) scans.splice(i, 1);
+            else {
+                yield next.value;
+                i++;
             }
         }
     }
@@ -129,9 +160,7 @@ class VoxelWireOverlay {
             this.colliders = colliders;
             // Include the ground below a standing user's eyes without increasing the scan volume.
             const sampleCenter = eye.clone().add(new Vec3(0, -0.6, 0));
-            this.iterator = (function* () {
-                for (const c of colliders) yield* surfaceCells(c, sampleCenter);
-            })();
+            this.iterator = nearbySurfaceCells(colliders, sampleCenter);
             this.positions = [];
             this.seen.clear();
             this.uploaded = 0;
@@ -189,4 +218,4 @@ class VoxelWireOverlay {
     }
 }
 
-export { VoxelWireOverlay, surfaceCells, appendCellEdges, cellEdgeBatches };
+export { VoxelWireOverlay, surfaceCells, nearbySurfaceCells, appendCellEdges, cellEdgeBatches };

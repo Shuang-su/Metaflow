@@ -47,7 +47,7 @@ const { XrSpatialMenu } = await loadTs('../src/xr/menu.ts');
 const { confirmSelection } = await loadTs('../src/xr/feedback.ts');
 const { TiledVoxelCollision } = await loadTs('../src/collision/tiled-voxel-collision.ts');
 
-const { surfaceCells, appendCellEdges, cellEdgeBatches } = await loadTs('../src/voxel-wire-overlay.ts');
+const { surfaceCells, nearbySurfaceCells, appendCellEdges, cellEdgeBatches } = await loadTs('../src/voxel-wire-overlay.ts');
 
 test('stereo voxel batches preserve all cells and never submit an oversized line draw', () => {
     const edges = [];
@@ -324,4 +324,19 @@ test('selection feedback is optional and controller disconnects cannot break an 
     assert.doesNotThrow(()=>confirmSelection({gamepad:{hapticActuators:[{pulse:()=>{throw Error('disconnected');}}]}}));
     confirmSelection({gamepad:{hapticActuators:[{pulse:()=>Promise.reject(Error('unavailable'))}]}});
     await new Promise(resolve=>setImmediate(resolve));
+});
+
+test('capped voxel scan reaches the feet before distant floor cells and visits each cell once', () => {
+    const c={gridMinX:-2.4,gridMinY:0,gridMinZ:-2.4,numVoxelsX:61,numVoxelsY:1,numVoxelsZ:61,voxelResolution:.08,flipXY:false,
+        isVoxelSolid:(x,y,z)=>x>=0&&x<61&&y===0&&z>=0&&z<61};
+    const cells=[...surfaceCells(c,new Vec3(0,1.2,0))].filter(Boolean);
+    assert.ok(cells.length>2000);
+    assert.equal(new Set(cells.map(c=>c.join(','))).size,cells.length);
+    const first=cells[0];
+    assert.ok(first[0]<=1e-6&&first[0]+first[3]>=-1e-6);
+    assert.ok(first[2]<=1e-6&&first[2]+first[3]>=-1e-6);
+    const ring=c=>Math.max(Math.round(Math.abs((c[0]-first[0])/.08)),Math.round(Math.abs((c[2]-first[2])/.08)));
+    assert.ok(cells.every((c,i)=>i===0||ring(c)>=ring(cells[i-1])));
+    const scans=nearbySurfaceCells([c,{...c,gridMinY:.1}],new Vec3(0,1.2,0));
+    close(scans.next().value[1],0);close(scans.next().value[1],.1);
 });
