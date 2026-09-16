@@ -70,3 +70,9 @@ Vision Pro 模拟器启动为 visionOS 26.2。已打开本地 URL，但 Safari �
 随后用户报告 VR/AR 又模糊。读取当时会话：immersive-ar、XR scale **0.85**、DPR 4、graphics maxPixelRatio 1.25、framebuffer **1020×510**。说明页面仍运行此前尚未刷新的旧代码，临时原生分辨率绑定未跨会话保留；不是已提交 scale 1 代码的重入结果。该会话已出现左手 XR 输入源（hand=true、axes=[]），说明至少该手部输入通道实际可用。
 
 已保存记录、退出该会话并刷新本地页面，新的 manager scale 为 **1**。页面显示 visible / focused，但 requestAnimationFrame 超时、应用 frame=0，初始流式加载等待画面刷新；已请用户戴上头显回到窗口。最终 framebuffer 和新 6DoF 位姿必须等实际 XR 帧后复核，尚不记通过。系统跟踪属性与之前不同，不能仅凭属性值代替 `emulatedPosition` 实测。
+
+## 用户确认：清晰度与定位恢复
+
+用户随后明确反馈：“清晰度和定位没有问题了”。据此将本轮 PICO 清晰度与真实定位的**用户体验复核**记为通过。再次读取时已退出 XR，页面 loaded=true、frame=2164、manager scale=1，普通浏览恢复；由于采样时没有活动会话，未取得本次新的 framebuffer 数字或 `emulatedPosition`，不把用户反馈改写为机器测量结果。
+
+此前 3DoF 和旧页面 510×510 是已定位的历史问题。单右手柄、侧键横移、菜单暂停移动、退出重入的完整操作路线，以及原生分辨率下连续探索性能和窗口单手替代操作，仍需分别验证。已向用户请求下一段右手柄路线反馈。
