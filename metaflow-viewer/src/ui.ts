@@ -1039,8 +1039,7 @@ const initUI = (global: Global) => {
     const arChanged = () => dom.arMode.classList[state.hasAR ? 'remove' : 'add']('hidden');
     const vrChanged = () => dom.vrMode.classList[state.hasVR ? 'remove' : 'add']('hidden');
 
-    // XR sessions require a WebGL device. Under WebGPU, prompt the user to reload
-    // the viewer with the WebGL renderer before starting AR/VR. Use replace() so
+    // Offer WebGL only when the active backend cannot start this session. Use replace() so
     // the renderer-switch reload doesn't add a back-button entry — important
     // because the viewer often runs inside an iframe (e.g. superspl.at /scene).
     const reloadWithWebgl = () => {
@@ -1072,6 +1071,11 @@ const initUI = (global: Global) => {
     dom.xrModal.addEventListener('pointerdown', hideXrModal);
 
     const handleXrClick = (type: 'AR' | 'VR') => {
+        if (state.xrStatus !== 'idle') return;
+        if (!state.loaded) {
+            state.xrError = localize('xr.loading');
+            return;
+        }
         global.analytics.track('xr_requested', {
             xr_mode: type,
             renderer: global.renderer
@@ -1085,6 +1089,7 @@ const initUI = (global: Global) => {
             });
             showXrModal();
         } else {
+            state.xrError = localize('xr.failed');
             global.analytics.track('xr_failed', {
                 xr_mode: type,
                 reason: 'current_backend_unavailable'
@@ -1094,6 +1099,31 @@ const initUI = (global: Global) => {
 
     dom.arMode.addEventListener('click', () => handleXrClick('AR'));
     dom.vrMode.addEventListener('click', () => handleXrClick('VR'));
+
+    const xrStatusMessage = document.getElementById('xrStatusMessage');
+    const xrStatusText = document.getElementById('xrStatusText');
+    const xrRetryWebgl = document.getElementById('xrRetryWebgl');
+    xrRetryWebgl.addEventListener('click', reloadWithWebgl);
+    const updateXrStatus = () => {
+        const busy = state.xrStatus !== 'idle';
+        for (const button of [dom.arMode, dom.vrMode]) {
+            button.setAttribute('aria-disabled', String(busy || !state.loaded));
+        }
+        const message =
+            state.xrError ||
+            (state.xrStatus === 'starting'
+                ? localize('xr.starting')
+                : state.xrStatus === 'ending'
+                  ? localize('xr.ending')
+                  : '');
+        xrStatusText.textContent = message;
+        xrStatusMessage.classList.toggle('hidden', !message || state.xrStatus === 'active');
+        xrRetryWebgl.classList.toggle('hidden', !state.xrError || global.renderer !== 'webgpu' || busy);
+    };
+    events.on('xrStatus:changed', updateXrStatus);
+    events.on('xrError:changed', updateXrStatus);
+    events.on('loaded:changed', updateXrStatus);
+    updateXrStatus();
 
     events.on('hasAR:changed', arChanged);
     events.on('hasVR:changed', vrChanged);

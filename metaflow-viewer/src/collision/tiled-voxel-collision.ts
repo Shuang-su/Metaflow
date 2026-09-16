@@ -78,6 +78,18 @@ class TiledVoxelCollision implements Collision {
         return result;
     }
 
+    prepareForWorldPosition(x: number, z: number): void {
+        this.updateForQueryPosition(this.loadOptions.coordinateSpace === 'metaflow-rz180' ? -x : x, z);
+    }
+
+    isReadyAt(x: number, z: number): boolean {
+        const queryX = this.loadOptions.coordinateSpace === 'metaflow-rz180' ? -x : x;
+        const tile = this.manifest.tiles.find(
+            ({ coreBounds: { min, max } }) => queryX >= min[0] && queryX < max[0] && z >= min[2] && z < max[2]
+        );
+        return !!tile && this._activeIds.has(tile.id) && this._loaded.has(tile.id);
+    }
+
     isCurrentTileLoaded(): boolean {
         return this._centerId !== '' && this._loaded.has(this._centerId);
     }

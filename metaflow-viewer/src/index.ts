@@ -398,6 +398,8 @@ const main = async (canvas: HTMLCanvasElement, settingsJson: any, config: Config
         animationDuration: 0,
         animationTime: 0,
         animationPaused: true,
+        xrStatus: 'idle',
+        xrError: '',
         hasAR: false,
         hasVR: false,
         hasCollision: false,

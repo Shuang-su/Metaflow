@@ -77,7 +77,7 @@
     "help.key.esc": "Esc",
 
     "xr-modal.title": "WebGL erforderlich",
-    "xr-modal.message": "AR und VR werden vom WebGPU-Renderer nicht unterstützt. Mit OK wird der Viewer mit WebGL neu geladen.",
+    "xr-modal.message": "Dieser immersive Modus funktioniert auf diesem Gerät nicht mit dem aktuellen Renderer. Mit WebGL neu laden und den Modus erneut auswählen.",
     "xr-modal.cancel": "Abbrechen",
     "xr-modal.ok": "OK",
 

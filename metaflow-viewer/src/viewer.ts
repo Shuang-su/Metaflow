@@ -42,6 +42,7 @@ import { Picker } from './picker';
 import type { ExperienceSettings, PostEffectSettings } from './settings';
 import type { Config, Global, LoadMode } from './types';
 import { TiledVoxelDebugOverlay, VoxelDebugOverlay } from './voxel-debug-overlay';
+import { VoxelWireOverlay } from './voxel-wire-overlay';
 
 function resolveRevealDotProfile(config: Config, loadingMode: LoadMode): RevealDotProfile {
     if (loadingMode === 'legacy-sog' && config.experienceType === 'character') {
@@ -245,6 +246,8 @@ class Viewer {
 
     voxelOverlay: VoxelDebugOverlay | TiledVoxelDebugOverlay | null = null;
 
+    voxelWireOverlay: VoxelWireOverlay | null = null;
+
     tiledVoxelCollision: TiledVoxelCollision | null = null;
 
     meshOverlay: MeshDebugOverlay | null = null;
@@ -410,7 +413,7 @@ class Viewer {
 
         // reconfigure camera when entering/exiting XR
         app.xr.on('start', () => this.configureCamera(settings));
-        app.xr.on('end', () => this.configureCamera(settings));
+        app.xr.on('end', () => queueMicrotask(() => this.configureCamera(settings)));
 
         // construct debug ministats
         if (config.ministats) {
@@ -511,14 +514,22 @@ class Viewer {
 
                 if (this.tiledVoxelCollision) {
                     const p = camera.getPosition();
-                    this.tiledVoxelCollision.updateForQueryPosition(-p.x, p.z);
+                    this.tiledVoxelCollision.prepareForWorldPosition(p.x, p.z);
                 }
             }
         });
 
         // Render voxel debug overlay
         app.on('prerender', () => {
-            this.voxelOverlay?.update();
+            if (this.voxelOverlay) {
+                this.voxelOverlay.enabled = state.collisionOverlayEnabled && !app.xr.active;
+                this.voxelOverlay.update();
+            }
+            if (this.voxelWireOverlay) {
+                this.voxelWireOverlay.enabled =
+                    state.collisionOverlayEnabled && (renderer === 'webgl' || app.xr.active);
+                this.voxelWireOverlay.update();
+            }
         });
 
         let revealPlaybackQueued = false;
@@ -711,8 +722,14 @@ class Viewer {
             };
 
             const createCollisionOverlay = (nextCollision: Collision) => {
-                // Voxel overlays use compute shaders and therefore remain
-                // WebGPU-only; mesh collision uses standard line rendering.
+                // Keep the full compute overlay on desktop WebGPU. XR and WebGL use bounded world geometry.
+                if (nextCollision instanceof VoxelCollision || nextCollision instanceof TiledVoxelCollision) {
+                    this.voxelWireOverlay = new VoxelWireOverlay(app, nextCollision, camera);
+                    state.hasCollisionOverlay = true;
+                    events.on('collisionOverlayEnabled:changed', () => {
+                        app.renderNextFrame = true;
+                    });
+                }
                 if (config.heatmap && renderer === 'webgl') {
                     console.warn('[Heatmap] WebGPU is required; continuing without the voxel heatmap overlay.');
                 }
@@ -723,7 +740,7 @@ class Viewer {
                     this.voxelOverlay = overlay;
                     state.hasCollisionOverlay = true;
                     events.on('collisionOverlayEnabled:changed', (value: boolean) => {
-                        overlay.enabled = value;
+                        overlay.enabled = value && !app.xr.active;
                         app.renderNextFrame = true;
                     });
                 } else if (nextCollision instanceof TiledVoxelCollision && renderer !== 'webgl') {
@@ -733,7 +750,7 @@ class Viewer {
                     this.voxelOverlay = overlay;
                     state.hasCollisionOverlay = true;
                     events.on('collisionOverlayEnabled:changed', (value: boolean) => {
-                        overlay.enabled = value;
+                        overlay.enabled = value && !app.xr.active;
                         app.renderNextFrame = true;
                     });
                 } else if (nextCollision instanceof MeshCollision) {
@@ -754,7 +771,7 @@ class Viewer {
                     // Walk waits for the foot tile, not the full 3x3 neighborhood.
                     // Adjacent tiles continue loading in the background.
                     const p = camera.getPosition();
-                    collision.updateForQueryPosition(-p.x, p.z);
+                    collision.prepareForWorldPosition(p.x, p.z);
                     ready = ready && collision.isCurrentTileLoaded();
                 }
                 state.walkAllowed = ready;
@@ -762,6 +779,9 @@ class Viewer {
 
             const attachCollision = (nextCollision: Collision | null) => {
                 collision = nextCollision;
+                global.collision = nextCollision;
+                if (nextCollision) global.collisionStatus = 'ready';
+                else if (!deferredCollisionLoad) global.collisionStatus = 'unavailable';
                 this.inputController.collision = nextCollision;
                 state.hasCollision = !!nextCollision;
                 updateWalkReadiness();
@@ -801,8 +821,12 @@ class Viewer {
             if (deferredCollisionLoad) {
                 events.once('firstFrame', () => {
                     deferredCollisionLoad()
-                        .then(attachCollision)
+                        .then((nextCollision) => {
+                            global.collisionStatus = nextCollision ? 'ready' : 'unavailable';
+                            attachCollision(nextCollision);
+                        })
                         .catch((err: Error) => {
+                            global.collisionStatus = 'unavailable';
                             console.warn('[Collision] Failed to attach deferred collision:', err);
                         });
                 });
@@ -947,11 +971,14 @@ class Viewer {
                     return state.performanceMode ? quality.low : quality.high;
                 };
 
-                gsplat.splatBudget = budget() * 1000000;
-                // Match SuperSplat Viewer v1.29.1. A non-zero quality
-                // threshold avoids the v1.29.0 every-frame SH regression,
-                // while 1° / 0.2° keeps view-dependent color responsive.
-                gsplat.colorUpdateAngle = state.performanceMode ? 1 : 0.2;
+                // XR owns temporary budgets; reveal completion must still unlock the LOD range.
+                if (!app.xr.active) {
+                    gsplat.splatBudget = budget() * 1000000;
+                    // Match SuperSplat Viewer v1.29.1. A non-zero quality
+                    // threshold avoids the v1.29.0 every-frame SH regression,
+                    // while 1° / 0.2° keeps view-dependent color responsive.
+                    gsplat.colorUpdateAngle = state.performanceMode ? 1 : 0.2;
+                }
                 gsplatComponent.lodRangeMin = 0;
                 gsplatComponent.lodRangeMax = 1000;
                 // Restore the default cull threshold lowered during the streaming reveal.

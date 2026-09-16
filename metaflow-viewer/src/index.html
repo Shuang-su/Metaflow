@@ -970,12 +970,16 @@
             <div id="tooltip"></div>
 
             <!-- XR WebGL-required modal -->
+            <div id="xrStatusMessage" class="hidden" role="status" aria-live="polite">
+                <span id="xrStatusText"></span>
+                <button id="xrRetryWebgl" class="hidden" data-i18n="xr.retry-webgl">Try the WebGL renderer</button>
+            </div>
             <div id="xrModal" class="hidden" onwheel="event.stopPropagation()">
                 <div id="xrModalContent" onpointerdown="event.stopPropagation()">
                     <h2 data-i18n="xr-modal.title">WebGL Required</h2>
                     <p data-i18n="xr-modal.message">
-                        AR and VR are not supported on the WebGPU renderer. Pressing OK will reload the viewer with
-                        WebGL.
+                        This device cannot use the current renderer for the selected immersive mode. Reload with WebGL,
+                        then try again.
                     </p>
                     <div id="xrModalButtons">
                         <button id="xrModalCancel" data-i18n="xr-modal.cancel">Cancel</button>
