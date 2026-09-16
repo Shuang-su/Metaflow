@@ -1,7 +1,7 @@
 # MF-73 验证记录
 
 状态：实现与桌面回归完成；草稿待审，PICO 路线验收未完成。2026-09-16。
-基线 MF-70 / ba2fee5b，分支 `codex/xr-wheel-arc`，依赖 PR #71。未合并、未更新版本、未发布。
+基线 MF-70 / ba2fee5b，分支 `codex/xr-wheel-arc`，草稿 [PR #74](https://github.com/Shuang-su/Metaflow/pull/74) 依赖 PR #71。未合并、未更新版本、未发布。
 
 ## 已实现与自查
 

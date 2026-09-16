@@ -25,7 +25,6 @@
 | [MF-30](https://github.com/Shuang-su/Metaflow/issues/30) | Completed；[PR #41](https://github.com/Shuang-su/Metaflow/pull/41) 与 recovery [PR #45](https://github.com/Shuang-su/Metaflow/pull/45) 已 squash merge | Viewer `5.19.1` production stable；`5.19.0` 在 deployment 前失败 | [`30-viewer-upstream-v1.29.1/spec.md`](30-viewer-upstream-v1.29.1/spec.md)、[`plan.md`](30-viewer-upstream-v1.29.1/plan.md)、[`proposal.md`](30-viewer-upstream-v1.29.1/proposal.md)、[`evidence.md`](30-viewer-upstream-v1.29.1/evidence.md) 与 Completion Dossier 记录 v1.29.1 实施、深度研究、冲突、失败发布、恢复、精确 D2 CLI/API deploy、production smoke 与 15 分钟观察；运行时产品 SHA 为 `26e311c`，发布控制 SHA 为 `534b013`，生产 deploy 为 `6a7efc396f36c800cfa0702e` |
 | [MF-32](https://github.com/Shuang-su/Metaflow/issues/32) | Done（本注册表进入 `main` 后） | 文档维护 | 分类历史工件、修正活动模板，并完善 25 篇中文 Viewer/Editor 手册；PR、Commit 与验证以实时 Issue 完成交付为准 |
 | [MF-70](https://github.com/Shuang-su/Metaflow/issues/70) | Implementing；完整真机验收未完成 | 当前行为契约与验证记录 | [单人头显漫游 Spec](70-xr-immersive-roaming/spec.md) 与 [验证记录](70-xr-immersive-roaming/verification.md)；独立分支待审，不发布生产 |
-
 | [MF-73](https://github.com/Shuang-su/Metaflow/issues/73) | Draft；PICO路线验收待完成 | 单右手柄轮盘与弧线增强 | [Spec](73-xr-wheel-arc/spec.md) 与 [验证记录](73-xr-wheel-arc/verification.md)；依赖MF-70，不发布生产 |
 
 ## 权威顺序
