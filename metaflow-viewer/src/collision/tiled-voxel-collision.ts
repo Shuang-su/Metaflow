@@ -90,6 +90,49 @@ class TiledVoxelCollision implements Collision {
         return !!tile && this._activeIds.has(tile.id) && this._loaded.has(tile.id);
     }
 
+    isReadyAlongSegment(x0: number, z0: number, x1: number, z1: number): boolean {
+        if (!this.isReadyAt(x0, z0) || !this.isReadyAt(x1, z1)) return false;
+        const flip = this.loadOptions.coordinateSpace === 'metaflow-rz180' ? -1 : 1;
+        x0 *= flip;
+        x1 *= flip;
+        const dx = x1 - x0,
+            dz = z1 - z0;
+        const intervals: [number, number][] = [];
+        for (const id of this._activeIds) {
+            if (!this._loaded.has(id)) continue;
+            const tile = this._tilesById.get(id);
+            if (!tile) continue;
+            const { min, max } = tile.coreBounds;
+            let low = 0,
+                high = 1;
+            for (const [start, delta, a, b] of [
+                [x0, dx, min[0], max[0]],
+                [z0, dz, min[2], max[2]]
+            ]) {
+                if (Math.abs(delta) < 1e-12) {
+                    if (start < a || start >= b) {
+                        high = -1;
+                        break;
+                    }
+                } else {
+                    const first = (a - start) / delta,
+                        last = (b - start) / delta;
+                    low = Math.max(low, Math.min(first, last));
+                    high = Math.min(high, Math.max(first, last));
+                }
+            }
+            if (low <= high) intervals.push([low, high]);
+        }
+        intervals.sort((a, b) => a[0] - b[0]);
+        let covered = 0;
+        for (const [start, end] of intervals) {
+            if (start > covered + 1e-9) return false;
+            covered = Math.max(covered, end);
+            if (covered >= 1) return true;
+        }
+        return false;
+    }
+
     isCurrentTileLoaded(): boolean {
         return this._centerId !== '' && this._loaded.has(this._centerId);
     }

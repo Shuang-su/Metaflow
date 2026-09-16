@@ -23,6 +23,8 @@ type RayHit = {
 type Collision = {
     /** Optional streamed-collision queries use world coordinates, like the other methods. */
     isReadyAt?(x: number, z: number): boolean;
+    /** Entire horizontal segment is covered by loaded active tiles; never changes streaming focus. */
+    isReadyAlongSegment?(x0: number, z0: number, x1: number, z1: number): boolean;
     prepareForWorldPosition?(x: number, z: number): void;
 
     queryRay(ox: number, oy: number, oz: number, dx: number, dy: number, dz: number, maxDist: number): RayHit | null;
