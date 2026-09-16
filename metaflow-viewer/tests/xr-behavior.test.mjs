@@ -1,0 +1,252 @@
+import assert from 'node:assert/strict';
+import { readFileSync, writeFileSync, mkdtempSync, rmSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join, resolve, dirname } from 'node:path';
+import { fileURLToPath, pathToFileURL } from 'node:url';
+import test, { after } from 'node:test';
+import ts from 'typescript';
+import { Entity, EventHandler, Mat4, Vec3 } from 'playcanvas';
+
+// Compile the shipping modules into a temporary ESM graph. Works on the project's Node 20 baseline.
+const directory = mkdtempSync(join(tmpdir(), 'metaflow-xr-tests-'));
+after(() => rmSync(directory, { recursive: true, force: true }));
+const compiled = new Map();
+const compile = (file) => {
+    if (compiled.has(file)) return compiled.get(file);
+    const output = join(directory, `${compiled.size}.mjs`);
+    const url = pathToFileURL(output).href;
+    compiled.set(file, url);
+    if (file.endsWith('.json')) {
+        writeFileSync(output, `export default ${readFileSync(file, 'utf8')}`);
+        return url;
+    }
+    let source = ts.transpileModule(readFileSync(file, 'utf8'), {
+        compilerOptions: { target: ts.ScriptTarget.ES2022, module: ts.ModuleKind.ESNext }
+    }).outputText;
+    source = source.replace(/(from\s+['"])([^'"]+)(['"])/g, (_, before, specifier, after) => {
+        let target;
+        if (specifier.startsWith('.')) {
+            let dependency = resolve(dirname(file), specifier);
+            if (!/\.[a-z]+$/i.test(dependency)) {
+                try { readFileSync(dependency + '.ts'); dependency += '.ts'; }
+                catch { dependency = join(dependency, 'index.ts'); }
+            }
+            target = compile(dependency);
+        } else target = import.meta.resolve(specifier);
+        return before + target + after;
+    });
+    writeFileSync(output, source);
+    return url;
+};
+const loadTs = (relative) => import(compile(fileURLToPath(new URL(relative, import.meta.url))));
+const { hasStick, singleStickIntent, readStick, horizontalForward, rotateAroundHead, placeHead, moveOnGround, teleportTarget, standableFloor, findEntryFloor } = await loadTs('../src/xr/locomotion.ts');
+const { ensureNativeXrResolution } = await loadTs('../src/xr/presentation.ts');
+const { captureSessionState } = await loadTs('../src/xr/session-state.ts');
+const { XrVrNavigation } = await loadTs('../src/xr-navigation.ts');
+const { XrSpatialMenu } = await loadTs('../src/xr/menu.ts');
+const { TiledVoxelCollision } = await loadTs('../src/collision/tiled-voxel-collision.ts');
+
+const close = (a, b, message) => assert.ok(Math.abs(a - b) < 0.00001, `${message ?? ''}: ${a} != ${b}`);
+const ground = (options = {}) => ({
+    voxelResolution: .05,
+    isReadyAt: (x) => x < (options.loadedUntil ?? Infinity),
+    querySurfaceNormal: () => ({ nx: 0, ny: options.normalY ?? 1, nz: 0 }),
+    queryRay(ox, oy, oz, dx, dy, dz, max) {
+        if (dy >= 0 || options.noFloor) return null;
+        const t = (2 - oy) / dy;
+        return t >= 0 && t <= max ? { x: ox + dx * t, y: 2, z: oz + dz * t } : null;
+    },
+    queryCapsule: (x) => x + .18 > (options.wall ?? Infinity),
+    querySphere: () => false,
+    isFreeAt: () => true
+});
+
+test('stick deadzone preserves analog speed, clamps diagonals, and keeps neutral stick separate from touchpad', () => {
+    assert.deepEqual(readStick([0.05, -0.05]), [0, 0]);
+    close(readStick([0.575, 0])[0], 0.5);
+    close(readStick([1, 0])[0], 1);
+    close(Math.hypot(...readStick([1, 1])), 1);
+    assert.deepEqual(readStick([1, 1, 0, 0]), [0, 0]);
+    assert.deepEqual(readStick([NaN, Infinity]), [0, 0]);
+});
+
+test('pitch changes do not change walking speed; vertical gaze retains the last direction', () => {
+    const previous = new Vec3(0, 0, -1);
+    horizontalForward(new Vec3(.5, .866, 0), previous);
+    close(previous.length(), 1);
+    assert.deepEqual(horizontalForward(new Vec3(0, 1, 0), previous).toArray(), [1, 0, 0]);
+});
+
+test('turning preserves the room-scale head world position and only rotates the rig', () => {
+    const rig = new Entity(); const head = new Entity(); rig.addChild(head);
+    rig.setPosition(10, 2, -3); rig.setEulerAngles(0, 57, 0); head.setLocalPosition(1, 1.6, .4);
+    const before = head.getPosition().clone(); const local = head.getLocalPosition().clone();
+    rotateAroundHead(rig, head, 30);
+    close(head.getPosition().distance(before), 0);
+    close(head.getLocalPosition().distance(local), 0);
+});
+
+test('teleport placement handles arbitrary rig yaw and horizontal tracked offsets', () => {
+    for (const yaw of [0, 30, 90, 180, -120]) {
+        const rig = new Entity(); const head = new Entity(); rig.addChild(head);
+        rig.setEulerAngles(0, yaw, 0); head.setLocalPosition(.7, 1.6, -.3);
+        const local = head.getLocalPosition().clone(); const target = new Vec3(4, 3.7, -8);
+        placeHead(rig, head, target);
+        close(head.getPosition().distance(target), 0);
+        close(head.getLocalPosition().distance(local), 0);
+    }
+});
+
+test('teleport rejects missing collision, unknown tiles, steep surfaces and insufficient clearance', () => {
+    const origin = new Vec3(0, 3.6, 0), ray = new Vec3(0, -1, -1).normalize();
+    assert.equal(teleportTarget(null, origin, ray, origin, 1.6), null);
+    assert.equal(teleportTarget(ground({ loadedUntil: 0 }), origin, ray, origin, 1.6), null);
+    assert.equal(teleportTarget(ground({ normalY: 0 }), origin, ray, origin, 1.6), null);
+    assert.equal(teleportTarget(ground({ wall: .1 }), origin, ray, origin, 1.6), null);
+    const target = teleportTarget(ground(), origin, ray, origin, 1.6);
+    close(target.y, 2); close(target.z, -1.6);
+});
+
+test('ground movement stops at walls, unready tile edges and unsupported floors', () => {
+    const head = new Vec3(0, 3.6, 0);
+    const wall = moveOnGround(ground({ wall: .6 }), head, 2, 1.6, 2, .1);
+    assert.ok(wall.x <= .42); assert.ok(wall.z > 0);
+    const tile = moveOnGround(ground({ loadedUntil: .6 }), head, 2, 1.6, 2, 0);
+    assert.ok(tile.x < .42);
+    assert.deepEqual(moveOnGround(ground({ noFloor: true }), head, 2, 1.6, 1, 0).toArray(), [0, 2, 0]);
+    assert.equal(standableFloor(ground(), 0, 2.2, 0, 1.6, .5), 2);
+});
+
+test('streamed readiness uses the declared world coordinate transform and rejects outside bounds', () => {
+    const collision = Object.create(TiledVoxelCollision.prototype);
+    collision.loadOptions = { coordinateSpace: 'metaflow-rz180' };
+    collision.manifest = { tiles: [{id:'a',coreBounds:{min:[-3,-5,-1],max:[-1,5,1]}}] };
+    collision._loaded = new Map([['a', {}]]); collision._activeIds = new Set(['a']);
+    assert.equal(collision.isReadyAt(2, 0), true);
+    assert.equal(collision.isReadyAt(-2, 0), false);
+    assert.equal(collision.isReadyAt(100, 0), false);
+    collision._loaded.clear(); assert.equal(collision.isReadyAt(2, 0), false);
+});
+
+test('camera and rendering restore after cancellation/end, once, including nondefault rig state', () => {
+    const rig = new Entity(); const camera = new Entity(); rig.addChild(camera);
+    rig.setPosition(1, 2, 3); camera.setLocalPosition(.3, .4, .5);
+    camera.camera = { nearClip:.2,farClip:500,clearColor:{clone:()=>({r:.2,g:.3,b:.4,a:1})},fov:65,horizontalFov:false,aspectRatio:2 };
+    const app = { autoRender:false,scene:{gsplat:{splatBudget:4e6,colorUpdateAngle:.2,lodUpdateAngle:90,lodBehindPenalty:5}} };
+    const restore = captureSessionState({app,camera});
+    camera.camera.nearClip=.03; camera.camera.fov=110; rig.setPosition(100,0,0); camera.setLocalPosition(0,1.6,0);
+    app.scene.gsplat.splatBudget=1e6; app.autoRender=true;
+    restore();
+    assert.deepEqual(rig.getPosition().toArray(),[1,2,3]); assert.deepEqual(camera.getLocalPosition().toArray(),[.3,.4,.5]);
+    assert.equal(camera.camera.nearClip,.2); assert.equal(camera.camera.fov,65);
+    assert.equal(app.scene.gsplat.splatBudget,4e6); assert.equal(app.autoRender,false);
+    camera.camera.nearClip=.8; restore(); assert.equal(camera.camera.nearClip,.8);
+});
+
+test('selectend cancellation and source loss do not teleport; menu selection is exclusive', () => {
+    const xr = new EventHandler(); xr.input = new EventHandler(); xr.visibilityState='visible'; xr._referenceSpace={};
+    const rig = new Entity(); rig.script = { enabled: true };
+    const nav = new XrVrNavigation({app:{xr},entity:rig});
+    let selections=0, teleports=0;
+    nav.menu={open:true,begin:()=>true,select:()=>selections++,release:()=>{},cancel:()=>{}};
+    nav.global={}; nav.initialized=true; nav.sessionVR=true;
+    nav.teleport=()=>teleports++;
+    const source = new EventHandler(); source.inputSource={targetRaySpace:{}};
+    nav.addSource(source);
+    const event={frame:{getPose:()=>({})}};
+    source.fire('selectstart',event); source.fire('selectend',event);
+    assert.equal(selections,0); assert.equal(teleports,0);
+    source.fire('selectstart',event); source.fire('select',event); source.fire('selectend',event);
+    assert.equal(selections,1); assert.equal(teleports,0);
+    nav.menu.open=false;nav.menu.begin=()=>false;
+    source.fire('selectstart',event); nav.removeSource(source);source.fire('select',event);
+    assert.equal(teleports,0);assert.equal(nav.handlers.size,0);
+});
+
+test('entry searches nearby loaded ground, keeps 45 degree voxel normals and refuses missing floor', () => {
+    const collision = ground({ normalY: Math.SQRT1_2 });
+    collision.queryCapsule = (x) => Math.abs(x) < .24;
+    const floor = findEntryFloor(collision, new Vec3(0, 3.6, 0), 1.6);
+    assert.ok(Math.abs(floor.x) >= .24);
+    assert.equal(findEntryFloor(ground({ noFloor: true }), new Vec3(0, 3.6, 0), 1.6), null);
+});
+
+const navigationHarness = () => {
+    const xr = new EventHandler(); xr.active = true; xr.visibilityState = 'visible'; xr.input = new EventHandler();
+    const rig = new Entity(); rig.script = { enabled: true }; const camera = new Entity(); rig.addChild(camera);
+    camera.setLocalPosition(.4, 1.6, .3);
+    const nav = new XrVrNavigation({app:{xr},entity:rig});
+    nav.global={camera,collision:null,collisionStatus:'unavailable'};
+    nav.menu={open:false,show(){this.open=true;},close(){this.open=false;},hide(){this.open=false;},cancel(){},release(){},update(){}};
+    nav.updateMarker=()=>{};
+    nav.initialized=true; nav.sessionVR=true; nav.floor=0;
+    return { nav, rig, camera };
+};
+
+test('menu and loss of tracking stop software movement, neutral input rearms, comfort has snap hysteresis', () => {
+    const {nav,rig,camera}=navigationHarness();
+    const left={gamepad:{axes:[0,0,0,0],buttons:[]},handedness:'left'};
+    const right={gamepad:{axes:[0,0,0,0],buttons:[]},handedness:'right'};
+    nav.inputSources.add(left);nav.inputSources.add(right);nav.validSources.add(left);nav.validSources.add(right);
+    const tick=()=>{nav.lastFrame=performance.now();nav.update(.02);};
+    tick(); left.gamepad.axes[3]=-1; nav.menu.open=true; const before=camera.getPosition().clone();tick();
+    close(camera.getPosition().distance(before),0);
+    nav.menu.open=false;tick();close(camera.getPosition().distance(before),0);
+    left.gamepad.axes[3]=0;tick();left.gamepad.axes[3]=-1;tick();
+    assert.ok(camera.getPosition().distance(before)>.01);
+    nav.lastFrame=0;nav.update(.02);const stopped=camera.getPosition().clone();tick();close(camera.getPosition().distance(stopped),0);
+    nav.validSources.add(left);nav.validSources.add(right);left.gamepad.axes[3]=0;tick();
+    nav.preferences.locomotion='comfort';right.gamepad.axes[2]=1;const pivot=camera.getPosition().clone();tick();
+    const rotated=rig.getLocalRotation().clone();close(camera.getPosition().distance(pivot),0);
+    tick();assert.ok(rig.getLocalRotation().equals(rotated));
+    right.gamepad.axes[2]=0;tick();right.gamepad.axes[2]=1;tick();assert.ok(!rig.getLocalRotation().equals(rotated));
+});
+
+test('late collision requires explicit calibration; tracked pose and seated height remain independent', () => {
+    const {nav,camera}=navigationHarness();nav.entryEye.set(0,3.6,0);nav.global.collisionStatus='loading';
+    nav.placeInitial();assert.equal(nav.needsFloorCalibration,true);
+    const tracked=camera.getLocalPosition().clone();nav.global.collision=ground();nav.global.collisionStatus='ready';
+    nav.onMenuAction('calibrate');assert.equal(nav.needsFloorCalibration,false);close(camera.getPosition().y,3.625);
+    nav.onMenuAction('posture');close(camera.getPosition().y,3.675);close(camera.getLocalPosition().distance(tracked),0);
+    nav.onMenuAction('posture');close(camera.getPosition().y,3.625);
+});
+
+test('spatial panel selection matches the displayed row under rotation and consumes misses', () => {
+    const menu=Object.create(XrSpatialMenu.prototype),entity=new Entity();
+    entity.setPosition(4,2,-3);entity.setEulerAngles(15,90,0);entity.setLocalScale(.68,.86,1);
+    let selected='';Object.assign(menu,{entity,canvas:{height:1024},inverse:new Mat4(),rayOrigin:new Vec3(),rayDirection:new Vec3(),pressed:new Map(),open:true,rows:[{action:'resume'},{action:'reset'}],action:(action)=>selected=action});
+    const transform=entity.getWorldTransform();const origin=transform.transformPoint(new Vec3(0,0,1));
+    const row=transform.transformPoint(new Vec3(0,.5-(242+96+40)/1024,0));
+    const source={getOrigin:()=>origin,getDirection:()=>row.clone().sub(origin).normalize()};
+    assert.equal(menu.begin(source),true);menu.select(source);assert.equal(selected,'reset');
+    row.copy(transform.transformPoint(new Vec3(2,0,0)));selected='';assert.equal(menu.begin(source),true);menu.select(source);assert.equal(selected,'');
+});
+
+test('XR resolution corrects a window-to-headset DPR change without altering desktop preferences', () => {
+    for (const backend of ['webgl','webgpu']) {
+        const calls=[], session={};const onError=()=>{};
+        const global={renderer:backend,app:{graphicsDevice:{maxPixelRatio:1.25},xr:{session,xrBridge:{attachPresentation:(...args)=>calls.push(args)}}},camera:{camera:{nearClip:.03,farClip:1000}}};
+        ensureNativeXrResolution(global,1.25,onError);assert.equal(calls.length,0);
+        ensureNativeXrResolution(global,4,onError);
+        assert.equal(calls.length,1);assert.equal(calls[0][0],session);
+        assert.equal(calls[0][1].framebufferScaleFactor,1);
+        assert.equal(calls[0][1].onBindingError,onError);
+        assert.equal(global.app.graphicsDevice.maxPixelRatio,1.25);
+    }
+});
+
+test('single right controller can walk and turn, with grip enabling strafe; hands are not mistaken for sticks', () => {
+    assert.equal(hasStick({gamepad:{axes:[],buttons:[{pressed:true}]}}),false);
+    assert.equal(hasStick({gamepad:{axes:[0,0,0,0]}}),true);
+    assert.deepEqual(singleStickIntent([0,0,1,0],false),{move:[0,0],turn:1});
+    assert.deepEqual(singleStickIntent([0,0,1,0],true),{move:[1,0],turn:0});
+    const {nav,rig,camera}=navigationHarness();
+    const source={gamepad:{axes:[0,0,0,0],buttons:[{},{}]},handedness:'right'};
+    nav.inputSources.add(source);nav.validSources.add(source);
+    const tick=()=>{nav.lastFrame=performance.now();nav.update(.02);};tick();
+    source.gamepad.axes[3]=-1;const before=camera.getPosition().clone();tick();assert.ok(camera.getPosition().distance(before)>.01);
+    source.gamepad.axes[3]=0;source.gamepad.axes[2]=1;const pivot=camera.getPosition().clone();const rotation=rig.getLocalRotation().clone();tick();
+    close(camera.getPosition().distance(pivot),0);assert.ok(!rig.getLocalRotation().equals(rotation));
+    source.gamepad.buttons[1].pressed=true;const strafeRotation=rig.getLocalRotation().clone();tick();
+    assert.ok(camera.getPosition().distance(pivot)>.01);assert.ok(rig.getLocalRotation().equals(strafeRotation));
+});

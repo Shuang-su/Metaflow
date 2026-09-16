@@ -77,7 +77,7 @@
     "help.key.esc": "Esc",
 
     "xr-modal.title": "Se requiere WebGL",
-    "xr-modal.message": "AR y VR no son compatibles con el renderizador WebGPU. Al pulsar OK se recargará el visor con WebGL.",
+    "xr-modal.message": "Este dispositivo no puede usar el renderizador actual para este modo inmersivo. Recarga con WebGL y vuelve a seleccionar el modo.",
     "xr-modal.cancel": "Cancelar",
     "xr-modal.ok": "OK",
 

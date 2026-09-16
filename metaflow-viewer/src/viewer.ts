@@ -410,7 +410,7 @@ class Viewer {
 
         // reconfigure camera when entering/exiting XR
         app.xr.on('start', () => this.configureCamera(settings));
-        app.xr.on('end', () => this.configureCamera(settings));
+        app.xr.on('end', () => queueMicrotask(() => this.configureCamera(settings)));
 
         // construct debug ministats
         if (config.ministats) {
@@ -511,7 +511,7 @@ class Viewer {
 
                 if (this.tiledVoxelCollision) {
                     const p = camera.getPosition();
-                    this.tiledVoxelCollision.updateForQueryPosition(-p.x, p.z);
+                    this.tiledVoxelCollision.prepareForWorldPosition(p.x, p.z);
                 }
             }
         });
@@ -754,7 +754,7 @@ class Viewer {
                     // Walk waits for the foot tile, not the full 3x3 neighborhood.
                     // Adjacent tiles continue loading in the background.
                     const p = camera.getPosition();
-                    collision.updateForQueryPosition(-p.x, p.z);
+                    collision.prepareForWorldPosition(p.x, p.z);
                     ready = ready && collision.isCurrentTileLoaded();
                 }
                 state.walkAllowed = ready;
@@ -762,6 +762,9 @@ class Viewer {
 
             const attachCollision = (nextCollision: Collision | null) => {
                 collision = nextCollision;
+                global.collision = nextCollision;
+                if (nextCollision) global.collisionStatus = 'ready';
+                else if (!deferredCollisionLoad) global.collisionStatus = 'unavailable';
                 this.inputController.collision = nextCollision;
                 state.hasCollision = !!nextCollision;
                 updateWalkReadiness();
@@ -801,8 +804,12 @@ class Viewer {
             if (deferredCollisionLoad) {
                 events.once('firstFrame', () => {
                     deferredCollisionLoad()
-                        .then(attachCollision)
+                        .then((nextCollision) => {
+                            global.collisionStatus = nextCollision ? 'ready' : 'unavailable';
+                            attachCollision(nextCollision);
+                        })
                         .catch((err: Error) => {
+                            global.collisionStatus = 'unavailable';
                             console.warn('[Collision] Failed to attach deferred collision:', err);
                         });
                 });
@@ -947,11 +954,14 @@ class Viewer {
                     return state.performanceMode ? quality.low : quality.high;
                 };
 
-                gsplat.splatBudget = budget() * 1000000;
-                // Match SuperSplat Viewer v1.29.1. A non-zero quality
-                // threshold avoids the v1.29.0 every-frame SH regression,
-                // while 1° / 0.2° keeps view-dependent color responsive.
-                gsplat.colorUpdateAngle = state.performanceMode ? 1 : 0.2;
+                // XR owns temporary budgets; reveal completion must still unlock the LOD range.
+                if (!app.xr.active) {
+                    gsplat.splatBudget = budget() * 1000000;
+                    // Match SuperSplat Viewer v1.29.1. A non-zero quality
+                    // threshold avoids the v1.29.0 every-frame SH regression,
+                    // while 1° / 0.2° keeps view-dependent color responsive.
+                    gsplat.colorUpdateAngle = state.performanceMode ? 1 : 0.2;
+                }
                 gsplatComponent.lodRangeMin = 0;
                 gsplatComponent.lodRangeMax = 1000;
                 // Restore the default cull threshold lowered during the streaming reveal.
