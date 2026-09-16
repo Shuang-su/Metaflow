@@ -148,6 +148,10 @@ class XrSpatialMenu {
         return py >= 242 && index >= 0 && index < this.rows.length && (py - 242) % 84 < 70 ? index : -1;
     }
 
+    isPointedAt(source: XrInputSource): boolean {
+        return this.hit(source) >= 0;
+    }
+
     begin(source: XrInputSource): boolean {
         const index = this.hit(source);
         if (this.open || index >= 0) {

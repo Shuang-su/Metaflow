@@ -198,7 +198,7 @@ const navigationHarness = () => {
     camera.setLocalPosition(.4, 1.6, .3);
     const nav = new XrVrNavigation({app:{xr},entity:rig});
     nav.global={camera,collision:null,collisionStatus:'unavailable'};
-    nav.menu={open:false,show(){this.open=true;},close(){this.open=false;},hide(){this.open=false;},cancel(){},release(){},update(){}};
+    nav.menu={open:false,show(){this.open=true;},close(){this.open=false;},hide(){this.open=false;},cancel(){},release(){},isPointedAt(){return false},update(){}};
     nav.updateMarker=()=>{};
     nav.initialized=true; nav.sessionVR=true; nav.floor=0;
     return { nav, rig, camera };
@@ -396,4 +396,60 @@ test('walking filters one noisy voxel-edge normal but still rejects a genuinely 
     assert.equal(standableFloor(c,.03,2.25,0,1.6,.5),null);
     c.querySurfaceNormal=()=>({nx:0,ny:.5,nz:0});
     close(moveOnGround(c,new Vec3(0,3.8,0),2,1.6,.03,0).x,0);
+});
+
+test('posture and recalibration commit height only after clearance succeeds', () => {
+    const {nav,rig,camera}=navigationHarness();camera.setLocalPosition(.4,1.1,.3);rig.setPosition(0,2.2,0);
+    nav.floor=2;nav.preferences={posture:'standing',locomotion:'continuous'};nav.global.collision=ground();nav.global.collisionStatus='ready';
+    let ceiling=3.5;nav.global.collision.queryCapsule=(x,y,z,half,r)=>y+half+r>ceiling;
+    const start=camera.getPosition().clone();nav.onMenuAction('posture');
+    assert.equal(nav.preferences.posture,'standing');assert.equal(nav.actionStatus,'posture-blocked');
+    close(camera.getPosition().distance(start),0);close(nav.heightOffset,0);
+    ceiling=4;nav.onMenuAction('posture');assert.equal(nav.preferences.posture,'seated');close(camera.getPosition().y,3.85);
+    camera.setLocalPosition(.4,.9,.3);ceiling=3.5;
+    const before=camera.getPosition().clone(),offset=nav.heightOffset;nav.onMenuAction('calibrate');
+    close(camera.getPosition().distance(before),0);close(nav.heightOffset,offset);assert.equal(nav.needsFloorCalibration,false);
+    assert.equal(nav.actionStatus,'calibration-needed');
+    ceiling=4;nav.onMenuAction('calibrate');close(camera.getPosition().y,3.85);close(camera.getLocalPosition().y,.9);
+});
+
+test('last controller disconnect clears held selection, opens recovery menu and cannot replay after reconnect', () => {
+    const {nav,camera}=navigationHarness();const source=new EventHandler();source.gamepad={axes:[0,0,0,-1],buttons:[]};source.handedness='right';source.inputSource={targetRaySpace:{}};
+    nav.addSource(source);nav.gestures.set(source,'teleport');nav.validSources.add(source);let teleports=0;nav.teleport=()=>teleports++;
+    nav.removeSource(source);assert.equal(nav.menu.open,true);assert.equal(nav.controllerDisconnected,true);
+    assert.equal(nav.gestures.size,0);assert.equal(source.hasEvent('select'),false);
+    source.gamepad.buttons=[{pressed:true},{},{},{},{},{pressed:true}];
+    nav.addSource(source);nav.addSource(source);assert.equal(nav.handlers.size,1);assert.equal(nav.controllerDisconnected,false);
+    let begins=0;nav.menu.begin=()=>{begins++;return true};nav.lastFrame=performance.now();
+    source.fire('selectstart',{frame:{getPose:()=>({})}});assert.equal(begins,0);assert.equal(nav.gestures.size,0);
+    assert.equal(nav.buttonHeld.has(source),true);
+    source.gamepad.buttons[0].pressed=false;source.gamepad.buttons[5].pressed=false;source.fire('selectend');
+    assert.equal(nav.selectNeedsRelease.size,0);
+    nav.lastFrame=performance.now();source.fire('select',{frame:{getPose:()=>({})}});assert.equal(teleports,0);
+    nav.onMenuAction('resume');nav.validSources.add(source);const before=camera.getPosition().clone();
+    const tick=()=>{nav.lastFrame=performance.now();nav.update(.02)};tick();close(camera.getPosition().distance(before),0);
+    source.gamepad.axes[3]=0;tick();source.gamepad.axes[3]=-1;tick();assert.ok(camera.getPosition().distance(before)>.01);
+    nav.endSession();assert.equal(source.hasEvent('selectstart'),false);assert.equal(nav.handlers.size,0);
+});
+
+test('comfort previews one idle controller without selection and suppresses preview for menu and continuous mode', () => {
+    const {nav}=navigationHarness();nav.global.collision=ground();nav.global.collisionStatus='ready';nav.preferences.locomotion='comfort';nav.blockUntilNeutral=false;
+    const left={gamepad:{axes:[0,0,0,0],buttons:[]},handedness:'left'},right={gamepad:{axes:[0,0,0,0],buttons:[]},handedness:'right'},shown=[];
+    for(const s of [left,right]){nav.inputSources.add(s);nav.validSources.add(s)}nav.drawTeleportPreview=s=>shown.push(s);
+    const tick=()=>{nav.lastFrame=performance.now();nav.update(.02)};tick();assert.deepEqual(shown,[right]);assert.equal(nav.gestures.size,0);
+    shown.length=0;nav.menu.isPointedAt=()=>true;tick();assert.equal(shown.length,0);
+    nav.menu.isPointedAt=()=>false;nav.menu.open=true;tick();assert.equal(shown.length,0);
+    nav.menu.open=false;nav.blockUntilNeutral=false;nav.preferences.locomotion='continuous';tick();assert.equal(shown.length,0);
+});
+
+test('teleport preview uses the validated landing point and invalid targets never draw a landing ring', () => {
+    const {nav,camera}=navigationHarness();nav.global.collision=ground();
+    const lines=[];nav.app.drawLine=(a,b,color)=>lines.push({a:a.clone(),b:b.clone(),color});
+    const source={getOrigin:()=>new Vec3(1,3.8,0),getDirection:()=>new Vec3(0,-1,0)};
+    const before=camera.getPosition().clone();nav.drawTeleportPreview(source);
+    assert.equal(lines.length,25);close(lines[0].b.y,2);assert.equal(lines[0].color,nav.validColor);
+    close(camera.getPosition().distance(before),0);
+    nav.global.collision=ground({noFloor:true});lines.length=0;nav.drawTeleportPreview(source);
+    assert.equal(lines.length,1);assert.equal(lines[0].color,nav.invalidColor);
+    close(camera.getPosition().distance(before),0);
 });

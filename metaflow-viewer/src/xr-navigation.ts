@@ -5,6 +5,7 @@ import type { Global } from './types';
 import { confirmSelection } from './xr/feedback';
 import {
     FOOT_CLEARANCE,
+    bodyFits,
     findEntryFloor,
     headYaw,
     hasStick,
@@ -37,6 +38,7 @@ class XrVrNavigation extends Script {
     >();
     private readonly markers = new Map<XrInputSource, Entity>();
     private readonly buttonHeld = new Set<XrInputSource>();
+    private readonly selectNeedsRelease = new Set<XrInputSource>();
     private readonly snapHeld = new Set<XrInputSource>();
     private readonly forward = new Vec3(0, 0, -1);
     private readonly spawnEye = new Vec3();
@@ -53,6 +55,8 @@ class XrVrNavigation extends Script {
     private lastFrame = 0;
     private sessionVR = false;
     private trackingLimited = false;
+    private actionStatus: string | null = null;
+    private controllerDisconnected = false;
     private readonly validColor = new Color(0.45, 0.95, 0.8);
     private readonly invalidColor = new Color(0.95, 0.4, 0.3);
 
@@ -83,6 +87,8 @@ class XrVrNavigation extends Script {
         this.needsPlacement = vr;
         this.initialized = !vr;
         this.heightOffset = 0;
+        this.actionStatus = null;
+        this.controllerDisconnected = false;
         this.blockUntilNeutral = true;
         for (const source of this.app.xr.input.inputSources) this.addSource(source);
         if (!vr) this.menu.show();
@@ -105,7 +111,12 @@ class XrVrNavigation extends Script {
         this.blockUntilNeutral = true;
         this.lastFrame = 0;
         for (const marker of this.markers.values()) marker.enabled = false;
-        for (const source of this.inputSources) this.updateMarker(source);
+        for (const source of this.inputSources) {
+            if (hasStick(source) && source.gamepad.buttons[0]?.pressed) this.selectNeedsRelease.add(source);
+            const menuButton = (source.gamepad?.buttons.length ?? 0) > 5 ? 5 : 4;
+            if (source.gamepad?.buttons[menuButton]?.pressed) this.buttonHeld.add(source);
+            this.updateMarker(source);
+        }
     }
 
     private validPose(source: XrInputSource, frame?: XRFrame): boolean {
@@ -128,8 +139,13 @@ class XrVrNavigation extends Script {
     private addSource(source: XrInputSource): void {
         if (this.handlers.has(source)) return;
         this.inputSources.add(source);
+        this.controllerDisconnected = false;
+        if (hasStick(source) && source.gamepad.buttons[0]?.pressed) this.selectNeedsRelease.add(source);
+        const menuButton = (source.gamepad?.buttons.length ?? 0) > 5 ? 5 : 4;
+        if (source.gamepad?.buttons[menuButton]?.pressed) this.buttonHeld.add(source);
         const start = (event: XRInputSourceEvent) => {
-            if (!this.initialized || !this.validPose(source, event.frame)) return;
+            if (!this.initialized || this.selectNeedsRelease.has(source) || !this.validPose(source, event.frame))
+                return;
             // An open panel consumes selections even when the user misses a button.
             if (this.menu.begin(source)) this.gestures.set(source, 'menu');
             else if (this.sessionVR && (this.preferences.locomotion === 'comfort' || !hasStick(source))) {
@@ -148,6 +164,7 @@ class XrVrNavigation extends Script {
         };
         // selectend can be a cancellation. Only a real select commits an action.
         const end = () => {
+            this.selectNeedsRelease.delete(source);
             this.gestures.delete(source);
             this.menu.release(source);
         };
@@ -170,11 +187,16 @@ class XrVrNavigation extends Script {
         this.inputSources.delete(source);
         this.validSources.delete(source);
         this.buttonHeld.delete(source);
+        this.selectNeedsRelease.delete(source);
         this.snapHeld.delete(source);
         this.menu?.release(source);
         this.markers.get(source)?.destroy();
         this.markers.delete(source);
         this.blockUntilNeutral = true;
+        if (this.initialized && hasStick(source) && this.inputSources.size === 0) {
+            this.controllerDisconnected = true;
+            this.menu?.show();
+        }
     }
 
     private onFrame(frame: XRFrame): void {
@@ -191,6 +213,7 @@ class XrVrNavigation extends Script {
             if (this.validPose(source, frame)) this.validSources.add(source);
             else {
                 if (this.validSources.has(source)) this.blockUntilNeutral = true;
+                if (hasStick(source) && source.gamepad.buttons[0]?.pressed) this.selectNeedsRelease.add(source);
                 this.validSources.delete(source);
                 this.gestures.delete(source);
                 this.menu.release(source);
@@ -242,14 +265,26 @@ class XrVrNavigation extends Script {
         this.menu.show();
     }
 
-    private calibrateFloor(): void {
+    private calibrateFloor(nextOffset = this.heightOffset): void {
         const { camera, collision } = this.global;
-        if (!collision) return;
+        if (!collision) {
+            if (this.global.collisionStatus !== 'unavailable') {
+                this.actionStatus = 'collision-loading';
+                return;
+            }
+            this.entity.translate(0, nextOffset - this.heightOffset, 0);
+            this.heightOffset = nextOffset;
+            return;
+        }
         const p = camera.getPosition();
-        const height = this.effectiveHeight();
+        const height = Math.max(0.5, Math.min(2.4, camera.getLocalPosition().y + nextOffset));
         const target = findEntryFloor(collision, p, height);
-        this.needsFloorCalibration = !target;
-        if (!target) return;
+        if (!target) {
+            this.actionStatus = 'calibration-needed';
+            return;
+        }
+        this.needsFloorCalibration = false;
+        this.heightOffset = nextOffset;
         this.floor = target.y;
         target.y += height + FOOT_CLEARANCE;
         placeHead(this.entity, camera, target);
@@ -258,19 +293,37 @@ class XrVrNavigation extends Script {
     private onMenuAction(action: MenuAction): void {
         this.gestures.clear();
         this.blockUntilNeutral = true;
+        this.actionStatus = null;
         if (action === 'resume') this.menu.close();
         else if (action === 'exit') this.global.events.fire('endXR');
         else if (action === 'collision' && this.global.state.hasCollisionOverlay)
             this.global.state.collisionOverlayEnabled = !this.global.state.collisionOverlayEnabled;
         else if (action === 'reset' && this.sessionVR) this.reset();
         else if ((action === 'posture' || action === 'calibrate') && this.sessionVR) {
-            if (action === 'posture')
-                this.preferences.posture = this.preferences.posture === 'standing' ? 'seated' : 'standing';
+            const posture =
+                action === 'posture'
+                    ? this.preferences.posture === 'standing'
+                        ? 'seated'
+                        : 'standing'
+                    : this.preferences.posture;
             const trackedHeight = this.global.camera.getLocalPosition().y;
-            const nextOffset = this.preferences.posture === 'seated' ? 1.65 - trackedHeight : 0;
-            this.entity.translate(0, nextOffset - this.heightOffset, 0);
-            this.heightOffset = nextOffset;
-            if (action === 'calibrate') this.calibrateFloor();
+            const nextOffset = posture === 'seated' ? 1.65 - trackedHeight : 0;
+            if (action === 'calibrate') this.calibrateFloor(nextOffset);
+            else {
+                const { collision, camera, collisionStatus } = this.global;
+                const p = camera.getPosition();
+                const height = Math.max(0.5, Math.min(2.4, trackedHeight + nextOffset));
+                if (
+                    (!collision && collisionStatus !== 'unavailable') ||
+                    (collision && !bodyFits(collision, p.x, this.floor, p.z, height))
+                ) {
+                    this.actionStatus = 'posture-blocked';
+                } else {
+                    this.entity.translate(0, nextOffset - this.heightOffset, 0);
+                    this.heightOffset = nextOffset;
+                    this.preferences.posture = posture;
+                }
+            }
             this.menu.show();
         } else if (action === 'locomotion' && this.sessionVR) {
             this.preferences.locomotion = this.preferences.locomotion === 'continuous' ? 'comfort' : 'continuous';
@@ -317,6 +370,7 @@ class XrVrNavigation extends Script {
                       : 'grounded'
                 : 'free-roam';
         for (const source of this.inputSources) {
+            if (!source.gamepad?.buttons[0]?.pressed) this.selectNeedsRelease.delete(source);
             const buttonIndex = (source.gamepad?.buttons.length ?? 0) > 5 ? 5 : 4;
             const down = this.validSources.has(source) && !!source.gamepad?.buttons[buttonIndex]?.pressed;
             if (down && !this.buttonHeld.has(source)) {
@@ -328,7 +382,13 @@ class XrVrNavigation extends Script {
             else this.buttonHeld.delete(source);
             this.updateMarker(source);
         }
-        this.menu.update(this.preferences, status, this.inputSources, this.validSources, this.trackingLimited);
+        this.menu.update(
+            this.preferences,
+            this.controllerDisconnected ? 'input-disconnected' : (this.actionStatus ?? status),
+            this.inputSources,
+            this.validSources,
+            this.trackingLimited
+        );
         if (this.menu.open || !this.sessionVR) {
             this.blockUntilNeutral = true;
             return;
@@ -391,26 +451,34 @@ class XrVrNavigation extends Script {
                 this.entity.translate(f.x * delta * 0.6, 0, f.z * delta * 0.6);
                 freeMoved = true;
             }
-            if (gesture !== 'teleport' || !this.validSources.has(source)) continue;
-            const target = teleportTarget(
-                collision,
-                source.getOrigin(),
-                source.getDirection(),
-                camera.getPosition(),
-                this.effectiveHeight()
-            );
-            const end = target ?? source.getDirection().clone().mulScalar(3).add(source.getOrigin());
-            this.app.drawLine(source.getOrigin(), end, target ? this.validColor : this.invalidColor);
-            if (target) {
-                for (let i = 0; i < 24; i++) {
-                    const a = (i * Math.PI) / 12,
-                        b = ((i + 1) * Math.PI) / 12;
-                    this.app.drawLine(
-                        new Vec3(target.x + Math.cos(a) * 0.18, target.y + 0.03, target.z + Math.sin(a) * 0.18),
-                        new Vec3(target.x + Math.cos(b) * 0.18, target.y + 0.03, target.z + Math.sin(b) * 0.18),
-                        this.validColor
-                    );
-                }
+            if (gesture === 'teleport' && this.validSources.has(source)) this.drawTeleportPreview(source);
+        }
+        if (collision && this.preferences.locomotion === 'comfort') {
+            const pointer = right ?? sources[0];
+            if (pointer && !this.gestures.has(pointer) && !this.menu.isPointedAt(pointer))
+                this.drawTeleportPreview(pointer);
+        }
+    }
+
+    private drawTeleportPreview(source: XrInputSource): void {
+        const target = teleportTarget(
+            this.global.collision,
+            source.getOrigin(),
+            source.getDirection(),
+            this.global.camera.getPosition(),
+            this.effectiveHeight()
+        );
+        const end = target ?? source.getDirection().clone().mulScalar(3).add(source.getOrigin());
+        this.app.drawLine(source.getOrigin(), end, target ? this.validColor : this.invalidColor);
+        if (target) {
+            for (let i = 0; i < 24; i++) {
+                const a = (i * Math.PI) / 12,
+                    b = ((i + 1) * Math.PI) / 12;
+                this.app.drawLine(
+                    new Vec3(target.x + Math.cos(a) * 0.18, target.y + 0.03, target.z + Math.sin(a) * 0.18),
+                    new Vec3(target.x + Math.cos(b) * 0.18, target.y + 0.03, target.z + Math.sin(b) * 0.18),
+                    this.validColor
+                );
             }
         }
     }

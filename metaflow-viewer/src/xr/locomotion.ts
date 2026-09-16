@@ -58,6 +58,19 @@ const placeHead = (rig: Entity, head: Entity, target: Vec3): void => {
 
 const tileReady = (collision: Collision, x: number, z: number): boolean => collision.isReadyAt?.(x, z) ?? true;
 
+const bodyFits = (collision: Collision, x: number, floor: number, z: number, height: number): boolean => {
+    if (FOOTPRINT.some(([dx, dz]) => !tileReady(collision, x + dx, z + dz))) return false;
+    const bodyHeight = Math.max(height, BODY_RADIUS * 2);
+    return !collision.queryCapsule(
+        x,
+        floor + FOOT_CLEARANCE + bodyHeight / 2,
+        z,
+        bodyHeight / 2 - BODY_RADIUS,
+        BODY_RADIUS,
+        { x: 0, y: 0, z: 0 }
+    );
+};
+
 /** A footprint must be supported and loaded; empty ray results never imply safe space. */
 const standableFloor = (
     collision: Collision,
@@ -243,5 +256,6 @@ export {
     findEntryFloor,
     teleportTarget,
     moveOnGround,
-    FOOT_CLEARANCE
+    FOOT_CLEARANCE,
+    bodyFits
 };

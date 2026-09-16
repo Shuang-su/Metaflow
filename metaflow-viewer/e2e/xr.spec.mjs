@@ -74,7 +74,7 @@ test('spatial menu names the available mode switch and confirms the resulting po
         nav.sessionVR=true;
         nav.preferences={locomotion:'continuous',posture:'standing'};
         const refresh=()=>{
-            nav.menu.update(nav.preferences,'grounded',new Set(),new Set([{
+            nav.menu.update(nav.preferences,nav.actionStatus??'grounded',new Set(),new Set([{
                 gamepad:{axes:[0,0,0,0]}
             }]));
             g.app.renderNextFrame=true;
@@ -87,7 +87,7 @@ test('spatial menu names the available mode switch and confirms the resulting po
             const target=transform.transformPoint(origin.clone().set(0,.5-(242+index*84+35)/1024,0));
             const source={getOrigin:()=>origin,getDirection:()=>target.clone().sub(origin).normalize()};
             menu.begin(source);menu.select(source);refresh();
-            return {preferences:{...nav.preferences},open:menu.open,rows:menu.rows.map(row=>row.label)};
+            return {preferences:{...nav.preferences},open:menu.open,status:menu.status,rows:menu.rows.map(row=>row.label)};
         };
         nav.menu.show();refresh();
     });
@@ -100,6 +100,14 @@ test('spatial menu names the available mode switch and confirms the resulting po
     const seated=await page.evaluate(()=>window.__xrMenuSelect('posture'));
     expect(seated.preferences.posture).toBe('seated');
     expect(seated.rows).toContain('Switch to standing posture');
+    const blocked=await page.evaluate(()=>{
+        const g=viewer.global,previous=g.collision;
+        g.collision={isReadyAt:()=>true,queryCapsule:()=>true};
+        const result=window.__xrMenuSelect('posture');g.collision=previous;return result;
+    });
+    expect(blocked.preferences.posture).toBe('seated');
+    expect(blocked.status).toBe('posture-blocked');
+    expect(blocked.open).toBe(true);
     const restored=await page.evaluate(()=>window.__xrMenuSelect('locomotion'));
     expect(restored.preferences.locomotion).toBe('continuous');
     expect(await page.evaluate(()=>window.__xrMenuSelect('resume').open)).toBe(false);
