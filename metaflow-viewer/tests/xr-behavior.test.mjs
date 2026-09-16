@@ -447,10 +447,10 @@ test('teleport preview uses the validated landing point and invalid targets neve
     const lines=[];nav.app.drawLine=(a,b,color)=>lines.push({a:a.clone(),b:b.clone(),color});
     const source={getOrigin:()=>new Vec3(1,3.8,0),getDirection:()=>new Vec3(0,-1,0)};
     const before=camera.getPosition().clone();nav.drawTeleportPreview(source);
-    assert.equal(lines.length,25);close(lines[0].b.y,2);assert.equal(lines[0].color,nav.validColor);
+    assert.equal(lines.length,nav.previewTrace.count-1+24);close(lines[nav.previewTrace.count-2].b.y,2);assert.equal(lines[0].color,nav.validColor);
     close(camera.getPosition().distance(before),0);
-    nav.global.collision=ground({noFloor:true});lines.length=0;nav.drawTeleportPreview(source);
-    assert.equal(lines.length,1);assert.equal(lines[0].color,nav.invalidColor);
+    nav.global.collision=ground({noFloor:true});nav.nextPreviewAt=0;lines.length=0;nav.drawTeleportPreview(source);
+    assert.equal(lines.length,50);assert.equal(lines[0].color,nav.invalidColor);
     close(camera.getPosition().distance(before),0);
 });
 
@@ -501,9 +501,9 @@ test('blocked teleport preview ends at obstacle and draws a rejection cross with
     const lines=[];nav.app.drawLine=(a,b,color)=>lines.push({a:a.clone(),b:b.clone(),color});
     const before=camera.getPosition().clone();
     nav.drawTeleportPreview({getOrigin:()=>new Vec3(1,3.8,0),getDirection:()=>new Vec3(0,-1,0)});
-    assert.equal(lines.length,3);close(lines[0].b.y,2);
+    assert.equal(lines.length,nav.previewTrace.count+1);const endpoint=lines[nav.previewTrace.count-2].b;close(endpoint.y,2);
     for(const line of lines)assert.equal(line.color,nav.invalidColor);
-    close(lines[1].a.clone().add(lines[1].b).mulScalar(.5).distance(lines[0].b),0);
+    close(lines.at(-1).a.clone().add(lines.at(-1).b).mulScalar(.5).distance(endpoint),0);
     close(camera.getPosition().distance(before),0);
 });
 
@@ -535,4 +535,87 @@ test('walking suppresses small height noise and follows cumulative slopes withou
     // Hovering above a lower surface must still respect a low ceiling at the filtered height.
     level=1.98;c.queryCapsule=(x,y,z,half,r,out)=>{out.x=out.z=0;out.y=-.01;return true};
     assert.deepEqual(moveOnGround(c,new Vec3(0,3.8,0),2,1.6,.02,0).toArray(),[0,2,0]);
+});
+
+const { WheelInput, wheelSelection } = await loadTs('../src/xr/wheel.ts');
+const { loadPreferences } = await loadTs('../src/xr/preferences.ts');
+test('wheel has raw radial hysteresis, stable angular boundaries and explicit matching trigger confirmation',()=>{
+ const w=new WheelInput();w.update([1,0],false);w.begin();assert.equal(w.commit(),null);
+ w.update([0,0],true);assert.equal(w.armed,false);w.update([0,0],false);assert.equal(w.armed,true);
+ w.update([0,-.6],false);assert.equal(w.selection,0);
+ const axes=a=>[Math.sin(a*Math.PI/180),-Math.cos(a*Math.PI/180)];
+ w.update(axes(52),false);assert.equal(w.selection,0);w.update(axes(54),false);assert.equal(w.selection,1);
+ w.update([.4,0],false);assert.equal(w.selection,1);w.begin();w.update([0,1],true);assert.equal(w.commit(),null);
+ w.begin();assert.equal(w.commit(),2);assert.equal(w.commit(),null);
+ w.update([0,0],false);w.begin();assert.equal(w.commit(),-1);
+ w.update([1,0],false);w.begin();w.release();assert.equal(w.commit(),null);
+ w.cancel();assert.equal(w.armed,false);assert.equal(wheelSelection([NaN,0],1),-1);
+});
+test('XR preference migration keeps posture and mode, validates presets and tolerates broken storage',()=>{
+ const previous=globalThis.localStorage;
+ try{
+  let saved=JSON.stringify({locomotion:'comfort',posture:'seated'});globalThis.localStorage={getItem:()=>saved};
+  assert.deepEqual(loadPreferences(),{locomotion:'comfort',posture:'seated',movementSpeed:1.5,rotateSpeed:90,trajectory:'arc'});
+  saved=JSON.stringify({movementSpeed:2.25,rotateSpeed:45,trajectory:'straight'});assert.equal(loadPreferences().movementSpeed,2.25);assert.equal(loadPreferences().trajectory,'straight');
+  saved=JSON.stringify({movementSpeed:999,rotateSpeed:-1});assert.equal(loadPreferences().rotateSpeed,90);
+  saved='broken';assert.equal(loadPreferences().locomotion,'continuous');
+ }finally{if(previous===undefined)delete globalThis.localStorage;else globalThis.localStorage=previous}
+});
+test('reset validates the destination before changing head position or heading',()=>{
+ const {nav,camera,rig}=navigationHarness();nav.global.collision=ground({wall:-10});nav.global.collisionStatus='ready';
+ nav.spawnEye.set(5,3.8,0);nav.spawnFloor=2;nav.spawnYaw=90;const pos=camera.getPosition().clone(),rotation=rig.getEulerAngles().clone();
+ nav.onMenuAction('reset');close(camera.getPosition().distance(pos),0);close(rig.getEulerAngles().distance(rotation),0);assert.equal(nav.actionStatus,'reset-blocked');
+ nav.global.collision=ground();nav.onMenuAction('reset');close(camera.getPosition().x,5);assert.equal(nav.actionStatus,null);
+});
+
+const { traceTeleport, TeleportTrace } = await loadTs('../src/xr/teleport.ts');
+test('arc follows bounded segments and validates first surface and support instead of looking through obstacles',()=>{
+ const origin=new Vec3(0,3.8,0),head=origin.clone(),direction=new Vec3(0,0,-1),c=ground();
+ const out=new TeleportTrace(),result=traceTeleport(c,origin,direction,head,1.6,true,out);
+ assert.equal(result,out);assert.equal(result.valid,true);assert.ok(result.target.z < -2);close(result.target.y,2);
+ assert.ok(result.count<=129);for(let i=1;i<result.count;i++)assert.ok(result.points[i].distance(result.points[i-1])<=.200001);
+ const groundQuery=c.queryRay.bind(c);c.queryRay=(x,y,z,dx,dy,dz,max)=>{const t=(-1-z)/dz;return t>=0&&t<=max?{x:x+dx*t,y:y+dy*t,z:-1}:groundQuery(x,y,z,dx,dy,dz,max)};
+ c.querySurfaceNormal=(x,y,z)=>({nx:0,ny:z===-1?0:1,nz:1});
+ const wall=traceTeleport(c,origin,direction,head,1.6,true);assert.equal(wall.valid,false);assert.equal(wall.reason,'surface');close(wall.hit.z,-1);
+ const empty=traceTeleport(ground({noFloor:true}),origin,new Vec3(0,1,0),head,1.6,true);assert.equal(empty.reason,'none');assert.ok(empty.count<=129);
+ const low=traceTeleport(ground({wall:-1}),origin,direction,head,1.6,true);assert.equal(low.reason,'space');
+ const unloaded=ground();unloaded.isReadyAlongSegment=()=>false;const pending=traceTeleport(unloaded,origin,direction,head,1.6,true);assert.equal(pending.reason,'loading');assert.equal(pending.valid,false);
+ assert.equal(traceTeleport(c,origin,new Vec3(NaN,0,0),head,1.6,true).valid,false);
+});
+test('streamed segment readiness rejects holes between loaded endpoints and respects world coordinate flip',()=>{
+ const c=Object.create(TiledVoxelCollision.prototype);c.loadOptions={};
+ const tile=(id,a,b)=>({id,coreBounds:{min:[a,-5,-1],max:[b,5,1]}});
+ c.manifest={tiles:[tile('a',0,1),tile('b',1,1.01),tile('c',1.01,2)]};c._tilesById=new Map(c.manifest.tiles.map(t=>[t.id,t]));c._loaded=new Map([['a',{}],['c',{}]]);c._activeIds=new Set(['a','b','c']);
+ assert.equal(c.isReadyAlongSegment(.5,0,1.5,0),false);c._loaded.set('b',{});assert.equal(c.isReadyAlongSegment(.5,0,1.5,0),true);
+ assert.equal(c.isReadyAlongSegment(.5,0,2.5,0),false);assert.equal(c.isReadyAlongSegment(.5,0,.5,0),true);
+ c.loadOptions.coordinateSpace='metaflow-rz180';assert.equal(c.isReadyAlongSegment(-.5,0,-1.5,0),true);
+ c._activeIds.delete('b');assert.equal(c.isReadyAlongSegment(-.5,0,-1.5,0),false);
+});
+test('preview cache is rate limited and teleport confirmation rechecks a changed destination',()=>{
+ const {nav,camera}=navigationHarness();nav.global.collision=ground();nav.global.collisionStatus='ready';nav.app.drawLine=()=>{};
+ const source={gamepad:{axes:[0,0,0,0],buttons:[]},getOrigin:()=>new Vec3(0,3.8,0),getDirection:()=>new Vec3(0,0,-1)};
+ let rays=0;const c=nav.global.collision,q=c.queryRay.bind(c);c.queryRay=(...args)=>{rays++;return q(...args)};
+ nav.drawTeleportPreview(source);const first=rays;assert.ok(first>0);nav.drawTeleportPreview(source);assert.equal(rays,first);
+ nav.invalidatePreview();nav.drawTeleportPreview(source);assert.equal(rays,first);assert.equal(nav.previewSource,null);
+ nav.nextPreviewAt=0;nav.drawTeleportPreview(source);assert.ok(rays>first);
+ c.isReadyAlongSegment=()=>false;const before=camera.getPosition().clone();nav.teleport(source);close(camera.getPosition().distance(before),0);assert.equal(nav.previewSource,null);
+});
+
+test('arc bounds range and time, rejects ceilings and incomplete footprints',()=>{
+ const origin=new Vec3(0,3.8,0), empty=ground({noFloor:true});
+ for(const d of [new Vec3(1,0,0),new Vec3(0,1,0),new Vec3(0,-1,0)]) {
+  const trace=traceTeleport(empty,origin,d,origin,1.6,true);
+  assert.equal(trace.valid,false);assert.ok(trace.count<=129);
+  for(let i=0;i<trace.count;i++) {assert.ok(Math.hypot(trace.points[i].x,trace.points[i].z)<=10);if(i)assert.ok(trace.points[i].distance(trace.points[i-1])<=.200001);}
+  if(d.y===1)assert.ok(trace.points[trace.count-1].y>=origin.y+12-19.6-1e-6);
+ }
+ const ceiling={...ground(),querySurfaceNormal:()=>({nx:0,ny:-1,nz:0}),queryRay(x,y,z,dx,dy,dz,max){const t=(4-y)/dy;return t>=0&&t<=max?{x:x+dx*t,y:4,z:z+dz*t}:null;}};
+ const blocked=traceTeleport(ceiling,origin,new Vec3(0,1,-1),origin,1.6,true);assert.equal(blocked.reason,'surface');close(blocked.hit.y,4);
+ const narrow=ground(),query=narrow.queryRay.bind(narrow);narrow.queryRay=(x,...args)=>Math.abs(x)>.1?null:query(x,...args);
+ assert.equal(traceTeleport(narrow,origin,new Vec3(0,0,-1),origin,1.6,true).valid,false);
+});
+test('last controller removal opens recovery even while a hand input remains',()=>{
+ const {nav}=navigationHarness(), controller=new EventHandler(),hand=new EventHandler();
+ controller.gamepad={axes:[0,0,0,0],buttons:[]};nav.addSource(controller);nav.addSource(hand);nav.removeSource(controller);
+ assert.equal(nav.menu.open,true);assert.equal(nav.controllerDisconnected,true);assert.equal(nav.blockUntilNeutral,true);
 });
