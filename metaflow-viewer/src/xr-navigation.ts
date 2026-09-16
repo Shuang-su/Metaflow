@@ -109,13 +109,17 @@ class XrVrNavigation extends Script {
     }
 
     private validPose(source: XrInputSource, frame?: XRFrame): boolean {
-        if (!frame || this.app.xr.visibilityState !== 'visible') return false;
+        if (
+            !frame ||
+            this.app.xr.visibilityState !== 'visible' ||
+            !this.lastFrame ||
+            performance.now() - this.lastFrame > 250
+        )
+            return false;
         try {
             // PlayCanvas 2.21.3 exposes no public reference-space getter. Keep this access here.
-            return (
-                !!frame.getViewerPose(this.app.xr._referenceSpace) &&
-                !!frame.getPose(source.inputSource.targetRaySpace, this.app.xr._referenceSpace)
-            );
+            // Input-event frames cannot call getViewerPose; use the recent animation pose above.
+            return !!frame.getPose(source.inputSource.targetRaySpace, this.app.xr._referenceSpace);
         } catch {
             return false;
         }
