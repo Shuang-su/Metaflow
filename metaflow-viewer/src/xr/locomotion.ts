@@ -150,14 +150,15 @@ const findEntryFloor = (collision: Collision, eye: Vec3, height: number): Vec3 |
     return null;
 };
 
-const teleportTarget = (
+const inspectTeleportTarget = (
     collision: Collision | null | undefined,
     origin: Vec3,
     direction: Vec3,
     head: Vec3,
     height: number
-): Vec3 | null => {
-    if (!collision) return null;
+): { hit: Vec3 | null; target: Vec3 | null } => {
+    const result: { hit: Vec3 | null; target: Vec3 | null } = { hit: null, target: null };
+    if (!collision) return result;
     const hit: RayHit | null = collision.queryRay(
         origin.x,
         origin.y,
@@ -167,15 +168,27 @@ const teleportTarget = (
         direction.z,
         10
     );
-    if (!hit) return null;
+    if (!hit || ![hit.x, hit.y, hit.z].every(Number.isFinite)) return result;
     // Copy: collision implementations may reuse the returned hit for the footprint rays.
     const x = hit.x,
         y = hit.y,
         z = hit.z;
-    if (Math.hypot(x - head.x, z - head.z) > 10) return null;
+    result.hit = new Vec3(x, y, z);
+    const normal = collision.querySurfaceNormal(x, y, z, direction.x, direction.y, direction.z);
+    if (!Number.isFinite(normal.ny) || normal.ny + 1e-6 < MIN_FLOOR_NORMAL) return result;
+    if (Math.hypot(x - head.x, z - head.z) > 10) return result;
     const floor = standableFloor(collision, x, y + MAX_STEP, z, height, MAX_STEP * 2);
-    return floor === null ? null : new Vec3(x, floor, z);
+    result.target = floor === null ? null : new Vec3(x, floor, z);
+    return result;
 };
+
+const teleportTarget = (
+    collision: Collision | null | undefined,
+    origin: Vec3,
+    direction: Vec3,
+    head: Vec3,
+    height: number
+): Vec3 | null => inspectTeleportTarget(collision, origin, direction, head, height).target;
 
 /** Substeps prevent low frame rates from skipping thin walls; never alter tracked head pose. */
 const moveOnGround = (
@@ -255,6 +268,7 @@ export {
     standableFloor,
     findEntryFloor,
     teleportTarget,
+    inspectTeleportTarget,
     moveOnGround,
     FOOT_CLEARANCE,
     bodyFits

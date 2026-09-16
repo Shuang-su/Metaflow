@@ -485,3 +485,35 @@ test('compact menu stays fixed while aimed or pressed and follows again after di
     menu.release(source);tick();assert.equal(placements,1);
     target.x=0;tick(false);assert.equal(placements,2); // stale rays cannot hold the control in place
 });
+
+test('teleport rejects a first wall or ceiling hit even when there is walkable floor below it', () => {
+    const collision=ground();const queryFloor=collision.queryRay.bind(collision);
+    let first=true, surfaceY=0;
+    collision.queryRay=(...args)=>{if(first){first=false;return {x:0,y:2.1,z:-1}}return queryFloor(...args)};
+    collision.querySurfaceNormal=(x,y,z,dx,dy)=>({nx:1,ny:dy===-1?1:surfaceY,nz:0});
+    const origin=new Vec3(0,3.5,0),direction=new Vec3(0,-.4,-1).normalize(),head=new Vec3(0,3.6,0);
+    for(const ny of [0,-1,NaN,.5]){first=true;surfaceY=ny;assert.equal(teleportTarget(collision,origin,direction,head,1.6),null)}
+    first=true;surfaceY=1;assert.ok(teleportTarget(collision,origin,direction,head,1.6));
+});
+
+test('blocked teleport preview ends at obstacle and draws a rejection cross without moving the head', () => {
+    const {nav,camera}=navigationHarness();nav.global.collision=ground({normalY:0});
+    const lines=[];nav.app.drawLine=(a,b,color)=>lines.push({a:a.clone(),b:b.clone(),color});
+    const before=camera.getPosition().clone();
+    nav.drawTeleportPreview({getOrigin:()=>new Vec3(1,3.8,0),getDirection:()=>new Vec3(0,-1,0)});
+    assert.equal(lines.length,3);close(lines[0].b.y,2);
+    for(const line of lines)assert.equal(line.color,nav.invalidColor);
+    close(lines[1].a.clone().add(lines[1].b).mulScalar(.5).distance(lines[0].b),0);
+    close(camera.getPosition().distance(before),0);
+});
+
+test('aiming an existing teleport gesture at the compact menu cancels teleport confirmation', () => {
+    const {nav}=navigationHarness();nav.initialized=true;nav.preferences.locomotion='comfort';nav.global.collisionStatus='ready';
+    const source=new EventHandler();source.inputSource={targetRaySpace:{}};
+    let pointed=false,teleports=0;nav.menu.begin=()=>false;nav.menu.isPointedAt=()=>pointed;nav.teleport=()=>teleports++;
+    nav.addSource(source);nav.lastFrame=performance.now();
+    const event={frame:{getPose:()=>({})}};
+    source.fire('selectstart',event);pointed=true;source.fire('select',event);source.fire('selectend');
+    assert.equal(teleports,0);assert.equal(nav.gestures.size,0);
+    pointed=false;source.fire('selectstart',event);source.fire('select',event);source.fire('selectend');assert.equal(teleports,1);
+});

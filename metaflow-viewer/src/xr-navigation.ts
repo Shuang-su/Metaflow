@@ -10,6 +10,7 @@ import {
     headYaw,
     hasStick,
     horizontalForward,
+    inspectTeleportTarget,
     moveOnGround,
     placeHead,
     readStick,
@@ -159,7 +160,7 @@ class XrVrNavigation extends Script {
             if (!this.validPose(source, event.frame)) return;
             const gesture = this.gestures.get(source);
             if (gesture === 'menu') this.menu.select(source);
-            else if (gesture === 'teleport' && !this.menu.open) this.teleport(source);
+            else if (gesture === 'teleport' && !this.menu.open && !this.menu.isPointedAt(source)) this.teleport(source);
             this.gestures.delete(source);
         };
         // selectend can be a cancellation. Only a real select commits an action.
@@ -451,7 +452,8 @@ class XrVrNavigation extends Script {
                 this.entity.translate(f.x * delta * 0.6, 0, f.z * delta * 0.6);
                 freeMoved = true;
             }
-            if (gesture === 'teleport' && this.validSources.has(source)) this.drawTeleportPreview(source);
+            if (gesture === 'teleport' && this.validSources.has(source) && !this.menu.isPointedAt(source))
+                this.drawTeleportPreview(source);
         }
         if (collision && this.preferences.locomotion === 'comfort') {
             const pointer = right ?? sources[0];
@@ -461,15 +463,21 @@ class XrVrNavigation extends Script {
     }
 
     private drawTeleportPreview(source: XrInputSource): void {
-        const target = teleportTarget(
+        const { hit, target } = inspectTeleportTarget(
             this.global.collision,
             source.getOrigin(),
             source.getDirection(),
             this.global.camera.getPosition(),
             this.effectiveHeight()
         );
-        const end = target ?? source.getDirection().clone().mulScalar(3).add(source.getOrigin());
+        const end = target ?? hit ?? source.getDirection().clone().mulScalar(3).add(source.getOrigin());
         this.app.drawLine(source.getOrigin(), end, target ? this.validColor : this.invalidColor);
+        if (hit && !target) {
+            const right = this.global.camera.right.clone().mulScalar(0.06);
+            const up = this.global.camera.up.clone().mulScalar(0.06);
+            this.app.drawLine(hit.clone().sub(right).sub(up), hit.clone().add(right).add(up), this.invalidColor);
+            this.app.drawLine(hit.clone().sub(right).add(up), hit.clone().add(right).sub(up), this.invalidColor);
+        }
         if (target) {
             for (let i = 0; i < 24; i++) {
                 const a = (i * Math.PI) / 12,
