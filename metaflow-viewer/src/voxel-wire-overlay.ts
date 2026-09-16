@@ -15,6 +15,13 @@ import type { VoxelCollision } from './collision';
 
 type Cell = [number, number, number, number];
 
+// PICO 4 Ultra / Browser 4.0.38 loses one eye for large single line draws.
+// Keep complete cells in bounded draws; do not reduce the sampled collision data.
+const cellEdgeBatches = function* (positions: number[]): Generator<number[]> {
+    const batchSize = 256 * 72; // 256 cells, 6144 vertices, twelve edges per cell.
+    for (let i = 0; i < positions.length; i += batchSize) yield positions.slice(i, i + batchSize);
+};
+
 /** Yield every visited cell so callers can budget work, including long empty runs. */
 function* surfaceCells(collision: VoxelCollision, center: Vec3, radius = 2): Generator<Cell | null, void, unknown> {
     const res = collision.voxelResolution;
@@ -70,7 +77,7 @@ const appendCellEdges = (positions: number[], [x, y, z, size]: Cell): void => {
 class VoxelWireOverlay {
     private active = false;
     private readonly entity = new Entity('Nearby collision voxels');
-    private readonly mesh: Mesh;
+    private readonly batches: { entity: Entity; mesh: Mesh }[] = [];
     private readonly material = new StandardMaterial();
     private readonly center = new Vec3(Infinity, Infinity, Infinity);
     private colliders: VoxelCollision[] = [];
@@ -79,14 +86,12 @@ class VoxelWireOverlay {
     private readonly seen = new Set<string>();
     private lastUpload = 0;
     private uploaded = 0;
-    private instance: MeshInstance | null = null;
 
     constructor(
         private readonly app: AppBase,
         private readonly collision: VoxelCollision | TiledVoxelCollision,
         private readonly camera: Entity
     ) {
-        this.mesh = new Mesh(app.graphicsDevice);
         this.material.useLighting = false;
         this.material.useTonemap = false;
         this.material.useFog = false;
@@ -97,7 +102,6 @@ class VoxelWireOverlay {
         this.material.depthTest = false;
         this.material.depthWrite = false;
         this.material.update();
-        this.entity.addComponent('render', { meshInstances: [], layers: [LAYERID_IMMEDIATE] });
         this.entity.enabled = false;
         app.root.addChild(this.entity);
         app.once('destroy', () => this.destroy());
@@ -148,12 +152,27 @@ class VoxelWireOverlay {
             if (this.seen.size >= 2000) this.iterator = null;
         }
         if (this.positions.length !== this.uploaded && (!this.iterator || performance.now() - this.lastUpload >= 250)) {
-            this.mesh.setPositions(this.positions);
-            this.mesh.update(PRIMITIVE_LINES);
-            if (!this.instance) {
-                this.instance = new MeshInstance(this.mesh, this.material);
-                this.entity.render.meshInstances = [this.instance];
+            let count = 0;
+            for (const positions of cellEdgeBatches(this.positions)) {
+                let batch = this.batches[count];
+                if (!batch) {
+                    const mesh = new Mesh(this.app.graphicsDevice);
+                    const entity = new Entity('Collision voxel batch');
+                    entity.addComponent('render', {
+                        meshInstances: [new MeshInstance(mesh, this.material)],
+                        layers: [LAYERID_IMMEDIATE]
+                    });
+                    this.entity.addChild(entity);
+                    batch = { entity, mesh };
+                    this.batches.push(batch);
+                }
+                batch.mesh.setPositions(positions);
+                batch.mesh.update(PRIMITIVE_LINES);
+                batch.entity.enabled = true;
+                count++;
             }
+            // Reuse at most eight buffers; stale batches must disappear as the scan shrinks.
+            for (let i = count; i < this.batches.length; i++) this.batches[i].entity.enabled = false;
             this.uploaded = this.positions.length;
             this.lastUpload = performance.now();
             this.entity.enabled = this.uploaded > 0;
@@ -164,9 +183,10 @@ class VoxelWireOverlay {
     destroy(): void {
         this.iterator = null;
         this.entity.destroy();
-        this.mesh.destroy();
+        // Render components release their mesh instances and their owned meshes.
+        this.batches.length = 0;
         this.material.destroy();
     }
 }
 
-export { VoxelWireOverlay, surfaceCells, appendCellEdges };
+export { VoxelWireOverlay, surfaceCells, appendCellEdges, cellEdgeBatches };

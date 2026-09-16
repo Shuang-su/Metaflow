@@ -47,7 +47,18 @@ const { XrSpatialMenu } = await loadTs('../src/xr/menu.ts');
 const { confirmSelection } = await loadTs('../src/xr/feedback.ts');
 const { TiledVoxelCollision } = await loadTs('../src/collision/tiled-voxel-collision.ts');
 
-const { surfaceCells, appendCellEdges } = await loadTs('../src/voxel-wire-overlay.ts');
+const { surfaceCells, appendCellEdges, cellEdgeBatches } = await loadTs('../src/voxel-wire-overlay.ts');
+
+test('stereo voxel batches preserve all cells and never submit an oversized line draw', () => {
+    const edges = [];
+    for (let i = 0; i < 2000; i++) appendCellEdges(edges, [i * .05, 0, 0, .05]);
+    const batches = [...cellEdgeBatches(edges)];
+    assert.equal(batches.length, 8);
+    assert.ok(batches.every(b => b.length <= 6144 * 3 && b.length % 72 === 0));
+    assert.deepEqual(batches.flat(), edges);
+    assert.deepEqual([...cellEdgeBatches([])], []);
+    assert.equal([...cellEdgeBatches(edges.slice(0, 257 * 72))][1].length, 72);
+});
 
 const close = (a, b, message) => assert.ok(Math.abs(a - b) < 0.00001, `${message ?? ''}: ${a} != ${b}`);
 const ground = (options = {}) => ({
