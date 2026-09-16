@@ -132,18 +132,25 @@ class XrSpatialMenu {
         this.entity.setEulerAngles((pitch * 180) / Math.PI, yaw, 0);
     }
 
-    private hit(source: XrInputSource): number {
+    private intersect(source: XrInputSource, point?: Vec3): boolean {
         this.inverse.copy(this.entity.getWorldTransform()).invert();
         this.inverse.transformPoint(source.getOrigin(), this.rayOrigin);
         this.inverse.transformVector(source.getDirection(), this.rayDirection);
-        if (this.rayDirection.z >= -0.00001) return -1;
+        if (this.rayDirection.z >= -0.00001) return false;
         const distance = -this.rayOrigin.z / this.rayDirection.z;
-        if (distance <= 0 || distance > 5) return -1;
+        if (distance <= 0 || distance > 5) return false;
         const x = this.rayOrigin.x + this.rayDirection.x * distance;
         const y = this.rayOrigin.y + this.rayDirection.y * distance;
-        if (Math.abs(x) > 0.5 || Math.abs(y) > 0.5) return -1;
+        if (Math.abs(x) > 0.5 || Math.abs(y) > 0.5) return false;
+        if (point) point.copy(source.getDirection()).mulScalar(distance).add(source.getOrigin());
+        this.rayOrigin.set(x, y, 0);
+        return true;
+    }
+
+    private hit(source: XrInputSource): number {
+        if (!this.intersect(source)) return -1;
         if (!this.open) return 0;
-        const py = (0.5 - y) * this.canvas.height;
+        const py = (0.5 - this.rayOrigin.y) * this.canvas.height;
         const index = Math.floor((py - 242) / 84);
         return py >= 242 && index >= 0 && index < this.rows.length && (py - 242) % 84 < 70 ? index : -1;
     }
@@ -198,8 +205,10 @@ class XrSpatialMenu {
         if (!this.open) {
             this.width = 0.23;
             this.height = 0.075;
-            // Keep the small summon control reachable. Freeze it during a selection.
-            if (!this.pressed.size) this.place(true);
+            this.entity.setLocalScale(this.width, this.height, 1);
+            // Freeze before the press too: aiming should not chase head movement.
+            const pointed = [...sources].some((source) => valid.has(source) && this.hit(source) >= 0);
+            if (!this.pressed.size && !pointed) this.place(true);
         }
         this.entity.setLocalScale(this.width, this.height, 1);
         this.hovered = -1;
@@ -210,13 +219,24 @@ class XrSpatialMenu {
             // Transient gaze/pinch is rendered only while supplied by the browser.
             if (this.open || hit >= 0) {
                 const end = source.getDirection().clone().mulScalar(1.4).add(source.getOrigin());
-                this.global.app.drawLine(
-                    source.getOrigin(),
-                    end,
-                    this.material.emissive,
-                    false,
-                    this.global.app.scene.layers.getLayerById(LAYERID_UI)
-                );
+                const onPanel = this.intersect(source, end);
+                const layer = this.global.app.scene.layers.getLayerById(LAYERID_UI);
+                this.global.app.drawLine(source.getOrigin(), end, this.material.emissive, false, layer);
+                if (onPanel) {
+                    // World-sized ring on the panel, including its non-interactive margins.
+                    const right = this.entity.right.clone().mulScalar(0.006);
+                    const up = this.entity.up.clone().mulScalar(0.006);
+                    let previous = end.clone().add(right);
+                    for (let i = 1; i <= 16; i++) {
+                        const angle = (i / 16) * Math.PI * 2;
+                        const next = end
+                            .clone()
+                            .add(right.clone().mulScalar(Math.cos(angle)))
+                            .add(up.clone().mulScalar(Math.sin(angle)));
+                        this.global.app.drawLine(previous, next, this.material.emissive, false, layer);
+                        previous = next;
+                    }
+                }
             }
         }
         const signature = JSON.stringify([

@@ -453,3 +453,35 @@ test('teleport preview uses the validated landing point and invalid targets neve
     assert.equal(lines.length,1);assert.equal(lines[0].color,nav.invalidColor);
     close(camera.getPosition().distance(before),0);
 });
+
+test('menu pointer stops at rotated panel with a world-sized reticle, including non-button margins', () => {
+    const menu=Object.create(XrSpatialMenu.prototype),entity=new Entity();
+    entity.setPosition(4,2,-3);entity.setEulerAngles(15,90,0);entity.setLocalScale(.68,.86,1);
+    const lines=[];const origin=entity.getWorldTransform().transformPoint(new Vec3(.2,0,2.3));
+    const target=entity.getWorldTransform().transformPoint(new Vec3(.1,.46,0));
+    const source={getOrigin:()=>origin,getDirection:()=>target.clone().sub(origin).normalize()};
+    Object.assign(menu,{entity,width:.68,height:.86,canvas:{height:1024},inverse:new Mat4(),rayOrigin:new Vec3(),rayDirection:new Vec3(),pressed:new Map(),open:true,rows:[{action:'resume'}],material:{emissive:{}},draw(){},global:{state:{},app:{scene:{layers:{getLayerById:()=>({})}},drawLine:(a,b)=>lines.push([a.clone(),b.clone()])}}});
+    const tick=()=>menu.update({locomotion:'comfort',posture:'standing'},'grounded',new Set([source]),new Set([source]));
+    tick();assert.equal(lines.length,17);close(lines[0][1].distance(target),0);assert.equal(menu.hovered,-1);
+    for(const [a,b] of lines.slice(1)){close(a.distance(target),.006);close(b.distance(target),.006)}
+    // Outside the panel: no reticle and a short neutral ray, not an infinite intersection.
+    target.copy(entity.getWorldTransform().transformPoint(new Vec3(2,0,0)));lines.length=0;tick();
+    assert.equal(lines.length,1);close(lines[0][0].distance(lines[0][1]),1.4);
+    // Behind the surface must not be selectable.
+    origin.copy(entity.getWorldTransform().transformPoint(new Vec3(0,0,-1)));
+    target.copy(entity.getPosition());assert.equal(menu.intersect(source),false);
+});
+
+test('compact menu stays fixed while aimed or pressed and follows again after disengagement', () => {
+    const menu=Object.create(XrSpatialMenu.prototype),entity=new Entity(),camera=new Entity();
+    entity.setPosition(0,1,-1);entity.setLocalScale(.23,.075,1);
+    const origin=new Vec3(0,1,0),target=new Vec3(0,1,-1);
+    const source={getOrigin:()=>origin,getDirection:()=>target.clone().sub(origin).normalize()};
+    let placements=0;
+    Object.assign(menu,{entity,canvas:{height:1024},inverse:new Mat4(),rayOrigin:new Vec3(),rayDirection:new Vec3(),pressed:new Map(),open:false,rows:[],material:{emissive:{}},draw(){},place(){placements++},global:{camera,state:{},app:{scene:{layers:{getLayerById:()=>({})}},drawLine(){}}}});
+    const tick=(valid=true)=>menu.update({locomotion:'comfort',posture:'standing'},'grounded',new Set([source]),new Set(valid?[source]:[]));
+    tick();camera.setEulerAngles(0,20,0);tick();assert.equal(placements,0);
+    assert.equal(menu.begin(source),true);target.x=2;tick();assert.equal(placements,0);
+    menu.release(source);tick();assert.equal(placements,1);
+    target.x=0;tick(false);assert.equal(placements,2); // stale rays cannot hold the control in place
+});
