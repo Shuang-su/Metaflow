@@ -4,9 +4,17 @@ import type { Entity } from 'playcanvas';
 import type { Collision, RayHit } from '../collision';
 
 const BODY_RADIUS = 0.18;
-const FOOT_CLEARANCE = 0.025;
+// Match WalkController.hoverHeight, without its spring/damper camera motion.
+const FOOT_CLEARANCE = 0.2;
 const MAX_STEP = 0.25;
 const MIN_FLOOR_NORMAL = Math.cos(Math.PI / 4);
+const FOOTPRINT = [
+    [0, 0],
+    [BODY_RADIUS, 0],
+    [-BODY_RADIUS, 0],
+    [0, BODY_RADIUS],
+    [0, -BODY_RADIUS]
+];
 
 /** Select the stick by layout, never switch to a touchpad when the stick is neutral. */
 const readStick = (axes: readonly number[], deadzone = 0.15): [number, number] => {
@@ -62,13 +70,7 @@ const standableFloor = (
 ): number | null => {
     let minFloor = Infinity;
     let maxFloor = -Infinity;
-    for (const [dx, dz] of [
-        [0, 0],
-        [BODY_RADIUS, 0],
-        [-BODY_RADIUS, 0],
-        [0, BODY_RADIUS],
-        [0, -BODY_RADIUS]
-    ]) {
+    for (const [dx, dz] of FOOTPRINT) {
         if (!tileReady(collision, x + dx, z + dz)) return null;
         const hit = collision.queryRay(x + dx, probeY, z + dz, 0, -1, 0, maxDrop);
         if (!hit) return null;
@@ -94,6 +96,26 @@ const standableFloor = (
     )
         return null;
     return maxFloor;
+};
+
+/** WalkController-style spatial averaging; placement/teleport remain stricter. */
+const walkingFloor = (collision: Collision, x: number, z: number, previous: number): number | null => {
+    let total = 0;
+    let normalY = 0;
+    let count = 0;
+    for (const [dx, dz] of FOOTPRINT) {
+        if (!tileReady(collision, x + dx, z + dz)) return null;
+        const hit = collision.queryRay(x + dx, previous + MAX_STEP, z + dz, 0, -1, 0, 1);
+        // A small hole can miss a ray. It must not manufacture a floor when all miss.
+        if (!hit) continue;
+        if (!Number.isFinite(hit.y) || Math.abs(hit.y - previous) > MAX_STEP + 1e-6) return null;
+        const normal = collision.querySurfaceNormal(hit.x, hit.y, hit.z, 0, -1, 0);
+        if (!Number.isFinite(normal.ny)) return null;
+        normalY += normal.ny;
+        total += hit.y;
+        count++;
+    }
+    return count && normalY / count + 1e-6 >= MIN_FLOOR_NORMAL ? total / count : null;
 };
 
 /** A fly/orbit entry can overlap scenery. Search nearby loaded support once, never in the render loop. */
@@ -157,10 +179,48 @@ const moveOnGround = (
         sz = dz / steps;
     for (let i = 0; i < steps; i++) {
         const tryStep = (x: number, z: number): boolean => {
-            const next = standableFloor(collision, x, result.y + MAX_STEP, z, height, MAX_STEP * 2, result.y);
+            let next = walkingFloor(collision, x, z, result.y);
             if (next === null) return false;
-            result.set(x, next, z);
-            return true;
+            const bodyHeight = Math.max(height, BODY_RADIUS * 2);
+            const push = { x: 0, y: 0, z: 0 };
+            const length = Math.hypot(x - result.x, z - result.z);
+            const intentX = x - result.x,
+                intentZ = z - result.z;
+            for (let pass = 0; pass < 4; pass++) {
+                const hit = collision.queryCapsule(
+                    x,
+                    next + FOOT_CLEARANCE + bodyHeight / 2,
+                    z,
+                    bodyHeight / 2 - BODY_RADIUS,
+                    BODY_RADIUS,
+                    push
+                );
+                if (!hit) {
+                    result.set(x, next, z);
+                    return true;
+                }
+                // Only resolve the requested software step. Never pull room-scale
+                // tracking out of deep penetration or turn a ceiling hit into descent.
+                if (
+                    ![push.x, push.y, push.z].every(Number.isFinite) ||
+                    push.y < -1e-6 ||
+                    Math.hypot(push.x, push.y, push.z) > MAX_STEP
+                )
+                    return false;
+                x += push.x;
+                z += push.z;
+                if (
+                    Math.hypot(x - result.x, z - result.z) > length + 1e-5 ||
+                    (x - result.x) * intentX + (z - result.z) * intentZ < -1e-6
+                )
+                    return false;
+                const support = walkingFloor(collision, x, z, result.y);
+                if (support === null) return false;
+                next = Math.max(support, next + push.y);
+                if (Math.abs(next - result.y) > MAX_STEP + 1e-6) return false;
+                push.x = push.y = push.z = 0;
+            }
+            return false;
         };
         if (!tryStep(result.x + sx, result.z + sz)) {
             // Slide at oblique walls rather than introducing inertia or camera bounce.

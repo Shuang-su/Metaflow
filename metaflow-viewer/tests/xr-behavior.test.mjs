@@ -39,7 +39,7 @@ const compile = (file) => {
     return url;
 };
 const loadTs = (relative) => import(compile(fileURLToPath(new URL(relative, import.meta.url))));
-const { hasStick, singleStickIntent, readStick, horizontalForward, rotateAroundHead, placeHead, moveOnGround, teleportTarget, standableFloor, findEntryFloor } = await loadTs('../src/xr/locomotion.ts');
+const { hasStick, singleStickIntent, readStick, horizontalForward, rotateAroundHead, placeHead, moveOnGround, teleportTarget, standableFloor, findEntryFloor, FOOT_CLEARANCE } = await loadTs('../src/xr/locomotion.ts');
 const { ensureNativeXrResolution } = await loadTs('../src/xr/presentation.ts');
 const { captureSessionState } = await loadTs('../src/xr/session-state.ts');
 const { XrVrNavigation } = await loadTs('../src/xr-navigation.ts');
@@ -227,9 +227,9 @@ test('late collision requires explicit calibration; tracked pose and seated heig
     const {nav,camera}=navigationHarness();nav.entryEye.set(0,3.6,0);nav.global.collisionStatus='loading';
     nav.placeInitial();assert.equal(nav.needsFloorCalibration,true);
     const tracked=camera.getLocalPosition().clone();nav.global.collision=ground();nav.global.collisionStatus='ready';
-    nav.onMenuAction('calibrate');assert.equal(nav.needsFloorCalibration,false);close(camera.getPosition().y,3.625);
-    nav.onMenuAction('posture');close(camera.getPosition().y,3.675);close(camera.getLocalPosition().distance(tracked),0);
-    nav.onMenuAction('posture');close(camera.getPosition().y,3.625);
+    nav.onMenuAction('calibrate');assert.equal(nav.needsFloorCalibration,false);close(camera.getPosition().y,3.6+FOOT_CLEARANCE);
+    nav.onMenuAction('posture');close(camera.getPosition().y,3.65+FOOT_CLEARANCE);close(camera.getLocalPosition().distance(tracked),0);
+    nav.onMenuAction('posture');close(camera.getPosition().y,3.6+FOOT_CLEARANCE);
 });
 
 test('spatial panel selection matches the displayed row under rotation and consumes misses', () => {
@@ -339,4 +339,61 @@ test('capped voxel scan reaches the feet before distant floor cells and visits e
     assert.ok(cells.every((c,i)=>i===0||ring(c)>=ring(cells[i-1])));
     const scans=nearbySurfaceCells([c,{...c,gridMinY:.1}],new Vec3(0,1.2,0));
     close(scans.next().value[1],0);close(scans.next().value[1],.1);
+});
+
+test('XR clearance matches Viewer walking throughout placement, teleport and reset', async () => {
+    const {WalkController}=await loadTs('../src/cameras/walk-controller.ts');
+    close(FOOT_CLEARANCE,new WalkController().hoverHeight);
+    const {nav,rig,camera}=navigationHarness();nav.global.collision=ground();nav.global.collisionStatus='ready';
+    nav.entryEye=new Vec3(0,3.8,0);nav.entryYaw=0;nav.preferences={posture:'standing',locomotion:'continuous'};
+    const local=camera.getLocalPosition().clone();nav.placeInitial();
+    close(camera.getPosition().y,2+local.y+FOOT_CLEARANCE);
+    nav.teleport({getOrigin:()=>new Vec3(1,3.8,0),getDirection:()=>new Vec3(0,-1,0)});
+    close(camera.getPosition().x,1);close(camera.getPosition().y,2+local.y+FOOT_CLEARANCE);
+    nav.reset();close(camera.getPosition().y,2+local.y+FOOT_CLEARANCE);
+    nav.onMenuAction('posture');close(camera.getPosition().y,2+1.65+FOOT_CLEARANCE);
+    close(camera.getLocalPosition().distance(local),0);
+});
+
+test('walking averages supported ground across a small hole while teleport still refuses it', () => {
+    const c=ground();c.queryRay=(x,oy,z)=>Math.abs(x)<.06&&Math.abs(z)<.06?null:{x,y:x>0?2.08:2,z};
+    const moved=moveOnGround(c,new Vec3(0,3.8,0),2,1.6,.03,0);
+    close(moved.x,.03);close(moved.y,(2+2.08*3)/4);
+    assert.equal(standableFloor(c,.03,2.25,0,1.6,.5),null);
+    const steep=ground({normalY:0});close(moveOnGround(steep,new Vec3(0,3.8,0),2,1.6,.1,0).x,0);
+    const drop=ground();drop.queryRay=(x,oy,z)=>({x,y:1.6,z});
+    close(moveOnGround(drop,new Vec3(0,3.8,0),2,1.6,.1,0).x,0);
+});
+
+test('capsule push-out slides on diagonal walls without exceeding requested movement', () => {
+    const c=ground();c.queryCapsule=(x,y,z,half,r,out)=>{const overlap=x+z-.03;if(overlap<=1e-7)return false;out.x=-overlap/2;out.y=0;out.z=-overlap/2;return true};
+    const moved=moveOnGround(c,new Vec3(0,3.8,0),2,1.6,.04,0);
+    close(moved.x,.035);close(moved.z,-.005);close(moved.y,2);
+    assert.ok(Math.hypot(moved.x,moved.z)<=.04);
+    const blocked=ground();blocked.queryCapsule=(x,y,z,half,r,out)=>{out.x=1;out.y=0;out.z=0;return true};
+    assert.deepEqual(moveOnGround(blocked,new Vec3(0,3.8,0),2,1.6,.04,0).toArray(),[0,2,0]);
+});
+
+test('walking rechecks support after push-out and rejects ceiling descent and unresolved contact', () => {
+    const c=ground();c.queryCapsule=(x,y,z,half,r,out)=>{if(z<0)return false;out.x=-.005;out.y=0;out.z=-.005;return true};
+    c.isReadyAt=(x,z)=>z>=-.181;
+    assert.deepEqual(moveOnGround(c,new Vec3(0,3.8,0),2,1.6,.04,0).toArray(),[0,2,0]);
+    for(const y of [-.02,0]){const bad=ground();bad.queryCapsule=(x,cy,z,half,r,out)=>{out.x=out.z=0;out.y=y;return true};
+        assert.deepEqual(moveOnGround(bad,new Vec3(0,3.8,0),2,1.6,.04,0).toArray(),[0,2,0]);}
+});
+
+test('walking resolves a low capsule contact without spring motion or penetration', () => {
+    const c=ground();c.queryCapsule=(x,y,z,half,r,out)=>{const bottom=y-half-r;if(bottom>=2.23-1e-6)return false;out.x=out.z=0;out.y=2.23-bottom;return true};
+    const moved=moveOnGround(c,new Vec3(0,3.8,0),2,1.6,.04,0);
+    close(moved.x,.04);close(moved.y,2.03);
+    const again=moveOnGround(c,new Vec3(moved.x,3.83,0),moved.y,1.6,.04,0);
+    close(again.y,moved.y);
+});
+
+test('walking filters one noisy voxel-edge normal but still rejects a genuinely steep footprint', () => {
+    const c=ground();c.querySurfaceNormal=(x,y,z)=>({nx:0,ny:x>.1?0:1,nz:0});
+    close(moveOnGround(c,new Vec3(0,3.8,0),2,1.6,.03,0).x,.03);
+    assert.equal(standableFloor(c,.03,2.25,0,1.6,.5),null);
+    c.querySurfaceNormal=()=>({nx:0,ny:.5,nz:0});
+    close(moveOnGround(c,new Vec3(0,3.8,0),2,1.6,.03,0).x,0);
 });
