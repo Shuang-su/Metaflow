@@ -46,6 +46,8 @@ const { XrVrNavigation } = await loadTs('../src/xr-navigation.ts');
 const { XrSpatialMenu } = await loadTs('../src/xr/menu.ts');
 const { TiledVoxelCollision } = await loadTs('../src/collision/tiled-voxel-collision.ts');
 
+const { surfaceCells, appendCellEdges } = await loadTs('../src/voxel-wire-overlay.ts');
+
 const close = (a, b, message) => assert.ok(Math.abs(a - b) < 0.00001, `${message ?? ''}: ${a} != ${b}`);
 const ground = (options = {}) => ({
     voxelResolution: .05,
@@ -216,7 +218,7 @@ test('spatial panel selection matches the displayed row under rotation and consu
     entity.setPosition(4,2,-3);entity.setEulerAngles(15,90,0);entity.setLocalScale(.68,.86,1);
     let selected='';Object.assign(menu,{entity,canvas:{height:1024},inverse:new Mat4(),rayOrigin:new Vec3(),rayDirection:new Vec3(),pressed:new Map(),open:true,rows:[{action:'resume'},{action:'reset'}],action:(action)=>selected=action});
     const transform=entity.getWorldTransform();const origin=transform.transformPoint(new Vec3(0,0,1));
-    const row=transform.transformPoint(new Vec3(0,.5-(242+96+40)/1024,0));
+    const row=transform.transformPoint(new Vec3(0,.5-(242+84+35)/1024,0));
     const source={getOrigin:()=>origin,getDirection:()=>row.clone().sub(origin).normalize()};
     assert.equal(menu.begin(source),true);menu.select(source);assert.equal(selected,'reset');
     row.copy(transform.transformPoint(new Vec3(2,0,0)));selected='';assert.equal(menu.begin(source),true);menu.select(source);assert.equal(selected,'');
@@ -249,4 +251,25 @@ test('single right controller can walk and turn, with grip enabling strafe; hand
     close(camera.getPosition().distance(pivot),0);assert.ok(!rig.getLocalRotation().equals(rotation));
     source.gamepad.buttons[1].pressed=true;const strafeRotation=rig.getLocalRotation().clone();tick();
     assert.ok(camera.getPosition().distance(pivot)>.01);assert.ok(rig.getLocalRotation().equals(strafeRotation));
+});
+
+test('voxel wire overlay uses real surface cells, omits solid interiors and yields through empty space', () => {
+    const c={gridMinX:0,gridMinY:0,gridMinZ:0,numVoxelsX:3,numVoxelsY:3,numVoxelsZ:3,voxelResolution:1,flipXY:false,
+        isVoxelSolid:(x,y,z)=>x>=0&&x<3&&y>=0&&y<3&&z>=0&&z<3};
+    const visited=[...surfaceCells(c,new Vec3(1.5,1.5,1.5),5)];
+    assert.equal(visited.length,27);assert.equal(visited.filter(Boolean).length,26);
+    assert.equal(visited.some(cell=>cell&&cell[0]===1&&cell[1]===1&&cell[2]===1),false);
+    const empty=[...surfaceCells({...c,isVoxelSolid:()=>false},new Vec3(1.5,1.5,1.5),5)];
+    assert.equal(empty.length,27);assert.ok(empty.every(cell=>cell===null));
+    assert.deepEqual([...surfaceCells(c,new Vec3(20,20,20),2)],[]);
+});
+test('voxel wire overlay preserves flipped cell bounds and emits twelve world-space cube edges', () => {
+    const c={gridMinX:2,gridMinY:4,gridMinZ:6,numVoxelsX:1,numVoxelsY:1,numVoxelsZ:1,voxelResolution:.5,flipXY:true,
+        isVoxelSolid:(x,y,z)=>x===0&&y===0&&z===0};
+    const cells=[...surfaceCells(c,new Vec3(-2.25,-4.25,6.25),1)].filter(Boolean);
+    assert.deepEqual(cells,[[-2.5,-4.5,6,.5]]);
+    const lines=[];appendCellEdges(lines,cells[0]);assert.equal(lines.length,72);
+    const xs=lines.filter((_,i)=>i%3===0),ys=lines.filter((_,i)=>i%3===1);
+    assert.equal(Math.min(...xs),-2.5);assert.equal(Math.max(...xs),-2);
+    assert.equal(Math.min(...ys),-4.5);assert.equal(Math.max(...ys),-4);
 });

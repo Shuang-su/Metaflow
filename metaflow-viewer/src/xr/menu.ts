@@ -18,7 +18,7 @@ import type { Global } from '../types';
 import { headYaw } from './locomotion';
 import type { XrPreferences } from './preferences';
 
-type MenuAction = 'resume' | 'reset' | 'posture' | 'calibrate' | 'locomotion' | 'help' | 'exit';
+type MenuAction = 'resume' | 'reset' | 'posture' | 'calibrate' | 'locomotion' | 'help' | 'exit' | 'collision';
 type MenuRow = { action: MenuAction; label: string };
 
 /** One unlit world-space surface: works in stereo without DOM Overlay or external fonts. */
@@ -142,8 +142,8 @@ class XrSpatialMenu {
         if (Math.abs(x) > 0.5 || Math.abs(y) > 0.5) return -1;
         if (!this.open) return 0;
         const py = (0.5 - y) * this.canvas.height;
-        const index = Math.floor((py - 242) / 96);
-        return py >= 242 && index >= 0 && index < this.rows.length && (py - 242) % 96 < 80 ? index : -1;
+        const index = Math.floor((py - 242) / 84);
+        return py >= 242 && index >= 0 && index < this.rows.length && (py - 242) % 84 < 70 ? index : -1;
     }
 
     begin(source: XrInputSource): boolean {
@@ -209,7 +209,16 @@ class XrSpatialMenu {
                 );
             }
         }
-        const signature = JSON.stringify([this.open, this.help, this.hovered, preferences, status, trackingLimited]);
+        const signature = JSON.stringify([
+            this.open,
+            this.help,
+            this.hovered,
+            preferences,
+            status,
+            trackingLimited,
+            this.global.state.hasCollisionOverlay,
+            this.global.state.collisionOverlayEnabled
+        ]);
         if (signature !== this.signature) {
             this.signature = signature;
             this.draw(preferences);
@@ -259,17 +268,22 @@ class XrSpatialMenu {
                   { action: 'help', label: text('help') },
                   { action: 'exit', label: text('exit') }
               ];
+        if (!this.help && this.global.state.hasCollisionOverlay)
+            this.rows.splice(this.rows.length - 2, 0, {
+                action: 'collision',
+                label: text(this.global.state.collisionOverlayEnabled ? 'collision-hide' : 'collision-show')
+            });
         if (this.status === 'ar-status')
-            this.rows = this.rows.filter((row) => ['resume', 'help', 'exit'].includes(row.action));
+            this.rows = this.rows.filter((row) => ['resume', 'help', 'exit', 'collision'].includes(row.action));
         this.rows.forEach((row, i) => {
-            const y = 242 + i * 96;
+            const y = 242 + i * 84;
             ctx.fillStyle = i === this.hovered ? '#2b655f' : '#213b47';
             ctx.beginPath();
-            ctx.roundRect(32, y, 704, 80, 20);
+            ctx.roundRect(32, y, 704, 70, 18);
             ctx.fill();
             ctx.fillStyle = '#f1faf9';
-            ctx.font = '500 38px system-ui, sans-serif';
-            ctx.fillText(row.label, 56, y + 51, 650);
+            ctx.font = '500 34px system-ui, sans-serif';
+            ctx.fillText(row.label, 56, y + 46, 650);
         });
         if (this.help) {
             ctx.fillStyle = '#d8e7eb';

@@ -247,6 +247,8 @@ class XrVrNavigation extends Script {
         this.blockUntilNeutral = true;
         if (action === 'resume') this.menu.close();
         else if (action === 'exit') this.global.events.fire('endXR');
+        else if (action === 'collision' && this.global.state.hasCollisionOverlay)
+            this.global.state.collisionOverlayEnabled = !this.global.state.collisionOverlayEnabled;
         else if (action === 'reset' && this.sessionVR) this.reset();
         else if ((action === 'posture' || action === 'calibrate') && this.sessionVR) {
             if (action === 'posture')

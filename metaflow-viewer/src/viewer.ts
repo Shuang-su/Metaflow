@@ -42,6 +42,7 @@ import { Picker } from './picker';
 import type { ExperienceSettings, PostEffectSettings } from './settings';
 import type { Config, Global, LoadMode } from './types';
 import { TiledVoxelDebugOverlay, VoxelDebugOverlay } from './voxel-debug-overlay';
+import { VoxelWireOverlay } from './voxel-wire-overlay';
 
 function resolveRevealDotProfile(config: Config, loadingMode: LoadMode): RevealDotProfile {
     if (loadingMode === 'legacy-sog' && config.experienceType === 'character') {
@@ -244,6 +245,8 @@ class Viewer {
     annotations: Annotations;
 
     voxelOverlay: VoxelDebugOverlay | TiledVoxelDebugOverlay | null = null;
+
+    voxelWireOverlay: VoxelWireOverlay | null = null;
 
     tiledVoxelCollision: TiledVoxelCollision | null = null;
 
@@ -518,7 +521,15 @@ class Viewer {
 
         // Render voxel debug overlay
         app.on('prerender', () => {
-            this.voxelOverlay?.update();
+            if (this.voxelOverlay) {
+                this.voxelOverlay.enabled = state.collisionOverlayEnabled && !app.xr.active;
+                this.voxelOverlay.update();
+            }
+            if (this.voxelWireOverlay) {
+                this.voxelWireOverlay.enabled =
+                    state.collisionOverlayEnabled && (renderer === 'webgl' || app.xr.active);
+                this.voxelWireOverlay.update();
+            }
         });
 
         let revealPlaybackQueued = false;
@@ -711,8 +722,14 @@ class Viewer {
             };
 
             const createCollisionOverlay = (nextCollision: Collision) => {
-                // Voxel overlays use compute shaders and therefore remain
-                // WebGPU-only; mesh collision uses standard line rendering.
+                // Keep the full compute overlay on desktop WebGPU. XR and WebGL use bounded world geometry.
+                if (nextCollision instanceof VoxelCollision || nextCollision instanceof TiledVoxelCollision) {
+                    this.voxelWireOverlay = new VoxelWireOverlay(app, nextCollision, camera);
+                    state.hasCollisionOverlay = true;
+                    events.on('collisionOverlayEnabled:changed', () => {
+                        app.renderNextFrame = true;
+                    });
+                }
                 if (config.heatmap && renderer === 'webgl') {
                     console.warn('[Heatmap] WebGPU is required; continuing without the voxel heatmap overlay.');
                 }
@@ -723,7 +740,7 @@ class Viewer {
                     this.voxelOverlay = overlay;
                     state.hasCollisionOverlay = true;
                     events.on('collisionOverlayEnabled:changed', (value: boolean) => {
-                        overlay.enabled = value;
+                        overlay.enabled = value && !app.xr.active;
                         app.renderNextFrame = true;
                     });
                 } else if (nextCollision instanceof TiledVoxelCollision && renderer !== 'webgl') {
@@ -733,7 +750,7 @@ class Viewer {
                     this.voxelOverlay = overlay;
                     state.hasCollisionOverlay = true;
                     events.on('collisionOverlayEnabled:changed', (value: boolean) => {
-                        overlay.enabled = value;
+                        overlay.enabled = value && !app.xr.active;
                         app.renderNextFrame = true;
                     });
                 } else if (nextCollision instanceof MeshCollision) {

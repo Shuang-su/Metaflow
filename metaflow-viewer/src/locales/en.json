@@ -86,6 +86,8 @@
     "walk-hint.touch-gaming": "Use the left joystick to move. Use the right joystick or drag to look. Use the jump button to jump.",
 
     "xr.menu": "Menu",
+    "xr.collision-show": "Show nearby collision voxels",
+    "xr.collision-hide": "Hide collision overlay",
     "xr.title": "Explore this space",
     "xr.resume": "Continue exploring",
     "xr.reset": "Back to starting point",

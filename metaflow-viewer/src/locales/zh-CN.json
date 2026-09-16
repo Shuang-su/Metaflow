@@ -110,6 +110,8 @@
     "walk-hint.touch-gaming": "使用左摇杆移动。使用右摇杆或拖动环顾。按跳跃按钮跳跃。",
 
     "xr.menu": "菜单",
+    "xr.collision-show": "显示附近碰撞体素",
+    "xr.collision-hide": "隐藏碰撞叠层",
     "xr.title": "走进这个空间",
     "xr.resume": "继续漫游",
     "xr.reset": "回到起点",
