@@ -94,7 +94,7 @@ const standableFloor = (
         if (!hit) return null;
         const floor = hit.y;
         const normal = collision.querySurfaceNormal(hit.x, floor, hit.z, 0, -1, 0);
-        if (!Number.isFinite(floor) || normal.ny + 1e-6 < MIN_FLOOR_NORMAL) return null;
+        if (!Number.isFinite(floor) || !Number.isFinite(normal.ny) || normal.ny + 1e-6 < MIN_FLOOR_NORMAL) return null;
         minFloor = Math.min(minFloor, floor);
         maxFloor = Math.max(maxFloor, floor);
     }

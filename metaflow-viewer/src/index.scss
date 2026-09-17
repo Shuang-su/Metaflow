@@ -1109,3 +1109,25 @@ button {
         display: none;
     }
 }
+
+#loadingRecovery {
+    margin-top: 12px;
+    padding: 12px;
+    border-radius: 10px;
+    background: rgba(15, 28, 35, 0.95);
+    color: white;
+    text-align: center;
+    font-size: 14px;
+    line-height: 1.5;
+    &[hidden] {
+        display: none;
+    }
+    button {
+        margin-top: 8px;
+        padding: 10px 20px;
+        border-radius: 8px;
+        background: #244b57;
+        color: white;
+        cursor: pointer;
+    }
+}

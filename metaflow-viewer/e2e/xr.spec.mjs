@@ -112,3 +112,24 @@ test('spatial menu names the available mode switch and confirms the resulting po
     expect(restored.preferences.locomotion).toBe('continuous');
     expect(await page.evaluate(()=>window.__xrMenuSelect('resume').open)).toBe(false);
 });
+
+test('wheel owns the invoking controller and settings preserve navigation preferences', async ({page})=>{
+ const result=await page.evaluate(()=>{
+  const g=viewer.global,n=g.camera.parent.script.get('xrVrNavigation'),m=n.menu;
+  n.sessionVR=true;m.close();
+  const owner={gamepad:{axes:[0,0,0,0],buttons:[{pressed:false}]}},other={gamepad:{axes:[0,0,0,0],buttons:[{pressed:false}]}};
+  for(const source of [owner,other]) {source.getOrigin=()=>g.camera.getPosition();source.getDirection=()=>g.camera.forward;}
+  const tick=()=>m.update(n.preferences,'grounded',new Set([owner,other]),new Set([owner,other]));
+  m.toggle(owner);tick();const at=m.entity.getPosition().clone();
+  owner.gamepad.axes[2]=1;tick();m.begin(other);m.select(other);const exclusive=n.preferences.locomotion==='continuous';
+  m.begin(owner);m.select(owner);const changed=n.preferences.locomotion==='comfort'&&!m.open;
+  m.toggle(owner);tick();const guarded=!m.wheel.armed;owner.gamepad.axes[2]=0;tick();owner.gamepad.axes[3]=1;tick();m.begin(owner);m.select(owner);tick();
+  const panel=m.open&&!m.wheelOpen;
+  const choose=(action)=>{const i=m.rows.findIndex(r=>r.action===action);if(i<0)throw Error('missing '+action);const transform=m.entity.getWorldTransform(),v=g.camera.getPosition().clone();const origin=transform.transformPoint(v.clone().set(0,0,1)),target=transform.transformPoint(v.clone().set(0,.5-(242+i*84+35)/1024,0));const source={getOrigin:()=>origin,getDirection:()=>target.clone().sub(origin).normalize()};m.begin(source);m.select(source);tick();};
+  choose('settings');choose('movement-speed');choose('turn-speed');choose('trajectory');
+  return {exclusive,changed,guarded,panel,prefs:n.preferences,rows:m.rows.map(r=>r.label),stationary:at.distance(m.entity.getPosition())<.001};
+ });
+ expect(result.exclusive&&result.changed&&result.guarded&&result.panel&&result.stationary).toBe(true);
+ expect(result.prefs.movementSpeed).toBe(2.25);expect(result.prefs.rotateSpeed).toBe(120);expect(result.prefs.trajectory).toBe('straight');
+ expect(result.rows).toContain('Teleport path · Straight');
+});
