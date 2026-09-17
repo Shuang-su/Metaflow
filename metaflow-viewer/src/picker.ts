@@ -557,7 +557,11 @@ class Picker {
 
     release: () => void;
 
-    constructor(app: AppBase, camera: Entity) {
+    constructor(
+        app: AppBase,
+        camera: Entity,
+        options?: { width: number; height: number; fresh?: boolean; sourceCamera?: Entity }
+    ) {
         const { graphicsDevice } = app;
 
         let accumBuffer: Texture;
@@ -685,7 +689,7 @@ class Picker {
         };
 
         const ensureRendered = (width: number, height: number, worldLayer: Layer) => {
-            if (cameraMatches(width, height)) {
+            if (!options?.fresh && cameraMatches(width, height)) {
                 return;
             }
 
@@ -715,7 +719,37 @@ class Picker {
                     new Map<number, MeshInstance | GSplatComponent>(),
                     false
                 );
-                accumPass.render();
+                // A detached XR query camera samples the resident scene of the viewer camera.
+                // Register only for this synchronous pass: no additional streaming/LOD camera.
+                const queryCamera = camera.camera.camera;
+                const sourceCamera = options?.sourceCamera?.camera?.camera;
+                const director = app.renderer.gsplatDirector;
+                const resident = sourceCamera && director?.camerasMap.get(sourceCamera);
+                const registered = worldLayer.camerasSet.has(queryCamera);
+                const previous = director?.camerasMap.get(queryCamera);
+                const visibility = new Map<MeshInstance, MeshInstance['isVisibleFunc']>();
+                if (sourceCamera) {
+                    for (const instance of worldLayer.meshInstances) {
+                        const original = instance.isVisibleFunc;
+                        if (original && original(sourceCamera)) {
+                            visibility.set(instance, original);
+                            instance.isVisibleFunc = (view: typeof queryCamera) =>
+                                original(view === queryCamera ? sourceCamera : view);
+                        }
+                    }
+                    worldLayer.camerasSet.add(queryCamera);
+                    if (resident) director.camerasMap.set(queryCamera, resident);
+                }
+                try {
+                    accumPass.render();
+                } finally {
+                    if (sourceCamera) {
+                        for (const [instance, original] of visibility) instance.isVisibleFunc = original;
+                        if (!registered) worldLayer.camerasSet.delete(queryCamera);
+                        if (previous) director.camerasMap.set(queryCamera, previous);
+                        else director?.camerasMap.delete(queryCamera);
+                    }
+                }
 
                 updateCache(width, height);
                 cacheValid = true;
@@ -725,8 +759,8 @@ class Picker {
         };
 
         const prepareSample = (x: number, y: number) => {
-            const width = Math.floor(graphicsDevice.width);
-            const height = Math.floor(graphicsDevice.height);
+            const width = options?.width ?? Math.floor(graphicsDevice.width);
+            const height = options?.height ?? Math.floor(graphicsDevice.height);
 
             // bail out if the device hasn't been sized yet
             if (width <= 0 || height <= 0) {
@@ -765,7 +799,14 @@ class Picker {
             }
 
             const normalizedDepth = r / alpha;
-            const position = getWorldPoint(pickCamera, screenX, screenY, width, height, normalizedDepth);
+            const position = getWorldPoint(
+                pickCamera,
+                screenX + (options?.sourceCamera ? 0.5 : 0),
+                screenY + (options?.sourceCamera ? 0.5 : 0),
+                width,
+                height,
+                normalizedDepth
+            );
             return position ? { position, camera: pickCamera, screenX, screenY, width, height } : null;
         };
 
