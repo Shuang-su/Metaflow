@@ -763,3 +763,25 @@ test('temporary hand tracking loss preserves capability tracking and counts one 
  frame.getPose=()=>({});nav.onFrame(frame);
  assert.equal(nav.validSources.has(source),true);assert.equal(nav.capabilities.get(source).joints,true);
 });
+
+test('reconnected held stick cannot use an empty-input frame as its neutral recovery',()=>{
+ const {nav,camera}=navigationHarness();const controller=new EventHandler();
+ controller.gamepad={axes:[0,0,0,0],buttons:[]};controller.handedness='right';
+ nav.addSource(controller);nav.validSources.add(controller);nav.removeSource(controller);
+ const tick=()=>{nav.lastFrame=performance.now();nav.update(.02)};tick();
+ const before=camera.getPosition().clone();controller.gamepad.axes[3]=-1;
+ nav.addSource(controller);nav.validSources.add(controller);tick();
+ assert.equal(nav.menu.open,true);close(camera.getPosition().distance(before),0);
+ controller.gamepad.axes[3]=0;tick();assert.equal(nav.menu.open,true);
+ controller.gamepad.axes[3]=-1;tick();assert.equal(nav.menu.open,false);
+ assert.ok(camera.getPosition().distance(before)>0);
+});
+
+test('instructions distinguish controller target travel and each mutually exclusive hand mode',()=>{
+ assert.ok(xrGuidance(1,false,false,true,true,false).includes('help-observe-teleport'));
+ assert.ok(xrGuidance(1,false,false,false,true,false).includes('help-observe-hold'));
+ assert.ok(xrGuidance(0,true,false,false,true,false,'target').includes('help-hand-target'));
+ assert.ok(!xrGuidance(0,true,false,false,true,false,'target').includes('help-hand-forward'));
+ assert.ok(xrGuidance(0,true,false,false,true,false,'forward').includes('help-hand-forward'));
+ assert.ok(xrGuidance(0,true,false,false,false,false,'target').includes('help-hand-teleport'));
+});

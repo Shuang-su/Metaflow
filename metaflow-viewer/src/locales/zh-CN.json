@@ -204,5 +204,10 @@
     "xr.confirm-action": "确认",
     "xr.target-observe": "移动到目标附近 · 自由空间",
     "xr.scene-pick-failed": "暂时无法选取目标，请重新指向",
-    "xr.dwell-closer": "请靠近面板以使用悬停确认。"
+    "xr.dwell-closer": "请靠近面板以使用悬停确认。",
+    "xr.help-observe-teleport": "指向场景表面，按下并松开扳机，移动到目标附近。",
+    "xr.help-observe-hold": "指向场景表面，按住扳机靠近，松开立即停止。",
+    "xr.help-hand-teleport": "指向目标，捏合后松开，瞬移到有效位置。",
+    "xr.help-hand-target": "指向场景表面，持续捏合靠近，松开立即停止。",
+    "xr.help-hand-forward": "避开菜单，持续捏合向前行走，松开立即停止。"
 }

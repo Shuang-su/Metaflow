@@ -442,7 +442,8 @@ class XrSpatialMenu {
             [...valid].some((source) => source.inputSource?.targetRayMode === 'transient-pointer'),
             preferences.locomotion === 'comfort',
             status === 'free-roam',
-            status === 'ar-status'
+            status === 'ar-status',
+            preferences.handMovement
         );
         this.inputHint = sticks > 1 ? 'help-move' : sticks === 1 ? 'continuous-hint' : 'hand-hint';
         if (!this.open) {
@@ -509,7 +510,12 @@ class XrSpatialMenu {
         ]);
         if (signature !== this.signature) {
             this.signature = signature;
+            const previousRows = JSON.stringify(this.rows);
             this.draw(preferences);
+            // Capabilities can replace a row while a press/dwell is in flight (for
+            // example hand turn buttons become controller speed settings).
+            // The old target must never confirm the replacement at the same index.
+            if (JSON.stringify(this.rows) !== previousRows) this.cancel();
         }
         this.updateDwell(preferences, sources, valid);
     }
@@ -556,10 +562,19 @@ class XrSpatialMenu {
         ctx.fillStyle = '#a9c4cb';
         ctx.font = '28px system-ui, sans-serif';
         ctx.fillText(text(this.trackingLimited ? 'tracking-limited' : this.status), 48, 172, 672);
+        const movementLabel = this.handsOnly
+            ? `${text('hand-movement')} · ${text(`hand-${preferences.handMovement ?? 'teleport'}`)}`
+            : text(preferences.locomotion);
+        const movementRow: MenuRow = this.handsOnly
+            ? { action: 'hand-movement', label: movementLabel }
+            : {
+                  action: 'locomotion',
+                  label: text(preferences.locomotion === 'comfort' ? 'switch-continuous' : 'switch-comfort')
+              };
         ctx.fillText(
             this.status === 'ar-status'
                 ? text('menu-hint')
-                : `${text(preferences.locomotion)} · ${text(preferences.seatedBoost ? 'boost-on' : 'real-height')} · ${text('paused')}`,
+                : `${movementLabel} · ${text(preferences.seatedBoost ? 'boost-on' : 'real-height')} · ${text('paused')}`,
             48,
             213,
             672
@@ -597,10 +612,7 @@ class XrSpatialMenu {
                 : this.settings
                   ? [
                         { action: 'settings', label: text('back') },
-                        {
-                            action: 'locomotion',
-                            label: text(preferences.locomotion === 'comfort' ? 'switch-continuous' : 'switch-comfort')
-                        },
+                        movementRow,
                         ...(this.handsOnly
                             ? [
                                   { action: 'turn-left' as MenuAction, label: text('turn-left') },
@@ -638,10 +650,7 @@ class XrSpatialMenu {
                         { action: 'resume', label: text('resume') },
                         { action: 'reset', label: text('reset') },
                         { action: 'calibrate', label: text('calibrate') },
-                        {
-                            action: 'locomotion',
-                            label: text(preferences.locomotion === 'comfort' ? 'switch-continuous' : 'switch-comfort')
-                        },
+                        movementRow,
                         { action: 'settings', label: text('settings') },
                         { action: 'auxiliary', label: text('auxiliary') },
                         { action: 'help', label: text('help') },

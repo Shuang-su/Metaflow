@@ -195,6 +195,7 @@ class XrVrNavigation extends Script {
         this.inputSources.add(source);
         this.capabilities.set(source, { ray: false, joints: false, selects: 0 });
         this.controllerDisconnected = false;
+        if (this.recoveryOpen && hasStick(source)) this.recoveryNeutral = false;
         if (source.selecting || source.gamepad?.buttons[0]?.pressed) this.selectNeedsRelease.add(source);
         const menuButton = (source.gamepad?.buttons.length ?? 0) > 5 ? 5 : 4;
         if (source.gamepad?.buttons[menuButton]?.pressed) this.buttonHeld.add(source);
@@ -640,7 +641,7 @@ class XrVrNavigation extends Script {
                     readStick(source.gamepad.axes).every((axis) => axis === 0) &&
                     !source.gamepad.buttons.some((button) => button.pressed)
             );
-            if (neutral) this.recoveryNeutral = true;
+            if (controllers.length > 0 && neutral) this.recoveryNeutral = true;
             else if (
                 this.recoveryNeutral &&
                 controllers.some((source) => readStick(source.gamepad.axes).some((axis) => axis !== 0))

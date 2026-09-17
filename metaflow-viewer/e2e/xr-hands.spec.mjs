@@ -53,3 +53,39 @@ test('world ray picks actual rendered splat depth without changing the tracked c
  expect(result.restoredCameras).toBe(true);expect(result.restoredResident).toBe(true);expect(result.restoredVisibility).toBe(true);
  expect(result.cameraDistance).toBe(0);expect(result.sameRotation).toBe(true);expect(errors).toEqual([]);
 });
+
+test('a controller appearing during a hand press cannot submit a replacement menu action', async({page})=>{
+ const result=await page.evaluate(()=>{
+  const g=viewer.global,n=g.camera.parent.script.get('xrVrNavigation'),m=n.menu;
+  n.sessionVR=true;m.show();m.settings=true;
+  const origin=g.camera.getPosition().clone(),target=origin.clone();
+  const hand={hand:{},getOrigin:()=>origin,getDirection:()=>target.clone().sub(origin).normalize()};
+  const controller={gamepad:{axes:[0,0,0,0]},getOrigin:()=>origin,getDirection:()=>target.clone().sub(origin).normalize()};
+  const tick=sources=>m.update(n.preferences,'free-roam',new Set(sources),new Set(sources));
+  tick([hand]);const transform=m.entity.getWorldTransform();
+  transform.transformPoint(origin.clone().set(0,0,1),origin);
+  transform.transformPoint(target.clone().set(0,.5-(242+2*84+35)/1024,0),target);
+  const pressedAction=m.rows[2].action,before=n.preferences.movementSpeed;m.begin(hand);
+  tick([hand,controller]);const replacementAction=m.rows[2].action;
+  m.select(hand);m.release(hand);
+  return {pressedAction,replacementAction,before,after:n.preferences.movementSpeed};
+ });
+ expect(result.pressedAction).toBe('turn-left');expect(result.replacementAction).toBe('movement-speed');
+ expect(result.after).toBe(result.before);
+});
+
+test('hand-only movement control changes the hand mode without changing controller locomotion', async({page})=>{
+ const result=await page.evaluate(()=>{
+  const g=viewer.global,n=g.camera.parent.script.get('xrVrNavigation'),m=n.menu;
+  n.sessionVR=true;n.preferences.handMovement='teleport';n.preferences.locomotion='continuous';m.show();
+  const origin=g.camera.getPosition().clone(),target=origin.clone();
+  const hand={hand:{},getOrigin:()=>origin,getDirection:()=>target.clone().sub(origin).normalize()};
+  const tick=()=>m.update(n.preferences,'free-roam',new Set([hand]),new Set([hand]));tick();
+  const row=m.rows.findIndex(r=>r.action==='hand-movement');if(row<0)throw Error('Missing hand movement control');
+  const t=m.entity.getWorldTransform();t.transformPoint(origin.clone().set(0,0,1),origin);
+  t.transformPoint(target.clone().set(0,.5-(242+row*84+35)/1024,0),target);
+  m.begin(hand);m.select(hand);m.release(hand);tick();
+  return {hand:n.preferences.handMovement,controller:n.preferences.locomotion,label:m.rows[row].label};
+ });
+ expect(result.hand).toBe('target');expect(result.controller).toBe('continuous');expect(result.label).toContain('Hand movement · Hold to approach');
+});

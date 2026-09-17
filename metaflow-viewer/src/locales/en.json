@@ -181,5 +181,10 @@
     "xr.confirm-action": "Confirm",
     "xr.target-observe": "Approach target · Free space",
     "xr.scene-pick-failed": "Cannot pick a target yet. Aim again.",
-    "xr.dwell-closer": "Move closer to the panel for dwell confirmation."
+    "xr.dwell-closer": "Move closer to the panel for dwell confirmation.",
+    "xr.help-observe-teleport": "Point at a surface and release the trigger to move near it.",
+    "xr.help-observe-hold": "Point at a surface and hold the trigger to approach; release to stop.",
+    "xr.help-hand-teleport": "Point, pinch and release to teleport to a valid destination.",
+    "xr.help-hand-target": "Point at a surface and hold the pinch to approach; release to stop.",
+    "xr.help-hand-forward": "Hold a pinch away from menus to walk forward; release to stop."
 }
