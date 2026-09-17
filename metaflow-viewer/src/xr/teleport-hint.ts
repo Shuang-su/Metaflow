@@ -57,7 +57,7 @@ class TeleportHint {
     hide(): void {
         this.entity.enabled = false;
     }
-    show(reason: TeleportReason, at: Vec3): void {
+    show(reason: TeleportReason | 'observe', at: Vec3): void {
         const label = localize(`xr.target-${reason}`);
         if (label !== this.signature) {
             this.signature = label;
@@ -67,7 +67,8 @@ class TeleportHint {
             ctx.beginPath();
             ctx.roundRect(0, 0, 768, 128, 28);
             ctx.fill();
-            ctx.fillStyle = reason === 'valid' ? '#92e9dc' : reason === 'loading' ? '#ffd479' : '#ffaaa0';
+            ctx.fillStyle =
+                reason === 'valid' || reason === 'observe' ? '#92e9dc' : reason === 'loading' ? '#ffd479' : '#ffaaa0';
             ctx.font = '600 52px system-ui, sans-serif';
             ctx.textAlign = 'center';
             ctx.textBaseline = 'middle';

@@ -3,6 +3,7 @@ import {
     BLEND_NORMAL,
     CULLFACE_NONE,
     Entity,
+    Color,
     LAYERID_UI,
     Mat4,
     Mesh,
@@ -15,8 +16,10 @@ import type { XrInputSource } from 'playcanvas';
 import { localize } from '../localization';
 import type { Global } from '../types';
 
+import { DwellInput } from './dwell';
 import { confirmSelection } from './feedback';
 import { xrGuidance } from './guidance';
+import { InputOwner } from './input-owner';
 import { hasStick, headYaw } from './locomotion';
 import type { XrPreferences } from './preferences';
 import { WheelInput } from './wheel';
@@ -33,12 +36,38 @@ type MenuAction =
     | 'settings'
     | 'movement-speed'
     | 'turn-speed'
-    | 'trajectory';
+    | 'trajectory'
+    | 'auxiliary'
+    | 'confirmation'
+    | 'dwell-duration'
+    | 'main-hand'
+    | 'hand-movement'
+    | 'boost'
+    | 'turn-left'
+    | 'turn-right'
+    | 'confirm'
+    | 'cancel';
 type MenuRow = { action: MenuAction; label: string };
 
 /** One unlit world-space surface: works in stereo without DOM Overlay or external fonts. */
 class XrSpatialMenu {
     open = false;
+    readonly ownership = new InputOwner<XrInputSource>();
+    readonly dwell = new DwellInput();
+    private auxiliary = false;
+    private confirmation: MenuAction | null = null;
+    private revision = 0;
+    private dwellSource: XrInputSource | null = null;
+    private hoverOnly = false;
+    private dwellTooFar = false;
+    private handsOnly = false;
+    private palmPosition: Vec3 | null = null;
+    private palmSource: XrInputSource | null = null;
+    private readonly progressPoints = Array.from({ length: 33 }, () => new Vec3());
+    private readonly progressCenter = new Vec3();
+    private readonly progressRight = new Vec3();
+    private readonly progressUp = new Vec3();
+    private readonly progressColor = new Color(0.57, 0.91, 0.86);
     private help = false;
     private settings = false;
     private guidance: string[] = ['input-wait', 'tracking-hint'];
@@ -102,6 +131,9 @@ class XrSpatialMenu {
     show(): void {
         this.wheelOwner = null;
         this.wheel?.cancel();
+        this.cancel();
+        this.auxiliary = false;
+        this.confirmation = null;
         this.settings = false;
         this.open = true;
         this.help = false;
@@ -153,11 +185,125 @@ class XrSpatialMenu {
         this.wheel?.cancel();
         this.pressed.clear();
         this.hovered = -1;
+        this.revision++;
+        this.dwell.reset(true);
+        this.dwellSource = null;
+        this.ownership.clear();
     }
 
     hide(): void {
         this.close();
         this.entity.enabled = false;
+    }
+
+    setPalm(position: Vec3 | null, source: XrInputSource | null = null): void {
+        this.palmPosition = position;
+        this.palmSource = source;
+    }
+
+    private changed(): void {
+        this.cancel();
+        this.signature = '';
+    }
+
+    private activate(action: MenuAction): void {
+        if (action === 'confirm') {
+            const pending = this.confirmation;
+            this.confirmation = null;
+            this.changed();
+            if (pending) this.action(pending);
+        } else if (action === 'cancel') {
+            this.confirmation = null;
+            this.changed();
+        } else if (['reset', 'calibrate', 'boost', 'exit'].includes(action)) {
+            this.wheelOwner = null;
+            this.width = 0.68;
+            this.height = 0.86;
+            this.confirmation = action;
+            this.changed();
+        } else if (action === 'settings' || action === 'auxiliary' || action === 'help') {
+            if (action === 'settings') this.settings = !this.settings;
+            if (action === 'auxiliary') this.auxiliary = !this.auxiliary;
+            if (action === 'help') this.help = !this.help;
+            this.changed();
+        } else {
+            this.changed();
+            this.action(action);
+        }
+    }
+
+    private updateDwell(preferences: XrPreferences, sources: Set<XrInputSource>, valid: Set<XrInputSource>): void {
+        if (preferences.confirmation !== 'dwell' || this.wheelOpen || this.pressed.size) {
+            this.dwell.reset(true);
+            if (this.ownership.kind === 'dwell') this.ownership.clear();
+            this.dwellSource = null;
+            return;
+        }
+        const eligible = [...sources].filter(
+            (source) =>
+                valid.has(source) &&
+                source !== this.palmSource &&
+                source.inputSource?.targetRayMode !== 'transient-pointer'
+        );
+        if (this.dwellSource && !eligible.includes(this.dwellSource)) {
+            this.ownership.release(this.dwellSource);
+            this.dwellSource = null;
+            this.dwell.reset(true);
+        }
+        const source = this.dwellSource ?? eligible.find((source) => this.hit(source) >= 0);
+        this.dwellTooFar = false;
+        let index = -1,
+            inside = false;
+        if (source) {
+            index = this.hit(source);
+            if (index >= 0) {
+                const headDistance = this.global.camera.getPosition().distance(this.entity.getPosition());
+                const angularSize =
+                    2 * Math.atan((this.open ? (this.height * 70) / 1024 : this.height) / (2 * headDistance));
+                this.dwellTooFar = angularSize < Math.PI / 90;
+                inside = angularSize >= Math.PI / 90 && (!this.open || this.rayOrigin.x >= 0.32);
+                if (!this.ownership.claim(source, 'dwell')) return;
+                this.dwellSource = source;
+            }
+        }
+        const key = index >= 0 ? `${this.revision}:${this.open ? this.rows[index]?.action : 'entry'}` : null;
+        const commit = this.dwell.update(performance.now(), key, inside, preferences.dwellDuration ?? 1000);
+        if (commit && source) {
+            confirmSelection(source);
+            if (this.open) this.activate(this.rows[index].action);
+            else this.show();
+        } else if (index < 0 && this.dwellSource) {
+            this.ownership.release(this.dwellSource);
+            this.dwellSource = null;
+        }
+        if (inside && this.dwell.progress > 0) {
+            const y = this.open ? 0.5 - (277 + index * 84) / 1024 : 0;
+            this.progressCenter.set(this.open ? 0.41 : 0, y, 0.001);
+            this.entity.getWorldTransform().transformPoint(this.progressCenter, this.progressCenter);
+            this.progressRight.copy(this.entity.right);
+            this.progressUp.copy(this.entity.up);
+            const radius = this.open ? (this.height * 26) / 1024 : 0.027;
+            const count = Math.ceil(this.dwell.progress * 32);
+            const layer = this.global.app.scene.layers.getLayerById(LAYERID_UI);
+            for (let i = 0; i <= count; i++) {
+                const angle = -Math.PI / 2 + Math.min(i / 32, this.dwell.progress) * Math.PI * 2;
+                const x = Math.cos(angle) * radius,
+                    y = -Math.sin(angle) * radius;
+                this.progressPoints[i].set(
+                    this.progressCenter.x + this.progressRight.x * x + this.progressUp.x * y,
+                    this.progressCenter.y + this.progressRight.y * x + this.progressUp.y * y,
+                    this.progressCenter.z + this.progressRight.z * x + this.progressUp.z * y
+                );
+                if (i)
+                    this.global.app.drawLine(
+                        this.progressPoints[i - 1],
+                        this.progressPoints[i],
+                        this.progressColor,
+                        false,
+                        layer
+                    );
+            }
+        }
     }
 
     private place(compact: boolean): void {
@@ -206,6 +352,10 @@ class XrSpatialMenu {
     }
 
     begin(source: XrInputSource): boolean {
+        if (this.wheelOwner && source !== this.wheelOwner) return true;
+        if ((this.open || this.hit(source) >= 0) && !this.ownership.claim(source, 'direct')) return true;
+        this.dwell.reset(true);
+        this.dwellSource = null;
         if (this.wheelOwner) {
             if (source === this.wheelOwner) {
                 this.sampleWheel();
@@ -230,7 +380,7 @@ class XrSpatialMenu {
             confirmSelection(source);
             if (selected < 0) this.action('resume');
             else if (selected === 2) this.show();
-            else this.action((['resume', 'locomotion', 'settings', 'reset'] as const)[selected]);
+            else this.activate((['resume', 'locomotion', 'settings', 'reset'] as const)[selected]);
             return;
         }
         const index = this.pressed.get(source);
@@ -244,20 +394,13 @@ class XrSpatialMenu {
         const row = this.rows[index];
         if (!row) return;
         confirmSelection(source);
-        if (row.action === 'settings') {
-            this.settings = !this.settings;
-            this.help = false;
-            this.pressed.clear();
-            this.signature = '';
-        } else if (row.action === 'help') {
-            this.help = !this.help;
-            this.signature = '';
-        } else this.action(row.action);
+        this.activate(row.action);
     }
 
     release(source: XrInputSource): void {
         if (source === this.wheelOwner) this.wheel.release();
         this.pressed.delete(source);
+        this.ownership.release(source);
     }
 
     update(
@@ -270,6 +413,9 @@ class XrSpatialMenu {
         this.entity.enabled = true;
         this.status = status;
         this.trackingLimited = trackingLimited;
+        this.handsOnly = ![...valid].some(hasStick);
+        this.hoverOnly = preferences.confirmation === 'dwell';
+        if (this.open && !valid.size) this.status = 'input-wait';
         if (this.wheelOwner) {
             if (!sources.has(this.wheelOwner) || !valid.has(this.wheelOwner)) this.show();
             else {
@@ -296,7 +442,8 @@ class XrSpatialMenu {
             [...valid].some((source) => source.inputSource?.targetRayMode === 'transient-pointer'),
             preferences.locomotion === 'comfort',
             status === 'free-roam',
-            status === 'ar-status'
+            status === 'ar-status',
+            preferences.handMovement
         );
         this.inputHint = sticks > 1 ? 'help-move' : sticks === 1 ? 'continuous-hint' : 'hand-hint';
         if (!this.open) {
@@ -305,12 +452,17 @@ class XrSpatialMenu {
             this.entity.setLocalScale(this.width, this.height, 1);
             // Freeze before the press too: aiming should not chase head movement.
             const pointed = [...sources].some((source) => valid.has(source) && this.hit(source) >= 0);
-            if (!this.pressed.size && !pointed) this.place(true);
+            if (!this.pressed.size && !pointed) {
+                if (this.palmPosition) {
+                    this.entity.setPosition(this.palmPosition);
+                    this.entity.setRotation(this.global.camera.getRotation());
+                } else this.place(true);
+            }
         }
         this.entity.setLocalScale(this.width, this.height, 1);
         this.hovered = -1;
         for (const source of sources) {
-            if (!valid.has(source)) continue;
+            if (!valid.has(source) || (!this.open && source === this.palmSource)) continue;
             const hit = this.hit(source);
             if (hit >= 0) this.hovered = hit;
             // Transient gaze/pinch is rendered only while supplied by the browser.
@@ -347,13 +499,25 @@ class XrSpatialMenu {
             trackingLimited,
             this.inputHint,
             this.guidance,
+            this.auxiliary,
+            this.confirmation,
+            this.handsOnly,
+            this.hoverOnly,
+            this.dwellTooFar,
+            this.status,
             this.global.state.hasCollisionOverlay,
             this.global.state.collisionOverlayEnabled
         ]);
         if (signature !== this.signature) {
             this.signature = signature;
+            const previousRows = JSON.stringify(this.rows);
             this.draw(preferences);
+            // Capabilities can replace a row while a press/dwell is in flight (for
+            // example hand turn buttons become controller speed settings).
+            // The old target must never confirm the replacement at the same index.
+            if (JSON.stringify(this.rows) !== previousRows) this.cancel();
         }
+        this.updateDwell(preferences, sources, valid);
     }
 
     private draw(preferences: XrPreferences): void {
@@ -380,57 +544,122 @@ class XrSpatialMenu {
         ctx.fillText('METAFLOW  /  IMMERSIVE', 48, 55);
         ctx.fillStyle = '#f1faf9';
         ctx.font = '600 45px system-ui, sans-serif';
-        ctx.fillText(text(this.help ? 'help' : this.settings ? 'settings' : 'title'), 48, 117);
+        ctx.fillText(
+            text(
+                this.confirmation
+                    ? 'confirm-title'
+                    : this.help
+                      ? 'help'
+                      : this.auxiliary
+                        ? 'auxiliary'
+                        : this.settings
+                          ? 'settings'
+                          : 'title'
+            ),
+            48,
+            117
+        );
         ctx.fillStyle = '#a9c4cb';
         ctx.font = '28px system-ui, sans-serif';
         ctx.fillText(text(this.trackingLimited ? 'tracking-limited' : this.status), 48, 172, 672);
+        const movementLabel = this.handsOnly
+            ? `${text('hand-movement')} · ${text(`hand-${preferences.handMovement ?? 'teleport'}`)}`
+            : text(preferences.locomotion);
+        const movementRow: MenuRow = this.handsOnly
+            ? { action: 'hand-movement', label: movementLabel }
+            : {
+                  action: 'locomotion',
+                  label: text(preferences.locomotion === 'comfort' ? 'switch-continuous' : 'switch-comfort')
+              };
         ctx.fillText(
             this.status === 'ar-status'
                 ? text('menu-hint')
-                : `${text(preferences.locomotion)} · ${text(preferences.posture)} · ${text('paused')}`,
+                : `${movementLabel} · ${text(preferences.seatedBoost ? 'boost-on' : 'real-height')} · ${text('paused')}`,
             48,
             213,
             672
         );
-        this.rows = this.help
+        this.rows = this.confirmation
             ? [
-                  { action: 'help', label: text('back') },
-                  { action: 'resume', label: text('resume') }
+                  { action: 'confirm', label: `${text('confirm-action')} · ${text(this.confirmation)}` },
+                  { action: 'cancel', label: text('cancel') }
               ]
-            : this.settings
+            : this.help
               ? [
-                    { action: 'settings', label: text('back') },
-                    {
-                        action: 'movement-speed',
-                        label: `${text('movement-speed')} · ${text(preferences.movementSpeed === 0.75 ? 'speed-slow' : preferences.movementSpeed === 2.25 ? 'speed-fast' : 'speed-standard')} ${preferences.movementSpeed ?? 1.5} m/s`
-                    },
-                    { action: 'turn-speed', label: `${text('turn-speed')} · ${preferences.rotateSpeed ?? 90}°/s` },
-                    { action: 'trajectory', label: `${text('trajectory')} · ${text(preferences.trajectory ?? 'arc')}` },
+                    { action: 'help', label: text('back') },
                     { action: 'resume', label: text('resume') }
                 ]
-              : [
-                    { action: 'resume', label: text('resume') },
-                    { action: 'reset', label: text('reset') },
-                    {
-                        action: 'posture',
-                        label: text(preferences.posture === 'standing' ? 'switch-seated' : 'switch-standing')
-                    },
-                    { action: 'calibrate', label: text('calibrate') },
-                    {
-                        action: 'locomotion',
-                        label: text(preferences.locomotion === 'continuous' ? 'switch-comfort' : 'switch-continuous')
-                    },
-                    { action: 'settings', label: text('settings') },
-                    { action: 'help', label: text('help') },
-                    { action: 'exit', label: text('exit') }
-                ];
-        if (this.settings && !this.help && this.global.state.hasCollisionOverlay)
-            this.rows.splice(this.rows.length - 2, 0, {
-                action: 'collision',
-                label: text(this.global.state.collisionOverlayEnabled ? 'collision-hide' : 'collision-show')
-            });
+              : this.auxiliary
+                ? [
+                      { action: 'auxiliary', label: text('back') },
+                      {
+                          action: 'confirmation',
+                          label: `${text('confirmation')} · ${text(preferences.confirmation ?? 'direct')}`
+                      },
+                      {
+                          action: 'dwell-duration',
+                          label: `${text('dwell-duration')} · ${(preferences.dwellDuration ?? 1000) / 1000}s`
+                      },
+                      { action: 'main-hand', label: `${text('main-hand')} · ${text(preferences.mainHand ?? 'right')}` },
+                      { action: 'boost', label: `${text('boost')} · ${text(preferences.seatedBoost ? 'on' : 'off')}` },
+                      {
+                          action: 'hand-movement',
+                          label: `${text('hand-movement')} · ${text(`hand-${preferences.handMovement ?? 'teleport'}`)}`
+                      },
+                      { action: 'help', label: text('help') },
+                      { action: 'resume', label: text('resume') }
+                  ]
+                : this.settings
+                  ? [
+                        { action: 'settings', label: text('back') },
+                        movementRow,
+                        ...(this.handsOnly
+                            ? [
+                                  { action: 'turn-left' as MenuAction, label: text('turn-left') },
+                                  { action: 'turn-right' as MenuAction, label: text('turn-right') }
+                              ]
+                            : [
+                                  {
+                                      action: 'movement-speed' as MenuAction,
+                                      label: `${text('movement-speed')} · ${preferences.movementSpeed} m/s`
+                                  },
+                                  {
+                                      action: 'turn-speed' as MenuAction,
+                                      label: `${text('turn-speed')} · ${preferences.rotateSpeed}°/s`
+                                  }
+                              ]),
+                        {
+                            action: 'trajectory',
+                            label: `${text('trajectory')} · ${text(preferences.trajectory ?? 'arc')}`
+                        },
+                        ...(this.global.state.hasCollisionOverlay
+                            ? [
+                                  {
+                                      action: 'collision' as MenuAction,
+                                      label: text(
+                                          this.global.state.collisionOverlayEnabled
+                                              ? 'collision-hide'
+                                              : 'collision-show'
+                                      )
+                                  }
+                              ]
+                            : []),
+                        { action: 'resume', label: text('resume') }
+                    ]
+                  : [
+                        { action: 'resume', label: text('resume') },
+                        { action: 'reset', label: text('reset') },
+                        { action: 'calibrate', label: text('calibrate') },
+                        movementRow,
+                        { action: 'settings', label: text('settings') },
+                        { action: 'auxiliary', label: text('auxiliary') },
+                        { action: 'help', label: text('help') },
+                        { action: 'exit', label: text('exit') }
+                    ];
         if (this.status === 'ar-status')
-            this.rows = this.rows.filter((row) => ['resume', 'help', 'exit', 'collision'].includes(row.action));
+            this.rows = this.rows.filter((row) =>
+                ['resume', 'help', 'exit', 'collision', 'confirm', 'cancel'].includes(row.action)
+            );
         this.rows.forEach((row, i) => {
             const y = 242 + i * 84;
             const pressed = i === this.hovered && [...this.pressed.values()].includes(i);
@@ -440,7 +669,14 @@ class XrSpatialMenu {
             ctx.fill();
             ctx.fillStyle = '#f1faf9';
             ctx.font = '500 34px system-ui, sans-serif';
-            ctx.fillText(row.label, 56, y + 46, 650);
+            ctx.fillText(row.label, 56, y + 46, this.hoverOnly ? 545 : 650);
+            if (this.hoverOnly) {
+                ctx.strokeStyle = '#92e9dc';
+                ctx.lineWidth = 3;
+                ctx.beginPath();
+                ctx.arc(699, y + 35, 26, 0, Math.PI * 2);
+                ctx.stroke();
+            }
         });
         if (this.help) {
             ctx.fillStyle = '#d8e7eb';
@@ -453,11 +689,13 @@ class XrSpatialMenu {
         ctx.font = '24px system-ui, sans-serif';
         ctx.fillText(
             text(
-                this.trackingLimited
-                    ? 'tracking-recovery'
-                    : this.status === 'ar-status' || this.help
-                      ? 'tracking-hint'
-                      : this.guidance[0]
+                this.dwellTooFar
+                    ? 'dwell-closer'
+                    : this.trackingLimited
+                      ? 'tracking-recovery'
+                      : this.status === 'ar-status' || this.help
+                        ? 'tracking-hint'
+                        : this.guidance[0]
             ),
             48,
             977,
