@@ -44,6 +44,10 @@ const { ensureNativeXrResolution } = await loadTs('../src/xr/presentation.ts');
 const { captureSessionState } = await loadTs('../src/xr/session-state.ts');
 const { XrVrNavigation } = await loadTs('../src/xr-navigation.ts');
 const { XrSpatialMenu } = await loadTs('../src/xr/menu.ts');
+const { InputOwner } = await loadTs('../src/xr/input-owner.ts');
+const { DwellInput } = await loadTs('../src/xr/dwell.ts');
+const { PalmIntent } = await loadTs('../src/xr/palm.ts');
+const { SceneTargetQuery, observationTarget, stepToTarget } = await loadTs('../src/xr/scene-target.ts');
 const { confirmSelection } = await loadTs('../src/xr/feedback.ts');
 const { TiledVoxelCollision } = await loadTs('../src/collision/tiled-voxel-collision.ts');
 
@@ -162,7 +166,7 @@ test('selectend cancellation and source loss do not teleport; menu selection is 
     const rig = new Entity(); rig.script = { enabled: true };
     const nav = new XrVrNavigation({app:{xr},entity:rig});
     let selections=0, teleports=0;
-    nav.menu={open:true,begin:()=>true,select:()=>selections++,release:()=>{},cancel:()=>{}};
+    nav.menu={ownership:new InputOwner(),setPalm(){},open:true,begin:()=>true,select:()=>selections++,release:()=>{},cancel:()=>{}};
     nav.global={}; nav.initialized=true; nav.sessionVR=true;
     nav.teleport=()=>teleports++;
     const source = new EventHandler(); source.inputSource={targetRaySpace:{}};
@@ -198,8 +202,8 @@ const navigationHarness = () => {
     camera.setLocalPosition(.4, 1.6, .3);
     const nav = new XrVrNavigation({app:{xr},entity:rig});
     nav.global={camera,collision:null,collisionStatus:'unavailable'};
-    nav.menu={open:false,show(){this.open=true;},close(){this.open=false;},hide(){this.open=false;},cancel(){},release(){},isPointedAt(){return false},update(){}};
-    nav.updateMarker=()=>{};
+    nav.menu={ownership:new InputOwner(),setPalm(){},open:false,show(){this.open=true;},close(){this.open=false;},hide(){this.open=false;},cancel(){},release(){},isPointedAt(){return false},update(){}};
+    nav.updateMarker=()=>{};nav.nextScenePreview=Infinity;
     nav.initialized=true; nav.sessionVR=true; nav.floor=0;
     return { nav, rig, camera };
 };
@@ -228,18 +232,18 @@ test('late collision requires explicit calibration; tracked pose and seated heig
     nav.placeInitial();assert.equal(nav.needsFloorCalibration,true);
     const tracked=camera.getLocalPosition().clone();nav.global.collision=ground();nav.global.collisionStatus='ready';
     nav.onMenuAction('calibrate');assert.equal(nav.needsFloorCalibration,false);close(camera.getPosition().y,3.6+FOOT_CLEARANCE);
-    nav.onMenuAction('posture');close(camera.getPosition().y,3.65+FOOT_CLEARANCE);close(camera.getLocalPosition().distance(tracked),0);
-    nav.onMenuAction('posture');close(camera.getPosition().y,3.6+FOOT_CLEARANCE);
+    nav.onMenuAction('boost');close(camera.getPosition().y,3.65+FOOT_CLEARANCE);close(camera.getLocalPosition().distance(tracked),0);
+    nav.onMenuAction('boost');close(camera.getPosition().y,3.6+FOOT_CLEARANCE);
 });
 
 test('spatial panel selection matches the displayed row under rotation and consumes misses', () => {
     const menu=Object.create(XrSpatialMenu.prototype),entity=new Entity();
     entity.setPosition(4,2,-3);entity.setEulerAngles(15,90,0);entity.setLocalScale(.68,.86,1);
-    let selected='';Object.assign(menu,{entity,canvas:{height:1024},inverse:new Mat4(),rayOrigin:new Vec3(),rayDirection:new Vec3(),pressed:new Map(),open:true,rows:[{action:'resume'},{action:'reset'}],action:(action)=>selected=action});
+    let selected='';Object.assign(menu,{ownership:new InputOwner(),dwell:new DwellInput(),revision:0,progressPoints:Array.from({length:33},()=>new Vec3()),progressCenter:new Vec3(),entity,canvas:{height:1024},inverse:new Mat4(),rayOrigin:new Vec3(),rayDirection:new Vec3(),pressed:new Map(),open:true,rows:[{action:'resume'},{action:'reset'}],action:(action)=>selected=action});
     const transform=entity.getWorldTransform();const origin=transform.transformPoint(new Vec3(0,0,1));
     const row=transform.transformPoint(new Vec3(0,.5-(242+84+35)/1024,0));
     const source={getOrigin:()=>origin,getDirection:()=>row.clone().sub(origin).normalize()};
-    assert.equal(menu.begin(source),true);menu.select(source);assert.equal(selected,'reset');
+    assert.equal(menu.begin(source),true);menu.select(source);assert.equal(selected,'');assert.equal(menu.confirmation,'reset');menu.activate('confirm');assert.equal(selected,'reset');
     row.copy(transform.transformPoint(new Vec3(2,0,0)));selected='';assert.equal(menu.begin(source),true);menu.select(source);assert.equal(selected,'');
 });
 
@@ -351,7 +355,7 @@ test('XR clearance matches Viewer walking throughout placement, teleport and res
     nav.teleport({getOrigin:()=>new Vec3(1,3.8,0),getDirection:()=>new Vec3(0,-1,0)});
     close(camera.getPosition().x,1);close(camera.getPosition().y,2+local.y+FOOT_CLEARANCE);
     nav.reset();close(camera.getPosition().y,2+local.y+FOOT_CLEARANCE);
-    nav.onMenuAction('posture');close(camera.getPosition().y,2+1.65+FOOT_CLEARANCE);
+    nav.onMenuAction('boost');close(camera.getPosition().y,2+1.65+FOOT_CLEARANCE);
     close(camera.getLocalPosition().distance(local),0);
 });
 
@@ -402,10 +406,10 @@ test('posture and recalibration commit height only after clearance succeeds', ()
     const {nav,rig,camera}=navigationHarness();camera.setLocalPosition(.4,1.1,.3);rig.setPosition(0,2.2,0);
     nav.floor=2;nav.preferences={posture:'standing',locomotion:'continuous'};nav.global.collision=ground();nav.global.collisionStatus='ready';
     let ceiling=3.5;nav.global.collision.queryCapsule=(x,y,z,half,r)=>y+half+r>ceiling;
-    const start=camera.getPosition().clone();nav.onMenuAction('posture');
-    assert.equal(nav.preferences.posture,'standing');assert.equal(nav.actionStatus,'posture-blocked');
+    const start=camera.getPosition().clone();nav.onMenuAction('boost');
+    assert.equal(!!nav.preferences.seatedBoost,false);assert.equal(nav.actionStatus,'posture-blocked');
     close(camera.getPosition().distance(start),0);close(nav.heightOffset,0);
-    ceiling=4;nav.onMenuAction('posture');assert.equal(nav.preferences.posture,'seated');close(camera.getPosition().y,3.85);
+    ceiling=4;nav.onMenuAction('boost');assert.equal(nav.preferences.seatedBoost,true);close(camera.getPosition().y,3.85);
     camera.setLocalPosition(.4,.9,.3);ceiling=3.5;
     const before=camera.getPosition().clone(),offset=nav.heightOffset;nav.onMenuAction('calibrate');
     close(camera.getPosition().distance(before),0);close(nav.heightOffset,offset);assert.equal(nav.needsFloorCalibration,false);
@@ -460,7 +464,7 @@ test('menu pointer stops at rotated panel with a world-sized reticle, including 
     const lines=[];const origin=entity.getWorldTransform().transformPoint(new Vec3(.2,0,2.3));
     const target=entity.getWorldTransform().transformPoint(new Vec3(.1,.46,0));
     const source={getOrigin:()=>origin,getDirection:()=>target.clone().sub(origin).normalize()};
-    Object.assign(menu,{entity,width:.68,height:.86,canvas:{height:1024},inverse:new Mat4(),rayOrigin:new Vec3(),rayDirection:new Vec3(),pressed:new Map(),open:true,rows:[{action:'resume'}],material:{emissive:{}},draw(){},global:{state:{},app:{scene:{layers:{getLayerById:()=>({})}},drawLine:(a,b)=>lines.push([a.clone(),b.clone()])}}});
+    Object.assign(menu,{ownership:new InputOwner(),dwell:new DwellInput(),revision:0,progressPoints:Array.from({length:33},()=>new Vec3()),progressCenter:new Vec3(),entity,width:.68,height:.86,canvas:{height:1024},inverse:new Mat4(),rayOrigin:new Vec3(),rayDirection:new Vec3(),pressed:new Map(),open:true,rows:[{action:'resume'}],material:{emissive:{}},draw(){},global:{state:{},app:{scene:{layers:{getLayerById:()=>({})}},drawLine:(a,b)=>lines.push([a.clone(),b.clone()])}}});
     const tick=()=>menu.update({locomotion:'comfort',posture:'standing'},'grounded',new Set([source]),new Set([source]));
     tick();assert.equal(lines.length,17);close(lines[0][1].distance(target),0);assert.equal(menu.hovered,-1);
     for(const [a,b] of lines.slice(1)){close(a.distance(target),.006);close(b.distance(target),.006)}
@@ -478,7 +482,7 @@ test('compact menu stays fixed while aimed or pressed and follows again after di
     const origin=new Vec3(0,1,0),target=new Vec3(0,1,-1);
     const source={getOrigin:()=>origin,getDirection:()=>target.clone().sub(origin).normalize()};
     let placements=0;
-    Object.assign(menu,{entity,canvas:{height:1024},inverse:new Mat4(),rayOrigin:new Vec3(),rayDirection:new Vec3(),pressed:new Map(),open:false,rows:[],material:{emissive:{}},draw(){},place(){placements++},global:{camera,state:{},app:{scene:{layers:{getLayerById:()=>({})}},drawLine(){}}}});
+    Object.assign(menu,{ownership:new InputOwner(),dwell:new DwellInput(),revision:0,progressPoints:Array.from({length:33},()=>new Vec3()),progressCenter:new Vec3(),entity,canvas:{height:1024},inverse:new Mat4(),rayOrigin:new Vec3(),rayDirection:new Vec3(),pressed:new Map(),open:false,rows:[],material:{emissive:{}},draw(){},place(){placements++},global:{camera,state:{},app:{scene:{layers:{getLayerById:()=>({})}},drawLine(){}}}});
     const tick=(valid=true)=>menu.update({locomotion:'comfort',posture:'standing'},'grounded',new Set([source]),new Set(valid?[source]:[]));
     tick();camera.setEulerAngles(0,20,0);tick();assert.equal(placements,0);
     assert.equal(menu.begin(source),true);target.x=2;tick();assert.equal(placements,0);
@@ -555,7 +559,7 @@ test('XR preference migration keeps posture and mode, validates presets and tole
  const previous=globalThis.localStorage;
  try{
   let saved=JSON.stringify({locomotion:'comfort',posture:'seated'});globalThis.localStorage={getItem:()=>saved};
-  assert.deepEqual(loadPreferences(),{locomotion:'comfort',posture:'seated',movementSpeed:1.5,rotateSpeed:90,trajectory:'arc'});
+  assert.deepEqual(loadPreferences(),{locomotion:'comfort',posture:'seated',seatedBoost:false,confirmation:'direct',dwellDuration:1000,mainHand:'right',handMovement:'teleport',movementSpeed:1.5,rotateSpeed:90,trajectory:'arc'});
   saved=JSON.stringify({movementSpeed:2.25,rotateSpeed:45,trajectory:'straight'});assert.equal(loadPreferences().movementSpeed,2.25);assert.equal(loadPreferences().trajectory,'straight');
   saved=JSON.stringify({movementSpeed:999,rotateSpeed:-1});assert.equal(loadPreferences().rotateSpeed,90);
   saved='broken';assert.equal(loadPreferences().locomotion,'continuous');
@@ -641,4 +645,121 @@ test('hidden time does not count as stalled loading after returning to the page'
  const r=new LoadingRecovery(),s={loaded:false,hidden:false,frame:0,progress:0,stage:'download',status:''};
  r.observe(0,s);s.hidden=true;assert.equal(r.observe(1000,s),null);s.hidden=false;assert.equal(r.observe(100000,s),null);
  assert.equal(r.observe(119999,s),null);assert.equal(r.observe(120000,s),'waiting-frame');
+});
+
+test('dwell waits 200ms then fills, pauses at an edge and requires leaving after completion', () => {
+ const d=new DwellInput(); d.update(0,'a',true,1000);
+ for(let t=100;t<=900;t+=100) assert.equal(d.update(t,'a',true,1000),null);
+ assert.equal(d.update(1000,'a',true,1000),'a');
+ for(let t=1100;t<=1800;t+=100) assert.equal(d.update(t,'a',true,1000),null);
+ d.update(1900,null,false,1000);d.update(2000,null,false,1000);d.update(2100,null,false,1000);
+ d.update(2200,'a',true,1000);for(let t=2300;t<=2500;t+=100)d.update(t,'a',true,1000);
+ const progress=d.progress;d.update(2550,'a',false,1000);d.update(2600,'a',true,1000);close(d.progress,progress);
+ d.update(2700,'a',false,1000);d.update(2901,'a',true,1000);assert.equal(d.progress,0);
+});
+
+test('dwell target changes, direct takeover, menu rebuild and missing frames cannot carry progress', () => {
+ const d=new DwellInput();d.update(0,'page1:reset',true,1000);for(let t=100;t<=900;t+=100)d.update(t,'page1:reset',true,1000);
+ d.update(950,'page2:confirm',true,1000);assert.equal(d.progress,0);
+ d.reset(true);d.update(1050,'page2:confirm',true,1000);assert.equal(d.progress,0);
+ d.update(1150,null,false,1000);d.update(1350,null,false,1000);d.update(1450,'page2:confirm',true,1000);
+ d.update(5000,'page2:confirm',true,1000);assert.equal(d.progress,0);
+});
+
+test('ownership rejects the other hand and dwell cannot steal an active trigger',()=>{
+ const owner=new InputOwner(),left={},right={};
+ assert.equal(owner.claim(right,'dwell'),true);assert.equal(owner.claim(left,'direct'),false);
+ assert.equal(owner.claim(right,'direct'),true);assert.equal(owner.claim(right,'dwell'),false);
+ owner.release(left);assert.equal(owner.source,right);owner.release(right);
+ assert.equal(owner.claim(left,'direct'),true);
+});
+
+test('palm entry uses hold and angular hysteresis, loss clears it immediately',()=>{
+ const p=new PalmIntent();assert.equal(p.update(0,30),false);assert.equal(p.update(299,30),false);
+ assert.equal(p.update(300,35),true);assert.equal(p.update(400,49),true);assert.equal(p.update(500,51),false);
+ p.update(600,30);p.update(800,40);assert.equal(p.update(900,30),false);assert.equal(p.update(1200,30),true);
+ assert.equal(p.update(1300,null),false);
+});
+
+test('observation points stop before surfaces in three dimensions without invented ground',()=>{
+ const head=new Vec3(0,1,0);assert.equal(observationTarget(head,null),null);
+ assert.equal(observationTarget(head,new Vec3(0,1,.5)),null);assert.equal(observationTarget(head,new Vec3(0,1,11)),null);
+ const high=new Vec3(0,7,-8),target=observationTarget(head,high);
+ close(high.distance(target),.75);close(head.distance(target),9.25);
+ close(stepToTarget(head,target,.75,1).length(),.75*.05);
+ close(stepToTarget(head,head,1,.02).length(),0);
+});
+
+test('scene query is single-flight, throttles previews, and rejects invalidated readback',async()=>{
+ const q=new SceneTargetQuery();let resolve, calls=0;
+ const first=q.query(0,false,()=>{calls++;return new Promise(r=>resolve=r)});
+ assert.equal(q.busy,true);assert.equal(await q.query(1,false,async()=>{calls++;return new Vec3()}),null);
+ q.invalidate();resolve(new Vec3(1,0,0));assert.equal(await first,null);assert.equal(calls,1);
+ assert.equal(await q.query(50,false,async()=>{calls++;return new Vec3()}),null);
+ assert.ok(await q.query(100,true,async()=>{calls++;return new Vec3()}));assert.equal(calls,2);
+});
+
+test('continuous scene selection released before readback never starts movement; menu cancels teleport',async()=>{
+ const {nav,camera}=navigationHarness();let resolve;
+ const source={getOrigin:()=>new Vec3(0,1,0),getDirection:()=>new Vec3(0,0,-1)};
+ nav.scenePicker={pick:()=>new Promise(r=>resolve=r)};nav.validSources.add(source);
+ nav.gestures.set(source,'scene');const before=camera.getPosition().clone();
+ const pending=nav.queryScene(source,true,false);nav.gestures.delete(source);resolve(new Vec3(0,1,-4));await pending;
+ assert.equal(nav.sceneTarget,null);close(camera.getPosition().distance(before),0);
+ const teleport=nav.queryScene(source,true,true);nav.menu.open=true;nav.cancelScene();resolve(new Vec3(0,1,-4));await teleport;
+ close(camera.getPosition().distance(before),0);
+ nav.global.collisionStatus='loading';let calls=0;nav.scenePicker.pick=async()=>{calls++;return new Vec3()};
+ await nav.queryScene(source,true,true);assert.equal(calls,0);
+});
+
+test('real tracked height follows sitting and crouching without enabling legacy seated compensation',()=>{
+ const {nav,camera,rig}=navigationHarness();nav.preferences.posture='seated';nav.preferences.seatedBoost=false;
+ nav.entryEye.set(0,2,0);nav.placeInitial();close(nav.heightOffset,0);
+ const rigBefore=rig.getPosition().clone();camera.setLocalPosition(0,.8,0);close(nav.effectiveHeight(),.8);
+ camera.setLocalPosition(0,1.8,0);close(nav.effectiveHeight(),1.8);close(rig.getPosition().distance(rigBefore),0);
+ nav.onReferenceReset();assert.equal(nav.sceneTarget,null);assert.equal(nav.menu.open,true);assert.equal(nav.actionStatus,'calibration-needed');
+});
+
+test('queued scene confirmations stay single-flight and perform a fresh query after preview',async()=>{
+ const q=new SceneTargetQuery();let release;const calls=[];
+ const a=q.query(0,false,()=>{calls.push('preview');return new Promise(r=>release=r)});
+ const b=q.query(10,true,async()=>{calls.push('first');await Promise.resolve();return new Vec3(1,0,0)});
+ const c=q.query(20,true,async()=>{calls.push('second');return new Vec3(2,0,0)});
+ assert.deepEqual(calls,['preview']);release(new Vec3());await a;assert.equal((await b).x,1);assert.equal((await c).x,2);
+ assert.deepEqual(calls,['preview','first','second']);assert.equal(q.busy,false);
+});
+
+test('normal transient pinch removal preserves committed scene teleport but controller disconnect cancels it',async()=>{
+ for(const transient of [true,false]) {
+  const {nav,camera}=navigationHarness();let resolve;
+  const source=new EventHandler();source.inputSource={targetRayMode:transient?'transient-pointer':'tracked-pointer'};
+  source.getOrigin=()=>camera.getPosition().clone();source.getDirection=()=>new Vec3(0,0,-1);
+  nav.addSource(source);nav.validSources.add(source);nav.scenePicker={pick:()=>new Promise(r=>resolve=r)};
+  const before=camera.getPosition().clone(),pending=nav.queryScene(source,true,true);
+  nav.removeSource(source);resolve(before.clone().add(new Vec3(0,0,-4)));await pending;
+  close(camera.getPosition().distance(before),transient?3.25:0);
+  assert.equal(nav.diagnostics.inputLosses,transient?0:1);
+ }
+});
+
+test('two hands respect dominant selection and one hand degrades without changing the preference',()=>{
+ const {nav}=navigationHarness();nav.preferences.mainHand='right';
+ const left={hand:{},handedness:'left'},right={hand:{},handedness:'right'};
+ nav.validSources.add(left);nav.validSources.add(right);
+ assert.equal(nav.selectable(left),false);assert.equal(nav.selectable(right),true);
+ nav.validSources.delete(right);assert.equal(nav.selectable(left),true);assert.equal(nav.preferences.mainHand,'right');
+ nav.preferences.mainHand='left';nav.validSources.add(right);assert.equal(nav.selectable(right),false);
+ assert.equal(nav.selectable({inputSource:{targetRayMode:'transient-pointer'}}),true);
+});
+
+
+test('temporary hand tracking loss preserves capability tracking and counts one loss',()=>{
+ const {nav}=navigationHarness();const source=new EventHandler();
+ source.inputSource={targetRaySpace:{},hand:new Map(['wrist','index-finger-metacarpal','pinky-finger-metacarpal'].map(id=>[id,{}]))};
+ source.hand={tracking:true};nav.addSource(source);nav.validSources.add(source);
+ const frame={getViewerPose:()=>({}),getPose:()=>null,getJointPose:()=>({})};
+ nav.onFrame(frame);nav.onFrame(frame);
+ assert.equal(nav.diagnostics.inputLosses,1);assert.equal(nav.capabilities.has(source),true);
+ frame.getPose=()=>({});nav.onFrame(frame);
+ assert.equal(nav.validSources.has(source),true);assert.equal(nav.capabilities.get(source).joints,true);
 });

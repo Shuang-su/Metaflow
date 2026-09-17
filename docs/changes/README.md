@@ -26,6 +26,8 @@
 | [MF-32](https://github.com/Shuang-su/Metaflow/issues/32) | Done（本注册表进入 `main` 后） | 文档维护 | 分类历史工件、修正活动模板，并完善 25 篇中文 Viewer/Editor 手册；PR、Commit 与验证以实时 Issue 完成交付为准 |
 | [MF-70](https://github.com/Shuang-su/Metaflow/issues/70) | Implementing；完整真机验收未完成 | 当前行为契约与验证记录 | [单人头显漫游 Spec](70-xr-immersive-roaming/spec.md) 与 [验证记录](70-xr-immersive-roaming/verification.md)；独立分支待审，不发布生产 |
 | [MF-73](https://github.com/Shuang-su/Metaflow/issues/73) | Draft；PICO路线验收待完成 | 单右手柄轮盘与弧线增强 | [Spec](73-xr-wheel-arc/spec.md) 与 [验证记录](73-xr-wheel-arc/verification.md)；依赖MF-70，不发布生产 |
+| [MF-75](https://github.com/Shuang-su/Metaflow/issues/75) | Draft；真机待验 | 完整手势与真实高度 | [Spec](75-xr-hands/spec.md)、[验证](75-xr-hands/verification.md)；依赖MF-73，实验状态 |
+| [MF-76](https://github.com/Shuang-su/Metaflow/issues/76) | Draft；真机待验 | 无碰撞观察目标移动 | [Spec](76-xr-scene-target/spec.md)、[验证](76-xr-scene-target/verification.md)；联合MF-75验收 |
 
 ## 权威顺序
 

@@ -72,7 +72,7 @@ test('spatial menu names the available mode switch and confirms the resulting po
     await page.evaluate(() => {
         const g=viewer.global, nav=g.camera.parent.script.get('xrVrNavigation');
         nav.sessionVR=true;
-        nav.preferences={locomotion:'continuous',posture:'standing'};
+        nav.preferences={...nav.preferences,locomotion:'continuous',posture:'standing',seatedBoost:false};
         const refresh=()=>{
             nav.menu.update(nav.preferences,nav.actionStatus??'grounded',new Set(),new Set([{
                 gamepad:{axes:[0,0,0,0]}
@@ -86,7 +86,7 @@ test('spatial menu names the available mode switch and confirms the resulting po
             const origin=transform.transformPoint(g.camera.getPosition().clone().set(0,0,1));
             const target=transform.transformPoint(origin.clone().set(0,.5-(242+index*84+35)/1024,0));
             const source={getOrigin:()=>origin,getDirection:()=>target.clone().sub(origin).normalize()};
-            menu.begin(source);menu.select(source);refresh();
+            menu.begin(source);menu.select(source);menu.release(source);refresh();
             return {preferences:{...nav.preferences},open:menu.open,status:menu.status,rows:menu.rows.map(row=>row.label)};
         };
         nav.menu.show();refresh();
@@ -97,17 +97,22 @@ test('spatial menu names the available mode switch and confirms the resulting po
     expect(comfort.preferences.locomotion).toBe('comfort');
     expect(comfort.rows).toContain('Switch to continuous movement');
     expect(comfort.open).toBe(true);
-    const seated=await page.evaluate(()=>window.__xrMenuSelect('posture'));
-    expect(seated.preferences.posture).toBe('seated');
-    expect(seated.rows).toContain('Switch to standing posture');
+    await page.evaluate(()=>window.__xrMenuSelect('auxiliary'));
+    const pending=await page.evaluate(()=>window.__xrMenuSelect('boost'));
+    expect(pending.preferences.seatedBoost).toBe(false);
+    const seated=await page.evaluate(()=>window.__xrMenuSelect('confirm'));
+    expect(seated.preferences.seatedBoost).toBe(true);
+    expect(seated.rows).toContain('Seated boost · On');
+    await page.evaluate(()=>window.__xrMenuSelect('boost'));
     const blocked=await page.evaluate(()=>{
         const g=viewer.global,previous=g.collision;
         g.collision={isReadyAt:()=>true,queryCapsule:()=>true};
-        const result=window.__xrMenuSelect('posture');g.collision=previous;return result;
+        const result=window.__xrMenuSelect('confirm');g.collision=previous;return result;
     });
-    expect(blocked.preferences.posture).toBe('seated');
+    expect(blocked.preferences.seatedBoost).toBe(true);
     expect(blocked.status).toBe('posture-blocked');
     expect(blocked.open).toBe(true);
+    await page.evaluate(()=>window.__xrMenuSelect('auxiliary'));
     const restored=await page.evaluate(()=>window.__xrMenuSelect('locomotion'));
     expect(restored.preferences.locomotion).toBe('continuous');
     expect(await page.evaluate(()=>window.__xrMenuSelect('resume').open)).toBe(false);
@@ -125,7 +130,7 @@ test('wheel owns the invoking controller and settings preserve navigation prefer
   m.begin(owner);m.select(owner);const changed=n.preferences.locomotion==='comfort'&&!m.open;
   m.toggle(owner);tick();const guarded=!m.wheel.armed;owner.gamepad.axes[2]=0;tick();owner.gamepad.axes[3]=1;tick();m.begin(owner);m.select(owner);tick();
   const panel=m.open&&!m.wheelOpen;
-  const choose=(action)=>{const i=m.rows.findIndex(r=>r.action===action);if(i<0)throw Error('missing '+action);const transform=m.entity.getWorldTransform(),v=g.camera.getPosition().clone();const origin=transform.transformPoint(v.clone().set(0,0,1)),target=transform.transformPoint(v.clone().set(0,.5-(242+i*84+35)/1024,0));const source={getOrigin:()=>origin,getDirection:()=>target.clone().sub(origin).normalize()};m.begin(source);m.select(source);tick();};
+  const choose=(action)=>{const i=m.rows.findIndex(r=>r.action===action);if(i<0)throw Error('missing '+action);const transform=m.entity.getWorldTransform(),v=g.camera.getPosition().clone();const origin=transform.transformPoint(v.clone().set(0,0,1)),target=transform.transformPoint(v.clone().set(0,.5-(242+i*84+35)/1024,0));const source={getOrigin:()=>origin,getDirection:()=>target.clone().sub(origin).normalize()};m.begin(source);m.select(source);m.release(source);tick();};
   choose('settings');choose('movement-speed');choose('turn-speed');choose('trajectory');
   return {exclusive,changed,guarded,panel,prefs:n.preferences,rows:m.rows.map(r=>r.label),stationary:at.distance(m.entity.getPosition())<.001};
  });
