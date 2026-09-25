@@ -1,6 +1,6 @@
 # Viewer URL 参数参考
 
-当前解析实现以 [`metaflow-viewer/src/index.html`](../../metaflow-viewer/src/index.html) 为准；语言选择另见 [`src/localization.ts`](../../metaflow-viewer/src/localization.ts)。本页记录实际参数和优先级，不把理想行为写成已经实现的契约。
+当前解析实现以 [`metaflow-viewer/src/index.html`](../../metaflow-viewer/src/index.html) 为准；页面把 `?lang=` 写入 `Config.lang`，再由 [`src/localization.ts`](../../metaflow-viewer/src/localization.ts) 完成 locale 选择。嵌入式入口也可在初始化前设置 `window.sse.config.lang`。本页记录实际参数和优先级，不把理想行为写成已经实现的契约。
 
 ## 两种入口
 
@@ -16,7 +16,19 @@
 /?content=/data/path/model.sog&settings=/data/path/settings.json
 ```
 
-`content` 支持 Viewer 能直接加载的 SOG、compressed PLY 或 streaming JSON；但当前 `generate_index.py` 只把 SOG 或 `lod-meta.json` / `meta.json` 识别为稳定 route 主模型。独立 compressed PLY 仅用于 direct URL 或 legacy package，不能仅靠放入目录获得 index route。
+`content` 支持 Viewer 能直接加载的 SOG、PLY（包括 compressed PLY）、loose SOG metadata JSON 或 streamed LOD。当前 `generate_index.py` 只把 SOG 或 `lod-meta.json` 识别为稳定 route 主模型；独立 PLY 和 `meta.json` 仅用于 direct URL、明确的已有合同或 legacy package，不能仅靠放入目录获得 index route。
+
+入口身份固定对应 PlayCanvas parser：
+
+| `content` basename/extension | 内部来源类型 | 对外 loading mode |
+|---|---|---|
+| basename 恰为 `lod-meta.json` | `streaming-lod` | `streaming-json` |
+| `.sog` | `sog-bundle` | `legacy-sog` |
+| 其他 `.json`，包括 `meta.json` | `sog-meta` | `legacy-sog` |
+| `.ply` | `ply` | `legacy-sog` |
+| 其他 | unsupported，加载前明确失败 | — |
+
+JSON 结构用于验证所选入口，不会改选另一个 parser。损坏的 `lod-meta.json` 会进入明确的 manifest-invalid 终态，不会猜测为 loose SOG。
 
 ## 资源参数
 
@@ -77,6 +89,8 @@
 | `lang` | UI 语言，例如 `zh-CN`、`en` |
 
 布尔 flag 以“参数是否存在”判断，例如 `?noui`；`hpr` 是例外，会读取值。未知参数会被 Viewer 忽略。
+
+语言的最终优先级是 `Config.lang`（自带 HTML 入口默认来自 `?lang=`）→ `navigator.languages` / `navigator.language` → English。大小写和 base-language 匹配继续生效；localization 模块不再重复读取 URL，也没有第二套语言参数。
 
 ## Analytics 与隐私参数
 

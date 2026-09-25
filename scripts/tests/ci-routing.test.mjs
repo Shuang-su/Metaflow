@@ -50,10 +50,17 @@ test('Viewer, Editor, data, Design, and reference source routes stay independent
     assert.deepEqual(route(['supersplat-v2.28.0/src/index.ts']).checks, ['editor', 'codeql']);
     assert.deepEqual(route(['data/Shenzhen/example/settings.json']).checks, ['viewer', 'data']);
     assert.deepEqual(route(['aave-liquid-glass-lab/src/App.tsx']).checks, ['design', 'codeql']);
-    assert.deepEqual(route(['supersplat-viewer-v1.18.2/src/index.ts']).checks, ['reference']);
+    assert.deepEqual(
+        route(['references/supersplat-viewer-v1.18.2/src/index.ts']).checks,
+        ['governance', 'reference']
+    );
+    assert.deepEqual(
+        route(['references/splat-transform-v3.2.0/README.md']).checks,
+        ['governance', 'reference']
+    );
 });
 
-test('dependency routes add review and only the corresponding product check', () => {
+test('dependency routes add review only for active products, never immutable references', () => {
     assert.deepEqual(
         route(['metaflow-viewer/package-lock.json']).checks,
         ['viewer', 'dependency-review']
@@ -63,8 +70,8 @@ test('dependency routes add review and only the corresponding product check', ()
         ['editor', 'dependency-review']
     );
     assert.deepEqual(
-        route(['supersplat-viewer-v1.18.2/package-lock.json']).checks,
-        ['reference', 'dependency-review']
+        route(['references/supersplat-viewer-v1.18.2/package-lock.json']).checks,
+        ['governance', 'reference']
     );
 });
 
@@ -120,10 +127,10 @@ test('name-status parsing retains added, modified, deleted, and both rename path
 
 test('renamed and deleted paths retain checks from their original locations', () => {
     const changes = parseNameStatus(
-        'R100\0metaflow-viewer/src/old.ts\0docs/new-name.md\0D\0supersplat-viewer-v1.18.2/src/old.ts\0'
+        'R100\0metaflow-viewer/src/old.ts\0docs/new-name.md\0D\0references/supersplat-viewer-v1.18.2/src/old.ts\0'
     );
     const result = route(changes.flatMap((change) => change.paths));
-    assert.deepEqual(result.checks, ['docs', 'viewer', 'reference', 'codeql']);
+    assert.deepEqual(result.checks, ['docs', 'governance', 'viewer', 'reference', 'codeql']);
 });
 
 test('the route CLI exits non-zero for an unknown path', () => {

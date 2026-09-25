@@ -1,0 +1,3 @@
+[     653ms] [LOG] Metaflow Viewer 5.18a (semver 5.18.0, index schema 1.2) | Metaflow fork synced toward SSV v1.26.2 (PlayCanvas 2.19.2) | Engine v2.19.2 (3f52bb8) @ http://127.0.0.1:4178/index.js:93775
+[    2167ms] [LOG] Renderer: webgpu @ http://127.0.0.1:4178/index.js:93442
+[    8523ms] [INFO] Camera debug helpers ready: logCameraPose() / getCameraPose() @ http://127.0.0.1:4178/index.js:92132

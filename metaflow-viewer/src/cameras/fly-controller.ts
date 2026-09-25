@@ -2,7 +2,13 @@ import { Vec3 } from 'playcanvas';
 
 import type { Collision } from '../collision';
 import type { CameraFrame, Camera, CameraController } from './camera';
-import { DEFAULT_CONTROLLER_DAMPING, applyFrameRotation, dampAngles, setBasisOffset, setCameraBasis } from './camera-utils';
+import {
+    DEFAULT_CONTROLLER_DAMPING,
+    applyFrameRotation,
+    dampAngles,
+    setBasisOffset,
+    setCameraBasis
+} from './camera-utils';
 import { SpawnState } from './spawn-state';
 import { SphereMover } from './sphere-mover';
 import { findSphereSpawn } from '../collision/find-spawn';
@@ -45,9 +51,17 @@ class FlyController implements CameraController {
 
     onEnter(camera: Camera): void {
         this.goto(camera);
-        if (this.collision &&
-            findSphereSpawn(this.collision, this._position.x, this._position.y, this._position.z,
-                CAMERA_RADIUS, spawnProbe)) {
+        if (
+            this.collision &&
+            findSphereSpawn(
+                this.collision,
+                this._position.x,
+                this._position.y,
+                this._position.z,
+                CAMERA_RADIUS,
+                spawnProbe
+            )
+        ) {
             this._position.copy(spawnProbe);
             this._mover.reset(this._position);
         }
@@ -69,7 +83,7 @@ class FlyController implements CameraController {
     }
 
     onExit(_camera: Camera): void {
-
+        // Fly mode has no controller-local state to release.
     }
 
     goto(camera: Camera) {

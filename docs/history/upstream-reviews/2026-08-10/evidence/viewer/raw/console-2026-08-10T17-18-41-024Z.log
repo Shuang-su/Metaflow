@@ -1,0 +1,9 @@
+[     682ms] [LOG] SuperSplat Viewer v1.29.0 | Engine v2.21.3 (b1767d5) @ http://127.0.0.1:4303/index.js:92464
+[     722ms] [LOG] Renderer: webgpu @ http://127.0.0.1:4303/index.js:92284
+[    1565ms] TypeError: Cannot read properties of undefined (reading 'enabled')
+    at anyPostEffectEnabled (http://127.0.0.1:4303/index.js:90396:33)
+    at Viewer.configureCamera (http://127.0.0.1:4303/index.js:90720:50)
+    at new Viewer (http://127.0.0.1:4303/index.js:90444:14)
+    at main (http://127.0.0.1:4303/index.js:92463:12)
+    at async HTMLDocument.<anonymous> (http://127.0.0.1:4303/?settings=%2Fdata%2FACG%2FFireflyFes38%2F260502%20172930%2003%20%E5%B4%A9%E5%9D%8F%E6%98%9F%E7%A9%B9%E9%93%81%E9%81%93%20%E6%98%94%E6%B6%9F%2Fsettings-v2.json&content=%2Fdata%2FACG%2FFireflyFes38%2F260502%20172930%2003%20%E5%B4%A9%E5%9D%8F%E6%98%9F%E7%A9%B9%E9%93%81%E9%81%93%20%E6%98%94%E6%B6%9F%2F260502%20172930%2003%20Cyrene.sog&collision=%2Fdata%2FACG%2FFireflyFes38%2F260502%20172930%2003%20%E5%B4%A9%E5%9D%8F%E6%98%9F%E7%A9%B9%E9%93%81%E9%81%93%20%E6%98%94%E6%B6%9F%2Fvoxel_ply_lod0_r0.08_a0.20%2Fmeta.voxel.json:676:32)
+[    2510ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://127.0.0.1:4303/favicon.ico:0

@@ -1,5 +1,6 @@
-import trackingPlan from '../../../analytics/tracking-plan.json';
+import type { PostHog } from 'posthog-js';
 
+import trackingPlan from '../../../analytics/tracking-plan.json';
 import type { CameraMode, InputMode, LoadingStage } from '../types';
 
 type AnalyticsEventName = keyof typeof trackingPlan.events;
@@ -103,20 +104,8 @@ const MAX_POSTHOG_PENDING_EVENTS = 50;
 const FLUSH_INTERVAL_MS = 5000;
 const STORAGE_PREFIX = 'metaflow.analytics';
 const POSTHOG_DEFAULT_HOST = 'https://us.i.posthog.com';
-const CLIENT_HINT_HIGH_ENTROPY_KEYS = [
-    'architecture',
-    'bitness',
-    'model',
-    'platformVersion',
-    'uaFullVersion'
-] as const;
-const UTM_KEYS = [
-    'utm_source',
-    'utm_medium',
-    'utm_campaign',
-    'utm_content',
-    'utm_term'
-] as const;
+const CLIENT_HINT_HIGH_ENTROPY_KEYS = ['architecture', 'bitness', 'model', 'platformVersion', 'uaFullVersion'] as const;
+const UTM_KEYS = ['utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term'] as const;
 const HOST_DEVICE_MODEL_SOURCES = new Set([
     'alipay_mini_program',
     'wechat_mini_program',
@@ -194,9 +183,8 @@ const clampRate = (value: number | undefined, fallback: number) => {
     return Math.max(0, Math.min(1, value));
 };
 
-const truncate = (value: string) => value.length > MAX_STRING_LENGTH ?
-    `${value.slice(0, MAX_STRING_LENGTH)}...` :
-    value;
+const truncate = (value: string) =>
+    value.length > MAX_STRING_LENGTH ? `${value.slice(0, MAX_STRING_LENGTH)}...` : value;
 
 const hashString = (value: string) => {
     let hash = 2166136261;
@@ -279,7 +267,8 @@ const resolveEndpoint = (explicit?: string) => {
 
 const resolveAnalyticsSink = (explicit?: AnalyticsSink): AnalyticsSink => {
     const url = new URL(location.href);
-    const raw = explicit ??
+    const raw =
+        explicit ??
         url.searchParams.get('analyticsSink') ??
         url.searchParams.get('analytics_sink') ??
         localStorage.getItem(`${STORAGE_PREFIX}.sink`) ??
@@ -291,32 +280,38 @@ const resolveAnalyticsSink = (explicit?: AnalyticsSink): AnalyticsSink => {
 
 const resolvePostHogKey = (explicit?: string) => {
     const url = new URL(location.href);
-    return explicit ||
+    return (
+        explicit ||
         url.searchParams.get('posthogKey') ||
         url.searchParams.get('posthog_key') ||
         localStorage.getItem(`${STORAGE_PREFIX}.posthogKey`) ||
         readStringFromMeta('metaflow-posthog-key') ||
-        '';
+        ''
+    );
 };
 
 const resolvePostHogHost = (explicit?: string) => {
     const url = new URL(location.href);
-    return explicit ||
+    return (
+        explicit ||
         url.searchParams.get('posthogHost') ||
         url.searchParams.get('posthog_host') ||
         localStorage.getItem(`${STORAGE_PREFIX}.posthogHost`) ||
         readStringFromMeta('metaflow-posthog-host') ||
-        POSTHOG_DEFAULT_HOST;
+        POSTHOG_DEFAULT_HOST
+    );
 };
 
 const resolvePostHogReplay = (explicit?: boolean) => {
     const url = new URL(location.href);
-    return explicit ??
+    return (
+        explicit ??
         readBooleanFlag(url.searchParams.get('posthogReplay')) ??
         readBooleanFlag(url.searchParams.get('posthog_replay')) ??
         readBooleanFlag(localStorage.getItem(`${STORAGE_PREFIX}.posthogReplay`)) ??
         readBooleanFlag(readStringFromMeta('metaflow-posthog-replay')) ??
-        false;
+        false
+    );
 };
 
 const resolveReplaySampleRate = (explicit?: number) => {
@@ -353,7 +348,7 @@ const getSessionState = () => {
                 sessionStorage.setItem(key, JSON.stringify(next));
                 return next;
             }
-        } catch (e) {
+        } catch {
             // Ignore malformed stored state and start a fresh session.
         }
     }
@@ -404,37 +399,50 @@ const warmClientHints = () => {
     const userAgentData = (navigator as Navigator & { userAgentData?: UserAgentDataLike }).userAgentData;
     if (!userAgentData?.getHighEntropyValues) return;
 
-    void userAgentData.getHighEntropyValues([...CLIENT_HINT_HIGH_ENTROPY_KEYS]).then((values) => {
-        highEntropyClientHints = sanitizeProperties({
-            architecture: values.architecture as JsonValue,
-            bitness: values.bitness as JsonValue,
-            model: values.model as JsonValue,
-            platform_version: values.platformVersion as JsonValue,
-            ua_full_version: values.uaFullVersion as JsonValue
+    void userAgentData
+        .getHighEntropyValues([...CLIENT_HINT_HIGH_ENTROPY_KEYS])
+        .then((values) => {
+            highEntropyClientHints = sanitizeProperties({
+                architecture: values.architecture as JsonValue,
+                bitness: values.bitness as JsonValue,
+                model: values.model as JsonValue,
+                platform_version: values.platformVersion as JsonValue,
+                ua_full_version: values.uaFullVersion as JsonValue
+            });
+        })
+        .catch(() => {
+            highEntropyClientHints = {};
         });
-    }).catch(() => {
-        highEntropyClientHints = {};
-    });
 };
 
 const readHostDeviceInfo = (): HostDeviceInfo | undefined => {
-    const info = (globalThis as typeof globalThis & {
-        MetaflowDeviceInfo?: unknown;
-    }).MetaflowDeviceInfo;
+    const info = (
+        globalThis as typeof globalThis & {
+            MetaflowDeviceInfo?: unknown;
+        }
+    ).MetaflowDeviceInfo;
     if (!info || typeof info !== 'object' || Array.isArray(info)) return undefined;
 
     const record = info as Record<string, unknown>;
     const source = typeof record.source === 'string' ? record.source.trim() : '';
     if (!HOST_DEVICE_MODEL_SOURCES.has(source)) return undefined;
 
-    const model = typeof record.model === 'string' ? record.model.trim() :
-        typeof record.device_model_raw === 'string' ? record.device_model_raw.trim() :
-        typeof record.deviceModel === 'string' ? record.deviceModel.trim() :
-        '';
-    const brand = typeof record.brand === 'string' ? record.brand.trim() :
-        typeof record.device_brand_raw === 'string' ? record.device_brand_raw.trim() :
-        typeof record.deviceBrand === 'string' ? record.deviceBrand.trim() :
-        '';
+    const model =
+        typeof record.model === 'string'
+            ? record.model.trim()
+            : typeof record.device_model_raw === 'string'
+              ? record.device_model_raw.trim()
+              : typeof record.deviceModel === 'string'
+                ? record.deviceModel.trim()
+                : '';
+    const brand =
+        typeof record.brand === 'string'
+            ? record.brand.trim()
+            : typeof record.device_brand_raw === 'string'
+              ? record.device_brand_raw.trim()
+              : typeof record.deviceBrand === 'string'
+                ? record.deviceBrand.trim()
+                : '';
     const confidence = typeof record.confidence === 'string' ? record.confidence.trim() : 'host';
 
     if (!model && !brand) return undefined;
@@ -447,10 +455,12 @@ const readHostDeviceInfo = (): HostDeviceInfo | undefined => {
 };
 
 const getDeviceContext = () => {
-    const connection = (navigator as Navigator & {
-        connection?: { effectiveType?: string; downlink?: number; rtt?: number; saveData?: boolean };
-        deviceMemory?: number;
-    }).connection;
+    const connection = (
+        navigator as Navigator & {
+            connection?: { effectiveType?: string; downlink?: number; rtt?: number; saveData?: boolean };
+            deviceMemory?: number;
+        }
+    ).connection;
     const hostDevice = readHostDeviceInfo();
     return {
         language: navigator.language,
@@ -475,12 +485,14 @@ const getDeviceContext = () => {
         device_brand_raw: hostDevice?.brand,
         device_model_source: hostDevice?.source,
         device_model_confidence: hostDevice?.confidence,
-        network: connection ? {
-            effective_type: connection.effectiveType,
-            downlink: connection.downlink,
-            rtt: connection.rtt,
-            save_data: connection.saveData
-        } : undefined
+        network: connection
+            ? {
+                  effective_type: connection.effectiveType,
+                  downlink: connection.downlink,
+                  rtt: connection.rtt,
+                  save_data: connection.saveData
+              }
+            : undefined
     };
 };
 
@@ -550,7 +562,7 @@ class AnalyticsClient {
 
     private posthogReplay: boolean;
 
-    private posthog: Awaited<typeof import('posthog-js')>['default'] | null = null;
+    private posthog: PostHog | null = null;
 
     private posthogInit: Promise<void> | null = null;
 
@@ -789,10 +801,11 @@ class AnalyticsClient {
         }
     }
 
-    markFirstFrame() {
+    markFirstFrame(properties: AnalyticsProperties = {}) {
         const elapsed = Math.max(0, Date.now() - this.startedAt);
         this.track('first_frame_ready', {
-            time_to_first_frame_ms: elapsed
+            time_to_first_frame_ms: elapsed,
+            ...properties
         });
         this.trackWebVitals('first_frame');
         this.trackResourceTimings('first_frame');
@@ -831,20 +844,29 @@ class AnalyticsClient {
             body,
             keepalive: options.beacon,
             credentials: 'omit'
-        }).then((response) => response.ok).catch(() => false);
+        })
+            .then((response) => response.ok)
+            .catch(() => false);
     }
 
-    private trackHeartbeat(name: 'session_heartbeat' | 'page_hidden' | 'page_restored' | 'session_ended', options: FlushOptions = {}) {
+    private trackHeartbeat(
+        name: 'session_heartbeat' | 'page_hidden' | 'page_restored' | 'session_ended',
+        options: FlushOptions = {}
+    ) {
         this.updateVisibleMs();
         this.finalizeKeyboardDurations();
         const snapshot = this.stateProvider?.();
         const metrics = this.buildSessionMetrics(snapshot);
 
-        this.track(name, {
-            ...metrics,
-            interactions_since_last: this.interactionsSinceLastHeartbeat,
-            last_interaction_type: this.lastInteractionType
-        }, options);
+        this.track(
+            name,
+            {
+                ...metrics,
+                interactions_since_last: this.interactionsSinceLastHeartbeat,
+                last_interaction_type: this.lastInteractionType
+            },
+            options
+        );
         this.interactionsSinceLastHeartbeat = 0;
         this.resetInteractionDepthSinceLast();
     }
@@ -857,16 +879,20 @@ class AnalyticsClient {
         const snapshot = this.stateProvider?.();
         const metrics = this.buildSessionMetrics(snapshot);
 
-        this.track('session_summary', {
-            ...metrics,
-            session_duration_ms: Math.max(0, Date.now() - this.startedAt),
-            heartbeat_interval_ms: HEARTBEAT_INTERVAL_MS,
-            first_frame_ready: !!this.firstFrameAt,
-            replay_sampled: !!this.replayId,
-            active_sinks: this.activeSinks,
-            web_vitals: this.webVitals,
-            interaction_depth_total: this.interactionDepthTotal
-        }, options);
+        this.track(
+            'session_summary',
+            {
+                ...metrics,
+                session_duration_ms: Math.max(0, Date.now() - this.startedAt),
+                heartbeat_interval_ms: HEARTBEAT_INTERVAL_MS,
+                first_frame_ready: !!this.firstFrameAt,
+                replay_sampled: !!this.replayId,
+                active_sinks: this.activeSinks,
+                web_vitals: this.webVitals,
+                interaction_depth_total: this.interactionDepthTotal
+            },
+            options
+        );
         this.trackWebVitals('session_summary', options);
         this.trackResourceTimings('session_summary', options);
     }
@@ -874,9 +900,10 @@ class AnalyticsClient {
     private buildSessionMetrics(snapshot?: AnalyticsStateSnapshot) {
         const elapsed = Math.max(0, Date.now() - this.startedAt);
         const idleMs = this.lastInteractionAt ? Math.max(0, Date.now() - this.lastInteractionAt) : elapsed;
-        const engagedMs = this.firstFrameAt || this.interactions > 0 || elapsed >= 10000 ?
-            Math.max(0, elapsed - idleMs) + Math.min(idleMs, HEARTBEAT_INTERVAL_MS) :
-            0;
+        const engagedMs =
+            this.firstFrameAt || this.interactions > 0 || elapsed >= 10000
+                ? Math.max(0, elapsed - idleMs) + Math.min(idleMs, HEARTBEAT_INTERVAL_MS)
+                : 0;
 
         return {
             visible: document.visibilityState === 'visible',
@@ -958,28 +985,37 @@ class AnalyticsClient {
         const navigation = performance.getEntriesByType('navigation')[0] as PerformanceNavigationTiming | undefined;
         if (navigation) {
             this.webVitals.ttfb_ms = Math.max(0, Math.round(navigation.responseStart - navigation.requestStart));
-            this.webVitals.dom_content_loaded_ms = Math.max(0, Math.round(navigation.domContentLoadedEventEnd - navigation.startTime));
+            this.webVitals.dom_content_loaded_ms = Math.max(
+                0,
+                Math.round(navigation.domContentLoadedEventEnd - navigation.startTime)
+            );
             this.webVitals.load_event_ms = Math.max(0, Math.round(navigation.loadEventEnd - navigation.startTime));
         }
 
         this.observePerformanceEntry('largest-contentful-paint', (entry) => {
             this.webVitals.lcp_ms = Math.max(0, Math.round(entry.startTime));
         });
-        this.observePerformanceEntry('layout-shift', (entry: PerformanceEntry & { value?: number; hadRecentInput?: boolean }) => {
-            if (!entry.hadRecentInput && typeof entry.value === 'number') {
-                this.webVitals.cls = Number(((this.webVitals.cls ?? 0) + entry.value).toFixed(4));
+        this.observePerformanceEntry(
+            'layout-shift',
+            (entry: PerformanceEntry & { value?: number; hadRecentInput?: boolean }) => {
+                if (!entry.hadRecentInput && typeof entry.value === 'number') {
+                    this.webVitals.cls = Number(((this.webVitals.cls ?? 0) + entry.value).toFixed(4));
+                }
             }
-        });
+        );
         this.observePerformanceEntry('first-input', (entry: PerformanceEntry & { processingStart?: number }) => {
             if (typeof entry.processingStart === 'number') {
                 this.webVitals.fid_ms = Math.max(0, Math.round(entry.processingStart - entry.startTime));
             }
         });
-        this.observePerformanceEntry('event', (entry: PerformanceEntry & { duration?: number; interactionId?: number }) => {
-            if (entry.interactionId && typeof entry.duration === 'number') {
-                this.webVitals.inp_ms = Math.max(this.webVitals.inp_ms ?? 0, Math.round(entry.duration));
+        this.observePerformanceEntry(
+            'event',
+            (entry: PerformanceEntry & { duration?: number; interactionId?: number }) => {
+                if (entry.interactionId && typeof entry.duration === 'number') {
+                    this.webVitals.inp_ms = Math.max(this.webVitals.inp_ms ?? 0, Math.round(entry.duration));
+                }
             }
-        });
+        );
     }
 
     private observePerformanceEntry(type: string, callback: (entry: PerformanceEntry) => void) {
@@ -999,10 +1035,14 @@ class AnalyticsClient {
 
     private trackWebVitals(source: string, options: FlushOptions = {}) {
         if (!Object.keys(this.webVitals).length) return;
-        this.track('web_vitals_observed', {
-            source,
-            ...this.webVitals
-        }, options);
+        this.track(
+            'web_vitals_observed',
+            {
+                source,
+                ...this.webVitals
+            },
+            options
+        );
     }
 
     private classifyResourceTiming(entryUrl: URL) {
@@ -1044,17 +1084,22 @@ class AnalyticsClient {
                 transfer_size_bytes: entry.transferSize,
                 encoded_body_size_bytes: entry.encodedBodySize,
                 decoded_body_size_bytes: entry.decodedBodySize,
-                cache_result: entry.transferSize === 0 && entry.encodedBodySize > 0 ? 'cache_or_cross_origin' : 'network'
+                cache_result:
+                    entry.transferSize === 0 && entry.encodedBodySize > 0 ? 'cache_or_cross_origin' : 'network'
             });
         }
 
         if (!timings.length) return;
-        this.track('resource_timing_collected', {
-            source,
-            entry_count: timings.length,
-            transfer_size_bytes_total: timings.reduce((sum, entry) => sum + (entry.transfer_size_bytes || 0), 0),
-            entries: timings.slice(0, 50)
-        }, options);
+        this.track(
+            'resource_timing_collected',
+            {
+                source,
+                entry_count: timings.length,
+                transfer_size_bytes_total: timings.reduce((sum, entry) => sum + (entry.transfer_size_bytes || 0), 0),
+                entries: timings.slice(0, 50)
+            },
+            options
+        );
     }
 
     private addInteractionDepth(key: keyof InteractionDepthCounters, value: number) {
@@ -1063,7 +1108,7 @@ class AnalyticsClient {
     }
 
     private resetInteractionDepthSinceLast() {
-        for (const key of Object.keys(this.interactionDepthSinceLast) as Array<keyof InteractionDepthCounters>) {
+        for (const key of Object.keys(this.interactionDepthSinceLast) as (keyof InteractionDepthCounters)[]) {
             this.interactionDepthSinceLast[key] = 0;
         }
     }
@@ -1130,32 +1175,34 @@ class AnalyticsClient {
         if (!this.posthogEnabled || this.posthog) return;
         if (this.posthogInit) return this.posthogInit;
 
-        this.posthogInit = import('posthog-js').then((module) => {
-            const posthog = module.default;
-            posthog.init(this.posthogKey, {
-                api_host: this.posthogHost,
-                defaults: '2026-01-30',
-                autocapture: false,
-                capture_pageview: false,
-                capture_pageleave: false,
-                disable_session_recording: !this.posthogReplay,
-                respect_dnt: true,
-                ip: false,
-                session_recording: {
-                    maskAllInputs: true,
-                    maskTextSelector: '*',
-                    blockSelector: '.rr-block',
-                    ignoreClass: 'rr-ignore',
-                    maskTextClass: 'rr-mask',
-                    recordCanvas: false
-                }
-            } as Parameters<typeof posthog.init>[1]);
-            this.posthog = posthog;
-            this.drainPostHogPendingEvents();
-        }).catch((error) => {
-            console.warn('[Analytics] Failed to initialize PostHog:', error);
-            this.posthogEnabled = false;
-        });
+        this.posthogInit = import('posthog-js')
+            .then((module) => {
+                const posthog = module.default;
+                posthog.init(this.posthogKey, {
+                    api_host: this.posthogHost,
+                    defaults: '2026-01-30',
+                    autocapture: false,
+                    capture_pageview: false,
+                    capture_pageleave: false,
+                    disable_session_recording: !this.posthogReplay,
+                    respect_dnt: true,
+                    ip: false,
+                    session_recording: {
+                        maskAllInputs: true,
+                        maskTextSelector: '*',
+                        blockSelector: '.rr-block',
+                        ignoreClass: 'rr-ignore',
+                        maskTextClass: 'rr-mask',
+                        recordCanvas: false
+                    }
+                } as Parameters<typeof posthog.init>[1]);
+                this.posthog = posthog;
+                this.drainPostHogPendingEvents();
+            })
+            .catch((error) => {
+                console.warn('[Analytics] Failed to initialize PostHog:', error);
+                this.posthogEnabled = false;
+            });
 
         return this.posthogInit;
     }
@@ -1200,10 +1247,13 @@ class AnalyticsClient {
             this.visibleMs += Math.max(0, Date.now() - this.pageVisibleSince);
             this.pageVisibleSince = Date.now();
         }
-        sessionStorage.setItem(`${STORAGE_PREFIX}.session`, JSON.stringify({
-            id: this.sessionId,
-            lastSeen: Date.now()
-        }));
+        sessionStorage.setItem(
+            `${STORAGE_PREFIX}.session`,
+            JSON.stringify({
+                id: this.sessionId,
+                lastSeen: Date.now()
+            })
+        );
     }
 
     private handleVisibilityChange = () => {
@@ -1233,48 +1283,63 @@ class AnalyticsClient {
     private handleError = (event: ErrorEvent) => {
         const snapshot = this.stateProvider?.();
         const stack = event.error?.stack ?? event.message;
-        this.track('client_error', {
-            error_name: event.error?.name ?? 'Error',
-            error_message: event.message,
-            error_stack_hash: stack ? hashString(String(stack)) : undefined,
-            severity: 'error',
-            source: event.filename ? new URL(event.filename, location.href).pathname : undefined,
-            line: event.lineno,
-            column: event.colno,
-            renderer: this.options.renderer,
-            input_mode: snapshot?.inputMode,
-            camera_mode: snapshot?.cameraMode,
-            loading_stage: snapshot?.loadingStage
-        }, { beacon: true });
+        this.track(
+            'client_error',
+            {
+                error_name: event.error?.name ?? 'Error',
+                error_message: event.message,
+                error_stack_hash: stack ? hashString(String(stack)) : undefined,
+                severity: 'error',
+                source: event.filename ? new URL(event.filename, location.href).pathname : undefined,
+                line: event.lineno,
+                column: event.colno,
+                renderer: this.options.renderer,
+                input_mode: snapshot?.inputMode,
+                camera_mode: snapshot?.cameraMode,
+                loading_stage: snapshot?.loadingStage
+            },
+            { beacon: true }
+        );
     };
 
     private handleRejection = (event: PromiseRejectionEvent) => {
         const reason = event.reason;
         const snapshot = this.stateProvider?.();
         const stack = reason?.stack ?? reason?.message ?? String(reason);
-        this.track('client_error', {
-            error_name: reason?.name ?? 'UnhandledRejection',
-            error_message: reason?.message ?? String(reason),
-            error_stack_hash: stack ? hashString(String(stack)) : undefined,
-            severity: 'error',
-            renderer: this.options.renderer,
-            input_mode: snapshot?.inputMode,
-            camera_mode: snapshot?.cameraMode,
-            loading_stage: snapshot?.loadingStage
-        }, { beacon: true });
+        this.track(
+            'client_error',
+            {
+                error_name: reason?.name ?? 'UnhandledRejection',
+                error_message: reason?.message ?? String(reason),
+                error_stack_hash: stack ? hashString(String(stack)) : undefined,
+                severity: 'error',
+                renderer: this.options.renderer,
+                input_mode: snapshot?.inputMode,
+                camera_mode: snapshot?.cameraMode,
+                loading_stage: snapshot?.loadingStage
+            },
+            { beacon: true }
+        );
     };
 
     private isDisabledByUser() {
         const url = new URL(location.href);
-        return url.searchParams.has('noanalytics') ||
+        return (
+            url.searchParams.has('noanalytics') ||
             url.searchParams.get('analytics') === '0' ||
             localStorage.getItem(`${STORAGE_PREFIX}.disabled`) === 'true' ||
-            navigator.doNotTrack === '1';
+            navigator.doNotTrack === '1'
+        );
     }
 
     private async maybeStartReplay() {
         const rate = resolveReplaySampleRate(this.options.replaySampleRate);
-        if (!this.supabaseEnabled || rate <= 0 || Math.random() >= rate || new URL(location.href).searchParams.has('noreplay')) {
+        if (
+            !this.supabaseEnabled ||
+            rate <= 0 ||
+            Math.random() >= rate ||
+            new URL(location.href).searchParams.has('noreplay')
+        ) {
             return;
         }
 

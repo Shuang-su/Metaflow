@@ -36,13 +36,7 @@ const resolvePreferredCameraMode = (preferred, isObjectExperience, hasCollider) 
  * @returns {{ mode: CameraMode, consumeFirstExit: boolean }}
  */
 const resolveAnimationExitMode = (options) => {
-    const {
-        firstExitMode,
-        hasHandledFirstExit,
-        animationPaused,
-        previousMode,
-        walkAllowed
-    } = options;
+    const { firstExitMode, hasHandledFirstExit, animationPaused, previousMode, walkAllowed } = options;
 
     if (firstExitMode === 'orbit' && !hasHandledFirstExit && !animationPaused) {
         return {
@@ -103,9 +97,9 @@ const resolveAnimationPolicy = (options) => {
     let initialCameraMode;
 
     if (preferredCameraMode === 'anim') {
-        initialCameraMode = hasAnimation ?
-            'anim' :
-            resolvePreferredCameraMode(undefined, isObjectExperience, hasCollider);
+        initialCameraMode = hasAnimation
+            ? 'anim'
+            : resolvePreferredCameraMode(undefined, isObjectExperience, hasCollider);
     } else if (trackKind === 'explicit' || trackKind === 'figure8') {
         initialCameraMode = 'anim';
     } else {

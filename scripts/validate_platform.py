@@ -71,10 +71,15 @@ def _is_versioned_source_directory(directory: str) -> bool:
 
 
 def validate_dependabot(root: Path) -> list[str]:
-    """Reject npm update targets that point at immutable, versioned source snapshots."""
+    """Validate optional Dependabot version-update targets.
+
+    A missing configuration intentionally disables version-update pull requests.
+    If automation is reintroduced later, immutable versioned source trees remain
+    forbidden targets.
+    """
     path = root / ".github" / "dependabot.yml"
     if not path.is_file():
-        return [".github/dependabot.yml: missing"]
+        return []
 
     errors: list[str] = []
     current_ecosystem: str | None = None
@@ -121,6 +126,12 @@ def validate_netlify(root: Path) -> list[str]:
         errors.append("netlify.toml: build.command must run the MCL check from the configured base")
     if "python3 ../scripts/validate_platform.py" not in command:
         errors.append("netlify.toml: build.command must run the platform configuration check")
+
+    ignore = build.get("ignore")
+    if ignore != 'test "$BRANCH" = "main"':
+        errors.append(
+            'netlify.toml: build.ignore must skip ordinary main builds while preserving branch previews'
+        )
 
     redirects = document.get("redirects", [])
     catchalls = [index for index, redirect in enumerate(redirects) if redirect.get("from") == "/*"]

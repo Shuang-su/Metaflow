@@ -1,9 +1,12 @@
 import assert from 'node:assert/strict';
+import { spawnSync } from 'node:child_process';
 import { readFile } from 'node:fs/promises';
 import { test } from 'node:test';
+import { fileURLToPath } from 'node:url';
 
 const readJson = async (url) => JSON.parse(await readFile(url, 'utf8'));
 const readText = (url) => readFile(url, 'utf8');
+const viewerRoot = fileURLToPath(new URL('..', import.meta.url));
 
 const requiredEvents = [
     'session_started',
@@ -93,7 +96,7 @@ test('frontend SDK implements heartbeat, beacon flushing, and replay privacy def
     assert.match(source, /capture_pageleave: false/);
     assert.match(source, /disable_session_recording: !this\.posthogReplay/);
     assert.match(source, /ip: false/);
-    assert.match(source, /if \(!this\.supabaseEnabled \|\| rate <= 0/);
+    assert.match(source, /if \(\s*!this\.supabaseEnabled \|\|\s*rate <= 0/s);
     assert.match(source, /maskAllInputs: true/);
     assert.match(source, /maskTextSelector: '\*'/);
     assert.match(source, /recordCanvas: false/);
@@ -143,13 +146,46 @@ test('viewer wires analytics into route, load, UI, navigation, and XR surfaces',
     assert.match(index, /createAnalyticsClient/);
     assert.match(index, /analytics\.track\('resource_load_started'/);
     assert.match(index, /analytics\.track\('loading_stage_changed'/);
-    assert.match(index, /analytics\.markFirstFrame\(\)/);
+    assert.match(index, /analytics\.markFirstFrame\(\{/);
+    assert.match(index, /primary_source_kind: primarySourceKind/);
+    assert.match(index, /resource_composition: resourceComposition/);
     assert.match(index, /analytics\.track\('navigation_requested'/);
     assert.match(ui, /TRACKED_UI_ACTIONS/);
     assert.match(ui, /analytics\.track\('ui_clicked'/);
     assert.match(ui, /analytics\.track\('xr_requested'/);
     assert.match(xr, /analytics\.track\('xr_started'/);
     assert.match(xr, /analytics\.track\('xr_failed'/);
+});
+
+test('production builds pin and validate the Supabase analytics endpoint', async () => {
+    const rollup = await readText(new URL('../rollup.config.mjs', import.meta.url));
+    const netlify = await readText(new URL('../../netlify.toml', import.meta.url));
+    const workflow = await readText(new URL('../../.github/workflows/release.yml', import.meta.url));
+
+    assert.match(rollup, /METAFLOW_ANALYTICS_ENDPOINT/);
+    assert.match(rollup, /Production Viewer builds require METAFLOW_ANALYTICS_ENDPOINT/);
+    assert.match(rollup, /RELEASE_TAG/);
+    assert.match(netlify, /\[context\.production\.environment\]/);
+    assert.match(netlify, /METAFLOW_ANALYTICS_ENDPOINT\s*=\s*"https:\/\/bziyumtuzvfmhgghvpcs\.functions\.supabase\.co\/analytics-collect"/);
+    assert.match(workflow, /production analytics endpoint is missing or unexpected/);
+
+    const missingEndpoint = spawnSync(
+        process.execPath,
+        ['--input-type=module', '-e', "await import('./rollup.config.mjs')"],
+        {
+            cwd: viewerRoot,
+            encoding: 'utf8',
+            env: {
+                ...process.env,
+                CONTEXT: 'production',
+                RELEASE_TAG: 'viewer-v5.19.2',
+                METAFLOW_ANALYTICS_SINK: 'supabase',
+                METAFLOW_ANALYTICS_ENDPOINT: ''
+            }
+        }
+    );
+    assert.equal(missingEndpoint.status, 1);
+    assert.match(missingEndpoint.stderr, /Production Viewer builds require METAFLOW_ANALYTICS_ENDPOINT/);
 });
 
 test('supabase migration exposes metabase-ready analytics models', async () => {

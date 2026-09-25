@@ -80,8 +80,8 @@
       "id": "reference",
       "kind": "upstream-snapshot",
       "ownedPaths": [
-        "supersplat-viewer-v*/**",
-        "supersplat-v2.18.1/**"
+        "references/**",
+        "metadata/reference-snapshots.json"
       ],
       "versionSource": null,
       "deployTarget": null

@@ -104,7 +104,7 @@ test('every Issue Form exposes the self-contained Issue contract and current sta
     }
 });
 
-test('resource tiers and forward Viewer SemVer are documented without changing current release', async () => {
+test('resource tiers and forward Viewer SemVer track the completed 5.19.2 analytics recovery', async () => {
     const [mcl, guide, release, ledger, metadata, published] = await Promise.all([
         read('docs/metaflow-change-lifecycle-v1.0.md'),
         read('docs/guides/add-publish-resource.md'),
@@ -122,14 +122,18 @@ test('resource tiers and forward Viewer SemVer are documented without changing c
         assert.match(body, /20 个文件|20 个/);
         assert.match(body, /100 MiB/);
     }
-    assert.match(release, /PATCH[\s\S]*`5\.18\.1`/);
-    assert.match(release, /MINOR[\s\S]*`5\.19\.0`/);
+    assert.match(release, /PATCH[\s\S]*`5\.19\.2`/);
+    assert.match(release, /MINOR[\s\S]*`5\.20\.0`/);
     assert.match(release, /MAJOR[\s\S]*`6\.0\.0`/);
     assert.match(ledger, /从该边界之后只审计 Viewer、data 和 Viewer 发布支撑提交/);
     assert.match(ledger, /### X\.Y\.Z/);
     assert.equal(manifest.versioning.mode, 'semver-forward');
-    assert.equal(manifest.current.displayVersion, '5.18a');
-    assert.equal(manifest.current.appSemver, '5.18.0');
+    assert.equal(manifest.current.displayVersion, '5.19.2');
+    assert.equal(manifest.current.appSemver, '5.19.2');
+    assert.equal(manifest.current.gitRef, '92d11b0');
+    assert.match(ledger, /5\.19\.0[^\n]*deployment 前失败/);
+    assert.match(ledger, /5\.19\.1[^\n]*生产稳定版/);
+    assert.match(ledger, /5\.19\.2[^\n]*埋点/);
     assert.deepEqual(JSON.parse(published), manifest);
 });
 
@@ -155,6 +159,49 @@ test('ordinary GitHub validation is manual and main has no required status check
         && actor.actor_id === 103928586
         && actor.bypass_mode === 'always'
     )));
+});
+
+test('on-demand Viewer validation uses the release-complete sparse fixture and build order', async () => {
+    const workflow = await read('.github/workflows/ci.yml');
+    const viewerJob = workflow.match(
+        /  viewer:\n(?<body>[\s\S]*?)\n  editor:/
+    );
+
+    assert.ok(viewerJob?.groups?.body, 'Viewer validation job must be present');
+    for (const path of ['.nvmrc', 'data/ACG/BitCity260711', 'data/ACG/SZCAF15']) {
+        assert.match(viewerJob.groups.body, new RegExp(`^            ${path.replaceAll('/', '\\/')}$`, 'm'));
+    }
+
+    const buildAt = viewerJob.groups.body.indexOf('- name: Build Viewer');
+    const testAt = viewerJob.groups.body.indexOf('- name: Test Viewer');
+    assert.ok(buildAt >= 0 && testAt > buildAt, 'Viewer package must be built before consumer tests');
+    assert.match(viewerJob.groups.body, /MCL_SMALL_FIXTURES: 1/);
+});
+
+test('controlled Viewer release uses a complete sparse fixture and exact deploy identity', async () => {
+    const workflow = await read('.github/workflows/release.yml');
+    const viewerStep = workflow.match(
+        /- name: Build Viewer release payload[\s\S]*?run: \|(?<body>[\s\S]*?)\n      - name:/
+    );
+
+    assert.ok(viewerStep?.groups?.body, 'Viewer release step must be present');
+    assert.match(workflow, /^            \.nvmrc$/m);
+    assert.match(workflow, /^            data\/ACG\/BitCity260711$/m);
+    assert.match(workflow, /^            data\/ACG\/SZCAF15$/m);
+    assert.match(workflow, /node scripts\/validate_release_contract\.mjs/);
+    assert.match(workflow, /item\.title === process\.env\.RELEASE_TAG/);
+    assert.match(workflow, /item\.context === 'production'/);
+    assert.match(workflow, /EXPECTED_VERSION: \$\{\{ needs\.prepare\.outputs\.version \}\}/);
+    assert.match(workflow, /EXPECTED_PRODUCT_GIT_REF:/);
+    assert.match(workflow, /smoke-production-version\.json/);
+
+    const buildAt = viewerStep.groups.body.indexOf('npm run build');
+    const testAt = viewerStep.groups.body.indexOf('MCL_SMALL_FIXTURES=1 npm test');
+    assert.ok(buildAt >= 0 && testAt > buildAt, 'Viewer package must be built before consumer tests');
+    for (const command of ['npm run fmt', 'npm run lint', 'npm run type:check', 'npm run publint']) {
+        assert.ok(viewerStep.groups.body.includes(command), `missing release gate: ${command}`);
+    }
+    assert.ok(viewerStep.groups.body.includes('npm audit --omit=dev'));
 });
 
 test('legacy completion templates remain available but are audit-only', async () => {

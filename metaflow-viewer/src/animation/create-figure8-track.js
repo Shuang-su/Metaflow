@@ -1,12 +1,8 @@
-import {
-    Vec3
-} from 'playcanvas';
-
 /**
  * Creates a figure-8 (lemniscate / infinity sign) camera animation track.
  *
- * @param {Vec3} position - Starting location of the camera.
- * @param {Vec3} target - Target point the camera looks at.
+ * @param {import('playcanvas').Vec3} position - Starting location of the camera.
+ * @param {import('playcanvas').Vec3} target - Target point the camera looks at.
  * @param {number} fov - The camera field of view.
  * @param {number} [size=1] - Overall scale of the figure-8 path.
  * @param {number} [keys=24] - Number of keyframes in the animation.
@@ -29,7 +25,7 @@ import {
  * }}
  */
 const createFigure8Track = (position, target, fov, size = 1, keys = 24, duration = 20) => {
-    const times = new Array(keys).fill(0).map((_, i) => i / keys * duration);
+    const times = new Array(keys).fill(0).map((_, i) => (i / keys) * duration);
     const positions = [];
     const targets = [];
     const fovs = new Array(keys).fill(fov);
@@ -58,9 +54,9 @@ const createFigure8Track = (position, target, fov, size = 1, keys = 24, duration
     }
 
     for (let i = 0; i < keys; ++i) {
-        const t = i / keys * Math.PI * 2;
+        const t = (i / keys) * Math.PI * 2;
         const offsetRight = amplitude * Math.sin(t);
-        const offsetFwd = amplitude * Math.sin(2 * t) / 2;
+        const offsetFwd = (amplitude * Math.sin(2 * t)) / 2;
 
         positions.push(position.x + rightX * offsetRight + fwdX * offsetFwd);
         positions.push(position.y);

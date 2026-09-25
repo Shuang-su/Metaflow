@@ -1,7 +1,12 @@
 [build]
   base = "metaflow-viewer"
   command = "node ../scripts/mcl.mjs check-all && python3 ../scripts/validate_platform.py && npm ci && python3 ../scripts/generate_index.py && npm run build && mkdir -p public/data public/editor && rsync -a --delete ../data/ public/data/ && rsync -a --delete ../metaflow-editor/ public/editor/"
+  ignore = "test \"$BRANCH\" = \"main\""
   publish = "public"
+
+[context.production.environment]
+  METAFLOW_ANALYTICS_SINK = "supabase"
+  METAFLOW_ANALYTICS_ENDPOINT = "https://bziyumtuzvfmhgghvpcs.functions.supabase.co/analytics-collect"
 
 # Custom domain redirects - 深圳技术大学.com → /sztu/c2-lib
 [[redirects]]

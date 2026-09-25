@@ -1,0 +1,5 @@
+[     406ms] [LOG] Metaflow Viewer 5.18a (semver 5.18.0, index schema 1.2) | Metaflow fork synced toward SSV v1.26.2 (PlayCanvas 2.19.2) | Engine v2.19.2 (3f52bb8) @ http://127.0.0.1:4178/index.js:93775
+[     884ms] [LOG] Renderer: webgpu @ http://127.0.0.1:4178/index.js:93442
+[     919ms] [INFO] [Environment] 环境模型已并行挂载 @ http://127.0.0.1:4178/index.js:93714
+[    2668ms] [INFO] Camera debug helpers ready: logCameraPose() / getCameraPose() @ http://127.0.0.1:4178/index.js:92132
+[    2668ms] [INFO] [Collision] 首帧已完成，开始后台加载单体碰撞体素 @ http://127.0.0.1:4178/index.js:93542

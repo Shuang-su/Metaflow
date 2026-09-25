@@ -49,6 +49,36 @@ class PlatformValidationTests(unittest.TestCase):
         self.assertTrue(any("npm ci" in error for error in errors))
         self.assertTrue(any("final redirect" in error for error in errors))
         self.assertTrue(any("MCL check" in error for error in errors))
+        self.assertTrue(any("build.ignore" in error for error in errors))
+
+    def test_netlify_skips_only_ordinary_main_builds(self):
+        (self.root / "netlify.toml").write_text(
+            textwrap.dedent(
+                '''
+                [build]
+                base = "metaflow-viewer"
+                command = "node ../scripts/mcl.mjs check-all && python3 ../scripts/validate_platform.py && npm ci && npm run build"
+                ignore = "test \\"$BRANCH\\" = \\"main\\""
+                publish = "public"
+
+                [[redirects]]
+                from = "/*"
+                to = "/index.html"
+                status = 200
+                '''
+            ),
+            encoding="utf-8",
+        )
+
+        self.assertEqual(validate_netlify(self.root), [])
+
+        config = (self.root / "netlify.toml").read_text(encoding="utf-8")
+        (self.root / "netlify.toml").write_text(
+            config.replace('test \\"$BRANCH\\" = \\"main\\"', "exit 0"),
+            encoding="utf-8",
+        )
+        errors = validate_netlify(self.root)
+        self.assertTrue(any("build.ignore" in error for error in errors))
 
     def test_supabase_requires_rls_and_definer_search_path(self):
         (self.root / "supabase" / "migrations").mkdir(parents=True)
@@ -105,7 +135,7 @@ class PlatformValidationTests(unittest.TestCase):
                     schedule:
                       interval: weekly
                   - package-ecosystem: npm
-                    directory: /archive/supersplat-viewer-v1.18.2
+                    directory: /references/supersplat-viewer-v1.18.2
                     schedule:
                       interval: weekly
                 """
@@ -141,19 +171,13 @@ class PlatformValidationTests(unittest.TestCase):
 
         self.assertEqual(validate_dependabot(self.root), [])
 
-    def test_repository_dependabot_keeps_security_only_viewer_and_actions_updates(self):
-        repository = Path(__file__).resolve().parents[2]
-        config = (repository / ".github" / "dependabot.yml").read_text(encoding="utf-8")
-        npm_block, actions_block = config.split(
-            "  - package-ecosystem: github-actions", maxsplit=1
-        )
+    def test_dependabot_allows_missing_config_to_disable_version_updates(self):
+        self.assertEqual(validate_dependabot(self.root), [])
 
-        self.assertEqual(config.count("package-ecosystem: npm"), 1)
-        self.assertEqual(config.count("package-ecosystem: github-actions"), 1)
-        self.assertIn("directory: /metaflow-viewer", npm_block)
-        self.assertIn("open-pull-requests-limit: 0", npm_block)
-        self.assertIn("directory: /", actions_block)
-        self.assertIn("open-pull-requests-limit: 5", actions_block)
+    def test_repository_dependabot_version_updates_are_disabled(self):
+        repository = Path(__file__).resolve().parents[2]
+        self.assertFalse((repository / ".github" / "dependabot.yml").exists())
+        self.assertEqual(validate_dependabot(repository), [])
 
     def test_public_json_never_contains_finding_details(self):
         finding = "sensitive-finding-detail-that-must-not-reach-logs"

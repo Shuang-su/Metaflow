@@ -1,7 +1,7 @@
 /* eslint-disable no-unused-vars */
 interface Window {
     sse: {
-        config: Record<string, unknown>,
+        config: Record<string, unknown> & { lang?: string },
         settings: Promise<object>,
         viewer?: object,
     }
@@ -9,7 +9,9 @@ interface Window {
 
     viewer?: object;
     firstFrame?: () => void;
+    app?: import('playcanvas').AppBase;
     scrubTo?: (time: number) => Promise<void>;
+    captureFrame?: (options?: { time?: number; width?: number; height?: number; supersample?: number }) => Promise<{ width: number; height: number; data: string }>;
     animationDuration?: number;
     getCameraPose?: () => object | null;
     logCameraPose?: () => object | null;
@@ -17,7 +19,7 @@ interface Window {
     setCameraState?: (snapshot: any) => void;
 }
 
-declare module 'playcanvas/scripts/esm/xr-controllers.mjs' {
+declare module 'playcanvas/scripts/esm/xr/xr-controllers.mjs' {
     const XrControllers: any;
     export { XrControllers };
 }

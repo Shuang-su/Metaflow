@@ -1,10 +1,7 @@
-import { ExperienceSettings as V1, AnimTrack as AnimTrackV1, validateV1 } from './schemas/v1';
-import {
-    ExperienceSettings as V2,
-    AnimTrack as AnimTrackV2,
-    PostEffectSettings,
-    validateV2
-} from './schemas/v2';
+import type { ExperienceSettings as V1, AnimTrack as AnimTrackV1 } from './schemas/v1';
+import { validateV1 } from './schemas/v1';
+import type { ExperienceSettings as V2, AnimTrack as AnimTrackV2, PostEffectSettings } from './schemas/v2';
+import { validateV2 } from './schemas/v2';
 import { assertObject } from './schemas/validate-utils';
 
 const defaultPostEffectSettings = (): PostEffectSettings => ({
@@ -75,7 +72,7 @@ const migrateV1 = (settings: V1): V1 => {
             }
 
             // smoothness property added in v1.4.0
-            if (!track.hasOwnProperty('smoothness')) {
+            if (!Object.prototype.hasOwnProperty.call(track, 'smoothness')) {
                 track.smoothness = 0;
             }
         });
@@ -110,13 +107,13 @@ const migrateV2 = (v1: V1): V2 => {
     // Preserve tonemapping from v1 if it exists, otherwise default to 'none'
     const tonemapping = (v1 as any).tonemapping || 'none';
     const background = (v1 as any).background || {};
-    
+
     return {
         version: 2,
         tonemapping,
         highPrecisionRendering: false,
         background: {
-            color: background.color as [number, number, number] || [0, 0, 0],
+            color: (background.color as [number, number, number]) || [0, 0, 0],
             skyboxUrl: background.skyboxUrl,
             gradient: background.gradient
         },
@@ -152,13 +149,15 @@ const migrateV2 = (v1: V1): V2 => {
         animTracks: v1.animTracks.map((animTrackV1: AnimTrackV1) => {
             return migrateAnimTrackV2(animTrackV1, v1.camera.fov || 60);
         }),
-        cameras: [{
-            initial: {
-                position: (v1.camera.position || [0, 0, 5]) as [number, number, number],
-                target: (v1.camera.target || [0, 0, 0]) as [number, number, number],
-                fov: v1.camera.fov || 75
+        cameras: [
+            {
+                initial: {
+                    position: (v1.camera.position || [0, 0, 5]) as [number, number, number],
+                    target: (v1.camera.target || [0, 0, 0]) as [number, number, number],
+                    fov: v1.camera.fov || 75
+                }
             }
-        }],
+        ],
         annotations: [],
         startMode: v1.camera.startAnim === 'animTrack' ? 'animTrack' : 'default',
         hasStartPose: !!(v1.camera.position && v1.camera.target)

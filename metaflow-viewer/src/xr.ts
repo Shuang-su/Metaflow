@@ -1,13 +1,8 @@
-import {
-    Color,
-    Entity,
-    Quat,
-    Vec3,
-    type CameraComponent
-} from 'playcanvas';
-import { XrControllers } from 'playcanvas/scripts/esm/xr-controllers.mjs';
+import { Color, DEVICETYPE_WEBGL2, Quat, Vec3, XrManager } from 'playcanvas';
+import type { Entity, CameraComponent } from 'playcanvas';
+import { XrControllers } from 'playcanvas/scripts/esm/xr/xr-controllers.mjs';
 
-import { Global } from './types';
+import type { Global } from './types';
 import { XrVrNavigation } from './xr-navigation';
 
 // XR clipping planes optimized for headset navigation in large Metaflow scenes.
@@ -17,21 +12,34 @@ const XR_FAR_CLIP = 1000;
 const initXr = (global: Global) => {
     const { app, events, state, camera, renderer } = global;
 
-    state.hasAR = app.xr.isAvailable('immersive-ar');
-    state.hasVR = app.xr.isAvailable('immersive-vr');
+    // PlayCanvas availability is backend-aware. Under WebGPU a session is directly
+    // available only when the browser can bind XR to the active GPU device. Keep a
+    // separate WebGL capability result so the branded UI can offer an explicit
+    // renderer reload without preventing native WebGPU/WebXR sessions.
+    let webglAR = false;
+    let webglVR = false;
 
-    // Dynamically update XR availability as headsets connect/disconnect.
-    app.xr.on('available:immersive-ar', (available) => {
-        state.hasAR = available;
-    });
-    app.xr.on('available:immersive-vr', (available) => {
-        state.hasVR = available;
-    });
+    const updateAvailable = () => {
+        state.hasAR = app.xr.isAvailable('immersive-ar') || webglAR;
+        state.hasVR = app.xr.isAvailable('immersive-vr') || webglVR;
+    };
 
-    // XR sessions require a WebGL device; under WebGPU we only expose availability so
-    // the UI can offer to reload the viewer in WebGL mode.
-    if (renderer !== 'webgl') {
-        return;
+    updateAvailable();
+    app.xr.on('available', updateAvailable);
+
+    if (renderer === 'webgpu') {
+        Promise.all([
+            XrManager.isDeviceSupported(DEVICETYPE_WEBGL2, 'immersive-ar'),
+            XrManager.isDeviceSupported(DEVICETYPE_WEBGL2, 'immersive-vr')
+        ])
+            .then(([ar, vr]) => {
+                webglAR = ar;
+                webglVR = vr;
+                updateAvailable();
+            })
+            .catch((err: unknown) => {
+                console.warn('[XR] Unable to probe the WebGL fallback:', err);
+            });
     }
 
     const parent = camera.parent as Entity;

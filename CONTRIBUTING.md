@@ -45,7 +45,7 @@ Issue 依次写清：
 - 大型或新增入口：新 route/alias、超过 20 文件、超过 100 MiB、LFS 或大量 tiled/LOD，使用轻量 Issue/PR checklist 和 PR。
 - 结构性资源：涉及 schema、生成器语义、Loader、Viewer、cache/deploy、格式、授权或公共 URL，使用 Issue + Spec + Plan + PR。
 
-公开 route、thumbnail、settings 或资源内容变化必须更新 Viewer PATCH、Ledger 和 Version History；未公开 staging 不提升版本。当前保持 `5.18a / 5.18.0`，下一次真实发布为 `5.18.1`，以后不再新增字母后缀。
+公开 route、thumbnail、settings 或资源内容变化必须更新 Viewer PATCH、Ledger 和 Version History；未公开 staging 不提升版本。`5.18.1` 已是首个完整 SemVer 发布，当前 MF-30 代码/记录候选为 `5.19.0`；以后不再新增字母后缀。
 
 ## 验证与按需 CI
 

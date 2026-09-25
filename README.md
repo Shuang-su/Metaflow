@@ -16,15 +16,15 @@ Metaflow 把基于 [SuperSplat](https://github.com/playcanvas/supersplat) 的 Ed
 | [部署](docs/maintenance/deployment.md) | Viewer、data 与 Editor 镜像怎样进入 Netlify publish 目录 |
 | [仓库地图](docs/reference/repository-map.md) | 活跃源码、生成物与历史快照边界 |
 
-## 当前发布基线
+## 当前发布恢复基线
 
 | 产品 | 当前版本 | 上游基线 | 唯一事实来源 |
 |---|---|---|---|
-| Viewer | `5.18a` / package `5.18.0` | SuperSplat Viewer `1.26.2` | [`metadata/version-history.json`](metadata/version-history.json) |
+| Viewer | `5.19.2` / package `5.19.2` | SuperSplat Viewer `1.29.1` / PlayCanvas `2.21.3` | [`metadata/version-history.json`](metadata/version-history.json) |
 | Editor | `1.1` / app `1.1.0` | SuperSplat Editor `2.28.0` | [`metadata/editor-version-history.json`](metadata/editor-version-history.json) |
 | 资源索引 | schema `1.2` | 不适用 | [`data/index.json`](data/index.json) |
 
-Viewer 源码在 `metaflow-viewer/`；Editor 源码在 `supersplat-v2.28.0/`，`metaflow-editor/` 是发布构建。贡献与变更流程见 [`CONTRIBUTING.md`](CONTRIBUTING.md) 和 [MCL v1.0 candidate](docs/metaflow-change-lifecycle-v1.0.md)。
+Viewer 源码在 `metaflow-viewer/`；Editor 源码在 `supersplat-v2.28.0/`，`metaflow-editor/` 是发布构建。MF-30 的 v1.29.1 运行时产品 SHA 为 `26e311c`，5.19.2 analytics/release 修复 SHA 为 `92d11b0`。`viewer-v5.19.0` 的 prepare 在部署前失败且生产从未切换；`viewer-v5.19.1` 已通过 D2 Prepare、精确 D2 CLI/API 生产发布、真实浏览器 smoke 与 15 分钟观察；5.19.2 进一步恢复 production endpoint 并加入发布前/后校验，当前生产稳定版为 `5.19.2`。贡献与变更流程见 [`CONTRIBUTING.md`](CONTRIBUTING.md) 和 [MCL v1.0 candidate](docs/metaflow-change-lifecycle-v1.0.md)。
 
 下方保留原有 Viewer 快速参考，方便已有读者继续使用；新的分层手册和当前契约以 [`docs/README.md`](docs/README.md) 为入口。
 
@@ -154,12 +154,13 @@ location / {
 
 | 字段 | 值 |
 |------|----|
-| 展示版本 | `5.18a` |
-| 包版本 | `5.18.0` |
+| 展示版本 | `5.19.2`（生产稳定） |
+| 包版本 | `5.19.2` |
 | 索引 schema | `1.2` |
-| 上游 SuperSplat Viewer | `v1.26.2` |
-| PlayCanvas | `2.19.2` |
-| 已审计至 commit | `c613a87` |
+| 上游 SuperSplat Viewer | `v1.29.1` |
+| PlayCanvas | `2.21.3` |
+| 运行时产品实现 commit | `26e311c` |
+| 发布控制修复 commit | `92d11b0` |
 
 ## 当前 Editor
 
@@ -168,14 +169,20 @@ location / {
 | Metaflow Editor | `1.1` |
 | 上游 SuperSplat Editor | `v2.28.0` |
 | 当前源码目录 | [`supersplat-v2.28.0`](supersplat-v2.28.0) |
-| 基线源码目录 | [`supersplat-v2.18.1`](supersplat-v2.18.1) |
+| 历史基线源码目录 | [`references/supersplat-v2.18.1`](references/supersplat-v2.18.1)；其 `v2.18.1` 仅表示 lineage，内容身份见 [`metadata/reference-snapshots.json`](metadata/reference-snapshots.json) |
 | `/editor` 运行时版本 | [`metaflow-editor/version.json`](metaflow-editor/version.json) |
 | 版本历史 | [`metadata/editor-version-history.json`](metadata/editor-version-history.json) |
+| 三方审查快照登记 | [`metadata/reference-snapshots.json`](metadata/reference-snapshots.json)：Viewer `v1.26.2/v1.29.1`、Editor `v2.28.0/v2.32.3`、Transform CLI `v2.5.1/v3.3.0`；执行中发布的前一候选 `v1.28.0/v1.29.0/v3.2.0` 仍作为不可变中间快照保留 |
+| 三方审查结论 | [`docs/history/upstream-reviews/2026-08-10/`](docs/history/upstream-reviews/2026-08-10/README.md)：Viewer Adopt、Editor Defer、Transform CLI Adopt（离线工具）；均未在本轮发布 |
 
 ## 最近版本
 
 | 版本 | commit | 摘要 |
 |------|--------|------|
+| `5.19.2` | `92d11b0` | analytics/release 修复：production/tagged build 缺少 Supabase endpoint 时直接失败，Netlify production context 注入 endpoint，release smoke 校验最终 HTML meta；不改变资源、路由或 schema |
+| `5.19.1` | `534b013` | MF-30 正式生产发布：修复 release/CI sparse fixture 与 build-before-test 顺序；D2 controlled Prepare 通过后，因 Netlify Git build 再次停滞，经明确授权使用精确 D2 CLI/API 发布 deploy `6a7efc396f36c800cfa0702e`；真实浏览器 smoke、15 分钟观察与 GitHub Release 均完成 |
+| `5.19.0` | `26e311c` | MF-30 同步 Viewer v1.29.1 / PlayCanvas 2.21.3 并保留 Metaflow 合同；不可变 Tag 已建立，但 workflow run `31779246997` 在 prepare 的 sparse/order 校验阶段失败，production job 未执行、没有 GitHub Release，生产从未切换到 5.19.0 |
+| `5.18.1` | `578272c` | 发布 BitCity 260711 与第十五届深圳动漫节 27 条人物资源及默认 figure8 动画策略 |
 | `5.18a` | `c613a87` | 新增并对齐深圳笔架山动态 voxel 场景 |
 | `5.18` | `7ce294a` | 优化移动端触控游戏控制 |
 | `5.17` | `f371f48` | 对照支付宝式数据面板补齐全局筛选、指标口径、D30 留存、访问时长/时段画像、可信机型明细、机型质量排行和转化目标 |
@@ -207,7 +214,7 @@ location / {
 - [当前同步差异审计](docs/metaflow-current-sync-diff-audit.md)
 - [SuperSplat 同步对比](docs/metaflow-viewer-sync-comparison.md)
 
-当前 `5.18a / 5.18.0` 是最后一个双轨历史版本。旧字母版本保持原样；下一次真实 Viewer 资源发布或兼容修复从 `5.18.1` 开始，之后统一使用 SemVer PATCH/MINOR/MAJOR。
+`5.18a / 5.18.0` 是最后一个双轨历史版本，`5.18.1` 是此后的首个完整 SemVer 发布。`5.19.0` 是已合并但在部署前失败的 MINOR 发布尝试；`5.19.1` 是 release transport 的 PATCH 恢复，`5.19.2` 是 analytics endpoint 与发布校验的 PATCH 修复。旧字母版本保持原样，后续统一使用 SemVer PATCH/MINOR/MAJOR。
 
 ## URL 查询参数详解
 

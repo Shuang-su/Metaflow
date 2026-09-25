@@ -234,11 +234,7 @@ class XrVrNavigation extends Script {
         if (Math.abs(direction.y) < 0.00001) return null;
         const t = -origin.y / direction.y;
         if (t < 0) return null;
-        return new Vec3(
-            origin.x + direction.x * t,
-            0,
-            origin.z + direction.z * t
-        );
+        return new Vec3(origin.x + direction.x * t, 0, origin.z + direction.z * t);
     }
 
     private tryTeleport(inputSource: XrInputSource) {
@@ -304,16 +300,8 @@ class XrVrNavigation extends Script {
             const angle1 = (i / segments) * Math.PI * 2;
             const angle2 = ((i + 1) / segments) * Math.PI * 2;
 
-            this.tmpVec3A.set(
-                point.x + Math.cos(angle1) * radius,
-                0.01,
-                point.z + Math.sin(angle1) * radius
-            );
-            this.tmpVec3B.set(
-                point.x + Math.cos(angle2) * radius,
-                0.01,
-                point.z + Math.sin(angle2) * radius
-            );
+            this.tmpVec3A.set(point.x + Math.cos(angle1) * radius, 0.01, point.z + Math.sin(angle1) * radius);
+            this.tmpVec3B.set(point.x + Math.cos(angle2) * radius, 0.01, point.z + Math.sin(angle2) * radius);
             this.app.drawLine(this.tmpVec3A, this.tmpVec3B, this.validColor);
         }
     }

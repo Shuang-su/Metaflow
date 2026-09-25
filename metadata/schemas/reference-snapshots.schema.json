@@ -1,0 +1,188 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://metaflow.local/schemas/reference-snapshots.schema.json",
+  "title": "Metaflow immutable reference snapshot registry",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["$schema", "schemaVersion", "canonicalFormat", "snapshots"],
+  "properties": {
+    "$schema": {
+      "const": "./schemas/reference-snapshots.schema.json"
+    },
+    "schemaVersion": {
+      "const": "1.0"
+    },
+    "canonicalFormat": {
+      "const": "lexicographically sorted complete <mode> <git-blob-sha1>\\t<relative-path>\\n lines"
+    },
+    "snapshots": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/snapshot"
+      }
+    }
+  },
+  "$defs": {
+    "sha1": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{40}$"
+    },
+    "sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "baseSnapshot": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "path",
+        "kind",
+        "repository",
+        "tag",
+        "tagObject",
+        "commit",
+        "tree",
+        "trackedFileCount",
+        "canonicalContentSha256",
+        "canonicalFormat",
+        "identityVerification",
+        "license",
+        "mutable"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^(supersplat-viewer|supersplat|splat-transform)-v[0-9]+\\.[0-9]+\\.[0-9]+$"
+        },
+        "path": {
+          "type": "string",
+          "pattern": "^references/(supersplat-viewer|supersplat|splat-transform)-v[0-9]+\\.[0-9]+\\.[0-9]+$"
+        },
+        "kind": {
+          "enum": ["upstream", "metaflow-history"]
+        },
+        "repository": {
+          "type": "string",
+          "minLength": 1
+        },
+        "tag": {
+          "type": ["string", "null"]
+        },
+        "tagObject": {
+          "oneOf": [
+            { "$ref": "#/$defs/sha1" },
+            { "type": "null" }
+          ]
+        },
+        "commit": {
+          "$ref": "#/$defs/sha1"
+        },
+        "tree": {
+          "$ref": "#/$defs/sha1"
+        },
+        "trackedFileCount": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "canonicalContentSha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "canonicalFormat": {
+          "const": "lexicographically sorted complete <mode> <git-blob-sha1>\\t<relative-path>\\n lines"
+        },
+        "identityVerification": {
+          "enum": ["exact-upstream-tree", "local-content-only"]
+        },
+        "previousPath": {
+          "type": "string",
+          "minLength": 1
+        },
+        "license": {
+          "type": "string",
+          "minLength": 1
+        },
+        "mutable": {
+          "const": false
+        },
+        "upstreamLineage": {
+          "$ref": "#/$defs/upstreamLineage"
+        }
+      }
+    },
+    "upstreamLineage": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "repository",
+        "tag",
+        "tagObject",
+        "commit",
+        "tree",
+        "contentMatch",
+        "note"
+      ],
+      "properties": {
+        "repository": {
+          "type": "string",
+          "minLength": 1
+        },
+        "tag": {
+          "type": "string",
+          "pattern": "^v[0-9]+\\.[0-9]+\\.[0-9]+$"
+        },
+        "tagObject": {
+          "$ref": "#/$defs/sha1"
+        },
+        "commit": {
+          "$ref": "#/$defs/sha1"
+        },
+        "tree": {
+          "$ref": "#/$defs/sha1"
+        },
+        "contentMatch": {
+          "const": false
+        },
+        "note": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "snapshot": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/baseSnapshot"
+        },
+        {
+          "oneOf": [
+            {
+              "properties": {
+                "kind": { "const": "upstream" },
+                "tag": {
+                  "type": "string",
+                  "pattern": "^v[0-9]+\\.[0-9]+\\.[0-9]+$"
+                },
+                "tagObject": { "$ref": "#/$defs/sha1" },
+                "identityVerification": { "const": "exact-upstream-tree" }
+              },
+              "not": {
+                "required": ["upstreamLineage"]
+              }
+            },
+            {
+              "required": ["upstreamLineage"],
+              "properties": {
+                "kind": { "const": "metaflow-history" },
+                "tag": { "type": "null" },
+                "tagObject": { "type": "null" },
+                "identityVerification": { "const": "local-content-only" }
+              }
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

@@ -10,6 +10,21 @@ nvm use
 
 依赖安装使用 `npm ci`，不要用 `npm install` 无意重写 lockfile。
 
+## 依赖安全与更新
+
+仓库保留 Dependabot alerts 作为只读漏洞信号，但关闭由 Dependabot 自动创建
+security/version update PR 的能力。原因是 GitHub 的 security updates 会扫描默认分支
+dependency graph，曾绕过 version-update 目录边界并修改不可变 reference snapshot。
+
+- `references/**`、带版本号的历史 SuperSplat 目录和纯上游副本永不做原位依赖升级；
+- Viewer 与 Editor 只按当前事实源确定的 active package、manifest 和 lockfile 判断 advisory；
+- 每条修复由人工或 Agent 先证明当前 dependency path 和可达性，再用普通 PR 提交最小变更；
+- Dependabot alert 不等于自动批准升级，也不能覆盖 reference registry 的内容摘要；
+- 若未来重新启用 `.github/dependabot.yml`，平台校验仍会拒绝任何带版本号的
+  `supersplat-v*` 或 `supersplat-viewer-v*` npm 目标。
+
+当前人工处置入口为 [MF-2](https://github.com/Shuang-su/Metaflow/issues/2)。
+
 ## Viewer
 
 ```bash

@@ -38,7 +38,7 @@ flowchart LR
     B --> B4["JSONC / settings schema"]
     A --> C["加载与首帧"]
     C --> C1["下载进度 + 阶段状态"]
-    C --> C2["结构优先识别"]
+    C --> C2["入口身份决定 parser；结构验证"]
     C --> C3["Sorter / frame:ready / timeout"]
     C --> C4["Poster 与背景 reveal"]
     A --> D["导航与交互"]
@@ -247,6 +247,14 @@ flowchart TD
 | `5.17` · `f371f48` | 参考支付宝数据面板后，5.16 仍缺全局筛选、指标口径说明、KPI 详情支撑、D30 留存、访问时长/时段画像、可信 raw 机型来源、机型质量排行、机型与 renderer 交叉诊断，以及 Metaflow 自身的转化目标层；仅有“机型 Top”会把访问量和兼容性问题混在一起。 | Tracking plan 升到 `analytics.v1.2`，加入 dashboard controls、conversion goals 和 device model policy；SDK 支持可信宿主通过 `window.MetaflowDeviceInfo` 注入 Alipay/WeChat/Native WebView raw model，collector 记录 `device_model_raw/source/confidence`；新增 v13/v14 Supabase 迁移：`daily_kpi_metrics`、D0-D30 `daily_retention_cohorts`、`daily_session_duration_metrics`、`daily_hourly_profile_metrics`、增强 `daily_acquisition_metrics`、含 raw/source/confidence/errors 的 `daily_device_model_metrics`、`daily_goal_conversion_metrics`、`daily_dashboard_freshness_metrics` 和 `dim_device_model`；双语 Metabase 自动化脚本新增全局参数、指标口径、数据新鲜度、访问时段/时长、留存摘要、机型明细、精确机型覆盖率、机型质量排行、机型 × Renderer、转化目标等卡片。 | 看板能像成熟产品数据面板一样从“访问概况”继续钻到来源、留存、访问深度、设备覆盖率和兼容性风险；`iPhone17,3` 这类 Apple raw identifier 只有在小程序/原生壳或可信 Client Hints 提供时入库，普通 Web 不再伪造精确 iPhone 型号。 | 暂不实现交易、搜索/收藏/消息转化、年龄/性别/省市画像，也不记录高频鼠标/相机轨迹或输入内容；当前真实数据还没有可信 iOS raw code，`exact_model_available` 全为 false 属于预期；证据为 Supabase v13/v14 远端迁移、`analytics.refresh_rollups()` 行数检查、Edge Function deploy、analytics 测试、typecheck、build 和 diff check。 |
 | `5.18` · `7ce294a` | 移动端开启游戏控制后，fly 模式只有左摇杆导致用户不知道可升降，walk 模式缺少明显跳跃按钮；横屏控件相对参考站仍不够协调，Zoom/升降胶囊和摇杆底边没有统一，小屏横屏容易压近底部菜单。 | 参考 UnrealTwin 移动端横屏布局，横屏改成左 Zoom 胶囊、左移动摇杆、右环顾摇杆、右升降/跳跃控件；升降按钮改为世界空间高度移动；胶囊按下态复刻参考站的轻微下压动画；walk 跳跃改为无图标单格圆形胶囊；尺寸、间距和底部避让按视口自适应，设置/帮助等弹窗打开时隐藏触控游戏控件。 | 移动用户在游戏控制开启时能直接看到移动、环顾、Zoom、绝对升降和跳跃入口；横屏控件左右更均衡，小屏/平板布局更稳，关闭游戏控制、切到 orbit/anim 或打开二级菜单时仍隐藏。 | 桌面端、键盘、鼠标、物理 gamepad 和 pointer-lock 逻辑不变；Zoom 只在横屏 fly gaming controls 出现；证据为 typecheck、build、版本测试和本地真移动 Playwright fly/walk/竖屏/modal/默认关闭验证。 |
 | `5.18a` · `c613a87` | 深圳笔架山新数据需要按正式路径 `/shenzhen/bijiashan` 上线，并使用当前动态/tiled voxel 流程，而不是旧 query-string 入口或单文件 voxel manifest；本地验证发现体素坐标需要完全复用 Dayun 的 legacy RZ180 路径。 | 增加 Bijiashan LOD 模型、`settings-merged-2.json`、thumbnail 与 320 tile 的 tiled voxel 数据；`scripts/generate_index.py` 为 Bijiashan 固定 slug 与 `/shenzhen/bijiashanpark`、`/shenzhen/bijiashan-park` alias，并让 voxel manifest 发现逻辑支持资源目录下一层的 `*/voxel-tiles.json`；Bijiashan 加入 `LEGACY_VOXEL_RZ180_ROUTES`，生成 `viewer.voxelCoordinateSpace: "metaflow-rz180"`。 | `/shenzhen/bijiashan` 可通过正常 route/index 路径打开，别名继续兼容；viewer 获取 `files.voxelManifest` 并按需请求 tile 级 `walk.voxel.json/bin`，碰撞/overlay 与 Dayun 使用同一坐标空间。 | 不新增 LFS 规则，最大单文件约 7.3MB；未提交 `.DS_Store`、`full-run.log`、`progress.json`；证据为本地生产同等 build/public sync、typecheck、build、版本测试、线上 production deploy 和 route/index 验证。 |
+| `5.18.1` · `578272c` | BitCity 260711 与第十五届深圳动漫节的 27 条人物资源需要迁入正式 route；源设置一类包含静止 explicit track，另一类包含 24 个显式 figure8 关键帧，不能继续作为两套发布策略。 | 仅迁移外层正式 SOG、3840×2160 JPG 与规范 `settings-v2.json`；规范设置保留原始相机及全部非动画字段，只写 `animTracks: []`、`startMode: "default"`、`hasStartPose: true`。生成器增加 `bitcity260711`、`szcaf15`、27 项显式 title/titleEn/slug/date/device、`viewer.syntheticAnimation: "figure8"`，仅为雨诺增加 `/acg/szcaf15/akari` alias。 | 索引由 60 增至 87 条；27 条人物从源 initial camera 自动进入 Viewer 现有默认 figure8，首次交互退出到 Orbit；公开路由遵循拼音连写、英文多词连字符、数字直接后缀和 `chang-e` 歧义例外。 | 共 81 个资源文件、576,023,824 字节；SOG/JPG SHA-256 与源一致，settings 除三项策略字段外深度一致；外层模型优先，ZIP/PLY/SSProj/嵌套包及训练中间文件均排除；证据为 `data/ACG/{BitCity260711,SZCAF15}`、`scripts/generate_index.py`、事件路由测试及 Issue #34。 |
+| `5.19.0` · `26e311c` | Viewer `5.18.1` 的活跃源码仍建立在 SuperSplat Viewer `v1.26.2` / PlayCanvas `2.19.2`；上游七个稳定版本已引入 on-demand rendering、near-clip clamp、streaming work-buffer 时序、capture、Annotation preference、偏好生命周期、可编程语言配置、诊断构建和 backend-aware XR，同时 Metaflow 必须保留 route、双加载链、首帧/reveal、移动输入、Analytics 与 tiled voxel collision。 | 分阶段升级到 Viewer `v1.29.1` / PlayCanvas `2.21.3`：加载期 auto-render、完成后 `frame:request` 驱动 on-demand；LOD range 写入组件并在 work-buffer 前应用参数；新增串行且异常恢复的 `captureFrame`、品牌化 Annotation 开关、heatmap WebGL 降级与 XR 检测。最终按产品决策采用 SH performance `1°` / quality `0.2°`；`5.19.0` 首次运行一次性清理旧 performance/Gaming Controls/retina 偏好，之后启动只读、用户变更才写；增加 `Config.lang` 与 opt-in Debug Engine。主体入口身份决定 parser，结构只验证所选格式；顶层主体/environment 对 transient failure 共尝试 4 次并进入明确终态。生产构建发布组合 CSS map，DOMPurify 精确修到 `3.4.13`，Node/Rollup/Webpack 证据支持 package `sideEffects:false`。所有 Metaflow route、legacy/streaming、settings v1/v2、environment、reveal、walk/fly、single/tiled voxel、`metaflow-rz180`、九 locale、Analytics 和 debug 合同继续保留。 | 静止场景停止持续 GPU 提交；streaming 参数从首批 work buffer 起一致；Viewer 获得稳定截图、Annotation 与可编程语言合同；设备推导默认不再被启动写入固化；暂时性 `503` 最多在第四次成功，永久失败不再无限挂起；production audit 为 0，npm package 可安全 tree-shake。当前 87 条 route、9 个 streaming 入口和 78 个 SOG 入口全部不变，无需迁移数据。未来数据标签系统可把双源资产标记为默认 `streaming`、可选 `highest-quality` SOG，但本次发布没有 schema/UI/运行时换源。 | 风险集中在 streaming SH 工作量、on-demand 漏帧、新 Engine 的 GPU/asset lifecycle、没有单请求 timeout/`Retry-After`、移动真机与 immersive XR。WebGPU/WebGL、代表 route、移动 viewport、tile 404、capture 失败、Analytics 阻断、四次尝试、CSS map、package consumer 和 production audit 已验证；iOS/Android 真机与 XR 硬件未验证。产品实现已以 `26e311c` squash merge；正式生产发布仍在等待 release packet、Tag、受控部署、smoke 与 15 分钟观察。证据为 [MF-30 Spec](changes/30-viewer-upstream-v1.29.1/spec.md)、[研究补充](changes/30-viewer-upstream-v1.29.1/research-supplement.md)、[冲突登记](changes/30-viewer-upstream-v1.29.1/conflicts.md) 与 [运行证据](changes/30-viewer-upstream-v1.29.1/evidence.md)。 |
+
+| `5.19.1` · `534b013` | `viewer-v5.19.0` 已指向不可变 release packet `f1986097`，但 controlled workflow [`31779246997`](https://github.com/Shuang-su/Metaflow/actions/runs/31779246997) 在 prepare 阶段只得到 Viewer `81/85`：release sparse checkout 缺根 `.nvmrc`、BitCity/SZCAF15 fixture，并且 package consumer tests 在 `dist/` build 前运行。production job 被跳过，没有 GitHub Release，`5.19.0` 在 deployment 前失败且生产一直是 `5.18.1`。同时普通 main Git push 仍会创建可发布的 production build，和“只有 Tag workflow 可发布”的控制目标不一致。 | Recovery PR #45 补齐 release 与 on-demand CI fixture/order、Tag/version/gitRef 精确检查和 production smoke；`netlify.toml` 增加普通 main skip 合同。R2/D2 对齐 `5.19.1 / 534b013`；26 个未发布 Preview 队列记录在保留历史与 PR 的前提下被释放，F/D2 两个普通 main Git record 因持续停滞且未发布而精确取消。不可变 `viewer-v5.19.1` 指向 D2；controlled run [`31795886847`](https://github.com/Shuang-su/Metaflow/actions/runs/31795886847) 以 D2 通过 Prepare。Netlify Git build 再次不可靠后，按用户明确授权从 clean detached D2 构建完整 87-resource 实体 publish 目录，并通过 CLI/API fallback 发布 deploy `6a7efc396f36c800cfa0702e`。Viewer 运行时源码、偏好迁移标记 `5.19.0`、87 条 route、9 条 streaming、78 条 SOG、schema 与资源 payload 均未改变。 | PATCH `5.19.1` 已成为生产稳定版，用户实际升级路径是 `5.18.1 -> 5.19.1`。线上 index/history 为 `5.19.1 / gitRef 534b013 / upstream 1.29.1`；WebGPU/WebGL、desktop/`360 x 732`、legacy/streaming/tiled/animation/active-event/alias、SH `1/0.2`、capture、Annotation、heatmap fallback、on-demand 与偏好迁移通过。即时 smoke 后的 15 分钟观察中，Cyrene 与 Xunyangpai 再次完成首帧且无 console/network 问题；[GitHub Release](https://github.com/Shuang-su/Metaflow/releases/tag/viewer-v5.19.1) 已建立。 | Netlify 对 CLI 上传真实报告 `deploy_source=api`、`commit_ref=null`，所以来源链依赖 main/Tag=D2、detached tree、online hash 与版本记录，不冒充 Git deploy。F/D2 Git record 没有产生真实 skipped 证据；未来仍需跟踪 Netlify Git-build 基础设施。PR #45 无独立 reviewer；移动真机与 immersive XR 仍未验证。Bijiashan 已知缺失 tile 只产生一次受控 404/warning，主体不受影响。回退 deploy 固定为 `6a7a18b49094c6c76eff2482`；两个 Tag 永不移动，任何 tracked 修复使用 `5.19.2`。 |
+
+| `5.19.2` · `92d11b0` | 5.19.1 的生产 HTML 仍把 Supabase analytics endpoint 编译为空，SDK 因此主动禁用，页面运行不报错但埋点 session/page/heartbeat 不再进入数据库；现有 release workflow 只校验版本字段，不能发现这种配置缺失。 | 为 production/tagged Viewer build 增加 endpoint 缺失硬失败；Netlify production context 固定公开 collector endpoint；controlled release build 注入同一 endpoint；production smoke 解析 immutable 与 production HTML 的 `metaflow-analytics-endpoint` 并要求指向 `/analytics-collect`；补充 analytics 回归测试与实现文档。 | PATCH `5.19.2` 恢复 production analytics 配置，session/page/heartbeat 等既有事件可重新上报；资源、路由、index schema、Supabase migration/Edge Function 和预览/本地默认关闭策略不变。 | 最终发布 deploy `6a8087d8ee37ee534090c5a2`（`deploy_source=cli`、`commit_ref=null`）；immutable/production HTML endpoint 一致，公开 version-history 镜像与 release checkpoint 完全一致，真实浏览器 collector preflight/POST 均 HTTP 200，Supabase 已读回 `session_started`、`page_viewed`、`first_frame_ready`、`navigation_completed`、`session_heartbeat`（`docs/changes/20260815-viewer-analytics-5192/completion.md`）。下一次 tracked 修复从 `5.19.3` 起。 |
+
+`5.19.0` 失败尝试的不可变身份为 Tag object `c9a19ea438e604333af2d3158bebea7d16f1a33e`、peeled target / release packet `f1986097f81cf15db95d33fa76c090b2066d4bd1`；这些证据只追加，不删除、不移动，也不创建 `viewer-v5.19.0` GitHub Release。该版本行中“等待正式生产发布”描述的是其当时 checkpoint；最终生产结论由后续 `5.19.1` 行追加表达。
 
 ### 不产生产品版本的维护提交
 
@@ -272,21 +280,33 @@ flowchart TD
 | `f7e3883` | 先上传深圳笔架山动态体素数据和正式 route 基础索引，随后由最终 5.18a 提交补齐 Dayun 坐标空间对齐。 | 作为 5.18a 前置上传记录，不创建独立展示版本；由 `maintenanceCommits` 显式登记。 |
 | `bdf46c9` | 将笔架山数据发布的版本文档先行补齐，随后由最终 5.18a 提交更新 gitRef 和总账说明。 | 发布文档维护，不创建独立展示版本；由 `maintenanceCommits` 显式登记。 |
 | `65a5fb6` | 将 5.18a 的结构化历史、公开镜像、index release gitRef 和总账对齐到最终产品提交 `c613a87`。 | 发布记录维护，不创建独立展示版本；由 `maintenanceCommits` 显式登记。 |
+| `8f4ffc2` | 将 5.18.1 的结构化历史、公开镜像、index release gitRef、总账和测试夹具对齐到 PR #35 的最终 squash 提交 `578272c`，并移除仅存在于 squash 前分支历史的临时提交引用。 | 发布记录维护，不创建独立展示版本；由 `maintenanceCommits` 显式登记。 |
+| `18a164d` | 将 Viewer 5.19.0 的机器事实源、公开镜像、index release、E2E fixture、README 导航和总账对齐到 PR #41 的真实 squash 产品提交 `26e311c`，并移除仅存在于 squash 前分支历史的临时 Viewer maintenance refs。 | 正式发布前的 merge-record 维护，不创建新版本；由本 release-packet 提交登记到 `maintenanceCommits`。 |
+| `f198609` | 生成 Viewer 5.19.0 的首个正式 release packet，并成为不可变 `viewer-v5.19.0` Tag 目标；controlled prepare 因 sparse fixture 与 build/test 顺序问题在部署前失败，生产从未切换。 | 保留为失败发布尝试的审计证据，不创建 GitHub Release、不冒充已部署版本；由 5.19.1 recovery packet 登记到 `maintenanceCommits`。 |
+| `f0fb740` | 将 package、Version History、公开 index/history、E2E fixture与断言、README 导航和总账对齐到 recovery PR #45 的真实 squash SHA `534b013`，并追加 Viewer 5.19.1 PATCH 恢复记录。 | 正式恢复发布前的版本记录维护，不改变 Viewer runtime、route、schema 或资源 payload；由后续 release-packet 提交登记到 `maintenanceCommits`。 |
+| `d5c1faf` | 生成 Viewer 5.19.1 的严格 recovery release packet，记录失败 5.19.0、PR #45、R2、版本契约和 D2 前置验证，并成为不可变 `viewer-v5.19.1` Tag 目标。 | 正式发布 packet；由最终 E2 closure 登记到 `maintenanceCommits`，不改变 Viewer runtime、route、schema 或资源 payload。 |
 
 ## 能力到提交的反向索引
 
 | 能力 | 形成与修正提交 |
 |---|---|
 | Poster / 加载 reveal | `1.5`、`1.6`、`1.18`、`3.19`、`3.20`、`5.0` |
-| 首帧与超时 | `1.14`、`1.15`、`1.16`、`2.1`、`5.0`、`5.1` |
+| 首帧与超时 | `1.14`、`1.15`、`1.16`、`2.1`、`5.0`、`5.1`、`5.19.0` |
 | 短路由与索引 | `1.19`、`1.21`、`1.22`、`2.5`、`2.8`、`3.15`、`5.2`、`5.14`、`5.15` |
 | 埋点、分析与看板 | `5.10`、`5.11`、`5.12`、`5.13`、`5.16`、`5.17` |
-| XR / PICO | `1.31`–`1.36`、`2.9`、`5.0` |
-| Walk / voxel | `3.0`、`3.5`–`3.7`、`4.4`、`5.0`、`5.4`、`5.18a` |
+| XR / PICO | `1.31`–`1.36`、`2.9`、`5.0`、`5.19.0` |
+| Walk / voxel | `3.0`、`3.5`–`3.7`、`4.4`、`5.0`、`5.4`、`5.18a`、`5.19.0` |
 | 移动端控制 | `2.7`、`3.2`–`3.3`、`3.8`–`3.16`、`5.0`、`5.18` |
 | 渐变天空 | `3.19`、`3.20`、`5.0` |
-| Figure8 / ACG | `2.11`、`3.14`、`4.0`、`4.1`、`4.2`、`5.3a`、`5.4` |
+| Figure8 / ACG | `2.11`、`3.14`、`4.0`、`4.1`、`4.2`、`5.3a`、`5.4`、`5.18.1` |
 | 部署 / LFS | `1.2`、`1.3`、`3.17`、`3.20a`、`4.4`、`5.2`、`5.3`、`5.13` |
+| On-demand / streaming work buffer / SH | `2.6`、`5.8`、`5.9`、`5.19.0` |
+| Capture / Annotation preference | `1.0`、`5.19.0` |
+| 偏好生命周期 / `Config.lang` | `5.19.0` |
+| 主体入口 parser / 四次有界尝试 | `2.5`、`2.8`、`5.19.0` |
+| Debug Engine / CSS map / package metadata / production audit | `5.19.0` |
+| Controlled release / sparse validation / production trigger | `5.19.1`、`5.19.2` |
+| Analytics endpoint / release smoke | `5.10`、`5.12`、`5.19.2` |
 
 ## 后续提交维护模板
 

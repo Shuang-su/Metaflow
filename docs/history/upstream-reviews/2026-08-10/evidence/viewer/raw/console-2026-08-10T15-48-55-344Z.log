@@ -1,0 +1,4 @@
+[     807ms] [LOG] Metaflow Viewer 5.18a (semver 5.18.0, index schema 1.2) | Metaflow fork synced toward SSV v1.26.2 (PlayCanvas 2.19.2) | Engine v2.19.2 (3f52bb8) @ http://127.0.0.1:4178/index.js:93775
+[    2360ms] [LOG] Renderer: webgpu @ http://127.0.0.1:4178/index.js:93442
+[    2480ms] [INFO] [Loader] 已按文件名强制使用流式 LOD 入口 {filename: lod-meta.json, streamingByStructure: false, decision: streaming-json(文件名优先)} @ http://127.0.0.1:4178/index.js:93316
+[   19958ms] [INFO] Camera debug helpers ready: logCameraPose() / getCameraPose() @ http://127.0.0.1:4178/index.js:92132

@@ -17,10 +17,12 @@
 | Change | 实时状态 | 仓库工件分类 | 当前含义 |
 |---|---|---|---|
 | [MF-1](https://github.com/Shuang-su/Metaflow/issues/1) | Open；等待独立激活决策 | Bootstrap + legacy 审计档案 | 初始 MCL candidate 和历史完成证据。`completion/`、旧 Gate 与全量归档要求不代表 Revision 6 默认流程；激活必须按实时 Issue 重新决策 |
+| [MF-2](https://github.com/Shuang-su/Metaflow/issues/2) | Open；人工 advisory 审查 | 实时 Issue；无独立 Change 工件 | Dependabot alerts 保留为只读信号，自动 security/version update PR 已关闭；只对当前 active Viewer/Editor dependency graph 人工判断和修复，reference snapshots 永不原位更新 |
 | [MF-9](https://github.com/Shuang-su/Metaflow/issues/9) | Done | Legacy 审计档案 | Reference dependency/Editor ownership 的历史决策快照；严格档案兼容保留，不作为新任务模板 |
 | [MF-16](https://github.com/Shuang-su/Metaflow/issues/16) | Done | 已完成、操作契约已取代 | 建立路径路由器时的 Spec/Plan；其中 PR/push 自动 CI 和 `required / gate` 已由 Revision 6 取消，路由器现在是本地检查选择器 |
 | [MF-18](https://github.com/Shuang-su/Metaflow/issues/18) | Done | Revision 5，已取代 | 建立 Issue/Commit/PR/Spec/Plan 分层；四个 Gate 和旧状态链由 MF-28 进一步精简 |
 | [MF-28](https://github.com/Shuang-su/Metaflow/issues/28) | Done | 当前 Revision 6 契约 | 本地优先流程、分级资源发布、Ledger/Version History 边界和 Viewer SemVer 前向规则 |
+| [MF-30](https://github.com/Shuang-su/Metaflow/issues/30) | Completed；[PR #41](https://github.com/Shuang-su/Metaflow/pull/41) 与 recovery [PR #45](https://github.com/Shuang-su/Metaflow/pull/45) 已 squash merge | Viewer `5.19.2` production stable；`5.19.0` 在 deployment 前失败；`5.19.2` 恢复 analytics endpoint | [`30-viewer-upstream-v1.29.1/spec.md`](30-viewer-upstream-v1.29.1/spec.md)、[`plan.md`](30-viewer-upstream-v1.29.1/plan.md)、[`proposal.md`](30-viewer-upstream-v1.29.1/proposal.md)、[`evidence.md`](30-viewer-upstream-v1.29.1/evidence.md) 与 Completion Dossier 记录 v1.29.1 实施、深度研究、冲突、失败发布、恢复、精确 D2 CLI/API deploy、production smoke 与 15 分钟观察；后续 5.19.2 analytics 修复以 `92d11b0` 登记在 Viewer Ledger 与 Version History |
 | [MF-32](https://github.com/Shuang-su/Metaflow/issues/32) | Done（本注册表进入 `main` 后） | 文档维护 | 分类历史工件、修正活动模板，并完善 25 篇中文 Viewer/Editor 手册；PR、Commit 与验证以实时 Issue 完成交付为准 |
 
 ## 权威顺序

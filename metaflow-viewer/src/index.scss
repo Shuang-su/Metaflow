@@ -1,7 +1,6 @@
-
-$clr-text: #E0DCDD;
+$clr-text: #e0dcdd;
 $clr-text-light: #fff;
-$clr-text-dark: #AAA;
+$clr-text-dark: #aaa;
 $clr-text-darkest: #666;
 $clr-accent: #42d2f6;
 $clr-grip: #50c2ff;
@@ -141,7 +140,10 @@ button {
     margin-left: 3.5px;
     opacity: 0;
     max-width: 0;
-    transition: max-width 0.3s ease-out, opacity 0.3s ease-out, margin-left 0.3s ease-out;
+    transition:
+        max-width 0.3s ease-out,
+        opacity 0.3s ease-out,
+        margin-left 0.3s ease-out;
 }
 
 @media (hover: hover) {
@@ -204,6 +206,10 @@ button {
             background-size: 200% 100%;
             animation: loading-indeterminate 1.2s infinite linear;
         }
+
+        &.failed {
+            background: rgba(255, 108, 108, 0.9);
+        }
     }
 
     > #loadingStatus {
@@ -246,7 +252,9 @@ button {
     &.faded-out {
         visibility: hidden;
         opacity: 0;
-        transition: visibility 0s 0.5s, opacity 0.5s ease-out;
+        transition:
+            visibility 0s 0.5s,
+            opacity 0.5s ease-out;
     }
 
     > #timelineContainer {
@@ -348,13 +356,7 @@ button {
 
             /* camera toggle styling */
             &.toggle {
-                background: linear-gradient(
-                    90deg,
-                    transparent 0%,
-                    transparent 50%,
-                    $clr-accent 50%,
-                    $clr-accent 100%
-                );
+                background: linear-gradient(90deg, transparent 0%, transparent 50%, $clr-accent 50%, $clr-accent 100%);
                 background-size: 200% 100%;
                 background-position: 100% 0%;
                 background-repeat: no-repeat;
@@ -385,7 +387,6 @@ button {
                 }
             }
         }
-
     }
 }
 
@@ -429,7 +430,9 @@ button {
 
             color: $clr-text-dark;
             background-color: rgba(white, 0.04);
-            transition: background-color 250ms ease, color 250ms ease;
+            transition:
+                background-color 250ms ease,
+                color 250ms ease;
 
             &:hover {
                 color: $clr-text-light;
@@ -465,7 +468,9 @@ button {
                         position: absolute;
                         top: 2px;
                         left: 2px;
-                        transition: transform 200ms ease, background-color 200ms ease;
+                        transition:
+                            transform 200ms ease,
+                            background-color 200ms ease;
                     }
                 }
 
@@ -652,7 +657,9 @@ button {
                 font-weight: bold;
                 font-size: 13px;
                 color: $clr-text-dark;
-                transition: color 150ms ease, border-color 150ms ease;
+                transition:
+                    color 150ms ease,
+                    border-color 150ms ease;
             }
 
             > .tab:hover {
@@ -687,7 +694,10 @@ button {
     background-color: #0003;
     border: 2px solid #fff3;
 
-    transition: width 0.2s ease, height 0.2s ease, border-radius 0.2s ease;
+    transition:
+        width 0.2s ease,
+        height 0.2s ease,
+        border-radius 0.2s ease;
 
     > #joystick,
     > #lookJoystick {
@@ -885,7 +895,9 @@ button {
                 cursor: pointer;
                 color: $clr-text-dark;
                 background-color: rgba(white, 0.04);
-                transition: background-color 250ms ease, color 250ms ease;
+                transition:
+                    background-color 250ms ease,
+                    color 250ms ease;
 
                 &:hover {
                     color: $clr-text-light;
@@ -945,7 +957,9 @@ button {
     &.faded-out {
         visibility: hidden;
         opacity: 0;
-        transition: visibility 0s 0.5s, opacity 0.5s ease-out;
+        transition:
+            visibility 0s 0.5s,
+            opacity 0.5s ease-out;
     }
 
     > button {

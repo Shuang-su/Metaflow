@@ -1,7 +1,7 @@
 /**
  * Metadata for a voxel octree file (matches the .voxel.json format from splat-transform).
  */
-interface VoxelMetadata {
+type VoxelMetadata = {
     version: string;
     gridBounds: { min: number[]; max: number[] };
     gaussianBounds: { min: number[]; max: number[] };
@@ -12,40 +12,40 @@ interface VoxelMetadata {
     numMixedLeaves: number;
     nodeCount: number;
     leafDataCount: number;
-}
+};
 
 /**
  * Push-out vector returned by querySphere / queryCapsule.
  */
-interface PushOut {
+type PushOut = {
     x: number;
     y: number;
     z: number;
-}
+};
 
 /**
  * Hit result returned by queryRay.
  */
-interface RayHit {
+type RayHit = {
     x: number;
     y: number;
     z: number;
-}
+};
 
 type VoxelLoadStage = 'voxel-meta' | 'voxel-bin' | 'voxel-build';
 
-interface VoxelLoadCallbacks {
+type VoxelLoadCallbacks = {
     onStage?: (stage: VoxelLoadStage, status: string) => void;
     onProgress?: (progress: number) => void;
     onBinaryProgress?: (receivedBytes: number, totalBytes: number | null) => void;
-}
+};
 
 /**
  * Solid leaf node marker: childMask = 0xFF, baseOffset = 0.
  * Unambiguous because BFS layout guarantees children always come after their parent,
  * so baseOffset = 0 is never valid for an interior node.
  */
-const SOLID_LEAF_MARKER = 0xFF000000 >>> 0;
+const SOLID_LEAF_MARKER = 0xff000000 >>> 0;
 
 /** Minimum penetration depth to report a collision (avoids floating-point noise at corners) */
 const PENETRATION_EPSILON = 1e-4;
@@ -100,10 +100,18 @@ const SURFACE_CANDIDATES: number[][] = [
  */
 function scoreSurfaceCandidate(
     collider: VoxelCollider,
-    ix: number, iy: number, iz: number,
-    sx: number, sy: number, sz: number,
-    t1x: number, t1y: number, t1z: number,
-    t2x: number, t2y: number, t2z: number
+    ix: number,
+    iy: number,
+    iz: number,
+    sx: number,
+    sy: number,
+    sz: number,
+    t1x: number,
+    t1y: number,
+    t1z: number,
+    t2x: number,
+    t2y: number,
+    t2z: number
 ): number {
     let best = 0;
     for (let depth = 1; depth >= -1; depth--) {
@@ -113,8 +121,7 @@ function scoreSurfaceCandidate(
                 const px = ix + da * t1x + db * t2x - sx * depth;
                 const py = iy + da * t1y + db * t2y - sy * depth;
                 const pz = iz + da * t1z + db * t2z - sz * depth;
-                if (collider.isVoxelSolid(px, py, pz) &&
-                    !collider.isVoxelSolid(px + sx, py + sy, pz + sz)) {
+                if (collider.isVoxelSolid(px, py, pz) && !collider.isVoxelSolid(px + sx, py + sy, pz + sz)) {
                     s++;
                 }
             }
@@ -132,9 +139,9 @@ function scoreSurfaceCandidate(
  */
 function popcount(n: number): number {
     n >>>= 0;
-    n -= ((n >>> 1) & 0x55555555);
+    n -= (n >>> 1) & 0x55555555;
     n = (n & 0x33333333) + ((n >>> 2) & 0x33333333);
-    return (((n + (n >>> 4)) & 0x0F0F0F0F) * 0x01010101) >>> 24;
+    return (((n + (n >>> 4)) & 0x0f0f0f0f) * 0x01010101) >>> 24;
 }
 
 /**
@@ -186,11 +193,7 @@ class VoxelCollider {
         { x: 0, y: 0, z: 0 }
     ];
 
-    constructor(
-        metadata: VoxelMetadata,
-        nodes: Uint32Array,
-        leafData: Uint32Array
-    ) {
+    constructor(metadata: VoxelMetadata, nodes: Uint32Array, leafData: Uint32Array) {
         this._gridMinX = metadata.gridBounds.min[0];
         this._gridMinY = metadata.gridBounds.min[1];
         this._gridMinZ = metadata.gridBounds.min[2];
@@ -364,9 +367,7 @@ class VoxelCollider {
 
             let buffer: ArrayBuffer;
             if (target) {
-                buffer = receivedBytes === target.byteLength
-                    ? target.buffer
-                    : target.slice(0, receivedBytes).buffer;
+                buffer = receivedBytes === target.byteLength ? target.buffer : target.slice(0, receivedBytes).buffer;
             } else {
                 const merged = new Uint8Array(receivedBytes);
                 let offset = 0;
@@ -441,8 +442,12 @@ class VoxelCollider {
      * @returns Object with nx, ny, nz components of the surface normal.
      */
     querySurfaceNormal(
-        x: number, y: number, z: number,
-        rdx: number, rdy: number, rdz: number
+        x: number,
+        y: number,
+        z: number,
+        rdx: number,
+        rdy: number,
+        rdz: number
     ): { nx: number; ny: number; nz: number } {
         // Nudge the query point slightly along the ray direction so that a hit point
         // sitting exactly on a voxel face boundary resolves to the solid voxel rather
@@ -476,15 +481,23 @@ class VoxelCollider {
 
             const score = scoreSurfaceCandidate(
                 this,
-                ix, iy, iz,
-                sx, sy, sz,
-                cand[3], cand[4], cand[5],
-                cand[6], cand[7], cand[8]
+                ix,
+                iy,
+                iz,
+                sx,
+                sy,
+                sz,
+                cand[3],
+                cand[4],
+                cand[5],
+                cand[6],
+                cand[7],
+                cand[8]
             );
 
             if (score > bestScore) {
                 bestScore = score;
-                const mag = (Math.abs(dx) + Math.abs(dy) + Math.abs(dz)) > 1 ? INV_SQRT2 : 1;
+                const mag = Math.abs(dx) + Math.abs(dy) + Math.abs(dz) > 1 ? INV_SQRT2 : 1;
                 bestNx = sx * mag;
                 bestNy = sy * mag;
                 bestNz = sz * mag;
@@ -510,11 +523,7 @@ class VoxelCollider {
      * @param maxDist - Maximum ray distance.
      * @returns The entry point on the first solid voxel, or null if no hit.
      */
-    queryRay(
-        ox: number, oy: number, oz: number,
-        dx: number, dy: number, dz: number,
-        maxDist: number
-    ): RayHit | null {
+    queryRay(ox: number, oy: number, oz: number, dx: number, dy: number, dz: number, maxDist: number): RayHit | null {
         if (this._nodes.length === 0) {
             return null;
         }
@@ -537,7 +546,9 @@ class VoxelCollider {
             let t1 = (gMinX - ox) / dx;
             let t2 = (gMaxX - ox) / dx;
             if (t1 > t2) {
-                const tmp = t1; t1 = t2; t2 = tmp;
+                const tmp = t1;
+                t1 = t2;
+                t2 = tmp;
             }
             if (t1 > tNear) {
                 tNear = t1;
@@ -552,7 +563,9 @@ class VoxelCollider {
             let t1 = (gMinY - oy) / dy;
             let t2 = (gMaxY - oy) / dy;
             if (t1 > t2) {
-                const tmp = t1; t1 = t2; t2 = tmp;
+                const tmp = t1;
+                t1 = t2;
+                t2 = tmp;
             }
             if (t1 > tNear) {
                 tNear = t1;
@@ -567,7 +580,9 @@ class VoxelCollider {
             let t1 = (gMinZ - oz) / dz;
             let t2 = (gMaxZ - oz) / dz;
             if (t1 > t2) {
-                const tmp = t1; t1 = t2; t2 = tmp;
+                const tmp = t1;
+                t1 = t2;
+                t2 = tmp;
             }
             if (t1 > tNear) {
                 tNear = t1;
@@ -589,9 +604,9 @@ class VoxelCollider {
         let iz = Math.max(0, Math.min(Math.floor((entryZ - gMinZ) / res), this._numVoxelsZ - 1));
 
         // DDA setup
-        const stepX = dx > 0 ? 1 : (dx < 0 ? -1 : 0);
-        const stepY = dy > 0 ? 1 : (dy < 0 ? -1 : 0);
-        const stepZ = dz > 0 ? 1 : (dz < 0 ? -1 : 0);
+        const stepX = dx > 0 ? 1 : dx < 0 ? -1 : 0;
+        const stepY = dy > 0 ? 1 : dy < 0 ? -1 : 0;
+        const stepZ = dz > 0 ? 1 : dz < 0 ? -1 : 0;
 
         const invDx = Math.abs(dx) > EPS ? 1.0 / dx : 0;
         const invDy = Math.abs(dy) > EPS ? 1.0 / dy : 0;
@@ -638,9 +653,15 @@ class VoxelCollider {
                 tMaxZ += tDeltaZ;
             }
 
-            if (ix < 0 || iy < 0 || iz < 0 ||
-                ix >= this._numVoxelsX || iy >= this._numVoxelsY || iz >= this._numVoxelsZ ||
-                currentT > maxDist) {
+            if (
+                ix < 0 ||
+                iy < 0 ||
+                iz < 0 ||
+                ix >= this._numVoxelsX ||
+                iy >= this._numVoxelsY ||
+                iz >= this._numVoxelsZ ||
+                currentT > maxDist
+            ) {
                 return null;
             }
         }
@@ -661,11 +682,7 @@ class VoxelCollider {
      * @param out - Object to receive the push-out vector.
      * @returns True if a collision was detected and out was written.
      */
-    querySphere(
-        cx: number, cy: number, cz: number,
-        radius: number,
-        out: PushOut
-    ): boolean {
+    querySphere(cx: number, cy: number, cz: number, radius: number, out: PushOut): boolean {
         if (this.nodes.length === 0) {
             return false;
         }
@@ -753,12 +770,7 @@ class VoxelCollider {
      * @param out - Object to receive the push-out vector.
      * @returns True if a collision was detected and out was written.
      */
-    queryCapsule(
-        cx: number, cy: number, cz: number,
-        halfHeight: number,
-        radius: number,
-        out: PushOut
-    ): boolean {
+    queryCapsule(cx: number, cy: number, cz: number, halfHeight: number, radius: number, out: PushOut): boolean {
         if (this.nodes.length === 0) {
             return false;
         }
@@ -842,10 +854,7 @@ class VoxelCollider {
      * @param radius - Sphere radius.
      * @returns True if a penetrating voxel was found.
      */
-    private resolveDeepestPenetration(
-        cx: number, cy: number, cz: number,
-        radius: number
-    ): boolean {
+    private resolveDeepestPenetration(cx: number, cy: number, cz: number, radius: number): boolean {
         const { voxelResolution, gridMinX, gridMinY, gridMinZ } = this;
         const radiusSq = radius * radius;
 
@@ -916,9 +925,9 @@ class VoxelCollider {
                         const distNegZ = cz - vMinZ;
                         const distPosZ = vMaxZ - cz;
 
-                        const escapeX = distNegX < distPosX ? -(distNegX + radius) : (distPosX + radius);
-                        const escapeY = distNegY < distPosY ? -(distNegY + radius) : (distPosY + radius);
-                        const escapeZ = distNegZ < distPosZ ? -(distNegZ + radius) : (distPosZ + radius);
+                        const escapeX = distNegX < distPosX ? -(distNegX + radius) : distPosX + radius;
+                        const escapeY = distNegY < distPosY ? -(distNegY + radius) : distPosY + radius;
+                        const escapeZ = distNegZ < distPosZ ? -(distNegZ + radius) : distPosZ + radius;
 
                         const absX = Math.abs(escapeX);
                         const absY = Math.abs(escapeY);
@@ -974,7 +983,9 @@ class VoxelCollider {
      * @returns True if a penetrating voxel was found.
      */
     private resolveDeepestPenetrationCapsule(
-        cx: number, cy: number, cz: number,
+        cx: number,
+        cy: number,
+        cz: number,
         halfHeight: number,
         radius: number
     ): boolean {
@@ -1066,9 +1077,9 @@ class VoxelCollider {
                         const distNegZ = cz - vMinZ;
                         const distPosZ = vMaxZ - cz;
 
-                        const escapeX = distNegX < distPosX ? -(distNegX + radius) : (distPosX + radius);
-                        const escapeY = distNegY <= distPosY ? -(distNegY + radius) : (distPosY + radius);
-                        const escapeZ = distNegZ < distPosZ ? -(distNegZ + radius) : (distPosZ + radius);
+                        const escapeX = distNegX < distPosX ? -(distNegX + radius) : distPosX + radius;
+                        const escapeY = distNegY <= distPosY ? -(distNegY + radius) : distPosY + radius;
+                        const escapeZ = distNegZ < distPosZ ? -(distNegZ + radius) : distPosZ + radius;
 
                         const absX = Math.abs(escapeX);
                         const absY = Math.abs(escapeY);
@@ -1138,9 +1149,15 @@ class VoxelCollider {
      * @returns True if the voxel is solid.
      */
     isVoxelSolid(ix: number, iy: number, iz: number): boolean {
-        if (this.nodes.length === 0 ||
-            ix < 0 || iy < 0 || iz < 0 ||
-            ix >= this.numVoxelsX || iy >= this.numVoxelsY || iz >= this.numVoxelsZ) {
+        if (
+            this.nodes.length === 0 ||
+            ix < 0 ||
+            iy < 0 ||
+            iz < 0 ||
+            ix >= this.numVoxelsX ||
+            iy >= this.numVoxelsY ||
+            iz >= this.numVoxelsZ
+        ) {
             return false;
         }
 
@@ -1162,7 +1179,7 @@ class VoxelCollider {
                 return true;
             }
 
-            const childMask = (node >>> 24) & 0xFF;
+            const childMask = (node >>> 24) & 0xff;
 
             // If childMask is 0, this is a mixed leaf node
             if (childMask === 0) {
@@ -1181,7 +1198,7 @@ class VoxelCollider {
             }
 
             // Calculate child offset using popcount of lower bits
-            const baseOffset = node & 0x00FFFFFF;
+            const baseOffset = node & 0x00ffffff;
             const prefix = (1 << octant) - 1;
             const childOffset = popcount(childMask & prefix);
             nodeIndex = baseOffset + childOffset;
@@ -1206,7 +1223,7 @@ class VoxelCollider {
      * @returns True if the voxel is solid.
      */
     private checkLeafByIndex(node: number, ix: number, iy: number, iz: number): boolean {
-        const leafDataIndex = node & 0x00FFFFFF;
+        const leafDataIndex = node & 0x00ffffff;
 
         // Compute voxel coordinates within the 4x4x4 block
         const vx = ix & 3;

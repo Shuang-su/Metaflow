@@ -1,0 +1,9 @@
+- generic [active] [ref=e1]:
+  - generic:
+    - link "Metaflow" [ref=e4] [cursor=pointer]:
+      - /url: https://metaflow.shuang-su.com/
+      - img "Metaflow Logo" [ref=e5]
+      - img "Metaflow"
+    - generic [ref=e6]:
+      - generic [ref=e7]: 99%
+      - generic [ref=e9]: "[模型下载] 正在下载模型 73 KB / 73 KB"

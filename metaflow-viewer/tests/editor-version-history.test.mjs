@@ -46,7 +46,7 @@ test('editor ledger documents the structured editor release', async () => {
 });
 
 test('editor source keeps Metaflow version, frame cap, and export compatibility wiring', async () => {
-    await stat(new URL('../../supersplat-v2.18.1/src/ui/timeline-panel.ts', import.meta.url));
+    await stat(new URL('../../references/supersplat-v2.18.1/src/ui/timeline-panel.ts', import.meta.url));
     await stat(new URL('../../supersplat-v2.28.0/src/metaflow-editor-version.ts', import.meta.url));
 
     const versionSource = await readFile(new URL('../../supersplat-v2.28.0/src/metaflow-editor-version.ts', import.meta.url), 'utf8');

@@ -8,12 +8,10 @@ import {
     Mouse,
     platform,
     TouchDevice,
-    type Texture,
-    type TextureHandler,
-    type AppBase,
     revision as engineRevision,
     version as engineVersion
 } from 'playcanvas';
+import type { Texture, TextureHandler, AppBase } from 'playcanvas';
 
 import { App } from './app';
 import { createAnalyticsClient } from './analytics/client';
@@ -21,6 +19,7 @@ import { MeshCollision, loadTiledVoxelCollision, loadVoxelCollision } from './co
 import type { Collision } from './collision';
 import { observe } from './core/observe';
 import { initLocalization } from './localization';
+import { classifyPrimarySource, getResourceComposition, validateStreamingLodManifest } from './resource-source';
 import { importSettings } from './settings';
 import type { Config, Global, LoadMode, LoadingStage } from './types';
 import { initPoster, initUI } from './ui';
@@ -29,20 +28,20 @@ import { initXr } from './xr';
 import versionHistory from '../../metadata/version-history.json';
 import { version as appVersion } from '../package.json';
 
-interface LoadCallbacks {
+type LoadCallbacks = {
     onProgress: (progress: number) => void;
     onStatus: (status: string) => void;
     onMode: (mode: LoadMode) => void;
     onStage: (stage: LoadingStage) => void;
     onConflict: (conflict: boolean) => void;
-}
+};
 
 const formatSize = (bytes: number) => {
     if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(0)} KB`;
     return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
 };
 
-const formatSplats = (n: number) => n >= 10000 ? `${(n / 10000).toFixed(1)} 万` : `${n}`;
+const formatSplats = (n: number) => (n >= 10000 ? `${(n / 10000).toFixed(1)} 万` : `${n}`);
 
 const formatError = (err: unknown) => {
     if (err instanceof Error) {
@@ -57,90 +56,48 @@ const formatError = (err: unknown) => {
     };
 };
 
-const detectStreamingLodByStructure = (data: any) => {
-    if (!data || typeof data !== 'object') return false;
-
-    const root = data as Record<string, any>;
-    const meta = (root.meta && typeof root.meta === 'object') ? root.meta : undefined;
-    const octree = (root.octree && typeof root.octree === 'object') ? root.octree : undefined;
-    const stream = (root.stream && typeof root.stream === 'object') ? root.stream : undefined;
-
-    const hasCoreLodArrays = (
-        Array.isArray(root.lods) ||
-        Array.isArray(root.levels) ||
-        Array.isArray(meta?.lods) ||
-        Array.isArray(meta?.levels)
-    );
-
-    const hasCoreNumericHints = (
-        typeof root.lodCount === 'number' ||
-        typeof root.maxLod === 'number' ||
-        typeof root.minLod === 'number' ||
-        typeof meta?.lodCount === 'number' ||
-        typeof octree?.lodLevels === 'number'
-    );
-
-    const hasStrongStreamingShape = (
-        typeof octree === 'object' &&
-        (
-            typeof octree?.lodLevels === 'number' ||
-            Array.isArray(octree?.nodes)
-        )
-    ) || (
-        typeof stream === 'object' &&
-        (
-            typeof stream?.chunkCount === 'number' ||
-            Array.isArray(stream?.chunks)
-        )
-    );
-
-    const hasWeakHints = (
-        typeof root.chunkCount === 'number' ||
-        Array.isArray(root.chunks) ||
-        Array.isArray(root.nodes)
-    );
-
-    if (hasCoreLodArrays || hasStrongStreamingShape) return true;
-    if (hasCoreNumericHints && hasWeakHints) return true;
-    return false;
-};
-
 const loadGsplat = async (app: AppBase, config: Config, callbacks: LoadCallbacks) => {
     const { contents, contentUrl, aa } = config;
     const c = contents as unknown as ArrayBuffer;
-    const filename = new URL(contentUrl, location.href).pathname.split('/').pop() || '';
-    const lowerFilename = filename.toLowerCase();
-    const isJsonFile = lowerFilename.endsWith('.json');
-    const data = isJsonFile ? await (await contents).json() : undefined;
-    const streamingByStructure = detectStreamingLodByStructure(data);
-    const streamingByName = lowerFilename === 'meta.json' || lowerFilename.endsWith('lod-meta.json');
-    const hasStructurePayload = !!(data && typeof data === 'object');
-    const loadMode: LoadMode = streamingByName
-        ? 'streaming-json'
-        : (hasStructurePayload && streamingByStructure ? 'streaming-json' : 'legacy-sog');
+    const filename = contentUrl ? new URL(contentUrl, location.href).pathname.split('/').pop() || '' : '';
+    const primarySourceKind = classifyPrimarySource(contentUrl, location.href);
+    const loadMode: LoadMode = primarySourceKind === 'streaming-lod' ? 'streaming-json' : 'legacy-sog';
 
     callbacks.onConflict(false);
-    if (isJsonFile && streamingByName && !streamingByStructure) {
-        console.info('[Loader] 已按文件名强制使用流式 LOD 入口', {
-            filename,
-            streamingByStructure,
-            decision: 'streaming-json(文件名优先)'
-        });
-    } else if (isJsonFile && hasStructurePayload && streamingByStructure !== streamingByName) {
-        callbacks.onConflict(true);
-        const decision = streamingByStructure ? 'streaming-json(结构优先)' : 'legacy-sog(结构优先)';
-        console.warn('[Loader] 资源识别冲突: 结构特征与文件名不一致', {
-            filename,
-            streamingByStructure,
-            streamingByName,
-            decision
-        });
-        callbacks.onStatus(`资源识别冲突，已采用 ${decision}`);
-    }
-
     callbacks.onMode(loadMode);
     callbacks.onStage('detect');
-    callbacks.onStatus(loadMode === 'streaming-json' ? '已识别流式 LOD 资源，准备加载索引...' : '已识别传统 SOG 资源，准备加载模型...');
+
+    if (primarySourceKind === 'unsupported') {
+        callbacks.onConflict(true);
+        callbacks.onStatus(`不支持的主体资源入口：${filename || '(empty)'}`);
+        throw new Error(`Unsupported primary resource entry: ${filename || '(empty)'}`);
+    }
+
+    const sourceStatuses = {
+        'streaming-lod': '已识别流式 LOD 资源，准备加载索引...',
+        'sog-bundle': '已识别 SOG Bundle，准备加载模型...',
+        'sog-meta': '已识别 Loose SOG 元数据，准备加载模型...',
+        ply: '已识别 PLY 模型，准备加载模型...'
+    } as const;
+    callbacks.onStatus(sourceStatuses[primarySourceKind]);
+
+    let data: object | undefined;
+    if (primarySourceKind === 'streaming-lod') {
+        if (!contents) {
+            throw new Error('Streaming LOD entry is missing its prefetched response');
+        }
+        const response = await contents;
+        try {
+            const manifest: unknown = await response.clone().json();
+            validateStreamingLodManifest(manifest);
+            data = manifest as object;
+        } catch (err) {
+            callbacks.onConflict(true);
+            const error = formatError(err);
+            callbacks.onStatus(`流式 LOD 清单无效：${error.error_message}`);
+            throw new Error(`Invalid streaming LOD manifest: ${error.error_message}`, { cause: err });
+        }
+    }
 
     const asset = new Asset(filename, 'gsplat', { url: contentUrl, filename, contents: c }, data);
 
@@ -162,9 +119,11 @@ const loadGsplat = async (app: AppBase, config: Config, callbacks: LoadCallbacks
         asset.on('load:data', (data: any) => {
             callbacks.onStage('parse');
             const numSplats = data?.numSplats;
-            callbacks.onStatus(numSplats ?
-                `已解析 ${formatSplats(numSplats)} 个高斯点，正在创建 GPU 资源...` :
-                '正在解析模型结构数据...');
+            callbacks.onStatus(
+                numSplats
+                    ? `已解析 ${formatSplats(numSplats)} 个高斯点，正在创建 GPU 资源...`
+                    : '正在解析模型结构数据...'
+            );
         });
 
         let watermark = 0;
@@ -233,14 +192,19 @@ const loadEnvironment = async (app: AppBase, config: Config) => {
 
 const loadSkybox = (app: AppBase, url: string) => {
     return new Promise<Asset>((resolve, reject) => {
-        const asset = new Asset('skybox', 'texture', {
-            url
-        }, {
-            type: 'rgbp',
-            mipmaps: false,
-            addressu: 'repeat',
-            addressv: 'clamp'
-        });
+        const asset = new Asset(
+            'skybox',
+            'texture',
+            {
+                url
+            },
+            {
+                type: 'rgbp',
+                mipmaps: false,
+                addressu: 'repeat',
+                addressv: 'clamp'
+            }
+        );
 
         asset.on('load', () => resolve(asset));
         asset.on('error', (err) => reject(err));
@@ -340,7 +304,7 @@ const initCanvas = (global: Global) => {
 
     app.on('framerender', apply);
 
-    // @ts-ignore
+    // @ts-expect-error PlayCanvas keeps this resize switch private.
     app._allowResize = false;
     set(canvas.clientWidth, canvas.clientHeight);
     apply();
@@ -404,13 +368,20 @@ const createCollisionLoadPlan = (app: AppBase, config: Config, state: Global['st
 const main = async (canvas: HTMLCanvasElement, settingsJson: any, config: Config) => {
     const { app, camera, renderer } = await createApp(canvas, config);
     const events = new EventHandler();
+    const primarySourceKind = classifyPrimarySource(config.contentUrl, location.href);
+    const resourceComposition = getResourceComposition(config.environmentUrl);
 
-    const legacyRetina = localStorage.getItem('retinaDisplay');
-    if (legacyRetina !== null && localStorage.getItem('performanceMode') === null) {
-        localStorage.setItem('performanceMode', String(legacyRetina === 'false'));
+    const preferenceMigrationKey = 'metaflowViewerPreferenceMigration';
+    const preferenceMigrationVersion = '5.19.0';
+    if (localStorage.getItem(preferenceMigrationKey) !== preferenceMigrationVersion) {
+        localStorage.removeItem('performanceMode');
+        localStorage.removeItem('gamingControls');
         localStorage.removeItem('retinaDisplay');
+        localStorage.setItem(preferenceMigrationKey, preferenceMigrationVersion);
     }
+
     const storedPerformanceMode = localStorage.getItem('performanceMode');
+    const storedShowAnnotations = localStorage.getItem('showAnnotations');
 
     const state = observe(events, {
         loaded: false,
@@ -436,6 +407,7 @@ const main = async (canvas: HTMLCanvasElement, settingsJson: any, config: Config
         collisionOverlayEnabled: false,
         isFullscreen: false,
         controlsHidden: false,
+        showAnnotations: storedShowAnnotations !== null ? storedShowAnnotations === 'true' : true,
         gamingControls: localStorage.getItem('gamingControls') === 'true'
     });
 
@@ -481,7 +453,9 @@ const main = async (canvas: HTMLCanvasElement, settingsJson: any, config: Config
         route_matched: config.analyticsRouteMatched,
         has_environment: !!config.environmentUrl,
         has_collision: !!(config.voxelManifestUrl || config.voxelUrl || config.collisionUrl),
-        requested_renderer: config.renderer
+        requested_renderer: config.renderer,
+        primary_source_kind: primarySourceKind,
+        resource_composition: resourceComposition
     });
 
     const analyticsPageStartedAt = Date.now();
@@ -494,12 +468,17 @@ const main = async (canvas: HTMLCanvasElement, settingsJson: any, config: Config
             stage_elapsed_ms: Math.max(0, now - analyticsLoadingStageStartedAt),
             page_elapsed_ms: Math.max(0, now - analyticsPageStartedAt),
             progress: state.progress,
-            loading_mode: state.loadingMode
+            loading_mode: state.loadingMode,
+            primary_source_kind: primarySourceKind,
+            resource_composition: resourceComposition
         });
         analyticsLoadingStageStartedAt = now;
     });
     events.on('firstFrame', () => {
-        analytics.markFirstFrame();
+        analytics.markFirstFrame({
+            primary_source_kind: primarySourceKind,
+            resource_composition: resourceComposition
+        });
         void analytics.flush();
     });
     events.on('cameraMode:changed', (cameraMode: string, previousCameraMode: string) => {
@@ -517,6 +496,12 @@ const main = async (canvas: HTMLCanvasElement, settingsJson: any, config: Config
     events.on('gamingControls:changed', (value: boolean) => {
         analytics.track('settings_changed', {
             setting: 'gaming_controls',
+            value
+        });
+    });
+    events.on('showAnnotations:changed', (value: boolean) => {
+        analytics.track('settings_changed', {
+            setting: 'show_annotations',
             value
         });
     });
@@ -557,13 +542,13 @@ const main = async (canvas: HTMLCanvasElement, settingsJson: any, config: Config
     initCanvas(global);
     app.start();
 
-    if (config.poster) {
-        initPoster(events);
-    }
+    // This listener also reveals the canvas on firstFrame, so it must be
+    // installed even for routes that do not provide a poster image.
+    initPoster(events);
 
     camera.addComponent('camera');
     initXr(global);
-    initLocalization();
+    initLocalization(config.lang);
     initUI(global);
 
     state.loadingStage = 'renderer';
@@ -586,61 +571,76 @@ const main = async (canvas: HTMLCanvasElement, settingsJson: any, config: Config
         state.loadingStatus = '正在识别资源结构...';
         state.progress = 0;
         try {
-            const entity = await loadGsplat(
-                app,
-                config,
-                {
-                    onProgress: (progress: number) => {
-                        state.progress = progress;
-                    },
-                    onStatus: (status: string) => {
-                        state.loadingStatus = status;
-                    },
-                    onMode: (mode: LoadMode) => {
-                        state.loadingMode = mode;
-                    },
-                    onStage: (stage: LoadingStage) => {
-                        state.loadingStage = stage;
-                    },
-                    onConflict: (conflict: boolean) => {
-                        state.loadingConflict = conflict;
-                    }
+            const entity = await loadGsplat(app, config, {
+                onProgress: (progress: number) => {
+                    state.progress = progress;
+                },
+                onStatus: (status: string) => {
+                    state.loadingStatus = status;
+                },
+                onMode: (mode: LoadMode) => {
+                    state.loadingMode = mode;
+                },
+                onStage: (stage: LoadingStage) => {
+                    state.loadingStage = stage;
+                },
+                onConflict: (conflict: boolean) => {
+                    state.loadingConflict = conflict;
                 }
-            );
+            });
             state.loadingStage = 'prepare';
             state.loadingStatus = '主体模型已就绪，正在准备首帧...';
             state.progress = -1;
             return entity;
         } catch (err) {
-            analytics.track('resource_load_failed', {
-                loading_stage: state.loadingStage,
-                loading_mode: state.loadingMode,
-                ...formatError(err)
-            }, { beacon: true });
+            const error = formatError(err);
+            analytics.track(
+                'resource_load_failed',
+                {
+                    loading_stage: state.loadingStage,
+                    loading_mode: state.loadingMode,
+                    primary_source_kind: primarySourceKind,
+                    resource_composition: resourceComposition,
+                    ...error
+                },
+                { beacon: true }
+            );
+            state.progress = 100;
+            state.loadingStage = 'error';
+            state.loadingStatus = `主体模型加载失败：${error.error_message}。请检查网络后刷新页面重试。`;
+            app.autoRender = false;
+            app.renderNextFrame = false;
             throw err;
         }
     })();
 
-    const skyboxLoad = config.skyboxUrl &&
-        loadSkybox(app, config.skyboxUrl).then((asset) => {
-            app.scene.envAtlas = asset.resource as Texture;
-        }).catch((err: Error) => {
-            console.warn('Failed to load skybox:', err);
-        });
+    const skyboxLoad =
+        config.skyboxUrl &&
+        loadSkybox(app, config.skyboxUrl)
+            .then((asset) => {
+                app.scene.envAtlas = asset.resource as Texture;
+            })
+            .catch((err: Error) => {
+                console.warn('Failed to load skybox:', err);
+            });
 
     const collisionLoadPlan = createCollisionLoadPlan(app, config, state);
 
     if (global.settings.soundUrl) {
         const sound = new Audio(global.settings.soundUrl);
         sound.crossOrigin = 'anonymous';
-        document.body.addEventListener('click', () => {
-            if (sound) {
-                sound.play();
+        document.body.addEventListener(
+            'click',
+            () => {
+                if (sound) {
+                    sound.play();
+                }
+            },
+            {
+                capture: true,
+                once: true
             }
-        }, {
-            capture: true,
-            once: true
-        });
+        );
     }
 
     return new Viewer(
@@ -655,9 +655,9 @@ const main = async (canvas: HTMLCanvasElement, settingsJson: any, config: Config
 
 console.log(
     `Metaflow Viewer ${versionHistory.current.displayVersion} ` +
-    `(semver ${appVersion}, index schema ${versionHistory.current.indexSchemaVersion}) | ` +
-    `Metaflow fork synced toward SSV v1.26.2 (PlayCanvas 2.19.2) | ` +
-    `Engine v${engineVersion} (${engineRevision})`
+        `(semver ${appVersion}, index schema ${versionHistory.current.indexSchemaVersion}) | ` +
+        `Metaflow fork synced toward SSV v1.29.1 (PlayCanvas 2.21.3) | ` +
+        `Engine v${engineVersion} (${engineRevision})`
 );
 
 export { main };

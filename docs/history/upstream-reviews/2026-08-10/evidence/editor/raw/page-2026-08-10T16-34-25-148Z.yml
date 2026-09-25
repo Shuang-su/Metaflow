@@ -1,0 +1,117 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - generic [ref=e4]:
+      - generic [ref=e5]:
+        - generic [ref=e7]: SUPERSPLAT v2.32.3
+        - generic [ref=e8]:
+          - generic [ref=e9]:
+            - generic [ref=e10]: 
+            - generic [ref=e11]: 场景管理器
+          - generic [ref=e23]:
+            - generic [ref=e24]: environment.ply
+            - img [ref=e25] [cursor=pointer]
+            - img [ref=e28] [cursor=pointer]
+          - generic [ref=e30]:
+            - generic [ref=e31]: 
+            - generic [ref=e32]: 变换
+          - generic [ref=e33]:
+            - generic [ref=e34]:
+              - generic [ref=e35]: 位置
+              - generic [ref=e36]:
+                - generic [ref=e37]:
+                  - textbox [ref=e38]: "-0.01"
+                  - text:  X
+                - generic [ref=e39]:
+                  - textbox [ref=e40]: "-0.06"
+                  - text:  Y
+                - generic [ref=e41]:
+                  - textbox [ref=e42]: "1.64"
+                  - text:  Z
+            - generic [ref=e43]:
+              - generic [ref=e44]: 旋转
+              - generic [ref=e45]:
+                - generic [ref=e46]:
+                  - textbox [ref=e47]: "90"
+                  - text:  X
+                - generic [ref=e48]:
+                  - textbox [ref=e49]: "1.46"
+                  - text:  Y
+                - generic [ref=e50]:
+                  - textbox [ref=e51]: "180"
+                  - text:  Z
+            - generic [ref=e52]:
+              - generic [ref=e53]: 缩放
+              - generic [ref=e54]:
+                - textbox [ref=e55]: "1"
+                - text: 
+        - text: "   r  g  b  a #  r  g  b  a #  r  g  b  a #  r  g  b  a #      r  g  b  a #"
+        - generic [ref=e57]:
+          - button [ref=e58]
+          - button [ref=e61]
+          - button [ref=e65] [cursor=pointer]
+          - button [ref=e76] [cursor=pointer]
+          - button [ref=e80] [cursor=pointer]
+          - button [ref=e84] [cursor=pointer]
+          - button [ref=e88] [cursor=pointer]
+          - button [ref=e93] [cursor=pointer]
+          - button [ref=e99] [cursor=pointer]
+          - button [ref=e102] [cursor=pointer]
+          - button "" [ref=e107] [cursor=pointer]
+          - button "" [ref=e108] [cursor=pointer]
+          - button "" [ref=e109] [cursor=pointer]
+          - button [ref=e111] [cursor=pointer]
+          - button [ref=e116] [cursor=pointer]
+          - button "" [ref=e122] [cursor=pointer]
+          - button "" [ref=e123] [cursor=pointer]
+        - generic [ref=e124]:
+          - button [ref=e125] [cursor=pointer]
+          - button [ref=e128] [cursor=pointer]
+          - button [ref=e133] [cursor=pointer]
+          - button [ref=e136] [cursor=pointer]
+          - button [ref=e140] [cursor=pointer]
+          - button [ref=e144] [cursor=pointer]
+          - button [ref=e149] [cursor=pointer]
+          - button "" [ref=e155] [cursor=pointer]
+        - generic [ref=e156] [cursor=pointer]: 中心模式
+        - generic [ref=e161]:
+          - generic [ref=e162] [cursor=pointer]: 文件
+          - generic [ref=e163] [cursor=pointer]: 编辑
+          - generic [ref=e164] [cursor=pointer]: 选择
+          - generic [ref=e165] [cursor=pointer]: 渲染
+          - generic [ref=e166] [cursor=pointer]: 帮助
+          - img [ref=e167] [cursor=pointer]
+        - generic:
+          - img:
+            - generic:
+              - generic [ref=e170] [cursor=pointer]
+              - generic [ref=e171] [cursor=pointer]
+              - generic:
+                - generic [ref=e172] [cursor=pointer]
+                - generic: X
+              - generic [ref=e173] [cursor=pointer]
+              - generic:
+                - generic [ref=e174] [cursor=pointer]
+                - generic: "Y"
+              - generic:
+                - generic [ref=e175] [cursor=pointer]
+                - generic: Z
+        - text:  Threshold    X  Y  Z      X  Y  Z  X  Y  Z  X  Y  Z  Threshold  m
+      - text:    
+      - generic [ref=e176]:
+        - button "时间线" [ref=e177] [cursor=pointer]
+        - button "高斯点数据" [ref=e178] [cursor=pointer]
+        - generic [ref=e179]:
+          - generic [ref=e180]:
+            - generic [ref=e181]: 高斯点
+            - generic [ref=e182]: 1,476
+          - generic [ref=e183]:
+            - generic [ref=e184]: 已选择
+            - generic [ref=e185]: "0"
+          - generic [ref=e186]:
+            - generic [ref=e187]: 已锁定
+            - generic [ref=e188]: "0"
+          - generic [ref=e189]:
+            - generic [ref=e190]: 已删除
+            - generic [ref=e191]: "0"
+    - generic: "       r  g  b  a #     r  g  b  a #                         起始  结束 "
+  - button "Choose File" [ref=e192]

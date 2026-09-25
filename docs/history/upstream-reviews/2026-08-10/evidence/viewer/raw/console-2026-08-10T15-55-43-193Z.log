@@ -1,0 +1,9 @@
+[    2363ms] [LOG] SuperSplat Viewer v1.28.0 | Engine v2.20.6 (9a2a8ef) @ http://127.0.0.1:4179/index.js:89860
+[    2394ms] [LOG] Renderer: webgpu @ http://127.0.0.1:4179/index.js:89681
+[    2416ms] [LOG] XrNavigation: Enabled methods - teleportation, smooth movement, snap vertical @ http://127.0.0.1:4179/index.js:89198
+[    3174ms] TypeError: Cannot read properties of undefined (reading 'enabled')
+    at anyPostEffectEnabled (http://127.0.0.1:4179/index.js:88266:32)
+    at Viewer.configureCamera (http://127.0.0.1:4179/index.js:88581:14)
+    at new Viewer (http://127.0.0.1:4179/index.js:88314:14)
+    at main (http://127.0.0.1:4179/index.js:89859:12)
+    at async HTMLDocument.<anonymous> (http://127.0.0.1:4179/?content=%2Fdata%2FACG%2FFireflyFes38%2F260502+172930+03+%E5%B4%A9%E5%9D%8F%E6%98%9F%E7%A9%B9%E9%93%81%E9%81%93+%E6%98%94%E6%B6%9F%2F260502+172930+03+Cyrene.sog&settings=%2Fdata%2FACG%2FFireflyFes38%2F260502+172930+03+%E5%B4%A9%E5%9D%8F%E6%98%9F%E7%A9%B9%E9%93%81%E9%81%93+%E6%98%94%E6%B6%9F%2Fsettings-v2.json&collision=%2Fdata%2FACG%2FFireflyFes38%2F260502+172930+03+%E5%B4%A9%E5%9D%8F%E6%98%9F%E7%A9%B9%E9%93%81%E9%81%93+%E6%98%94%E6%B6%9F%2Fvoxel_ply_lod0_r0.08_a0.20%2Fmeta.voxel.json:591:32)

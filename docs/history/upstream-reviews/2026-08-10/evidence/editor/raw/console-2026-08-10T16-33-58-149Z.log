@@ -1,0 +1,5 @@
+[    3096ms] [LOG] service worker registered ServiceWorkerRegistration @ http://127.0.0.1:4182/:17
+[    3425ms] [LOG] SuperSplat v2.32.3 | SplatTransform v3.1.7 (33d2dd8) | Engine v2.21.1 (2827828) | PCUI v6.1.4 (89cf9a3) @ http://127.0.0.1:4182/index.js:148
+[   68033ms] [INFO] output.spz (38.6KB) @ http://127.0.0.1:4182/index.js:0
+[  216577ms] [LOG] service worker registered ServiceWorkerRegistration @ http://127.0.0.1:4182/:17
+[  216654ms] [LOG] SuperSplat v2.32.3 | SplatTransform v3.1.7 (33d2dd8) | Engine v2.21.1 (2827828) | PCUI v6.1.4 (89cf9a3) @ http://127.0.0.1:4182/index.js:148

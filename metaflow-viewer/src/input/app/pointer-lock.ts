@@ -2,9 +2,8 @@ import type { Global } from '../../types';
 import type { KeyboardMouseDevice } from '../devices/keyboard-mouse';
 
 const isCaptureMode = (mode: string) => mode === 'walk' || mode === 'fly';
-const hasUserActivation = () => (
-    (navigator as Navigator & { userActivation?: { isActive: boolean } }).userActivation?.isActive === true
-);
+const hasUserActivation = () =>
+    (navigator as Navigator & { userActivation?: { isActive: boolean } }).userActivation?.isActive === true;
 
 /**
  * Manages the browser's pointer-lock API for first-person gaming controls

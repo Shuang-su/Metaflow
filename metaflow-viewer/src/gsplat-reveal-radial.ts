@@ -1,6 +1,7 @@
-import { AppBase, BoundingBox, Entity, Vec3 } from 'playcanvas';
+import type { AppBase, BoundingBox, Entity } from 'playcanvas';
+import { Vec3 } from 'playcanvas';
 
-const shaderGLSL = /* glsl */`
+const shaderGLSL = /* glsl */ `
 uniform float uRevealTime;
 uniform vec3 uRevealCenter;
 uniform float uRevealRadius;
@@ -98,7 +99,7 @@ void modifySplatColor(vec3 center, inout vec4 color) {
 }
 `;
 
-const shaderWGSL = /* wgsl */`
+const shaderWGSL = /* wgsl */ `
 uniform uRevealTime: f32;
 uniform uRevealCenter: vec3f;
 uniform uRevealRadius: f32;
@@ -564,7 +565,9 @@ class GsplatRevealRadial {
             return;
         }
 
-        material.getShaderChunks(this.language).set('gsplatModifyVS', this.language === 'wgsl' ? shaderWGSL : shaderGLSL);
+        material
+            .getShaderChunks(this.language)
+            .set('gsplatModifyVS', this.language === 'wgsl' ? shaderWGSL : shaderGLSL);
         material.shaderChunksVersion = SHADER_CHUNKS_VERSION;
         material.update();
         this.materials.add(material);
@@ -694,8 +697,8 @@ class GsplatRevealRadial {
             return;
         }
 
-        const refDiscriminant = DEFAULT_REVEAL_SPEED * DEFAULT_REVEAL_SPEED
-            + 2 * DEFAULT_REVEAL_ACCELERATION * REVEAL_REFERENCE_RADIUS;
+        const refDiscriminant =
+            DEFAULT_REVEAL_SPEED * DEFAULT_REVEAL_SPEED + 2 * DEFAULT_REVEAL_ACCELERATION * REVEAL_REFERENCE_RADIUS;
         const crossTime = Math.max(
             (-DEFAULT_REVEAL_SPEED + Math.sqrt(refDiscriminant)) / DEFAULT_REVEAL_ACCELERATION,
             0.1
@@ -703,7 +706,7 @@ class GsplatRevealRadial {
         this.speed = DEFAULT_REVEAL_SPEED;
         this.acceleration = Math.max(
             0.0001,
-            2 * Math.max(this.radius - this.speed * crossTime, 0.0001) / (crossTime * crossTime)
+            (2 * Math.max(this.radius - this.speed * crossTime, 0.0001)) / (crossTime * crossTime)
         );
     }
 
