@@ -1,14 +1,14 @@
 {
   "schemaVersion": "1.1",
   "cutoffGitRef": "c613a87",
-  "documentedThrough": "0c4bb78",
+  "documentedThrough": "f999471",
   "defaultResourceVersion": "1.0a",
   "current": {
     "displayVersion": "5.19.3",
     "appSemver": "5.19.3",
     "indexSchemaVersion": "1.2",
     "date": "2026-09-27",
-    "gitRef": "0c4bb78",
+    "gitRef": "f999471",
     "historyUrl": "/data/version-history.json",
     "upstream": {
       "repository": "playcanvas/supersplat-viewer",
@@ -1456,14 +1456,15 @@
       "type": "resource",
       "scope": "data",
       "date": "2026-09-27",
-      "gitRef": "0c4bb78",
+      "gitRef": "f999471",
       "summary": "feat(data): publish three Mangzhong captures and nine SZTUCCF260919 scenes with source-camera 4K WebP covers",
       "trace": {
         "changeId": "MF-81",
         "issue": "https://github.com/Shuang-su/Metaflow/issues/81",
         "spec": "docs/changes/81-publish-mangzhong-sztuccf/spec.md",
         "plan": "docs/changes/81-publish-mangzhong-sztuccf/plan.md",
-        "releaseTag": "viewer-v5.19.3"
+        "releaseTag": "viewer-v5.19.3",
+        "pullRequest": "https://github.com/Shuang-su/Metaflow/pull/82"
       },
       "resourceChanges": [
         {

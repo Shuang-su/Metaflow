@@ -327,7 +327,7 @@ flowchart TD
 版本测试保留 `c613a87` 之前的历史全量校验；之后只检查 Viewer/data/发布支撑提交、结构化版本条目和本总账 SHA 覆盖。若提交改变 Viewer 产品但未更新总账，应在交付前失败；无关组件和普通治理文档不应被塞进 `maintenanceCommits`。
 
 
-## `5.19.3` · `0c4bb78` · MF-81 approved resource publication
+## `5.19.3` · `f999471` · MF-81 approved resource publication
 
 - 动机 / 原行为：生产 5.19.2 的 87 项不包含已审核的 3 组芒种和 9 组 SZTUCCF260919 ACG。
 - 具体改动：新增 69 个发布文件，按确认名称、ID、目录、规范路由及 9 个短别名入库；生成器发现 WebP 及猫的分钟编号目录。每张封面为来源初始镜头的 4096² 静态无损 WebP。仅修复发布 settings 副本的环境 URL。
