@@ -1084,3 +1084,28 @@ button {
         }
     }
 }
+
+// Session feedback remains in the ordinary viewer when permission or capability checks fail.
+#xrStatusMessage {
+    position: fixed;
+    bottom: 100px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: min(520px, calc(100vw - 40px));
+    padding: 16px 20px;
+    border-radius: 16px;
+    background: rgba(16, 33, 43, 0.96);
+    color: #e2f5f4;
+    text-align: center;
+    z-index: 100;
+    pointer-events: auto;
+    button {
+        display: block;
+        margin: 12px auto 0;
+        padding: 8px 14px;
+        border-radius: 8px;
+    }
+    button.hidden {
+        display: none;
+    }
+}

@@ -77,7 +77,7 @@
     "help.key.esc": "Échap",
 
     "xr-modal.title": "WebGL requis",
-    "xr-modal.message": "L'AR et la VR ne sont pas prises en charge par le moteur de rendu WebGPU. Cliquer sur OK rechargera le visualiseur avec WebGL.",
+    "xr-modal.message": "Cet appareil ne peut pas utiliser le moteur de rendu actuel pour ce mode immersif. Rechargez avec WebGL, puis sélectionnez à nouveau le mode.",
     "xr-modal.cancel": "Annuler",
     "xr-modal.ok": "OK",
 

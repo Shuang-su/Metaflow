@@ -1,32 +1,24 @@
-import { Color, DEVICETYPE_WEBGL2, Quat, Vec3, XrManager } from 'playcanvas';
-import type { Entity, CameraComponent } from 'playcanvas';
+import { Color, DEVICETYPE_WEBGL2, XrManager } from 'playcanvas';
+import type { Entity } from 'playcanvas';
 import { XrControllers } from 'playcanvas/scripts/esm/xr/xr-controllers.mjs';
 
+import { localize } from './localization';
 import type { Global } from './types';
+import { headYaw } from './xr/locomotion';
+import { ensureNativeXrResolution, XR_NEAR_CLIP, XR_FAR_CLIP } from './xr/presentation';
+import { captureSessionState } from './xr/session-state';
 import { XrVrNavigation } from './xr-navigation';
 
-// XR clipping planes optimized for headset navigation in large Metaflow scenes.
-const XR_NEAR_CLIP = 0.01;
-const XR_FAR_CLIP = 1000;
-
 const initXr = (global: Global) => {
-    const { app, events, state, camera, renderer } = global;
-
-    // PlayCanvas availability is backend-aware. Under WebGPU a session is directly
-    // available only when the browser can bind XR to the active GPU device. Keep a
-    // separate WebGL capability result so the branded UI can offer an explicit
-    // renderer reload without preventing native WebGPU/WebXR sessions.
+    const { app, events, state, camera, renderer, config } = global;
     let webglAR = false;
     let webglVR = false;
-
     const updateAvailable = () => {
         state.hasAR = app.xr.isAvailable('immersive-ar') || webglAR;
         state.hasVR = app.xr.isAvailable('immersive-vr') || webglVR;
     };
-
     updateAvailable();
     app.xr.on('available', updateAvailable);
-
     if (renderer === 'webgpu') {
         Promise.all([
             XrManager.isDeviceSupported(DEVICETYPE_WEBGL2, 'immersive-ar'),
@@ -37,118 +29,139 @@ const initXr = (global: Global) => {
                 webglVR = vr;
                 updateAvailable();
             })
-            .catch((err: unknown) => {
-                console.warn('[XR] Unable to probe the WebGL fallback:', err);
-            });
+            .catch((err: unknown) => console.warn('[XR] Unable to probe the WebGL fallback:', err));
     }
-
+    global.collisionStatus =
+        config.voxelUrl || config.voxelManifestUrl || config.collisionUrl ? 'loading' : 'unavailable';
     const parent = camera.parent as Entity;
-    const clearColor = new Color();
-
-    const parentPosition = new Vec3();
-    const parentRotation = new Quat();
-    const cameraPosition = new Vec3();
-    const cameraRotation = new Quat();
-    const angles = new Vec3();
-
-    let savedNearClip = 0;
-    let savedFarClip = 0;
-
-    parent.addComponent('script');
+    if (!parent.script) parent.addComponent('script');
     parent.script.create(XrControllers);
-    // Metaflow uses custom VR locomotion: dual sticks map to move + smooth yaw,
-    // while single-stick headsets still get movement. Upstream XrNavigation only
-    // covers the simpler default behavior.
-    parent.script.create(XrVrNavigation);
+    const navigation = parent.script.create(XrVrNavigation) as unknown as XrVrNavigation;
+    navigation.configure(global);
 
-    app.xr.on('start', () => {
-        global.analytics.track('xr_started', {
-            xr_mode: app.xr.type === 'immersive-ar' ? 'AR' : 'VR'
-        });
-        app.autoRender = true;
+    let restore: (() => void) | null = null;
+    let requestedMode: 'immersive-ar' | 'immersive-vr' = 'immersive-vr';
+    let entryPosition = camera.getPosition().clone();
+    let entryYaw = 0;
+    let generation = 0;
+    let savedCanvasParent: ParentNode | null = null;
+    let savedCanvasNext: ChildNode | null = null;
 
-        // cache original camera rig positions and rotations
-        parentPosition.copy(parent.getPosition());
-        parentRotation.copy(parent.getRotation());
-        cameraPosition.copy(camera.getPosition());
-        cameraRotation.copy(camera.getRotation());
-
-        cameraRotation.getEulerAngles(angles);
-
-        // copy transform to parent so XR/VR mode starts in the right place
-        parent.setPosition(cameraPosition.x, 0, cameraPosition.z);
-        parent.setEulerAngles(0, angles.y, 0);
-
-        savedNearClip = camera.camera.nearClip;
-        savedFarClip = camera.camera.farClip;
-        camera.camera.nearClip = XR_NEAR_CLIP;
-        camera.camera.farClip = XR_FAR_CLIP;
-
-        if (app.xr.type === 'immersive-ar') {
-            clearColor.copy(camera.camera.clearColor);
-            camera.camera.clearColor = new Color(0, 0, 0, 0);
+    const finish = () => {
+        navigation.endSession();
+        restore?.();
+        restore = null;
+        const canvas = app.graphicsDevice.canvas;
+        if (savedCanvasParent && canvas.parentNode !== savedCanvasParent) {
+            savedCanvasParent.insertBefore(
+                canvas,
+                savedCanvasNext?.parentNode === savedCanvasParent ? savedCanvasNext : null
+            );
         }
-    });
-
-    app.xr.on('end', () => {
-        app.autoRender = false;
-
-        // restore camera to pre-XR state
-        parent.setPosition(parentPosition);
-        parent.setRotation(parentRotation);
-        camera.setPosition(cameraPosition);
-        camera.setRotation(cameraRotation);
-
-        camera.camera.nearClip = savedNearClip;
-        camera.camera.farClip = savedFarClip;
-
-        if (app.xr.type === 'immersive-ar') {
-            camera.camera.clearColor = clearColor;
-        }
-
-        // Restore the canvas to the correct position in the DOM after exiting XR. In
-        // some browsers (e.g. Chrome on Android) the canvas is moved to a new root
-        // during XR, and needs to be moved back on exit.
-        requestAnimationFrame(() => {
-            document.body.prepend(app.graphicsDevice.canvas);
-            app.renderNextFrame = true;
-        });
-    });
-
-    app.xr.on('error', (err: Error) => {
-        console.warn('[XR] Session error:', err.message);
-        global.analytics.track('xr_failed', {
-            xr_mode: app.xr.type === 'immersive-ar' ? 'AR' : 'VR',
-            reason: err.message
-        });
-    });
-
-    const start = (type: 'immersive-ar' | 'immersive-vr') => {
-        // Pre-set clipping before session start because some browsers copy
-        // the camera parameters as the XR session is created.
-        camera.camera.nearClip = XR_NEAR_CLIP;
-        camera.camera.farClip = XR_FAR_CLIP;
-
-        if (type === 'immersive-ar') {
-            // AR passthrough still needs HTML controls overlaid for Metaflow.
-            if (app.xr.domOverlay?.supported) {
-                app.xr.domOverlay.root = document.getElementById('ui');
+        state.xrStatus = 'idle';
+        app.renderNextFrame = true;
+    };
+    const end = () => {
+        if (state.xrStatus !== 'active') return;
+        state.xrStatus = 'ending';
+        navigation.endSession();
+        app.xr.end((err?: Error) => {
+            if (err) {
+                state.xrError = localize('xr.failed');
+                queueMicrotask(finish);
             }
-            app.xr.start(app.root.findComponent('camera') as CameraComponent, type, 'local-floor', {
-                optionalFeatures: ['anchors', 'plane-detection']
+        });
+    };
+    const fail = (err: Error) => {
+        if (state.xrStatus === 'idle' || state.xrStatus === 'ending') return;
+        console.warn('[XR] Session error:', err.message);
+        const canceled = err.name === 'NotAllowedError' || err.name === 'AbortError';
+        state.xrError = localize(
+            canceled ? 'xr.canceled' : requestedMode === 'immersive-ar' ? 'xr.ar-failed' : 'xr.failed'
+        );
+        global.analytics.track('xr_failed', {
+            xr_mode: requestedMode === 'immersive-ar' ? 'AR' : 'VR',
+            reason: err.name || 'session_error'
+        });
+        const current = generation;
+        const done = () =>
+            queueMicrotask(() => {
+                if (current === generation) finish();
             });
-        } else {
-            app.xr.start(app.root.findComponent('camera') as CameraComponent, type, 'local-floor');
-        }
+        state.xrStatus = 'ending';
+        if (app.xr.session) app.xr.session.end().then(done, done);
+        else done();
     };
 
+    app.xr.on('start', () => {
+        if (!restore || state.xrStatus !== 'starting') {
+            app.xr.end();
+            return;
+        }
+        state.xrStatus = 'active';
+        state.xrError = '';
+        app.autoRender = true;
+        camera.camera.nearClip = XR_NEAR_CLIP;
+        camera.camera.farClip = XR_FAR_CLIP;
+        try {
+            ensureNativeXrResolution(global, window.devicePixelRatio, fail);
+        } catch (err) {
+            fail(err as Error);
+        }
+        if (state.xrStatus !== 'active') return;
+        if (requestedMode === 'immersive-ar') camera.camera.clearColor = new Color(0, 0, 0, 0);
+        // The desktop preference is untouched. A URL budget remains an explicit session override.
+        app.scene.gsplat.splatBudget = config.budget && config.budget > 0 ? config.budget * 1e6 : 1e6;
+        app.scene.gsplat.colorUpdateAngle = 1;
+        app.scene.gsplat.lodUpdateAngle = 15;
+        app.scene.gsplat.lodBehindPenalty = 2;
+        navigation.startSession(entryPosition, entryYaw, requestedMode === 'immersive-vr');
+        global.analytics.track('xr_started', { xr_mode: requestedMode === 'immersive-ar' ? 'AR' : 'VR' });
+    });
+    app.xr.on('end', () => {
+        navigation.endSession();
+        state.xrStatus = 'ending';
+        // XrManager clears active/type only after its end listeners have returned.
+        queueMicrotask(finish);
+    });
+    app.xr.on('error', fail);
+
+    const start = (type: 'immersive-ar' | 'immersive-vr') => {
+        if (state.xrStatus !== 'idle' || app.xr.active) return;
+        if (!state.loaded) {
+            state.xrError = localize('xr.loading');
+            return;
+        }
+        state.xrError = '';
+        state.xrStatus = 'starting';
+        requestedMode = type;
+        generation++;
+        entryPosition = camera.getPosition().clone();
+        entryYaw = headYaw(camera);
+        restore = captureSessionState(global);
+        savedCanvasParent = app.graphicsDevice.canvas.parentNode;
+        savedCanvasNext = app.graphicsDevice.canvas.nextSibling;
+        camera.camera.nearClip = XR_NEAR_CLIP;
+        camera.camera.farClip = XR_FAR_CLIP;
+        if (type === 'immersive-ar' && app.xr.domOverlay?.supported)
+            app.xr.domOverlay.root = document.getElementById('ui');
+        try {
+            app.xr.start(camera.camera, type, 'local-floor', {
+                framebufferScaleFactor: 1,
+                optionalFeatures: type === 'immersive-ar' ? ['anchors', 'plane-detection'] : [],
+                callback: (err?: Error) => {
+                    if (err) fail(err);
+                }
+            });
+        } catch (err) {
+            fail(err as Error);
+        }
+    };
     events.on('startAR', () => start('immersive-ar'));
     events.on('startVR', () => start('immersive-vr'));
-
+    events.on('endXR', end);
     events.on('inputEvent', (event) => {
-        if (event === 'cancel' && app.xr.active) {
-            app.xr.end();
-        }
+        if (event === 'cancel') end();
     });
 };
 

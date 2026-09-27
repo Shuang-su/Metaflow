@@ -97,7 +97,7 @@ test('legacy single voxel starts after first frame and attaches collision at run
     assert.match(indexSource, /deferred:\s*\(\)\s*=>\s*\{/);
     assert.match(indexSource, /loadVoxelCollision\(collisionUrl,\s*voxelOptions\)/);
     assert.match(viewer, /events\.once\('firstFrame'/);
-    assert.match(viewer, /deferredCollisionLoad\(\)\s*\.then\(attachCollision\)/s);
+    assert.match(viewer, /deferredCollisionLoad\(\)\s*\.then\(\(nextCollision\) => \{[\s\S]*?attachCollision\(nextCollision\)/);
     assert.match(viewer, /this\.inputController\.collision = nextCollision/);
     assert.match(viewer, /this\.cameraManager\.setCollision\(nextCollision\)/);
     assert.match(cameraManager, /setCollision:\s*\(collision:\s*Collision \| null\) => void/);
@@ -422,10 +422,9 @@ test('Metaflow XR customization is kept with backend-aware WebGPU support', asyn
     assert.match(xr, /XrManager\.isDeviceSupported\(DEVICETYPE_WEBGL2/);
     assert.match(xr, /app\.xr\.on\('available', updateAvailable\)/);
     assert.doesNotMatch(xr, /if \(renderer !== 'webgl'\) \{\s*return;/);
-    assert.match(xr, /savedNearClip/);
-    assert.match(xr, /savedFarClip/);
+    assert.match(xr, /restore = captureSessionState\(global\)/);
     assert.match(xr, /domOverlay\?\.supported/);
-    assert.match(xr, /optionalFeatures:\s*\['anchors', 'plane-detection'\]/);
+    assert.match(xr, /optionalFeatures:\s*type === 'immersive-ar' \? \['anchors', 'plane-detection'\] : \[\]/);
     assert.match(xr, /app\.xr\.on\('error'/);
 });
 
@@ -450,7 +449,7 @@ test('tiled voxel walk readiness waits for the current foot tile, not full neigh
 
     assert.match(tiledSource, /isCurrentTileLoaded\(\): boolean/);
     assert.match(tiledSource, /this\._loaded\.has\(this\._centerId\)/);
-    assert.match(viewer, /collision\.updateForQueryPosition\(-p\.x, p\.z\)/);
+    assert.match(viewer, /collision\.prepareForWorldPosition\(p\.x, p\.z\)/);
     assert.match(viewer, /collision\.isCurrentTileLoaded\(\)/);
     assert.match(viewer, /foot tile/);
     assert.match(viewer, /not the full 3x3 neighborhood/);

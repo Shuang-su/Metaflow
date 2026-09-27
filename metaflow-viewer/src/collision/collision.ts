@@ -21,6 +21,10 @@ type RayHit = {
  * Implementations convert to/from their internal coordinate systems internally.
  */
 type Collision = {
+    /** Optional streamed-collision queries use world coordinates, like the other methods. */
+    isReadyAt?(x: number, z: number): boolean;
+    prepareForWorldPosition?(x: number, z: number): void;
+
     queryRay(ox: number, oy: number, oz: number, dx: number, dy: number, dz: number, maxDist: number): RayHit | null;
 
     querySphere(cx: number, cy: number, cz: number, radius: number, out: PushOut): boolean;

@@ -77,7 +77,7 @@
     "help.key.esc": "Esc",
 
     "xr-modal.title": "WebGLが必要です",
-    "xr-modal.message": "ARとVRはWebGPUレンダラーでは利用できません。OKを押すとWebGLでビューアーを再読み込みします。",
+    "xr-modal.message": "このデバイスでは、現在のレンダラーで選択した没入モードを使用できません。WebGLで再読み込みし、モードをもう一度選択してください。",
     "xr-modal.cancel": "キャンセル",
     "xr-modal.ok": "OK",
 

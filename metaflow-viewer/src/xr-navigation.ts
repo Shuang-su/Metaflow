@@ -1,308 +1,520 @@
-import { Color, Script, Vec2, Vec3 } from 'playcanvas';
-import type { XrInputSource, Entity } from 'playcanvas';
+import { StandardMaterial, Color, Entity, Script, Vec3 } from 'playcanvas';
+import type { XrInputSource } from 'playcanvas';
 
-/**
- * Custom VR navigation with smooth rotation and adaptive stick detection.
- *
- * - Dual sticks: left = movement, right = smooth rotation
- * - Single stick: defaults to movement
- *
- * Attach to the parent entity of the camera entity used for the XR session.
- */
+import type { Global } from './types';
+import { confirmSelection } from './xr/feedback';
+import {
+    FOOT_CLEARANCE,
+    bodyFits,
+    findEntryFloor,
+    headYaw,
+    hasStick,
+    horizontalForward,
+    inspectTeleportTarget,
+    moveOnGround,
+    placeHead,
+    readStick,
+    rotateAroundHead,
+    singleStickIntent,
+    teleportTarget
+} from './xr/locomotion';
+import { XrSpatialMenu } from './xr/menu';
+import type { MenuAction } from './xr/menu';
+import { loadPreferences, savePreferences } from './xr/preferences';
+
+/** Navigation changes the rig only. The browser remains the sole owner of the head pose. */
 class XrVrNavigation extends Script {
     static scriptName = 'xrVrNavigation';
-
-    enableTeleport = true;
-    enableMove = true;
-
+    global: Global;
+    menu: XrSpatialMenu;
+    preferences = loadPreferences();
     movementSpeed = 1.5;
-
-    /** Smooth rotation speed in degrees per second */
     rotateSpeed = 90;
+    readonly inputSources = new Set<XrInputSource>();
+    readonly validSources = new Set<XrInputSource>();
+    private readonly gestures = new Map<XrInputSource, 'menu' | 'teleport' | 'free'>();
+    private readonly handlers = new Map<
+        XrInputSource,
+        { start: (event: XRInputSourceEvent) => void; select: (event: XRInputSourceEvent) => void; end: () => void }
+    >();
+    private readonly markers = new Map<XrInputSource, Entity>();
+    private readonly buttonHeld = new Set<XrInputSource>();
+    private readonly selectNeedsRelease = new Set<XrInputSource>();
+    private readonly snapHeld = new Set<XrInputSource>();
+    private readonly forward = new Vec3(0, 0, -1);
+    private readonly spawnEye = new Vec3();
+    private readonly entryEye = new Vec3();
+    private spawnYaw = 0;
+    private spawnFloor = 0;
+    private entryYaw = 0;
+    private floor = 0;
+    private needsFloorCalibration = false;
+    private heightOffset = 0;
+    private needsPlacement = false;
+    private initialized = false;
+    private blockUntilNeutral = true;
+    private lastFrame = 0;
+    private sessionVR = false;
+    private trackingLimited = false;
+    private actionStatus: string | null = null;
+    private controllerDisconnected = false;
+    private readonly validColor = new Color(0.45, 0.95, 0.8);
+    private readonly invalidColor = new Color(0.95, 0.4, 0.3);
 
-    movementThreshold = 0.1;
+    initialize(): void {
+        this.app.xr.input.on('add', this.addSource, this);
+        this.app.xr.input.on('remove', this.removeSource, this);
+        this.app.xr.on('update', this.onFrame, this);
+        this.app.xr.on('visibility:change', this.suspend, this);
+        this.once('destroy', () => {
+            this.endSession();
+            this.app.xr.input.off('add', this.addSource, this);
+            this.app.xr.input.off('remove', this.removeSource, this);
+            this.app.xr.off('update', this.onFrame, this);
+            this.app.xr.off('visibility:change', this.suspend, this);
+            this.menu?.destroy();
+        });
+    }
 
-    /** Deadzone threshold for smooth rotation */
-    rotateThreshold = 0.15;
+    configure(global: Global): void {
+        this.global = global;
+        this.menu = new XrSpatialMenu(global, (action) => this.onMenuAction(action));
+    }
 
-    maxTeleportDistance = 10;
-    teleportIndicatorRadius = 0.2;
-    teleportIndicatorSegments = 16;
+    startSession(position: Vec3, yaw: number, vr: boolean): void {
+        this.entryEye.copy(position);
+        this.entryYaw = yaw;
+        this.sessionVR = vr;
+        this.needsPlacement = vr;
+        this.initialized = !vr;
+        this.heightOffset = 0;
+        this.actionStatus = null;
+        this.controllerDisconnected = false;
+        this.blockUntilNeutral = true;
+        for (const source of this.app.xr.input.inputSources) this.addSource(source);
+        if (!vr) this.menu.show();
+    }
 
-    validTeleportColor = new Color(0, 1, 0);
-    invalidTeleportColor = new Color(1, 0, 0);
-    controllerRayColor = new Color(1, 1, 1);
+    endSession(): void {
+        this.initialized = false;
+        this.needsPlacement = false;
+        this.suspend();
+        for (const source of [...this.inputSources]) this.removeSource(source);
+        this.menu?.hide();
+    }
 
-    inputSources = new Set<XrInputSource>();
-    activePointers = new Map<XrInputSource, boolean>();
-    inputHandlers = new Map<XrInputSource, { handleSelectStart: () => void; handleSelectEnd: () => void }>();
+    private suspend(): void {
+        this.gestures.clear();
+        this.validSources.clear();
+        this.buttonHeld.clear();
+        this.snapHeld.clear();
+        this.menu?.cancel();
+        this.blockUntilNeutral = true;
+        this.lastFrame = 0;
+        for (const marker of this.markers.values()) marker.enabled = false;
+        for (const source of this.inputSources) {
+            if (hasStick(source) && source.gamepad.buttons[0]?.pressed) this.selectNeedsRelease.add(source);
+            const menuButton = (source.gamepad?.buttons.length ?? 0) > 5 ? 5 : 4;
+            if (source.gamepad?.buttons[menuButton]?.pressed) this.buttonHeld.add(source);
+            this.updateMarker(source);
+        }
+    }
 
-    // Pre-allocated objects
-    private tmpVec2A = new Vec2();
-    private tmpVec2B = new Vec2();
-    private tmpVec3A = new Vec3();
-    private tmpVec3B = new Vec3();
+    private validPose(source: XrInputSource, frame?: XRFrame): boolean {
+        if (
+            !frame ||
+            this.app.xr.visibilityState !== 'visible' ||
+            !this.lastFrame ||
+            performance.now() - this.lastFrame > 250
+        )
+            return false;
+        try {
+            // PlayCanvas 2.21.3 exposes no public reference-space getter. Keep this access here.
+            // Input-event frames cannot call getViewerPose; use the recent animation pose above.
+            return !!frame.getPose(source.inputSource.targetRaySpace, this.app.xr._referenceSpace);
+        } catch {
+            return false;
+        }
+    }
 
-    private validColor = new Color();
-    private invalidColor = new Color();
-    private rayColor = new Color();
+    private addSource(source: XrInputSource): void {
+        if (this.handlers.has(source)) return;
+        this.inputSources.add(source);
+        this.controllerDisconnected = false;
+        if (hasStick(source) && source.gamepad.buttons[0]?.pressed) this.selectNeedsRelease.add(source);
+        const menuButton = (source.gamepad?.buttons.length ?? 0) > 5 ? 5 : 4;
+        if (source.gamepad?.buttons[menuButton]?.pressed) this.buttonHeld.add(source);
+        const start = (event: XRInputSourceEvent) => {
+            if (!this.initialized || this.selectNeedsRelease.has(source) || !this.validPose(source, event.frame))
+                return;
+            // An open panel consumes selections even when the user misses a button.
+            if (this.menu.begin(source)) this.gestures.set(source, 'menu');
+            else if (this.sessionVR && (this.preferences.locomotion === 'comfort' || !hasStick(source))) {
+                this.gestures.set(
+                    source,
+                    !hasStick(source) && this.global.collisionStatus === 'unavailable' ? 'free' : 'teleport'
+                );
+            }
+        };
+        const select = (event: XRInputSourceEvent) => {
+            if (!this.validPose(source, event.frame)) return;
+            const gesture = this.gestures.get(source);
+            if (gesture === 'menu') this.menu.select(source);
+            else if (gesture === 'teleport' && !this.menu.open && !this.menu.isPointedAt(source)) this.teleport(source);
+            this.gestures.delete(source);
+        };
+        // selectend can be a cancellation. Only a real select commits an action.
+        const end = () => {
+            this.selectNeedsRelease.delete(source);
+            this.gestures.delete(source);
+            this.menu.release(source);
+        };
+        source.on('selectstart', start);
+        source.on('select', select);
+        source.on('selectend', end);
+        this.handlers.set(source, { start, select, end });
+        this.blockUntilNeutral = true;
+    }
 
-    cameraEntity: Entity | null = null;
+    private removeSource(source: XrInputSource): void {
+        const handlers = this.handlers.get(source);
+        if (handlers) {
+            source.off('selectstart', handlers.start);
+            source.off('select', handlers.select);
+            source.off('selectend', handlers.end);
+        }
+        this.handlers.delete(source);
+        this.gestures.delete(source);
+        this.inputSources.delete(source);
+        this.validSources.delete(source);
+        this.buttonHeld.delete(source);
+        this.selectNeedsRelease.delete(source);
+        this.snapHeld.delete(source);
+        this.menu?.release(source);
+        this.markers.get(source)?.destroy();
+        this.markers.delete(source);
+        this.blockUntilNeutral = true;
+        if (this.initialized && hasStick(source) && this.inputSources.size === 0) {
+            this.controllerDisconnected = true;
+            this.menu?.show();
+        }
+    }
 
-    initialize() {
-        if (!this.app.xr) {
-            console.error('XrVrNavigation: XR not available');
+    private onFrame(frame: XRFrame): void {
+        if (!this.global || this.app.xr.visibilityState !== 'visible') return;
+        const pose = frame.getViewerPose(this.app.xr._referenceSpace);
+        this.trackingLimited = !pose || pose.emulatedPosition;
+        const now = performance.now();
+        // The engine skips update events entirely when a viewer pose is unavailable.
+        // Detect the gap before overwriting lastFrame so resumed input must rearm.
+        if (!pose || (this.lastFrame > 0 && now - this.lastFrame > 250)) this.suspend();
+        if (!pose) return;
+        this.lastFrame = now;
+        for (const source of this.inputSources) {
+            if (this.validPose(source, frame)) this.validSources.add(source);
+            else {
+                if (this.validSources.has(source)) this.blockUntilNeutral = true;
+                if (hasStick(source) && source.gamepad.buttons[0]?.pressed) this.selectNeedsRelease.add(source);
+                this.validSources.delete(source);
+                this.gestures.delete(source);
+                this.menu.release(source);
+            }
+        }
+        if (this.needsPlacement) this.placeInitial();
+    }
+
+    private effectiveHeight(): number {
+        return Math.max(0.5, Math.min(2.4, this.global.camera.getLocalPosition().y + this.heightOffset));
+    }
+
+    private placeInitial(): void {
+        const { camera, collision } = this.global;
+        const trackedHeight = camera.getLocalPosition().y;
+        this.heightOffset = this.preferences.posture === 'seated' ? 1.65 - trackedHeight : 0;
+        const height = this.effectiveHeight();
+        collision?.prepareForWorldPosition?.(this.entryEye.x, this.entryEye.z);
+        const target = collision ? findEntryFloor(collision, this.entryEye, height) : null;
+        this.floor = target?.y ?? this.entryEye.y - height - FOOT_CLEARANCE;
+        this.needsFloorCalibration = !target && this.global.collisionStatus !== 'unavailable';
+        rotateAroundHead(this.entity, camera, this.entryYaw - headYaw(camera));
+        placeHead(
+            this.entity,
+            camera,
+            new Vec3(target?.x ?? this.entryEye.x, this.floor + height + FOOT_CLEARANCE, target?.z ?? this.entryEye.z)
+        );
+        this.spawnFloor = this.floor;
+        this.spawnEye.copy(camera.getPosition());
+        this.spawnYaw = headYaw(camera);
+        this.needsPlacement = false;
+        this.initialized = true;
+        this.menu.show();
+    }
+
+    private reset(): void {
+        const camera = this.global.camera;
+        rotateAroundHead(this.entity, camera, this.spawnYaw - headYaw(camera));
+        // Reset horizontal position and floor without overriding the current physical head height.
+        const target = new Vec3(
+            this.spawnEye.x,
+            this.spawnFloor + this.effectiveHeight() + FOOT_CLEARANCE,
+            this.spawnEye.z
+        );
+        placeHead(this.entity, camera, target);
+        this.floor = target.y - this.effectiveHeight() - FOOT_CLEARANCE;
+        this.global.collision?.prepareForWorldPosition?.(target.x, target.z);
+        this.calibrateFloor();
+        this.menu.show();
+    }
+
+    private calibrateFloor(nextOffset = this.heightOffset): void {
+        const { camera, collision } = this.global;
+        if (!collision) {
+            if (this.global.collisionStatus !== 'unavailable') {
+                this.actionStatus = 'collision-loading';
+                return;
+            }
+            this.entity.translate(0, nextOffset - this.heightOffset, 0);
+            this.heightOffset = nextOffset;
             return;
         }
+        const p = camera.getPosition();
+        const height = Math.max(0.5, Math.min(2.4, camera.getLocalPosition().y + nextOffset));
+        const target = findEntryFloor(collision, p, height);
+        if (!target) {
+            this.actionStatus = 'calibration-needed';
+            return;
+        }
+        this.needsFloorCalibration = false;
+        this.heightOffset = nextOffset;
+        this.floor = target.y;
+        target.y += height + FOOT_CLEARANCE;
+        placeHead(this.entity, camera, target);
+    }
 
-        this.validColor.copy(this.validTeleportColor);
-        this.invalidColor.copy(this.invalidTeleportColor);
-        this.rayColor.copy(this.controllerRayColor);
-
-        // Find camera entity in children
-        const cameraComponent = this.entity.findComponent('camera');
-        this.cameraEntity = cameraComponent ? cameraComponent.entity : null;
-
-        if (!this.cameraEntity) {
-            const foundByName = this.entity.findByName('camera') as Entity | null;
-            this.cameraEntity = foundByName;
-
-            if (!this.cameraEntity) {
-                for (const child of this.entity.children) {
-                    const childEntity = child as Entity;
-                    if (childEntity.camera) {
-                        this.cameraEntity = childEntity;
-                        break;
-                    }
+    private onMenuAction(action: MenuAction): void {
+        this.gestures.clear();
+        this.blockUntilNeutral = true;
+        this.actionStatus = null;
+        if (action === 'resume') this.menu.close();
+        else if (action === 'exit') this.global.events.fire('endXR');
+        else if (action === 'collision' && this.global.state.hasCollisionOverlay)
+            this.global.state.collisionOverlayEnabled = !this.global.state.collisionOverlayEnabled;
+        else if (action === 'reset' && this.sessionVR) this.reset();
+        else if ((action === 'posture' || action === 'calibrate') && this.sessionVR) {
+            const posture =
+                action === 'posture'
+                    ? this.preferences.posture === 'standing'
+                        ? 'seated'
+                        : 'standing'
+                    : this.preferences.posture;
+            const trackedHeight = this.global.camera.getLocalPosition().y;
+            const nextOffset = posture === 'seated' ? 1.65 - trackedHeight : 0;
+            if (action === 'calibrate') this.calibrateFloor(nextOffset);
+            else {
+                const { collision, camera, collisionStatus } = this.global;
+                const p = camera.getPosition();
+                const height = Math.max(0.5, Math.min(2.4, trackedHeight + nextOffset));
+                if (
+                    (!collision && collisionStatus !== 'unavailable') ||
+                    (collision && !bodyFits(collision, p.x, this.floor, p.z, height))
+                ) {
+                    this.actionStatus = 'posture-blocked';
+                } else {
+                    this.entity.translate(0, nextOffset - this.heightOffset, 0);
+                    this.heightOffset = nextOffset;
+                    this.preferences.posture = posture;
                 }
             }
+            this.menu.show();
+        } else if (action === 'locomotion' && this.sessionVR) {
+            this.preferences.locomotion = this.preferences.locomotion === 'continuous' ? 'comfort' : 'continuous';
         }
+        savePreferences(this.preferences);
+    }
 
-        this.app.xr.input.on('add', (inputSource: XrInputSource) => {
-            const handleSelectStart = () => {
-                this.activePointers.set(inputSource, true);
-            };
-            const handleSelectEnd = () => {
-                this.activePointers.set(inputSource, false);
-                this.tryTeleport(inputSource);
-            };
+    private teleport(source: XrInputSource): void {
+        const camera = this.global.camera;
+        const target = teleportTarget(
+            this.global.collision,
+            source.getOrigin(),
+            source.getDirection(),
+            camera.getPosition(),
+            this.effectiveHeight()
+        );
+        if (!target) return;
+        this.needsFloorCalibration = false;
+        this.floor = target.y;
+        target.y += this.effectiveHeight() + FOOT_CLEARANCE;
+        placeHead(this.entity, camera, target);
+        this.blockUntilNeutral = true;
+        confirmSelection(source);
+    }
 
-            inputSource.on('selectstart', handleSelectStart);
-            inputSource.on('selectend', handleSelectEnd);
-            this.inputHandlers.set(inputSource, { handleSelectStart, handleSelectEnd });
-            this.inputSources.add(inputSource);
-        });
-
-        this.app.xr.input.on('remove', (inputSource: XrInputSource) => {
-            const handlers = this.inputHandlers.get(inputSource);
-            if (handlers) {
-                inputSource.off('selectstart', handlers.handleSelectStart);
-                inputSource.off('selectend', handlers.handleSelectEnd);
-                this.inputHandlers.delete(inputSource);
+    update(dt: number): void {
+        if (!this.global || !this.app.xr.active || !this.initialized) return;
+        if (this.app.xr.visibilityState !== 'visible' || performance.now() - this.lastFrame > 100) {
+            this.suspend();
+            this.menu.hide();
+            return;
+        }
+        const { camera, collision, collisionStatus } = this.global;
+        collision?.prepareForWorldPosition?.(camera.getPosition().x, camera.getPosition().z);
+        const status = !this.sessionVR
+            ? 'ar-status'
+            : collisionStatus === 'loading'
+              ? 'collision-loading'
+              : collision
+                ? this.needsFloorCalibration
+                    ? 'calibration-needed'
+                    : collision.isReadyAt?.(camera.getPosition().x, camera.getPosition().z) === false
+                      ? 'collision-loading'
+                      : 'grounded'
+                : 'free-roam';
+        for (const source of this.inputSources) {
+            if (!source.gamepad?.buttons[0]?.pressed) this.selectNeedsRelease.delete(source);
+            const buttonIndex = (source.gamepad?.buttons.length ?? 0) > 5 ? 5 : 4;
+            const down = this.validSources.has(source) && !!source.gamepad?.buttons[buttonIndex]?.pressed;
+            if (down && !this.buttonHeld.has(source)) {
+                this.menu.toggle();
+                this.gestures.clear();
+                this.blockUntilNeutral = true;
             }
-            this.activePointers.delete(inputSource);
-            this.inputSources.delete(inputSource);
-        });
-    }
-
-    /**
-     * Read thumbstick axes from a gamepad, trying axes[2]/[3] first,
-     * falling back to axes[0]/[1] for devices like PICO.
-     */
-    private readStick(gamepad: Gamepad): Vec2 {
-        const axes = gamepad.axes;
-        let x = 0;
-        let y = 0;
-
-        if (axes.length >= 4) {
-            x = axes[2];
-            y = axes[3];
+            if (down) this.buttonHeld.add(source);
+            else this.buttonHeld.delete(source);
+            this.updateMarker(source);
         }
-
-        // Fallback: if axes[2]/[3] are zero but [0]/[1] have data
-        if (Math.abs(x) < 0.01 && Math.abs(y) < 0.01 && axes.length >= 2) {
-            x = axes[0];
-            y = axes[1];
+        this.menu.update(
+            this.preferences,
+            this.controllerDisconnected ? 'input-disconnected' : (this.actionStatus ?? status),
+            this.inputSources,
+            this.validSources,
+            this.trackingLimited
+        );
+        if (this.menu.open || !this.sessionVR) {
+            this.blockUntilNeutral = true;
+            return;
         }
-
-        this.tmpVec2A.set(x, y);
-        return this.tmpVec2A;
-    }
-
-    update(dt: number) {
-        if (this.enableMove) {
-            this.handleLocomotion(dt);
+        const sources = [...this.validSources].filter(hasStick);
+        if (this.blockUntilNeutral) {
+            if (sources.every((source) => readStick(source.gamepad.axes).every((axis) => Math.abs(axis) < 0.01))) {
+                this.blockUntilNeutral = false;
+            }
+            return;
         }
-        if (this.enableTeleport) {
-            this.handleTeleportation();
+        const left = sources.find((source) => source.handedness === 'left');
+        const right = sources.find((source) => source.handedness === 'right');
+        const movement = left ?? (sources.length === 1 ? sources[0] : undefined);
+        const single = sources.length === 1 ? sources[0] : undefined;
+        const singleIntent = single
+            ? singleStickIntent(single.gamepad.axes, !!single.gamepad.buttons[1]?.pressed)
+            : undefined;
+        const turning = left && right ? right : single;
+        const delta = Math.min(Math.max(dt, 0), 0.05);
+        if (turning) {
+            const x = singleIntent ? singleIntent.turn : readStick(turning.gamepad.axes)[0];
+            if (this.preferences.locomotion === 'continuous')
+                rotateAroundHead(this.entity, camera, -x * this.rotateSpeed * delta);
+            else if (Math.abs(x) > 0.6 && !this.snapHeld.has(turning)) {
+                rotateAroundHead(this.entity, camera, -Math.sign(x) * 30);
+                this.snapHeld.add(turning);
+            } else if (Math.abs(x) < 0.2) this.snapHeld.delete(turning);
         }
-        this.renderControllerRays();
-    }
-
-    private handleLocomotion(dt: number) {
-        if (!this.cameraEntity) return;
-
-        // Collect controllers with gamepads
-        let leftSource: XrInputSource | null = null;
-        let rightSource: XrInputSource | null = null;
-        let singleSource: XrInputSource | null = null;
-
-        for (const inputSource of this.inputSources) {
-            if (!inputSource.gamepad) continue;
-
-            if (inputSource.handedness === 'left') {
-                leftSource = inputSource;
-            } else if (inputSource.handedness === 'right') {
-                rightSource = inputSource;
-            } else {
-                // 'none' handedness — treat as a single generic controller
-                singleSource = inputSource;
+        if (
+            movement &&
+            (this.preferences.locomotion === 'continuous' || !collision) &&
+            collisionStatus !== 'loading' &&
+            !(collision && this.needsFloorCalibration)
+        ) {
+            const [x, y] = singleIntent ? singleIntent.move : readStick(movement.gamepad.axes);
+            if (x || y) {
+                const f = horizontalForward(camera.forward, this.forward);
+                const speed = this.movementSpeed * delta;
+                const dx = (-f.z * x - f.x * y) * speed;
+                const dz = (f.x * x - f.z * y) * speed;
+                if (collision) {
+                    const before = camera.getPosition().clone();
+                    const next = moveOnGround(collision, before, this.floor, this.effectiveHeight(), dx, dz);
+                    this.entity.translate(next.x - before.x, next.y - this.floor, next.z - before.z);
+                    this.floor = next.y;
+                } else this.entity.translate(dx, 0, dz);
             }
         }
-
-        const hasDualSticks = leftSource !== null && rightSource !== null;
-
-        if (hasDualSticks) {
-            // Dual stick mode: left = movement, right = smooth rotation
-            this.applyMovement(leftSource!, dt);
-            this.applySmoothRotation(rightSource!, dt);
-        } else {
-            // Single stick mode: whichever stick is available = movement
-            const moveSource = leftSource ?? rightSource ?? singleSource;
-            if (moveSource) {
-                this.applyMovement(moveSource, dt);
+        let freeMoved = false;
+        for (const [source, gesture] of this.gestures) {
+            if (
+                gesture === 'free' &&
+                this.validSources.has(source) &&
+                !collision &&
+                collisionStatus === 'unavailable' &&
+                !freeMoved
+            ) {
+                const f = horizontalForward(source.getDirection(), this.forward);
+                this.entity.translate(f.x * delta * 0.6, 0, f.z * delta * 0.6);
+                freeMoved = true;
             }
+            if (gesture === 'teleport' && this.validSources.has(source) && !this.menu.isPointedAt(source))
+                this.drawTeleportPreview(source);
+        }
+        if (collision && this.preferences.locomotion === 'comfort') {
+            const pointer = right ?? sources[0];
+            if (pointer && !this.gestures.has(pointer) && !this.menu.isPointedAt(pointer))
+                this.drawTeleportPreview(pointer);
         }
     }
 
-    private applyMovement(inputSource: XrInputSource, dt: number) {
-        if (!this.cameraEntity || !inputSource.gamepad) return;
-
-        const stick = this.readStick(inputSource.gamepad);
-
-        if (stick.length() > this.movementThreshold) {
-            // Normalize and apply camera-relative movement
-            this.tmpVec2A.normalize();
-
-            const forward = this.cameraEntity.forward;
-            this.tmpVec2B.x = forward.x;
-            this.tmpVec2B.y = forward.z;
-            this.tmpVec2B.normalize();
-
-            const rad = Math.atan2(this.tmpVec2B.x, this.tmpVec2B.y) - Math.PI / 2;
-
-            const sx = this.tmpVec2A.x;
-            const sy = this.tmpVec2A.y;
-            const t = sx * Math.sin(rad) - sy * Math.cos(rad);
-            this.tmpVec2A.y = sy * Math.sin(rad) + sx * Math.cos(rad);
-            this.tmpVec2A.x = t;
-
-            this.tmpVec2A.mulScalar(this.movementSpeed * dt);
-            this.entity.translate(this.tmpVec2A.x, 0, this.tmpVec2A.y);
+    private drawTeleportPreview(source: XrInputSource): void {
+        const { hit, target } = inspectTeleportTarget(
+            this.global.collision,
+            source.getOrigin(),
+            source.getDirection(),
+            this.global.camera.getPosition(),
+            this.effectiveHeight()
+        );
+        const end = target ?? hit ?? source.getDirection().clone().mulScalar(3).add(source.getOrigin());
+        this.app.drawLine(source.getOrigin(), end, target ? this.validColor : this.invalidColor);
+        if (hit && !target) {
+            const right = this.global.camera.right.clone().mulScalar(0.06);
+            const up = this.global.camera.up.clone().mulScalar(0.06);
+            this.app.drawLine(hit.clone().sub(right).sub(up), hit.clone().add(right).add(up), this.invalidColor);
+            this.app.drawLine(hit.clone().sub(right).add(up), hit.clone().add(right).sub(up), this.invalidColor);
         }
-    }
-
-    private applySmoothRotation(inputSource: XrInputSource, dt: number) {
-        if (!this.cameraEntity || !inputSource.gamepad) return;
-
-        const axes = inputSource.gamepad.axes;
-        let rotateX = 0;
-
-        // Read horizontal axis for yaw rotation
-        if (axes.length >= 4) {
-            rotateX = axes[2];
-        }
-        if (Math.abs(rotateX) < 0.01 && axes.length >= 2) {
-            rotateX = axes[0];
-        }
-
-        if (Math.abs(rotateX) > this.rotateThreshold) {
-            // Smooth rotation: angle proportional to stick deflection and dt
-            const angle = -rotateX * this.rotateSpeed * dt;
-
-            // Rotate around camera position (not entity origin)
-            this.tmpVec3A.copy(this.cameraEntity.getLocalPosition());
-            this.entity.translateLocal(this.tmpVec3A);
-            this.entity.rotateLocal(0, angle, 0);
-            this.entity.translateLocal(this.tmpVec3A.mulScalar(-1));
-        }
-    }
-
-    // --- Teleportation (same as original XrNavigation) ---
-
-    private findPlaneIntersection(origin: Vec3, direction: Vec3): Vec3 | null {
-        if (Math.abs(direction.y) < 0.00001) return null;
-        const t = -origin.y / direction.y;
-        if (t < 0) return null;
-        return new Vec3(origin.x + direction.x * t, 0, origin.z + direction.z * t);
-    }
-
-    private tryTeleport(inputSource: XrInputSource) {
-        if (!this.enableTeleport) return;
-
-        const origin = inputSource.getOrigin();
-        const direction = inputSource.getDirection();
-        if (!origin || !direction) return;
-
-        const hitPoint = this.findPlaneIntersection(origin, direction);
-        if (hitPoint && this.isValidTeleportDistance(hitPoint)) {
-            if (this.cameraEntity) {
-                const cameraLocalPos = this.cameraEntity.getLocalPosition();
-                hitPoint.x -= cameraLocalPos.x;
-                hitPoint.z -= cameraLocalPos.z;
-            }
-            const cameraY = this.entity.getPosition().y;
-            hitPoint.y = cameraY;
-            this.entity.setPosition(hitPoint);
-        }
-    }
-
-    private handleTeleportation() {
-        for (const inputSource of this.inputSources) {
-            if (!this.activePointers.get(inputSource)) continue;
-
-            const start = inputSource.getOrigin();
-            const direction = inputSource.getDirection();
-            if (!start || !direction) continue;
-
-            const hitPoint = this.findPlaneIntersection(start, direction);
-
-            if (hitPoint && this.isValidTeleportDistance(hitPoint)) {
-                this.app.drawLine(start, hitPoint, this.validColor);
-                this.drawTeleportIndicator(hitPoint);
-            } else {
-                this.tmpVec3B.copy(direction).mulScalar(this.maxTeleportDistance).add(start);
-                this.app.drawLine(start, this.tmpVec3B, this.invalidColor);
+        if (target) {
+            for (let i = 0; i < 24; i++) {
+                const a = (i * Math.PI) / 12,
+                    b = ((i + 1) * Math.PI) / 12;
+                this.app.drawLine(
+                    new Vec3(target.x + Math.cos(a) * 0.18, target.y + 0.03, target.z + Math.sin(a) * 0.18),
+                    new Vec3(target.x + Math.cos(b) * 0.18, target.y + 0.03, target.z + Math.sin(b) * 0.18),
+                    this.validColor
+                );
             }
         }
     }
 
-    private renderControllerRays() {
-        if (!this.enableMove) return;
-        for (const inputSource of this.inputSources) {
-            if (this.activePointers.get(inputSource)) continue;
-            const start = inputSource.getOrigin();
-            if (!start) continue;
-            this.tmpVec3B.copy(inputSource.getDirection()).mulScalar(2).add(start);
-            this.app.drawLine(start, this.tmpVec3B, this.rayColor);
+    private updateMarker(source: XrInputSource): void {
+        // Retain the engine's profile models; a small tracked marker covers unavailable assets.
+        const controllers = this.entity.script?.get('xrControllers') as unknown as {
+            controllers?: Map<XrInputSource, { entity: Entity }>;
+        };
+        const model = controllers?.controllers?.get(source)?.entity;
+        const valid = this.validSources.has(source);
+        if (model) model.enabled = valid;
+        let marker = this.markers.get(source);
+        if (!marker && valid && !model) {
+            marker = new Entity('XR tracked input fallback');
+            const material = new StandardMaterial();
+            material.useLighting = false;
+            material.emissive = this.validColor.clone();
+            material.update();
+            marker.addComponent('render', { type: 'sphere', material });
+            marker.setLocalScale(0.018, 0.018, 0.018);
+            marker.once('destroy', () => material.destroy());
+            this.app.root.addChild(marker);
+            this.markers.set(source, marker);
         }
-    }
-
-    private isValidTeleportDistance(hitPoint: Vec3) {
-        return hitPoint.distance(this.entity.getPosition()) <= this.maxTeleportDistance;
-    }
-
-    private drawTeleportIndicator(point: Vec3) {
-        const segments = this.teleportIndicatorSegments;
-        const radius = this.teleportIndicatorRadius;
-
-        for (let i = 0; i < segments; i++) {
-            const angle1 = (i / segments) * Math.PI * 2;
-            const angle2 = ((i + 1) / segments) * Math.PI * 2;
-
-            this.tmpVec3A.set(point.x + Math.cos(angle1) * radius, 0.01, point.z + Math.sin(angle1) * radius);
-            this.tmpVec3B.set(point.x + Math.cos(angle2) * radius, 0.01, point.z + Math.sin(angle2) * radius);
-            this.app.drawLine(this.tmpVec3A, this.tmpVec3B, this.validColor);
+        if (marker) {
+            marker.enabled = valid && !model;
+            if (valid) marker.setPosition(source.grip ? source.getPosition() : source.getOrigin());
         }
     }
 }

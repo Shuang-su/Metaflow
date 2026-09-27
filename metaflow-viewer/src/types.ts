@@ -1,6 +1,7 @@
 import type { Entity, EventHandler, AppBase } from 'playcanvas';
 
 import type { AnalyticsClient, AnalyticsResourceContext, AnalyticsSink } from './analytics/client';
+import type { Collision } from './collision';
 import type { ExperienceSettings } from './settings';
 
 type CameraMode = 'orbit' | 'anim' | 'fly' | 'walk';
@@ -113,6 +114,8 @@ type State = {
     animationDuration: number;
     animationTime: number;
     animationPaused: boolean;
+    xrStatus: 'idle' | 'starting' | 'active' | 'ending';
+    xrError: string;
     hasAR: boolean;
     hasVR: boolean;
     hasCollision: boolean;
@@ -127,6 +130,8 @@ type State = {
 };
 
 type Global = {
+    collision?: Collision | null;
+    collisionStatus?: 'loading' | 'ready' | 'unavailable';
     app: AppBase;
     settings: ExperienceSettings;
     config: Config;

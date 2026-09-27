@@ -134,7 +134,7 @@ test('XR detection is backend-aware while retaining Metaflow navigation and relo
     assert.match(xr, /app\.xr\.on\('available', updateAvailable\)/);
     assert.match(xr, /parent\.script\.create\(XrVrNavigation\)/);
     assert.match(xr, /XR_NEAR_CLIP/);
-    assert.match(xr, /optionalFeatures: \['anchors', 'plane-detection'\]/);
+    assert.match(xr, /optionalFeatures: type === 'immersive-ar' \? \['anchors', 'plane-detection'\]/);
     assert.doesNotMatch(xr, /if \(renderer !== 'webgl'\) \{\s*return;/);
     assert.match(ui, /global\.app\.xr\.isAvailable\(type === 'AR' \? 'immersive-ar' : 'immersive-vr'\)/);
     assert.match(ui, /location\.replace\(reloadUrl\.toString\(\)\)/);
