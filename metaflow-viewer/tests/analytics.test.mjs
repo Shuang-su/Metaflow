@@ -152,7 +152,7 @@ test('viewer wires analytics into route, load, UI, navigation, and XR surfaces',
     assert.match(index, /analytics\.track\('navigation_requested'/);
     assert.match(ui, /TRACKED_UI_ACTIONS/);
     assert.match(ui, /analytics\.track\('ui_clicked'/);
-    assert.match(ui, /analytics\.track\('xr_requested'/);
+    assert.match(xr, /analytics\.track\('xr_requested'/);
     assert.match(xr, /analytics\.track\('xr_started'/);
     assert.match(xr, /analytics\.track\('xr_failed'/);
 });

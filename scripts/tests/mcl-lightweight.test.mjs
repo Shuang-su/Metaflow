@@ -104,7 +104,7 @@ test('every Issue Form exposes the self-contained Issue contract and current sta
     }
 });
 
-test('resource tiers and forward Viewer SemVer track the completed 5.19.2 analytics recovery', async () => {
+test('resource tiers and forward Viewer SemVer retain the 5.19.2 recovery and match the current release', async () => {
     const [mcl, guide, release, ledger, metadata, published] = await Promise.all([
         read('docs/metaflow-change-lifecycle-v1.0.md'),
         read('docs/guides/add-publish-resource.md'),
@@ -128,9 +128,14 @@ test('resource tiers and forward Viewer SemVer track the completed 5.19.2 analyt
     assert.match(ledger, /从该边界之后只审计 Viewer、data 和 Viewer 发布支撑提交/);
     assert.match(ledger, /### X\.Y\.Z/);
     assert.equal(manifest.versioning.mode, 'semver-forward');
-    assert.equal(manifest.current.displayVersion, '5.19.2');
-    assert.equal(manifest.current.appSemver, '5.19.2');
-    assert.equal(manifest.current.gitRef, '92d11b0');
+    const recovery = manifest.entries.find((entry) => entry.appSemver === '5.19.2');
+    assert.equal(recovery.displayVersion, '5.19.2');
+    assert.equal(recovery.gitRef, '92d11b0');
+    const current = manifest.entries.find((entry) => entry.appSemver === manifest.current.appSemver);
+    assert.ok(current, 'the current Viewer must have a release entry');
+    assert.match(manifest.current.appSemver, /^\d+\.\d+\.\d+$/);
+    assert.equal(manifest.current.displayVersion, manifest.current.appSemver);
+    assert.equal(manifest.current.gitRef, current.gitRef);
     assert.match(ledger, /5\.19\.0[^\n]*deployment 前失败/);
     assert.match(ledger, /5\.19\.1[^\n]*生产稳定版/);
     assert.match(ledger, /5\.19\.2[^\n]*埋点/);

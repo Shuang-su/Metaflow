@@ -1,3 +1,4 @@
+import { sources } from './upgrade-source-helper.mjs';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import test from 'node:test';
@@ -16,7 +17,7 @@ const flattenKeys = (value, prefix = '') => Object.entries(value).flatMap(([key,
 test('route and explicit-query precedence remains the Metaflow contract', async () => {
     const html = await readText('../src/index.html');
 
-    assert.match(html, /let contentUrl = url\.searchParams\.has\('content'\) \? url\.searchParams\.get\('content'\) : null/);
+    assert.match(html, /let contentUrl = url\.searchParams\.get\('content'\) \?\? bootstrap\.contentUrl \?\? null/);
     assert.match(html, /if \(pathname !== '\/' && pathname !== '\/index\.html' && !contentUrl\)/);
     assert.match(html, /normalizeRoutePath\(r\?\.route\) === normalizedPath/);
     assert.match(html, /r\.aliases\.some\(\(alias\) => normalizeRoutePath\(alias\) === normalizedPath\)/);
@@ -56,16 +57,16 @@ test('environment, reveal, loading visibility, and synthetic animation ordering 
         readText('../src/ui.ts')
     ]);
 
-    assert.match(index, /const environmentLoad = hasEnvironment \? loadEnvironment\(app, config\) : null/);
-    assert.match(index, /return new Viewer\(\s*global,\s*gsplatLoad,\s*environmentLoad,/s);
-    assert.match(viewer, /Promise\.all\(\[gsplatLoad, skyboxLoad, collisionLoad\]\)/);
+    assert.match(index, /const environmentLoad = config\.environmentUrl \? loadEnvironment\(app, config, \(\) => destroyed\) : null/);
+    assert.match(index, /new Viewer\(\s*global,\s*gsplatLoad,\s*environmentLoad,/s);
+    assert.match(viewer, /Promise\.all\(\[gsplatLoad, skyboxLoad\]\)/);
     assert.doesNotMatch(viewer, /Promise\.all\(\[gsplatLoad, environmentLoad/);
     assert.match(viewer, /environmentLoad\?\.then/);
     assert.match(viewer, /events\.on\('firstFrame', \(\) => \{\s*state\.loaded = true;[\s\S]*beginRevealWhenSceneVisible\(\)/);
     assert.match(viewer, /window\.requestAnimationFrame\(\(\) => \{\s*this\.gsplatReveal\?\.beginVisiblePlayback\(\)/);
-    assert.match(ui, /events\.on\('loaded:changed'/);
-    assert.match(ui, /document\.getElementById\('loadingWrap'\)\.classList\.add\('hidden'\)/);
-    assert.match(ui, /document\.documentElement\.style\.setProperty\('--canvas-opacity', '1'\)/);
+    assert.match(ui, /on\('loaded:changed'/);
+    assert.match(ui, /dom\.loadingWrap\.classList\.add\('sse-hidden'\)/);
+    assert.match(index, /root\.style\.setProperty\('--canvas-opacity', '1'\)/);
 });
 
 test('streaming SH follows v1.29.1 while staged low-to-high LOD remains local behavior', async () => {
@@ -81,19 +82,10 @@ test('streaming SH follows v1.29.1 while staged low-to-high LOD remains local be
 });
 
 test('settings v1/v2 normalization protects partial post-effect data', async () => {
-    const [settings, viewer] = await Promise.all([
-        readText('../src/settings.ts'),
-        readText('../src/viewer.ts')
-    ]);
-
-    assert.match(settings, /const defaultPostEffectSettings = \(\): PostEffectSettings/);
-    assert.match(settings, /const rootDisabled = source\.enabled === false/);
-    assert.match(settings, /enabled: rootDisabled \? false : value\?\.enabled === true/);
-    for (const effect of ['sharpness', 'bloom', 'grading', 'vignette', 'fringing']) {
-        assert.match(settings, new RegExp(`${effect}: mergeEffect\\(defaults\\.${effect}, source\\.${effect}\\)`));
-    }
-    assert.match(settings, /version === 2[\s\S]*postEffectSettings: normalizePostEffectSettings\(settings\.postEffectSettings\)/);
-    assert.match(viewer, /anyPostEffectEnabled\(postEffectSettings\)/);
+    const { importSettings, defaultSettings } = await import('../dist/settings.js');
+    const value=defaultSettings(); value.postEffectSettings={enabled:false}; const before=JSON.stringify(value);const result=importSettings(value);
+    assert.equal(JSON.stringify(value),before); for(const effect of ['sharpness','bloom','grading','vignette','fringing']) assert.equal(result.postEffectSettings[effect].enabled,false);
+    value.postEffectSettings={bloom:{enabled:true,intensity:0}};assert.equal(importSettings(value).postEffectSettings.bloom.intensity,0);
 });
 
 test('single and tiled collision retain deferred loading, cache degradation, and coordinate conversion', async () => {
@@ -150,8 +142,8 @@ test('every locale keeps key parity and the branded/debug query surface', async 
         readText('../src/index.html'),
         readText('../src/ui.ts')
     ]);
-    assert.match(html, /id="logoContainer"\s+href="https:\/\/metaflow\.shuang-su\.com\/"/s);
-    assert.match(html, /url\.searchParams\.has\('noreveal'\) \? 'none' : 'radial'/);
+    assert.match(await readText('../src/ui.html'), /aria-label="Metaflow"/);
+    assert.match(html, /url\.searchParams\.has\('noreveal'\) \? 'none' : \(bootstrap\.revealEffect \?\? 'radial'\)/);
     assert.match(html, /heatmap: url\.searchParams\.has\('heatmap'\)/);
     assert.match(html, /debug: url\.searchParams\.has\('debug'\)/);
     assert.match(ui, /collisionOverlayEnabled/);
@@ -160,7 +152,7 @@ test('every locale keeps key parity and the branded/debug query surface', async 
 test('Metaflow dynamic surfaces already request frames explicitly', async () => {
     const sources = new Map(await Promise.all([
         ['reveal', '../src/gsplat-reveal-radial.ts'],
-        ['annotations', '../src/annotations.ts'],
+        ['annotations', '../src/ui/annotations.ts'],
         ['debug', '../src/debug/debug-panel.ts'],
         ['xr', '../src/xr.ts'],
         ['viewer', '../src/viewer.ts'],
@@ -176,22 +168,8 @@ test('Metaflow dynamic surfaces already request frames explicitly', async () => 
 });
 
 test('5.19.2 analytics recovery preserves the upstream and Node contracts', async () => {
-    const [packageJson, rootNode, viewerNode, versionHistory, index, readme] = await Promise.all([
-        readJson('../package.json'),
-        readText('../../.nvmrc'),
-        readText('../.nvmrc'),
-        readJson('../../metadata/version-history.json'),
-        readText('../src/index.ts'),
-        readText('../README.md')
-    ]);
-
-    assert.equal(packageJson.version, '5.19.2');
-    assert.equal(packageJson.devDependencies.playcanvas, '2.21.3');
-    assert.equal(versionHistory.current.displayVersion, '5.19.2');
-    assert.equal(versionHistory.current.appSemver, '5.19.2');
-    assert.equal(rootNode.trim(), '20.19.0');
-    assert.equal(viewerNode.trim(), '20.19.0');
-    assert.match(index, /SSV v1\.29\.1 \(PlayCanvas 2\.21\.3\)/);
-    assert.match(readme, /活跃源码底层：SuperSplat Viewer `v1\.29\.1`/);
-    assert.match(readme, /Viewer `5\.19\.2` analytics recovery 已发布到 production/);
+    const { readFile } = await import('node:fs/promises');
+    const pkg=JSON.parse(await readFile(new URL('../package.json',import.meta.url),'utf8'));const history=JSON.parse(await readFile(new URL('../../metadata/version-history.json',import.meta.url),'utf8'));
+    assert.equal(pkg.version,history.current.appSemver);assert.equal(pkg.devDependencies.playcanvas,'2.22.4');assert.equal((await readFile(new URL('../../.nvmrc',import.meta.url),'utf8')).trim(),'20.19.0');
+    const [index]=await sources('index.ts');assert.match(index,/SuperSplat v1\.35\.2/);
 });

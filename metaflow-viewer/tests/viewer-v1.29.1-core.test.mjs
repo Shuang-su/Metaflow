@@ -1,3 +1,4 @@
+import { sources } from './upgrade-source-helper.mjs';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import test from 'node:test';
@@ -17,18 +18,7 @@ test('loading renders continuously before both legacy and streaming paths switch
 });
 
 test('loading visibility remains gated and the v1.29.1 near clip is clamped', async () => {
-    const [viewer, html, index, ui] = await Promise.all([
-        readText('../src/viewer.ts'),
-        readText('../src/index.html'),
-        readText('../src/index.ts'),
-        readText('../src/ui.ts')
-    ]);
-
-    assert.match(viewer, /cameraEntity\.camera\.nearClip = Math\.min\(1(?:\.0)?, near\)/);
-    assert.match(html, /setProperty\('--canvas-opacity', '0'\)[\s\S]*if \(poster\)/);
-    assert.match(index, /app\.start\(\);[\s\S]*initPoster\(events\);[\s\S]*camera\.addComponent\('camera'\)/);
-    assert.doesNotMatch(index, /if \(config\.poster\)[\s\S]{0,80}initPoster\(events\)/);
-    assert.match(ui, /loaded:changed[\s\S]*setProperty\('--canvas-opacity', '1'\)/);
+    const [index,viewer]=await sources('index.ts','viewer.ts');assert.match(index,/setProperty\('--canvas-opacity', '0'\)/);assert.match(index,/events\.once\('firstFrame'/);assert.match(viewer,/Math\.min\(1\.0, near\)/);assert.match(viewer,/state\.readyToRender = true/);
 });
 
 test('streaming quality uses v1.29.1 SH while writing LOD range on the component', async () => {

@@ -254,12 +254,17 @@ class CursorRing {
 class NavCursor {
     private svg: SVGSVGElement;
 
+    private captureMarker: SVGCircleElement;
+
     private hoverRing: CursorRing;
 
     private targetRing: CursorRing;
 
     private camera: Entity;
 
+    // Settable after construction: the viewer reveals the scene before the collision data has
+    // downloaded, so this arrives late. Ring sizing reads `state.walkAllowed` live, so only the
+    // pick path needs updating here.
     collision: Collision | null;
 
     private canvas: HTMLCanvasElement;
@@ -292,7 +297,14 @@ class NavCursor {
         normal: new Vec3()
     };
 
-    constructor(app: AppBase, camera: Entity, collision: Collision | null, events: EventHandler, state: State) {
+    constructor(
+        app: AppBase,
+        camera: Entity,
+        collision: Collision | null,
+        events: EventHandler,
+        state: State,
+        reticle: boolean
+    ) {
         this.camera = camera;
         this.collision = collision;
         this.canvas = app.graphicsDevice.canvas as HTMLCanvasElement;
@@ -301,8 +313,22 @@ class NavCursor {
 
         this.svg = document.createElementNS(SVGNS, 'svg');
         this.svg.style.cssText =
-            'position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;overflow:visible;z-index:1';
-        this.canvas.parentElement!.appendChild(this.svg);
+            'position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;overflow:visible';
+        // in the scene layer, over the scene and beneath the ui, and first in it so the
+        // annotations draw over the cursor
+        const parent = this.canvas.parentElement!;
+        (parent.querySelector(':scope > .sse-sceneLayer') ?? parent).prepend(this.svg);
+
+        this.captureMarker = document.createElementNS(SVGNS, 'circle');
+        this.captureMarker.setAttribute('cx', '50%');
+        this.captureMarker.setAttribute('cy', '50%');
+        this.captureMarker.setAttribute('r', '2');
+        this.captureMarker.setAttribute('fill', 'white');
+        this.captureMarker.setAttribute('stroke', 'black');
+        this.captureMarker.setAttribute('stroke-opacity', '0.5');
+        this.captureMarker.setAttribute('stroke-width', '2');
+        this.captureMarker.style.display = 'none';
+        this.svg.appendChild(this.captureMarker);
 
         this.hoverRing = new CursorRing(this.svg, this.canvas, camera, true);
         this.targetRing = new CursorRing(this.svg, this.canvas, camera, false);
@@ -325,6 +351,16 @@ class NavCursor {
         this.canvas.addEventListener('pointerleave', this.onPointerLeave);
 
         const updateActive = () => {
+            const captureActive =
+                reticle &&
+                state.inputMode === 'desktop' &&
+                state.gamingControls &&
+                (state.cameraMode === 'walk' || state.cameraMode === 'fly');
+            this.captureMarker.style.display = captureActive ? '' : 'none';
+            if (captureActive) {
+                this.svg.style.display = '';
+            }
+
             // Hover ring only in walk mode with mouse navigation. Gaming
             // controls use pointer-lock and don't need a hover preview.
             this.hoverActive = state.cameraMode === 'walk' && !state.gamingControls;

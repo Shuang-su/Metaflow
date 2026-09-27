@@ -1,21 +1,23 @@
 import { Vec3 } from 'playcanvas';
 
 import type { CameraManager } from '../camera-manager';
+import type { Picker } from '../picker';
 import type { Global } from '../types';
 
 import { captureCameraState, restoreCameraState } from './camera-state';
 import type { CameraStateSnapshot } from './camera-state';
+import { PickDepthOverlay } from './pick-depth-overlay';
 
 // Developer / debug panel. Hidden by default; surfaced via `?debug` URL
 // param or Ctrl+Shift+D keyboard shortcut. DOM and styles are injected
 // lazily on first show so there's no footprint on production URLs.
 
 const STYLE_ID = 'sse-debug-panel-style';
-const PANEL_ID = 'sse-debug-panel';
+const PANEL_CLASS = 'sse-debug-panel';
 
 const STYLES = `
-#${PANEL_ID} {
-    position: fixed;
+.${PANEL_CLASS} {
+    position: absolute;
     top: max(8px, env(safe-area-inset-top));
     left: max(8px, env(safe-area-inset-left));
     padding: 8px 10px;
@@ -24,21 +26,20 @@ const STYLES = `
     font: 11px/1.4 ui-monospace, Menlo, Consolas, monospace;
     border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 4px;
-    z-index: 1000;
     pointer-events: auto;
     user-select: none;
     min-width: 220px;
 }
-#${PANEL_ID} .row {
+.${PANEL_CLASS} .sse-debug-row {
     display: flex;
     justify-content: space-between;
     gap: 12px;
     white-space: nowrap;
 }
-#${PANEL_ID} .row .label {
+.${PANEL_CLASS} .sse-debug-row .sse-debug-label {
     color: #888;
 }
-#${PANEL_ID} .row .value {
+.${PANEL_CLASS} .sse-debug-row .sse-debug-value {
     color: #eee;
     font-variant-numeric: tabular-nums;
     cursor: text;
@@ -48,25 +49,25 @@ const STYLES = `
     transition: background-color 0.15s ease;
     outline: none;
 }
-#${PANEL_ID} .row .value:hover {
+.${PANEL_CLASS} .sse-debug-row .sse-debug-value:hover {
     background: rgba(255, 255, 255, 0.08);
 }
-#${PANEL_ID} .row .value:focus {
+.${PANEL_CLASS} .sse-debug-row .sse-debug-value:focus {
     background: rgba(255, 255, 255, 0.12);
     box-shadow: inset 0 0 0 1px rgba(120, 180, 255, 0.45);
 }
-#${PANEL_ID} .row .value.flash-ok {
+.${PANEL_CLASS} .sse-debug-row .sse-debug-value.sse-flash-ok {
     background: rgba(120, 220, 140, 0.35);
 }
-#${PANEL_ID} .row .value.flash-bad {
+.${PANEL_CLASS} .sse-debug-row .sse-debug-value.sse-flash-bad {
     background: rgba(220, 100, 100, 0.45);
 }
-#${PANEL_ID} .buttons {
+.${PANEL_CLASS} .sse-debug-buttons {
     display: flex;
     gap: 6px;
     margin-top: 6px;
 }
-#${PANEL_ID} button {
+.${PANEL_CLASS} button {
     flex: 1;
     background: rgba(255, 255, 255, 0.08);
     color: #eee;
@@ -77,11 +78,14 @@ const STYLES = `
     cursor: pointer;
     transition: background-color 0.15s ease;
 }
-#${PANEL_ID} button:hover {
+.${PANEL_CLASS} button:hover {
     background: rgba(255, 255, 255, 0.16);
 }
-#${PANEL_ID} button.flash {
+.${PANEL_CLASS} button.sse-flash {
     background: rgba(120, 220, 140, 0.35);
+}
+.${PANEL_CLASS} button.sse-debug-on {
+    background: rgba(120, 180, 255, 0.35);
 }
 `;
 
@@ -104,9 +108,15 @@ class DebugPanel {
 
     private readonly _cameraManager: CameraManager;
 
+    private readonly _picker: Picker;
+
+    private _pickDepthOverlay: PickDepthOverlay | null = null;
+
     private readonly _focusTmp = new Vec3();
 
     private _root: HTMLDivElement | null = null;
+
+    private _style: HTMLStyleElement | null = null;
 
     private _positionValue: HTMLSpanElement | null = null;
 
@@ -118,6 +128,8 @@ class DebugPanel {
 
     private _screenshotButton: HTMLButtonElement | null = null;
 
+    private _pickDepthButton: HTMLButtonElement | null = null;
+
     private _editing: HTMLSpanElement | null = null;
 
     private _editCanceled = false;
@@ -128,15 +140,17 @@ class DebugPanel {
 
     private _onKeyDown = (event: KeyboardEvent) => {
         // Ctrl+Shift+D — also accept Meta+Shift+D on macOS for parity
+        if (!this._global.state.inputEnabled) return;
         if (event.code === 'KeyD' && event.shiftKey && (event.ctrlKey || event.metaKey)) {
             event.preventDefault();
             this.toggle();
         }
     };
 
-    constructor(global: Global, cameraManager: CameraManager) {
+    constructor(global: Global, cameraManager: CameraManager, picker: Picker) {
         this._global = global;
         this._cameraManager = cameraManager;
+        this._picker = picker;
         window.addEventListener('keydown', this._onKeyDown);
         if (global.config.debug) {
             this.show();
@@ -151,8 +165,10 @@ class DebugPanel {
         }
         this._root!.style.display = '';
         this._global.app.on('prerender', this._onPrerender);
-        window.getCameraState = () => captureCameraState(this._cameraManager, this._global.state);
-        window.setCameraState = (snapshot) => restoreCameraState(this._cameraManager, this._global.state, snapshot);
+        if (this._global.config.exposeGlobals) {
+            window.getCameraState = () => captureCameraState(this._cameraManager, this._global.state);
+            window.setCameraState = (snapshot) => restoreCameraState(this._cameraManager, this._global.state, snapshot);
+        }
         this._render();
     }
 
@@ -162,9 +178,13 @@ class DebugPanel {
         if (this._root) {
             this._root.style.display = 'none';
         }
+        // the view is only reachable from the panel, so it goes with it
+        this._setPickDepth(false);
         this._global.app.off('prerender', this._onPrerender);
-        delete window.getCameraState;
-        delete window.setCameraState;
+        if (this._global.config.exposeGlobals) {
+            delete window.getCameraState;
+            delete window.setCameraState;
+        }
     }
 
     toggle() {
@@ -174,36 +194,44 @@ class DebugPanel {
 
     destroy() {
         this.hide();
+        this._pickDepthOverlay?.destroy();
+        this._pickDepthOverlay = null;
         window.removeEventListener('keydown', this._onKeyDown);
         if (this._root) {
             this._root.remove();
             this._root = null;
         }
-        document.getElementById(STYLE_ID)?.remove();
+        this._style?.remove();
+        this._style = null;
     }
 
     private _build() {
-        if (!document.getElementById(STYLE_ID)) {
+        // both live in the viewer's root, so each instance carries and removes its own
+        const host = this._global.root;
+
+        if (!this._style) {
             const style = document.createElement('style');
             style.id = STYLE_ID;
             style.textContent = STYLES;
-            document.head.appendChild(style);
+            host.appendChild(style);
+            this._style = style;
         }
 
         const root = document.createElement('div');
-        root.id = PANEL_ID;
+        root.className = PANEL_CLASS;
         root.innerHTML = `
-            <div class="row"><span class="label">camera</span><span class="value" data-id="position" contenteditable="plaintext-only" spellcheck="false" title="Edit to set camera position">—</span></div>
-            <div class="row"><span class="label">focus</span><span class="value" data-id="focus" contenteditable="plaintext-only" spellcheck="false" title="Edit to look at this point">—</span></div>
-            <div class="buttons">
+            <div class="sse-debug-row"><span class="sse-debug-label">camera</span><span class="sse-debug-value" data-id="position" contenteditable="plaintext-only" spellcheck="false" title="Edit to set camera position">—</span></div>
+            <div class="sse-debug-row"><span class="sse-debug-label">focus</span><span class="sse-debug-value" data-id="focus" contenteditable="plaintext-only" spellcheck="false" title="Edit to look at this point">—</span></div>
+            <div class="sse-debug-buttons">
                 <button data-id="copy">Copy</button>
                 <button data-id="paste">Paste</button>
             </div>
-            <div class="buttons">
+            <div class="sse-debug-buttons">
                 <button data-id="screenshot">Screenshot</button>
+                <button data-id="pick-depth" title="Show the depth a navigation pick finds at every pixel">Pick depth</button>
             </div>
         `;
-        document.body.appendChild(root);
+        host.appendChild(root);
 
         this._root = root;
         this._positionValue = root.querySelector('[data-id="position"]')!;
@@ -211,10 +239,14 @@ class DebugPanel {
         this._copyButton = root.querySelector('[data-id="copy"]')!;
         this._pasteButton = root.querySelector('[data-id="paste"]')!;
         this._screenshotButton = root.querySelector('[data-id="screenshot"]')!;
+        this._pickDepthButton = root.querySelector('[data-id="pick-depth"]')!;
 
         this._copyButton.addEventListener('click', () => this._copy());
         this._pasteButton.addEventListener('click', () => this._paste());
         this._screenshotButton.addEventListener('click', () => this._screenshot());
+        this._pickDepthButton.addEventListener('click', () => {
+            this._setPickDepth(!this._pickDepthOverlay?.enabled);
+        });
         this._wireEditable(this._positionValue, 'position');
         this._wireEditable(this._focusValue, 'focus');
     }
@@ -271,6 +303,16 @@ class DebugPanel {
             }
             this._flashOk(span);
         });
+    }
+
+    private _setPickDepth(value: boolean) {
+        if (value && !this._pickDepthOverlay) {
+            this._pickDepthOverlay = new PickDepthOverlay(this._global.app, this._global.camera, this._picker);
+        }
+        if (this._pickDepthOverlay) {
+            this._pickDepthOverlay.enabled = value;
+        }
+        this._pickDepthButton?.classList.toggle('sse-debug-on', value);
     }
 
     private _applyPosition(pos: [number, number, number]) {
@@ -359,18 +401,18 @@ class DebugPanel {
 
     private _flash(el: HTMLElement | null) {
         if (!el) return;
-        el.classList.add('flash');
-        setTimeout(() => el.classList.remove('flash'), 250);
+        el.classList.add('sse-flash');
+        setTimeout(() => el.classList.remove('sse-flash'), 250);
     }
 
     private _flashOk(el: HTMLElement) {
-        el.classList.add('flash-ok');
-        setTimeout(() => el.classList.remove('flash-ok'), 250);
+        el.classList.add('sse-flash-ok');
+        setTimeout(() => el.classList.remove('sse-flash-ok'), 250);
     }
 
     private _flashBad(el: HTMLElement) {
-        el.classList.add('flash-bad');
-        setTimeout(() => el.classList.remove('flash-bad'), 400);
+        el.classList.add('sse-flash-bad');
+        setTimeout(() => el.classList.remove('sse-flash-bad'), 400);
     }
 }
 

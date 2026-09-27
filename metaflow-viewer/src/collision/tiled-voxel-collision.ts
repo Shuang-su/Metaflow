@@ -40,6 +40,15 @@ class TiledVoxelCollision implements Collision {
 
     private readonly _resultHit: RayHit = { x: 0, y: 0, z: 0 };
 
+    private _disposed = false;
+
+    destroy() {
+        this._disposed = true;
+        this.onTilesChanged = null;
+        this._loaded.clear();
+        this._activeIds.clear();
+    }
+
     private _centerId = '';
 
     onTilesChanged: (() => void) | null = null;
@@ -248,7 +257,7 @@ class TiledVoxelCollision implements Collision {
     }
 
     private _ensureLoaded(id: string): void {
-        if (this._loaded.has(id) || this._loading.has(id)) {
+        if (this._disposed || this._loaded.has(id) || this._loading.has(id)) {
             return;
         }
 
@@ -260,6 +269,7 @@ class TiledVoxelCollision implements Collision {
         const jsonUrl = new URL(tile.url, new URL(this.manifestUrl, location.href)).href;
         const promise = loadVoxelCollision(jsonUrl, this.loadOptions)
             .then((collision) => {
+                if (this._disposed) return;
                 this._loading.delete(id);
                 if (!this._activeIds.has(id)) {
                     return;

@@ -4,7 +4,6 @@
     "settings.show-annotations": "Afficher les annotations",
     "settings.frame": "Cadrer",
     "settings.reset": "Réinitialiser",
-
     "tooltip.play": "Lecture",
     "tooltip.pause": "Pause",
     "tooltip.orbit-camera": "Caméra orbitale",
@@ -14,19 +13,16 @@
     "tooltip.frame-scene": "Cadrer la scène",
     "tooltip.show-collision": "Afficher les collisions",
     "tooltip.settings": "Paramètres",
-    "tooltip.help": "Aide",
+    "tooltip.help": "Infos",
     "tooltip.enter-ar": "Entrer en AR",
     "tooltip.enter-vr": "Entrer en VR",
     "tooltip.fullscreen": "Plein écran",
-
     "help.tab.desktop": "Bureau",
     "help.tab.touch": "Tactile",
-
     "help.section.orbit": "Mode orbital",
     "help.section.fly": "Mode vol",
     "help.section.walk": "Mode marche",
     "help.section.modes": "Changement de mode",
-
     "help.action.orbit": "Orbiter",
     "help.action.pan": "Panoramique",
     "help.action.zoom": "Zoom",
@@ -48,9 +44,8 @@
     "help.action.toggle-gaming": "Basculer les commandes de jeu",
     "help.action.show-collision": "Afficher les collisions",
     "help.action.play-pause": "Lecture / Pause",
-    "help.action.toggle-help": "Basculer l'aide",
+    "help.action.toggle-help": "Basculer les infos",
     "help.action.exit-cancel": "Quitter / Annuler",
-
     "help.key.left-click": "Clic gauche",
     "help.key.left-click-drag": "Clic gauche + glisser",
     "help.key.right-click-drag": "Clic droit + glisser",
@@ -75,13 +70,17 @@
     "help.key.shift-ctrl": "Maj / Ctrl",
     "help.key.space": "Espace",
     "help.key.esc": "Échap",
-
     "xr-modal.title": "WebGL requis",
     "xr-modal.message": "L'AR et la VR ne sont pas prises en charge par le moteur de rendu WebGPU. Cliquer sur OK rechargera le visualiseur avec WebGL.",
     "xr-modal.cancel": "Annuler",
     "xr-modal.ok": "OK",
-
     "walk-hint.desktop": "Cliquez pour marcher. WASD pour vous déplacer librement.",
     "walk-hint.touch-tap": "Tapez pour marcher. Glissez pour regarder autour.",
-    "walk-hint.touch-gaming": "Utilisez le joystick gauche pour vous déplacer. Utilisez le joystick droit ou glissez pour regarder. Utilisez le bouton de saut pour sauter."
+    "walk-hint.touch-gaming": "Utilisez le joystick gauche pour vous déplacer. Utilisez le joystick droit ou glissez pour regarder. Utilisez le bouton de saut pour sauter.",
+    "settings.show-collision": "Afficher les collisions",
+    "tooltip.controls": "Commandes",
+    "help.section.anim": "Animation",
+    "help.action.toggle-controls": "Basculer les commandes",
+    "help.action.release-mouse": "Libérer la souris",
+    "help.action.exit-walk": "Quitter la marche"
 }

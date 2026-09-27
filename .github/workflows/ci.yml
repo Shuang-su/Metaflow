@@ -49,7 +49,12 @@ jobs:
         run: |
           base="$PR_BASE"
           if [ -z "$base" ]; then base="$PUSH_BASE"; fi
-          if [ -z "$base" ] || printf '%s' "$base" | grep -Eq '^0+$'; then base="HEAD^"; fi
+          if [ -z "$base" ] || printf '%s' "$base" | grep -Eq '^0+$'; then
+            base="HEAD^"
+            if [ "$GITHUB_REF_NAME" != "main" ] && git show-ref --verify --quiet refs/remotes/origin/main; then
+              base="$(git merge-base HEAD origin/main)"
+            fi
+          fi
           node scripts/ci-routing.mjs route --base "$base" > routing.json
           node --input-type=module <<'NODE'
           import { appendFileSync, readFileSync } from 'node:fs';
@@ -112,7 +117,12 @@ jobs:
         run: |
           base="$PR_BASE"
           if [ -z "$base" ]; then base="$PUSH_BASE"; fi
-          if [ -z "$base" ] || printf '%s' "$base" | grep -Eq '^0+$'; then base="HEAD^"; fi
+          if [ -z "$base" ] || printf '%s' "$base" | grep -Eq '^0+$'; then
+            base="HEAD^"
+            if [ "$GITHUB_REF_NAME" != "main" ] && git show-ref --verify --quiet refs/remotes/origin/main; then
+              base="$(git merge-base HEAD origin/main)"
+            fi
+          fi
           git diff --check "$base...HEAD"
 
   governance:
@@ -172,7 +182,12 @@ jobs:
         run: |
           base="$PR_BASE"
           if [ -z "$base" ]; then base="$PUSH_BASE"; fi
-          if [ -z "$base" ] || printf '%s' "$base" | grep -Eq '^0+$'; then base="HEAD^"; fi
+          if [ -z "$base" ] || printf '%s' "$base" | grep -Eq '^0+$'; then
+            base="HEAD^"
+            if [ "$GITHUB_REF_NAME" != "main" ] && git show-ref --verify --quiet refs/remotes/origin/main; then
+              base="$(git merge-base HEAD origin/main)"
+            fi
+          fi
           git diff --check "$base...HEAD"
 
   viewer:
@@ -189,6 +204,7 @@ jobs:
           lfs: false
           sparse-checkout: |
             .nvmrc
+            .github/workflows/release.yml
             metaflow-viewer
             metaflow-editor
             references/supersplat-v2.18.1/src/ui/timeline-panel.ts
@@ -204,6 +220,7 @@ jobs:
             data/ACG/SZCAF15
             data/ACG/FireflyFes38/260502 172930 03 崩坏星穹铁道 昔涟/settings-v2.json
             data/Shenzhen/250917 Dayun/tiled-voxel/voxel-tiles.json
+            data/Shenzhen/250917 Dayun/settings-rx90-close.json
             docs/metaflow-viewer-change-ledger.md
             docs/metaflow-editor-change-ledger.md
             README.md
@@ -212,13 +229,14 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
         with:
-          node-version: 20
+          node-version: 20.19.0
           cache: npm
           cache-dependency-path: metaflow-viewer/package-lock.json
       - name: Install Viewer dependencies
         working-directory: metaflow-viewer
         run: npm ci
       - name: Build Viewer
+        id: viewer-build
         working-directory: metaflow-viewer
         run: npm run build
       - name: Test Viewer
@@ -230,12 +248,15 @@ jobs:
         working-directory: metaflow-viewer
         run: npm run type:check
       - name: Install Chromium for Viewer E2E
+        if: ${{ !cancelled() && steps.viewer-build.outcome == 'success' }}
         working-directory: metaflow-viewer
         run: npx playwright install --with-deps chromium
       - name: Run Viewer E2E against development watch mode
+        if: ${{ !cancelled() && steps.viewer-build.outcome == 'success' }}
         working-directory: metaflow-viewer
         run: npm run e2e:dev
       - name: Run Viewer E2E against production build
+        if: ${{ !cancelled() && steps.viewer-build.outcome == 'success' }}
         working-directory: metaflow-viewer
         run: npm run e2e:build
       - name: Upload Viewer failure diagnostics
@@ -249,7 +270,9 @@ jobs:
           if-no-files-found: warn
           retention-days: 14
       - name: Enforce Viewer bundle budget
-        run: test "$(du -sk metaflow-viewer/public metaflow-viewer/dist | awk '{sum += $1} END {print sum}')" -le 20480
+        # MF-85 adds the external-engine viewer entry and generated declarations; this is
+        # the aggregate package + website budget, including source maps, not page transfer size.
+        run: test "$(du -sk metaflow-viewer/public metaflow-viewer/dist | awk '{sum += $1} END {print sum}')" -le 32768
       - name: Upload Viewer build
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         with:
