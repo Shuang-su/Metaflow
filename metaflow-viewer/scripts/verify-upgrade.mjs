@@ -99,6 +99,53 @@ try {
         true
     );
     if (matrix === 'webgl') {
+        await run('dayun-corrupt-chunk-degrades-without-script-errors', async (p) => {
+            await p.goto(base + '/shenzhen/dayun?' + q);
+            await ready(p);
+            await p.evaluate(() => window.scrubTo(0));
+            await p.waitForTimeout(3500);
+            await p.mouse.move(600, 350);
+            await p.mouse.down();
+            for (let i = 0; i < 60; i++) {
+                await p.mouse.move(600 + 80 * Math.sin(i / 60 * Math.PI * 2), 350 + 40 * Math.cos(i / 60 * Math.PI * 2));
+                await p.waitForTimeout(16);
+            }
+            await p.mouse.up();
+            await p.waitForFunction(() => window.app.assets.list().some(a => a.resource?.octree?.assetLoader?._failed?.size));
+            const detail = await p.evaluate(async () => {
+                const octree = window.app.assets.list().find(a => a.resource?.octree).resource.octree;
+                const frame = await window.captureFrame({ width: 64, height: 64 });
+                return { failed: [...octree.assetLoader._failed], loadedFiles: octree.fileResources.size, rgbaBytes: atob(frame.data).length };
+            });
+            assert(detail.failed.some(url => url.endsWith('/1_144/meta.json')));
+            assert(detail.loadedFiles > 1);
+            assert.equal(detail.rgbaBytes, 64 * 64 * 4);
+            return detail;
+        });
+        await run('legacy-scrub-and-instance-seek-playback-contract', async (p) => {
+            await p.goto(base + '/animals/cats/mangzhong/2609160002?' + q);
+            await ready(p);
+            const detail = await p.evaluate(async () => {
+                const v = window.metaflowViewer;
+                await window.scrubTo(1);
+                const pausedByScrub = v.state.animationPaused;
+                const time = v.state.animationTime;
+                const pose = window.getCameraPose();
+                v.state.animationPaused = false;
+                v.seek(2);
+                const seekKeepsPlaying = !v.state.animationPaused;
+                await window.scrubTo(0);
+                const initial = window.getCameraPose();
+                v.state.cameraMode = 'orbit';
+                v.resetCamera();
+                return { pausedByScrub, time, pose, initial, seekKeepsPlaying };
+            });
+            assert.equal(detail.pausedByScrub, true);
+            assert(Math.abs(detail.time - 1) < 0.01);
+            assert.equal(detail.seekKeepsPlaying, true);
+            assert.notDeepEqual(detail.pose.position, detail.initial.position);
+            return detail;
+        });
         await run('instance-api-capture-teardown', async (p) => {
             await p.goto(base + '/qa/embed.html');
             await p.waitForFunction(() => typeof window.createViewer === 'function');

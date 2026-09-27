@@ -241,7 +241,8 @@ const createApp = async (canvas: HTMLCanvasElement, config: Config) => {
     const device = await createGraphicsDevice(canvas, {
         deviceTypes: useWebGPU ? ['webgpu'] : [],
         antialias: false,
-        alpha: true,
+        // The engine supports alpha, although createGraphicsDevice omits it from its declaration.
+        ...{ alpha: true },
         depth: true,
         stencil: false,
         xrCompatible: true,

@@ -14,6 +14,8 @@ import {
 } from 'playcanvas';
 import type { GraphicsDevice, Keyboard, Mouse, TouchDevice } from 'playcanvas';
 
+import { installSogMetadataGuard } from './guard-sog-metadata';
+
 type AppConstructorOptions = {
     graphicsDevice: GraphicsDevice;
     mouse: Mouse;
@@ -46,6 +48,7 @@ class App extends AppBase {
         appOptions.xr = XrManager;
 
         this.init(appOptions);
+        installSogMetadataGuard(this.loader.getHandler('gsplat') as GSplatHandler);
     }
 }
 

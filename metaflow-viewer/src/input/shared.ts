@@ -94,7 +94,7 @@ type InputDevice = {
 export { DISPLACEMENT_SCALE, TAP_EPSILON, screenToWorld, flipZForOrbit, CameraInputFrame, UpdateContext, InputDevice };
 
 /** Embedded viewers only accept keys while their own root has focus. */
-export const ownsKeyboard = (global: import('../types').Global) => {
+export const ownsKeyboard = (global: Global) => {
     const active = document.activeElement as HTMLElement | null;
     if (active?.matches('input, textarea, select, [contenteditable="true"]')) return false;
     return global.state.inputEnabled && (global.config.exposeGlobals || global.root.contains(active));

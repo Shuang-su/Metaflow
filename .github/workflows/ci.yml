@@ -204,6 +204,7 @@ jobs:
             data/ACG/SZCAF15
             data/ACG/FireflyFes38/260502 172930 03 崩坏星穹铁道 昔涟/settings-v2.json
             data/Shenzhen/250917 Dayun/tiled-voxel/voxel-tiles.json
+            data/Shenzhen/250917 Dayun/settings-rx90-close.json
             docs/metaflow-viewer-change-ledger.md
             docs/metaflow-editor-change-ledger.md
             README.md
@@ -218,6 +219,8 @@ jobs:
       - name: Install Viewer dependencies
         working-directory: metaflow-viewer
         run: npm ci
+      - name: Fetch the small LFS settings fixture
+        run: git lfs pull --include="data/Shenzhen/250917 Dayun/settings-rx90-close.json" --exclude=""
       - name: Build Viewer
         working-directory: metaflow-viewer
         run: npm run build
