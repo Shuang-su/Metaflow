@@ -5,7 +5,7 @@ Issue：https://github.com/Shuang-su/Metaflow/issues/89 。组件：platform；�
 
 ## 页面与数据边界
 
-`dashboard.metaflow.shuang-su.com` 提供中文、手机适配的静态页面，7 / 30 天切换、PV / UV / 首帧成功率 / P95、每日趋势、资源搜索排序、设备与错误类别、服务器 CPU / 内存 / 磁盘及 24 小时趋势。样式采用浅灰背景、白色卡片、蓝色图表。原始业务数据仍在 Supabase；公网请求不查询数据库。独立 `status.metaflow.shuang-su.com` 由 GitHub Pages 托管。
+`dashboard.metaflow.shuang-su.com` 提供中文、手机适配的静态页面，7 / 30 天切换、PV / UV / 首帧成功率 / P95、每日趋势、资源搜索排序、设备与错误类别、服务器 CPU / 内存 / 磁盘及 24 小时趋势。样式采用浅灰背景、白色卡片、蓝色图表。原始业务数据仍在 Supabase；公网请求不查询数据库。用户确认未备案并于 2026-09-28 选择将公开页面和 API 托管到中国内地以外，故公开入口改用独立 Netlify Free 项目；深圳服务器不再承担公众网站入口。独立 `status.metaflow.shuang-su.com` 由 GitHub Pages 托管。
 
 固定 GET 接口：`/api/public/v1/analytics/7d.json`、`/api/public/v1/analytics/30d.json`、`/api/public/v1/server.json`。不开放任意查询、用户 / 会话 / 回放 / 原始错误、IP、主机名、软件版本、凭据。资源名称和 ID 必须来自已公开的 `data/index.json` 白名单；未知资源只计入总体汇总，不输出标签。
 
@@ -21,15 +21,15 @@ Issue：https://github.com/Shuang-su/Metaflow/issues/89 。组件：platform；�
 
 ## 生成与最小权限
 
-独立 NOLOGIN 函数所有者仅可读原始事件所需列与公开资源白名单；RLS 显式允许该角色读取。私有 schema 的 SECURITY DEFINER 函数固定空 search_path、固定 SQL、仅接受 7 / 30 天。运行角色无原表权限、无所有者角色成员关系，只能 EXECUTE 这一个固定函数。PUBLIC / anon / authenticated 无执行权；该 schema 不加入 PostgREST exposed schemas。密码另行安全配置，仓库中不包含凭据。
+独立 NOLOGIN 函数所有者仅可读原始事件所需列与公开资源白名单；RLS 显式允许该角色读取。私有 schema 的 SECURITY DEFINER 函数固定空 search_path、固定 SQL、仅接受 7 / 30 天。运行角色无原表权限、无所有者角色成员关系，只能 EXECUTE 这一个固定函数。PUBLIC / anon / authenticated 无执行权；该 schema 不加入 PostgREST exposed schemas。密码另行安全配置，仓库中不包含凭据。Netlify legacy Free 不提供可用的逐 scope secret 配置，因此凭据为独立项目 production 私有环境变量，管理员可读，构建及同站点 Functions 可获得；前端不引用 / 打包，公开 handler 不读取，不能宣称平台逐函数秘密隔离。
 
-每 15 分钟生成业务快照；每分钟采样服务器。严格白名单校验全部字段、类型、范围及一致性后，同目录 fsync + rename 原子替换；失败保留有效旧版本。发布目录不放备份、密钥或内部采样状态。业务生成时间超过 30 分钟、服务器最新采样超过 3 分钟显示延迟；最近事件时间不是刷新时间。前端每分钟刷新，所有 API 同源。
+Netlify Scheduled Function 每 15 分钟用专用 reader 直接查询固定汇总函数，校验后写入 Blobs；7 / 30 天在单个对象中一起原子更新并保留上一有效版本。公开 GET Function 仅从 Blobs 读取指定快照，CDN 缓存 30 秒，不读取或使用数据库连接配置。深圳每分钟采样并将已校验 JSON 主动通过 HTTPS 推送到 Netlify；服务器专用签名密钥只能更新 server 快照，不能查询数据库、更新业务汇总或部署站点。接收端再次验证公开字段、时间、统计一致性，并通过 ETag 条件更新拒绝旧快照或并发覆盖。服务器本地仍 fsync + rename，上传失败保留境外旧快照。开发 / 预览与生产存储隔离。公开响应不包含内部采样状态或凭据。业务生成时间超过 30 分钟、服务器最新采样超过 3 分钟显示延迟；最近事件时间不是刷新时间。前端每分钟刷新，所有 API 同源。
 
 ## 生产与恢复边界
 
-安全整改、离机受限备份及隔离恢复验证、HTTPS 独立外部验证通过后才能发布。异常持久化或无法解释的高权限修改则停止原机发布，转为干净重建。云防火墙和宿主监听分别核对；不将宿主监听直接当作已验证公网暴露。
+境外独立看板可先发布真实业务汇总；该入口不连接未审查主机。深圳采样器及其上传凭据的安装、Metabase 变更仍须完成主机安全整改、离机受限备份及隔离恢复验证。公众 HTTPS 需独立外部验证。异常持久化或无法解释的高权限修改则停止原机发布，转为干净重建。云防火墙和宿主监听分别核对；不将宿主监听直接当作已验证公网暴露。
 
-Caddy 公网只允许页面、构建资产及三个 API，其他 API / 登录 / 分享 / 管理路径返回 404。Metabase 仅 loopback + SSH 隧道、保留账号验证。更新旧配置脚本，避免以后重建时恢复公网代理。
+Netlify 公开站点只包含静态页面、资产及三个 GET API；另有仅验证服务器签名的窄用途采样接收端。未知 API / 登录 / 分享 / 管理路径返回 404。Caddy 改为仅监听 loopback 的内部分析入口，不再监听公网 HTTP / HTTPS。Metabase 仅 loopback + SSH 隧道、保留账号验证。更新旧配置脚本，避免以后重建时恢复公网代理。
 
 先核查 Metabase 订阅 / 告警 / 任务，再备份应用库、配置、必要密钥和固定镜像。不得启动事故旧容器。并行运行至少 24 小时后才可设为默认停止；启停不得删除数据卷。切换后观察至少 30 分钟并实测一次启停，记录内存与 Swap。不得用短时测试替代时间门槛。
 

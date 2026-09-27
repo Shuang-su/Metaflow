@@ -18,10 +18,10 @@ CHECKS = [
 ]
 
 
-def check(item, live):
+def check(item, active):
     key,name,url,method,max_age=item
     result={'id':key,'name':name,'url':url,'http_ok':False,'fresh':None,'generated_at':None,'response_ms':None,
-        'pending':not live and key not in ('main','collector')}
+        'pending':not (active is True or key in (active if isinstance(active,list) else ['main','collector']))}
     start=time.monotonic()
     request=urllib.request.Request(url,method=method,headers={'User-Agent':'Metaflow-status/1','Origin':'https://metaflow.shuang-su.com','Cache-Control':'no-cache'})
     try:
@@ -51,9 +51,11 @@ def check(item, live):
 
 
 def main():
-    live=json.loads(Path('deployment-state.json').read_text())['dashboard_live'] is True
+    state=json.loads(Path('deployment-state.json').read_text())
+    live=state.get('dashboard_live') is True
+    active=True if live else state.get('active_checks',['main','collector'])
     with concurrent.futures.ThreadPoolExecutor(max_workers=3) as executor:
-        checks=list(executor.map(lambda item:check(item,live),CHECKS))
+        checks=list(executor.map(lambda item:check(item,active),CHECKS))
     at=dt.datetime.now(dt.timezone.utc).isoformat().replace('+00:00','Z')
     path=Path('history/monitor.json');path.parent.mkdir(exist_ok=True)
     previous=json.loads(path.read_text()) if path.exists() else {'observations':[]}

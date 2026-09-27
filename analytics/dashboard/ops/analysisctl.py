@@ -11,7 +11,7 @@ import urllib.request
 from snapshot import atomic_json, timestamp, utcnow, validate_server, validate_analytics
 
 STATE = Path('/var/lib/metaflow-dashboard')
-PUBLIC = Path('/opt/metaflow-metabase/caddy/data/public-dashboard/api/public/v1')
+PUBLIC = Path('/var/lib/metaflow-dashboard/snapshots')
 CONFIG = Path('/etc/metaflow-dashboard')
 APP = 'metaflow-metabase'
 DB = 'metaflow-metabase-db'
@@ -44,19 +44,25 @@ def review():
 
 
 def fresh_snapshots():
-    now = time.time()
     catalog = json.loads((CONFIG/'public-resources.json').read_text())
-    for days in (7,30):
-        data = validate_analytics(json.loads((PUBLIC/'analytics'/('{}d.json'.format(days))).read_text()), days, catalog)
-        if not 0 <= now-timestamp(data['generated_at']) <= 1800:
-            return False
-    data = validate_server(json.loads((PUBLIC/'server.json').read_text()))
-    return 0 <= now-timestamp(data['generated_at']) <= 180
+    for relative, limit, days in [('analytics/7d.json',1800,7),('analytics/30d.json',1800,30),('server.json',180,None)]:
+        with urllib.request.urlopen('https://dashboard.metaflow.shuang-su.com/api/public/v1/'+relative,timeout=12) as response:
+            data=json.loads(response.read(4*1024*1024))
+        if days: validate_analytics(data,days,catalog)
+        else: validate_server(data)
+        if not 0 <= time.time()-timestamp(data['generated_at']) <= limit: return False
+    return True
+
+
+def local_sample_published():
+    data=validate_server(json.loads((PUBLIC/'server.json').read_text()))
+    receipt=json.loads((STATE/'publish-receipt.json').read_text())
+    return receipt['generated_at']==data['generated_at'] and 0<=time.time()-timestamp(data['generated_at'])<=180
 
 
 def observe():
     path = STATE/'observations.json'; rows = json.loads(path.read_text()) if path.exists() else []
-    try: ok = fresh_snapshots()
+    try: ok = local_sample_published()
     except Exception: ok = False
     now = time.time()
     rows = [r for r in rows if timestamp(r['at']) >= now-26*3600]

@@ -1,40 +1,5 @@
-# MF-89. Existing Caddy binds /opt/metaflow-metabase/caddy/data at /data.
-dashboard.metaflow.shuang-su.com {
-	encode zstd gzip
-	header {
-		X-Content-Type-Options nosniff
-		X-Frame-Options DENY
-		Referrer-Policy no-referrer
-		Permissions-Policy "camera=(), microphone=(), geolocation=()"
-		Content-Security-Policy "default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self'; font-src 'self'; base-uri 'none'; frame-ancestors 'none'; form-action 'none'"
-	}
-	route {
-		@unsafe not method GET HEAD
-		respond @unsafe 405
-		@legacy path /metaflow /metaflow/
-		redir @legacy / 308
-		@api path /api/public/v1/analytics/7d.json /api/public/v1/analytics/30d.json /api/public/v1/server.json
-		handle @api {
-			root * /data/public-dashboard
-			header Cache-Control "public, max-age=30, must-revalidate"
-			file_server
-		}
-		@home path / /index.html
-		handle @home {
-			root * /data/public-dashboard/current
-			header Cache-Control "no-cache"
-			file_server
-		}
-		handle /assets/* {
-			root * /data/public-dashboard/current
-			header Cache-Control "public, max-age=31536000, immutable"
-			file_server
-		}
-		respond 404
-	}
-}
-
-# The public listener has no Metabase route. Reach this listener with SSH -L.
+# MF-89: public dashboard/API are hosted outside mainland China.
+# Internal analysis only; SSH -L 18080:127.0.0.1:8080.
 http://127.0.0.1:8080 {
 	bind 127.0.0.1
 	handle_path /metaflow/* {
@@ -45,10 +10,4 @@ http://127.0.0.1:8080 {
 	handle {
 		reverse_proxy 127.0.0.1:3000
 	}
-}
-http://47.107.148.167 {
-	respond 404
-}
-http:// {
-	respond 404
 }

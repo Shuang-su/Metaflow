@@ -230,7 +230,7 @@ def server(public, private, proc=Path('/proc')):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('mode', choices=('analytics','server'))
-    parser.add_argument('--public', default='/opt/metaflow-metabase/caddy/data/public-dashboard/api/public/v1')
+    parser.add_argument('--public', default='/var/lib/metaflow-dashboard/snapshots')
     parser.add_argument('--private', default='/var/lib/metaflow-dashboard')
     parser.add_argument('--catalog', default='/etc/metaflow-dashboard/public-resources.json')
     parser.add_argument('--service-file', default='/etc/metaflow-dashboard/db-service.conf')

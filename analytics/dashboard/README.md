@@ -1,6 +1,6 @@
 # Metaflow 公开看板 · MF-89
 
-静态 React / Vite 页面 + Supabase 固定汇总函数 + Python 标准库定时快照。生产契约见 [Spec](../../docs/changes/89-public-dashboard/spec.md) 与 [Plan](../../docs/changes/89-public-dashboard/plan.md)。没有常驻 Node 服务；读网页不会执行 SQL。原始数据仍在 Supabase。
+静态 React / Vite 页面 + Supabase 固定汇总函数 + Netlify Blobs / Functions + Python 标准库服务器采样。生产契约见 [Spec](../../docs/changes/89-public-dashboard/spec.md) 与 [Plan](../../docs/changes/89-public-dashboard/plan.md)。没有常驻 Node 服务；读网页不会执行 SQL。原始数据仍在 Supabase。
 
 ## 本地开发与验证
 
@@ -9,53 +9,69 @@
 ```sh
 npm ci --cache ../../.codex-work/cache/npm
 npm test
+npm run typecheck
 npm run build
 python3 -m unittest discover -s tests -p 'test_*.py' -v
 node scripts/catalog.mjs ../../.codex-work/dashboard-catalog
 ```
 
-`npm test` 在独立 PGlite 数据库中运行 SQL 合成样本、权限拒绝与 UI 数据模型测试。`test_caddy.py` 需设置 `CADDY_BIN` 指向校验过的 Caddy 2.11.4 二进制；否则明确跳过。它启动仅 loopback 的临时测试监听，验证允许路径 / 拒绝路径、POST 405、48 次有限并发与纯静态处理器。
+`npm test` 在独立 PGlite 数据库中运行 SQL 合成样本、权限拒绝与 UI 数据模型测试。`test_caddy.py` 需设置 `CADDY_BIN` 指向校验过的 Caddy 2.11.4 二进制；否则明确跳过。它验证真实 Caddy 适配结果只有 loopback 监听。Node hosting 测试覆盖公开路径、方法、48 次并发只读、签名与过期拒绝、原子更新失败保留；Python 测试覆盖采样、原子落盘、上传签名与禁止重定向。
 
 预览时把已通过 `ops/snapshot.py` 校验的公开 7d / 30d JSON 放到本地静态服务的 `/api/public/v1/analytics/`；没有服务器采样时保持 404，页面显示“数据准备中”，不可填入假实时数值。所有 API 同源。`npm run dev` 用于布局开发；发布只使用 `dist/`。
 
-## 数据库发布
+## 境外托管与数据库权限
 
-迁移按顺序包含私有函数 / 角色、99 条公开资源路径白名单、管理员显式切换到受限角色的验证权限。应用时使用迁移工具，不在业务请求中创建表。`dashboard_private` 不加入 Supabase 的 exposed schemas。
+用户于 2026-09-28 确认域名未备案并批准改用中国内地以外托管。独立 Netlify 项目 `mf89-shuangsu`（site ID `1679bf5c-c8df-46cd-a0aa-15c8b2701134`）提供静态页面、公开 API 和 Scheduled Function；Supabase 项目位于东京，GitHub Pages 独立托管状态页。阿里云深圳只保留内部分析及向外推送的服务器采样。
 
-`metaflow_dashboard_reader` 初始为 NOLOGIN。服务器安全核对完成后，用安全渠道配置专用密码并启用 LOGIN，连接数上限 2；不可授予 `analytics_reader`、函数 owner 或原表权限。worker 只执行 `dashboard_private.analytics_snapshot(7/30)`。不把密码写入 migration、PR、终端历史或缓存。`ops/db-service.example.conf` 只是占位模板，真实文件归 root 所有且 0600。pooler 主机和数据库用户名须现场核验，TLS 使用 `verify-full`，不得降低验证级别。
+数据库迁移包含私有函数 / 角色、99 条公开资源路径白名单、管理员验证权限及独立 reader LOGIN。`dashboard_private` 不加入 Supabase exposed schemas。`metaflow_dashboard_reader` 连接上限 2、默认只读，只能执行固定汇总函数，不能查询原始事件表或切换至函数 owner。密码通过受限渠道单独配置，不写入 migration、PR、终端历史、缓存或前端。
 
-公开资源 ID 使用 canonical route：目录中同名 / 同 ID 的不同活动路径不能合并。目录发布变更后，重新导出 catalog，事务更新 `dashboard_private.public_resources`，并同步服务器 `/etc/metaflow-dashboard/public-resources.json`。先验证再恢复刷新。
+`MF89_ANALYTICS_DATABASE_URL` 只配置在这个独立 Netlify 项目的 production context。现有 legacy Free 套餐实测拒绝自定义 scopes（403），开启 secret 标记又因默认包含 post*processing 而被拒绝（422）；因此使用普通私有环境变量、平台默认 scopes，项目管理员可通过控制台 / API 读取。构建环境与同站点 Functions 均可取得该配置，这是已知平台边界。不得使用 VITE* 等前端公开前缀，构建脚本不读取 / 输出该变量，发布前扫描 dist、Functions zip 与本地配置缓存中没有连接字符串。公开 handler 不读取该变量、不导入 SQL 客户端、不执行查询；这些是代码边界，不能称为平台逐函数秘密隔离。调度 handler 随部署包含从 Supabase 官方 HTTPS 来源取得的公开 Root 2021 CA（SHA-256 `807025ad50d4ed219d2c9c7d299c004f824eb00cf7f65afef607d07b72e6cafa`），显式验证数据库 TLS 主机名及证书链，CA 到期前需受审更新。调度 handler 使用完整 TLS 证书验证，15 分钟一次查询 7 / 30 天并整体写入 Blobs `analytics` 对象。公开 handler 只读 Blobs，CDN 缓存 30 秒；没有公网 SQL 查询入口。
 
-## 服务器目录与服务
+公开资源 ID 是 canonical route。同名 / 同 ID 的不同活动不能合并。目录变更后重新生成 catalog、事务更新 `dashboard_private.public_resources`、同步 `netlify/lib/public-resources.json` 并重新部署。`ops/db-service.example.conf` 和 `snapshot.py analytics` 仅供受限人工核验，不在深圳安装业务查询凭据或业务定时器。
 
-| 路径 | 用途 |
-|---|---|
-| `/opt/metaflow-dashboard/ops/` | 本目录 ops 中的脚本与 systemd unit |
-| `/etc/metaflow-dashboard/` | 受限数据库连接、公开资源白名单、安全核对记录；目录 0700 |
-| `/var/lib/metaflow-dashboard/` | 内部采样计数器、旧快照、连续观察、切换证据；目录 0700 |
-| `/opt/metaflow-metabase/caddy/data/public-dashboard/` | Caddy 容器可读的纯公开文件 |
-| `public-dashboard/releases/<commit>/` | 不可变静态 `dist` 发布版本 |
-| `public-dashboard/current` | 指向已验证 release 的相对 symlink；原子替换 |
-| `public-dashboard/api/public/v1/` | 仅三种固定 JSON；不放配置 / 备份 |
+## Netlify 发布与回退
 
-采样器兼容现有 Python 3.6，无需升级系统 Python。业务 worker 使用固定 PostgreSQL 16.14 镜像摘要的一次性 `psql`，即使 Metabase 与其数据库停止也可运行。服务有超时与 CPU / 内存限额，单次重入使用文件锁。两个业务快照全部验证后才逐个原子替换，失败保持上次有效版本；两文件的更替可能相差几毫秒，客户端不跨范围合并结果。
+从本目录构建和部署，始终显式指定独立项目 ID，避免仓库根目录的主站配置：
 
-`metaflow-analytics.timer` 每 15 分钟、`metaflow-server-sample.timer` 每分钟。systemd 安装 / 启用只在发布审查通过后进行；必须先创建 unit 的 ReadWritePaths 目录。`snapshot.py analytics` 手动成功、`snapshot.py server` 连续至少两次采样后，再启用 timers。检查 journal 只有有界错误类型，不输出 DSN 或原始 SQL 响应。
+```sh
+npm ci
+npm test
+npm run typecheck
+npm run build
+netlify deploy --site 1679bf5c-c8df-46cd-a0aa-15c8b2701134 --prod
+```
 
-## 发布门槛与 Caddy
+使用已登录的受权 Netlify CLI；不在命令行传 token。`netlify.toml` 不设置 `base="."`，否则 monorepo 第二轮配置解析可能误选根目录配置。部署需从实际依赖目录执行完整 build；经验证，仅复制源码加 node_modules symlink 的 no-build 暂存部署会漏掉 Functions 依赖，不能复用该方式。检查部署状态 ready、production context、三个 Functions 与 `*/15 * * * *` 调度，再核验 HTTPS 与实际快照更新时间。
 
-先完成 `ops/security-review.example.json` 中的事实核验，在 `/etc/metaflow-dashboard/security-review.json` 留下证据引用与时间（0600）。不要将示例的 false 直接改 true 代替工作。核对账号 / 会话 / API key、依赖任务、事故整改、备份恢复、固定镜像、云防火墙及外部 HTTPS。发现不明持久化则停止原机发布。
+`dashboard.metaflow.shuang-su.com` CNAME 指向 `mf89-shuangsu.netlify.app`；平台证书签发后必须验证主机名与证书链，不能跳过验证。新 API 首次无数据时返回 `404 {"error":"preparing"}`。服务器未接入期间真实保留准备状态，不能上传测试数值代替生产采样。
 
-**2026-09-28 用户确认域名未备案，与已观察到的阿里云备案拦截页一致，外部 TLS 在 ClientHello 后被重置。当前深圳托管方案必须先完成备案再发布；不能用关闭证书验证或改成公网 HTTP 通过门槛。** [阿里云轻量应用服务器备案说明](https://help.aliyun.com/zh/simple-application-server/user-guide/apply-for-an-icp-filing-for-a-domain-name)。SSH 内部运维可以继续；中国内地以外托管页面及 API 是待用户选择的架构调整，尚未实施。
+未知 API / 登录 / 分享 / 管理路径 404，公开 API 只允许 GET / HEAD，写方法 405。定时汇总函数公网访问由平台拒绝。接收端 `/api/internal/v1/server-snapshot` 只接受时间窗内的 HMAC 签名、有限长度及严格 server schema，不接受 analytics 数据。上传 secret 未配置时为 503，保留旧快照。
 
-实际部署顺序：
+快照使用强一致读与 ETag 条件更新，`{current,previous}` 存在一个 Blob 中；业务两个范围一起替换。失败 / 冲突不会抹去旧快照。网站回退选上一份已验证 Netlify deploy；快照回退在受限管理员环境校验 `previous` 后以 ETag 条件写回，保留原生成时间，不伪造新鲜度。不要回退到最初依赖打包失败的部署，也不恢复旧公网 Metabase 代理。
 
-1. 记录现有 Caddy 配置、容器挂载和服务状态，保存受限备份。确认现有 Caddy `/data` 的主机挂载与上表一致。
-2. 将 `dist/` 放入新的不可变 release，复制 ops 至 `/opt/metaflow-dashboard/ops/`；凭据另行安全配置。生成并验证三份快照，确保 Caddy 可读公开文件，不能读取 private 目录。
-3. 使用当前 Caddy **同一固定版本** `caddy validate` 校验 `ops/Caddyfile`。先在隔离监听验证路由，再把原配置备份到受限目录。现有单文件 bind mount 必须原位写入配置，保留 inode，随后 `docker exec metaflow-metabase-caddy caddy reload --config /etc/caddy/Caddyfile --adapter caddyfile`；失败恢复旧文件内容，但不能恢复公网管理代理。
-4. public `current` 用相对 symlink + rename 原子切换。Caddy 公网只读 `/`、构建 assets 和三份 API；旧 `/metaflow/` 重定向首页，其他 Metabase 路径 404。
-5. Metabase 位于 `127.0.0.1:3000`，内部 Caddy `127.0.0.1:8080`。Mac 执行 `ssh -L 18080:127.0.0.1:8080 root@47.107.148.167` 后访问 `http://127.0.0.1:18080`，仍需要 Metabase 登录。
-6. 开启 timers，独立网络验证 HTTPS、JSON 口径 / 新鲜度，运行有限并发并比较数据库调用计数；复制并激活 `status/` 独立仓库配置。记录首次正式上线时间，然后才开始 24 小时门槛。
+使用现有 Free 团队，不开付费功能。API / Functions / Blobs 使用量计入共享套餐额度；每分钟采样只更新对象，不触发网站部署。发布后核对实际使用量，不能将 Free 理解为无限容量。
+
+## 深圳服务器安装门槛与目录
+
+服务器安装前先完成 `ops/security-review.example.json` 中的事实核验，0600 保存 `/etc/metaflow-dashboard/security-review.json` 与证据引用。不能把示例 false 改 true 代替核验。检查账号 / 会话 / API key、任务与依赖、事故整改、离机备份恢复、安全版本、云防火墙及宿主监听。发现不明持久化则停止原机发布并转干净实例重建。
+
+| 路径                                                | 用途                                                 |
+| --------------------------------------------------- | ---------------------------------------------------- |
+| `/opt/metaflow-dashboard/ops/`                      | 采样、签名上传、切换脚本与 systemd units             |
+| `/etc/metaflow-dashboard/`                          | 上传 secret、公开资源白名单、安全核对记录；目录 0700 |
+| `/var/lib/metaflow-dashboard/snapshots/server.json` | 已校验的本机采样，不由公网文件服务暴露               |
+| `/var/lib/metaflow-dashboard/publish-receipt.json`  | 服务端确认过的生成时间                               |
+| `/var/lib/metaflow-dashboard/`                      | 内部计数器、上一快照、连续观察与切换证据；目录 0700  |
+
+采样器兼容现有 Python 3.6，无常驻 Node 服务。安装前创建 systemd ReadWritePaths 目录。单次采样以文件锁防重入、fsync + rename 更新本地 JSON；每分钟运行 `metaflow-server-sample.timer`，依次采样、签名上传、记录观察。上传失败时 Netlify 保留旧对象，公众页面超 3 分钟显示延迟。
+
+安全核对完成后生成专用随机 32 字节十六进制上传 secret：本机放在 root:root 0600 的 `/etc/metaflow-dashboard/publisher.json`，格式仅 `{"secret":"<64 hex>"}`；同一值配置为 Netlify 独立项目 production 私有环境变量 `MF89_SERVER_PUBLISH_SECRET`（同上 Free 套餐限制） 后重新部署。此密钥不能部署站点、读取数据库或更改业务汇总。HTTPS 上传禁止跟随重定向；成功确认生成时间后才保存本地回执。凭据不进入项目缓存。
+
+`metaflow-analytics.timer` 已从方案移除；若曾安装旧版，先核实再停用旧业务 timer，避免重复查询。不要在深圳配置新的数据库查询定时器。
+
+保留当前 Caddy 配置的受限备份，校验 `ops/Caddyfile` 后仅保留 `http://127.0.0.1:8080` 内部代理，不监听公网 80 / 443。现有单文件 bind mount 应保留 inode 原位写入，再 reload；失败恢复安全的内部配置，不能恢复公网管理接口。Metabase 绑定 `127.0.0.1:3000`；Mac 用 `ssh -L 18080:127.0.0.1:8080 root@47.107.148.167` 后访问 `http://127.0.0.1:18080`，保留账号验证。
+
+独立状态仓库先运行 `python3 scripts/activate.py --business-only` 验证并激活业务入口；服务器采样就绪后才运行完整激活。只有所有公开接口持续新鲜、主机检查通过后，才开始完整 24 小时观察。每分钟本机观察核对上传回执，独立 GitHub runner 检查公网；停用前再读取全部真实公网快照。
 
 ## 备份、恢复和按需运行
 
@@ -78,6 +94,6 @@ start 先检查未过期安全记录与镜像，再启动数据库等待就绪�
 
 ## 回退
 
-静态站点回指上一已验证 release；JSON 从 `/var/lib/metaflow-dashboard/previous/` 校验后原子恢复（旧时间戳不得伪装成新数据）。保留 snapshot timers 及独立状态页，页面显示延迟。
+网站与境外快照按上文回退；服务器本地 JSON 可从 `/var/lib/metaflow-dashboard/previous/` 校验后恢复，旧时间戳不得伪装成新数据。保留服务器 timer 及独立状态页，页面显示真实延迟。
 
 Metabase 回退必须使用配套 app DB、密钥及已审查镜像，始终只绑定 loopback。**禁止重新启动 `*-compromised-20260813` 等事故旧容器，禁止恢复旧公网反向代理。** 不支持安全回退的事故或版本状态，转入干净实例重建。

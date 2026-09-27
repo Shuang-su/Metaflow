@@ -7,14 +7,19 @@
     "dev": "vite --host 127.0.0.1",
     "build": "vite build",
     "preview": "vite preview --host 127.0.0.1",
-    "test": "node --test tests/*.test.mjs"
+    "test": "node --test tests/*.test.mjs",
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@netlify/blobs": "11.1.1",
+    "postgres": "3.4.9",
     "react": "19.3.0",
     "react-dom": "19.3.0"
   },
   "devDependencies": {
-    "vite": "8.3.1",
-    "@electric-sql/pglite": "0.5.8"
+    "@electric-sql/pglite": "0.5.8",
+    "@netlify/functions": "6.0.0",
+    "typescript": "7.0.2",
+    "vite": "8.3.1"
   }
 }
