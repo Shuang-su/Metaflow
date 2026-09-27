@@ -137,7 +137,7 @@ test('BitCity and SZCAF resources keep their explicit public naming and three-fi
     const routeMap = new Map(index.resources.map((resource) => [resource.route, resource]));
 
     assert.equal(index.schemaVersion, '1.2');
-    assert.equal(index.totalResources, 87);
+    assert.equal(index.totalResources, 99);
     assert.deepEqual(index.subcategories.bitcity260711, {
         name: 'BitCity 次元小镇 · 2026-07-11',
         device: '709'
