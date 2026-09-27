@@ -230,10 +230,20 @@ test('change ledger contains every structured version and only main-history comm
             cwd: repoRoot,
             stdio: 'ignore'
         });
-        execFileSync('git', ['merge-base', '--is-ancestor', ref, 'HEAD'], {
-            cwd: repoRoot,
-            stdio: 'ignore'
-        });
+        // Recovery releases can predate the main-branch squash that incorporates them.
+        // Keep their published SHA immutable and require an existing release tag witness.
+        try {
+            execFileSync('git', ['merge-base', '--is-ancestor', ref, 'HEAD'], {
+                cwd: repoRoot,
+                stdio: 'ignore'
+            });
+        } catch {
+            const releaseTags = execFileSync('git', ['tag', '--contains', ref, '--list', 'viewer-v*'], {
+                cwd: repoRoot,
+                encoding: 'utf8'
+            }).trim();
+            assert.ok(releaseTags, `${ref} must be in HEAD or a preserved Viewer release tag`);
+        }
     }
 });
 
