@@ -1,14 +1,14 @@
 {
   "schemaVersion": "1.1",
   "cutoffGitRef": "c613a87",
-  "documentedThrough": "7a5879f",
+  "documentedThrough": "348f6fd",
   "defaultResourceVersion": "1.0a",
   "current": {
     "displayVersion": "5.20.0",
     "appSemver": "5.20.0",
     "indexSchemaVersion": "1.2",
     "date": "2026-09-28",
-    "gitRef": "7a5879f",
+    "gitRef": "348f6fd",
     "historyUrl": "/data/version-history.json",
     "upstream": {
       "repository": "playcanvas/supersplat-viewer",
@@ -180,21 +180,6 @@
       "gitRef": "2f5b8c3",
       "date": "2026-08-15",
       "summary": "chore(release): publish Viewer 5.19.2 analytics recovery; record the existing release metadata commit"
-    },
-    {
-      "gitRef": "0899265",
-      "date": "2026-09-28",
-      "summary": "MF-85 unreleased implementation checkpoint: integrate stable upstream runtime and controls; consolidated into the 5.20.0 product squash before tagging"
-    },
-    {
-      "gitRef": "6ffb578",
-      "date": "2026-09-28",
-      "summary": "MF-85 unreleased implementation checkpoint: settle malformed streamed SOG metadata; consolidated into the 5.20.0 product squash before tagging"
-    },
-    {
-      "gitRef": "162ee5b",
-      "date": "2026-09-28",
-      "summary": "MF-85 unreleased implementation checkpoint: consolidated into 5.20.0 product squash before tagging"
     }
   ],
   "entries": [
@@ -1497,7 +1482,7 @@
       "type": "feature",
       "scope": "viewer",
       "date": "2026-09-28",
-      "gitRef": "7a5879f",
+      "gitRef": "348f6fd",
       "summary": "feat(viewer): adopt SuperSplat v1.35.2 instance runtime, controls and annotations with Metaflow compatibility",
       "trace": {
         "changeId": "MF-85",
