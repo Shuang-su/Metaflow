@@ -24,6 +24,7 @@
 | [MF-28](https://github.com/Shuang-su/Metaflow/issues/28) | Done | 当前 Revision 6 契约 | 本地优先流程、分级资源发布、Ledger/Version History 边界和 Viewer SemVer 前向规则 |
 | [MF-30](https://github.com/Shuang-su/Metaflow/issues/30) | Completed；[PR #41](https://github.com/Shuang-su/Metaflow/pull/41) 与 recovery [PR #45](https://github.com/Shuang-su/Metaflow/pull/45) 已 squash merge | Viewer `5.19.2` production stable；`5.19.0` 在 deployment 前失败；`5.19.2` 恢复 analytics endpoint | [`30-viewer-upstream-v1.29.1/spec.md`](30-viewer-upstream-v1.29.1/spec.md)、[`plan.md`](30-viewer-upstream-v1.29.1/plan.md)、[`proposal.md`](30-viewer-upstream-v1.29.1/proposal.md)、[`evidence.md`](30-viewer-upstream-v1.29.1/evidence.md) 与 Completion Dossier 记录 v1.29.1 实施、深度研究、冲突、失败发布、恢复、精确 D2 CLI/API deploy、production smoke 与 15 分钟观察；后续 5.19.2 analytics 修复以 `92d11b0` 登记在 Viewer Ledger 与 Version History |
 | [MF-32](https://github.com/Shuang-su/Metaflow/issues/32) | Done（本注册表进入 `main` 后） | 文档维护 | 分类历史工件、修正活动模板，并完善 25 篇中文 Viewer/Editor 手册；PR、Commit 与验证以实时 Issue 完成交付为准 |
+| [MF-85](https://github.com/Shuang-su/Metaflow/issues/85) | Completed；产品 [PR #86](https://github.com/Shuang-su/Metaflow/pull/86)、发布记录 [PR #87](https://github.com/Shuang-su/Metaflow/pull/87) | Viewer `5.20.0` 已生产发布并观察；已完成 | [唯一 Spec](85-viewer-upstream-v1.35.2/spec.md)、[Plan](85-viewer-upstream-v1.35.2/plan.md)、[采用决策](85-viewer-upstream-v1.35.2/adoption.md) 与 [发布完成记录](85-viewer-upstream-v1.35.2/completion.md)；接受上游 LOD 内存增量，99 项资源与 Editor 保持不变 |
 
 ## 权威顺序
 
