@@ -1,14 +1,14 @@
 {
   "schemaVersion": "1.1",
   "cutoffGitRef": "c613a87",
-  "documentedThrough": "92d11b0",
+  "documentedThrough": "0c4bb78",
   "defaultResourceVersion": "1.0a",
   "current": {
-    "displayVersion": "5.19.2",
-    "appSemver": "5.19.2",
+    "displayVersion": "5.19.3",
+    "appSemver": "5.19.3",
     "indexSchemaVersion": "1.2",
-    "date": "2026-08-15",
-    "gitRef": "92d11b0",
+    "date": "2026-09-27",
+    "gitRef": "0c4bb78",
     "historyUrl": "/data/version-history.json",
     "upstream": {
       "repository": "playcanvas/supersplat-viewer",
@@ -175,6 +175,11 @@
       "gitRef": "d5c1faf",
       "date": "2026-08-14",
       "summary": "chore(release): prepare Viewer 5.19.1 production"
+    },
+    {
+      "gitRef": "2f5b8c3",
+      "date": "2026-08-15",
+      "summary": "chore(release): publish Viewer 5.19.2 analytics recovery; record the existing release metadata commit"
     }
   ],
   "entries": [
@@ -1444,6 +1449,31 @@
         "completionDossier": "docs/changes/20260815-viewer-analytics-5192/completion.md",
         "releaseTag": "viewer-v5.19.2"
       }
+    },
+    {
+      "displayVersion": "5.19.3",
+      "appSemver": "5.19.3",
+      "type": "resource",
+      "scope": "data",
+      "date": "2026-09-27",
+      "gitRef": "0c4bb78",
+      "summary": "feat(data): publish three Mangzhong captures and nine SZTUCCF260919 scenes with source-camera 4K WebP covers",
+      "trace": {
+        "changeId": "MF-81",
+        "issue": "https://github.com/Shuang-su/Metaflow/issues/81",
+        "spec": "docs/changes/81-publish-mangzhong-sztuccf/spec.md",
+        "plan": "docs/changes/81-publish-mangzhong-sztuccf/plan.md",
+        "releaseTag": "viewer-v5.19.3"
+      },
+      "resourceChanges": [
+        {
+          "action": "add",
+          "routePatterns": [
+            "/acg/sztuccf260919/*",
+            "/animals/cats/mangzhong/*"
+          ]
+        }
+      ]
     }
   ]
 }

@@ -20,7 +20,7 @@ Metaflow 把基于 [SuperSplat](https://github.com/playcanvas/supersplat) 的 Ed
 
 | 产品 | 当前版本 | 上游基线 | 唯一事实来源 |
 |---|---|---|---|
-| Viewer | `5.19.2` / package `5.19.2` | SuperSplat Viewer `1.29.1` / PlayCanvas `2.21.3` | [`metadata/version-history.json`](metadata/version-history.json) |
+| Viewer | `5.19.3` / package `5.19.3` | SuperSplat Viewer `1.29.1` / PlayCanvas `2.21.3` | [`metadata/version-history.json`](metadata/version-history.json) |
 | Editor | `1.1` / app `1.1.0` | SuperSplat Editor `2.28.0` | [`metadata/editor-version-history.json`](metadata/editor-version-history.json) |
 | 资源索引 | schema `1.2` | 不适用 | [`data/index.json`](data/index.json) |
 
@@ -154,8 +154,8 @@ location / {
 
 | 字段 | 值 |
 |------|----|
-| 展示版本 | `5.19.2`（生产稳定） |
-| 包版本 | `5.19.2` |
+| 展示版本 | `5.19.3`（MF-81 发布候选） |
+| 包版本 | `5.19.3` |
 | 索引 schema | `1.2` |
 | 上游 SuperSplat Viewer | `v1.29.1` |
 | PlayCanvas | `2.21.3` |
@@ -179,6 +179,7 @@ location / {
 
 | 版本 | commit | 摘要 |
 |------|--------|------|
+| `5.19.3` | `0c4bb78` | MF-81：3 组芒种、9 组 SZTUCCF260919 ACG，原始镜头 4K WebP、99 项索引；最终生产状态见 [Issue #81](https://github.com/Shuang-su/Metaflow/issues/81) |
 | `5.19.2` | `92d11b0` | analytics/release 修复：production/tagged build 缺少 Supabase endpoint 时直接失败，Netlify production context 注入 endpoint，release smoke 校验最终 HTML meta；不改变资源、路由或 schema |
 | `5.19.1` | `534b013` | MF-30 正式生产发布：修复 release/CI sparse fixture 与 build-before-test 顺序；D2 controlled Prepare 通过后，因 Netlify Git build 再次停滞，经明确授权使用精确 D2 CLI/API 发布 deploy `6a7efc396f36c800cfa0702e`；真实浏览器 smoke、15 分钟观察与 GitHub Release 均完成 |
 | `5.19.0` | `26e311c` | MF-30 同步 Viewer v1.29.1 / PlayCanvas 2.21.3 并保留 Metaflow 合同；不可变 Tag 已建立，但 workflow run `31779246997` 在 prepare 的 sparse/order 校验阶段失败，production job 未执行、没有 GitHub Release，生产从未切换到 5.19.0 |

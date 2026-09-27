@@ -2,12 +2,12 @@
   "version": "1.0",
   "schemaVersion": "1.2",
   "release": {
-    "displayVersion": "5.19.2",
-    "appSemver": "5.19.2",
+    "displayVersion": "5.19.3",
+    "appSemver": "5.19.3",
     "schemaVersion": "1.2",
     "historyUrl": "/data/version-history.json",
-    "updatedAt": "2026-08-15",
-    "gitRef": "92d11b0"
+    "updatedAt": "2026-09-27",
+    "gitRef": "0c4bb78"
   },
   "lastUpdated": "2026-09-27",
   "totalResources": 99,
@@ -170,8 +170,8 @@
         "loopMode": "repeat"
       },
       "version": {
-        "addedIn": "1.0a",
-        "updatedIn": "1.0a"
+        "addedIn": "5.19.3",
+        "updatedIn": "5.19.3"
       }
     },
     {
@@ -216,8 +216,8 @@
         "loopMode": "repeat"
       },
       "version": {
-        "addedIn": "1.0a",
-        "updatedIn": "1.0a"
+        "addedIn": "5.19.3",
+        "updatedIn": "5.19.3"
       }
     },
     {
@@ -262,8 +262,8 @@
         "loopMode": "repeat"
       },
       "version": {
-        "addedIn": "1.0a",
-        "updatedIn": "1.0a"
+        "addedIn": "5.19.3",
+        "updatedIn": "5.19.3"
       }
     },
     {
@@ -308,8 +308,8 @@
         "loopMode": "repeat"
       },
       "version": {
-        "addedIn": "1.0a",
-        "updatedIn": "1.0a"
+        "addedIn": "5.19.3",
+        "updatedIn": "5.19.3"
       }
     },
     {
@@ -354,8 +354,8 @@
         "loopMode": "repeat"
       },
       "version": {
-        "addedIn": "1.0a",
-        "updatedIn": "1.0a"
+        "addedIn": "5.19.3",
+        "updatedIn": "5.19.3"
       }
     },
     {
@@ -400,8 +400,8 @@
         "loopMode": "repeat"
       },
       "version": {
-        "addedIn": "1.0a",
-        "updatedIn": "1.0a"
+        "addedIn": "5.19.3",
+        "updatedIn": "5.19.3"
       }
     },
     {
@@ -446,8 +446,8 @@
         "loopMode": "repeat"
       },
       "version": {
-        "addedIn": "1.0a",
-        "updatedIn": "1.0a"
+        "addedIn": "5.19.3",
+        "updatedIn": "5.19.3"
       }
     },
     {
@@ -492,8 +492,8 @@
         "loopMode": "repeat"
       },
       "version": {
-        "addedIn": "1.0a",
-        "updatedIn": "1.0a"
+        "addedIn": "5.19.3",
+        "updatedIn": "5.19.3"
       }
     },
     {
@@ -538,8 +538,8 @@
         "loopMode": "repeat"
       },
       "version": {
-        "addedIn": "1.0a",
-        "updatedIn": "1.0a"
+        "addedIn": "5.19.3",
+        "updatedIn": "5.19.3"
       }
     },
     {
@@ -3512,8 +3512,8 @@
         "loopMode": "repeat"
       },
       "version": {
-        "addedIn": "1.0a",
-        "updatedIn": "1.0a"
+        "addedIn": "5.19.3",
+        "updatedIn": "5.19.3"
       }
     },
     {
@@ -3552,8 +3552,8 @@
         "loopMode": "repeat"
       },
       "version": {
-        "addedIn": "1.0a",
-        "updatedIn": "1.0a"
+        "addedIn": "5.19.3",
+        "updatedIn": "5.19.3"
       }
     },
     {
@@ -3592,8 +3592,8 @@
         "loopMode": "repeat"
       },
       "version": {
-        "addedIn": "1.0a",
-        "updatedIn": "1.0a"
+        "addedIn": "5.19.3",
+        "updatedIn": "5.19.3"
       }
     },
     {
