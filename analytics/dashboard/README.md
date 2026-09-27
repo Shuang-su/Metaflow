@@ -81,6 +81,10 @@ netlify deploy --site 1679bf5c-c8df-46cd-a0aa-15c8b2701134 --prod
 
 先检查订阅 / 告警 / 定时查询及事故旧版本；首次转按需运行前升级到审查过的安全版本。`analysis.compose.yml` 是独立、默认不开启的 `analysis` profile，图片必须是完整 digest，数据库引用现有 external volume。采用前现场核对现有 Compose project / service labels，不能用空卷替代，也不能通过 `down -v` 或删除旧容器清理冲突。Caddy 不属于此配置。
 
+系统补丁安装与实际生效分开核验。若包含内核更新，完成受控重启并核对正在运行的 kernel 后才能把 `os_security_updates_verified` 标为 true；补丁包已下载或安装不能绕过停用门槛。2 GB 主机的 Metabase 使用 512 MiB JVM heap；维护期间仍需核对宿主可用内存、Swap 和 OOM 日志，不把 heap 当成进程总内存。
+
+本次已在服务器 `/etc/metaflow-analysis/compose.yml` 生成独立配置，引用现有 external volume / network；私有环境文件仅存在该目录。配置已经 `docker compose config --quiet` 验证，尚未执行最终按需切换。此前 recovered Compose 配置保留作审计；后续重建分析服务使用独立配置与显式 `--profile analysis`，不能从旧的常驻配置重新部署。
+
 两个运维命令（部署后）：
 
 ```sh

@@ -24,6 +24,9 @@ services:
     container_name: metaflow-metabase
     restart: "no"
     env_file: /etc/metaflow-analysis/metabase.env
+    environment:
+      JAVA_TOOL_OPTIONS: -Xmx512m -XX:+ExitOnOutOfMemoryError
+      MB_SITE_URL: http://localhost:18080
     ports: ['127.0.0.1:3000:3000']
     security_opt: [no-new-privileges:true]
     networks: [analysis]

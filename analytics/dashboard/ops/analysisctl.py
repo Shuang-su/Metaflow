@@ -31,7 +31,8 @@ def review():
         raise RuntimeError('security review must be private')
     data = json.loads(path.read_text())
     for key in ('host_persistence_reviewed','admins_sessions_keys_reviewed','firewalls_verified',
-                'offsite_backup_restore_verified','subscriptions_migrated_or_absent','metabase_patched','external_https_verified'):
+                'offsite_backup_restore_verified','subscriptions_migrated_or_absent','metabase_patched',
+                'os_security_updates_verified','external_https_verified'):
         if data.get(key) is not True:
             raise RuntimeError('unresolved prerequisite: '+key)
     if not 0 <= time.time()-timestamp(data['reviewed_at']) <= 30*86400:
