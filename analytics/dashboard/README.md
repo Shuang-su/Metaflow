@@ -46,7 +46,7 @@ node scripts/catalog.mjs ../../.codex-work/dashboard-catalog
 
 先完成 `ops/security-review.example.json` 中的事实核验，在 `/etc/metaflow-dashboard/security-review.json` 留下证据引用与时间（0600）。不要将示例的 false 直接改 true 代替工作。核对账号 / 会话 / API key、依赖任务、事故整改、备份恢复、固定镜像、云防火墙及外部 HTTPS。发现不明持久化则停止原机发布。
 
-**2026-09-28 已观察到该域名的阿里云备案拦截页，外部 TLS 在 ClientHello 后被重置。发布前须解除合法入口拦截并重做外部验证；不能用关闭证书验证或改成公网 HTTP 通过门槛。**
+**2026-09-28 用户确认域名未备案，与已观察到的阿里云备案拦截页一致，外部 TLS 在 ClientHello 后被重置。当前深圳托管方案必须先完成备案再发布；不能用关闭证书验证或改成公网 HTTP 通过门槛。** [阿里云轻量应用服务器备案说明](https://help.aliyun.com/zh/simple-application-server/user-guide/apply-for-an-icp-filing-for-a-domain-name)。SSH 内部运维可以继续；中国内地以外托管页面及 API 是待用户选择的架构调整，尚未实施。
 
 实际部署顺序：
 

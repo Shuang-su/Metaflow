@@ -34,7 +34,7 @@
 ## 未完成、失败及下一步
 
 - SSH control socket 不存在，当前阿里云 CLI OAuth 刷新失败；未执行服务器发布、升级、备份、恢复、账号 / API key / 订阅核查、事故持久化检查或 Metabase 停止。
-- 外部 GitHub runner 可解析 DNS 并建立 TCP 443，TLS ClientHello 后被重置；HTTP 80 返回 403 / Beaver。Mac 的 HTTP 响应明确是阿里云 `Non-compliance ICP Filing` 拦截页。需要核对域名备案 / 接入状态，合法解除拦截后重新验证；不是通过关闭 TLS 验证解决。
+- 外部 GitHub runner 可解析 DNS 并建立 TCP 443，TLS ClientHello 后被重置；HTTP 80 返回 403 / Beaver。Mac 的 HTTP 响应明确是阿里云 `Non-compliance ICP Filing` 拦截页。2026-09-28 用户确认域名未备案，因而当前深圳托管架构须先完成备案；另一选项是经用户选择后调整公开页面 / API 托管架构。未自动改动 dashboard DNS、购买服务器或提交备案资料。
 - 服务器安全审查和离机恢复验证仍是发布前置条件。发现不明持久化则转干净实例，不在旧主机继续发布。
 - reader LOGIN / 安全凭据、服务器定时器、Caddy 入口、真实服务器趋势、生产有限并发 / DB 调用计数和状态页新接口激活均未完成。
 - 24 小时并行运行尚未开始；Metabase 未停止，30 分钟切换观察、真实内存释放量及按需 start / stop 实测没有结果。
@@ -47,3 +47,5 @@
 代码 checkpoint：`767ef33d`，已推送 `codex/mf-89-public-dashboard`；[Draft PR #90](https://github.com/Shuang-su/Metaflow/pull/90) 保持开放。状态页格式同步提交 `3f54847` 后，GitHub Pages 部署曾因 OIDC 请求超时失败；仅重试失败 job 后 [run 36345416948](https://github.com/Shuang-su/metaflow-status/actions/runs/36345416948) 已成功，独立监测历史仍正常提交。
 
 本记录不声明独立 review、生产发布或验收完成。后续恢复连接后沿用本 Spec / Plan 继续。
+
+04:11 再次核验独立状态页自定义域名：GitHub 证书仍未签发，HTTPS hostname verification 失败，未绕过。该 GitHub Pages 证书等待与深圳服务器备案拦截是两个独立事项。
