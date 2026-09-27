@@ -341,7 +341,7 @@ flowchart TD
 
 The 2026-08-15 Viewer 5.19.2 release-record commit updated package/version/index mirrors for analytics recovery. MF-81 adds this previously omitted maintenance reference without changing historical entries or published behavior.
 
-## `5.20.0` · `162ee5b` · MF-85 stable upstream Viewer upgrade
+## `5.20.0` · `7a5879f` · MF-85 stable upstream Viewer upgrade
 
 - 动机 / 原行为：5.19.3 基于 SuperSplat Viewer v1.29.1，缺少稳定上游的新实例 API、控制布局及标注导航。
 - 实现：固定 v1.35.2 `c52f5258df424635323f26aaeebe51361dc0f8e6` 与 PlayCanvas 2.22.4；引入可销毁多实例、无 UI 模式、声明文件、HTML 生成、控制布局、标注与加载修复。保留 Metaflow 品牌、九语言、路由、环境、体素、首帧与动画策略、RGBA 截图和分析。修正 WebGPU 渐变方向及损坏 SOG metadata 的异步失败处理。
