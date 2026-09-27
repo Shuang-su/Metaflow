@@ -22,7 +22,8 @@
 - 自定义域名及 Netlify 默认域名均验证；本机 CLI 的代理 / fake DNS 路径曾返回旧 Metabase 或 TLS reset，浏览器、自定义域名独立 GitHub runner 与指定 Netlify IP 的完整证书验证正常。未关闭证书验证，也不声称每个网络都已测试。
 - 页面 7 / 30 天、搜索“小乔”的两个不同活动、P95 排序、零值 / 无样本 / 获取失败 / 过期状态通过。桌面 1280×720、手机 390×844 无整页横向溢出，无前端 console error。服务器接口未上线时真实显示准备中。
 - 公开接口 POST 405、HEAD 200 空体；未知 API / login 404；调度函数公网 POST 403。签名上传在未配置 secret 时为 503，不接受未授权数据。
-- 独立业务激活 [run 36349854096](https://github.com/Shuang-su/metaflow-status/actions/runs/36349854096) 验证主站、看板、7 / 30 天 API 和无埋点 OPTIONS 均成功；后续 [run 36350013732](https://github.com/Shuang-su/metaflow-status/actions/runs/36350013732) 和 [run 36351811909](https://github.com/Shuang-su/metaflow-status/actions/runs/36351811909) 监测与 Pages 均成功。`*/5` 已配置，但此记录时尚未观察到 schedule 类型运行；GitHub 调度延迟由 30 分钟未知状态保护，不能把手动运行称为自动定时验收。
+- 独立业务激活 [run 36349854096](https://github.com/Shuang-su/metaflow-status/actions/runs/36349854096) 验证主站、看板、7 / 30 天 API 和无埋点 OPTIONS 均成功；后续 [run 36350013732](https://github.com/Shuang-su/metaflow-status/actions/runs/36350013732) 和 [run 36351811909](https://github.com/Shuang-su/metaflow-status/actions/runs/36351811909) 监测与 Pages 均成功。`*/5` 已配置，以上运行仅是 push / workflow_dispatch，不能作为自动定时验收。
+- **06:24 首次观察到真正的 schedule 成功运行**：[run 36355176462](https://github.com/Shuang-su/metaflow-status/actions/runs/36355176462)，GitHub API 的 `event=schedule`、monitor / deploy 两个 job 均 success；公开 `monitor.json.completed_at=2026-09-27T22:24:36.395840Z` 已读回。主站、看板、7 / 30 天 API 和接收端 OPTIONS 均正常，服务器采样仍 pending。06:32 再次验证 HTTPS 200，两份业务快照均已自动刷新至 06:30:30。本轮无需补充触发工作流；首次自动触发不等于持续约 5 分钟 cadence 已验收，也不启动全量 24 小时观察。GitHub 调度延迟仍由 30 分钟未知状态保护。
 
 ## 服务器维护与事故核对
 
@@ -47,8 +48,8 @@
 
 ## 未完成与回退
 
-服务器采样代码、受限 secret、独立分析 profile 已准备并校验；timer 保持 disabled，未上传生产采样。安全记录中的凭据 / 系统补丁两项为 false，禁止伪造完成标记。补丁后的第二份完整备份也已离机并隔离恢复验证，数量仍为 118 / 3 / 2 / 2。生产凭据扫描再次通过（8 个产物文件并展开 Functions ZIP），没有 DB URL 或上传 secret。桌面 heartbeat `mf-89` 已配置为每 15 分钟跟进，等待相同用户输入期间静默，不提前重启、轮换或停用；独立 GitHub schedule 未验证时仅按需补充触发既有监测，不把此替代手段称为 5 分钟 schedule 成功。服务器采样上传、完整状态激活、至少 24 小时连续观察、正式 Metabase 停用、30 分钟后验收、按需 start / stop 实测、实际内存释放量仍未验收。不能提前停止或把维护重启称为按需切换完成。
+服务器采样代码、受限 secret、独立分析 profile 已准备并校验；timer 保持 disabled，未上传生产采样。安全记录中的凭据 / 系统补丁两项为 false，禁止伪造完成标记。补丁后的第二份完整备份也已离机并隔离恢复验证，数量仍为 118 / 3 / 2 / 2。生产凭据扫描再次通过（8 个产物文件并展开 Functions ZIP），没有 DB URL 或上传 secret。桌面 heartbeat `mf-89` 已配置为每 15 分钟跟进，等待相同用户输入期间静默，不提前重启、轮换或停用；独立 GitHub schedule 已观察到首次成功，持续 cadence 仍待验证；最后完成监测超过 20 分钟且无运行中工作流时才补充触发，不把补充运行称为自动调度成功。服务器采样上传、完整状态激活、至少 24 小时连续观察、正式 Metabase 停用、30 分钟后验收、按需 start / stop 实测、实际内存释放量仍未验收。不能提前停止或把维护重启称为按需切换完成。
 
 网页回退仅选择验证过的 Netlify deploy；Blobs 保留 previous，恢复时保持原生成时间。Metabase 必须用配套备份、密钥和已审查版本恢复，始终保留内部 SSH 隧道访问，禁止恢复公网代理或启动事故旧容器。
 
-主仓库既有 ahead 19 提交和未跟踪研究保持不动。已推送 checkpoint `767ef33d`、`bfb3dbec`、`4299a159`、`997c66da`。[Issue #89](https://github.com/Shuang-su/Metaflow/issues/89) 与 [Draft PR #90](https://github.com/Shuang-su/Metaflow/pull/90) 保持开放；没有 merge、tag 或 Viewer / Editor 发布。本记录不声明独立 review 或全部生产验收完成。
+主仓库既有 ahead 19 提交和未跟踪研究保持不动。已推送 checkpoint `767ef33d`、`bfb3dbec`、`4299a159`、`997c66da`、`36ca5dc8`。[Issue #89](https://github.com/Shuang-su/Metaflow/issues/89) 与 [Draft PR #90](https://github.com/Shuang-su/Metaflow/pull/90) 保持开放；没有 merge、tag 或 Viewer / Editor 发布。本记录不声明独立 review 或全部生产验收完成。
