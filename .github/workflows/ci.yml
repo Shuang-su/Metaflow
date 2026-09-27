@@ -49,7 +49,12 @@ jobs:
         run: |
           base="$PR_BASE"
           if [ -z "$base" ]; then base="$PUSH_BASE"; fi
-          if [ -z "$base" ] || printf '%s' "$base" | grep -Eq '^0+$'; then base="HEAD^"; fi
+          if [ -z "$base" ] || printf '%s' "$base" | grep -Eq '^0+$'; then
+            base="HEAD^"
+            if [ "$GITHUB_REF_NAME" != "main" ] && git show-ref --verify --quiet refs/remotes/origin/main; then
+              base="$(git merge-base HEAD origin/main)"
+            fi
+          fi
           node scripts/ci-routing.mjs route --base "$base" > routing.json
           node --input-type=module <<'NODE'
           import { appendFileSync, readFileSync } from 'node:fs';
@@ -112,7 +117,12 @@ jobs:
         run: |
           base="$PR_BASE"
           if [ -z "$base" ]; then base="$PUSH_BASE"; fi
-          if [ -z "$base" ] || printf '%s' "$base" | grep -Eq '^0+$'; then base="HEAD^"; fi
+          if [ -z "$base" ] || printf '%s' "$base" | grep -Eq '^0+$'; then
+            base="HEAD^"
+            if [ "$GITHUB_REF_NAME" != "main" ] && git show-ref --verify --quiet refs/remotes/origin/main; then
+              base="$(git merge-base HEAD origin/main)"
+            fi
+          fi
           git diff --check "$base...HEAD"
 
   governance:
@@ -172,7 +182,12 @@ jobs:
         run: |
           base="$PR_BASE"
           if [ -z "$base" ]; then base="$PUSH_BASE"; fi
-          if [ -z "$base" ] || printf '%s' "$base" | grep -Eq '^0+$'; then base="HEAD^"; fi
+          if [ -z "$base" ] || printf '%s' "$base" | grep -Eq '^0+$'; then
+            base="HEAD^"
+            if [ "$GITHUB_REF_NAME" != "main" ] && git show-ref --verify --quiet refs/remotes/origin/main; then
+              base="$(git merge-base HEAD origin/main)"
+            fi
+          fi
           git diff --check "$base...HEAD"
 
   viewer:
