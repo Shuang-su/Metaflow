@@ -4,6 +4,7 @@ import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import { execFileSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
+import { createHash } from 'node:crypto';
 import { importSettings, validateSettings } from '../dist/settings.js';
 const template = await readFile(new URL('../src/index.html', import.meta.url), 'utf8');
 const parser = template.slice(
@@ -27,6 +28,15 @@ test('all 99 published settings remain readable without mutation or authoring cl
                 cwd: fileURLToPath(new URL('../../', import.meta.url)),
                 encoding: 'utf8'
             });
+        }
+        if (text.startsWith('version https://git-lfs.github.com/spec/v1')) {
+            // Only this 5 KiB settings file is in LFS. Keep sparse CI independent of
+            // LFS availability, but require its fixture to match the committed object.
+            assert.equal(resource.files.settings, 'Shenzhen/250917 Dayun/settings-rx90-close.json');
+            const pointer = text;
+            text = await readFile(new URL('./fixtures/dayun-settings.json', import.meta.url), 'utf8');
+            assert.equal(createHash('sha256').update(text).digest('hex'), pointer.match(/oid sha256:(\w+)/)[1]);
+            assert.equal(Buffer.byteLength(text), Number(pointer.match(/size (\d+)/)[1]));
         }
         const original = parse(text);
         const before = structuredClone(original);

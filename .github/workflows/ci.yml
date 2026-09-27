@@ -219,8 +219,6 @@ jobs:
       - name: Install Viewer dependencies
         working-directory: metaflow-viewer
         run: npm ci
-      - name: Fetch the small LFS settings fixture
-        run: git lfs pull --include="data/Shenzhen/250917 Dayun/settings-rx90-close.json" --exclude=""
       - name: Build Viewer
         id: viewer-build
         working-directory: metaflow-viewer
