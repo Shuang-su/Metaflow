@@ -357,6 +357,24 @@ test('commits after the legacy cutoff require records only for affected product 
             isDocumentedEditorRelease,
             isDocumentedViewerRelease
         });
+        if (unexpectedFiles.length === 1 && unexpectedFiles[0] === 'data/index.json' &&
+            files.includes('metadata/version-history.json')) {
+            // A release-record commit refers to the preceding product SHA. It must
+            // not need another self-referential release just to mirror that record.
+            const contentWithoutReleaseFacts = (revision) => {
+                const index = JSON.parse(execFileSync('git', ['show', `${revision}:data/index.json`], {
+                    cwd: repoRoot,
+                    encoding: 'utf8'
+                }));
+                delete index.release;
+                delete index.lastUpdated;
+                for (const resource of index.resources) delete resource.version;
+                return index;
+            };
+            assert.deepEqual(contentWithoutReleaseFacts(ref), contentWithoutReleaseFacts(`${ref}^`),
+                `${shortRef} release record must not change indexed resource content`);
+            continue;
+        }
         assert.ok(
             unexpectedFiles.length === 0,
             `${shortRef} changes product files without a version-history entry: ${unexpectedFiles.join(', ')}`
