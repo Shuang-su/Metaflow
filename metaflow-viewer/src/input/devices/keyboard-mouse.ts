@@ -2,7 +2,7 @@ import { KeyboardMouseSource, Vec3 } from 'playcanvas';
 
 import { damp } from '../../core/math';
 import type { Global } from '../../types';
-import { DISPLACEMENT_SCALE, flipZForOrbit, screenToWorld } from '../shared';
+import { DISPLACEMENT_SCALE, flipZForOrbit, ownsKeyboard, screenToWorld } from '../shared';
 import type { CameraInputFrame, InputDevice, UpdateContext } from '../shared';
 
 const tmpV1 = new Vec3();
@@ -13,11 +13,20 @@ const panMove = new Vec3();
 const mouseRotate = new Vec3();
 const wheelMove = new Vec3();
 
+type KeyboardInternals = {
+    _keyNow: number[];
+    _onKeyDown: (event: KeyboardEvent) => void;
+    _onKeyUp: (event: KeyboardEvent) => void;
+};
+
 // Patch keydown / keyup so meta-key combinations don't leave keys stuck on
-// macOS (the OS swallows keyup for any key released while Cmd is held).
-const patchKeyboardMeta = (desktopInput: any) => {
+// macOS (the OS swallows keyup for any key released while Cmd is held), and so
+// keydown is turned away while the host has input disabled: the engine source
+// listens on window, so this is the only place a key can be refused.
+const patchKeyboardMeta = (desktopInput: KeyboardInternals, enabled: () => boolean) => {
     const origOnKeyDown = desktopInput._onKeyDown;
     desktopInput._onKeyDown = (event: KeyboardEvent) => {
+        if (!enabled()) return;
         if (event.key === 'Meta') {
             desktopInput._keyNow.fill(0);
         } else if (!event.metaKey) {
@@ -66,6 +75,14 @@ class KeyboardMouseDevice implements InputDevice {
 
     private _flyKeyVelocity = new Vec3();
 
+    // release every held key when the host disables input, so none can stick; the
+    // releases reach `update` as ordinary deltas and unwind the running axis
+    private _onInputEnabled = (enabled: boolean) => {
+        if (!enabled) {
+            (this._source as unknown as KeyboardInternals)._keyNow.fill(0);
+        }
+    };
+
     /**
      * Get the underlying source so other code (PointerLockManager) can
      * toggle its private pointer-lock flag, which gates how it consumes
@@ -79,13 +96,21 @@ class KeyboardMouseDevice implements InputDevice {
 
     attach(canvas: HTMLCanvasElement, global: Global): void {
         this._global = global;
-        patchKeyboardMeta(this._source);
+        patchKeyboardMeta(this._source as unknown as KeyboardInternals, () => ownsKeyboard(global));
         this._source.attach(canvas);
+        global.root.addEventListener('focusout', this._onFocusOut);
+        global.events.on('inputEnabled:changed', this._onInputEnabled);
     }
 
+    private _onFocusOut = () => {
+        (this._source as unknown as KeyboardInternals)._keyNow.fill(0);
+    };
+
     detach(): void {
-        // KeyboardMouseSource does not expose a detach; nothing to undo for
-        // its DOM listeners here.
+        this._global?.events.off('inputEnabled:changed', this._onInputEnabled);
+        this._global?.root.removeEventListener('focusout', this._onFocusOut);
+        this._source.detach();
+        this._global = null;
     }
 
     update(ctx: UpdateContext, frame: CameraInputFrame): void {

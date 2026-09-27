@@ -1,3 +1,4 @@
+import { sources } from './upgrade-source-helper.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
@@ -196,11 +197,7 @@ test('generated index release matches current version history', async () => {
 });
 
 test('viewer console output is wired to the version history display version', async () => {
-    const source = await readFile(new URL('../src/index.ts', import.meta.url), 'utf8');
-
-    assert.match(source, /Metaflow Viewer/);
-    assert.match(source, /versionHistory\.current\.displayVersion/);
-    assert.match(source, /versionHistory\.current\.indexSchemaVersion/);
+    const [index]=await sources('index.ts');assert.match(index,/versionHistory\.current\.displayVersion/);assert.match(index,/appVersion/);assert.match(index,/engineVersion/);assert.match(index,/SuperSplat v1\.35\.2/);
 });
 
 test('change ledger contains every structured version and only main-history commit refs', async () => {

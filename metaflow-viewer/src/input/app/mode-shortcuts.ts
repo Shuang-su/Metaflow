@@ -1,4 +1,5 @@
 import type { Global } from '../../types';
+import { ownsKeyboard } from '../shared';
 
 import type { PointerLockManager } from './pointer-lock';
 
@@ -7,10 +8,23 @@ const isCaptureMode = (mode: string) => mode === 'walk' || mode === 'fly';
 const isWasdKey = (event: KeyboardEvent) =>
     event.code === 'KeyW' || event.code === 'KeyA' || event.code === 'KeyS' || event.code === 'KeyD';
 
+// The shortcut a key press stands for. A key that types a Latin character keeps using it, so
+// the shortcuts follow the key labels (Dvorak moves them, as it should). A key that types
+// anything else, such as Cyrillic or Greek, falls back to its position on a US layout, the way
+// WASD already works, so the shortcuts still work on every layout the ui is translated for.
+const shortcutKey = (event: KeyboardEvent) => {
+    if (/^[\x20-\x7e]$/.test(event.key)) {
+        return event.key;
+    }
+    const match = /^(?:Key([A-Z])|Digit(\d))$/.exec(event.code);
+    return match ? (match[1]?.toLowerCase() ?? match[2]) : event.key;
+};
+
 /**
  * Keyboard shortcuts that switch camera mode and toggle UI affordances.
  * Listens on `window` so the user can press 1/2/3, V, G, H, F, R, Space,
- * or Escape regardless of which element has focus.
+ * or Escape regardless of which element has focus — unless the host has
+ * cleared `state.inputEnabled`, which is how it routes the keyboard away.
  */
 class ModeShortcuts {
     private _global: Global | null = null;
@@ -21,6 +35,7 @@ class ModeShortcuts {
         const global = this._global;
         if (!global) return;
         const { state, events } = global;
+        if (!ownsKeyboard(global)) return;
 
         if (event.key === 'Escape') {
             if (this._pointerLock?.recentlyExitedCapture) {
@@ -39,7 +54,9 @@ class ModeShortcuts {
             return;
         }
 
-        switch (event.key) {
+        const key = shortcutKey(event);
+
+        switch (key) {
             case '1':
                 state.cameraMode = 'orbit';
                 break;
@@ -57,8 +74,11 @@ class ModeShortcuts {
             case 'g':
                 state.gamingControls = !state.gamingControls;
                 break;
+            // H the controls panel, Shift+H the info panel. Shift is read from the event, so
+            // caps lock does not swap them
             case 'h':
-                events.fire('inputEvent', 'toggleHelp');
+            case 'H':
+                events.fire('inputEvent', event.shiftKey ? 'toggleHelp' : 'toggleControls');
                 break;
             case 'r':
                 events.fire('inputEvent', 'reset', event);
@@ -66,7 +86,7 @@ class ModeShortcuts {
             default:
                 if (isWasdKey(event) && state.inputMode === 'desktop') {
                     if (!isCaptureMode(state.cameraMode)) {
-                        state.cameraMode = 'fly';
+                        events.fire('inputEvent', 'requestFirstPerson');
                     }
                     if (!state.gamingControls) {
                         state.gamingControls = true;
@@ -76,7 +96,7 @@ class ModeShortcuts {
         }
 
         if (state.cameraMode !== 'walk') {
-            switch (event.key) {
+            switch (key) {
                 case 'f':
                     events.fire('inputEvent', 'frame', event);
                     break;

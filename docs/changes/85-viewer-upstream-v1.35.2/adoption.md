@@ -1,0 +1,30 @@
+# MF-85 upstream adoption and compatibility
+
+Source: [SuperSplat Viewer v1.35.2](https://github.com/playcanvas/supersplat-viewer/tree/c52f5258df424635323f26aaeebe51361dc0f8e6), commit `c52f5258df424635323f26aaeebe51361dc0f8e6`. Three-way comparison uses the immutable repository snapshot `references/supersplat-viewer-v1.29.1` (`3a61fa60`), Metaflow product `f999471`, and this stable tag. The 37 upstream commits span 14 releases. Post-tag experimental stochastic renderer #314 is excluded.
+
+| Surface | Decision and implementation |
+|---|---|
+| Dependencies / packaging | Adopt PlayCanvas 2.22.4 and the stable build/declaration toolchain. Keep Node 20.19.0, analytics, replay and Playwright dependencies. Generate root/settings/viewer declarations and an external-engine runtime entry. No npm publication or Editor dependency changes. |
+| Loading / LOD | Adopt early LOD configuration, streaming progress and lifecycle guards. Keep filename-based parser identity, manifest validation, four-attempt transient retry, source-specific readiness and staged reveal. Environment and collision run independently of subject readiness. |
+| Rendering / capture | Adopt stable pick-depth fixes and demand-render updates. Keep transparent canvas composition, gradient backgrounds, color-neutral reveal, legacy SOG readiness and native RGBA capture. Capture requests serialize, restore state after failure and settle on destruction. |
+| Cameras / settings | Adopt immutable v1 migration, loop handling and opt-in authoring limits. Keep legacy fallback FOV values (75 camera / 60 animation), partial post-effect normalization, RGB/RGBA legacy backgrounds, JSONC loading, synthetic figure-eight and first-exit policy. Published settings are not rewritten. |
+| Collision | Keep single/tiled voxel selection, coordinate conversion, deferred loading, caches and missing-tile degradation. Show walk capability immediately but enable walking only when collision at the current foot tile is ready. No navigation experiments. |
+| Instance API | Adopt createViewer, state/events, camera/annotation/movement/fullscreen/XR APIs and destroy. Scope DOM, locale, input and analytics to the instance. Embedded viewers expose no globals; standalone pages retain legacy globals and scrubTo behavior. Keyboard/gamepad input follows embed focus and inputEnabled. |
+| UI / annotations | Adopt the new control layout, operation hints, selected-annotation behavior, occlusion and annotation navigator. Keep Metaflow logo/link/colors, all nine locales, collision overlay and debug controls. Reticle defaults off. Modals suppress the annotation navigator. |
+| Mobile / XR | Keep dual sticks, vertical/zoom/jump controls and custom XR navigation. Guard unavailable Pointer Lock APIs and release held input on blur/visibility changes. Adopt backend-aware XR capability and lifecycle promises, retaining the explicit WebGL reload fallback. Hardware XR validation remains separate from browser simulation. |
+| Analytics | Keep existing event schema and production endpoint guard. Instance teardown disconnects input/performance listeners, timers and replay; late module initialization is ignored. PostHog uses a separate SDK object per enabled viewer. Embedded analytics is disabled by default. |
+| Resource / release | Keep 99 resource records and schema 1.2, all resource bytes and routes. Only release metadata changes. Keep Editor's existing deployment payload. Final product SHA is recorded after squash, before tag/deployment. |
+
+## Verification design
+
+- Existing source-contract tests are adapted to the new module/DOM boundaries while retaining relevant assertions. Published settings tests cover all 99 resources, including JSONC and legacy RGBA. Upstream settings/HTML/package tests are retained with explicit Metaflow compatibility expectations.
+- `metaflow-viewer/scripts/verify-upgrade.mjs` exercises representative real scenes, both GPU backends, WebKit, mobile controls, multiple instances, teardown, captures, annotations, transient/permanent load faults and collision timing/degradation. Run it against a built Viewer server that serves the repository's full `data/` under `/data/` and returns the Viewer document for resource routes. Set `METAFLOW_TEST_BASE_URL` and `METAFLOW_QA_OUTPUT` to choose host/output; argument is `webgl`, `webgpu` or `webkit`.
+- The maintained Playwright fixture checks desktop/mobile controls and reviewed UI snapshots. macOS snapshots are verified locally; Linux snapshots require their own platform run and are not fabricated from macOS output.
+- Performance compares identical scene/query/viewport/browser conditions on 5.19.3 and the candidate, alternating versions for three runs per scene. API-ready latency is a first-frame proxy; interaction frame intervals and engine/JS allocation counters are reported as browser observations, not whole-system resident memory or GPU timer queries.
+- Source SHA256 evidence covers 10,202 files / 14,414,758,248 bytes. Build/deploy staging reuses assets on the project volume. Validation must separately report file integrity, browser behavior and production readback.
+
+## Execution limitations and recovery
+
+The managed worktree checkout failed with ENOSPC on the system volume. An isolated sparse worktree on Prism was created from origin/main instead; test-only links reference unchanged data/Editor/reference directories. They are excluded from commits. Browser downloads and profiles use project-local storage. The inactive Playwright Chromium cache was moved to the project volume with a compatibility symlink and verified executable hash after system-volume exhaustion interrupted browser startup. No source assets or user research were cleaned.
+
+The legacy `mcl validate-version-history` command currently requires completionManifest fields absent from existing accepted history. This is not a newly effective repository gate under candidate MCL; the current release contract, version-history tests and mirror checks are used, and the legacy failure is disclosed rather than adding obsolete dossier fields.

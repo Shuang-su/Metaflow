@@ -26,6 +26,7 @@ export default defineConfig({
     use: {
         baseURL: `http://127.0.0.1:${port}`,
         browserName: 'chromium',
+        channel: extendedBrowser === 'chromium' ? 'chromium' : undefined,
         colorScheme: 'dark',
         deviceScaleFactor: 1,
         hasTouch: false,

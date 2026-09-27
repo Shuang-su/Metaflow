@@ -15,12 +15,40 @@ import { WalkController } from './cameras/walk-controller';
 import { WalkSource } from './cameras/walk-source';
 import type { Collision } from './collision';
 import { easeOut } from './core/math';
+import { DEFAULT_CAMERA_FOV } from './schemas/defaults';
 import type { Annotation } from './settings';
 import type { CameraMode, Global } from './types';
 
 const tmpCamera = new Camera();
 const tmpv = new Vec3();
 const { resolveAnimationPolicy, resolvePreferredCameraMode, resolveAnimationExitMode } = policyUtils;
+const tmpv2 = new Vec3();
+
+// Annotation moves ease in and out, lasting longer the farther the camera travels and turns,
+// between these bounds in seconds. Every other transition keeps the quick-start easeOut.
+// The curve does most of its travel in the first half and settles through the second, so
+// these allow for the settle.
+const ANNOTATION_MIN_DURATION = 1.2;
+const ANNOTATION_MAX_DURATION = 2.4;
+
+// How hard the annotation move's curve settles: higher gets going sooner and settles longer.
+const SETTLE_POWER = 5;
+
+// The highest starting slope carried into a move. The curve stays monotonic up to
+// SETTLE_POWER, so this is well inside it.
+const MAX_START_SLOPE = 3;
+
+// The view turns a little ahead of the travel, finishing at this share of the move, the way
+// a camera operator looks toward where they are going before they arrive.
+const TURN_LEAD = 0.8;
+
+// A curve from 0 to 1 over the move that starts at `slope` (progress per unit time: 0 starts
+// from rest, 1 at the move's average speed), gets going quickly and settles slowly, like a
+// hand-held move rather than an even symmetric ramp. It shapes like a critically damped spring,
+// but it arrives at exactly zero speed with no deceleration left, where a spring scaled to land
+// in a fixed time still has speed to lose and stops abruptly on a long move.
+const settleFrom = (slope: number) => (x: number) =>
+    1 - Math.pow(1 - x, SETTLE_POWER) * (1 + (SETTLE_POWER - slope) * x);
 
 // Walk mode is only enabled when the scene's horizontal footprint is large
 // enough to walk around in. Vertical extent (Y) is irrelevant — a tall but
@@ -50,7 +78,9 @@ const createFrameCamera = (bbox: BoundingBox, fov: number) => {
 class CameraManager {
     update: (deltaTime: number, cameraFrame: CameraFrame) => void;
 
-    setCollision: (collision: Collision | null) => void;
+    seek: (time: number) => void;
+
+    selectAnnotation: (annotation: Annotation) => void;
 
     // Re-seed the active controller from the current camera pose and
     // cancel any in-progress transition lerp. Use after externally
@@ -58,13 +88,19 @@ class CameraManager {
     // visible instantly.
     snap: () => void;
 
+    // Attach (or clear) collision after construction. The viewer reveals the scene without
+    // waiting for collision data, which can be larger than the splats themselves, so this
+    // arrives late. It re-tests whether walk mode is allowed, which gates the walk toggle
+    // and the mode the camera falls back to when an animation is interrupted.
+    setCollision: (collision: Collision | null) => void;
+
     // holds the camera state
     camera = new Camera();
 
     constructor(global: Global, bbox: BoundingBox, collision: Collision | null = null) {
         const { config, events, settings, state } = global;
 
-        const walkAllowed = isWalkAllowed(bbox, collision);
+        let walkAllowed = isWalkAllowed(bbox, collision);
         let currentCollision = collision;
         let pendingDefaultWalk = config.defaultCameraMode === 'walk' && !currentCollision;
 
@@ -74,7 +110,7 @@ class CameraManager {
         const shouldFirstExitAnimToOrbit = config.animationFirstExitMode === 'orbit';
 
         const camera0 = settings.cameras[0]?.initial;
-        const defaultFov = camera0?.fov ?? 75;
+        const defaultFov = camera0?.fov ?? DEFAULT_CAMERA_FOV;
         const frameCamera = createFrameCamera(bbox, defaultFov);
         const resetCamera = camera0
             ? createCamera(new Vec3(camera0.position), new Vec3(camera0.target), camera0.fov)
@@ -163,14 +199,26 @@ class CameraManager {
         getController(state.cameraMode).onEnter(this.camera);
 
         // transition state
-        const transitionSpeed = 1.0;
         let transitionTimer = 1;
+        let transitionDuration = 1;
+        let transitionEase = easeOut;
+        // annotation moves blend the view angles directly, on their own curve so the turn can
+        // lead the travel; the rest blend through the look-at point
+        let transitionTurnEase: ((x: number) => number) | null = null;
         let clearOrbitTargetOnTransitionEnd = false;
 
-        // start a new camera transition from the current pose
-        const startTransition = () => {
+        // the camera's speed over the last frame, so a new annotation move can carry on from
+        // the motion it interrupts rather than restart from rest
+        let cameraSpeed = 0;
+        const lastPosition = this.camera.position.clone();
+
+        // start a new camera transition from the current pose, over `duration` seconds
+        const startTransition = (duration = 1, ease = easeOut, turnEase: ((x: number) => number) | null = null) => {
             from.copy(this.camera);
             transitionTimer = 0;
+            transitionDuration = duration;
+            transitionEase = ease;
+            transitionTurnEase = turnEase;
         };
 
         this.snap = () => {
@@ -183,6 +231,7 @@ class CameraManager {
         this.setCollision = (nextCollision: Collision | null) => {
             const hadCollision = !!currentCollision;
             currentCollision = nextCollision;
+            walkAllowed = isWalkAllowed(bbox, nextCollision);
             controllers.fly.collision = nextCollision;
             controllers.walk.collision = nextCollision;
 
@@ -207,7 +256,7 @@ class CameraManager {
 
             // update transition timer
             const prevTransitionTimer = transitionTimer;
-            transitionTimer = Math.min(1, transitionTimer + deltaTime * transitionSpeed);
+            transitionTimer = Math.min(1, transitionTimer + deltaTime / transitionDuration);
 
             const controller = getController(state.cameraMode);
 
@@ -217,14 +266,29 @@ class CameraManager {
 
             if (transitionTimer < 1) {
                 // lerp away from previous camera during transition
-                this.camera.lerp(from, target, easeOut(transitionTimer));
+                const t = transitionEase(transitionTimer);
+                if (transitionTurnEase) {
+                    this.camera.lerpAngles(from, target, t, transitionTurnEase(transitionTimer));
+                } else {
+                    this.camera.lerp(from, target, t);
+                }
             } else {
                 this.camera.copy(target);
             }
 
+            if (deltaTime > 0) {
+                cameraSpeed = this.camera.position.distance(lastPosition) / deltaTime;
+            }
+            lastPosition.copy(this.camera.position);
+
             // update animation timeline
             if (state.cameraMode === 'anim') {
                 state.animationTime = controllers.anim.animState.cursor.value;
+
+                // a play-once animation pauses once it reaches the end of the track
+                if (!state.animationPaused && controllers.anim.animState.cursor.ended) {
+                    state.animationPaused = true;
+                }
             }
 
             if (clearOrbitTargetOnTransitionEnd && prevTransitionTimer < 1 && transitionTimer === 1) {
@@ -270,14 +334,15 @@ class CameraManager {
                     }
                     break;
                 case 'requestFirstPerson':
-                    state.cameraMode = 'fly';
+                    // movement input from a non-first-person mode: walk where the scene allows
+                    // it, fly otherwise, the same preference as the animation fallback
+                    state.cameraMode = walkAllowed ? 'walk' : 'fly';
                     break;
                 case 'toggleWalk':
                     if (state.walkAllowed) {
                         if (state.cameraMode === 'walk') {
                             state.cameraMode = preWalkMode;
                         } else {
-                            preWalkMode = state.cameraMode;
                             state.cameraMode = 'walk';
                         }
                     }
@@ -308,6 +373,10 @@ class CameraManager {
 
         // handle camera mode switching
         events.on('cameraMode:changed', (value: CameraMode, prev: CameraMode) => {
+            // Host state writes and the walk toggle must remember the same return mode.
+            if (value === 'walk') {
+                preWalkMode = prev;
+            }
             sourcesByMode[prev]?.cancel();
 
             // snapshot the current pose before any controller mutation
@@ -325,8 +394,19 @@ class CameraManager {
             newController.onEnter(this.camera);
         });
 
-        // handle user scrubbing the animation timeline
-        events.on('scrubAnim', (time, activate = true) => {
+        // pressing play at (or within a frame of) the end of a play-once animation
+        // restarts it from the beginning (a scrub can park just short of the end)
+        events.on('animationPaused:changed', (paused: boolean) => {
+            const animState = controllers.anim?.animState;
+            if (!paused && animState) {
+                const { cursor } = animState;
+                if (cursor.loopMode === 'none' && cursor.duration - cursor.value < 1 / animState.frameRate) {
+                    cursor.value = 0;
+                }
+            }
+        });
+
+        const scrub = (time: number, activate = true) => {
             // switch to animation camera if we're not already there
             if (activate) {
                 state.cameraMode = 'anim';
@@ -334,7 +414,11 @@ class CameraManager {
 
             // set time
             controllers.anim.animState.cursor.value = time;
-        });
+            state.animationTime = controllers.anim.animState.cursor.value;
+        };
+
+        this.seek = (time) => scrub(time);
+        events.on('scrubAnim', scrub);
 
         // handle user picking in the scene
         events.on('pick', (position: Vec3) => {
@@ -350,7 +434,7 @@ class CameraManager {
             clearOrbitTargetOnTransitionEnd = true;
         });
 
-        events.on('annotation.activate', (annotation: Annotation) => {
+        this.selectAnnotation = (annotation: Annotation) => {
             events.fire('orbitTarget:clear');
 
             // switch to orbit camera on pick
@@ -362,9 +446,42 @@ class CameraManager {
             tmpCamera.fov = initial.fov;
             tmpCamera.look(new Vec3(initial.position), new Vec3(initial.target));
 
+            // orbit at the annotation's depth along the view rather than about the authored
+            // target, which is often a hair in front of the lens or far past the subject. The
+            // new focus lies on the same view ray, so the pose is unchanged. An annotation
+            // behind the camera keeps the authored target
+            tmpCamera.calcFocusPoint(tmpv);
+            tmpv.sub(tmpCamera.position).normalize();
+            const depth = tmpv2
+                .set(...annotation.position)
+                .sub(tmpCamera.position)
+                .dot(tmpv);
+            if (depth > 1e-3) {
+                tmpCamera.distance = depth;
+            }
+
+            // longer for a longer move: travel relative to the scene's size, plus how far the
+            // view turns
+            const travel = this.camera.position.distance(tmpCamera.position);
+            const sceneSize = Math.max(bbox.halfExtents.length(), 1e-3);
+            this.camera.calcFocusPoint(tmpv);
+            tmpv.sub(this.camera.position).normalize();
+            tmpCamera.calcFocusPoint(tmpv2);
+            tmpv2.sub(tmpCamera.position).normalize();
+            const turn = Math.acos(Math.max(-1, Math.min(1, tmpv.dot(tmpv2)))) / Math.PI;
+            const duration = Math.max(
+                ANNOTATION_MIN_DURATION,
+                Math.min(ANNOTATION_MAX_DURATION, ANNOTATION_MIN_DURATION + (0.8 * travel) / sceneSize + 0.6 * turn)
+            );
+
+            // start at the camera's current speed, as a share of this move's average speed
+            const slope = travel > 1e-6 ? Math.min(MAX_START_SLOPE, (cameraSpeed * duration) / travel) : 0;
+
+            const travelEase = settleFrom(slope);
+            const turnEase = settleFrom(slope * TURN_LEAD);
             controllers.orbit.goto(tmpCamera);
-            startTransition();
-        });
+            startTransition(duration, travelEase, (x) => turnEase(Math.min(1, x / TURN_LEAD)));
+        };
 
         // tap-to-navigate: start auto-driving the active mode toward a picked position
         events.on('navigateTo', (position: Vec3, normal: Vec3, speedMul = 1) => {

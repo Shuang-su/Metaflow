@@ -20,6 +20,8 @@ import type { Global } from './types';
  * resulting per-frame `InputFrame` for the camera manager to consume.
  */
 class InputController {
+    moveSpeed = 4;
+
     frame = new InputFrame({
         move: [0, 0, 0],
         rotate: [0, 0, 0],
@@ -44,6 +46,22 @@ class InputController {
 
     private _inputModeTracker = new InputModeTracker();
 
+    private _canvas: HTMLCanvasElement;
+
+    private _canvasListeners: [string, EventListener][] = [];
+
+    private _moveInput = [0, 0];
+
+    private _clearMoveInput = () => this._moveInput.fill(0);
+
+    setMoveInput(x: number, z: number) {
+        const { state } = this._global;
+        if ((state.cameraMode === 'fly' || state.cameraMode === 'walk') && state.xrMode === null) {
+            this._moveInput[0] = x;
+            this._moveInput[1] = z;
+        }
+    }
+
     set collision(value: Collision | null) {
         this._navInteraction.collision = value;
     }
@@ -58,6 +76,7 @@ class InputController {
 
         const { app, events } = global;
         const canvas = app.graphicsDevice.canvas as HTMLCanvasElement;
+        this._canvas = canvas;
 
         // Trackpad MUST attach before KeyboardMouseDevice so its wheel
         // handler runs first; otherwise stopImmediatePropagation can't
@@ -72,16 +91,48 @@ class InputController {
         this._modeShortcuts.attach(global, this._pointerLock);
         this._inputModeTracker.attach(global);
 
+        events.on('cameraMode:changed', this._clearMoveInput);
+        events.on('xrMode:changed', this._clearMoveInput);
+        window.addEventListener('blur', this._clearMoveInput);
+        document.addEventListener('visibilitychange', this._clearMoveInput);
+
         // canvas-level signals: anything that interrupts an animation /
-        // closes the settings panel / dismisses the walk hint
+        // closes the settings panel
+        const listen = (eventName: string, handler: EventListener) => {
+            canvas.addEventListener(eventName, handler);
+            this._canvasListeners.push([eventName, handler]);
+        };
         ['wheel', 'pointerdown', 'contextmenu', 'keydown'].forEach((eventName) => {
-            canvas.addEventListener(eventName, (event) => {
+            listen(eventName, (event) => {
                 events.fire('inputEvent', 'interrupt', event);
             });
         });
-        canvas.addEventListener('pointermove', (event) => {
+        listen('pointermove', (event) => {
             events.fire('inputEvent', 'interact', event);
         });
+    }
+
+    /** Detach every device and helper, and remove the canvas listeners added above. */
+    destroy() {
+        this._clearMoveInput();
+        this._global.events.off('cameraMode:changed', this._clearMoveInput);
+        this._global.events.off('xrMode:changed', this._clearMoveInput);
+        window.removeEventListener('blur', this._clearMoveInput);
+        document.removeEventListener('visibilitychange', this._clearMoveInput);
+        for (const [eventName, handler] of this._canvasListeners) {
+            this._canvas.removeEventListener(eventName, handler);
+        }
+        this._canvasListeners.length = 0;
+
+        this._inputModeTracker.detach();
+        this._modeShortcuts.detach();
+        this._pointerLock.detach();
+        this._navInteraction.detach();
+
+        this._gamepad.detach();
+        this._touch.detach();
+        this._keyboardMouse.detach();
+        this._trackpad.detach();
     }
 
     update(dt: number, distance: number) {
@@ -115,6 +166,12 @@ class InputController {
         this._keyboardMouse.update(ctx, this.frame);
         this._trackpad.update(ctx, this.frame);
         this._gamepad.update(ctx, this.frame);
+
+        if (isFirstPerson && (this._moveInput[0] !== 0 || this._moveInput[1] !== 0)) {
+            this._global.events.fire('navigateCancel');
+            const speed = this.moveSpeed * dt;
+            this.frame.deltas.move.append([this._moveInput[0] * speed, 0, this._moveInput[1] * speed]);
+        }
     }
 }
 

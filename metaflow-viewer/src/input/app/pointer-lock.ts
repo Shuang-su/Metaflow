@@ -1,5 +1,6 @@
 import type { Global } from '../../types';
 import type { KeyboardMouseDevice } from '../devices/keyboard-mouse';
+import { ownsKeyboard } from '../shared';
 
 const isCaptureMode = (mode: string) => mode === 'walk' || mode === 'fly';
 const hasUserActivation = () =>
@@ -99,11 +100,18 @@ class PointerLockManager {
     };
 
     private _activate(): void {
+        if (!this._global || !ownsKeyboard(this._global)) return;
+        if (!this._canvas?.requestPointerLock) {
+            this._onPointerLockError();
+            return;
+        }
         if (this._keyboardMouse) {
             (this._keyboardMouse.source as any)._pointerLock = true;
         }
         if (document.pointerLockElement !== this._canvas) {
-            this._canvas?.requestPointerLock();
+            // Some engines return a Promise, others return void and emit an error event.
+            const result = this._canvas.requestPointerLock();
+            result?.catch(() => this._onPointerLockError());
         }
     }
 
@@ -137,6 +145,7 @@ class PointerLockManager {
     }
 
     detach(): void {
+        this._deactivate();
         if (this._global) {
             const { events } = this._global;
             events.off('cameraMode:changed', this._onCameraModeChanged);

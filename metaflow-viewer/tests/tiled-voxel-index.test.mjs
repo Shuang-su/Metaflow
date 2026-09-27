@@ -1,3 +1,4 @@
+import { sources } from './upgrade-source-helper.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
@@ -79,8 +80,8 @@ test('resource index separates capture source from viewing experience type', asy
 });
 
 test('route config forwards the structured first-animation-exit policy', async () => {
-    const html = await readFile(new URL('../src/index.html', import.meta.url), 'utf8');
-    const types = await readFile(new URL('../src/types.ts', import.meta.url), 'utf8');
+    const html = (await sources('index.html', 'ui.html')).join('\n');
+    const types = (await sources('types.ts', 'options.ts')).join('\n');
     const cameraManager = await readFile(new URL('../src/camera-manager.ts', import.meta.url), 'utf8');
 
     assert.match(html, /resource\?\.viewer\?\.animationFirstExitMode/);
@@ -124,8 +125,8 @@ test('README documents every supported URL query parameter', async () => {
 test('global gsplat reveal is shader-based, color-neutral, and skippable by URL', async () => {
     const reveal = await readFile(new URL('../src/gsplat-reveal-radial.ts', import.meta.url), 'utf8');
     const viewer = await readFile(new URL('../src/viewer.ts', import.meta.url), 'utf8');
-    const html = await readFile(new URL('../src/index.html', import.meta.url), 'utf8');
-    const types = await readFile(new URL('../src/types.ts', import.meta.url), 'utf8');
+    const html = (await sources('index.html', 'ui.html')).join('\n');
+    const types = (await sources('types.ts', 'options.ts')).join('\n');
 
     assert.match(reveal, /modifySplatCenter/);
     assert.match(reveal, /modifySplatRotationScale/);
@@ -202,7 +203,7 @@ test('global gsplat reveal is shader-based, color-neutral, and skippable by URL'
     assert.match(viewer, /highDetailOpened/);
     assert.match(viewer, /events\.on\('performanceMode:changed', applyPerfSettings\);\s+applyPerfSettings\(\);/);
     assert.match(viewer, /environmentLoad: Promise<Entity \| null> \| null/);
-    assert.match(viewer, /Promise\.all\(\[gsplatLoad, skyboxLoad, collisionLoad\]\)/);
+    assert.match(viewer, /Promise\.all\(\[gsplatLoad, skyboxLoad\]\)/);
     assert.doesNotMatch(viewer, /Promise\.all\(\[gsplatLoad, environmentLoad/);
     assert.match(viewer, /environmentLoad\?\.then/);
     assert.match(viewer, /attachEnvironmentToReveal/);
@@ -229,7 +230,7 @@ test('global gsplat reveal is shader-based, color-neutral, and skippable by URL'
     assert.match(viewer, /state\.loaded = true;[\s\S]*beginRevealWhenSceneVisible\(\)/);
     assert.match(viewer, /beginVisiblePlayback\(\)/);
     assert.match(viewer, /config\.revealEffect === 'none'/);
-    assert.match(html, /url\.searchParams\.has\('noreveal'\) \? 'none' : 'radial'/);
+    assert.match(html, /url\.searchParams\.has\('noreveal'\) \? 'none' : \(bootstrap\.revealEffect \?\? 'radial'\)/);
     assert.match(html, /experienceType: \['character', 'scene'\]\.includes\(experienceType\)/);
     assert.match(types, /RevealEffect = 'radial' \| 'none'/);
     assert.match(types, /ExperienceType = 'character' \| 'scene'/);
@@ -247,7 +248,7 @@ test('Xunyangpai keeps the public English route and the previous Chinese route a
 });
 
 test('route index bypasses stale immutable browser caches', async () => {
-    const html = await readFile(new URL('../src/index.html', import.meta.url), 'utf8');
+    const html = (await sources('index.html', 'ui.html')).join('\n');
     const netlify = await readFile(new URL('../../netlify.toml', import.meta.url), 'utf8');
 
     assert.match(html, /fetch\('\/data\/index\.json',\s*\{\s*cache:\s*'no-store'\s*\}\)/s);
@@ -379,17 +380,17 @@ test('Metaflow gradient backgrounds are preserved through CameraFrame compose', 
 });
 
 test('collision overlay button is the production UI, not a local debug-only control', async () => {
-    const html = await readFile(new URL('../src/index.html', import.meta.url), 'utf8');
+    const html = (await sources('index.html', 'ui.html')).join('\n');
     const ui = await readFile(new URL('../src/ui.ts', import.meta.url), 'utf8');
     const viewer = await readFile(new URL('../src/viewer.ts', import.meta.url), 'utf8');
 
-    assert.match(html, /id="showCollision"/);
+    assert.match(html, /class="sse-showCollision/);
     const scss = await readFile(new URL('../src/index.scss', import.meta.url), 'utf8');
-    assert.match(scss, /#ui\s*\{[^}]*z-index:\s*10;/s);
-    assert.match(scss, /html\s*\{[^}]*height:\s*100%;/s);
-    assert.match(scss, /body\s*\{[^}]*height:\s*100%;/s);
-    assert.match(ui, /events\.on\('hasCollisionOverlay:changed'/);
-    assert.match(ui, /dom\.showCollision\.classList\.toggle\('hidden', !value\)/);
+    assert.match(scss, /\.sse-ui\s*\{/);
+    assert.match(scss, /\.sse-viewer[\s\S]*height:\s*100%;/);
+    assert.match(scss, /position:\s*relative/);
+    assert.match(ui, /on\('hasCollisionOverlay:changed'/);
+    assert.match(ui, /dom\.showCollisionRow\.classList\.toggle\('sse-hidden', !value\)/);
     assert.doesNotMatch(ui, /localhost|NODE_ENV|searchParams\.has\(['"]debug['"]\)/);
     assert.match(viewer, /TiledVoxelDebugOverlay/);
     assert.match(viewer, /state\.hasCollisionOverlay = true/);
@@ -397,20 +398,20 @@ test('collision overlay button is the production UI, not a local debug-only cont
 
 test('Metaflow theme and expandable logo are restored on top of the synced viewer', async () => {
     const scss = await readFile(new URL('../src/index.scss', import.meta.url), 'utf8');
-    const html = await readFile(new URL('../src/index.html', import.meta.url), 'utf8');
+    const html = (await sources('index.html', 'ui.html')).join('\n');
     const ui = await readFile(new URL('../src/ui.ts', import.meta.url), 'utf8');
 
-    assert.match(scss, /\$clr-accent:\s*#42d2f6;/);
-    assert.match(scss, /\$clr-grip:\s*#50c2ff;/);
-    assert.doesNotMatch(scss, /\$clr-accent:\s*#F60;/);
+    assert.match(scss, /--sse-accent:\s*#42d2f6;/);
+    assert.match(scss, /--sse-grip:\s*#50c2ff;/);
+    assert.doesNotMatch(scss, /--sse-accent:\s*#F60;/);
     assert.doesNotMatch(scss, /#FFAF50/);
     assert.doesNotMatch(ui, /#F60/);
 
-    assert.match(html, /id="logoWrap"/);
-    assert.match(html, /id="logoContainer"/);
+    assert.match(html, /class="sse-viewerBranding"/);
+    assert.match(html, /aria-label="Metaflow"/);
     assert.doesNotMatch(html, /id="viewerBranding"/);
-    assert.match(scss, /#logoContainer\.expanded #logoWord/);
-    assert.match(ui, /logoContainer\.classList\.add\('expanded'\)/);
+    assert.match(scss, /sse-viewerBranding:hover span/);
+    assert.match(scss, /sse-viewerBranding:focus-visible span/);
 });
 
 test('Metaflow XR customization is kept with backend-aware WebGPU support', async () => {
@@ -420,27 +421,27 @@ test('Metaflow XR customization is kept with backend-aware WebGPU support', asyn
     assert.doesNotMatch(xr, /playcanvas\/scripts\/esm\/xr-navigation\.mjs/);
     assert.match(xr, /renderer === 'webgpu'/);
     assert.match(xr, /XrManager\.isDeviceSupported\(DEVICETYPE_WEBGL2/);
-    assert.match(xr, /app\.xr\.on\('available', updateAvailable\)/);
+    assert.match(xr, /xr\.on\('available', updateAvailable\)/);
     assert.doesNotMatch(xr, /if \(renderer !== 'webgl'\) \{\s*return;/);
     assert.match(xr, /savedNearClip/);
     assert.match(xr, /savedFarClip/);
     assert.match(xr, /domOverlay\?\.supported/);
-    assert.match(xr, /optionalFeatures:\s*\['anchors', 'plane-detection'\]/);
-    assert.match(xr, /app\.xr\.on\('error'/);
+    assert.match(xr, /optionalFeatures:\s*mode === 'ar' \? \['anchors', 'plane-detection'\]/);
+    assert.match(xr, /global\.analytics\.track\('xr_failed'/);
 });
 
 test('walk affordance is shown from resource capability and enabled only when collision is ready', async () => {
-    const types = await readFile(new URL('../src/types.ts', import.meta.url), 'utf8');
+    const types = (await sources('types.ts', 'options.ts')).join('\n');
     const index = await readFile(new URL('../src/index.ts', import.meta.url), 'utf8');
-    const ui = await readFile(new URL('../src/ui.ts', import.meta.url), 'utf8');
+    const ui = (await sources('ui/camera-controls.ts'))[0];
     const cameraManager = await readFile(new URL('../src/camera-manager.ts', import.meta.url), 'utf8');
 
     assert.match(types, /walkCapability:\s*boolean/);
     assert.match(index, /walkCapability:\s*!!\(config\.voxelManifestUrl \|\| config\.voxelUrl \|\| config\.collisionUrl\)/);
-    assert.match(ui, /const hasWalkCapability = state\.walkCapability/);
-    assert.match(ui, /const walkReady = state\.walkAllowed/);
-    assert.match(ui, /fpsCamera\.classList\.toggle\('disabled', hasWalkCapability && !walkReady\)/);
-    assert.match(ui, /HTMLButtonElement\)\.disabled = hasWalkCapability && !walkReady/);
+    assert.match(ui, /walk\.classList\.toggle\('sse-hidden', !state\.walkCapability\)/);
+    assert.match(ui, /events\.on\('walkAllowed:changed', update\)/);
+    assert.match(ui, /button === walk && !state\.walkAllowed/);
+    assert.match(ui, /button\.disabled = !state\.loaded/);
     assert.match(cameraManager, /if \(state\.walkAllowed\)/);
 });
 
@@ -457,13 +458,13 @@ test('tiled voxel walk readiness waits for the current foot tile, not full neigh
 });
 
 test('annotation navigator keeps Metaflow overlay avoidance rules', async () => {
-    const ui = await readFile(new URL('../src/ui.ts', import.meta.url), 'utf8');
-
-    assert.match(ui, /modal-open/);
-    assert.match(ui, /walk-hint-open/);
-    assert.match(ui, /events\.on\('uiModal:changed'/);
-    assert.match(ui, /events\.on\('walkHint:changed'/);
-    assert.match(ui, /annotation navigation sits near the screen edge/);
+    const [ui, css, nav] = await sources('ui.ts', 'index.scss', 'ui/annotation-controls.ts');
+    assert.match(ui, /sse-modal-open/);
+    assert.match(ui, /MutationObserver/);
+    assert.match(ui, /infoPanel[\s\S]*settingsPanel[\s\S]*xrModal/);
+    assert.match(css, /sse-modal-open[\s\S]*sse-annotationNav/);
+    assert.match(nav, /!state\.showAnnotations/);
+    assert.match(nav, /state\.controlsHidden/);
 });
 
 test('voxel coordinate conversion is controlled by resource config, not file version', async () => {

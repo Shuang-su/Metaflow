@@ -249,7 +249,9 @@ jobs:
           if-no-files-found: warn
           retention-days: 14
       - name: Enforce Viewer bundle budget
-        run: test "$(du -sk metaflow-viewer/public metaflow-viewer/dist | awk '{sum += $1} END {print sum}')" -le 20480
+        # MF-85 adds the external-engine viewer entry and generated declarations; this is
+        # the aggregate package + website budget, including source maps, not page transfer size.
+        run: test "$(du -sk metaflow-viewer/public metaflow-viewer/dist | awk '{sum += $1} END {print sum}')" -le 32768
       - name: Upload Viewer build
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         with:
