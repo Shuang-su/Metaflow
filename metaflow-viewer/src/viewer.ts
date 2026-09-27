@@ -211,7 +211,8 @@ const composeGradientWgsl = (gradient: NonNullable<ExperienceSettings['backgroun
         // Metaflow scene gradients live behind a transparent splat render.
         // CameraFrame composes through an offscreen texture, so we recreate the
         // CSS gradient here instead of letting transparent pixels become black.
-        let metaflowGradientY = clamp(1.0 - uv.y, 0.0, 1.0);
+        // WebGPU scene textures use top-left UVs; the engine already handles target flipping.
+        let metaflowGradientY = clamp(uv.y, 0.0, 1.0);
         let metaflowGradientTopToHorizon = max(${horizonStop}, 0.00001);
         let metaflowGradientHorizonToBottom = max(${bottomStop} - ${horizonStop}, 0.00001);
         let metaflowGradientTop = ${toShaderVec3Wgsl(gradient.topColor)};

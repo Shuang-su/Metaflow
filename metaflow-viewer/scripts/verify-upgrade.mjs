@@ -54,6 +54,30 @@ async function run(name, fn, mobile = false) {
 const ready = async (p) => p.waitForFunction(() => window.metaflowViewer?.state.loaded, {}, { timeout: 120000 });
 const q = matrix === 'webgpu' ? 'noanalytics' : 'webgl&noanalytics';
 try {
+    await run('gradient-direction-screen-and-rgba', async (p) => {
+        await p.goto(base + '/qa/embed.html');
+        await p.waitForFunction(() => !!window.createViewer);
+        const detail = await p.evaluate(async (renderer) => {
+            const settings = await (await fetch('/data/Animals/Cats/mangzhong/2609160002/settings.json')).json();
+            settings.background.gradient = { topColor: [1, 0, 0], horizonColor: [.5, 0, .5], bottomColor: [0, 0, 1], horizonStop: .5, bottomStop: 1 };
+            const container = document.createElement('div');
+            container.style.cssText = 'width:512px;height:512px';
+            document.body.append(container);
+            window.gradientViewer = await window.createViewer({ container, settings, contentUrl: '/data/Animals/Cats/mangzhong/2609160002/scene.sog', renderer, noanalytics: true, noanim: true, ui: false, revealEffect: 'none' });
+            const v = window.gradientViewer;
+            if (!v.state.loaded) await new Promise(r => v.events.once('loaded:changed', r));
+            // Hide geometry only in this fixture so background samples cannot hit the floor.
+            v.app.root.findByName('gsplat').enabled = false;
+            const frame = await v.captureFrame({ width: 128, height: 128, supersample: 1 });
+            const rgba = Uint8Array.from(atob(frame.data), c => c.charCodeAt(0));
+            return { top: [...rgba.slice(8, 12)], bottom: [...rgba.slice((127 * 128 + 2) * 4, (127 * 128 + 2) * 4 + 4)] };
+        }, matrix === 'webgpu' ? 'webgpu' : 'webgl');
+        assert(detail.top[0] > 200 && detail.top[2] < 40, JSON.stringify(detail));
+        assert(detail.bottom[2] > 200 && detail.bottom[0] < 40, JSON.stringify(detail));
+        await p.screenshot({ path: out + matrix + '-gradient.png' });
+        await p.evaluate(() => window.gradientViewer.destroy());
+        return detail;
+    });
     for (const id of ids) {
         await run('scene-' + id, async (p) => {
             const r = index.resources.find((x) => x.id === id);
