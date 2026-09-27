@@ -1,0 +1,17 @@
+[Unit]
+Description=Metaflow public analytics snapshot (no web request queries)
+After=docker.service network-online.target
+Requires=docker.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/python3 /opt/metaflow-dashboard/ops/snapshot.py analytics
+TimeoutStartSec=75
+UMask=0077
+NoNewPrivileges=true
+ProtectHome=true
+ProtectSystem=strict
+PrivateTmp=true
+ReadWritePaths=/opt/metaflow-metabase/caddy/data/public-dashboard/api /var/lib/metaflow-dashboard
+MemoryMax=96M
+CPUQuota=25%

@@ -1,0 +1,72 @@
+name: Monitor and publish status
+on:
+  schedule:
+    - cron: "*/5 * * * *"
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      [
+        ".upptimerc.yml",
+        "deployment-state.json",
+        "site/**",
+        "scripts/**",
+        ".github/workflows/monitor.yml",
+      ]
+permissions:
+  contents: write
+  issues: write
+  pages: write
+  id-token: write
+concurrency:
+  group: metaflow-status
+  cancel-in-progress: false
+jobs:
+  monitor:
+    runs-on: ubuntu-latest
+    timeout-minutes: 4
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          ref: main
+      - name: Upptime incidents and recovery
+        id: upptime
+        continue-on-error: true
+        uses: upptime/uptime-monitor@8be193bbcb957a3a917d2bb16a0c96959778a889 # v1.44.1
+        with:
+          command: update
+        env:
+          GH_PAT: ${{ github.token }}
+          SECRETS_CONTEXT: "{}"
+      - name: Independent HTTPS and data freshness
+        run: python3 scripts/monitor.py
+      - name: Commit public observation history
+        run: |
+          git config user.name 'Metaflow Status'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add history/monitor.json
+          if ! git diff --cached --quiet; then
+            git commit -m 'chore(status): record external observations [skip ci]'
+            git push origin HEAD:main
+          fi
+      - name: Prepare independent static status page
+        run: |
+          mkdir -p public
+          cp site/* public/
+          cp history/monitor.json public/monitor.json
+      - uses: actions/upload-pages-artifact@7b1f4a764d45c48632c6b24a0339c27f5614fb0b # v4
+        with:
+          path: public
+      - name: Report incident-monitor failure
+        if: steps.upptime.outcome == 'failure'
+        run: echo '::warning::Upptime incident recording failed; independent endpoint observations were still published.'
+  deploy:
+    needs: monitor
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy independent status website
+        id: deployment
+        uses: actions/deploy-pages@d6db90164ac5ed86f2b6aed7e0febac5b3c0c03e # v4

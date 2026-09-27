@@ -1,0 +1,175 @@
+:root {
+  font-family:
+    -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", sans-serif;
+  color: #24334b;
+  background: #f6f8fb;
+  line-height: 1.7;
+}
+* {
+  box-sizing: border-box;
+}
+body {
+  margin: 0;
+}
+main {
+  max-width: 860px;
+  margin: auto;
+  padding: 32px 24px;
+}
+a {
+  color: #2877e7;
+  text-decoration: none;
+}
+a:hover {
+  text-decoration: underline;
+}
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 62px;
+  font-size: 13px;
+}
+.brand {
+  color: #20304a;
+  font-size: 20px;
+  font-weight: 600;
+  display: flex;
+  gap: 9px;
+  align-items: center;
+}
+.brand b {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  background: #2877e7;
+  color: #fff;
+  border-radius: 6px;
+  font-size: 20px;
+}
+.eyebrow {
+  font-size: 10px;
+  letter-spacing: 2px;
+  color: #8a98ad;
+}
+h1 {
+  font-size: 32px;
+  margin: 0;
+}
+h2 {
+  font-size: 15px;
+  margin: 24px 0 8px;
+}
+.intro {
+  color: #7c8ba0;
+  font-size: 14px;
+  margin-bottom: 28px;
+}
+.banner {
+  border-radius: 8px;
+  padding: 22px 24px;
+  border: 1px solid #dde4ef;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  background: #edf1f7;
+  color: #62738c;
+}
+.banner strong {
+  font-size: 21px;
+}
+.banner span {
+  font-size: 13px;
+}
+.banner.good {
+  background: #edf8f4;
+  color: #28735d;
+  border-color: #cce9dc;
+}
+.banner.warning {
+  background: #fff6e9;
+  color: #966719;
+  border-color: #ebd9b8;
+}
+.subtle {
+  font-size: 11px;
+  color: #8a99ac;
+  margin: 17px 0;
+}
+.service {
+  display: flex;
+  justify-content: space-between;
+  gap: 18px;
+  align-items: center;
+  background: #fff;
+  border: 1px solid #e2e8f1;
+  border-radius: 6px;
+  padding: 17px 20px;
+  margin: 9px 0;
+}
+.service strong {
+  font-size: 14px;
+  font-weight: 500;
+}
+.service small {
+  display: block;
+  font-size: 11px;
+  color: #8b98a9;
+}
+.service-status {
+  text-align: right;
+  font-size: 12px;
+  color: #8391a4;
+}
+.service-status.good {
+  color: #32836b;
+}
+.service-status.warning {
+  color: #a56d22;
+}
+.notes {
+  font-size: 13px;
+  color: #7f8da2;
+  margin-top: 35px;
+}
+.notes h2 {
+  color: #32445f;
+}
+.notes p {
+  margin: 8px 0;
+}
+footer {
+  margin-top: 40px;
+  border-top: 1px solid #e2e8f1;
+  padding-top: 20px;
+  font-size: 11px;
+  color: #8d9aab;
+}
+footer a {
+  color: inherit;
+}
+@media (max-width: 500px) {
+  main {
+    padding: 24px 18px;
+  }
+  header {
+    margin-bottom: 42px;
+  }
+  .intro {
+    font-size: 13px;
+  }
+  .service {
+    padding: 16px 14px;
+    gap: 10px;
+  }
+  .service strong {
+    font-size: 13px;
+  }
+  .service-status {
+    font-size: 11px;
+  }
+  h1 {
+    font-size: 28px;
+  }
+}

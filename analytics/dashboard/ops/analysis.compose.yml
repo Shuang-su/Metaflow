@@ -1,0 +1,38 @@
+# Complete separate analysis configuration. Verify existing Compose service/project
+# labels before adopting it; analysisctl operates the retained containers by name.
+services:
+  metabase-db:
+    profiles: [analysis]
+    image: ${METABASE_DB_IMAGE:?Set the verified PostgreSQL digest}
+    container_name: metaflow-metabase-db
+    restart: "no"
+    env_file: /etc/metaflow-analysis/database.env
+    volumes:
+      - database:/var/lib/postgresql/data
+    security_opt: [no-new-privileges:true]
+    networks:
+      analysis:
+        aliases: [db, metabase-db, metaflow-metabase-db]
+    healthcheck:
+      test: [CMD-SHELL, 'pg_isready -U "$$POSTGRES_USER" -d "$$POSTGRES_DB"']
+      interval: 5s
+      timeout: 3s
+      retries: 20
+  metabase:
+    profiles: [analysis]
+    image: ${METABASE_IMAGE:?Set the reviewed patched Metabase digest}
+    container_name: metaflow-metabase
+    restart: "no"
+    env_file: /etc/metaflow-analysis/metabase.env
+    ports: ['127.0.0.1:3000:3000']
+    security_opt: [no-new-privileges:true]
+    networks: [analysis]
+    depends_on:
+      metabase-db:
+        condition: service_healthy
+volumes:
+  database:
+    external: true
+    name: ${METABASE_DATA_VOLUME:?Set the existing recovered data volume; never create an empty replacement}
+networks:
+  analysis: {}

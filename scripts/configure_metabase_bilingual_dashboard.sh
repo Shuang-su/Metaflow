@@ -8,7 +8,12 @@ BASE_DIR=${METAFLOW_METABASE_DIR:-/opt/metaflow-metabase}
 ADMIN_ENV="$BASE_DIR/metabase-admin.env"
 PAGE_DIR="$BASE_DIR/dashboard-shell"
 IDS_ENV="$BASE_DIR/dashboard-shell/dashboard-ids.env"
-SITE_URL=${METAFLOW_DASHBOARD_SITE_URL:-https://dashboard.metaflow.shuang-su.com}
+export METAFLOW_DASHBOARD_SITE_URL=${METAFLOW_DASHBOARD_SITE_URL:-http://127.0.0.1:18080}
+case "$METAFLOW_DASHBOARD_SITE_URL" in
+  http://127.0.0.1:*|http://localhost:*) ;;
+  *) echo "Metabase is internal-only (MF-89); use a localhost SSH tunnel URL." >&2; exit 2 ;;
+esac
+SITE_URL=$METAFLOW_DASHBOARD_SITE_URL
 DOMAIN=${METAFLOW_DASHBOARD_DOMAIN:-dashboard.metaflow.shuang-su.com}
 METABASE_LOCAL_URL=${METABASE_LOCAL_URL:-http://127.0.0.1:3000}
 CADDY_CONF=${METAFLOW_CADDYFILE:-$BASE_DIR/caddy/Caddyfile}
@@ -41,7 +46,7 @@ import urllib.parse
 import urllib.request
 
 BASE = os.environ.get("METABASE_LOCAL_URL", "http://127.0.0.1:3000")
-SITE_URL = os.environ.get("METAFLOW_DASHBOARD_SITE_URL", "https://dashboard.metaflow.shuang-su.com")
+SITE_URL = os.environ.get("METAFLOW_DASHBOARD_SITE_URL", "http://127.0.0.1:18080")
 COLLECTION_NAME = "Metaflow Analytics"
 EN_DASHBOARD_NAME = "Metaflow Usage Overview"
 ZH_DASHBOARD_NAME = "Metaflow 使用总览"
@@ -1293,205 +1298,10 @@ HTML
 
 echo "__DASHBOARD_SHELL_WRITTEN__ $PAGE_DIR/index.html"
 
-if [ -f "$CADDY_CONF" ] && command -v docker >/dev/null 2>&1; then
+# MF-89: this command updates internal cards and the internal language shell only.
+# Public Caddy configuration belongs to analytics/dashboard/ops/Caddyfile.
+if [ -d "$CADDY_DATA_DIR" ]; then
   mkdir -p "$CADDY_PAGE_DIR"
-  cp -a "$PAGE_DIR"/. "$CADDY_PAGE_DIR"/
-  chmod -R a+rX "$CADDY_PAGE_DIR"
-
-  export CADDY_CONF DOMAIN CADDY_CONTAINER_PAGE_DIR
-  python3 - <<'PY'
-from __future__ import print_function
-from datetime import datetime
-import os
-import shutil
-
-path = os.environ["CADDY_CONF"]
-domain = os.environ["DOMAIN"]
-container_page_dir = os.environ["CADDY_CONTAINER_PAGE_DIR"].rstrip("/")
-
-with open(path, "r") as fh:
-    text = fh.read()
-
-block = """{domain} {{
-    encode gzip zstd
-
-    header {{
-        X-Content-Type-Options "nosniff"
-        X-Frame-Options "SAMEORIGIN"
-        Referrer-Policy "strict-origin-when-cross-origin"
-    }}
-
-    redir /metaflow /metaflow/ 308
-
-    handle_path /metaflow/* {{
-        root * {container_page_dir}
-        try_files {{path}} {{path}}/ /index.html
-        file_server
-    }}
-
-    handle {{
-        reverse_proxy 127.0.0.1:3000 {{
-            header_down -Content-Security-Policy
-            header_down -X-Frame-Options
-        }}
-    }}
-}}
-""".format(domain=domain, container_page_dir=container_page_dir)
-
-lines = text.splitlines(True)
-start = None
-for i, line in enumerate(lines):
-    stripped = line.strip()
-    if stripped.startswith(domain) and stripped.endswith("{"):
-        start = i
-        break
-
-if start is None:
-    if text and not text.endswith("\n"):
-        text += "\n"
-    new_text = text + "\n" + block
-else:
-    depth = 0
-    end = None
-    for i in range(start, len(lines)):
-        depth += lines[i].count("{")
-        depth -= lines[i].count("}")
-        if i > start and depth <= 0:
-            end = i
-            break
-    if end is None:
-        raise RuntimeError("cannot find Caddy site block end in " + path)
-    new_text = "".join(lines[:start]) + block + "".join(lines[end + 1:])
-
-if new_text == text:
-    print("__CADDY_CONFIG_UNCHANGED__ " + path)
-else:
-    backup = path + ".bak-metaflow-dashboard-" + datetime.utcnow().strftime("%Y%m%d%H%M%S")
-    shutil.copy2(path, backup)
-    # Write in place so a running Docker single-file bind mount keeps the same inode.
-    with open(path, "w") as fh:
-        fh.write(new_text)
-    print("__CADDY_CONFIG_UPDATED__ " + path)
-    print("__CADDY_BACKUP__ " + backup)
-PY
-
-  validate_cmd=(docker exec "$CADDY_CONTAINER" caddy validate --config /etc/caddy/Caddyfile --adapter caddyfile)
-  reload_cmd=(docker exec "$CADDY_CONTAINER" caddy reload --config /etc/caddy/Caddyfile --adapter caddyfile)
-
-  host_stat=$(stat -c '%i:%s' "$CADDY_CONF" 2>/dev/null || true)
-  container_stat=$(docker exec "$CADDY_CONTAINER" stat -c '%i:%s' /etc/caddy/Caddyfile 2>/dev/null || true)
-  if [ -n "$host_stat" ] && [ -n "$container_stat" ] && [ "$host_stat" != "$container_stat" ]; then
-    echo "__CADDY_BIND_INODE_CHANGED__ restarting_container=$CADDY_CONTAINER"
-    docker run --rm \
-      -v "$CADDY_CONF:/etc/caddy/Caddyfile:ro" \
-      -v "$CADDY_DATA_DIR:/data:ro" \
-      caddy:2 caddy validate --config /etc/caddy/Caddyfile --adapter caddyfile
-    docker restart "$CADDY_CONTAINER"
-  else
-    "${validate_cmd[@]}"
-    "${reload_cmd[@]}" || docker restart "$CADDY_CONTAINER"
-  fi
-
-  echo "__CADDY_CONFIGURED__ $CADDY_CONF"
-  echo "__METAFLOW_DASHBOARD_ENTRY__ ${SITE_URL}/metaflow/"
-  echo "__DONE__"
-  exit 0
+  install -m 644 "$PAGE_DIR/index.html" "$CADDY_PAGE_DIR/index.html"
 fi
-
-NGINX_CONF=""
-for dir in \
-  /www/server/panel/vhost/nginx \
-  /www/server/nginx/conf/vhost \
-  /www/server/nginx/conf/conf.d \
-  /www/server/nginx/conf \
-  /etc/nginx/conf.d \
-  /etc/nginx/sites-enabled \
-  /etc/nginx/sites-available; do
-  if [ -d "$dir" ]; then
-    found=$(grep -Rsl "server_name.*${DOMAIN}" "$dir" 2>/dev/null | head -n 1 || true)
-    if [ -n "$found" ]; then
-      NGINX_CONF="$found"
-      break
-    fi
-  fi
-done
-
-if [ -z "$NGINX_CONF" ]; then
-  found=$(grep -Rsl "server_name.*${DOMAIN}" /www/server /etc/nginx 2>/dev/null | head -n 1 || true)
-  if [ -n "$found" ]; then
-    NGINX_CONF="$found"
-  fi
-fi
-
-if [ -n "$NGINX_CONF" ]; then
-  export NGINX_CONF PAGE_DIR DOMAIN
-  python3 - <<'PY'
-from __future__ import print_function
-import os
-import shutil
-
-path = os.environ["NGINX_CONF"]
-page_dir = os.environ["PAGE_DIR"]
-domain = os.environ["DOMAIN"]
-
-with open(path, "r") as fh:
-    text = fh.read()
-
-marker = "location ^~ /metaflow/"
-if marker in text:
-    print("__NGINX_LOCATION_EXISTS__ " + path)
-    raise SystemExit(0)
-
-block = """
-    location = /metaflow {
-        return 301 /metaflow/;
-    }
-
-    location ^~ /metaflow/ {
-        alias PAGE_DIR_PLACEHOLDER/;
-        index index.html;
-        try_files $uri $uri/ /metaflow/index.html;
-    }
-""".replace("PAGE_DIR_PLACEHOLDER", page_dir.rstrip("/"))
-
-lines = text.splitlines(True)
-insert_at = None
-for i, line in enumerate(lines):
-    if "server_name" in line and domain in line:
-        insert_at = i + 1
-        break
-if insert_at is None:
-    for i, line in enumerate(lines):
-        if line.strip() == "{":
-            insert_at = i + 1
-            break
-if insert_at is None:
-    raise RuntimeError("cannot find insertion point in " + path)
-
-backup = path + ".bak-metaflow-dashboard"
-shutil.copy2(path, backup)
-lines.insert(insert_at, block + "\n")
-with open(path, "w") as fh:
-    fh.write("".join(lines))
-print("__NGINX_LOCATION_ADDED__ " + path)
-print("__NGINX_BACKUP__ " + backup)
-PY
-
-  if nginx -t; then
-    nginx -s reload
-    echo "__NGINX_RELOADED__"
-  else
-    echo "__NGINX_TEST_FAILED__ restoring backup"
-    if [ -f "$NGINX_CONF.bak-metaflow-dashboard" ]; then
-      cp "$NGINX_CONF.bak-metaflow-dashboard" "$NGINX_CONF"
-      nginx -t && nginx -s reload || true
-    fi
-    exit 5
-  fi
-else
-  echo "__NGINX_CONF_NOT_FOUND__ domain=$DOMAIN"
-  exit 6
-fi
-
-echo "__METAFLOW_DASHBOARD_ENTRY__ ${SITE_URL}/metaflow/"
-echo "__DONE__"
+echo "__INTERNAL_DASHBOARDS_READY__ ${SITE_URL} (SSH tunnel required)"

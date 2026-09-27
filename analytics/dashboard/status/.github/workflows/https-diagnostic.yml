@@ -1,0 +1,17 @@
+name: External HTTPS diagnostic
+on: workflow_dispatch
+permissions:
+  contents: read
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - name: DNS and verified TLS from an independent network
+        shell: bash
+        run: |
+          dig dashboard.metaflow.shuang-su.com A
+          dig dashboard.metaflow.shuang-su.com AAAA
+          curl -I -v --connect-timeout 10 --max-time 20 https://dashboard.metaflow.shuang-su.com/ || true
+          curl -I -v --connect-timeout 10 --max-time 20 http://dashboard.metaflow.shuang-su.com/ || true
+          timeout 20 openssl s_client -connect dashboard.metaflow.shuang-su.com:443 -servername dashboard.metaflow.shuang-su.com -verify_return_error -brief </dev/null || true

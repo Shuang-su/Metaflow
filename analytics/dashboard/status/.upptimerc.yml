@@ -1,0 +1,33 @@
+owner: Shuang-su
+repo: metaflow-status
+user-agent: Shuang-su
+secrets: []
+sites:
+  - name: Metaflow 主网站
+    slug: main-site
+    url: https://metaflow.shuang-su.com
+    expectedStatusCodes: [200]
+    maxResponseTime: 15000
+  - name: 数据接收接口
+    slug: analytics-collector
+    url: https://bziyumtuzvfmhgghvpcs.functions.supabase.co/analytics-collect
+    method: OPTIONS
+    headers:
+      - "Origin: https://metaflow.shuang-su.com"
+    expectedStatusCodes: [200]
+    maxResponseTime: 15000
+# The dashboard endpoints are probed in monitor.py during staging, but do not
+# open incident issues until the static dashboard is actually published.
+# activate.py appends the reviewed public endpoints at that deployment gate.
+assignees: []
+skipGeneratingWebsite: true
+skipDescriptionUpdate: true
+skipTopicsUpdate: true
+status-website:
+  name: Metaflow 服务状态
+  cname: status.metaflow.shuang-su.com
+  introTitle: Metaflow 服务状态
+  introMessage: 入口可达和数据更新时间分别显示。监测超过 30 分钟未更新时为未知。
+commitMessages:
+  statusChange: "$EMOJI $SITE_NAME is $STATUS ($RESPONSE_CODE in $RESPONSE_TIME ms) [skip ci] [upptime]"
+  responseTime: "chore(monitor): update response time [skip ci]"

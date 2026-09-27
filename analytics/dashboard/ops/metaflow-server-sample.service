@@ -1,0 +1,15 @@
+[Unit]
+Description=Metaflow coarse public server metrics
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/python3 /opt/metaflow-dashboard/ops/snapshot.py server
+ExecStartPost=/usr/bin/python3 /opt/metaflow-dashboard/ops/analysisctl.py observe
+TimeoutStartSec=25
+UMask=0077
+NoNewPrivileges=true
+ProtectHome=true
+ProtectSystem=strict
+PrivateTmp=true
+ReadWritePaths=/opt/metaflow-metabase/caddy/data/public-dashboard/api /var/lib/metaflow-dashboard
+MemoryMax=64M
+CPUQuota=10%

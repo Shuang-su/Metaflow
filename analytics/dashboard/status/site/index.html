@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta name="description" content="Metaflow 独立服务状态、故障及恢复记录" />
+    <title>Metaflow · 服务状态</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <main>
+      <header>
+        <a class="brand" href="https://metaflow.shuang-su.com"
+          ><b>M</b> Metaflow</a
+        ><a href="https://dashboard.metaflow.shuang-su.com">数据看板 ↗</a>
+      </header>
+      <p class="eyebrow">SERVICE STATUS</p>
+      <h1>服务状态</h1>
+      <p class="intro">
+        这里独立于应用服务器运行。服务故障时，仍可查看最近的监测结果。
+      </p>
+      <section id="overall" class="banner unknown" role="status">
+        <strong>状态未知</strong><span>正在获取独立监测结果</span>
+      </section>
+      <p id="checked" class="subtle">约每 5 分钟检查一次 · 北京时间</p>
+      <section id="services" aria-label="服务可用性"></section>
+      <section class="notes">
+        <h2>故障与恢复记录</h2>
+        <p>
+          Upptime
+          自动记录公众服务的故障和恢复。内部按需运行的分析工具不计入公众服务状态。
+        </p>
+        <a
+          href="https://github.com/Shuang-su/metaflow-status/issues?q=is%3Aissue+label%3Astatus"
+          >查看故障记录 ↗</a
+        >
+        <h2>如何理解状态</h2>
+        <p>
+          “入口可达”说明 HTTPS
+          请求成功；“数据已更新”说明汇总快照也在有效时间内。业务汇总超过 30
+          分钟、服务器采样超过 3 分钟会单独显示延迟。
+        </p>
+        <p>
+          GitHub 定时任务可能延迟。超过 30
+          分钟没有完成监测，整页显示“状态未知”，不会沿用绿色正常状态。
+        </p>
+        <p>
+          数据接收接口仅使用 OPTIONS
+          探测，不会生成访问埋点。公开看板尚未切换时会明确标记“准备中”。
+        </p>
+      </section>
+      <footer>
+        由 GitHub 独立托管 ·
+        <a href="https://github.com/Shuang-su/metaflow-status"
+          >Upptime 监测与公开历史 ↗</a
+        >
+      </footer>
+    </main>
+    <script src="status.js"></script>
+  </body>
+</html>
