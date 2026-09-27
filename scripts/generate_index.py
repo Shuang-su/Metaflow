@@ -17,6 +17,7 @@ INDEX_SCHEMA_VERSION = "1.2"
 
 # 类别配置
 CATEGORIES = {
+    "animals": {"name": "动物", "nameEn": "Animals"},
     "acg": {"name": "二次元", "nameEn": "ACG Characters"},
     "shenzhen": {"name": "深圳项目", "nameEn": "Shenzhen Projects"},
     "szcaee": {"name": "深圳文博会", "nameEn": "SZCAEE Exhibition"},
@@ -26,6 +27,8 @@ CATEGORIES = {
 
 # 设备/子分类配置
 SUBCATEGORIES = {
+    "cats": {"name": "猫", "device": None},
+    "sztuccf260919": {"name": "SZTUCampus Club Fair 2026 Fall", "device": None},
     "j04": {"name": "J04 扫描", "device": "J04"},
     "j05": {"name": "J05 扫描", "device": "J05"},
     "ad05": {"name": "AD05 扫描", "device": "AD05"},
@@ -352,6 +355,42 @@ for (event_subcategory, event_folder_name), event_definition in EVENT_RESOURCE_D
 RESOURCE_ROUTE_ALIASES[("acg", "szcaf15", "yunuo")] = ["/acg/szcaf15/akari"]
 
 
+# MF-81: user-confirmed publication identities; unknown capture dates/devices stay null.
+RESOURCE_SLUG_OVERRIDES[('animals', 'cats', '2609160002')] = '2609160002'
+RESOURCE_METADATA_OVERRIDES[('animals', 'cats', '2609160002')] = {'id': 'mangzhong-2609160002', 'title': '芒种 · 2026-09-16 00:02', 'titleEn': 'Mangzhong · 2026-09-16 00:02', 'route': '/animals/cats/mangzhong/2609160002', 'meta': {'date': '2026-09-16', 'device': None}, 'experienceType': 'object'}
+RESOURCE_SLUG_OVERRIDES[('animals', 'cats', '2609160028')] = '2609160028'
+RESOURCE_METADATA_OVERRIDES[('animals', 'cats', '2609160028')] = {'id': 'mangzhong-2609160028', 'title': '芒种 · 2026-09-16 00:28', 'titleEn': 'Mangzhong · 2026-09-16 00:28', 'route': '/animals/cats/mangzhong/2609160028', 'meta': {'date': '2026-09-16', 'device': None}, 'experienceType': 'object'}
+RESOURCE_SLUG_OVERRIDES[('animals', 'cats', '2609160031')] = '2609160031'
+RESOURCE_METADATA_OVERRIDES[('animals', 'cats', '2609160031')] = {'id': 'mangzhong-2609160031', 'title': '芒种 · 2026-09-16 00:31', 'titleEn': 'Mangzhong · 2026-09-16 00:31', 'route': '/animals/cats/mangzhong/2609160031', 'meta': {'date': '2026-09-16', 'device': None}, 'experienceType': 'object'}
+RESOURCE_SLUG_OVERRIDES[('acg', 'sztuccf260919', 'A003C0005_700101_RH8603')] = 'fate_stay_night-sakura_matou-1'
+RESOURCE_METADATA_OVERRIDES[('acg', 'sztuccf260919', 'fate_stay_night-sakura_matou-1')] = {'id': 'sztuccf260919-a003c0005', 'title': 'Fate/stay night 间桐樱1', 'titleEn': 'Sakura Matou 1', 'route': '/acg/sztuccf260919/fate_stay_night-sakura_matou-1', 'meta': {'date': None, 'device': None}, 'experienceType': 'character'}
+RESOURCE_ROUTE_ALIASES[('acg', 'sztuccf260919', 'fate_stay_night-sakura_matou-1')] = ['/acg/sztuccf260919/sakuramatou1']
+RESOURCE_SLUG_OVERRIDES[('acg', 'sztuccf260919', 'A003C0006_700101_RH8603')] = 'fate_stay_night-sakura_matou-2'
+RESOURCE_METADATA_OVERRIDES[('acg', 'sztuccf260919', 'fate_stay_night-sakura_matou-2')] = {'id': 'sztuccf260919-a003c0006', 'title': 'Fate/stay night 间桐樱2', 'titleEn': 'Sakura Matou 2', 'route': '/acg/sztuccf260919/fate_stay_night-sakura_matou-2', 'meta': {'date': None, 'device': None}, 'experienceType': 'character'}
+RESOURCE_ROUTE_ALIASES[('acg', 'sztuccf260919', 'fate_stay_night-sakura_matou-2')] = ['/acg/sztuccf260919/sakuramatou2']
+RESOURCE_SLUG_OVERRIDES[('acg', 'sztuccf260919', 'A003C0010_700101_RH8603')] = 'evangelion-asuka-racing_outfit'
+RESOURCE_METADATA_OVERRIDES[('acg', 'sztuccf260919', 'evangelion-asuka-racing_outfit')] = {'id': 'sztuccf260919-a003c0010', 'title': 'EVA 明日香 · 赛车风服装', 'titleEn': 'Asuka · Racing Outfit', 'route': '/acg/sztuccf260919/evangelion-asuka-racing_outfit', 'meta': {'date': None, 'device': None}, 'experienceType': 'character'}
+RESOURCE_ROUTE_ALIASES[('acg', 'sztuccf260919', 'evangelion-asuka-racing_outfit')] = ['/acg/sztuccf260919/asuka']
+RESOURCE_SLUG_OVERRIDES[('acg', 'sztuccf260919', 'A003C0011_700101_RH8603')] = 'arknights-angelina'
+RESOURCE_METADATA_OVERRIDES[('acg', 'sztuccf260919', 'arknights-angelina')] = {'id': 'sztuccf260919-a003c0011', 'title': '明日方舟 安洁莉娜', 'titleEn': 'Angelina', 'route': '/acg/sztuccf260919/arknights-angelina', 'meta': {'date': None, 'device': None}, 'experienceType': 'character'}
+RESOURCE_ROUTE_ALIASES[('acg', 'sztuccf260919', 'arknights-angelina')] = ['/acg/sztuccf260919/angelina']
+RESOURCE_SLUG_OVERRIDES[('acg', 'sztuccf260919', 'A003C0012_700101_RH8603')] = 'ave_mujica-timoris'
+RESOURCE_METADATA_OVERRIDES[('acg', 'sztuccf260919', 'ave_mujica-timoris')] = {'id': 'sztuccf260919-a003c0012', 'title': '颂乐人偶 八幡海铃 · Timoris', 'titleEn': 'Timoris / Umiri Yahata', 'route': '/acg/sztuccf260919/ave_mujica-timoris', 'meta': {'date': None, 'device': None}, 'experienceType': 'character'}
+RESOURCE_ROUTE_ALIASES[('acg', 'sztuccf260919', 'ave_mujica-timoris')] = ['/acg/sztuccf260919/timoris']
+RESOURCE_SLUG_OVERRIDES[('acg', 'sztuccf260919', 'A003C0013_700101_RH8603')] = 'arknights-w'
+RESOURCE_METADATA_OVERRIDES[('acg', 'sztuccf260919', 'arknights-w')] = {'id': 'sztuccf260919-a003c0013', 'title': '明日方舟 W', 'titleEn': 'W', 'route': '/acg/sztuccf260919/arknights-w', 'meta': {'date': None, 'device': None}, 'experienceType': 'character'}
+RESOURCE_ROUTE_ALIASES[('acg', 'sztuccf260919', 'arknights-w')] = ['/acg/sztuccf260919/w']
+RESOURCE_SLUG_OVERRIDES[('acg', 'sztuccf260919', 'A003C0023_700101_RH8603')] = 'arknights-exusiai'
+RESOURCE_METADATA_OVERRIDES[('acg', 'sztuccf260919', 'arknights-exusiai')] = {'id': 'sztuccf260919-a003c0023', 'title': '明日方舟 能天使', 'titleEn': 'Exusiai', 'route': '/acg/sztuccf260919/arknights-exusiai', 'meta': {'date': None, 'device': None}, 'experienceType': 'character'}
+RESOURCE_ROUTE_ALIASES[('acg', 'sztuccf260919', 'arknights-exusiai')] = ['/acg/sztuccf260919/exusiai']
+RESOURCE_SLUG_OVERRIDES[('acg', 'sztuccf260919', 'A003C0024_700101_RH8603')] = 'arknights-lappland'
+RESOURCE_METADATA_OVERRIDES[('acg', 'sztuccf260919', 'arknights-lappland')] = {'id': 'sztuccf260919-a003c0024', 'title': '明日方舟 拉普兰德', 'titleEn': 'Lappland', 'route': '/acg/sztuccf260919/arknights-lappland', 'meta': {'date': None, 'device': None}, 'experienceType': 'character'}
+RESOURCE_ROUTE_ALIASES[('acg', 'sztuccf260919', 'arknights-lappland')] = ['/acg/sztuccf260919/lappland']
+RESOURCE_SLUG_OVERRIDES[('acg', 'sztuccf260919', 'A003C0025_700101_RH8603')] = 'lolita-burgundy_lace'
+RESOURCE_METADATA_OVERRIDES[('acg', 'sztuccf260919', 'lolita-burgundy_lace')] = {'id': 'sztuccf260919-a003c0025', 'title': '酒红色蕾丝 Lolita', 'titleEn': 'Burgundy Lace Lolita', 'route': '/acg/sztuccf260919/lolita-burgundy_lace', 'meta': {'date': None, 'device': None}, 'experienceType': 'character'}
+RESOURCE_ROUTE_ALIASES[('acg', 'sztuccf260919', 'lolita-burgundy_lace')] = ['/acg/sztuccf260919/lolita']
+
+
 def infer_experience_type(category, folder_name, route):
     """Classify viewing behavior independently from capture source."""
     if route == "/shenzhen/dayun":
@@ -562,7 +601,7 @@ def find_settings_file(folder_path):
 
 def find_thumbnail_file(folder_path):
     thumbnails = sorted(
-        file for pattern in ("*.jpg", "*.png")
+        file for pattern in ("*.jpg", "*.png", "*.webp")
         for file in folder_path.glob(pattern)
         if file.is_file()
     )
@@ -978,6 +1017,15 @@ def scan_data_directory():
         
         category = category_dir.name.lower()
         
+        # Named animals keep their approved species/name/capture hierarchy.
+        if category == "animals":
+            for resource_dir in sorted(category_dir.glob("Cats/mangzhong/*")):
+                if resource_dir.is_dir() and not resource_dir.name.startswith('.'):
+                    resource = scan_resource_folder(resource_dir, category, "cats")
+                    if resource:
+                        resources.append(resource)
+            continue
+
         # ACG 目录有子分类
         if category == "acg":
             for subcategory_dir in category_dir.iterdir():

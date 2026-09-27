@@ -252,6 +252,8 @@ flowchart TD
 
 | `5.19.1` · `534b013` | `viewer-v5.19.0` 已指向不可变 release packet `f1986097`，但 controlled workflow [`31779246997`](https://github.com/Shuang-su/Metaflow/actions/runs/31779246997) 在 prepare 阶段只得到 Viewer `81/85`：release sparse checkout 缺根 `.nvmrc`、BitCity/SZCAF15 fixture，并且 package consumer tests 在 `dist/` build 前运行。production job 被跳过，没有 GitHub Release，`5.19.0` 在 deployment 前失败且生产一直是 `5.18.1`。同时普通 main Git push 仍会创建可发布的 production build，和“只有 Tag workflow 可发布”的控制目标不一致。 | Recovery PR #45 补齐 release 与 on-demand CI fixture/order、Tag/version/gitRef 精确检查和 production smoke；`netlify.toml` 增加普通 main skip 合同。R2/D2 对齐 `5.19.1 / 534b013`；26 个未发布 Preview 队列记录在保留历史与 PR 的前提下被释放，F/D2 两个普通 main Git record 因持续停滞且未发布而精确取消。不可变 `viewer-v5.19.1` 指向 D2；controlled run [`31795886847`](https://github.com/Shuang-su/Metaflow/actions/runs/31795886847) 以 D2 通过 Prepare。Netlify Git build 再次不可靠后，按用户明确授权从 clean detached D2 构建完整 87-resource 实体 publish 目录，并通过 CLI/API fallback 发布 deploy `6a7efc396f36c800cfa0702e`。Viewer 运行时源码、偏好迁移标记 `5.19.0`、87 条 route、9 条 streaming、78 条 SOG、schema 与资源 payload 均未改变。 | PATCH `5.19.1` 已成为生产稳定版，用户实际升级路径是 `5.18.1 -> 5.19.1`。线上 index/history 为 `5.19.1 / gitRef 534b013 / upstream 1.29.1`；WebGPU/WebGL、desktop/`360 x 732`、legacy/streaming/tiled/animation/active-event/alias、SH `1/0.2`、capture、Annotation、heatmap fallback、on-demand 与偏好迁移通过。即时 smoke 后的 15 分钟观察中，Cyrene 与 Xunyangpai 再次完成首帧且无 console/network 问题；[GitHub Release](https://github.com/Shuang-su/Metaflow/releases/tag/viewer-v5.19.1) 已建立。 | Netlify 对 CLI 上传真实报告 `deploy_source=api`、`commit_ref=null`，所以来源链依赖 main/Tag=D2、detached tree、online hash 与版本记录，不冒充 Git deploy。F/D2 Git record 没有产生真实 skipped 证据；未来仍需跟踪 Netlify Git-build 基础设施。PR #45 无独立 reviewer；移动真机与 immersive XR 仍未验证。Bijiashan 已知缺失 tile 只产生一次受控 404/warning，主体不受影响。回退 deploy 固定为 `6a7a18b49094c6c76eff2482`；两个 Tag 永不移动，任何 tracked 修复使用 `5.19.2`。 |
 
+| `5.19.2` · `92d11b0` | 5.19.1 的生产 HTML 仍把 Supabase analytics endpoint 编译为空，SDK 因此主动禁用，页面运行不报错但埋点 session/page/heartbeat 不再进入数据库；现有 release workflow 只校验版本字段，不能发现这种配置缺失。 | 为 production/tagged Viewer build 增加 endpoint 缺失硬失败；Netlify production context 固定公开 collector endpoint；controlled release build 注入同一 endpoint；production smoke 解析 immutable 与 production HTML 的 `metaflow-analytics-endpoint` 并要求指向 `/analytics-collect`；补充 analytics 回归测试与实现文档。 | PATCH `5.19.2` 恢复 production analytics 配置，session/page/heartbeat 等既有事件可重新上报；资源、路由、index schema、Supabase migration/Edge Function 和预览/本地默认关闭策略不变。 | 最终发布 deploy `6a8087d8ee37ee534090c5a2`（`deploy_source=cli`、`commit_ref=null`）；immutable/production HTML endpoint 一致，公开 version-history 镜像与 release checkpoint 完全一致，真实浏览器 collector preflight/POST 均 HTTP 200，Supabase 已读回 `session_started`、`page_viewed`、`first_frame_ready`、`navigation_completed`、`session_heartbeat`（`docs/changes/20260815-viewer-analytics-5192/completion.md`）。下一次 tracked 修复从 `5.19.3` 起。 |
+
 `5.19.0` 失败尝试的不可变身份为 Tag object `c9a19ea438e604333af2d3158bebea7d16f1a33e`、peeled target / release packet `f1986097f81cf15db95d33fa76c090b2066d4bd1`；这些证据只追加，不删除、不移动，也不创建 `viewer-v5.19.0` GitHub Release。该版本行中“等待正式生产发布”描述的是其当时 checkpoint；最终生产结论由后续 `5.19.1` 行追加表达。
 
 ### 不产生产品版本的维护提交
@@ -303,7 +305,8 @@ flowchart TD
 | 偏好生命周期 / `Config.lang` | `5.19.0` |
 | 主体入口 parser / 四次有界尝试 | `2.5`、`2.8`、`5.19.0` |
 | Debug Engine / CSS map / package metadata / production audit | `5.19.0` |
-| Controlled release / sparse validation / production trigger | `5.19.1` |
+| Controlled release / sparse validation / production trigger | `5.19.1`、`5.19.2` |
+| Analytics endpoint / release smoke | `5.10`、`5.12`、`5.19.2` |
 
 ## 后续提交维护模板
 
@@ -322,3 +325,18 @@ flowchart TD
 ```
 
 版本测试保留 `c613a87` 之前的历史全量校验；之后只检查 Viewer/data/发布支撑提交、结构化版本条目和本总账 SHA 覆盖。若提交改变 Viewer 产品但未更新总账，应在交付前失败；无关组件和普通治理文档不应被塞进 `maintenanceCommits`。
+
+
+## `5.19.3` · `0c4bb78` · MF-81 approved resource publication
+
+- 动机 / 原行为：生产 5.19.2 的 87 项不包含已审核的 3 组芒种和 9 组 SZTUCCF260919 ACG。
+- 具体改动：新增 69 个发布文件，按确认名称、ID、目录、规范路由及 9 个短别名入库；生成器发现 WebP 及猫的分钟编号目录。每张封面为来源初始镜头的 4096² 静态无损 WebP。仅修复发布 settings 副本的环境 URL。
+- 用户结果：99 项资源，芒种按 2609160002/0028/0031 区分，ACG 保留来源组目录并使用已确认角色名。
+- 兼容 / 风险：旧 87 项内容与 URL 不变，schema 1.2、Viewer/Editor 行为不变；设备及 ACG 拍摄日期 null，无公开 tags。原镜头宽幅裁切可能截到头脚。新路径避免覆盖已有 immutable 大文件。
+- 验证：生成器定向测试、路由/来源测试、validate_data --check-files、原 87 项逐对象比较。构建、部署与线上观察结果记录在 MF-81 Issue/PR。
+- 回滚：保留 5.19.2 deploy 6a8087d8ee37ee534090c5a2；如需回滚应另行记录，不能改写已发布历史。
+- 证据：[MF-81](https://github.com/Shuang-su/Metaflow/issues/81)、[Spec](changes/81-publish-mangzhong-sztuccf/spec.md)、[Plan](changes/81-publish-mangzhong-sztuccf/plan.md)。
+
+### Existing release support record · `2f5b8c3`
+
+The 2026-08-15 Viewer 5.19.2 release-record commit updated package/version/index mirrors for analytics recovery. MF-81 adds this previously omitted maintenance reference without changing historical entries or published behavior.

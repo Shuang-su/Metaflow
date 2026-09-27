@@ -10,6 +10,17 @@ import scss from 'rollup-plugin-scss';
 import { string } from 'rollup-plugin-string';
 import sass from 'sass';
 
+const analyticsSink = process.env.METAFLOW_ANALYTICS_SINK ?? 'supabase';
+const analyticsEndpoint = process.env.METAFLOW_ANALYTICS_ENDPOINT ?? '';
+const isReleaseBuild =
+    process.env.CONTEXT === 'production' || /^viewer-v\d+\.\d+\.\d+$/.test(process.env.RELEASE_TAG ?? '');
+
+if (isReleaseBuild && ['supabase', 'dual'].includes(analyticsSink.trim().toLowerCase()) && !analyticsEndpoint.trim()) {
+    throw new Error(
+        'Production Viewer builds require METAFLOW_ANALYTICS_ENDPOINT when the analytics sink is Supabase or dual.'
+    );
+}
+
 function htmlPlugin() {
     return {
         name: 'html',
@@ -20,8 +31,8 @@ function htmlPlugin() {
             const contents = readFileSync('src/index.html', 'utf-8');
             const transformed = contents
                 .replace('<base href="/">', `<base href="${process.env.BASE_HREF ?? '/'}">`)
-                .replace('%METAFLOW_ANALYTICS_SINK%', process.env.METAFLOW_ANALYTICS_SINK ?? 'supabase')
-                .replace('%METAFLOW_ANALYTICS_ENDPOINT%', process.env.METAFLOW_ANALYTICS_ENDPOINT ?? '')
+                .replace('%METAFLOW_ANALYTICS_SINK%', analyticsSink)
+                .replace('%METAFLOW_ANALYTICS_ENDPOINT%', analyticsEndpoint)
                 .replace('%METAFLOW_ANALYTICS_REPLAY_RATE%', process.env.METAFLOW_ANALYTICS_REPLAY_RATE ?? '0.05')
                 .replace('%METAFLOW_POSTHOG_KEY%', process.env.METAFLOW_POSTHOG_KEY ?? '')
                 .replace('%METAFLOW_POSTHOG_HOST%', process.env.METAFLOW_POSTHOG_HOST ?? 'https://us.i.posthog.com')

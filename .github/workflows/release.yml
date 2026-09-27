@@ -82,6 +82,10 @@ jobs:
       - name: Build Viewer release payload
         if: steps.tag.outputs.component == 'viewer'
         working-directory: metaflow-viewer
+        env:
+          RELEASE_TAG: ${{ inputs.release_tag }}
+          METAFLOW_ANALYTICS_SINK: supabase
+          METAFLOW_ANALYTICS_ENDPOINT: https://bziyumtuzvfmhgghvpcs.functions.supabase.co/analytics-collect
         run: |
           npm ci
           npm run build
@@ -206,6 +210,14 @@ jobs:
             }
             if (release?.gitRef !== process.env.EXPECTED_PRODUCT_GIT_REF) {
               throw new Error(`${path}: unexpected product gitRef`);
+            }
+          }
+          const endpointPattern = /<meta\s+name=["']metaflow-analytics-endpoint["']\s+content=["']([^"']+)["'][^>]*>/i;
+          for (const path of ['smoke-index.html', 'smoke-production-index.html']) {
+            const html = readFileSync(path, 'utf8');
+            const endpoint = html.match(endpointPattern)?.[1]?.trim() ?? '';
+            if (!endpoint || !endpoint.endsWith('/analytics-collect')) {
+              throw new Error(`${path}: production analytics endpoint is missing or unexpected`);
             }
           }
           NODE

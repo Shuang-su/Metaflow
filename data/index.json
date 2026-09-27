@@ -2,16 +2,20 @@
   "version": "1.0",
   "schemaVersion": "1.2",
   "release": {
-    "displayVersion": "5.19.1",
-    "appSemver": "5.19.1",
+    "displayVersion": "5.19.3",
+    "appSemver": "5.19.3",
     "schemaVersion": "1.2",
     "historyUrl": "/data/version-history.json",
-    "updatedAt": "2026-08-14",
-    "gitRef": "534b013"
+    "updatedAt": "2026-09-27",
+    "gitRef": "0c4bb78"
   },
-  "lastUpdated": "2026-08-11",
-  "totalResources": 87,
+  "lastUpdated": "2026-09-27",
+  "totalResources": 99,
   "categories": {
+    "animals": {
+      "name": "动物",
+      "nameEn": "Animals"
+    },
     "acg": {
       "name": "二次元",
       "nameEn": "ACG Characters"
@@ -34,6 +38,14 @@
     }
   },
   "subcategories": {
+    "cats": {
+      "name": "猫",
+      "device": null
+    },
+    "sztuccf260919": {
+      "name": "SZTUCampus Club Fair 2026 Fall",
+      "device": null
+    },
     "j04": {
       "name": "J04 扫描",
       "device": "J04"
@@ -114,6 +126,420 @@
       "version": {
         "addedIn": "4.2b",
         "updatedIn": "4.2b"
+      }
+    },
+    {
+      "id": "sztuccf260919-a003c0005",
+      "title": "Fate/stay night 间桐樱1",
+      "titleEn": "Sakura Matou 1",
+      "category": [
+        "acg",
+        "sztuccf260919"
+      ],
+      "route": "/acg/sztuccf260919/fate_stay_night-sakura_matou-1",
+      "source": "photogrammetry",
+      "experienceType": "character",
+      "files": {
+        "model": "ACG/SZTUCCF260919/A003C0005_700101_RH8603/scene.sog",
+        "environment": "ACG/SZTUCCF260919/A003C0005_700101_RH8603/environment.compressed.ply",
+        "settings": "ACG/SZTUCCF260919/A003C0005_700101_RH8603/settings.json",
+        "thumbnail": "ACG/SZTUCCF260919/A003C0005_700101_RH8603/cover-4096.webp",
+        "voxel": "ACG/SZTUCCF260919/A003C0005_700101_RH8603/walk.voxel.json"
+      },
+      "fileSize": {
+        "model": 9735290,
+        "environment": 621622,
+        "thumbnail": 4718796,
+        "total": 16345766,
+        "voxel": 1270058
+      },
+      "meta": {
+        "date": null,
+        "device": null,
+        "folderName": "A003C0005_700101_RH8603"
+      },
+      "viewer": {
+        "animationFirstExitMode": "orbit"
+      },
+      "aliases": [
+        "/acg/sztuccf260919/sakuramatou1"
+      ],
+      "animation": {
+        "duration": 20,
+        "frameRate": 1,
+        "loopMode": "repeat"
+      },
+      "version": {
+        "addedIn": "5.19.3",
+        "updatedIn": "5.19.3"
+      }
+    },
+    {
+      "id": "sztuccf260919-a003c0006",
+      "title": "Fate/stay night 间桐樱2",
+      "titleEn": "Sakura Matou 2",
+      "category": [
+        "acg",
+        "sztuccf260919"
+      ],
+      "route": "/acg/sztuccf260919/fate_stay_night-sakura_matou-2",
+      "source": "photogrammetry",
+      "experienceType": "character",
+      "files": {
+        "model": "ACG/SZTUCCF260919/A003C0006_700101_RH8603/scene.sog",
+        "environment": "ACG/SZTUCCF260919/A003C0006_700101_RH8603/environment.compressed.ply",
+        "settings": "ACG/SZTUCCF260919/A003C0006_700101_RH8603/settings.json",
+        "thumbnail": "ACG/SZTUCCF260919/A003C0006_700101_RH8603/cover-4096.webp",
+        "voxel": "ACG/SZTUCCF260919/A003C0006_700101_RH8603/walk.voxel.json"
+      },
+      "fileSize": {
+        "model": 9973929,
+        "environment": 353948,
+        "thumbnail": 4314024,
+        "total": 16278873,
+        "voxel": 1636972
+      },
+      "meta": {
+        "date": null,
+        "device": null,
+        "folderName": "A003C0006_700101_RH8603"
+      },
+      "viewer": {
+        "animationFirstExitMode": "orbit"
+      },
+      "aliases": [
+        "/acg/sztuccf260919/sakuramatou2"
+      ],
+      "animation": {
+        "duration": 20,
+        "frameRate": 1,
+        "loopMode": "repeat"
+      },
+      "version": {
+        "addedIn": "5.19.3",
+        "updatedIn": "5.19.3"
+      }
+    },
+    {
+      "id": "sztuccf260919-a003c0010",
+      "title": "EVA 明日香 · 赛车风服装",
+      "titleEn": "Asuka · Racing Outfit",
+      "category": [
+        "acg",
+        "sztuccf260919"
+      ],
+      "route": "/acg/sztuccf260919/evangelion-asuka-racing_outfit",
+      "source": "photogrammetry",
+      "experienceType": "character",
+      "files": {
+        "model": "ACG/SZTUCCF260919/A003C0010_700101_RH8603/scene.sog",
+        "environment": "ACG/SZTUCCF260919/A003C0010_700101_RH8603/environment.compressed.ply",
+        "settings": "ACG/SZTUCCF260919/A003C0010_700101_RH8603/settings.json",
+        "thumbnail": "ACG/SZTUCCF260919/A003C0010_700101_RH8603/cover-4096.webp",
+        "voxel": "ACG/SZTUCCF260919/A003C0010_700101_RH8603/walk.voxel.json"
+      },
+      "fileSize": {
+        "model": 10215508,
+        "environment": 208913,
+        "thumbnail": 5431304,
+        "total": 18312380,
+        "voxel": 2456655
+      },
+      "meta": {
+        "date": null,
+        "device": null,
+        "folderName": "A003C0010_700101_RH8603"
+      },
+      "viewer": {
+        "animationFirstExitMode": "orbit"
+      },
+      "aliases": [
+        "/acg/sztuccf260919/asuka"
+      ],
+      "animation": {
+        "duration": 20,
+        "frameRate": 1,
+        "loopMode": "repeat"
+      },
+      "version": {
+        "addedIn": "5.19.3",
+        "updatedIn": "5.19.3"
+      }
+    },
+    {
+      "id": "sztuccf260919-a003c0011",
+      "title": "明日方舟 安洁莉娜",
+      "titleEn": "Angelina",
+      "category": [
+        "acg",
+        "sztuccf260919"
+      ],
+      "route": "/acg/sztuccf260919/arknights-angelina",
+      "source": "photogrammetry",
+      "experienceType": "character",
+      "files": {
+        "model": "ACG/SZTUCCF260919/A003C0011_700101_RH8603/scene.sog",
+        "environment": "ACG/SZTUCCF260919/A003C0011_700101_RH8603/environment.compressed.ply",
+        "settings": "ACG/SZTUCCF260919/A003C0011_700101_RH8603/settings.json",
+        "thumbnail": "ACG/SZTUCCF260919/A003C0011_700101_RH8603/cover-4096.webp",
+        "voxel": "ACG/SZTUCCF260919/A003C0011_700101_RH8603/walk.voxel.json"
+      },
+      "fileSize": {
+        "model": 10962618,
+        "environment": 388862,
+        "thumbnail": 5133364,
+        "total": 18768334,
+        "voxel": 2283490
+      },
+      "meta": {
+        "date": null,
+        "device": null,
+        "folderName": "A003C0011_700101_RH8603"
+      },
+      "viewer": {
+        "animationFirstExitMode": "orbit"
+      },
+      "aliases": [
+        "/acg/sztuccf260919/angelina"
+      ],
+      "animation": {
+        "duration": 20,
+        "frameRate": 1,
+        "loopMode": "repeat"
+      },
+      "version": {
+        "addedIn": "5.19.3",
+        "updatedIn": "5.19.3"
+      }
+    },
+    {
+      "id": "sztuccf260919-a003c0012",
+      "title": "颂乐人偶 八幡海铃 · Timoris",
+      "titleEn": "Timoris / Umiri Yahata",
+      "category": [
+        "acg",
+        "sztuccf260919"
+      ],
+      "route": "/acg/sztuccf260919/ave_mujica-timoris",
+      "source": "photogrammetry",
+      "experienceType": "character",
+      "files": {
+        "model": "ACG/SZTUCCF260919/A003C0012_700101_RH8603/scene.sog",
+        "environment": "ACG/SZTUCCF260919/A003C0012_700101_RH8603/environment.compressed.ply",
+        "settings": "ACG/SZTUCCF260919/A003C0012_700101_RH8603/settings.json",
+        "thumbnail": "ACG/SZTUCCF260919/A003C0012_700101_RH8603/cover-4096.webp",
+        "voxel": "ACG/SZTUCCF260919/A003C0012_700101_RH8603/walk.voxel.json"
+      },
+      "fileSize": {
+        "model": 10987399,
+        "environment": 295527,
+        "thumbnail": 5891766,
+        "total": 19350064,
+        "voxel": 2175372
+      },
+      "meta": {
+        "date": null,
+        "device": null,
+        "folderName": "A003C0012_700101_RH8603"
+      },
+      "viewer": {
+        "animationFirstExitMode": "orbit"
+      },
+      "aliases": [
+        "/acg/sztuccf260919/timoris"
+      ],
+      "animation": {
+        "duration": 20,
+        "frameRate": 1,
+        "loopMode": "repeat"
+      },
+      "version": {
+        "addedIn": "5.19.3",
+        "updatedIn": "5.19.3"
+      }
+    },
+    {
+      "id": "sztuccf260919-a003c0013",
+      "title": "明日方舟 W",
+      "titleEn": "W",
+      "category": [
+        "acg",
+        "sztuccf260919"
+      ],
+      "route": "/acg/sztuccf260919/arknights-w",
+      "source": "photogrammetry",
+      "experienceType": "character",
+      "files": {
+        "model": "ACG/SZTUCCF260919/A003C0013_700101_RH8603/scene.sog",
+        "environment": "ACG/SZTUCCF260919/A003C0013_700101_RH8603/environment.compressed.ply",
+        "settings": "ACG/SZTUCCF260919/A003C0013_700101_RH8603/settings.json",
+        "thumbnail": "ACG/SZTUCCF260919/A003C0013_700101_RH8603/cover-4096.webp",
+        "voxel": "ACG/SZTUCCF260919/A003C0013_700101_RH8603/walk.voxel.json"
+      },
+      "fileSize": {
+        "model": 11569588,
+        "environment": 333441,
+        "thumbnail": 4846864,
+        "total": 18846575,
+        "voxel": 2096682
+      },
+      "meta": {
+        "date": null,
+        "device": null,
+        "folderName": "A003C0013_700101_RH8603"
+      },
+      "viewer": {
+        "animationFirstExitMode": "orbit"
+      },
+      "aliases": [
+        "/acg/sztuccf260919/w"
+      ],
+      "animation": {
+        "duration": 20,
+        "frameRate": 1,
+        "loopMode": "repeat"
+      },
+      "version": {
+        "addedIn": "5.19.3",
+        "updatedIn": "5.19.3"
+      }
+    },
+    {
+      "id": "sztuccf260919-a003c0023",
+      "title": "明日方舟 能天使",
+      "titleEn": "Exusiai",
+      "category": [
+        "acg",
+        "sztuccf260919"
+      ],
+      "route": "/acg/sztuccf260919/arknights-exusiai",
+      "source": "photogrammetry",
+      "experienceType": "character",
+      "files": {
+        "model": "ACG/SZTUCCF260919/A003C0023_700101_RH8603/scene.sog",
+        "environment": "ACG/SZTUCCF260919/A003C0023_700101_RH8603/environment.compressed.ply",
+        "settings": "ACG/SZTUCCF260919/A003C0023_700101_RH8603/settings.json",
+        "thumbnail": "ACG/SZTUCCF260919/A003C0023_700101_RH8603/cover-4096.webp",
+        "voxel": "ACG/SZTUCCF260919/A003C0023_700101_RH8603/walk.voxel.json"
+      },
+      "fileSize": {
+        "model": 10552782,
+        "environment": 315546,
+        "thumbnail": 5332738,
+        "total": 18360070,
+        "voxel": 2159004
+      },
+      "meta": {
+        "date": null,
+        "device": null,
+        "folderName": "A003C0023_700101_RH8603"
+      },
+      "viewer": {
+        "animationFirstExitMode": "orbit"
+      },
+      "aliases": [
+        "/acg/sztuccf260919/exusiai"
+      ],
+      "animation": {
+        "duration": 20,
+        "frameRate": 1,
+        "loopMode": "repeat"
+      },
+      "version": {
+        "addedIn": "5.19.3",
+        "updatedIn": "5.19.3"
+      }
+    },
+    {
+      "id": "sztuccf260919-a003c0024",
+      "title": "明日方舟 拉普兰德",
+      "titleEn": "Lappland",
+      "category": [
+        "acg",
+        "sztuccf260919"
+      ],
+      "route": "/acg/sztuccf260919/arknights-lappland",
+      "source": "photogrammetry",
+      "experienceType": "character",
+      "files": {
+        "model": "ACG/SZTUCCF260919/A003C0024_700101_RH8603/scene.sog",
+        "environment": "ACG/SZTUCCF260919/A003C0024_700101_RH8603/environment.compressed.ply",
+        "settings": "ACG/SZTUCCF260919/A003C0024_700101_RH8603/settings.json",
+        "thumbnail": "ACG/SZTUCCF260919/A003C0024_700101_RH8603/cover-4096.webp",
+        "voxel": "ACG/SZTUCCF260919/A003C0024_700101_RH8603/walk.voxel.json"
+      },
+      "fileSize": {
+        "model": 11144319,
+        "environment": 299187,
+        "thumbnail": 4633262,
+        "total": 17198323,
+        "voxel": 1121555
+      },
+      "meta": {
+        "date": null,
+        "device": null,
+        "folderName": "A003C0024_700101_RH8603"
+      },
+      "viewer": {
+        "animationFirstExitMode": "orbit"
+      },
+      "aliases": [
+        "/acg/sztuccf260919/lappland"
+      ],
+      "animation": {
+        "duration": 20,
+        "frameRate": 1,
+        "loopMode": "repeat"
+      },
+      "version": {
+        "addedIn": "5.19.3",
+        "updatedIn": "5.19.3"
+      }
+    },
+    {
+      "id": "sztuccf260919-a003c0025",
+      "title": "酒红色蕾丝 Lolita",
+      "titleEn": "Burgundy Lace Lolita",
+      "category": [
+        "acg",
+        "sztuccf260919"
+      ],
+      "route": "/acg/sztuccf260919/lolita-burgundy_lace",
+      "source": "photogrammetry",
+      "experienceType": "character",
+      "files": {
+        "model": "ACG/SZTUCCF260919/A003C0025_700101_RH8603/scene.sog",
+        "environment": "ACG/SZTUCCF260919/A003C0025_700101_RH8603/environment.compressed.ply",
+        "settings": "ACG/SZTUCCF260919/A003C0025_700101_RH8603/settings.json",
+        "thumbnail": "ACG/SZTUCCF260919/A003C0025_700101_RH8603/cover-4096.webp",
+        "voxel": "ACG/SZTUCCF260919/A003C0025_700101_RH8603/walk.voxel.json"
+      },
+      "fileSize": {
+        "model": 9887653,
+        "environment": 348214,
+        "thumbnail": 5156798,
+        "total": 18196624,
+        "voxel": 2803959
+      },
+      "meta": {
+        "date": null,
+        "device": null,
+        "folderName": "A003C0025_700101_RH8603"
+      },
+      "viewer": {
+        "animationFirstExitMode": "orbit"
+      },
+      "aliases": [
+        "/acg/sztuccf260919/lolita"
+      ],
+      "animation": {
+        "duration": 20,
+        "frameRate": 1,
+        "loopMode": "repeat"
+      },
+      "version": {
+        "addedIn": "5.19.3",
+        "updatedIn": "5.19.3"
       }
     },
     {
@@ -3048,6 +3474,126 @@
       "version": {
         "addedIn": "5.18.1",
         "updatedIn": "5.18.1"
+      }
+    },
+    {
+      "id": "mangzhong-2609160002",
+      "title": "芒种 · 2026-09-16 00:02",
+      "titleEn": "Mangzhong · 2026-09-16 00:02",
+      "category": [
+        "animals",
+        "cats"
+      ],
+      "route": "/animals/cats/mangzhong/2609160002",
+      "source": "photogrammetry",
+      "experienceType": "object",
+      "files": {
+        "model": "Animals/Cats/mangzhong/2609160002/scene.sog",
+        "environment": null,
+        "settings": "Animals/Cats/mangzhong/2609160002/settings.json",
+        "thumbnail": "Animals/Cats/mangzhong/2609160002/cover-4096.webp",
+        "voxel": "Animals/Cats/mangzhong/2609160002/walk.voxel.json"
+      },
+      "fileSize": {
+        "model": 12371864,
+        "environment": 0,
+        "thumbnail": 4167002,
+        "total": 16623736,
+        "voxel": 84870
+      },
+      "meta": {
+        "date": "2026-09-16",
+        "device": null,
+        "folderName": "2609160002"
+      },
+      "animation": {
+        "duration": 20,
+        "frameRate": 1,
+        "loopMode": "repeat"
+      },
+      "version": {
+        "addedIn": "5.19.3",
+        "updatedIn": "5.19.3"
+      }
+    },
+    {
+      "id": "mangzhong-2609160028",
+      "title": "芒种 · 2026-09-16 00:28",
+      "titleEn": "Mangzhong · 2026-09-16 00:28",
+      "category": [
+        "animals",
+        "cats"
+      ],
+      "route": "/animals/cats/mangzhong/2609160028",
+      "source": "photogrammetry",
+      "experienceType": "object",
+      "files": {
+        "model": "Animals/Cats/mangzhong/2609160028/scene.sog",
+        "environment": null,
+        "settings": "Animals/Cats/mangzhong/2609160028/settings.json",
+        "thumbnail": "Animals/Cats/mangzhong/2609160028/cover-4096.webp",
+        "voxel": "Animals/Cats/mangzhong/2609160028/walk.voxel.json"
+      },
+      "fileSize": {
+        "model": 14966222,
+        "environment": 0,
+        "thumbnail": 5671662,
+        "total": 20722103,
+        "voxel": 84219
+      },
+      "meta": {
+        "date": "2026-09-16",
+        "device": null,
+        "folderName": "2609160028"
+      },
+      "animation": {
+        "duration": 20,
+        "frameRate": 1,
+        "loopMode": "repeat"
+      },
+      "version": {
+        "addedIn": "5.19.3",
+        "updatedIn": "5.19.3"
+      }
+    },
+    {
+      "id": "mangzhong-2609160031",
+      "title": "芒种 · 2026-09-16 00:31",
+      "titleEn": "Mangzhong · 2026-09-16 00:31",
+      "category": [
+        "animals",
+        "cats"
+      ],
+      "route": "/animals/cats/mangzhong/2609160031",
+      "source": "photogrammetry",
+      "experienceType": "object",
+      "files": {
+        "model": "Animals/Cats/mangzhong/2609160031/scene.sog",
+        "environment": null,
+        "settings": "Animals/Cats/mangzhong/2609160031/settings.json",
+        "thumbnail": "Animals/Cats/mangzhong/2609160031/cover-4096.webp",
+        "voxel": "Animals/Cats/mangzhong/2609160031/walk.voxel.json"
+      },
+      "fileSize": {
+        "model": 10561623,
+        "environment": 0,
+        "thumbnail": 5041958,
+        "total": 15745642,
+        "voxel": 142061
+      },
+      "meta": {
+        "date": "2026-09-16",
+        "device": null,
+        "folderName": "2609160031"
+      },
+      "animation": {
+        "duration": 20,
+        "frameRate": 1,
+        "loopMode": "repeat"
+      },
+      "version": {
+        "addedIn": "5.19.3",
+        "updatedIn": "5.19.3"
       }
     },
     {

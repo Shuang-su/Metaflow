@@ -100,14 +100,14 @@ test('index generator only treats lod-meta.json as a streaming entry', async () 
     assert.match(streamingFinder, /folder_path \/ "lod-meta\.json"/);
     assert.doesNotMatch(streamingFinder, /"meta\.json"/);
 
-    assert.equal(index.resources.length, 87);
+    assert.equal(index.resources.length, 99);
     assert.equal(index.resources.filter((resource) => resource.files.model.endsWith('/lod-meta.json')).length, 9);
-    assert.equal(index.resources.filter((resource) => resource.files.model.endsWith('.sog')).length, 78);
+    assert.equal(index.resources.filter((resource) => resource.files.model.endsWith('.sog')).length, 90);
     assert.equal(index.resources.filter((resource) => resource.files.model.endsWith('/meta.json')).length, 0);
 
     const sogResources = index.resources.filter((resource) => resource.files.model.endsWith('.sog'));
-    assert.equal(sogResources.filter((resource) => resource.files.environment).length, 44);
-    assert.equal(sogResources.filter((resource) => !resource.files.environment).length, 34);
+    assert.equal(sogResources.filter((resource) => resource.files.environment).length, 53);
+    assert.equal(sogResources.filter((resource) => !resource.files.environment).length, 37);
 
     const dualSourceRoutes = [
         '/acg/fireflyfes38/cyrene',

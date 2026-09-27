@@ -4,6 +4,10 @@
   ignore = "test \"$BRANCH\" = \"main\""
   publish = "public"
 
+[context.production.environment]
+  METAFLOW_ANALYTICS_SINK = "supabase"
+  METAFLOW_ANALYTICS_ENDPOINT = "https://bziyumtuzvfmhgghvpcs.functions.supabase.co/analytics-collect"
+
 # Custom domain redirects - 深圳技术大学.com → /sztu/c2-lib
 [[redirects]]
   from = "/"

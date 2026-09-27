@@ -87,6 +87,8 @@ git diff --check
 
 Viewer `5.19.1` 起，Netlify 的正常触发边界是：普通 Git `main` push 由 `[build].ignore` 跳过，PR/feature branch 保留 Deploy Preview，正式 production 由 GitHub `production` Environment 内的 controlled release path 触发。`viewer-v5.19.0` 的 prepare 在 deployment 前失败，因此没有生产 deploy 或 GitHub Release。`viewer-v5.19.1` 的 D2 controlled Prepare 已通过；由于真实 F/D2 Git jobs 均停滞且没有得到远端 skipped 证据，二者被精确取消，随后按用户授权从 clean detached D2 使用 CLI/API fallback 发布 deploy `6a7efc396f36c800cfa0702e`。该 deploy 的真实字段为 `deploy_source=api`、`commit_ref=null`；身份由 main/Tag=D2、detached tree、摘要、在线 `5.19.1 / 534b013`、smoke 和观察共同证明。此 fallback 不是今后任意手工上传的默认授权。
 
+`5.19.2` 保留上述 production 触发边界，并把 Supabase analytics endpoint 固定到 Netlify production context 与 release build；production/tagged build 在 endpoint 为空时直接失败，发布 smoke 还会读取 immutable/production HTML 的 endpoint meta。Deploy Preview 和本地 build 不会自动向生产 analytics 发送数据；上线后的 published pointer、版本 index 和真实浏览器/数据库回读仍以 Netlify 与 Supabase 的实时状态为准。
+
 ## 回滚
 
 托管 rollback 必须指定已成功 deploy ID、原因和明确确认，恢复后重新核对 production 指向与关键 route。回滚不会重写原 Version History 或 Ledger；应追加回滚记录和跟进 Change。
