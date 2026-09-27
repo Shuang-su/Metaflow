@@ -325,3 +325,18 @@ flowchart TD
 ```
 
 版本测试保留 `c613a87` 之前的历史全量校验；之后只检查 Viewer/data/发布支撑提交、结构化版本条目和本总账 SHA 覆盖。若提交改变 Viewer 产品但未更新总账，应在交付前失败；无关组件和普通治理文档不应被塞进 `maintenanceCommits`。
+
+
+## `5.19.3` · `f999471` · MF-81 approved resource publication
+
+- 动机 / 原行为：生产 5.19.2 的 87 项不包含已审核的 3 组芒种和 9 组 SZTUCCF260919 ACG。
+- 具体改动：新增 69 个发布文件，按确认名称、ID、目录、规范路由及 9 个短别名入库；生成器发现 WebP 及猫的分钟编号目录。每张封面为来源初始镜头的 4096² 静态无损 WebP。仅修复发布 settings 副本的环境 URL。
+- 用户结果：99 项资源，芒种按 2609160002/0028/0031 区分，ACG 保留来源组目录并使用已确认角色名。
+- 兼容 / 风险：旧 87 项内容与 URL 不变，schema 1.2、Viewer/Editor 行为不变；设备及 ACG 拍摄日期 null，无公开 tags。原镜头宽幅裁切可能截到头脚。新路径避免覆盖已有 immutable 大文件。
+- 验证：生成器定向测试、路由/来源测试、validate_data --check-files、原 87 项逐对象比较。构建、部署与线上观察结果记录在 MF-81 Issue/PR。
+- 回滚：保留 5.19.2 deploy 6a8087d8ee37ee534090c5a2；如需回滚应另行记录，不能改写已发布历史。
+- 证据：[MF-81](https://github.com/Shuang-su/Metaflow/issues/81)、[Spec](changes/81-publish-mangzhong-sztuccf/spec.md)、[Plan](changes/81-publish-mangzhong-sztuccf/plan.md)。
+
+### Existing release support record · `2f5b8c3`
+
+The 2026-08-15 Viewer 5.19.2 release-record commit updated package/version/index mirrors for analytics recovery. MF-81 adds this previously omitted maintenance reference without changing historical entries or published behavior.

@@ -126,8 +126,8 @@ test('legacy display versions remain valid and future releases require full SemV
     const compatibleFuture = [
         ...manifest.entries,
         {
-            displayVersion: '5.19.3',
-            appSemver: '5.19.3',
+            displayVersion: '5.19.4',
+            appSemver: '5.19.4',
             type: 'resource',
             scope: 'data'
         },
@@ -159,7 +159,7 @@ test('legacy display versions remain valid and future releases require full SemV
     assert.throws(() => assertVersionPolicy([
         ...manifest.entries,
         {
-            displayVersion: '5.19.3',
+            displayVersion: '5.19.4',
             appSemver: '5.19.2',
             type: 'fix',
             scope: 'viewer'
@@ -230,10 +230,20 @@ test('change ledger contains every structured version and only main-history comm
             cwd: repoRoot,
             stdio: 'ignore'
         });
-        execFileSync('git', ['merge-base', '--is-ancestor', ref, 'HEAD'], {
-            cwd: repoRoot,
-            stdio: 'ignore'
-        });
+        // Recovery releases can predate the main-branch squash that incorporates them.
+        // Keep their published SHA immutable and require an existing release tag witness.
+        try {
+            execFileSync('git', ['merge-base', '--is-ancestor', ref, 'HEAD'], {
+                cwd: repoRoot,
+                stdio: 'ignore'
+            });
+        } catch {
+            const releaseTags = execFileSync('git', ['tag', '--contains', ref, '--list', 'viewer-v*'], {
+                cwd: repoRoot,
+                encoding: 'utf8'
+            }).trim();
+            assert.ok(releaseTags, `${ref} must be in HEAD or a preserved Viewer release tag`);
+        }
     }
 });
 
@@ -347,6 +357,24 @@ test('commits after the legacy cutoff require records only for affected product 
             isDocumentedEditorRelease,
             isDocumentedViewerRelease
         });
+        if (unexpectedFiles.length === 1 && unexpectedFiles[0] === 'data/index.json' &&
+            files.includes('metadata/version-history.json')) {
+            // A release-record commit refers to the preceding product SHA. It must
+            // not need another self-referential release just to mirror that record.
+            const contentWithoutReleaseFacts = (revision) => {
+                const index = JSON.parse(execFileSync('git', ['show', `${revision}:data/index.json`], {
+                    cwd: repoRoot,
+                    encoding: 'utf8'
+                }));
+                delete index.release;
+                delete index.lastUpdated;
+                for (const resource of index.resources) delete resource.version;
+                return index;
+            };
+            assert.deepEqual(contentWithoutReleaseFacts(ref), contentWithoutReleaseFacts(`${ref}^`),
+                `${shortRef} release record must not change indexed resource content`);
+            continue;
+        }
         assert.ok(
             unexpectedFiles.length === 0,
             `${shortRef} changes product files without a version-history entry: ${unexpectedFiles.join(', ')}`
@@ -375,7 +403,7 @@ test('package and public release versions match the structured current version',
     assert.equal(pkg.version, manifest.current.appSemver);
     assert.equal(lock.version, manifest.current.appSemver);
     assert.equal(lock.packages[''].version, manifest.current.appSemver);
-    assert.equal(manifest.current.displayVersion, '5.19.2');
+    assert.equal(manifest.current.displayVersion, '5.19.3');
     assert.equal(manifest.current.gitRef, manifest.documentedThrough);
     assert.equal(manifest.current.upstream.repository, 'playcanvas/supersplat-viewer');
     assert.equal(manifest.current.upstream.version, '1.29.1');
