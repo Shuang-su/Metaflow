@@ -341,12 +341,12 @@ flowchart TD
 
 The 2026-08-15 Viewer 5.19.2 release-record commit updated package/version/index mirrors for analytics recovery. MF-81 adds this previously omitted maintenance reference without changing historical entries or published behavior.
 
-## `5.20.0` · `7a5879f` · MF-85 stable upstream Viewer upgrade
+## `5.20.0` · `348f6fd` · MF-85 stable upstream Viewer upgrade
 
 - 动机 / 原行为：5.19.3 基于 SuperSplat Viewer v1.29.1，缺少稳定上游的新实例 API、控制布局及标注导航。
 - 实现：固定 v1.35.2 `c52f5258df424635323f26aaeebe51361dc0f8e6` 与 PlayCanvas 2.22.4；引入可销毁多实例、无 UI 模式、声明文件、HTML 生成、控制布局、标注与加载修复。保留 Metaflow 品牌、九语言、路由、环境、体素、首帧与动画策略、RGBA 截图和分析。修正 WebGPU 渐变方向及损坏 SOG metadata 的异步失败处理。
 - 用户结果：相机、背景及已发布资源保持来源值；99 项资源和 schema 1.2 不迁移，Editor 不升级。独立页面保留旧全局接口，嵌入实例默认不写全局、不启用分析。
 - 接受的代价：2026-09-28 用户明确接受新 LOD 策略在大运固定路径下的驻留纹理增量（约 272→514 MiB，400 万点预算；交互帧间隔中位数接近），要求其他验证通过后发布。不会为了隐藏该增量降低默认点预算或改写 settings。
 - 既有数据问题：Dayun `1_144/meta.json` 实为 JPEG，已核对生产与源哈希；本次保持文件不变，加载器报告失败并降级。实体 XR 未实测。
-- 验证：详见 [adoption](changes/85-viewer-upstream-v1.35.2/adoption.md) 与 [PR #86](https://github.com/Shuang-su/Metaflow/pull/86)。实现阶段 `0899265`、`6ffb578`、`162ee5b` 在最终 squash 后由产品 SHA 统一登记；这里的候选 SHA 将于 tag 前回填，不代表已部署。
+- 验证：详见 [adoption](changes/85-viewer-upstream-v1.35.2/adoption.md) 与 [PR #86](https://github.com/Shuang-su/Metaflow/pull/86)。实现阶段提交在最终 squash 后由产品 SHA 统一登记；最终产品 SHA 已回填为 `348f6fd549c5563a3c700e0f6da950b05c726e4c`；实际部署和观察结论见 MF-85 Issue/PR。
 - 回滚：已核验的 5.19.3 Netlify deployment `6ab904dffb745ba5eb1e07f6`；回滚应追加事实记录，不改写既有历史。
