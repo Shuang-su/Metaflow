@@ -44,4 +44,6 @@
 
 新数据库对象为增量私有对象，reader 未启用 LOGIN；服务器现有服务尚未切换。后续网页 / JSON 回退只使用已验证版本，不能把过期数据重新标成当前；Metabase 回退必须保留配套数据库、密钥与安全版本，并始终走 SSH 隧道。事故旧容器 / 数据卷没有启动或删除。
 
-本记录不声明独立 review、生产发布或验收完成。代码 checkpoint 与 PR 在实时 Issue 中登记，后续恢复连接后沿用本 Spec / Plan 继续。
+代码 checkpoint：`767ef33d`，已推送 `codex/mf-89-public-dashboard`；[Draft PR #90](https://github.com/Shuang-su/Metaflow/pull/90) 保持开放。状态页格式同步提交 `3f54847` 后，GitHub Pages 部署曾因 OIDC 请求超时失败；仅重试失败 job 后 [run 36345416948](https://github.com/Shuang-su/metaflow-status/actions/runs/36345416948) 已成功，独立监测历史仍正常提交。
+
+本记录不声明独立 review、生产发布或验收完成。后续恢复连接后沿用本 Spec / Plan 继续。
