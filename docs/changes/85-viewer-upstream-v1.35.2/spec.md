@@ -1,6 +1,6 @@
 # MF-85: Viewer v1.35.2 / Metaflow 5.20.0
 
-Status: implementation authorized; production remains 5.19.3 until release verification.
+Status: released as 5.20.0; see [production completion](completion.md).
 Issue: https://github.com/Shuang-su/Metaflow/issues/85
 Risk: T3; owners: viewer, platform release records. Plan: [plan.md](plan.md).
 
@@ -21,3 +21,6 @@ Build/type/lint/unit/package tests; 99 settings/file/LFS/route integrity checks;
 
 ## Release
 Squash product PR, record final product SHA, tag viewer-v5.20.0 and GitHub release. Validate Netlify candidate, deploy production, read back actual deployment/version/assets and observe for at least 15 minutes. On blocking regressions restore verified 5.19.3 deployment (current candidate 6ab904dffb745ba5eb1e07f6) and append records. Merge remote release history into local main normally, preserving local research.
+
+## Accepted performance exception
+On 2026-09-28 the user accepted the measured upstream Dayun LOD residency/texture allocation increase at the unchanged 4M budget and authorized release after the remaining checks. Measurements and limits are recorded in [completion.md](completion.md).

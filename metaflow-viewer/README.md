@@ -7,15 +7,15 @@
 
 ## 当前版本
 
-- 当前生产：`5.19.3`，99 项资源、索引 schema `1.2`。
-- MF-85 候选源码：SuperSplat Viewer `v1.35.2`，PlayCanvas `2.22.4`。
-- 目标发布：`5.20.0`；发布验收与版本登记尚未完成，候选不是生产发布证明。
+- 当前生产：`5.20.0`，99 项资源、索引 schema `1.2`。
+- MF-85 上游基线：SuperSplat Viewer `v1.35.2`，PlayCanvas `2.22.4`。
+- 产品 SHA：`348f6fd`；发布、验证及已接受的 LOD 内存代价见 [生产完成记录](../docs/changes/85-viewer-upstream-v1.35.2/completion.md)。
 
 Viewer `5.19.2` analytics recovery 已发布到 production。`metadata/version-history.json` 记录 `v1.29.1` 运行时产品 SHA `26e311c` 与 analytics/release 修复 SHA `92d11b0`；`viewer-v5.19.0` prepare 在 deployment 前失败且从未进入生产，`5.19.1` 的线上构建曾漏注入 Supabase analytics endpoint。本次修复让 production/tagged build 在 endpoint 缺失时直接失败，并由 release smoke 校验最终 HTML meta；实际升级路径是 `5.18.1 -> 5.19.1 -> 5.19.2`。
 
-`5.19.3` 随后发布芒种与 SZTUCCF260919 的 12 项资源。MF-85 的兼容处理、验证与未完成项见 [升级记录](../docs/changes/85-viewer-upstream-v1.35.2/adoption.md)。
+`5.19.3` 随后发布芒种与 SZTUCCF260919 的 12 项资源。MF-85 的兼容处理、验证与历史执行记录见 [升级记录](../docs/changes/85-viewer-upstream-v1.35.2/adoption.md)。
 
-## 嵌入实例（MF-85 候选接口）
+## 嵌入实例（5.20.0）
 
 浏览器入口与样式单独导出，宿主决定容器尺寸。实例默认不写 `window.app` 等全局对象，不启用分析；`ui: false` 可交由宿主提供控件。此轮不额外发布 npm 包。
 

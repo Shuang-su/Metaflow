@@ -350,3 +350,8 @@ The 2026-08-15 Viewer 5.19.2 release-record commit updated package/version/index
 - 既有数据问题：Dayun `1_144/meta.json` 实为 JPEG，已核对生产与源哈希；本次保持文件不变，加载器报告失败并降级。实体 XR 未实测。
 - 验证：详见 [adoption](changes/85-viewer-upstream-v1.35.2/adoption.md) 与 [PR #86](https://github.com/Shuang-su/Metaflow/pull/86)。实现阶段提交在最终 squash 后由产品 SHA 统一登记；最终产品 SHA 已回填为 `348f6fd549c5563a3c700e0f6da950b05c726e4c`；实际部署和观察结论见 MF-85 Issue/PR。
 - 回滚：已核验的 5.19.3 Netlify deployment `6ab904dffb745ba5eb1e07f6`；回滚应追加事实记录，不改写既有历史。
+
+### 5.20.0 production verification · 2026-09-28
+
+- Netlify deployment `6ab9587c6a912037fe9fa43e` promoted unchanged from the verified candidate; domain reports 5.20.0 / 348f6fd and 99 resources.
+- Observation 2026-09-27T18:02:03.877Z → 2026-09-27T18:17:06.904Z (903.0s) passed. Accepted LOD memory cost, validation and limits: [MF-85 completion](changes/85-viewer-upstream-v1.35.2/completion.md).
