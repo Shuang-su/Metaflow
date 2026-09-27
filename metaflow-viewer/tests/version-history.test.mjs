@@ -1,3 +1,4 @@
+import { sources } from './upgrade-source-helper.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
@@ -126,14 +127,14 @@ test('legacy display versions remain valid and future releases require full SemV
     const compatibleFuture = [
         ...manifest.entries,
         {
-            displayVersion: '5.19.4',
-            appSemver: '5.19.4',
+            displayVersion: '5.20.1',
+            appSemver: '5.20.1',
             type: 'resource',
             scope: 'data'
         },
         {
-            displayVersion: '5.20.0',
-            appSemver: '5.20.0',
+            displayVersion: '5.21.0',
+            appSemver: '5.21.0',
             type: 'feature',
             scope: 'viewer'
         },
@@ -196,11 +197,7 @@ test('generated index release matches current version history', async () => {
 });
 
 test('viewer console output is wired to the version history display version', async () => {
-    const source = await readFile(new URL('../src/index.ts', import.meta.url), 'utf8');
-
-    assert.match(source, /Metaflow Viewer/);
-    assert.match(source, /versionHistory\.current\.displayVersion/);
-    assert.match(source, /versionHistory\.current\.indexSchemaVersion/);
+    const [index]=await sources('index.ts');assert.match(index,/versionHistory\.current\.displayVersion/);assert.match(index,/appVersion/);assert.match(index,/engineVersion/);assert.match(index,/SuperSplat v1\.35\.2/);
 });
 
 test('change ledger contains every structured version and only main-history commit refs', async () => {
@@ -403,8 +400,8 @@ test('package and public release versions match the structured current version',
     assert.equal(pkg.version, manifest.current.appSemver);
     assert.equal(lock.version, manifest.current.appSemver);
     assert.equal(lock.packages[''].version, manifest.current.appSemver);
-    assert.equal(manifest.current.displayVersion, '5.19.3');
+    assert.equal(manifest.current.displayVersion, '5.20.0');
     assert.equal(manifest.current.gitRef, manifest.documentedThrough);
     assert.equal(manifest.current.upstream.repository, 'playcanvas/supersplat-viewer');
-    assert.equal(manifest.current.upstream.version, '1.29.1');
+    assert.equal(manifest.current.upstream.version, '1.35.2');
 });

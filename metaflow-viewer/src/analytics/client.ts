@@ -40,6 +40,7 @@ type AnalyticsResourceUrls = {
 };
 
 type AnalyticsOptions = {
+    interactionRoot?: HTMLElement;
     endpoint?: string;
     enabled: boolean;
     sink?: AnalyticsSink;
@@ -546,6 +547,7 @@ const pathWithoutQuery = (value: string | undefined) => {
 };
 
 class AnalyticsClient {
+    private stopped = false;
     private endpoint: string;
 
     private enabled: boolean;
@@ -717,22 +719,30 @@ class AnalyticsClient {
         window.addEventListener('error', this.handleError);
         window.addEventListener('unhandledrejection', this.handleRejection);
         window.addEventListener('resize', this.handleResize, { passive: true });
-        window.addEventListener('wheel', this.handleWheel, { passive: true });
-        window.addEventListener('pointerdown', this.handlePointerDown, { passive: true });
-        window.addEventListener('pointermove', this.handlePointerMove, { passive: true });
-        window.addEventListener('pointerup', this.handlePointerUp, { passive: true });
-        window.addEventListener('pointercancel', this.handlePointerUp, { passive: true });
-        window.addEventListener('keydown', this.handleKeyDown);
-        window.addEventListener('keyup', this.handleKeyUp);
+        (this.options.interactionRoot ?? window).addEventListener('wheel', this.handleWheel, { passive: true });
+        (this.options.interactionRoot ?? window).addEventListener('pointerdown', this.handlePointerDown, {
+            passive: true
+        });
+        (this.options.interactionRoot ?? window).addEventListener('pointermove', this.handlePointerMove, {
+            passive: true
+        });
+        (this.options.interactionRoot ?? window).addEventListener('pointerup', this.handlePointerUp, { passive: true });
+        (this.options.interactionRoot ?? window).addEventListener('pointercancel', this.handlePointerUp, {
+            passive: true
+        });
+        (this.options.interactionRoot ?? window).addEventListener('keydown', this.handleKeyDown as EventListener);
+        (this.options.interactionRoot ?? window).addEventListener('keyup', this.handleKeyUp as EventListener);
 
         void this.maybeStartReplay();
     }
 
     stop() {
+        if (this.stopped) return;
         if (this.enabled && !this.sessionSummarySent) {
             this.trackSessionSummary({ beacon: true });
             void this.flush({ beacon: true });
         }
+        this.stopped = true;
         if (this.heartbeatTimer) {
             clearInterval(this.heartbeatTimer);
             this.heartbeatTimer = null;
@@ -749,13 +759,13 @@ class AnalyticsClient {
         window.removeEventListener('error', this.handleError);
         window.removeEventListener('unhandledrejection', this.handleRejection);
         window.removeEventListener('resize', this.handleResize);
-        window.removeEventListener('wheel', this.handleWheel);
-        window.removeEventListener('pointerdown', this.handlePointerDown);
-        window.removeEventListener('pointermove', this.handlePointerMove);
-        window.removeEventListener('pointerup', this.handlePointerUp);
-        window.removeEventListener('pointercancel', this.handlePointerUp);
-        window.removeEventListener('keydown', this.handleKeyDown);
-        window.removeEventListener('keyup', this.handleKeyUp);
+        (this.options.interactionRoot ?? window).removeEventListener('wheel', this.handleWheel);
+        (this.options.interactionRoot ?? window).removeEventListener('pointerdown', this.handlePointerDown);
+        (this.options.interactionRoot ?? window).removeEventListener('pointermove', this.handlePointerMove);
+        (this.options.interactionRoot ?? window).removeEventListener('pointerup', this.handlePointerUp);
+        (this.options.interactionRoot ?? window).removeEventListener('pointercancel', this.handlePointerUp);
+        (this.options.interactionRoot ?? window).removeEventListener('keydown', this.handleKeyDown as EventListener);
+        (this.options.interactionRoot ?? window).removeEventListener('keyup', this.handleKeyUp as EventListener);
         for (const observer of this.performanceObservers) {
             observer.disconnect();
         }
@@ -763,7 +773,7 @@ class AnalyticsClient {
     }
 
     track(name: AnalyticsEventName, properties: AnalyticsProperties = {}, options: FlushOptions = {}) {
-        if (!this.enabled) return;
+        if (!this.enabled || this.stopped) return;
 
         if (INTERACTION_EVENTS.has(name)) {
             this.interactions++;
@@ -1177,7 +1187,8 @@ class AnalyticsClient {
 
         this.posthogInit = import('posthog-js')
             .then((module) => {
-                const posthog = module.default;
+                if (this.stopped) return;
+                const posthog = new module.PostHog();
                 posthog.init(this.posthogKey, {
                     api_host: this.posthogHost,
                     defaults: '2026-01-30',
@@ -1235,7 +1246,7 @@ class AnalyticsClient {
     }
 
     private scheduleFlush() {
-        if (this.flushTimer) return;
+        if (this.stopped || this.flushTimer) return;
         this.flushTimer = setTimeout(() => {
             this.flushTimer = null;
             void this.flush();
@@ -1346,6 +1357,7 @@ class AnalyticsClient {
         this.replayId = randomId('replay');
         try {
             const rrweb = await import('rrweb');
+            if (this.stopped) return;
             const replayEvents: JsonValue[] = [];
             let chunkSeq = 0;
             const flushReplay = () => {

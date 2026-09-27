@@ -1,6 +1,7 @@
 import { GamepadSource, Vec3 } from 'playcanvas';
 
 import type { Global } from '../../types';
+import { ownsKeyboard } from '../shared';
 import type { CameraInputFrame, InputDevice, UpdateContext } from '../shared';
 
 const tmpV = new Vec3();
@@ -28,6 +29,10 @@ class GamepadDevice implements InputDevice {
     }
 
     update(ctx: UpdateContext, frame: CameraInputFrame): void {
+        // the gamepad belongs to the page, not to an element; the host says which instance
+        // it drives
+        if (!this._global || !ownsKeyboard(this._global)) return;
+
         const { dt, cameraComponent, isFly, isFirstPerson } = ctx;
         const { leftStick, rightStick } = this._source.read();
         const orbitFactor = isFirstPerson ? cameraComponent.fov / 120 : 1;
