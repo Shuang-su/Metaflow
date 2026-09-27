@@ -56,7 +56,10 @@ function htmlTemplatePlugin() {
         name: 'html-template',
         transform(code, id) {
             if (!id.endsWith('.html')) return null;
-            const markup = code.replace(/<!--[\s\S]*?-->/g, '').replace(/\n{3,}/g, '\n\n');
+            // Leave a separator so removing a comment cannot join fragments into
+            // another comment opener. Unclosed comments must fail the build.
+            const markup = code.replace(/<!--[\s\S]*?-->/g, ' ').replace(/\n{3,}/g, '\n\n');
+            if (markup.includes('<!--')) throw new Error(`Unclosed HTML comment in ${id}`);
             return { code: `export default ${JSON.stringify(markup)};`, map: { mappings: '' } };
         }
     };
