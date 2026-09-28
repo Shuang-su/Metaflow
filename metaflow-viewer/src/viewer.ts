@@ -1182,11 +1182,13 @@ class Viewer {
 
     frameScene(): void {
         this.requireLoaded('frameScene');
+        this.global.events.fire('guidance:cancel');
         this.global.events.fire('inputEvent', 'frame');
     }
 
     resetCamera(): void {
         this.requireLoaded('resetCamera');
+        this.global.events.fire('guidance:cancel');
         this.global.events.fire('inputEvent', 'reset');
     }
 
@@ -1197,6 +1199,7 @@ class Viewer {
 
     selectAnnotation(index: number | null): void {
         this.requireLoaded('selectAnnotation');
+        this.global.events.fire('guidance:cancel');
         const { settings, state, app } = this.global;
         if (index !== null) {
             if (!Number.isInteger(index) || index < 0 || index >= settings.annotations.length) {
@@ -1238,6 +1241,7 @@ class Viewer {
 
     seek(time: number): void {
         this.requireLoaded('seek');
+        this.global.events.fire('guidance:cancel');
         const { state, app } = this.global;
         if (!state.hasAnimation) {
             throw new Error('seek: no animation track');

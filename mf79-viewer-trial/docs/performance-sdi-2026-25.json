@@ -1,0 +1,339 @@
+{
+  "scene": "sdi-2026",
+  "marker": 25,
+  "warmups": 5,
+  "repetitions": 30,
+  "coldProcessRuns": 3,
+  "scope": "Serial Node native navigation benchmark; OS filesystem cache retained. No screenshot capture, Gaussian rendering, Worker communication or browser-frame latency in these times.",
+  "stages": {
+    "totalMs": {
+      "p50": 109.34295900000006,
+      "p95": 112.77704199999971
+    },
+    "candidateMs": {
+      "p50": 67.33816700000011,
+      "p95": 70.81012499999997
+    },
+    "searchMs": {
+      "p50": 0.03804099999979371,
+      "p95": 0.060833999999886146
+    },
+    "proofMs": {
+      "p50": 41.46666600000026,
+      "p95": 42.467125000000124
+    }
+  },
+  "cold": [
+    {
+      "navigationLoadMs": 116.14295800000002,
+      "query": {
+        "ok": true,
+        "totalMs": 146.34449999999993,
+        "candidateMs": 99.78024999999991,
+        "searchMs": 0.27366699999993216,
+        "proofMs": 46.01274999999998,
+        "attempts": 1,
+        "rss": 214712320
+      },
+      "processWallMs": 923.8042080000005
+    },
+    {
+      "navigationLoadMs": 105.6595410000001,
+      "query": {
+        "ok": true,
+        "totalMs": 136.957042,
+        "candidateMs": 89.92641700000001,
+        "searchMs": 0.07220800000004601,
+        "proofMs": 46.59674999999993,
+        "attempts": 1,
+        "rss": 212664320
+      },
+      "processWallMs": 925.5726250000007
+    },
+    {
+      "navigationLoadMs": 101.16220899999996,
+      "query": {
+        "ok": true,
+        "totalMs": 135.322583,
+        "candidateMs": 91.69887499999993,
+        "searchMs": 0.06537500000001728,
+        "proofMs": 43.30354199999999,
+        "attempts": 1,
+        "rss": 213762048
+      },
+      "processWallMs": 907.8304170000001
+    }
+  ],
+  "measured": [
+    {
+      "ok": true,
+      "totalMs": 109.03300000000013,
+      "candidateMs": 67.33816700000011,
+      "searchMs": 0.030290999999806445,
+      "proofMs": 41.47645899999998,
+      "attempts": 1,
+      "rss": 213778432
+    },
+    {
+      "ok": true,
+      "totalMs": 110.000583,
+      "candidateMs": 67.67304100000001,
+      "searchMs": 0.047209000000066226,
+      "proofMs": 42.05750000000012,
+      "attempts": 1,
+      "rss": 213975040
+    },
+    {
+      "ok": true,
+      "totalMs": 109.34295900000006,
+      "candidateMs": 67.82987500000013,
+      "searchMs": 0.04020800000012059,
+      "proofMs": 41.24525000000017,
+      "attempts": 1,
+      "rss": 214269952
+    },
+    {
+      "ok": true,
+      "totalMs": 107.22966599999995,
+      "candidateMs": 66.30637500000012,
+      "searchMs": 0.029999999999972715,
+      "proofMs": 40.6987079999999,
+      "attempts": 1,
+      "rss": 214433792
+    },
+    {
+      "ok": true,
+      "totalMs": 108.59716600000002,
+      "candidateMs": 66.77112499999998,
+      "searchMs": 0.02941699999996672,
+      "proofMs": 41.60241700000006,
+      "attempts": 1,
+      "rss": 214679552
+    },
+    {
+      "ok": true,
+      "totalMs": 109.92858299999989,
+      "candidateMs": 68.00454099999979,
+      "searchMs": 0.060833999999886146,
+      "proofMs": 41.244292000000314,
+      "attempts": 1,
+      "rss": 214925312
+    },
+    {
+      "ok": true,
+      "totalMs": 106.83016600000019,
+      "candidateMs": 66.16137500000013,
+      "searchMs": 0.02879099999972823,
+      "proofMs": 40.46458399999983,
+      "attempts": 1,
+      "rss": 215105536
+    },
+    {
+      "ok": true,
+      "totalMs": 107.44845799999985,
+      "candidateMs": 66.8337919999999,
+      "searchMs": 0.05758299999979499,
+      "proofMs": 40.38029199999983,
+      "attempts": 1,
+      "rss": 215334912
+    },
+    {
+      "ok": true,
+      "totalMs": 106.99929100000008,
+      "candidateMs": 66.34462500000018,
+      "searchMs": 0.028457999999773165,
+      "proofMs": 40.42450000000008,
+      "attempts": 1,
+      "rss": 215629824
+    },
+    {
+      "ok": true,
+      "totalMs": 108.90650000000005,
+      "candidateMs": 66.24324999999999,
+      "searchMs": 0.031665999999859196,
+      "proofMs": 42.455875000000106,
+      "attempts": 1,
+      "rss": 216137728
+    },
+    {
+      "ok": true,
+      "totalMs": 107.974917,
+      "candidateMs": 67.04958399999987,
+      "searchMs": 0.04399999999986903,
+      "proofMs": 40.70354099999986,
+      "attempts": 1,
+      "rss": 216891392
+    },
+    {
+      "ok": true,
+      "totalMs": 109.67287499999975,
+      "candidateMs": 68.81562499999973,
+      "searchMs": 0.04220899999972971,
+      "proofMs": 40.62104199999976,
+      "attempts": 1,
+      "rss": 217120768
+    },
+    {
+      "ok": true,
+      "totalMs": 108.8199169999998,
+      "candidateMs": 67.07445800000005,
+      "searchMs": 0.029540999999881024,
+      "proofMs": 41.53666699999985,
+      "attempts": 1,
+      "rss": 217219072
+    },
+    {
+      "ok": true,
+      "totalMs": 107.72866699999986,
+      "candidateMs": 67.05570899999975,
+      "searchMs": 0.04775000000017826,
+      "proofMs": 40.40741700000035,
+      "attempts": 1,
+      "rss": 217448448
+    },
+    {
+      "ok": true,
+      "totalMs": 108.20691699999998,
+      "candidateMs": 67.02791699999989,
+      "searchMs": 0.04091699999980847,
+      "proofMs": 40.942167000000154,
+      "attempts": 1,
+      "rss": 217710592
+    },
+    {
+      "ok": true,
+      "totalMs": 112.34604100000024,
+      "candidateMs": 69.65604100000019,
+      "searchMs": 0.03804099999979371,
+      "proofMs": 42.467125000000124,
+      "attempts": 1,
+      "rss": 217907200
+    },
+    {
+      "ok": true,
+      "totalMs": 109.24079200000006,
+      "candidateMs": 66.95220800000016,
+      "searchMs": 0.027916999999888503,
+      "proofMs": 42.07916699999987,
+      "attempts": 1,
+      "rss": 218136576
+    },
+    {
+      "ok": true,
+      "totalMs": 112.35849999999982,
+      "candidateMs": 70.41362499999968,
+      "searchMs": 0.028792000000066764,
+      "proofMs": 41.73045899999988,
+      "attempts": 1,
+      "rss": 218284032
+    },
+    {
+      "ok": true,
+      "totalMs": 113.26016700000037,
+      "candidateMs": 71.494459,
+      "searchMs": 0.04241700000011406,
+      "proofMs": 41.52387499999986,
+      "attempts": 1,
+      "rss": 218513408
+    },
+    {
+      "ok": true,
+      "totalMs": 109.36112500000036,
+      "candidateMs": 66.6299170000002,
+      "searchMs": 0.053500000000440195,
+      "proofMs": 42.42733300000009,
+      "attempts": 1,
+      "rss": 218710016
+    },
+    {
+      "ok": true,
+      "totalMs": 109.82720800000016,
+      "candidateMs": 67.4721669999999,
+      "searchMs": 0.026292000000012195,
+      "proofMs": 42.15133400000013,
+      "attempts": 1,
+      "rss": 218923008
+    },
+    {
+      "ok": true,
+      "totalMs": 111.47624999999971,
+      "candidateMs": 70.81012499999997,
+      "searchMs": 0.042291000000204804,
+      "proofMs": 40.41249999999991,
+      "attempts": 1,
+      "rss": 219168768
+    },
+    {
+      "ok": true,
+      "totalMs": 108.93354200000022,
+      "candidateMs": 67.26637500000015,
+      "searchMs": 0.026124999999865395,
+      "proofMs": 41.46666600000026,
+      "attempts": 1,
+      "rss": 219447296
+    },
+    {
+      "ok": true,
+      "totalMs": 108.93016699999953,
+      "candidateMs": 67.21195799999987,
+      "searchMs": 0.0729999999998654,
+      "proofMs": 41.41258400000015,
+      "attempts": 1,
+      "rss": 219758592
+    },
+    {
+      "ok": true,
+      "totalMs": 107.6949169999998,
+      "candidateMs": 66.36616700000013,
+      "searchMs": 0.02579200000036508,
+      "proofMs": 41.12162499999977,
+      "attempts": 1,
+      "rss": 220102656
+    },
+    {
+      "ok": true,
+      "totalMs": 110.14666699999998,
+      "candidateMs": 68.44599999999991,
+      "searchMs": 0.02733399999942776,
+      "proofMs": 41.49045799999931,
+      "attempts": 1,
+      "rss": 220610560
+    },
+    {
+      "ok": true,
+      "totalMs": 112.77704199999971,
+      "candidateMs": 70.01179200000024,
+      "searchMs": 0.049125000000458385,
+      "proofMs": 42.486541999999645,
+      "attempts": 1,
+      "rss": 220971008
+    },
+    {
+      "ok": true,
+      "totalMs": 112.20695800000067,
+      "candidateMs": 70.28595800000039,
+      "searchMs": 0.037250000000312866,
+      "proofMs": 41.686499999999796,
+      "attempts": 1,
+      "rss": 221282304
+    },
+    {
+      "ok": true,
+      "totalMs": 110.92633399999977,
+      "candidateMs": 69.1772919999994,
+      "searchMs": 0.04695900000024267,
+      "proofMs": 41.40870900000027,
+      "attempts": 1,
+      "rss": 221609984
+    },
+    {
+      "ok": true,
+      "totalMs": 110.90970800000014,
+      "candidateMs": 69.63349999999991,
+      "searchMs": 0.026041000000077474,
+      "proofMs": 41.075582999999824,
+      "attempts": 1,
+      "rss": 221986816
+    }
+  ]
+}

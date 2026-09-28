@@ -1,0 +1,186 @@
+{
+  "scenes": [
+    {
+      "id": "apms-2026",
+      "name": "亚太高端媒体峰会 2026",
+      "assetUrl": "/scene-assets/260903 亚太高端媒体峰会/derived_lod0_stream_voxel_v2.6.0_20260922/streamed/lod-meta.json",
+      "collisionUrl": "/scene-assets/260903 亚太高端媒体峰会/derived_lod0_stream_voxel_v2.6.0_20260922/voxel/walk.voxel.json",
+      "visualRotation": [
+        0,
+        0,
+        180
+      ],
+      "coordinateSpace": "world",
+      "transform": {
+        "scale": 1,
+        "yawDegrees": 0,
+        "translation": {
+          "x": 0,
+          "y": 0,
+          "z": 0
+        }
+      },
+      "allowedBounds": {
+        "min": {
+          "x": -16,
+          "y": -2,
+          "z": -18
+        },
+        "max": {
+          "x": 16,
+          "y": 6,
+          "z": 14
+        }
+      },
+      "start": {
+        "x": -0.73,
+        "y": 1.42,
+        "z": 0.98
+      },
+      "viewTarget": {
+        "x": -0.5,
+        "y": 1.1,
+        "z": -4.9
+      },
+      "goals": [
+        {
+          "id": "simple",
+          "name": "主背景墙 · 左前观察位",
+          "position": {
+            "x": -4.53,
+            "y": 1.42,
+            "z": -2.42
+          },
+          "annotationId": "apms-wall"
+        },
+        {
+          "id": "detour",
+          "name": "展墙前右侧 · 绕障测试位",
+          "position": {
+            "x": 2,
+            "y": 1.42,
+            "z": -2
+          },
+          "annotationId": "apms-observation"
+        }
+      ],
+      "provenance": {
+        "inputFingerprint": "5482cf4b4320778af797fa0f39a9f86ba1f965e5aa09233290a40d64881d320b",
+        "toolVersion": "splat-transform 2.6.0",
+        "voxelVersion": "1.1",
+        "parameters": "Source derived_lod0_stream_voxel_v2.6.0_20260922; 0.08m voxel",
+        "notes": "2026-09-22 原始派生产物只读；Studio 视觉方向已核对；地图为固定眼高保守采样，仅供人检查。绕障尚未验证成功。"
+      },
+      "floorMapUrl": "/exhibitions-20260922/apms.floor-map.json",
+      "annotationsUrl": "/exhibitions-20260922/apms.settings.json"
+    },
+    {
+      "id": "sdi-2026",
+      "name": "创意设计学院毕业设计展 2026",
+      "assetUrl": "/scene-assets/创意设计学院毕业设计展2026/derived_lod0_stream_voxel_v2.6.0_20260922/streamed/lod-meta.json",
+      "collisionUrl": "/scene-assets/创意设计学院毕业设计展2026/derived_lod0_stream_voxel_v2.6.0_20260922/voxel/walk.voxel.json",
+      "visualRotation": [
+        0,
+        0,
+        180
+      ],
+      "coordinateSpace": "world",
+      "transform": {
+        "scale": 1,
+        "yawDegrees": 0,
+        "translation": {
+          "x": 0,
+          "y": 0,
+          "z": 0
+        }
+      },
+      "allowedBounds": {
+        "min": {
+          "x": -16,
+          "y": -2,
+          "z": -18
+        },
+        "max": {
+          "x": 16,
+          "y": 6,
+          "z": 14
+        }
+      },
+      "start": {
+        "x": -2,
+        "y": 1.1,
+        "z": -2
+      },
+      "viewTarget": {
+        "x": 0.18646226114858244,
+        "y": 1.549197452282513,
+        "z": -3.6106800563984156
+      },
+      "goals": [
+        {
+          "id": "simple",
+          "name": "标记 1 · 入口近处测试站位",
+          "position": {
+            "x": -2.2,
+            "y": 1.1,
+            "z": -3.4
+          },
+          "annotationId": "sdi-user-01"
+        },
+        {
+          "id": "detour",
+          "name": "标记 2 · 入口绕障测试站位",
+          "position": {
+            "x": 2,
+            "y": 1.1,
+            "z": -2
+          },
+          "annotationId": "sdi-user-02"
+        },
+        {
+          "id": "marker-2",
+          "name": "标记 2 · 原视角站位（路线待验证）",
+          "position": {
+            "x": 1.7441927194595337,
+            "y": 1.099999999999999,
+            "z": -0.06748133897781372
+          },
+          "annotationId": "sdi-user-02",
+          "benchmark": false
+        },
+        {
+          "id": "marker-8",
+          "name": "标记 8 · 原视角站位（路线待验证）",
+          "position": {
+            "x": -2.700305700302124,
+            "y": 1.099999999999999,
+            "z": -16.281932830810547
+          },
+          "annotationId": "sdi-user-08",
+          "benchmark": false
+        },
+        {
+          "id": "marker-25",
+          "name": "标记 25 · 原视角站位（路线待验证）",
+          "position": {
+            "x": -1.6777622699737549,
+            "y": 1.099999999999999,
+            "z": 9.79948616027832
+          },
+          "annotationId": "sdi-user-25",
+          "benchmark": false
+        }
+      ],
+      "provenance": {
+        "inputFingerprint": "39e85d25ce2db431c561bec0ad063df0530fa50e821de82f1c65c7d04fd4a185",
+        "toolVersion": "splat-transform 2.6.0",
+        "voxelVersion": "1.1",
+        "parameters": "Source derived_lod0_stream_voxel_v2.6.0_20260922; 0.08m voxel",
+        "notes": "2026-09-22 原始派生产物只读；Studio 视觉方向已核对；地图为固定眼高保守采样，仅供人检查。绕障尚未验证成功。; User saved 25 markers, full precision preserved. 3 original-view standing candidates pass local same-floor placement; remaining 22 retain review reasons; no reachability claim."
+      },
+      "floorMapUrl": "/exhibitions-20260922/sdi.floor-map.json",
+      "annotationsUrl": "/exhibitions-20260922/sdi-25.settings.json",
+      "markerReviewUrl": "/exhibitions-20260922/sdi-25.review.json"
+    }
+  ]
+}

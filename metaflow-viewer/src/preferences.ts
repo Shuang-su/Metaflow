@@ -2,10 +2,10 @@ import type { EventHandler } from 'playcanvas';
 
 import type { State } from './types';
 
-type Preferences = Pick<State, 'performanceMode' | 'gamingControls' | 'showAnnotations'>;
+type Preferences = Pick<State, 'performanceMode' | 'gamingControls' | 'showAnnotations' | 'guidanceMode' | 'guidanceRadius'>;
 
 const readPreferences = (mobile: boolean): Preferences => {
-    const defaults = { performanceMode: mobile, gamingControls: false, showAnnotations: true };
+    const defaults = { performanceMode: mobile, gamingControls: false, showAnnotations: true, guidanceMode: false, guidanceRadius: 2 as const };
     try {
         // Preserve the legacy preference migration and origin-wide keys.
         const legacyRetina = localStorage.getItem('retinaDisplay');
@@ -22,7 +22,9 @@ const readPreferences = (mobile: boolean): Preferences => {
         return {
             performanceMode: performanceMode === null ? mobile : performanceMode === 'true',
             gamingControls: localStorage.getItem('gamingControls') === 'true',
-            showAnnotations: localStorage.getItem('showAnnotations') !== 'false'
+            showAnnotations: localStorage.getItem('showAnnotations') !== 'false',
+            guidanceMode: localStorage.getItem('guidanceMode') === 'true',
+            guidanceRadius: localStorage.getItem('guidanceRadius') === '3' ? 3 : 2
         };
     } catch {
         // Embedded documents can be denied storage. Preferences must not prevent viewing.
@@ -32,8 +34,8 @@ const readPreferences = (mobile: boolean): Preferences => {
 
 const persistPreferences = (events: EventHandler) => {
     // Write changes only, so creating a viewer does not persist platform defaults.
-    const subscriptions = (['performanceMode', 'gamingControls', 'showAnnotations'] as const).map((key) =>
-        events.on(`${key}:changed`, (value: boolean) => {
+    const subscriptions = (['performanceMode', 'gamingControls', 'showAnnotations', 'guidanceMode', 'guidanceRadius'] as const).map((key) =>
+        events.on(`${key}:changed`, (value: boolean | number) => {
             try {
                 localStorage.setItem(key, String(value));
             } catch {

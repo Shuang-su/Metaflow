@@ -1,3 +1,4 @@
+import { installNavigation } from './navigation/integration';
 import {
     Asset,
     Color,
@@ -585,6 +586,8 @@ const createViewer = async (options: CreateViewerOptions): Promise<ViewerHandle>
         isFullscreen: false,
         controlsHidden: false,
         selectedAnnotation: null,
+        guidanceTarget: null,
+        guidanceStatus: '',
         inputEnabled: true
     });
 
@@ -851,8 +854,16 @@ const createViewer = async (options: CreateViewerOptions): Promise<ViewerHandle>
         destroy: () => viewer.destroy()
     };
 
-    // The built-in controls use the same handle returned to an embedding host.
-    const disposeUI = config.ui ? initUI(global, handle, () => viewer.picker) : null;
+    viewer.onDestroy(installNavigation(global));
+    // Public selection retains its explicit camera-view semantics. Built-in controls dispatch to walking navigation.
+    const uiHandle: ViewerHandle = { ...handle, selectAnnotation: (index) => {
+        if (state.guidanceMode && config.navigationManifestUrl) {
+            if (index === null) { state.selectedAnnotation = null; app.renderNextFrame = true; }
+            else events.fire('guidance:select', index);
+        } else handle.selectAnnotation(index);
+    } };
+    // The built-in controls use the same observable state returned to an embedding host.
+    const disposeUI = config.ui ? initUI(global, uiHandle, () => viewer.picker) : null;
     viewer.onDestroy(() => {
         destroyed = true;
     });

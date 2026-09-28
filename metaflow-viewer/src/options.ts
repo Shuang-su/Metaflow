@@ -16,6 +16,9 @@ import type { CameraMode, AnimationFirstExitMode, ExperienceType, RevealEffect, 
  * `renderViewerHtml` — so the two surfaces cannot drift.
  */
 type ViewerAssets = {
+    /** Optional navigation assets for the local MF-79 Viewer trial. No Studio schema change. */
+    navigationManifestUrl?: string;
+    navigationWorkerUrl?: string;
     voxelUrl?: string;
     voxelManifestUrl?: string;
     voxelCoordinateSpace?: VoxelCoordinateSpace;

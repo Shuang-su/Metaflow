@@ -1,0 +1,10 @@
+# MF-79 native Viewer trial provenance
+
+- Product baseline: `6590c6e1f6cd08e6f53dc6f05cb7e2f74a107787`, Viewer 5.20.0, PlayCanvas 2.22.4.
+- Lab reference: `4b4eaaf5428ac9a3cd584781a778a434e1d5297a`. Reused the integer-coordinate Recast tile generator and exact exposed voxel mesher, with new native-body configuration. The lab worktree, markers, and source voxels remain unchanged.
+- Recast binding: 0.43.0, from the existing lab dependency cache. No new navigation library. Trial build tools use the already installed Vite 7.3.6 and tsx 4.23.15; these versions are pinned in the trial package.json. Viewer resolves PlayCanvas 2.22.4 through its existing dependency installation. See README.md for local prerequisites and commands; there is no automated setup script.
+- `apms-markers-42.mfstudio.json`, `apms.settings.json`, `sdi-25.settings.json`, and `scene-exhibitions.json` are read-only copies from that checkpoint. The preview uses the Studio annotations without changing public Studio format.
+- Native motion uses the actual `metaflow-viewer/src/cameras/walk-controller.ts`, never the experiment controller copy. Only detached readonly snapshots were added. The offline driver calls public `goto`, `update`, `collision` and `readPhysicsState`.
+- Target source geometry: original 8 cm collision voxels. Navigation raster: 4 cm horizontal / 4 cm vertical; tile core 512 cells / 20.48 m, halo 8 cells / 0.32 m; body radius 0.20 m, body height 1.50 m, hover 0.20 m. Span filtering checks native capsule placement; no 0.04 m experimental body margin or saved-eye-height rejection.
+- Working assets: `/Volumes/Prism/Metaflow/.codex-work/cache/mf79-native-viewer-v1/`. Build/manifests include source hash, controller source hash, marker hash, full source bounds and tile checksums. No old navigation binary is reused under the new body configuration.
+- Native triangle-step calibration is a fixture measurement, not a guarantee for all scanned geometry: 90/120 combinations passed, 0.24 m is the greatest height with all sampled widths/headings passing. Wider scene validation remains required.
