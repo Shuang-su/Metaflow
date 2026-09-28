@@ -67,4 +67,22 @@ NODE_PATH=/Volumes/Prism/Metaflow/.codex-work/cache/mf79-build-native/node_modul
 
 使用当前 in-app browser 实际键鼠与选择控件测试，保留原生物理状态及路线事件。`window.mf79` 是本地试用诊断接口。Vite 的 `/__mf79_evidence` 仅接受同源 localhost 图片、固定写入项目缓存，5 MiB/张且检查磁盘保留空间；不发送到第三方、不接受任意文件路径。此接口不属于生产 Viewer。
 
-HMR 关闭以保护行走状态。重新选择目的地会加载最新 Worker；Viewer UI 的源变更需下次刷新后生效。不要为更新显示而把用户瞬移回入口。当前页面为 WebGPU、本地高斯预算 1；不能据此宣称 WebGL、窄屏、受限 CPU 或真机已验收。
+HMR 关闭以保护行走状态。每个场景复用一个 Worker；修改 Worker 或 Viewer 源后，需要在测试页刷新后生效，普通换目标不重载资产。不要为更新显示而把用户瞬移回入口。当前页面为 WebGPU、本地高斯预算 1；不能据此宣称 WebGL、窄屏、受限 CPU 或真机已验收。
+
+## 本轮区域终点与高斯遮挡复跑
+
+默认显示完整剩余路线，设置中可改“前方 12 米”；小地图保留完整路线。场景路线只使用高斯深度遮挡；深度不可用时隐藏地面线并说明，小地图仍可用。PlayCanvas 2.22.4 的高斯深度为透明度加权的倒数深度，不是精确实体表面。
+
+```sh
+# 两种半径分别保留全部 67 点
+node_modules/.bin/tsx scripts/region-regression.ts apms-2026
+node_modules/.bin/tsx scripts/region-regression.ts sdi-2026
+node_modules/.bin/tsx scripts/region-regression.ts apms-2026 --radius=3
+node_modules/.bin/tsx scripts/region-regression.ts sdi-2026 --radius=3
+node_modules/.bin/tsx scripts/replay.ts apms-2026 --region
+node_modules/.bin/tsx scripts/replay.ts sdi-2026 --region
+node_modules/.bin/tsx scripts/replay.ts apms-2026 --region --radius=3
+node_modules/.bin/tsx scripts/replay.ts sdi-2026 --region --radius=3
+```
+
+浏览器 `http://127.0.0.1:5184/qa.html` 提供实际时钟长任务与 110 次 Worker 复用测试。`src/qa-soak.ts` 提供至少 30 分钟选择/显示切换的资源记录，不注入人物移动。`?qa-budget=0.25` 只降低测试页高斯渲染预算，便于同时保留用户页；导航资产与身体配置不变，测试报告须记录所用预算。

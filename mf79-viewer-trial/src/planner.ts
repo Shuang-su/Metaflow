@@ -14,6 +14,10 @@ import type {
   Route,
 } from "../../metaflow-viewer/src/navigation/contracts";
 import type { WalkPhysicsState } from "../../metaflow-viewer/src/cameras/walk-controller";
+import {
+  clipToArrival,
+  routeLength,
+} from "../../metaflow-viewer/src/navigation/contracts";
 import { repairCorridor, shortcutCorridor } from "./corridor";
 export type Candidate = { point: Point; eye: Point; ref: number };
 const complete = (status: number) =>
@@ -24,6 +28,22 @@ const complete = (status: number) =>
       Detour.DT_OUT_OF_NODES)
   );
 export class NativePlanner {
+  private candidateCache = new Map<string, Candidate[]>();
+  candidateCacheHits = 0;
+  verificationCacheHits = 0;
+  private verificationCache = new Map<
+    string,
+    { ok: boolean; reason: string; point: Point }
+  >();
+  queryMetrics = {
+    searched: 0,
+    verified: 0,
+    rejected: 0,
+    searchMs: 0,
+    verificationMs: 0,
+  };
+  recoveries = 0;
+  lastRecovery: object | null = null;
   private topologyOrigin: {
     epoch: number;
     tick: number;
@@ -130,6 +150,17 @@ export class NativePlanner {
     return null;
   }
   *candidates(goal: Goal) {
+    const cacheKey = JSON.stringify([
+      this.asset,
+      BODY,
+      goal.camera,
+      goal.radius,
+    ]);
+    const cached = this.candidateCache.get(cacheKey);
+    if (cached) {
+      this.candidateCacheHits++;
+      return cached;
+    }
     const seen = new Set<string>(),
       out: Candidate[] = [];
     const r = goal.radius;
@@ -166,10 +197,11 @@ export class NativePlanner {
       }
       yield;
     }
-    return out.sort(
-      (a, b) =>
-        horizontal(a.point, goal.camera) - horizontal(b.point, goal.camera),
-    );
+    this.candidateCache.set(cacheKey, out);
+    // Finite cache storage does not impose a navigation retry limit.
+    if (this.candidateCache.size > 134)
+      this.candidateCache.delete(this.candidateCache.keys().next().value!);
+    return out;
   }
   regions(
     goal: Goal,
@@ -332,7 +364,22 @@ export class NativePlanner {
     from: WalkPhysicsState,
     groundPoints: Point[],
     finalTolerance = 0.07,
+    arrivalRegion?: { goal: Goal; regions: Region[] },
   ) {
+    // Exact coordinates, direction, surface and body state: no quantised safety hits.
+    const key = JSON.stringify([
+      this.asset,
+      BODY,
+      from,
+      groundPoints,
+      finalTolerance,
+      arrivalRegion,
+    ]);
+    const cached = this.verificationCache.get(key);
+    if (cached) {
+      this.verificationCacheHits++;
+      return cached;
+    }
     const eyes: Point[] = [{ ...from.position }];
     for (const point of groundPoints) {
       const eye = stand(this.space.collision, point);
@@ -346,21 +393,172 @@ export class NativePlanner {
       from.position,
       eyes,
       finalTolerance,
+      arrivalRegion,
     );
     let r = proof.next();
     while (!r.done) {
       yield;
       r = proof.next();
     }
-    return {
+    const result = {
       ok: r.value.ok,
       reason: r.value.reason,
       point: { ...r.value.state.position },
+    };
+    if (result.ok) {
+      this.verificationCache.set(key, result);
+      if (this.verificationCache.size > 64)
+        this.verificationCache.delete(
+          this.verificationCache.keys().next().value!,
+        );
+    }
+    return result;
+  }
+  toArrival(
+    path: ReturnType<NativePlanner["path"]>,
+    goal: Goal,
+    regions: Region[],
+  ) {
+    const clipped = clipToArrival(path.points, goal, regions);
+    if (!clipped) return null;
+    const index = path.polys.indexOf(clipped.ref);
+    if (index < 0) return null;
+    return {
+      ...path,
+      points: clipped.points,
+      polys: path.polys.slice(0, index + 1),
+      entry: clipped.entry,
+      stopRoom: clipped.points.length === 1 || clipped.insetLength >= 0.079,
+    };
+  }
+  /** Distance lower bounds order the work; complete path lengths order each verification batch. */
+  *solutions(
+    actual: WalkPhysicsState,
+    goal: Goal,
+    candidates: Candidate[],
+    regions: Region[],
+  ) {
+    this.queryMetrics = {
+      searched: 0,
+      verified: 0,
+      rejected: 0,
+      searchMs: 0,
+      verificationMs: 0,
+    };
+    const start = this.associate(actual);
+    if (!start) return;
+    const ordered = [...candidates].sort(
+      (a, b) =>
+        horizontal(a.point, actual.position) -
+        horizontal(b.point, actual.position),
+    );
+    const seen = new Set<string>();
+    let best = Infinity;
+    const limitedRoom: NonNullable<ReturnType<NativePlanner["toArrival"]>>[] =
+      [];
+    for (let i = 0; i < ordered.length; i += 16) {
+      const batch: NonNullable<ReturnType<NativePlanner["toArrival"]>>[] = [];
+      for (const candidate of ordered.slice(i, i + 16)) {
+        const searchAt = performance.now();
+        const raw = this.path(start, candidate);
+        this.queryMetrics.searched++;
+        this.queryMetrics.searchMs += performance.now() - searchAt;
+        yield;
+        if (raw.reason.includes("capacity")) throw Error(raw.reason);
+        if (raw.reason !== "complete") continue;
+        raw.points = [
+          { ...actual.position, y: actual.supportHeight! },
+          ...raw.points,
+        ];
+        const path = this.toArrival(raw, goal, regions);
+        if (!path || routeLength(path.points) >= best - 0.02) continue;
+        const key = JSON.stringify(path.points);
+        if (seen.has(key)) continue;
+        seen.add(key);
+        if (!path.stopRoom) limitedRoom.push(path);
+        else batch.push(path);
+      }
+      batch.sort((a, b) => routeLength(a.points) - routeLength(b.points));
+      for (const path of batch) {
+        if (routeLength(path.points) >= best - 0.02) continue;
+        const verificationAt = performance.now();
+        const proof = yield* this.verify(actual, path.points, 0.07, {
+          goal,
+          regions,
+        });
+        this.queryMetrics.verified++;
+        this.queryMetrics.verificationMs += performance.now() - verificationAt;
+        if (!proof.ok) {
+          this.queryMetrics.rejected++;
+          continue;
+        }
+        best = routeLength(path.points);
+        yield { path, proof, start };
+      }
+    }
+    // Eight centimetres of interior is a stopping preference, never a geometry
+    // rejection. A thin eligible interval still gets native arrival verification
+    // when no roomier route passed; no radius expansion or forced position.
+    if (best === Infinity)
+      for (const path of limitedRoom.sort(
+        (a, b) => routeLength(a.points) - routeLength(b.points),
+      )) {
+        const at = performance.now();
+        const proof = yield* this.verify(actual, path.points, 0.07, {
+          goal,
+          regions,
+        });
+        this.queryMetrics.verified++;
+        this.queryMetrics.verificationMs += performance.now() - at;
+        if (!proof.ok) {
+          this.queryMetrics.rejected++;
+          continue;
+        }
+        yield { path, proof, start };
+        return;
+      }
+  }
+  /** Recover a failed surface move from a newly verified association, never moving the visitor. */
+  *recover(
+    actual: WalkPhysicsState,
+    route: Route,
+    reason: string,
+    native: Candidate,
+  ) {
+    const failure = { reason, actual, route, native };
+    const start = this.associate(actual),
+      endpoint = route.points.at(-1)!;
+    if (!start) return null;
+    const eye = stand(this.space.collision, endpoint);
+    if (!eye) return null;
+    const fresh = this.path(start, {
+      ref: route.polys.at(-1)!,
+      point: endpoint,
+      eye,
+    });
+    yield;
+    if (fresh.reason !== "complete") return null;
+    const proof = yield* this.verify(actual, fresh.points);
+    this.lastRecovery = { ...failure, proof, recovered: proof.ok };
+    if (!proof.ok) return null;
+    this.recoveries++;
+    return {
+      route: {
+        ...route,
+        points: [
+          { ...actual.position, y: actual.supportHeight! },
+          ...fresh.points,
+        ],
+        polys: fresh.polys,
+        revision: route.revision + 1,
+      },
+      native: start,
     };
   }
   /** Detour start-corridor repair. Visited topology is merged with the ordered route. */
   *maintain(actual: WalkPhysicsState, route: Route, native: Candidate) {
     this.lastMaintenanceFailure = null;
+    this.lastRecovery = null;
     const fail = (reason: string) => {
       this.lastMaintenanceFailure = {
         reason,
@@ -383,8 +581,15 @@ export class NativePlanner {
       !moved.success ||
       !complete(moved.status) ||
       horizontal(moved.resultPosition, associated.point) > 0.04
-    )
-      return fail("surface-move-incomplete");
+    ) {
+      const recovered = yield* this.recover(
+        actual,
+        route,
+        "surface-move-incomplete",
+        native,
+      );
+      return recovered ?? fail("surface-move-incomplete");
+    }
     const ref = moved.visited.at(-1);
     if (ref === undefined) return fail("surface-move-empty");
     const height = this.query.getPolyHeight(ref, moved.resultPosition);
@@ -556,6 +761,23 @@ export class NativePlanner {
     for (; cut < path.points.length; cut++) {
       distance += length(path.points[cut - 1], path.points[cut]);
       if (distance >= 4) break;
+    }
+    // If the changed prefix rejoins an exact forward suffix, keep the suffix's
+    // existing proof. Include one shared edge to prove the changed approach/turn.
+    // Reverse travel and a merely nearby line are never cache hits.
+    for (let i = 1; i < Math.min(cut, path.points.length); i++) {
+      const tail = path.points.slice(i);
+      const oldIndex = route.points.length - tail.length;
+      if (oldIndex < 1) continue;
+      if (
+        tail.every(
+          (p, j) =>
+            JSON.stringify(p) === JSON.stringify(route.points[oldIndex + j]),
+        )
+      ) {
+        cut = Math.min(cut, i + 1);
+        break;
+      }
     }
     const prefix = path.points.slice(0, Math.min(cut + 1, path.points.length));
     const check = yield* this.verify(actual, prefix);

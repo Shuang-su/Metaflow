@@ -1,0 +1,70 @@
+{
+  "date": "2026-09-28",
+  "browser": "Codex in-app browser",
+  "page": "http://127.0.0.1:5184/qa.html",
+  "scope": "Real wall-clock Worker scheduler injection, followed by actual scene native-navigation Worker queries. No Gaussian drawing or physical person movement in this page. Separate from Viewer key acceptance.",
+  "longTasks": [
+    {
+      "requestedMs": 5100,
+      "elapsedMs": 5123.199999999255,
+      "progress": 4456062,
+      "batches": 128
+    },
+    {
+      "requestedMs": 15100,
+      "elapsedMs": 15104.699999999255,
+      "progress": 13116680,
+      "batches": 506
+    },
+    {
+      "requestedMs": 30100,
+      "elapsedMs": 30120.900000002235,
+      "progress": 25066374,
+      "batches": 1260
+    }
+  ],
+  "longCancelAckMs": 0.19999999925494194,
+  "sameNativeWorker": {
+    "scene": "apms-2026",
+    "goals": [
+      4,
+      13,
+      21,
+      27,
+      35,
+      42
+    ],
+    "completedQueries": 110,
+    "wallMs": 8881.699999999255,
+    "maxCancelAckMs": 15.100000001490116,
+    "candidateCacheHits": 104,
+    "passed": true
+  },
+  "raceTests": [
+    {
+      "test": "pause-cancel-resume",
+      "passed": true
+    },
+    {
+      "test": "replace-after-real-delay",
+      "delayMs": 0,
+      "passed": true
+    },
+    {
+      "test": "replace-after-real-delay",
+      "delayMs": 100,
+      "passed": true
+    },
+    {
+      "test": "replace-after-real-delay",
+      "delayMs": 500,
+      "passed": true
+    },
+    {
+      "test": "replace-after-real-delay",
+      "delayMs": 1500,
+      "passed": true
+    }
+  ],
+  "raceScope": "Actual native Worker; after cancel ACK no obsolete session message, paused cancellation cannot revive. Not forced out-of-order network transport."
+}

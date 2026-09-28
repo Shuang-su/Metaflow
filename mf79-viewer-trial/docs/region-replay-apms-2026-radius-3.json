@@ -1,0 +1,2947 @@
+{
+  "scene": "apms-2026",
+  "asset": "12e22e821dd04577e03160772d45c8d80a27ce374b723e00c836ccaafa684695",
+  "note": "Identical recorded native input tape and precomputed routes, with the actual query-independent Arrival predicate. Display grouping does not feed physics. Live browser input and query timing are outside this replay.",
+  "rows": [
+    {
+      "index": 1,
+      "status": "replayed",
+      "referenceArrivalTicks": [
+        12
+      ],
+      "ticks": 30,
+      "cadence": [
+        {
+          "name": "30",
+          "ticks": 30,
+          "error": 0,
+          "endpoint": {
+            "x": -0.73,
+            "y": 1.42,
+            "z": 0.98
+          },
+          "arrived": true,
+          "arrivalTicks": [
+            12
+          ],
+          "sameArrival": true
+        },
+        {
+          "name": "60",
+          "ticks": 30,
+          "error": 0,
+          "endpoint": {
+            "x": -0.73,
+            "y": 1.42,
+            "z": 0.98
+          },
+          "arrived": true,
+          "arrivalTicks": [
+            12
+          ],
+          "sameArrival": true
+        },
+        {
+          "name": "120",
+          "ticks": 30,
+          "error": 0,
+          "endpoint": {
+            "x": -0.73,
+            "y": 1.42,
+            "z": 0.98
+          },
+          "arrived": true,
+          "arrivalTicks": [
+            12
+          ],
+          "sameArrival": true
+        },
+        {
+          "name": "jitter",
+          "ticks": 30,
+          "error": 0,
+          "endpoint": {
+            "x": -0.73,
+            "y": 1.42,
+            "z": 0.98
+          },
+          "arrived": true,
+          "arrivalTicks": [
+            12
+          ],
+          "sameArrival": true
+        }
+      ]
+    },
+    {
+      "index": 2,
+      "status": "replayed",
+      "referenceArrivalTicks": [
+        1311
+      ],
+      "ticks": 1331,
+      "cadence": [
+        {
+          "name": "30",
+          "ticks": 1331,
+          "error": 0,
+          "endpoint": {
+            "x": 11.94365036475285,
+            "y": 1.3400171948763602,
+            "z": -1.7314858669400484
+          },
+          "arrived": true,
+          "arrivalTicks": [
+            1311
+          ],
+          "sameArrival": true
+        },
+        {
+          "name": "60",
+          "ticks": 1331,
+          "error": 0,
+          "endpoint": {
+            "x": 11.94365036475285,
+            "y": 1.3400171948763602,
+            "z": -1.7314858669400484
+          },
+          "arrived": true,
+          "arrivalTicks": [
+            1311
+          ],
+          "sameArrival": true
+        },
+        {
+          "name": "120",
+          "ticks": 1331,
+          "error": 0,
+          "endpoint": {
+            "x": 11.94365036475285,
+            "y": 1.3400171948763602,
+            "z": -1.7314858669400484
+          },
+          "arrived": true,
+          "arrivalTicks": [
+            1311
+          ],
+          "sameArrival": true
+        },
+        {
+          "name": "jitter",
+          "ticks": 1331,
+          "error": 0,
+          "endpoint": {
+            "x": 11.94365036475285,
+            "y": 1.3400171948763602,
+            "z": -1.7314858669400484
+          },
+          "arrived": true,
+          "arrivalTicks": [
+            1311
+          ],
+          "sameArrival": true
+        }
+      ]
+    },
+    {
+      "index": 3,
+      "status": "replayed",
+      "referenceArrivalTicks": [
+        1487
+      ],
+      "ticks": 1507,
+      "cadence": [
+        {
+          "name": "30",
+          "ticks": 1507,
+          "error": 0,
+          "endpoint": {
+            "x": 13.81338733368079,
+            "y": 1.3400062365475718,
+            "z": -2.1495310880352108
+          },
+          "arrived": true,
+          "arrivalTicks": [
+            1487
+          ],
+          "sameArrival": true
+        },
+        {
+          "name": "60",
+          "ticks": 1507,
+          "error": 0,
+          "endpoint": {
+            "x": 13.81338733368079,
+            "y": 1.3400062365475718,
+            "z": -2.1495310880352108
+          },
+          "arrived": true,
+          "arrivalTicks": [
+            1487
+          ],
+          "sameArrival": true
+        },
+        {
+          "name": "120",
+          "ticks": 1507,
+          "error": 0,
+          "endpoint": {
+            "x": 13.81338733368079,
+            "y": 1.3400062365475718,
+            "z": -2.1495310880352108
+          },
+          "arrived": true,
+          "arrivalTicks": [
+            1487
+          ],
+          "sameArrival": true
+        },
+        {
+          "name": "jitter",
+          "ticks": 1507,
+          "error": 0,
+          "endpoint": {
+            "x": 13.81338733368079,
+            "y": 1.3400062365475718,
+            "z": -2.1495310880352108
+          },
+          "arrived": true,
+          "arrivalTicks": [
+            1487
+          ],
+          "sameArrival": true
+        }
+      ]
+    },
+    {
+      "index": 4,
+      "status": "replayed",
+      "referenceArrivalTicks": [
+        1443
+      ],
+      "ticks": 1463,
+      "cadence": [
+        {
+          "name": "30",
+          "ticks": 1463,
+          "error": 0,
+          "endpoint": {
+            "x": 13.450895419096229,
+            "y": 1.3400018151660973,
+            "z": -1.6883586352093822
+          },
+          "arrived": true,
+          "arrivalTicks": [
+            1443
+          ],
+          "sameArrival": true
+        },
+        {
+          "name": "60",
+          "ticks": 1463,
+          "error": 0,
+          "endpoint": {
+            "x": 13.450895419096229,
+            "y": 1.3400018151660973,
+            "z": -1.6883586352093822
+          },
+          "arrived": true,
+          "arrivalTicks": [
+            1443
+          ],
+          "sameArrival": true
+        },
+        {
+          "name": "120",
+          "ticks": 1463,
+          "error": 0,
+          "endpoint": {
+            "x": 13.450895419096229,
+            "y": 1.3400018151660973,
+            "z": -1.6883586352093822
+          },
+          "arrived": true,
+          "arrivalTicks": [
+            1443
+          ],
+          "sameArrival": true
+        },
+        {
+          "name": "jitter",
+          "ticks": 1463,
+          "error": 0,
+          "endpoint": {
+            "x": 13.450895419096229,
+            "y": 1.3400018151660973,
+            "z": -1.6883586352093822
+          },
+          "arrived": true,
+          "arrivalTicks": [
+            1443
+          ],
+          "sameArrival": true
+        }
+      ]
+    },
+    {
+      "index": 5,
+      "status": "replayed",
+      "referenceArrivalTicks": [
+        2275
+      ],
+      "ticks": 2295,
+      "cadence": [
+        {
+          "name": "30",
+          "ticks": 2295,
+          "error": 0,
+          "endpoint": {
+            "x": 21.622427387476076,
+            "y": 1.3399999999999996,
+            "z": -4.548847203088894
+          },
+          "arrived": true,
+          "arrivalTicks": [
+            2275
+          ],
+          "sameArrival": true
+        },
+        {
+          "name": "60",
+          "ticks": 2295,
+          "error": 0,
+          "endpoint": {
+            "x": 21.622427387476076,
+            "y": 1.3399999999999996,
+            "z": -4.548847203088894
+          },
+          "arrived": true,
+          "arrivalTicks": [
+            2275
+          ],
+          "sameArrival": true
+        },
+        {
+          "name": "120",
+          "ticks": 2295,
+          "error": 0,
+          "endpoint": {
+            "x": 21.622427387476076,
+            "y": 1.3399999999999996,
+            "z": -4.548847203088894
+          },
+          "arrived": true,
+          "arrivalTicks": [
+            2275
+          ],
+          "sameArrival": true
+        },
+        {
+          "name": "jitter",
+          "ticks": 2295,
+          "error": 0,
+          "endpoint": {
+            "x": 21.622427387476076,
+            "y": 1.3399999999999996,
+            "z": -4.548847203088894
+          },
+          "arrived": true,
+          "arrivalTicks": [
+            2275
+          ],
+          "sameArrival": true
+        }
+      ]
+    },
+    {
+      "index": 6,
+      "status": "replayed",
+      "referenceArrivalTicks": [
+        1986
+      ],
+      "ticks": 2006,
+      "cadence": [
+        {
+          "name": "30",
+          "ticks": 2006,
+          "error": 0,
+          "endpoint": {
+            "x": 18.37747218177505,
+            "y": 1.3400000000000005,
+            "z": -4.963070903585162
+          },
+          "arrived": true,
+          "arrivalTicks": [
+            1986
+          ],
+          "sameArrival": true
+        },
+        {
+          "name": "60",
+          "ticks": 2006,
+          "error": 0,
+          "endpoint": {
+            "x": 18.37747218177505,
+            "y": 1.3400000000000005,
+            "z": -4.963070903585162
+          },
+          "arrived": true,
+          "arrivalTicks": [
+            1986
+          ],
+          "sameArrival": true
+        },
+        {
+          "name": "120",
+          "ticks": 2006,
+          "error": 0,
+          "endpoint": {
+            "x": 18.37747218177505,
+            "y": 1.3400000000000005,
+            "z": -4.963070903585162
+          },
+          "arrived": true,
+          "arrivalTicks": [
+            1986
+          ],
+          "sameArrival": true
+        },
+        {
+          "name": "jitter",
+          "ticks": 2006,
+          "error": 0,
+          "endpoint": {
+            "x": 18.37747218177505,
+            "y": 1.3400000000000005,
+            "z": -4.963070903585162
+          },
+          "arrived": true,
+          "arrivalTicks": [
+            1986
+          ],
+          "sameArrival": true
+        }
+      ]
+    },
+    {
+      "index": 7,
+      "status": "replayed",
+      "referenceArrivalTicks": [
+        803
+      ],
+      "ticks": 823,
+      "cadence": [
+        {
+          "name": "30",
+          "ticks": 823,
+          "error": 0,
+          "endpoint": {
+            "x": 6.802386760610436,
+            "y": 1.340000237851873,
+            "z": -2.6823506523210296
+          },
+          "arrived": true,
+          "arrivalTicks": [
+            803
+          ],
+          "sameArrival": true
+        },
+        {
+          "name": "60",
+          "ticks": 823,
+          "error": 0,
+          "endpoint": {
+            "x": 6.802386760610436,
+            "y": 1.340000237851873,
+            "z": -2.6823506523210296
+          },
+          "arrived": true,
+          "arrivalTicks": [
+            803
+          ],
+          "sameArrival": true
+        },
+        {
+          "name": "120",
+          "ticks": 823,
+          "error": 0,
+          "endpoint": {
+            "x": 6.802386760610436,
+            "y": 1.340000237851873,
+            "z": -2.6823506523210296
+          },
+          "arrived": true,
+          "arrivalTicks": [
+            803
+          ],
+          "sameArrival": true
+        },
+        {
+          "name": "jitter",
+          "ticks": 823,
+          "error": 0,
+          "endpoint": {
+            "x": 6.802386760610436,
+            "y": 1.340000237851873,
+            "z": -2.6823506523210296
+          },
+          "arrived": true,
+          "arrivalTicks": [
+            803
+          ],
+          "sameArrival": true
+        }
+      ]
+    },
+    {
+      "index": 8,
+      "status": "replayed",
+      "referenceArrivalTicks": [
+        897
+      ],
+      "ticks": 916,
+      "cadence": [
+        {
+          "name": "30",
+          "ticks": 916,
+          "error": 0,
+          "endpoint": {
+            "x": 6.838633281506265,
+            "y": 1.3240006104595397,
+            "z": -3.6542489027724834
+          },
+          "arrived": true,
+          "arrivalTicks": [
+            897
+          ],
+          "sameArrival": true
+        },
+        {
+          "name": "60",
+          "ticks": 916,
+          "error": 0,
+          "endpoint": {
+            "x": 6.838633281506265,
+            "y": 1.3240006104595397,
+            "z": -3.6542489027724834
+          },
+          "arrived": true,
+          "arrivalTicks": [
+            897
+          ],
+          "sameArrival": true
+        },
+        {
+          "name": "120",
+          "ticks": 916,
+          "error": 0,
+          "endpoint": {
+            "x": 6.838633281506265,
+            "y": 1.3240006104595397,
+            "z": -3.6542489027724834
+          },
+          "arrived": true,
+          "arrivalTicks": [
+            897
+          ],
+          "sameArrival": true
+        },
+        {
+          "name": "jitter",
+          "ticks": 916,
+          "error": 0,
+          "endpoint": {
+            "x": 6.838633281506265,
+            "y": 1.3240006104595397,
+            "z": -3.6542489027724834
+          },
+          "arrived": true,
+          "arrivalTicks": [
+            897
+          ],
+          "sameArrival": true
+        }
+      ]
+    },
+    {
+      "index": 9,
+      "status": "replayed",
+      "referenceArrivalTicks": [
+        1222
+      ],
+      "ticks": 1237,
+      "cadence": [
+        {
+          "name": "30",
+          "ticks": 1237,
+          "error": 0,
+          "endpoint": {
+            "x": 4.888433679527606,
+            "y": 1.3240174148826798,
+            "z": -5.962441138734893
+          },
+          "arrived": true,
+          "arrivalTicks": [
+            1222
+          ],
+          "sameArrival": true
+        },
+        {
+          "name": "60",
+          "ticks": 1237,
+          "error": 0,
+          "endpoint": {
+            "x": 4.888433679527606,
+            "y": 1.3240174148826798,
+            "z": -5.962441138734893
+          },
+          "arrived": true,
+          "arrivalTicks": [
+            1222
+          ],
+          "sameArrival": true
+        },
+        {
+          "name": "120",
+          "ticks": 1237,
+          "error": 0,
+          "endpoint": {
+            "x": 4.888433679527606,
+            "y": 1.3240174148826798,
+            "z": -5.962441138734893
+          },
+          "arrived": true,
+          "arrivalTicks": [
+            1222
+          ],
+          "sameArrival": true
+        },
+        {
+          "name": "jitter",
+          "ticks": 1237,
+          "error": 0,
+          "endpoint": {
+            "x": 4.888433679527606,
+            "y": 1.3240174148826798,
+            "z": -5.962441138734893
+          },
+          "arrived": true,
+          "arrivalTicks": [
+            1222
+          ],
+          "sameArrival": true
+        }
+      ]
+    },
+    {
+      "index": 10,
+      "status": "replayed",
+      "referenceArrivalTicks": [
+        1311
+      ],
+      "ticks": 1331,
+      "cadence": [
+        {
+          "name": "30",
+          "ticks": 1331,
+          "error": 0,
+          "endpoint": {
+            "x": 3.8885331708622655,
+            "y": 1.3399996021713436,
+            "z": -5.902449201568288
+          },
+          "arrived": true,
+          "arrivalTicks": [
+            1311
+          ],
+          "sameArrival": true
+        },
+        {
+          "name": "60",
+          "ticks": 1331,
+          "error": 0,
+          "endpoint": {
+            "x": 3.8885331708622655,
+            "y": 1.3399996021713436,
+            "z": -5.902449201568288
+          },
+          "arrived": true,
+          "arrivalTicks": [
+            1311
+          ],
+          "sameArrival": true
+        },
+        {
+          "name": "120",
+          "ticks": 1331,
+          "error": 0,
+          "endpoint": {
+            "x": 3.8885331708622655,
+            "y": 1.3399996021713436,
+            "z": -5.902449201568288
+          },
+          "arrived": true,
+          "arrivalTicks": [
+            1311
+          ],
+          "sameArrival": true
+        },
+        {
+          "name": "jitter",
+          "ticks": 1331,
+          "error": 0,
+          "endpoint": {
+            "x": 3.8885331708622655,
+            "y": 1.3399996021713436,
+            "z": -5.902449201568288
+          },
+          "arrived": true,
+          "arrivalTicks": [
+            1311
+          ],
+          "sameArrival": true
+        }
+      ]
+    },
+    {
+      "index": 11,
+      "status": "replayed",
+      "referenceArrivalTicks": [
+        1657
+      ],
+      "ticks": 1663,
+      "cadence": [
+        {
+          "name": "30",
+          "ticks": 1663,
+          "error": 0,
+          "endpoint": {
+            "x": 0.6289008023367502,
+            "y": 1.3400000000000005,
+            "z": -7.320597676576221
+          },
+          "arrived": true,
+          "arrivalTicks": [
+            1657
+          ],
+          "sameArrival": true
+        },
+        {
+          "name": "60",
+          "ticks": 1663,
+          "error": 0,
+          "endpoint": {
+            "x": 0.6289008023367502,
+            "y": 1.3400000000000005,
+            "z": -7.320597676576221
+          },
+          "arrived": true,
+          "arrivalTicks": [
+            1657
+          ],
+          "sameArrival": true
+        },
+        {
+          "name": "120",
+          "ticks": 1663,
+          "error": 0,
+          "endpoint": {
+            "x": 0.6289008023367502,
+            "y": 1.3400000000000005,
+            "z": -7.320597676576221
+          },
+          "arrived": true,
+          "arrivalTicks": [
+            1657
+          ],
+          "sameArrival": true
+        },
+        {
+          "name": "jitter",
+          "ticks": 1663,
+          "error": 0,
+          "endpoint": {
+            "x": 0.6289008023367502,
+            "y": 1.3400000000000005,
+            "z": -7.320597676576221
+          },
+          "arrived": true,
+          "arrivalTicks": [
+            1657
+          ],
+          "sameArrival": true
+        }
+      ]
+    },
+    {
+      "index": 12,
+      "status": "replayed",
+      "referenceArrivalTicks": [
+        1143
+      ],
+      "ticks": 1163,
+      "cadence": [
+        {
+          "name": "30",
+          "ticks": 1163,
+          "error": 0,
+          "endpoint": {
+            "x": -7.913319129637712,
+            "y": 1.356001615333637,
+            "z": -5.8784654475843094
+          },
+          "arrived": true,
+          "arrivalTicks": [
+            1143
+          ],
+          "sameArrival": true
+        },
+        {
+          "name": "60",
+          "ticks": 1163,
+          "error": 0,
+          "endpoint": {
+            "x": -7.913319129637712,
+            "y": 1.356001615333637,
+            "z": -5.8784654475843094
+          },
+          "arrived": true,
+          "arrivalTicks": [
+            1143
+          ],
+          "sameArrival": true
+        },
+        {
+          "name": "120",
+          "ticks": 1163,
+          "error": 0,
+          "endpoint": {
+            "x": -7.913319129637712,
+            "y": 1.356001615333637,
+            "z": -5.8784654475843094
+          },
+          "arrived": true,
+          "arrivalTicks": [
+            1143
+          ],
+          "sameArrival": true
+        },
+        {
+          "name": "jitter",
+          "ticks": 1163,
+          "error": 0,
+          "endpoint": {
+            "x": -7.913319129637712,
+            "y": 1.356001615333637,
+            "z": -5.8784654475843094
+          },
+          "arrived": true,
+          "arrivalTicks": [
+            1143
+          ],
+          "sameArrival": true
+        }
+      ]
+    },
+    {
+      "index": 13,
+      "status": "replayed",
+      "referenceArrivalTicks": [
+        1217
+      ],
+      "ticks": 1237,
+      "cadence": [
+        {
+          "name": "30",
+          "ticks": 1237,
+          "error": 0,
+          "endpoint": {
+            "x": -12.782503203789526,
+            "y": 1.42,
+            "z": -3.533847313434187
+          },
+          "arrived": true,
+          "arrivalTicks": [
+            1217
+          ],
+          "sameArrival": true
+        },
+        {
+          "name": "60",
+          "ticks": 1237,
+          "error": 0,
+          "endpoint": {
+            "x": -12.782503203789526,
+            "y": 1.42,
+            "z": -3.533847313434187
+          },
+          "arrived": true,
+          "arrivalTicks": [
+            1217
+          ],
+          "sameArrival": true
+        },
+        {
+          "name": "120",
+          "ticks": 1237,
+          "error": 0,
+          "endpoint": {
+            "x": -12.782503203789526,
+            "y": 1.42,
+            "z": -3.533847313434187
+          },
+          "arrived": true,
+          "arrivalTicks": [
+            1217
+          ],
+          "sameArrival": true
+        },
+        {
+          "name": "jitter",
+          "ticks": 1237,
+          "error": 0,
+          "endpoint": {
+            "x": -12.782503203789526,
+            "y": 1.42,
+            "z": -3.533847313434187
+          },
+          "arrived": true,
+          "arrivalTicks": [
+            1217
+          ],
+          "sameArrival": true
+        }
+      ]
+    },
+    {
+      "index": 14,
+      "status": "replayed",
+      "referenceArrivalTicks": [
+        808
+      ],
+      "ticks": 828,
+      "cadence": [
+        {
+          "name": "30",
+          "ticks": 828,
+          "error": 0,
+          "endpoint": {
+            "x": -8.939432116159837,
+            "y": 1.4359683033830875,
+            "z": -1.2571780872274312
+          },
+          "arrived": true,
+          "arrivalTicks": [
+            808
+          ],
+          "sameArrival": true
+        },
+        {
+          "name": "60",
+          "ticks": 828,
+          "error": 0,
+          "endpoint": {
+            "x": -8.939432116159837,
+            "y": 1.4359683033830875,
+            "z": -1.2571780872274312
+          },
+          "arrived": true,
+          "arrivalTicks": [
+            808
+          ],
+          "sameArrival": true
+        },
+        {
+          "name": "120",
+          "ticks": 828,
+          "error": 0,
+          "endpoint": {
+            "x": -8.939432116159837,
+            "y": 1.4359683033830875,
+            "z": -1.2571780872274312
+          },
+          "arrived": true,
+          "arrivalTicks": [
+            808
+          ],
+          "sameArrival": true
+        },
+        {
+          "name": "jitter",
+          "ticks": 828,
+          "error": 0,
+          "endpoint": {
+            "x": -8.939432116159837,
+            "y": 1.4359683033830875,
+            "z": -1.2571780872274312
+          },
+          "arrived": true,
+          "arrivalTicks": [
+            808
+          ],
+          "sameArrival": true
+        }
+      ]
+    },
+    {
+      "index": 15,
+      "status": "replayed",
+      "referenceArrivalTicks": [
+        1261
+      ],
+      "ticks": 1279,
+      "cadence": [
+        {
+          "name": "30",
+          "ticks": 1279,
+          "error": 0,
+          "endpoint": {
+            "x": -13.356665643634262,
+            "y": 1.42,
+            "z": -3.2511497522944643
+          },
+          "arrived": true,
+          "arrivalTicks": [
+            1261
+          ],
+          "sameArrival": true
+        },
+        {
+          "name": "60",
+          "ticks": 1279,
+          "error": 0,
+          "endpoint": {
+            "x": -13.356665643634262,
+            "y": 1.42,
+            "z": -3.2511497522944643
+          },
+          "arrived": true,
+          "arrivalTicks": [
+            1261
+          ],
+          "sameArrival": true
+        },
+        {
+          "name": "120",
+          "ticks": 1279,
+          "error": 0,
+          "endpoint": {
+            "x": -13.356665643634262,
+            "y": 1.42,
+            "z": -3.2511497522944643
+          },
+          "arrived": true,
+          "arrivalTicks": [
+            1261
+          ],
+          "sameArrival": true
+        },
+        {
+          "name": "jitter",
+          "ticks": 1279,
+          "error": 0,
+          "endpoint": {
+            "x": -13.356665643634262,
+            "y": 1.42,
+            "z": -3.2511497522944643
+          },
+          "arrived": true,
+          "arrivalTicks": [
+            1261
+          ],
+          "sameArrival": true
+        }
+      ]
+    },
+    {
+      "index": 16,
+      "status": "replayed",
+      "referenceArrivalTicks": [
+        1507
+      ],
+      "ticks": 1525,
+      "cadence": [
+        {
+          "name": "30",
+          "ticks": 1525,
+          "error": 0,
+          "endpoint": {
+            "x": -15.974838032571032,
+            "y": 1.4199981419406773,
+            "z": -3.3023480138564567
+          },
+          "arrived": true,
+          "arrivalTicks": [
+            1507
+          ],
+          "sameArrival": true
+        },
+        {
+          "name": "60",
+          "ticks": 1525,
+          "error": 0,
+          "endpoint": {
+            "x": -15.974838032571032,
+            "y": 1.4199981419406773,
+            "z": -3.3023480138564567
+          },
+          "arrived": true,
+          "arrivalTicks": [
+            1507
+          ],
+          "sameArrival": true
+        },
+        {
+          "name": "120",
+          "ticks": 1525,
+          "error": 0,
+          "endpoint": {
+            "x": -15.974838032571032,
+            "y": 1.4199981419406773,
+            "z": -3.3023480138564567
+          },
+          "arrived": true,
+          "arrivalTicks": [
+            1507
+          ],
+          "sameArrival": true
+        },
+        {
+          "name": "jitter",
+          "ticks": 1525,
+          "error": 0,
+          "endpoint": {
+            "x": -15.974838032571032,
+            "y": 1.4199981419406773,
+            "z": -3.3023480138564567
+          },
+          "arrived": true,
+          "arrivalTicks": [
+            1507
+          ],
+          "sameArrival": true
+        }
+      ]
+    },
+    {
+      "index": 17,
+      "status": "replayed",
+      "referenceArrivalTicks": [
+        1750
+      ],
+      "ticks": 1770,
+      "cadence": [
+        {
+          "name": "30",
+          "ticks": 1770,
+          "error": 0,
+          "endpoint": {
+            "x": -18.58116456499667,
+            "y": 1.4199999855966992,
+            "z": -3.535603281990809
+          },
+          "arrived": true,
+          "arrivalTicks": [
+            1750
+          ],
+          "sameArrival": true
+        },
+        {
+          "name": "60",
+          "ticks": 1770,
+          "error": 0,
+          "endpoint": {
+            "x": -18.58116456499667,
+            "y": 1.4199999855966992,
+            "z": -3.535603281990809
+          },
+          "arrived": true,
+          "arrivalTicks": [
+            1750
+          ],
+          "sameArrival": true
+        },
+        {
+          "name": "120",
+          "ticks": 1770,
+          "error": 0,
+          "endpoint": {
+            "x": -18.58116456499667,
+            "y": 1.4199999855966992,
+            "z": -3.535603281990809
+          },
+          "arrived": true,
+          "arrivalTicks": [
+            1750
+          ],
+          "sameArrival": true
+        },
+        {
+          "name": "jitter",
+          "ticks": 1770,
+          "error": 0,
+          "endpoint": {
+            "x": -18.58116456499667,
+            "y": 1.4199999855966992,
+            "z": -3.535603281990809
+          },
+          "arrived": true,
+          "arrivalTicks": [
+            1750
+          ],
+          "sameArrival": true
+        }
+      ]
+    },
+    {
+      "index": 18,
+      "status": "replayed",
+      "referenceArrivalTicks": [
+        2006
+      ],
+      "ticks": 2024,
+      "cadence": [
+        {
+          "name": "30",
+          "ticks": 2024,
+          "error": 0,
+          "endpoint": {
+            "x": -21.015337375185823,
+            "y": 1.4040015719880403,
+            "z": -2.861292031129082
+          },
+          "arrived": true,
+          "arrivalTicks": [
+            2006
+          ],
+          "sameArrival": true
+        },
+        {
+          "name": "60",
+          "ticks": 2024,
+          "error": 0,
+          "endpoint": {
+            "x": -21.015337375185823,
+            "y": 1.4040015719880403,
+            "z": -2.861292031129082
+          },
+          "arrived": true,
+          "arrivalTicks": [
+            2006
+          ],
+          "sameArrival": true
+        },
+        {
+          "name": "120",
+          "ticks": 2024,
+          "error": 0,
+          "endpoint": {
+            "x": -21.015337375185823,
+            "y": 1.4040015719880403,
+            "z": -2.861292031129082
+          },
+          "arrived": true,
+          "arrivalTicks": [
+            2006
+          ],
+          "sameArrival": true
+        },
+        {
+          "name": "jitter",
+          "ticks": 2024,
+          "error": 0,
+          "endpoint": {
+            "x": -21.015337375185823,
+            "y": 1.4040015719880403,
+            "z": -2.861292031129082
+          },
+          "arrived": true,
+          "arrivalTicks": [
+            2006
+          ],
+          "sameArrival": true
+        }
+      ]
+    },
+    {
+      "index": 19,
+      "status": "replayed",
+      "referenceArrivalTicks": [
+        2088
+      ],
+      "ticks": 2108,
+      "cadence": [
+        {
+          "name": "30",
+          "ticks": 2108,
+          "error": 0,
+          "endpoint": {
+            "x": -21.892201486709133,
+            "y": 1.4040442681746297,
+            "z": -2.5151948195024914
+          },
+          "arrived": true,
+          "arrivalTicks": [
+            2088
+          ],
+          "sameArrival": true
+        },
+        {
+          "name": "60",
+          "ticks": 2108,
+          "error": 0,
+          "endpoint": {
+            "x": -21.892201486709133,
+            "y": 1.4040442681746297,
+            "z": -2.5151948195024914
+          },
+          "arrived": true,
+          "arrivalTicks": [
+            2088
+          ],
+          "sameArrival": true
+        },
+        {
+          "name": "120",
+          "ticks": 2108,
+          "error": 0,
+          "endpoint": {
+            "x": -21.892201486709133,
+            "y": 1.4040442681746297,
+            "z": -2.5151948195024914
+          },
+          "arrived": true,
+          "arrivalTicks": [
+            2088
+          ],
+          "sameArrival": true
+        },
+        {
+          "name": "jitter",
+          "ticks": 2108,
+          "error": 0,
+          "endpoint": {
+            "x": -21.892201486709133,
+            "y": 1.4040442681746297,
+            "z": -2.5151948195024914
+          },
+          "arrived": true,
+          "arrivalTicks": [
+            2088
+          ],
+          "sameArrival": true
+        }
+      ]
+    },
+    {
+      "index": 20,
+      "status": "replayed",
+      "referenceArrivalTicks": [
+        4066
+      ],
+      "ticks": 4086,
+      "cadence": [
+        {
+          "name": "30",
+          "ticks": 4086,
+          "error": 0,
+          "endpoint": {
+            "x": -38.901892344391875,
+            "y": 1.4999636800817306,
+            "z": -17.29555337154859
+          },
+          "arrived": true,
+          "arrivalTicks": [
+            4066
+          ],
+          "sameArrival": true
+        },
+        {
+          "name": "60",
+          "ticks": 4086,
+          "error": 0,
+          "endpoint": {
+            "x": -38.901892344391875,
+            "y": 1.4999636800817306,
+            "z": -17.29555337154859
+          },
+          "arrived": true,
+          "arrivalTicks": [
+            4066
+          ],
+          "sameArrival": true
+        },
+        {
+          "name": "120",
+          "ticks": 4086,
+          "error": 0,
+          "endpoint": {
+            "x": -38.901892344391875,
+            "y": 1.4999636800817306,
+            "z": -17.29555337154859
+          },
+          "arrived": true,
+          "arrivalTicks": [
+            4066
+          ],
+          "sameArrival": true
+        },
+        {
+          "name": "jitter",
+          "ticks": 4086,
+          "error": 0,
+          "endpoint": {
+            "x": -38.901892344391875,
+            "y": 1.4999636800817306,
+            "z": -17.29555337154859
+          },
+          "arrived": true,
+          "arrivalTicks": [
+            4066
+          ],
+          "sameArrival": true
+        }
+      ]
+    },
+    {
+      "index": 21,
+      "status": "replayed",
+      "referenceArrivalTicks": [
+        4120
+      ],
+      "ticks": 4140,
+      "cadence": [
+        {
+          "name": "30",
+          "ticks": 4140,
+          "error": 0,
+          "endpoint": {
+            "x": -39.703703558977864,
+            "y": 1.5319880961192347,
+            "z": -6.81687274312339
+          },
+          "arrived": true,
+          "arrivalTicks": [
+            4120
+          ],
+          "sameArrival": true
+        },
+        {
+          "name": "60",
+          "ticks": 4140,
+          "error": 0,
+          "endpoint": {
+            "x": -39.703703558977864,
+            "y": 1.5319880961192347,
+            "z": -6.81687274312339
+          },
+          "arrived": true,
+          "arrivalTicks": [
+            4120
+          ],
+          "sameArrival": true
+        },
+        {
+          "name": "120",
+          "ticks": 4140,
+          "error": 0,
+          "endpoint": {
+            "x": -39.703703558977864,
+            "y": 1.5319880961192347,
+            "z": -6.81687274312339
+          },
+          "arrived": true,
+          "arrivalTicks": [
+            4120
+          ],
+          "sameArrival": true
+        },
+        {
+          "name": "jitter",
+          "ticks": 4140,
+          "error": 0,
+          "endpoint": {
+            "x": -39.703703558977864,
+            "y": 1.5319880961192347,
+            "z": -6.81687274312339
+          },
+          "arrived": true,
+          "arrivalTicks": [
+            4120
+          ],
+          "sameArrival": true
+        }
+      ]
+    },
+    {
+      "index": 22,
+      "status": "replayed",
+      "referenceArrivalTicks": [
+        1813
+      ],
+      "ticks": 1833,
+      "cadence": [
+        {
+          "name": "30",
+          "ticks": 1833,
+          "error": 0,
+          "endpoint": {
+            "x": -19.02707628015689,
+            "y": 1.42,
+            "z": -4.909893183233238
+          },
+          "arrived": true,
+          "arrivalTicks": [
+            1813
+          ],
+          "sameArrival": true
+        },
+        {
+          "name": "60",
+          "ticks": 1833,
+          "error": 0,
+          "endpoint": {
+            "x": -19.02707628015689,
+            "y": 1.42,
+            "z": -4.909893183233238
+          },
+          "arrived": true,
+          "arrivalTicks": [
+            1813
+          ],
+          "sameArrival": true
+        },
+        {
+          "name": "120",
+          "ticks": 1833,
+          "error": 0,
+          "endpoint": {
+            "x": -19.02707628015689,
+            "y": 1.42,
+            "z": -4.909893183233238
+          },
+          "arrived": true,
+          "arrivalTicks": [
+            1813
+          ],
+          "sameArrival": true
+        },
+        {
+          "name": "jitter",
+          "ticks": 1833,
+          "error": 0,
+          "endpoint": {
+            "x": -19.02707628015689,
+            "y": 1.42,
+            "z": -4.909893183233238
+          },
+          "arrived": true,
+          "arrivalTicks": [
+            1813
+          ],
+          "sameArrival": true
+        }
+      ]
+    },
+    {
+      "index": 23,
+      "status": "replayed",
+      "referenceArrivalTicks": [
+        1505
+      ],
+      "ticks": 1525,
+      "cadence": [
+        {
+          "name": "30",
+          "ticks": 1525,
+          "error": 0,
+          "endpoint": {
+            "x": -8.622723212671639,
+            "y": 1.3561853368939583,
+            "z": -10.36888872938561
+          },
+          "arrived": true,
+          "arrivalTicks": [
+            1505
+          ],
+          "sameArrival": true
+        },
+        {
+          "name": "60",
+          "ticks": 1525,
+          "error": 0,
+          "endpoint": {
+            "x": -8.622723212671639,
+            "y": 1.3561853368939583,
+            "z": -10.36888872938561
+          },
+          "arrived": true,
+          "arrivalTicks": [
+            1505
+          ],
+          "sameArrival": true
+        },
+        {
+          "name": "120",
+          "ticks": 1525,
+          "error": 0,
+          "endpoint": {
+            "x": -8.622723212671639,
+            "y": 1.3561853368939583,
+            "z": -10.36888872938561
+          },
+          "arrived": true,
+          "arrivalTicks": [
+            1505
+          ],
+          "sameArrival": true
+        },
+        {
+          "name": "jitter",
+          "ticks": 1525,
+          "error": 0,
+          "endpoint": {
+            "x": -8.622723212671639,
+            "y": 1.3561853368939583,
+            "z": -10.36888872938561
+          },
+          "arrived": true,
+          "arrivalTicks": [
+            1505
+          ],
+          "sameArrival": true
+        }
+      ]
+    },
+    {
+      "index": 24,
+      "status": "replayed",
+      "referenceArrivalTicks": [
+        1532
+      ],
+      "ticks": 1552,
+      "cadence": [
+        {
+          "name": "30",
+          "ticks": 1552,
+          "error": 0,
+          "endpoint": {
+            "x": -9.681134079804565,
+            "y": 1.3558470312632556,
+            "z": -10.646630864994872
+          },
+          "arrived": true,
+          "arrivalTicks": [
+            1532
+          ],
+          "sameArrival": true
+        },
+        {
+          "name": "60",
+          "ticks": 1552,
+          "error": 0,
+          "endpoint": {
+            "x": -9.681134079804565,
+            "y": 1.3558470312632556,
+            "z": -10.646630864994872
+          },
+          "arrived": true,
+          "arrivalTicks": [
+            1532
+          ],
+          "sameArrival": true
+        },
+        {
+          "name": "120",
+          "ticks": 1552,
+          "error": 0,
+          "endpoint": {
+            "x": -9.681134079804565,
+            "y": 1.3558470312632556,
+            "z": -10.646630864994872
+          },
+          "arrived": true,
+          "arrivalTicks": [
+            1532
+          ],
+          "sameArrival": true
+        },
+        {
+          "name": "jitter",
+          "ticks": 1552,
+          "error": 0,
+          "endpoint": {
+            "x": -9.681134079804565,
+            "y": 1.3558470312632556,
+            "z": -10.646630864994872
+          },
+          "arrived": true,
+          "arrivalTicks": [
+            1532
+          ],
+          "sameArrival": true
+        }
+      ]
+    },
+    {
+      "index": 25,
+      "status": "replayed",
+      "referenceArrivalTicks": [
+        1927
+      ],
+      "ticks": 1947,
+      "cadence": [
+        {
+          "name": "30",
+          "ticks": 1947,
+          "error": 0,
+          "endpoint": {
+            "x": -9.097475400702105,
+            "y": 1.3400003079915013,
+            "z": -14.888618827590799
+          },
+          "arrived": true,
+          "arrivalTicks": [
+            1927
+          ],
+          "sameArrival": true
+        },
+        {
+          "name": "60",
+          "ticks": 1947,
+          "error": 0,
+          "endpoint": {
+            "x": -9.097475400702105,
+            "y": 1.3400003079915013,
+            "z": -14.888618827590799
+          },
+          "arrived": true,
+          "arrivalTicks": [
+            1927
+          ],
+          "sameArrival": true
+        },
+        {
+          "name": "120",
+          "ticks": 1947,
+          "error": 0,
+          "endpoint": {
+            "x": -9.097475400702105,
+            "y": 1.3400003079915013,
+            "z": -14.888618827590799
+          },
+          "arrived": true,
+          "arrivalTicks": [
+            1927
+          ],
+          "sameArrival": true
+        },
+        {
+          "name": "jitter",
+          "ticks": 1947,
+          "error": 0,
+          "endpoint": {
+            "x": -9.097475400702105,
+            "y": 1.3400003079915013,
+            "z": -14.888618827590799
+          },
+          "arrived": true,
+          "arrivalTicks": [
+            1927
+          ],
+          "sameArrival": true
+        }
+      ]
+    },
+    {
+      "index": 26,
+      "status": "replayed",
+      "referenceArrivalTicks": [
+        2633
+      ],
+      "ticks": 2653,
+      "cadence": [
+        {
+          "name": "30",
+          "ticks": 2653,
+          "error": 0,
+          "endpoint": {
+            "x": -11.058363287794972,
+            "y": 1.3400000000000005,
+            "z": -22.23998463029048
+          },
+          "arrived": true,
+          "arrivalTicks": [
+            2633
+          ],
+          "sameArrival": true
+        },
+        {
+          "name": "60",
+          "ticks": 2653,
+          "error": 0,
+          "endpoint": {
+            "x": -11.058363287794972,
+            "y": 1.3400000000000005,
+            "z": -22.23998463029048
+          },
+          "arrived": true,
+          "arrivalTicks": [
+            2633
+          ],
+          "sameArrival": true
+        },
+        {
+          "name": "120",
+          "ticks": 2653,
+          "error": 0,
+          "endpoint": {
+            "x": -11.058363287794972,
+            "y": 1.3400000000000005,
+            "z": -22.23998463029048
+          },
+          "arrived": true,
+          "arrivalTicks": [
+            2633
+          ],
+          "sameArrival": true
+        },
+        {
+          "name": "jitter",
+          "ticks": 2653,
+          "error": 0,
+          "endpoint": {
+            "x": -11.058363287794972,
+            "y": 1.3400000000000005,
+            "z": -22.23998463029048
+          },
+          "arrived": true,
+          "arrivalTicks": [
+            2633
+          ],
+          "sameArrival": true
+        }
+      ]
+    },
+    {
+      "index": 27,
+      "status": "replayed",
+      "referenceArrivalTicks": [
+        2463
+      ],
+      "ticks": 2483,
+      "cadence": [
+        {
+          "name": "30",
+          "ticks": 2483,
+          "error": 0,
+          "endpoint": {
+            "x": -10.394031036336077,
+            "y": 1.3400000000000005,
+            "z": -20.549905378114893
+          },
+          "arrived": true,
+          "arrivalTicks": [
+            2463
+          ],
+          "sameArrival": true
+        },
+        {
+          "name": "60",
+          "ticks": 2483,
+          "error": 0,
+          "endpoint": {
+            "x": -10.394031036336077,
+            "y": 1.3400000000000005,
+            "z": -20.549905378114893
+          },
+          "arrived": true,
+          "arrivalTicks": [
+            2463
+          ],
+          "sameArrival": true
+        },
+        {
+          "name": "120",
+          "ticks": 2483,
+          "error": 0,
+          "endpoint": {
+            "x": -10.394031036336077,
+            "y": 1.3400000000000005,
+            "z": -20.549905378114893
+          },
+          "arrived": true,
+          "arrivalTicks": [
+            2463
+          ],
+          "sameArrival": true
+        },
+        {
+          "name": "jitter",
+          "ticks": 2483,
+          "error": 0,
+          "endpoint": {
+            "x": -10.394031036336077,
+            "y": 1.3400000000000005,
+            "z": -20.549905378114893
+          },
+          "arrived": true,
+          "arrivalTicks": [
+            2463
+          ],
+          "sameArrival": true
+        }
+      ]
+    },
+    {
+      "index": 28,
+      "status": "replayed",
+      "referenceArrivalTicks": [
+        2648
+      ],
+      "ticks": 2668,
+      "cadence": [
+        {
+          "name": "30",
+          "ticks": 2668,
+          "error": 0,
+          "endpoint": {
+            "x": -9.713436465125577,
+            "y": 1.3400000000000005,
+            "z": -22.565629478330624
+          },
+          "arrived": true,
+          "arrivalTicks": [
+            2648
+          ],
+          "sameArrival": true
+        },
+        {
+          "name": "60",
+          "ticks": 2668,
+          "error": 0,
+          "endpoint": {
+            "x": -9.713436465125577,
+            "y": 1.3400000000000005,
+            "z": -22.565629478330624
+          },
+          "arrived": true,
+          "arrivalTicks": [
+            2648
+          ],
+          "sameArrival": true
+        },
+        {
+          "name": "120",
+          "ticks": 2668,
+          "error": 0,
+          "endpoint": {
+            "x": -9.713436465125577,
+            "y": 1.3400000000000005,
+            "z": -22.565629478330624
+          },
+          "arrived": true,
+          "arrivalTicks": [
+            2648
+          ],
+          "sameArrival": true
+        },
+        {
+          "name": "jitter",
+          "ticks": 2668,
+          "error": 0,
+          "endpoint": {
+            "x": -9.713436465125577,
+            "y": 1.3400000000000005,
+            "z": -22.565629478330624
+          },
+          "arrived": true,
+          "arrivalTicks": [
+            2648
+          ],
+          "sameArrival": true
+        }
+      ]
+    },
+    {
+      "index": 29,
+      "status": "replayed",
+      "referenceArrivalTicks": [
+        2505
+      ],
+      "ticks": 2525,
+      "cadence": [
+        {
+          "name": "30",
+          "ticks": 2525,
+          "error": 0,
+          "endpoint": {
+            "x": -9.137941866761858,
+            "y": 1.3400000000000005,
+            "z": -21.051829745122514
+          },
+          "arrived": true,
+          "arrivalTicks": [
+            2505
+          ],
+          "sameArrival": true
+        },
+        {
+          "name": "60",
+          "ticks": 2525,
+          "error": 0,
+          "endpoint": {
+            "x": -9.137941866761858,
+            "y": 1.3400000000000005,
+            "z": -21.051829745122514
+          },
+          "arrived": true,
+          "arrivalTicks": [
+            2505
+          ],
+          "sameArrival": true
+        },
+        {
+          "name": "120",
+          "ticks": 2525,
+          "error": 0,
+          "endpoint": {
+            "x": -9.137941866761858,
+            "y": 1.3400000000000005,
+            "z": -21.051829745122514
+          },
+          "arrived": true,
+          "arrivalTicks": [
+            2505
+          ],
+          "sameArrival": true
+        },
+        {
+          "name": "jitter",
+          "ticks": 2525,
+          "error": 0,
+          "endpoint": {
+            "x": -9.137941866761858,
+            "y": 1.3400000000000005,
+            "z": -21.051829745122514
+          },
+          "arrived": true,
+          "arrivalTicks": [
+            2505
+          ],
+          "sameArrival": true
+        }
+      ]
+    },
+    {
+      "index": 30,
+      "status": "replayed",
+      "referenceArrivalTicks": [
+        2738
+      ],
+      "ticks": 2758,
+      "cadence": [
+        {
+          "name": "30",
+          "ticks": 2758,
+          "error": 0,
+          "endpoint": {
+            "x": -8.31612082523571,
+            "y": 1.2962105670873707,
+            "z": -23.52057844824475
+          },
+          "arrived": true,
+          "arrivalTicks": [
+            2738
+          ],
+          "sameArrival": true
+        },
+        {
+          "name": "60",
+          "ticks": 2758,
+          "error": 0,
+          "endpoint": {
+            "x": -8.31612082523571,
+            "y": 1.2962105670873707,
+            "z": -23.52057844824475
+          },
+          "arrived": true,
+          "arrivalTicks": [
+            2738
+          ],
+          "sameArrival": true
+        },
+        {
+          "name": "120",
+          "ticks": 2758,
+          "error": 0,
+          "endpoint": {
+            "x": -8.31612082523571,
+            "y": 1.2962105670873707,
+            "z": -23.52057844824475
+          },
+          "arrived": true,
+          "arrivalTicks": [
+            2738
+          ],
+          "sameArrival": true
+        },
+        {
+          "name": "jitter",
+          "ticks": 2758,
+          "error": 0,
+          "endpoint": {
+            "x": -8.31612082523571,
+            "y": 1.2962105670873707,
+            "z": -23.52057844824475
+          },
+          "arrived": true,
+          "arrivalTicks": [
+            2738
+          ],
+          "sameArrival": true
+        }
+      ]
+    },
+    {
+      "index": 31,
+      "status": "replayed",
+      "referenceArrivalTicks": [
+        2743
+      ],
+      "ticks": 2763,
+      "cadence": [
+        {
+          "name": "30",
+          "ticks": 2763,
+          "error": 0,
+          "endpoint": {
+            "x": 7.759120712577231,
+            "y": 1.2600000000000005,
+            "z": -23.330949819153574
+          },
+          "arrived": true,
+          "arrivalTicks": [
+            2743
+          ],
+          "sameArrival": true
+        },
+        {
+          "name": "60",
+          "ticks": 2763,
+          "error": 0,
+          "endpoint": {
+            "x": 7.759120712577231,
+            "y": 1.2600000000000005,
+            "z": -23.330949819153574
+          },
+          "arrived": true,
+          "arrivalTicks": [
+            2743
+          ],
+          "sameArrival": true
+        },
+        {
+          "name": "120",
+          "ticks": 2763,
+          "error": 0,
+          "endpoint": {
+            "x": 7.759120712577231,
+            "y": 1.2600000000000005,
+            "z": -23.330949819153574
+          },
+          "arrived": true,
+          "arrivalTicks": [
+            2743
+          ],
+          "sameArrival": true
+        },
+        {
+          "name": "jitter",
+          "ticks": 2763,
+          "error": 0,
+          "endpoint": {
+            "x": 7.759120712577231,
+            "y": 1.2600000000000005,
+            "z": -23.330949819153574
+          },
+          "arrived": true,
+          "arrivalTicks": [
+            2743
+          ],
+          "sameArrival": true
+        }
+      ]
+    },
+    {
+      "index": 32,
+      "status": "replayed",
+      "referenceArrivalTicks": [
+        2491
+      ],
+      "ticks": 2511,
+      "cadence": [
+        {
+          "name": "30",
+          "ticks": 2511,
+          "error": 0,
+          "endpoint": {
+            "x": 9.729428452311366,
+            "y": 1.3079688026468184,
+            "z": -20.43451256978952
+          },
+          "arrived": true,
+          "arrivalTicks": [
+            2491
+          ],
+          "sameArrival": true
+        },
+        {
+          "name": "60",
+          "ticks": 2511,
+          "error": 0,
+          "endpoint": {
+            "x": 9.729428452311366,
+            "y": 1.3079688026468184,
+            "z": -20.43451256978952
+          },
+          "arrived": true,
+          "arrivalTicks": [
+            2491
+          ],
+          "sameArrival": true
+        },
+        {
+          "name": "120",
+          "ticks": 2511,
+          "error": 0,
+          "endpoint": {
+            "x": 9.729428452311366,
+            "y": 1.3079688026468184,
+            "z": -20.43451256978952
+          },
+          "arrived": true,
+          "arrivalTicks": [
+            2491
+          ],
+          "sameArrival": true
+        },
+        {
+          "name": "jitter",
+          "ticks": 2511,
+          "error": 0,
+          "endpoint": {
+            "x": 9.729428452311366,
+            "y": 1.3079688026468184,
+            "z": -20.43451256978952
+          },
+          "arrived": true,
+          "arrivalTicks": [
+            2491
+          ],
+          "sameArrival": true
+        }
+      ]
+    },
+    {
+      "index": 33,
+      "status": "replayed",
+      "referenceArrivalTicks": [
+        2432
+      ],
+      "ticks": 2452,
+      "cadence": [
+        {
+          "name": "30",
+          "ticks": 2452,
+          "error": 0,
+          "endpoint": {
+            "x": 9.802641984885668,
+            "y": 1.2600242108000934,
+            "z": -19.784406210522093
+          },
+          "arrived": true,
+          "arrivalTicks": [
+            2432
+          ],
+          "sameArrival": true
+        },
+        {
+          "name": "60",
+          "ticks": 2452,
+          "error": 0,
+          "endpoint": {
+            "x": 9.802641984885668,
+            "y": 1.2600242108000934,
+            "z": -19.784406210522093
+          },
+          "arrived": true,
+          "arrivalTicks": [
+            2432
+          ],
+          "sameArrival": true
+        },
+        {
+          "name": "120",
+          "ticks": 2452,
+          "error": 0,
+          "endpoint": {
+            "x": 9.802641984885668,
+            "y": 1.2600242108000934,
+            "z": -19.784406210522093
+          },
+          "arrived": true,
+          "arrivalTicks": [
+            2432
+          ],
+          "sameArrival": true
+        },
+        {
+          "name": "jitter",
+          "ticks": 2452,
+          "error": 0,
+          "endpoint": {
+            "x": 9.802641984885668,
+            "y": 1.2600242108000934,
+            "z": -19.784406210522093
+          },
+          "arrived": true,
+          "arrivalTicks": [
+            2432
+          ],
+          "sameArrival": true
+        }
+      ]
+    },
+    {
+      "index": 34,
+      "status": "replayed",
+      "referenceArrivalTicks": [
+        1331
+      ],
+      "ticks": 1351,
+      "cadence": [
+        {
+          "name": "30",
+          "ticks": 1351,
+          "error": 0,
+          "endpoint": {
+            "x": 8.446821324954714,
+            "y": 1.3400000000000005,
+            "z": -8.064565777448431
+          },
+          "arrived": true,
+          "arrivalTicks": [
+            1331
+          ],
+          "sameArrival": true
+        },
+        {
+          "name": "60",
+          "ticks": 1351,
+          "error": 0,
+          "endpoint": {
+            "x": 8.446821324954714,
+            "y": 1.3400000000000005,
+            "z": -8.064565777448431
+          },
+          "arrived": true,
+          "arrivalTicks": [
+            1331
+          ],
+          "sameArrival": true
+        },
+        {
+          "name": "120",
+          "ticks": 1351,
+          "error": 0,
+          "endpoint": {
+            "x": 8.446821324954714,
+            "y": 1.3400000000000005,
+            "z": -8.064565777448431
+          },
+          "arrived": true,
+          "arrivalTicks": [
+            1331
+          ],
+          "sameArrival": true
+        },
+        {
+          "name": "jitter",
+          "ticks": 1351,
+          "error": 0,
+          "endpoint": {
+            "x": 8.446821324954714,
+            "y": 1.3400000000000005,
+            "z": -8.064565777448431
+          },
+          "arrived": true,
+          "arrivalTicks": [
+            1331
+          ],
+          "sameArrival": true
+        }
+      ]
+    },
+    {
+      "index": 35,
+      "status": "replayed",
+      "referenceArrivalTicks": [
+        1355
+      ],
+      "ticks": 1375,
+      "cadence": [
+        {
+          "name": "30",
+          "ticks": 1375,
+          "error": 0,
+          "endpoint": {
+            "x": 5.996841784783227,
+            "y": 1.3400000000000005,
+            "z": -8.471424345531359
+          },
+          "arrived": true,
+          "arrivalTicks": [
+            1355
+          ],
+          "sameArrival": true
+        },
+        {
+          "name": "60",
+          "ticks": 1375,
+          "error": 0,
+          "endpoint": {
+            "x": 5.996841784783227,
+            "y": 1.3400000000000005,
+            "z": -8.471424345531359
+          },
+          "arrived": true,
+          "arrivalTicks": [
+            1355
+          ],
+          "sameArrival": true
+        },
+        {
+          "name": "120",
+          "ticks": 1375,
+          "error": 0,
+          "endpoint": {
+            "x": 5.996841784783227,
+            "y": 1.3400000000000005,
+            "z": -8.471424345531359
+          },
+          "arrived": true,
+          "arrivalTicks": [
+            1355
+          ],
+          "sameArrival": true
+        },
+        {
+          "name": "jitter",
+          "ticks": 1375,
+          "error": 0,
+          "endpoint": {
+            "x": 5.996841784783227,
+            "y": 1.3400000000000005,
+            "z": -8.471424345531359
+          },
+          "arrived": true,
+          "arrivalTicks": [
+            1355
+          ],
+          "sameArrival": true
+        }
+      ]
+    },
+    {
+      "index": 36,
+      "status": "replayed",
+      "referenceArrivalTicks": [
+        1628
+      ],
+      "ticks": 1648,
+      "cadence": [
+        {
+          "name": "30",
+          "ticks": 1648,
+          "error": 0,
+          "endpoint": {
+            "x": 7.196775271991583,
+            "y": 1.3400000007829225,
+            "z": -11.447586010584821
+          },
+          "arrived": true,
+          "arrivalTicks": [
+            1628
+          ],
+          "sameArrival": true
+        },
+        {
+          "name": "60",
+          "ticks": 1648,
+          "error": 0,
+          "endpoint": {
+            "x": 7.196775271991583,
+            "y": 1.3400000007829225,
+            "z": -11.447586010584821
+          },
+          "arrived": true,
+          "arrivalTicks": [
+            1628
+          ],
+          "sameArrival": true
+        },
+        {
+          "name": "120",
+          "ticks": 1648,
+          "error": 0,
+          "endpoint": {
+            "x": 7.196775271991583,
+            "y": 1.3400000007829225,
+            "z": -11.447586010584821
+          },
+          "arrived": true,
+          "arrivalTicks": [
+            1628
+          ],
+          "sameArrival": true
+        },
+        {
+          "name": "jitter",
+          "ticks": 1648,
+          "error": 0,
+          "endpoint": {
+            "x": 7.196775271991583,
+            "y": 1.3400000007829225,
+            "z": -11.447586010584821
+          },
+          "arrived": true,
+          "arrivalTicks": [
+            1628
+          ],
+          "sameArrival": true
+        }
+      ]
+    },
+    {
+      "index": 37,
+      "status": "replayed",
+      "referenceArrivalTicks": [
+        1911
+      ],
+      "ticks": 1930,
+      "cadence": [
+        {
+          "name": "30",
+          "ticks": 1930,
+          "error": 0,
+          "endpoint": {
+            "x": 6.624900012073959,
+            "y": 1.3400000000000005,
+            "z": -14.335819472022768
+          },
+          "arrived": true,
+          "arrivalTicks": [
+            1911
+          ],
+          "sameArrival": true
+        },
+        {
+          "name": "60",
+          "ticks": 1930,
+          "error": 0,
+          "endpoint": {
+            "x": 6.624900012073959,
+            "y": 1.3400000000000005,
+            "z": -14.335819472022768
+          },
+          "arrived": true,
+          "arrivalTicks": [
+            1911
+          ],
+          "sameArrival": true
+        },
+        {
+          "name": "120",
+          "ticks": 1930,
+          "error": 0,
+          "endpoint": {
+            "x": 6.624900012073959,
+            "y": 1.3400000000000005,
+            "z": -14.335819472022768
+          },
+          "arrived": true,
+          "arrivalTicks": [
+            1911
+          ],
+          "sameArrival": true
+        },
+        {
+          "name": "jitter",
+          "ticks": 1930,
+          "error": 0,
+          "endpoint": {
+            "x": 6.624900012073959,
+            "y": 1.3400000000000005,
+            "z": -14.335819472022768
+          },
+          "arrived": true,
+          "arrivalTicks": [
+            1911
+          ],
+          "sameArrival": true
+        }
+      ]
+    },
+    {
+      "index": 38,
+      "status": "replayed",
+      "referenceArrivalTicks": [
+        2265
+      ],
+      "ticks": 2285,
+      "cadence": [
+        {
+          "name": "30",
+          "ticks": 2285,
+          "error": 0,
+          "endpoint": {
+            "x": 5.516010720897169,
+            "y": 1.3258922304089629,
+            "z": -17.400596995791698
+          },
+          "arrived": true,
+          "arrivalTicks": [
+            2265
+          ],
+          "sameArrival": true
+        },
+        {
+          "name": "60",
+          "ticks": 2285,
+          "error": 0,
+          "endpoint": {
+            "x": 5.516010720897169,
+            "y": 1.3258922304089629,
+            "z": -17.400596995791698
+          },
+          "arrived": true,
+          "arrivalTicks": [
+            2265
+          ],
+          "sameArrival": true
+        },
+        {
+          "name": "120",
+          "ticks": 2285,
+          "error": 0,
+          "endpoint": {
+            "x": 5.516010720897169,
+            "y": 1.3258922304089629,
+            "z": -17.400596995791698
+          },
+          "arrived": true,
+          "arrivalTicks": [
+            2265
+          ],
+          "sameArrival": true
+        },
+        {
+          "name": "jitter",
+          "ticks": 2285,
+          "error": 0,
+          "endpoint": {
+            "x": 5.516010720897169,
+            "y": 1.3258922304089629,
+            "z": -17.400596995791698
+          },
+          "arrived": true,
+          "arrivalTicks": [
+            2265
+          ],
+          "sameArrival": true
+        }
+      ]
+    },
+    {
+      "index": 39,
+      "status": "replayed",
+      "referenceArrivalTicks": [
+        2004
+      ],
+      "ticks": 2024,
+      "cadence": [
+        {
+          "name": "30",
+          "ticks": 2024,
+          "error": 0,
+          "endpoint": {
+            "x": 3.5298328630390734,
+            "y": 1.3400002410095264,
+            "z": -14.011749151559188
+          },
+          "arrived": true,
+          "arrivalTicks": [
+            2004
+          ],
+          "sameArrival": true
+        },
+        {
+          "name": "60",
+          "ticks": 2024,
+          "error": 0,
+          "endpoint": {
+            "x": 3.5298328630390734,
+            "y": 1.3400002410095264,
+            "z": -14.011749151559188
+          },
+          "arrived": true,
+          "arrivalTicks": [
+            2004
+          ],
+          "sameArrival": true
+        },
+        {
+          "name": "120",
+          "ticks": 2024,
+          "error": 0,
+          "endpoint": {
+            "x": 3.5298328630390734,
+            "y": 1.3400002410095264,
+            "z": -14.011749151559188
+          },
+          "arrived": true,
+          "arrivalTicks": [
+            2004
+          ],
+          "sameArrival": true
+        },
+        {
+          "name": "jitter",
+          "ticks": 2024,
+          "error": 0,
+          "endpoint": {
+            "x": 3.5298328630390734,
+            "y": 1.3400002410095264,
+            "z": -14.011749151559188
+          },
+          "arrived": true,
+          "arrivalTicks": [
+            2004
+          ],
+          "sameArrival": true
+        }
+      ]
+    },
+    {
+      "index": 40,
+      "status": "replayed",
+      "referenceArrivalTicks": [
+        1770
+      ],
+      "ticks": 1790,
+      "cadence": [
+        {
+          "name": "30",
+          "ticks": 1790,
+          "error": 0,
+          "endpoint": {
+            "x": 2.7070126034277036,
+            "y": 1.3399999999999996,
+            "z": -11.651923067652842
+          },
+          "arrived": true,
+          "arrivalTicks": [
+            1770
+          ],
+          "sameArrival": true
+        },
+        {
+          "name": "60",
+          "ticks": 1790,
+          "error": 0,
+          "endpoint": {
+            "x": 2.7070126034277036,
+            "y": 1.3399999999999996,
+            "z": -11.651923067652842
+          },
+          "arrived": true,
+          "arrivalTicks": [
+            1770
+          ],
+          "sameArrival": true
+        },
+        {
+          "name": "120",
+          "ticks": 1790,
+          "error": 0,
+          "endpoint": {
+            "x": 2.7070126034277036,
+            "y": 1.3399999999999996,
+            "z": -11.651923067652842
+          },
+          "arrived": true,
+          "arrivalTicks": [
+            1770
+          ],
+          "sameArrival": true
+        },
+        {
+          "name": "jitter",
+          "ticks": 1790,
+          "error": 0,
+          "endpoint": {
+            "x": 2.7070126034277036,
+            "y": 1.3399999999999996,
+            "z": -11.651923067652842
+          },
+          "arrived": true,
+          "arrivalTicks": [
+            1770
+          ],
+          "sameArrival": true
+        }
+      ]
+    },
+    {
+      "index": 41,
+      "status": "replayed",
+      "referenceArrivalTicks": [
+        1689
+      ],
+      "ticks": 1707,
+      "cadence": [
+        {
+          "name": "30",
+          "ticks": 1707,
+          "error": 0,
+          "endpoint": {
+            "x": 2.5781373794993097,
+            "y": 1.3399999999999996,
+            "z": -10.773482451607295
+          },
+          "arrived": true,
+          "arrivalTicks": [
+            1689
+          ],
+          "sameArrival": true
+        },
+        {
+          "name": "60",
+          "ticks": 1707,
+          "error": 0,
+          "endpoint": {
+            "x": 2.5781373794993097,
+            "y": 1.3399999999999996,
+            "z": -10.773482451607295
+          },
+          "arrived": true,
+          "arrivalTicks": [
+            1689
+          ],
+          "sameArrival": true
+        },
+        {
+          "name": "120",
+          "ticks": 1707,
+          "error": 0,
+          "endpoint": {
+            "x": 2.5781373794993097,
+            "y": 1.3399999999999996,
+            "z": -10.773482451607295
+          },
+          "arrived": true,
+          "arrivalTicks": [
+            1689
+          ],
+          "sameArrival": true
+        },
+        {
+          "name": "jitter",
+          "ticks": 1707,
+          "error": 0,
+          "endpoint": {
+            "x": 2.5781373794993097,
+            "y": 1.3399999999999996,
+            "z": -10.773482451607295
+          },
+          "arrived": true,
+          "arrivalTicks": [
+            1689
+          ],
+          "sameArrival": true
+        }
+      ]
+    },
+    {
+      "index": 42,
+      "status": "replayed",
+      "referenceArrivalTicks": [
+        4887
+      ],
+      "ticks": 4907,
+      "cadence": [
+        {
+          "name": "30",
+          "ticks": 4907,
+          "error": 0,
+          "endpoint": {
+            "x": -22.861969026841578,
+            "y": 1.3399986406275861,
+            "z": -32.81300331229289
+          },
+          "arrived": true,
+          "arrivalTicks": [
+            4887
+          ],
+          "sameArrival": true
+        },
+        {
+          "name": "60",
+          "ticks": 4907,
+          "error": 0,
+          "endpoint": {
+            "x": -22.861969026841578,
+            "y": 1.3399986406275861,
+            "z": -32.81300331229289
+          },
+          "arrived": true,
+          "arrivalTicks": [
+            4887
+          ],
+          "sameArrival": true
+        },
+        {
+          "name": "120",
+          "ticks": 4907,
+          "error": 0,
+          "endpoint": {
+            "x": -22.861969026841578,
+            "y": 1.3399986406275861,
+            "z": -32.81300331229289
+          },
+          "arrived": true,
+          "arrivalTicks": [
+            4887
+          ],
+          "sameArrival": true
+        },
+        {
+          "name": "jitter",
+          "ticks": 4907,
+          "error": 0,
+          "endpoint": {
+            "x": -22.861969026841578,
+            "y": 1.3399986406275861,
+            "z": -32.81300331229289
+          },
+          "arrived": true,
+          "arrivalTicks": [
+            4887
+          ],
+          "sameArrival": true
+        }
+      ]
+    }
+  ]
+}

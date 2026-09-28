@@ -6,6 +6,7 @@ import { length, horizontal } from "./native-motion";
 import type {
   Goal,
   Route,
+  Region,
 } from "../../metaflow-viewer/src/navigation/contracts";
 import type { WalkPhysicsState } from "../../metaflow-viewer/src/cameras/walk-controller";
 let planner: NativePlanner,
@@ -18,9 +19,8 @@ let planner: NativePlanner,
 let paused = false,
   arrived = false,
   floorOverride: number | undefined;
+let regions: Region[] = [];
 let candidates: Candidate[] | null = null,
-  attempted = 0,
-  rejected = 0,
   queries = 0,
   revision = 0,
   lastEvidence = "";
@@ -30,6 +30,7 @@ const identity = (s: WalkPhysicsState) =>
 const work = new CooperativeWork((error) =>
   send({
     type: "error",
+    taskState: "error",
     message: `导航运行错误：${String(error)}，移动后可重试`,
   }),
 );
@@ -47,8 +48,14 @@ function* prepare() {
       actual ? planner.associate(actual) : null,
     );
   candidates = region.candidates;
+  regions = region.regions;
   send({
     type: "region",
+    taskState: region.ambiguous
+      ? "floor"
+      : candidates.length
+        ? "computing"
+        : "exhausted",
     regions: region.regions,
     choices: region.choices,
     message: region.ambiguous
@@ -63,8 +70,12 @@ function* prepare() {
 function* globalQuery(begin = performance.now()) {
   if (!actual || !goal || !candidates?.length || arrived) return;
   queries++;
-  attempted = 0;
-  rejected = 0;
+  if (!route)
+    send({
+      type: "progress",
+      taskState: "computing",
+      message: "正在从当前位置寻找路线",
+    });
   const origin = actual;
   const start = planner.associate(origin);
   if (!start) {
@@ -75,39 +86,30 @@ function* globalQuery(begin = performance.now()) {
     });
     return;
   }
-  let capacity = false;
-  const failures: object[] = [];
-  const paths = new Set<string>();
-  for (const candidate of candidates) {
-    if (arrived) return;
-    attempted++;
-    const path = planner.path(start, candidate);
+  let found = false,
+    firstCompleteMs: number | null = null;
+  for (const solution of planner.solutions(origin, goal, candidates, regions)) {
     yield;
-    if (path.reason !== "complete") {
-      capacity ||= path.reason.includes("capacity");
-      continue;
+    if (arrived) return;
+    // A moving visitor takes priority over background candidate optimisation.
+    if (
+      route &&
+      actual &&
+      horizontal(actual.position, origin.position) > 0.05
+    ) {
+      install(maintain(), "local");
+      return;
     }
-    const key = JSON.stringify(path.points);
-    if (paths.has(key)) continue;
-    paths.add(key);
-    const check = yield* planner.verify(origin, path.points);
-    if (!check.ok) {
-      rejected++;
-      if (failures.length < 32) failures.push(check);
-      continue;
-    }
+    if (!solution) continue;
+    const path = solution.path;
     let proposed: Route = {
-      points: [
-        { ...origin.position, y: origin.supportHeight! },
-        ...path.points,
-      ],
+      points: path.points,
       polys: path.polys,
       asset,
       revision: ++revision,
     };
-    let position = start;
-    let verifiedOrigin = origin;
-    // A result is committed only after reconnecting from the newest native pose.
+    let position = start,
+      verifiedOrigin = origin;
     if (actual && length(actual.position, origin.position) > 0.02) {
       verifiedOrigin = actual;
       const maintained = yield* planner.maintain(
@@ -116,19 +118,12 @@ function* globalQuery(begin = performance.now()) {
         start,
       );
       if (!maintained) {
-        lastEvidence = "";
-        send({
-          type: "progress",
-          message: "已找到远处通道，正在从最新位置接路",
-        });
         install(globalQuery(), "global");
         return;
       }
       proposed = maintained.route;
       position = maintained.native;
     }
-    route = proposed;
-    native = position;
     if (
       actual &&
       (actual.epoch !== verifiedOrigin.epoch ||
@@ -136,27 +131,40 @@ function* globalQuery(begin = performance.now()) {
         actual.collision !== "active" ||
         horizontal(actual.position, verifiedOrigin.position) > 0.05)
     ) {
-      // A proof can itself yield while the user moves. Keep its completed work
-      // but connect once more before publishing; never publish the old start.
+      route = proposed;
+      native = position;
       if (actual.grounded && actual.collision === "active")
         install(maintain(), "local");
       return;
     }
+    if (route) {
+      const distance = (r: Route) =>
+        r.points.slice(1).reduce((n, p, i) => n + length(r.points[i], p), 0);
+      const before = distance(route),
+        after = distance(proposed);
+      const same = proposed.polys.every((p, i) => route!.polys[i] === p);
+      if (!same && (before - after < 2 || after > before * 0.85)) continue;
+    }
+    route = proposed;
+    native = position;
+    found = true;
+    firstCompleteMs ??= performance.now() - begin;
     lastEvidence = actual ? identity(actual) : "";
     send({
       type: "route",
+      taskState: "route",
       route,
       timing: {
         totalMs: performance.now() - begin,
-        firstCompleteMs: performance.now() - begin,
-        attempted,
-        rejected,
+        firstCompleteMs,
+        ...planner.queryMetrics,
         queries,
+        candidateCacheHits: planner.candidateCacheHits,
+        verificationCacheHits: planner.verificationCacheHits,
       },
-      failures,
     });
-    return;
   }
+  if (found || route) return;
   if (actual && identity(actual) !== identity(origin)) {
     // Candidate exhaustion belongs to its queried start, not the new pose.
     install(globalQuery(), "global");
@@ -166,17 +174,15 @@ function* globalQuery(begin = performance.now()) {
   route = null;
   native = null;
   send({
-    type: capacity ? "error" : "exhausted",
-    message: capacity
-      ? "导航库容量不足，不能据此判断不可达"
-      : "本轮候选已检查完，尚未找到原版正常步行验证通过的路线；移动后继续寻找",
+    type: "exhausted",
+    taskState: "exhausted",
+    message:
+      "本轮候选已检查完，尚未找到原版正常步行验证通过的路线；移动后继续寻找",
     timing: {
       totalMs: performance.now() - begin,
-      attempted,
-      rejected,
+      ...planner.queryMetrics,
       queries,
     },
-    failures,
   });
 }
 function* maintain() {
@@ -204,6 +210,7 @@ function* maintain() {
     lastEvidence = identity(actual);
     send({
       type: "route",
+      taskState: "route",
       route,
       timing: {
         localMs: performance.now() - at,
@@ -211,12 +218,15 @@ function* maintain() {
         topologyChanges: planner.topologyChanges,
       },
       topology: planner.lastTopologyCheck,
+      recovery: planner.lastRecovery,
+      recoveries: planner.recoveries,
     });
   } else {
     route = null;
     native = null;
     send({
       type: "progress",
+      taskState: "computing",
       invalidRoute: true,
       message: "正在从当前位置重新寻找路线",
       failure: planner.lastMaintenanceFailure,
@@ -272,6 +282,18 @@ onmessage = ({ data }) => {
     work.setPaused(paused);
     return;
   }
+  if (data.type === "cancel") {
+    if (data.session === session) {
+      work.replace(undefined);
+      goal = null;
+      route = null;
+      native = null;
+      regions = [];
+      candidates = null;
+    }
+    postMessage({ type: "cancelled", session: data.session });
+    return;
+  }
   if (data.type === "goal") {
     session = data.session;
     goal = data.goal;
@@ -280,8 +302,10 @@ onmessage = ({ data }) => {
     native = null;
     arrived = false;
     floorOverride = undefined;
+    regions = [];
     candidates = null;
     lastEvidence = "";
+    send({ type: "progress", taskState: "computing" });
     install(prepare(), "global");
     return;
   }
@@ -290,6 +314,7 @@ onmessage = ({ data }) => {
     floorOverride = data.floor;
     route = null;
     native = null;
+    send({ type: "progress", taskState: "computing" });
     install(prepare(), "global");
     return;
   }
