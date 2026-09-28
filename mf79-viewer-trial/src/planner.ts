@@ -149,7 +149,7 @@ export class NativePlanner {
     }
     return null;
   }
-  *candidates(goal: Goal) {
+  *candidates(goal: Goal): Generator<void, Candidate[], unknown> {
     const cacheKey = JSON.stringify([
       this.asset,
       BODY,
@@ -208,7 +208,12 @@ export class NativePlanner {
     candidates: Candidate[],
     floorOverride?: number,
     seed?: Candidate | null,
-  ) {
+  ): {
+    regions: Region[];
+    candidates: Candidate[];
+    choices: { floor: number; count: number }[];
+    ambiguous: boolean;
+  } {
     const refs = new Set(candidates.map((c) => c.ref)),
       groups: Candidate[][] = [];
     while (refs.size) {
@@ -365,7 +370,7 @@ export class NativePlanner {
     groundPoints: Point[],
     finalTolerance = 0.07,
     arrivalRegion?: { goal: Goal; regions: Region[] },
-  ) {
+  ): Generator<void, { ok: boolean; reason: string; point: Point }, unknown> {
     // Exact coordinates, direction, surface and body state: no quantised safety hits.
     const key = JSON.stringify([
       this.asset,
@@ -559,7 +564,7 @@ export class NativePlanner {
   *maintain(actual: WalkPhysicsState, route: Route, native: Candidate) {
     this.lastMaintenanceFailure = null;
     this.lastRecovery = null;
-    const fail = (reason: string) => {
+    const fail = (reason: string): null => {
       this.lastMaintenanceFailure = {
         reason,
         position: { ...actual.position },

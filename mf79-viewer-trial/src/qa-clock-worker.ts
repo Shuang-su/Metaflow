@@ -5,7 +5,7 @@ const work = new CooperativeWork(
   () => performance.now(),
   (f) => setTimeout(f, 24),
 );
-function* run(ms: number) {
+function* run(ms: number): Generator<void, void, unknown> {
   const start = performance.now();
   let progress = 0;
   while (performance.now() - start < ms) {
