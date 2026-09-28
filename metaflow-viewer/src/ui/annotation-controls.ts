@@ -18,7 +18,7 @@ const initAnnotationControls = (
     // while nothing is selected so it does not read as the selection; clicking it selects it.
     let currentIndex = state.selectedAnnotation ?? 0;
     const update = () => {
-        currentIndex = state.selectedAnnotation ?? currentIndex;
+        currentIndex = (state.guidanceMode ? state.guidanceTarget : state.selectedAnnotation) ?? currentIndex;
         // the number its hotspot shows in the scene
         number.textContent = annotations[currentIndex] ? String(currentIndex + 1) : '';
         title.textContent = annotations[currentIndex]?.title ?? '';
@@ -57,6 +57,8 @@ const initAnnotationControls = (
     const subscriptions = [
         events.on('loaded:changed', update),
         events.on('selectedAnnotation:changed', update),
+        events.on('guidanceTarget:changed', update),
+        events.on('guidanceMode:changed', update),
         events.on('showAnnotations:changed', update),
         events.on('inputMode:changed', update),
         events.on('controlsHidden:changed', update)

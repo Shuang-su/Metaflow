@@ -1,0 +1,189 @@
+{
+  "note": "Same seven source destinations, plus SDI marker-2 supplemental; native-body walking to endpoint, original 3 cm stop tolerance (not the 2 m arrival disk).",
+  "rows": [
+    {
+      "scene": "apms-2026",
+      "id": "simple",
+      "goal": {
+        "x": -4.53,
+        "y": 1.42,
+        "z": -2.42
+      },
+      "asset": "12e22e821dd04577e03160772d45c8d80a27ce374b723e00c836ccaafa684695",
+      "status": "native-walking-passed",
+      "search": "complete",
+      "proof": {
+        "ok": true,
+        "reason": "native-walking-complete",
+        "point": {
+          "x": -4.508743192413035,
+          "y": 1.42,
+          "z": -2.400980666970682
+        }
+      },
+      "endpointTolerance": 0.03,
+      "cohort": "legacy-seven"
+    },
+    {
+      "scene": "apms-2026",
+      "id": "detour",
+      "goal": {
+        "x": 2,
+        "y": 1.42,
+        "z": -2
+      },
+      "asset": "12e22e821dd04577e03160772d45c8d80a27ce374b723e00c836ccaafa684695",
+      "status": "native-walking-passed",
+      "search": "complete",
+      "proof": {
+        "ok": true,
+        "reason": "native-walking-complete",
+        "point": {
+          "x": 1.9820297740988715,
+          "y": 1.4197937565107097,
+          "z": -1.9803841488995237
+        }
+      },
+      "endpointTolerance": 0.03,
+      "cohort": "legacy-seven"
+    },
+    {
+      "scene": "apms-2026",
+      "id": "wall-behind",
+      "goal": {
+        "x": 0,
+        "y": 1.308,
+        "z": -8
+      },
+      "asset": "12e22e821dd04577e03160772d45c8d80a27ce374b723e00c836ccaafa684695",
+      "status": "native-walking-passed",
+      "search": "complete",
+      "proof": {
+        "ok": true,
+        "reason": "native-walking-complete",
+        "point": {
+          "x": 0.021541573184616244,
+          "y": 1.336439159214055,
+          "z": -7.993472552967412
+        }
+      },
+      "endpointTolerance": 0.03,
+      "cohort": "legacy-seven"
+    },
+    {
+      "scene": "sdi-2026",
+      "id": "simple",
+      "goal": {
+        "x": -2.2,
+        "y": 1.1,
+        "z": -3.4
+      },
+      "asset": "bdd78f90f0167171027ea98efb09ae00ce43a5f095d376c6238eb86e2f0b885e",
+      "status": "native-walking-passed",
+      "search": "complete",
+      "proof": {
+        "ok": true,
+        "reason": "native-walking-complete",
+        "point": {
+          "x": -2.1968177970759735,
+          "y": 1.1,
+          "z": -3.377724381678014
+        }
+      },
+      "endpointTolerance": 0.03,
+      "cohort": "legacy-seven"
+    },
+    {
+      "scene": "sdi-2026",
+      "id": "detour",
+      "goal": {
+        "x": 2,
+        "y": 1.1,
+        "z": -2
+      },
+      "asset": "bdd78f90f0167171027ea98efb09ae00ce43a5f095d376c6238eb86e2f0b885e",
+      "status": "native-walking-passed",
+      "search": "complete",
+      "proof": {
+        "ok": true,
+        "reason": "native-walking-complete",
+        "point": {
+          "x": 1.9721923577868194,
+          "y": 1.0999999999999994,
+          "z": -2
+        }
+      },
+      "endpointTolerance": 0.03,
+      "cohort": "legacy-seven"
+    },
+    {
+      "scene": "sdi-2026",
+      "id": "marker-2",
+      "goal": {
+        "x": 1.7441927194595337,
+        "y": 1.099999999999999,
+        "z": -0.06748133897781372
+      },
+      "asset": "bdd78f90f0167171027ea98efb09ae00ce43a5f095d376c6238eb86e2f0b885e",
+      "status": "native-walking-passed",
+      "search": "complete",
+      "proof": {
+        "ok": true,
+        "reason": "native-walking-complete",
+        "point": {
+          "x": 1.7192689686289688,
+          "y": 1.0999999999999994,
+          "z": -0.08034542430057738
+        }
+      },
+      "endpointTolerance": 0.03,
+      "cohort": "supplemental"
+    },
+    {
+      "scene": "sdi-2026",
+      "id": "marker-8",
+      "goal": {
+        "x": -2.700305700302124,
+        "y": 1.099999999999999,
+        "z": -16.281932830810547
+      },
+      "asset": "bdd78f90f0167171027ea98efb09ae00ce43a5f095d376c6238eb86e2f0b885e",
+      "status": "native-walking-passed",
+      "search": "complete",
+      "proof": {
+        "ok": true,
+        "reason": "native-walking-complete",
+        "point": {
+          "x": -2.7086570970863146,
+          "y": 1.0999999999999994,
+          "z": -16.253831735906047
+        }
+      },
+      "endpointTolerance": 0.03,
+      "cohort": "legacy-seven"
+    },
+    {
+      "scene": "sdi-2026",
+      "id": "marker-25",
+      "goal": {
+        "x": -1.6777622699737549,
+        "y": 1.099999999999999,
+        "z": 9.79948616027832
+      },
+      "asset": "bdd78f90f0167171027ea98efb09ae00ce43a5f095d376c6238eb86e2f0b885e",
+      "status": "native-walking-passed",
+      "search": "complete",
+      "proof": {
+        "ok": true,
+        "reason": "native-walking-complete",
+        "point": {
+          "x": -1.678479491030217,
+          "y": 1.0998215279603607,
+          "z": 9.773223447303035
+        }
+      },
+      "endpointTolerance": 0.03,
+      "cohort": "legacy-seven"
+    }
+  ]
+}

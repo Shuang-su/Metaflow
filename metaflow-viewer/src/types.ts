@@ -117,6 +117,10 @@ type State = {
     controlsHidden: boolean;
     /** Shows the annotation hotspots. Persisted in local storage. */
     showAnnotations: boolean;
+    guidanceMode: boolean;
+    guidanceRadius: 2 | 3;
+    guidanceTarget: number | null;
+    guidanceStatus: string;
     /** Selected annotation's zero-based index in `annotations`, or null. Read-only: use `selectAnnotation`. */
     selectedAnnotation: number | null;
     /** Mouse-look and joystick movement rather than click-to-navigate. Persisted. */
@@ -139,6 +143,8 @@ type WritableStateKey =
     | 'performanceMode'
     | 'showAnnotations'
     | 'gamingControls'
+    | 'guidanceMode'
+    | 'guidanceRadius'
     | 'animationPaused'
     | 'collisionOverlayEnabled'
     | 'controlsHidden'
