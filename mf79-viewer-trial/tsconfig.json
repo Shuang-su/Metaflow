@@ -1,0 +1,6 @@
+{
+  "extends": "../metaflow-viewer/tsconfig.json",
+  "compilerOptions": { "module": "es2022", "noEmit": true },
+  "include": ["src", "../metaflow-viewer/types.d.ts"],
+  "exclude": ["dist", "node_modules"]
+}

@@ -1,0 +1,125 @@
+{
+  "date": "2026-09-28",
+  "implementationCheckpoint": "5c5862c6",
+  "scene": "apms-2026",
+  "renderer": "webgpu",
+  "splatBudget": 1,
+  "radiusMeters": 2,
+  "driver": "src/qa-walk.ts: public Viewer setMoveInput; first returned route frozen per goal; input gain 0.25; no position or yaw writes",
+  "evidenceClass": "automated native input in actual Gaussian Viewer; not keyboard or user acceptance",
+  "poseSamples": 943,
+  "gpuErrors": [],
+  "events": [
+    {
+      "type": "route",
+      "goal": 35,
+      "points": 52,
+      "elapsedMs": 460.7
+    },
+    {
+      "type": "arrived",
+      "goal": 35,
+      "session": 1,
+      "tick": 1438,
+      "position": {
+        "x": 6.963555269716828,
+        "y": 1.3399999999999996,
+        "z": -9.172363621503733
+      },
+      "elapsedMs": 25732.8
+    },
+    {
+      "type": "route",
+      "goal": 42,
+      "points": 111,
+      "elapsedMs": 26101.6
+    },
+    {
+      "type": "arrived",
+      "goal": 42,
+      "session": 2,
+      "tick": 5663,
+      "position": {
+        "x": -23.470866550944997,
+        "y": 1.3399643253723392,
+        "z": -34.04673289361068
+      },
+      "elapsedMs": 96534.6
+    },
+    {
+      "type": "end",
+      "reason": "completed",
+      "elapsedMs": 96534.8
+    }
+  ],
+  "frameEvidenceDirectory": "/Volumes/Prism/Metaflow/.codex-work/cache/mf79-native-evidence",
+  "frames": [
+    {
+      "file": "viewer-1790590834513.jpg",
+      "tick": 2489,
+      "position": [
+        -2.2346353619225403, 1.3399996050296634, -14.502721904793496
+      ],
+      "sha256": "5a10e1e0a2d61cf2c8bd04eeb1aac50c0e60490fa82c8b3f6833a571b085e026",
+      "bytes": 253408
+    },
+    {
+      "file": "viewer-1790590834908.jpg",
+      "tick": 2511,
+      "position": [-2.427046763457343, 1.339999998995888, -14.63090799437217],
+      "sha256": "bab6003f4cc00226e57303fc4899973b971e8c1f9cf2b04562b73612d10f7feb",
+      "bytes": 257541
+    },
+    {
+      "file": "viewer-1790590835170.jpg",
+      "tick": 2526,
+      "position": [-2.5729751691621705, 1.3399999999829153, -14.70021375829071],
+      "sha256": "caf974696e8e50e4903ffbc54bb6c8b30c8dca98330775b587cd7704ab9d9ed4",
+      "bytes": 259849
+    },
+    {
+      "file": "viewer-1790590835495.jpg",
+      "tick": 2546,
+      "position": [
+        -2.7727330262688996, 1.3399999999999253, -14.764979611462778
+      ],
+      "sha256": "3893dd91da95a203a241f3718bf13710ec89c9e6fe2e68abaa487a5654bd9163",
+      "bytes": 263721
+    },
+    {
+      "file": "viewer-1790590835885.jpg",
+      "tick": 2570,
+      "position": [-3.007820318809036, 1.3153122600634566, -14.863709061117117],
+      "sha256": "f8f096d7ad755063c49f235819aad61e2ee06b1672c2c0fd66dc75479b266879",
+      "bytes": 267262
+    },
+    {
+      "file": "viewer-1790590836170.jpg",
+      "tick": 2586,
+      "position": [-3.150832136070135, 1.338688036137775, -14.957759185529223],
+      "sha256": "ef73a7902ae5f85af42fb2c4cdba482d6aaddb031ed76ad7fb630fdb9276431a",
+      "bytes": 267906
+    },
+    {
+      "file": "viewer-1790590836483.jpg",
+      "tick": 2606,
+      "position": [-3.331760820145851, 1.3399649500898, -15.074220805896536],
+      "sha256": "3fdcb8eaa98d3f7621f79610779e4b8fa069227119bd8707191562578c10a857",
+      "bytes": 269703
+    },
+    {
+      "file": "viewer-1790590836874.jpg",
+      "tick": 2627,
+      "position": [
+        -3.5195497577767316, 1.2928023979880552, -15.194765783655855
+      ],
+      "sha256": "a7e0051f974466c6a48791ccdbf38458fc3ac595fdd60305f27df36af006746b",
+      "bytes": 273277
+    }
+  ],
+  "limitations": [
+    "Eight sequential screenshots cover a moving section of goal 42, not the full 96.5 second journey or every render frame.",
+    "Visual review confirms the ground line, arrows and Gaussian pillar occlusion in this section; it does not prove all translucent Gaussian edges or all viewpoints.",
+    "Current input is zero after completion; automated driver unsubscribed. Subsequent user interaction is not included."
+  ]
+}

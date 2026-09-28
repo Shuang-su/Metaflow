@@ -10,6 +10,7 @@
 
 ```sh
 npm test
+node_modules/.bin/tsc --noEmit
 node_modules/.bin/tsx scripts/generate.ts apms-2026 sdi-2026
 npm run dev
 ```
@@ -86,3 +87,5 @@ node_modules/.bin/tsx scripts/replay.ts sdi-2026 --region --radius=3
 ```
 
 浏览器 `http://127.0.0.1:5184/qa.html` 提供实际时钟长任务与 110 次 Worker 复用测试。`src/qa-soak.ts` 提供至少 30 分钟选择/显示切换的资源记录，不注入人物移动。`?qa-budget=0.25` 只降低测试页高斯渲染预算，便于同时保留用户页；导航资产与身体配置不变，测试报告须记录所用预算。
+
+真实渲染器内的自动原生输入检查：在独立试用页开启导览并等待碰撞就绪后，通过开发者控制台运行 `const walk = (await import('/src/qa-walk.ts')).startWalk(window.mf79.viewer, [34, 41])`。数组使用从零开始的标点编号；`walk.stop()` 立即停止，`walk.rows` 给出事件及固定步采样。该脚本仅用于 QA，没有导入产品入口，不写人物位置/朝向，也不能代替键鼠和用户手动验收。结果见 `docs/browser-native-walk.json`。
