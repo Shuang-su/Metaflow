@@ -159,6 +159,7 @@ class CameraManager {
         controllers.fly.fov = resetCamera.fov;
         controllers.fly.collision = collision;
         controllers.walk.collision = collision;
+        controllers.walk.onPhysicsStep = (snapshot) => events.fire('walk:physics', snapshot);
 
         const walkSource = new WalkSource();
         const flySource = new FlySource();

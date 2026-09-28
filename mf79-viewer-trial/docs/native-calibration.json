@@ -1,0 +1,1087 @@
+{
+  "controllerHash": "ab0fb8b71f812a9ff6076a78af88494f91bc50b4ecc6c7d9abeff0bd53af6dbc",
+  "geometry": "same-sized triangle steps, five headings, forward ascent and descent, no jump",
+  "rows": [
+    {
+      "height": 0.04,
+      "width": 0.08,
+      "angle": 0,
+      "passed": true,
+      "progress": 1.500678647763833,
+      "maxY": 1.5203883801851943,
+      "collision": "active"
+    },
+    {
+      "height": 0.04,
+      "width": 0.08,
+      "angle": 45,
+      "passed": true,
+      "progress": 1.5006786477638296,
+      "maxY": 1.5143015389643792,
+      "collision": "active"
+    },
+    {
+      "height": 0.04,
+      "width": 0.08,
+      "angle": 90,
+      "passed": true,
+      "progress": 1.500678647763833,
+      "maxY": 1.5203883801851943,
+      "collision": "active"
+    },
+    {
+      "height": 0.04,
+      "width": 0.08,
+      "angle": 180,
+      "passed": true,
+      "progress": 1.500678647763833,
+      "maxY": 1.5203883801851943,
+      "collision": "active"
+    },
+    {
+      "height": 0.04,
+      "width": 0.08,
+      "angle": 270,
+      "passed": true,
+      "progress": 1.500678647763833,
+      "maxY": 1.5203883801851943,
+      "collision": "active"
+    },
+    {
+      "height": 0.04,
+      "width": 0.24,
+      "angle": 0,
+      "passed": true,
+      "progress": 1.500678647763833,
+      "maxY": 1.5283777729657357,
+      "collision": "active"
+    },
+    {
+      "height": 0.04,
+      "width": 0.24,
+      "angle": 45,
+      "passed": true,
+      "progress": 1.5006786477638296,
+      "maxY": 1.5232484948003642,
+      "collision": "active"
+    },
+    {
+      "height": 0.04,
+      "width": 0.24,
+      "angle": 90,
+      "passed": true,
+      "progress": 1.500678647763833,
+      "maxY": 1.5283777729657357,
+      "collision": "active"
+    },
+    {
+      "height": 0.04,
+      "width": 0.24,
+      "angle": 180,
+      "passed": true,
+      "progress": 1.500678647763833,
+      "maxY": 1.5283777729657357,
+      "collision": "active"
+    },
+    {
+      "height": 0.04,
+      "width": 0.24,
+      "angle": 270,
+      "passed": true,
+      "progress": 1.500678647763833,
+      "maxY": 1.5283777729657357,
+      "collision": "active"
+    },
+    {
+      "height": 0.04,
+      "width": 0.8,
+      "angle": 0,
+      "passed": true,
+      "progress": 1.500678647763833,
+      "maxY": 1.53999963919987,
+      "collision": "active"
+    },
+    {
+      "height": 0.04,
+      "width": 0.8,
+      "angle": 45,
+      "passed": true,
+      "progress": 1.5006786477638296,
+      "maxY": 1.5399999714916828,
+      "collision": "active"
+    },
+    {
+      "height": 0.04,
+      "width": 0.8,
+      "angle": 90,
+      "passed": true,
+      "progress": 1.500678647763833,
+      "maxY": 1.53999963919987,
+      "collision": "active"
+    },
+    {
+      "height": 0.04,
+      "width": 0.8,
+      "angle": 180,
+      "passed": true,
+      "progress": 1.500678647763833,
+      "maxY": 1.53999963919987,
+      "collision": "active"
+    },
+    {
+      "height": 0.04,
+      "width": 0.8,
+      "angle": 270,
+      "passed": true,
+      "progress": 1.500678647763833,
+      "maxY": 1.53999963919987,
+      "collision": "active"
+    },
+    {
+      "height": 0.08,
+      "width": 0.08,
+      "angle": 0,
+      "passed": true,
+      "progress": 1.500678647763833,
+      "maxY": 1.5407767603703886,
+      "collision": "active"
+    },
+    {
+      "height": 0.08,
+      "width": 0.08,
+      "angle": 45,
+      "passed": true,
+      "progress": 1.5006786477638296,
+      "maxY": 1.5286030779287585,
+      "collision": "active"
+    },
+    {
+      "height": 0.08,
+      "width": 0.08,
+      "angle": 90,
+      "passed": true,
+      "progress": 1.500678647763833,
+      "maxY": 1.5407767603703886,
+      "collision": "active"
+    },
+    {
+      "height": 0.08,
+      "width": 0.08,
+      "angle": 180,
+      "passed": true,
+      "progress": 1.500678647763833,
+      "maxY": 1.5407767603703886,
+      "collision": "active"
+    },
+    {
+      "height": 0.08,
+      "width": 0.08,
+      "angle": 270,
+      "passed": true,
+      "progress": 1.500678647763833,
+      "maxY": 1.5407767603703886,
+      "collision": "active"
+    },
+    {
+      "height": 0.08,
+      "width": 0.24,
+      "angle": 0,
+      "passed": true,
+      "progress": 1.500678647763833,
+      "maxY": 1.5567555459314715,
+      "collision": "active"
+    },
+    {
+      "height": 0.08,
+      "width": 0.24,
+      "angle": 45,
+      "passed": true,
+      "progress": 1.5006786477638296,
+      "maxY": 1.5464969896007286,
+      "collision": "active"
+    },
+    {
+      "height": 0.08,
+      "width": 0.24,
+      "angle": 90,
+      "passed": true,
+      "progress": 1.500678647763833,
+      "maxY": 1.5567555459314715,
+      "collision": "active"
+    },
+    {
+      "height": 0.08,
+      "width": 0.24,
+      "angle": 180,
+      "passed": true,
+      "progress": 1.500678647763833,
+      "maxY": 1.5567555459314715,
+      "collision": "active"
+    },
+    {
+      "height": 0.08,
+      "width": 0.24,
+      "angle": 270,
+      "passed": true,
+      "progress": 1.500678647763833,
+      "maxY": 1.5567555459314715,
+      "collision": "active"
+    },
+    {
+      "height": 0.08,
+      "width": 0.8,
+      "angle": 0,
+      "passed": true,
+      "progress": 1.500678647763833,
+      "maxY": 1.5799992783997403,
+      "collision": "active"
+    },
+    {
+      "height": 0.08,
+      "width": 0.8,
+      "angle": 45,
+      "passed": true,
+      "progress": 1.5006786477638296,
+      "maxY": 1.5799999429833655,
+      "collision": "active"
+    },
+    {
+      "height": 0.08,
+      "width": 0.8,
+      "angle": 90,
+      "passed": true,
+      "progress": 1.500678647763833,
+      "maxY": 1.5799992783997403,
+      "collision": "active"
+    },
+    {
+      "height": 0.08,
+      "width": 0.8,
+      "angle": 180,
+      "passed": true,
+      "progress": 1.500678647763833,
+      "maxY": 1.5799992783997403,
+      "collision": "active"
+    },
+    {
+      "height": 0.08,
+      "width": 0.8,
+      "angle": 270,
+      "passed": true,
+      "progress": 1.500678647763833,
+      "maxY": 1.5799992783997403,
+      "collision": "active"
+    },
+    {
+      "height": 0.12,
+      "width": 0.08,
+      "angle": 0,
+      "passed": true,
+      "progress": 1.500678647763833,
+      "maxY": 1.5611651405555829,
+      "collision": "active"
+    },
+    {
+      "height": 0.12,
+      "width": 0.08,
+      "angle": 45,
+      "passed": true,
+      "progress": 1.5006786477638296,
+      "maxY": 1.5429046168931375,
+      "collision": "active"
+    },
+    {
+      "height": 0.12,
+      "width": 0.08,
+      "angle": 90,
+      "passed": true,
+      "progress": 1.500678647763833,
+      "maxY": 1.5611651405555829,
+      "collision": "active"
+    },
+    {
+      "height": 0.12,
+      "width": 0.08,
+      "angle": 180,
+      "passed": true,
+      "progress": 1.500678647763833,
+      "maxY": 1.5611651405555829,
+      "collision": "active"
+    },
+    {
+      "height": 0.12,
+      "width": 0.08,
+      "angle": 270,
+      "passed": true,
+      "progress": 1.500678647763833,
+      "maxY": 1.5611651405555829,
+      "collision": "active"
+    },
+    {
+      "height": 0.12,
+      "width": 0.24,
+      "angle": 0,
+      "passed": true,
+      "progress": 1.500678647763833,
+      "maxY": 1.585133318897207,
+      "collision": "active"
+    },
+    {
+      "height": 0.12,
+      "width": 0.24,
+      "angle": 45,
+      "passed": true,
+      "progress": 1.5006786477638296,
+      "maxY": 1.5697454844010925,
+      "collision": "active"
+    },
+    {
+      "height": 0.12,
+      "width": 0.24,
+      "angle": 90,
+      "passed": true,
+      "progress": 1.500678647763833,
+      "maxY": 1.585133318897207,
+      "collision": "active"
+    },
+    {
+      "height": 0.12,
+      "width": 0.24,
+      "angle": 180,
+      "passed": true,
+      "progress": 1.500678647763833,
+      "maxY": 1.585133318897207,
+      "collision": "active"
+    },
+    {
+      "height": 0.12,
+      "width": 0.24,
+      "angle": 270,
+      "passed": true,
+      "progress": 1.500678647763833,
+      "maxY": 1.585133318897207,
+      "collision": "active"
+    },
+    {
+      "height": 0.12,
+      "width": 0.8,
+      "angle": 0,
+      "passed": true,
+      "progress": 1.500678647763833,
+      "maxY": 1.6199989175996101,
+      "collision": "active"
+    },
+    {
+      "height": 0.12,
+      "width": 0.8,
+      "angle": 45,
+      "passed": true,
+      "progress": 1.5006786477638296,
+      "maxY": 1.6199999144750483,
+      "collision": "active"
+    },
+    {
+      "height": 0.12,
+      "width": 0.8,
+      "angle": 90,
+      "passed": true,
+      "progress": 1.500678647763833,
+      "maxY": 1.6199989175996101,
+      "collision": "active"
+    },
+    {
+      "height": 0.12,
+      "width": 0.8,
+      "angle": 180,
+      "passed": true,
+      "progress": 1.500678647763833,
+      "maxY": 1.6199989175996101,
+      "collision": "active"
+    },
+    {
+      "height": 0.12,
+      "width": 0.8,
+      "angle": 270,
+      "passed": true,
+      "progress": 1.500678647763833,
+      "maxY": 1.6199989175996101,
+      "collision": "active"
+    },
+    {
+      "height": 0.16,
+      "width": 0.08,
+      "angle": 0,
+      "passed": true,
+      "progress": 1.500678647763833,
+      "maxY": 1.5815535207407774,
+      "collision": "active"
+    },
+    {
+      "height": 0.16,
+      "width": 0.08,
+      "angle": 45,
+      "passed": true,
+      "progress": 1.5006786477638296,
+      "maxY": 1.5572061558575168,
+      "collision": "active"
+    },
+    {
+      "height": 0.16,
+      "width": 0.08,
+      "angle": 90,
+      "passed": true,
+      "progress": 1.500678647763833,
+      "maxY": 1.5815535207407774,
+      "collision": "active"
+    },
+    {
+      "height": 0.16,
+      "width": 0.08,
+      "angle": 180,
+      "passed": true,
+      "progress": 1.500678647763833,
+      "maxY": 1.5815535207407774,
+      "collision": "active"
+    },
+    {
+      "height": 0.16,
+      "width": 0.08,
+      "angle": 270,
+      "passed": true,
+      "progress": 1.500678647763833,
+      "maxY": 1.5815535207407774,
+      "collision": "active"
+    },
+    {
+      "height": 0.16,
+      "width": 0.24,
+      "angle": 0,
+      "passed": true,
+      "progress": 1.500678647763833,
+      "maxY": 1.6135110918629427,
+      "collision": "active"
+    },
+    {
+      "height": 0.16,
+      "width": 0.24,
+      "angle": 45,
+      "passed": true,
+      "progress": 1.5006786477638296,
+      "maxY": 1.592993979201457,
+      "collision": "active"
+    },
+    {
+      "height": 0.16,
+      "width": 0.24,
+      "angle": 90,
+      "passed": true,
+      "progress": 1.500678647763833,
+      "maxY": 1.6135110918629427,
+      "collision": "active"
+    },
+    {
+      "height": 0.16,
+      "width": 0.24,
+      "angle": 180,
+      "passed": true,
+      "progress": 1.500678647763833,
+      "maxY": 1.6135110918629427,
+      "collision": "active"
+    },
+    {
+      "height": 0.16,
+      "width": 0.24,
+      "angle": 270,
+      "passed": true,
+      "progress": 1.500678647763833,
+      "maxY": 1.6135110918629427,
+      "collision": "active"
+    },
+    {
+      "height": 0.16,
+      "width": 0.8,
+      "angle": 0,
+      "passed": true,
+      "progress": 1.500678647763833,
+      "maxY": 1.6599985567994804,
+      "collision": "active"
+    },
+    {
+      "height": 0.16,
+      "width": 0.8,
+      "angle": 45,
+      "passed": true,
+      "progress": 1.5006786477638296,
+      "maxY": 1.659999885966731,
+      "collision": "active"
+    },
+    {
+      "height": 0.16,
+      "width": 0.8,
+      "angle": 90,
+      "passed": true,
+      "progress": 1.500678647763833,
+      "maxY": 1.6599985567994804,
+      "collision": "active"
+    },
+    {
+      "height": 0.16,
+      "width": 0.8,
+      "angle": 180,
+      "passed": true,
+      "progress": 1.500678647763833,
+      "maxY": 1.6599985567994804,
+      "collision": "active"
+    },
+    {
+      "height": 0.16,
+      "width": 0.8,
+      "angle": 270,
+      "passed": true,
+      "progress": 1.500678647763833,
+      "maxY": 1.6599985567994804,
+      "collision": "active"
+    },
+    {
+      "height": 0.2,
+      "width": 0.08,
+      "angle": 0,
+      "passed": true,
+      "progress": 1.500678647763833,
+      "maxY": 1.5,
+      "collision": "active"
+    },
+    {
+      "height": 0.2,
+      "width": 0.08,
+      "angle": 45,
+      "passed": true,
+      "progress": 1.5006786477638296,
+      "maxY": 1.5,
+      "collision": "active"
+    },
+    {
+      "height": 0.2,
+      "width": 0.08,
+      "angle": 90,
+      "passed": true,
+      "progress": 1.500678647763833,
+      "maxY": 1.5,
+      "collision": "active"
+    },
+    {
+      "height": 0.2,
+      "width": 0.08,
+      "angle": 180,
+      "passed": true,
+      "progress": 1.500678647763833,
+      "maxY": 1.5,
+      "collision": "active"
+    },
+    {
+      "height": 0.2,
+      "width": 0.08,
+      "angle": 270,
+      "passed": true,
+      "progress": 1.500678647763833,
+      "maxY": 1.5,
+      "collision": "active"
+    },
+    {
+      "height": 0.2,
+      "width": 0.24,
+      "angle": 0,
+      "passed": true,
+      "progress": 1.500678647763833,
+      "maxY": 1.5,
+      "collision": "active"
+    },
+    {
+      "height": 0.2,
+      "width": 0.24,
+      "angle": 45,
+      "passed": true,
+      "progress": 1.5006786477638296,
+      "maxY": 1.5,
+      "collision": "active"
+    },
+    {
+      "height": 0.2,
+      "width": 0.24,
+      "angle": 90,
+      "passed": true,
+      "progress": 1.500678647763833,
+      "maxY": 1.5,
+      "collision": "active"
+    },
+    {
+      "height": 0.2,
+      "width": 0.24,
+      "angle": 180,
+      "passed": true,
+      "progress": 1.500678647763833,
+      "maxY": 1.5,
+      "collision": "active"
+    },
+    {
+      "height": 0.2,
+      "width": 0.24,
+      "angle": 270,
+      "passed": true,
+      "progress": 1.500678647763833,
+      "maxY": 1.5,
+      "collision": "active"
+    },
+    {
+      "height": 0.2,
+      "width": 0.8,
+      "angle": 0,
+      "passed": true,
+      "progress": 1.500678647763833,
+      "maxY": 1.5,
+      "collision": "active"
+    },
+    {
+      "height": 0.2,
+      "width": 0.8,
+      "angle": 45,
+      "passed": true,
+      "progress": 1.5006786477638296,
+      "maxY": 1.5,
+      "collision": "active"
+    },
+    {
+      "height": 0.2,
+      "width": 0.8,
+      "angle": 90,
+      "passed": true,
+      "progress": 1.500678647763833,
+      "maxY": 1.5,
+      "collision": "active"
+    },
+    {
+      "height": 0.2,
+      "width": 0.8,
+      "angle": 180,
+      "passed": true,
+      "progress": 1.500678647763833,
+      "maxY": 1.5,
+      "collision": "active"
+    },
+    {
+      "height": 0.2,
+      "width": 0.8,
+      "angle": 270,
+      "passed": true,
+      "progress": 1.500678647763833,
+      "maxY": 1.5,
+      "collision": "active"
+    },
+    {
+      "height": 0.24,
+      "width": 0.08,
+      "angle": 0,
+      "passed": true,
+      "progress": 1.4595942951075207,
+      "maxY": 1.6328950454185487,
+      "collision": "active"
+    },
+    {
+      "height": 0.24,
+      "width": 0.08,
+      "angle": 45,
+      "passed": true,
+      "progress": 1.4705823671014897,
+      "maxY": 1.5469924431058721,
+      "collision": "active"
+    },
+    {
+      "height": 0.24,
+      "width": 0.08,
+      "angle": 90,
+      "passed": true,
+      "progress": 1.4595942951075207,
+      "maxY": 1.6328950454185487,
+      "collision": "active"
+    },
+    {
+      "height": 0.24,
+      "width": 0.08,
+      "angle": 180,
+      "passed": true,
+      "progress": 1.4595942951075207,
+      "maxY": 1.6328950454185487,
+      "collision": "active"
+    },
+    {
+      "height": 0.24,
+      "width": 0.08,
+      "angle": 270,
+      "passed": true,
+      "progress": 1.4595942951075207,
+      "maxY": 1.6328950454185487,
+      "collision": "active"
+    },
+    {
+      "height": 0.24,
+      "width": 0.24,
+      "angle": 0,
+      "passed": true,
+      "progress": 1.4587137235353886,
+      "maxY": 1.6778699961312105,
+      "collision": "active"
+    },
+    {
+      "height": 0.24,
+      "width": 0.24,
+      "angle": 45,
+      "passed": true,
+      "progress": 1.4636742417929085,
+      "maxY": 1.6394908049792598,
+      "collision": "active"
+    },
+    {
+      "height": 0.24,
+      "width": 0.24,
+      "angle": 90,
+      "passed": true,
+      "progress": 1.4587137235353886,
+      "maxY": 1.6778699961312105,
+      "collision": "active"
+    },
+    {
+      "height": 0.24,
+      "width": 0.24,
+      "angle": 180,
+      "passed": true,
+      "progress": 1.4587137235353886,
+      "maxY": 1.6778699961312105,
+      "collision": "active"
+    },
+    {
+      "height": 0.24,
+      "width": 0.24,
+      "angle": 270,
+      "passed": true,
+      "progress": 1.4587137235353886,
+      "maxY": 1.6778699961312105,
+      "collision": "active"
+    },
+    {
+      "height": 0.24,
+      "width": 0.8,
+      "angle": 0,
+      "passed": true,
+      "progress": 1.4595945033619104,
+      "maxY": 1.7399983471431728,
+      "collision": "active"
+    },
+    {
+      "height": 0.24,
+      "width": 0.8,
+      "angle": 45,
+      "passed": true,
+      "progress": 1.4636742417929087,
+      "maxY": 1.7399998262698644,
+      "collision": "active"
+    },
+    {
+      "height": 0.24,
+      "width": 0.8,
+      "angle": 90,
+      "passed": true,
+      "progress": 1.4595945033619104,
+      "maxY": 1.7399983471431728,
+      "collision": "active"
+    },
+    {
+      "height": 0.24,
+      "width": 0.8,
+      "angle": 180,
+      "passed": true,
+      "progress": 1.45959450336191,
+      "maxY": 1.7399983471431728,
+      "collision": "active"
+    },
+    {
+      "height": 0.24,
+      "width": 0.8,
+      "angle": 270,
+      "passed": true,
+      "progress": 1.45959450336191,
+      "maxY": 1.7399983471431728,
+      "collision": "active"
+    },
+    {
+      "height": 0.32,
+      "width": 0.08,
+      "angle": 0,
+      "passed": false,
+      "progress": -0.1670111862892791,
+      "maxY": 1.530033004504162,
+      "collision": "active"
+    },
+    {
+      "height": 0.32,
+      "width": 0.08,
+      "angle": 45,
+      "passed": false,
+      "progress": -0.16701118628927897,
+      "maxY": 1.5300330045041621,
+      "collision": "active"
+    },
+    {
+      "height": 0.32,
+      "width": 0.08,
+      "angle": 90,
+      "passed": false,
+      "progress": -0.1670111862892791,
+      "maxY": 1.530033004504162,
+      "collision": "active"
+    },
+    {
+      "height": 0.32,
+      "width": 0.08,
+      "angle": 180,
+      "passed": false,
+      "progress": -0.1670111862892791,
+      "maxY": 1.530033004504162,
+      "collision": "active"
+    },
+    {
+      "height": 0.32,
+      "width": 0.08,
+      "angle": 270,
+      "passed": false,
+      "progress": -0.1670111862892791,
+      "maxY": 1.530033004504162,
+      "collision": "active"
+    },
+    {
+      "height": 0.32,
+      "width": 0.24,
+      "angle": 0,
+      "passed": false,
+      "progress": -0.1670111862892791,
+      "maxY": 1.530033004504162,
+      "collision": "active"
+    },
+    {
+      "height": 0.32,
+      "width": 0.24,
+      "angle": 45,
+      "passed": false,
+      "progress": -0.16701118628927897,
+      "maxY": 1.5300330045041621,
+      "collision": "active"
+    },
+    {
+      "height": 0.32,
+      "width": 0.24,
+      "angle": 90,
+      "passed": false,
+      "progress": -0.1670111862892791,
+      "maxY": 1.530033004504162,
+      "collision": "active"
+    },
+    {
+      "height": 0.32,
+      "width": 0.24,
+      "angle": 180,
+      "passed": false,
+      "progress": -0.1670111862892791,
+      "maxY": 1.530033004504162,
+      "collision": "active"
+    },
+    {
+      "height": 0.32,
+      "width": 0.24,
+      "angle": 270,
+      "passed": false,
+      "progress": -0.1670111862892791,
+      "maxY": 1.530033004504162,
+      "collision": "active"
+    },
+    {
+      "height": 0.32,
+      "width": 0.8,
+      "angle": 0,
+      "passed": false,
+      "progress": -0.1670111862892791,
+      "maxY": 1.530033004504162,
+      "collision": "active"
+    },
+    {
+      "height": 0.32,
+      "width": 0.8,
+      "angle": 45,
+      "passed": false,
+      "progress": -0.16701118628927897,
+      "maxY": 1.5300330045041621,
+      "collision": "active"
+    },
+    {
+      "height": 0.32,
+      "width": 0.8,
+      "angle": 90,
+      "passed": false,
+      "progress": -0.1670111862892791,
+      "maxY": 1.530033004504162,
+      "collision": "active"
+    },
+    {
+      "height": 0.32,
+      "width": 0.8,
+      "angle": 180,
+      "passed": false,
+      "progress": -0.1670111862892791,
+      "maxY": 1.530033004504162,
+      "collision": "active"
+    },
+    {
+      "height": 0.32,
+      "width": 0.8,
+      "angle": 270,
+      "passed": false,
+      "progress": -0.1670111862892791,
+      "maxY": 1.530033004504162,
+      "collision": "active"
+    },
+    {
+      "height": 0.4,
+      "width": 0.08,
+      "angle": 0,
+      "passed": false,
+      "progress": -0.2,
+      "maxY": 1.5,
+      "collision": "active"
+    },
+    {
+      "height": 0.4,
+      "width": 0.08,
+      "angle": 45,
+      "passed": false,
+      "progress": -0.2,
+      "maxY": 1.5,
+      "collision": "active"
+    },
+    {
+      "height": 0.4,
+      "width": 0.08,
+      "angle": 90,
+      "passed": false,
+      "progress": -0.2,
+      "maxY": 1.5,
+      "collision": "active"
+    },
+    {
+      "height": 0.4,
+      "width": 0.08,
+      "angle": 180,
+      "passed": false,
+      "progress": -0.2,
+      "maxY": 1.5,
+      "collision": "active"
+    },
+    {
+      "height": 0.4,
+      "width": 0.08,
+      "angle": 270,
+      "passed": false,
+      "progress": -0.2,
+      "maxY": 1.5,
+      "collision": "active"
+    },
+    {
+      "height": 0.4,
+      "width": 0.24,
+      "angle": 0,
+      "passed": false,
+      "progress": -0.2,
+      "maxY": 1.5,
+      "collision": "active"
+    },
+    {
+      "height": 0.4,
+      "width": 0.24,
+      "angle": 45,
+      "passed": false,
+      "progress": -0.2,
+      "maxY": 1.5,
+      "collision": "active"
+    },
+    {
+      "height": 0.4,
+      "width": 0.24,
+      "angle": 90,
+      "passed": false,
+      "progress": -0.2,
+      "maxY": 1.5,
+      "collision": "active"
+    },
+    {
+      "height": 0.4,
+      "width": 0.24,
+      "angle": 180,
+      "passed": false,
+      "progress": -0.2,
+      "maxY": 1.5,
+      "collision": "active"
+    },
+    {
+      "height": 0.4,
+      "width": 0.24,
+      "angle": 270,
+      "passed": false,
+      "progress": -0.2,
+      "maxY": 1.5,
+      "collision": "active"
+    },
+    {
+      "height": 0.4,
+      "width": 0.8,
+      "angle": 0,
+      "passed": false,
+      "progress": -0.2,
+      "maxY": 1.5,
+      "collision": "active"
+    },
+    {
+      "height": 0.4,
+      "width": 0.8,
+      "angle": 45,
+      "passed": false,
+      "progress": -0.2,
+      "maxY": 1.5,
+      "collision": "active"
+    },
+    {
+      "height": 0.4,
+      "width": 0.8,
+      "angle": 90,
+      "passed": false,
+      "progress": -0.2,
+      "maxY": 1.5,
+      "collision": "active"
+    },
+    {
+      "height": 0.4,
+      "width": 0.8,
+      "angle": 180,
+      "passed": false,
+      "progress": -0.2,
+      "maxY": 1.5,
+      "collision": "active"
+    },
+    {
+      "height": 0.4,
+      "width": 0.8,
+      "angle": 270,
+      "passed": false,
+      "progress": -0.2,
+      "maxY": 1.5,
+      "collision": "active"
+    }
+  ],
+  "conservativeClimb": 0.24
+}
