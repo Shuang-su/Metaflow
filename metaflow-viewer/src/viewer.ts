@@ -40,6 +40,7 @@ import type { RevealDotProfile } from './gsplat-reveal-radial';
 import { InputController } from './input-controller';
 import { MeshDebugOverlay } from './mesh-debug-overlay';
 import { NavCursor } from './nav-cursor';
+import { GuidanceCameraFrame } from './navigation/gaussian-depth';
 import { Picker } from './picker';
 import type { ExperienceSettings, PostEffectSettings } from './settings';
 import type { LoadMode, CaptureOptions, Config, Global, XrMode } from './types';
@@ -470,6 +471,8 @@ class Viewer {
 
         // configure the camera
         this.configureCamera(settings);
+        const guidanceCamera = events.on('guidanceMode:changed', () => { if (!this.destroyed) this.configureCamera(settings); });
+        this.onDestroy(() => guidanceCamera.off());
 
         // reconfigure camera when entering/exiting XR
         const configureXrCamera = () => {
@@ -1454,12 +1457,16 @@ class Viewer {
 
         const postFxRequested = !config.nofx && (anyPostEffectEnabled(postEffectSettings) || highPrecisionRendering);
 
-        const enableCameraFrame = !app.xr.active && postFxRequested;
+        const guidanceDepth = stateGuidanceDepth(this.global);
+        app.scene.gsplat.sceneDepthWrite = guidanceDepth;
+        const enableCameraFrame = !app.xr.active && (postFxRequested || guidanceDepth);
 
         if (enableCameraFrame) {
             // create instance
             if (!this.cameraFrame) {
-                this.cameraFrame = new CameraFrame(app, camera.camera);
+                this.cameraFrame = config.navigationManifestUrl
+                    ? new GuidanceCameraFrame(app, camera.camera)
+                    : new CameraFrame(app, camera.camera);
             }
 
             const { cameraFrame } = this;
@@ -1529,4 +1536,8 @@ class Viewer {
     }
 }
 
+function stateGuidanceDepth(global: Global) {
+    return global.state.guidanceMode && !!global.config.navigationManifestUrl && !global.app.xr.active &&
+        CameraFrame.isSplatSceneDepthSupported(global.app.graphicsDevice);
+}
 export { Viewer };

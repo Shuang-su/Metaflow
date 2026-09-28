@@ -33,25 +33,23 @@ function query() {
       p.associate(d.state),
     ),
     candidateMs = performance.now() - start;
-  let searchMs = 0,
-    proofMs = 0,
-    attempts = 0,
-    ok = false;
-  const origin = p.associate(d.state)!;
-  for (const end of region.candidates) {
-    attempts++;
-    let at = performance.now();
-    const route = p.path(origin, end);
-    searchMs += performance.now() - at;
-    if (route.reason !== "complete") continue;
-    at = performance.now();
-    const result = drain(p.verify(d.state, route.points));
-    proofMs += performance.now() - at;
-    if (result.ok) {
+  let ok = false;
+  for (const result of p.solutions(
+    d.state,
+    goal,
+    region.candidates,
+    region.regions,
+  )) {
+    if (result) {
       ok = true;
       break;
     }
   }
+  const {
+    searchMs,
+    verificationMs: proofMs,
+    searched: attempts,
+  } = p.queryMetrics;
   return {
     ok,
     totalMs: performance.now() - start,
@@ -94,13 +92,13 @@ else {
     repetitions: 30,
     coldProcessRuns: 3,
     scope:
-      "Serial Node native navigation benchmark; OS filesystem cache retained. No screenshot capture, Gaussian rendering, Worker communication or browser-frame latency in these times.",
+      "Serial Node native navigation benchmark; OS filesystem cache retained, candidate and exact directional replay caches warm after 5 iterations. No screenshot capture, Gaussian rendering, Worker communication or browser-frame latency in these times.",
     stages,
     cold,
     measured,
   };
   writeFileSync(
-    `docs/performance-${id}-${marker}.json`,
+    `docs/region-performance-${id}-${marker}.json`,
     JSON.stringify(result, null, 2),
   );
   console.log(JSON.stringify(stages));

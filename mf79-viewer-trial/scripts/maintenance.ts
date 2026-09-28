@@ -48,7 +48,8 @@ for (const row of audit.rows.filter(
     maxRatio = 0;
   const timing: number[] = [],
     samples: any[] = [],
-    failureSamples: any[] = [];
+    failureSamples: any[] = [], recoverySamples: any[] = [];
+  const recoveryStart = p.recoveries;
   // The movement tape follows the initial verified route. Local maintenance is
   // evaluated independently so a broken maintained route cannot steer the test
   // into following its own artificial loop and hide the defect.
@@ -62,7 +63,9 @@ for (const row of audit.rows.filter(
     driver.step((target.x - at.x) / d, -(target.z - at.z) / d);
     if (tick % 6) continue;
     const before = performance.now(),
+      beforeRecoveries = p.recoveries,
       updated = drain(p.maintain(driver.state, route, native));
+    if (p.recoveries > beforeRecoveries) recoverySamples.push(p.lastRecovery);
     timing.push(performance.now() - before);
     updates++;
     if (!updated) {
@@ -121,6 +124,8 @@ for (const row of audit.rows.filter(
     status: cursor === eyes.length ? "completed" : "motion-incomplete",
     updates,
     localFailures: failures,
+    recoveredSurfaceFailures: p.recoveries - recoveryStart,
+    recoverySamples,
     maxPolys,
     maxRepeated,
     maxRatio,

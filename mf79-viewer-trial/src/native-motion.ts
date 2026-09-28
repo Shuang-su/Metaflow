@@ -6,6 +6,11 @@ import { Camera } from "../../metaflow-viewer/src/cameras/camera";
 import type { CameraFrame } from "../../metaflow-viewer/src/cameras/camera";
 import type { Collision } from "../../metaflow-viewer/src/collision";
 import type { Point } from "./types";
+import {
+  Arrival,
+  type Goal,
+  type Region,
+} from "../../metaflow-viewer/src/navigation/contracts";
 export const BODY = Object.freeze({
   radius: 0.2,
   height: 1.5,
@@ -85,8 +90,10 @@ export function* proveRoute(
   from: Point,
   points: Point[],
   finalTolerance = 0.07,
+  arrivalRegion?: { goal: Goal; regions: Region[] },
 ) {
   const d = new NativeDriver(c, from);
+  const arrival = new Arrival();
   let cursor = 1,
     still = 0,
     last = { ...from },
@@ -117,6 +124,20 @@ export function* proveRoute(
     if (still >= 60 || ticks > maxTicks)
       return { ok: false, reason: "native-motion-blocked", state: s, trace };
     yield s;
+  }
+  if (arrivalRegion) {
+    for (let i = 0; i < 120; i++) {
+      const s = d.step(0, 0);
+      if (arrival.sample(s, arrivalRegion.goal, arrivalRegion.regions))
+        return { ok: true, reason: "native-arrival-verified", state: s, trace };
+      yield s;
+    }
+    return {
+      ok: false,
+      reason: "terminal-not-in-arrival-region",
+      state: d.state,
+      trace,
+    };
   }
   return { ok: true, reason: "native-walking-complete", state: d.state, trace };
 }

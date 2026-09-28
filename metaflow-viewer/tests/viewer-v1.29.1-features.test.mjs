@@ -77,7 +77,7 @@ test('5.19.0 clears inferred controls once and only persists subsequent state ch
     );
     assert.match(index, /performanceMode: performanceMode === null \? mobile : performanceMode === 'true'/);
     assert.match(index, /gamingControls: localStorage\.getItem\('gamingControls'\) === 'true'/);
-    assert.match(ui, /\['performanceMode', 'gamingControls', 'showAnnotations', 'guidanceMode', 'guidanceRadius'\]/);
+    assert.match(ui, /\['performanceMode', 'gamingControls', 'showAnnotations', 'guidanceMode', 'guidanceRadius', 'guidanceRouteDisplay'\]/);
     assert.match(ui, /events\.on\(`\$\{key\}:changed`[\s\S]*localStorage\.setItem\(key, String\(value\)\)/);
 
     const performanceUi = ui.slice(ui.indexOf('const updatePerformanceMode'), ui.indexOf('// Gaming mode toggle'));

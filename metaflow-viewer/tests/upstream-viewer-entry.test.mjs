@@ -34,8 +34,11 @@ describe('the /viewer entry', () => {
             ['playcanvas'],
             'the runtime entry should import nothing but the engine'
         );
-        // Keep the upstream entry budget, including Metaflow analytics and replay dependencies.
-        assert.ok(source.length < 1_500_000, `dist/viewer.js is ${source.length} bytes — is the engine bundled?`);
+        // The MF-79 full-route/region/depth UI increases the unminified entry.
+        // Verify actual source provenance as well as the explicit 1.55 MB budget.
+        const map = JSON.parse(read('../dist/viewer.js.map'));
+        assert.deepEqual(map.sources.filter((s) => /node_modules\/playcanvas\//.test(s)), []);
+        assert.ok(source.length < 1_550_000, `dist/viewer.js is ${source.length} bytes — is the engine bundled?`);
     });
 
     it('ships every file its package exports name', () => {

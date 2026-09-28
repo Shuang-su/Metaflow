@@ -119,6 +119,7 @@ type State = {
     showAnnotations: boolean;
     guidanceMode: boolean;
     guidanceRadius: 2 | 3;
+    guidanceRouteDisplay: 'full' | 'near';
     guidanceTarget: number | null;
     guidanceStatus: string;
     /** Selected annotation's zero-based index in `annotations`, or null. Read-only: use `selectAnnotation`. */
@@ -145,6 +146,7 @@ type WritableStateKey =
     | 'gamingControls'
     | 'guidanceMode'
     | 'guidanceRadius'
+    | 'guidanceRouteDisplay'
     | 'animationPaused'
     | 'collisionOverlayEnabled'
     | 'controlsHidden'

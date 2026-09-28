@@ -34,7 +34,7 @@ const viewer = await createViewer({
   noanim: true,
   noanalytics: true,
   renderer: "webgpu",
-  budget: 1,
+  budget: params.has("qa-budget") ? Math.max(0.25, Math.min(1, Number(params.get("qa-budget")) || 1)) : 1,
 });
 // Preview-only diagnostics; no replacement motion, camera setter or autoplay.
 const evidence: any[] = [];

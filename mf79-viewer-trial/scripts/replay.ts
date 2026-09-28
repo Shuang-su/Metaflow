@@ -4,9 +4,17 @@ import { init, importNavMesh } from "recast-navigation";
 import { NativePlanner } from "../src/planner";
 import { NativeDriver, stand, horizontal, length } from "../src/native-motion";
 import { Arrival } from "../../metaflow-viewer/src/navigation/contracts";
+const useRegion = process.argv.includes("--region");
+const radius: 2 | 3 = process.argv.includes("--radius=3") ? 3 : 2;
+const suffix = radius === 3 ? "-radius-3" : "";
 const id = process.argv[2],
   s = source(id),
-  audit = JSON.parse(readFileSync(`docs/audit-${id}.json`, "utf8"));
+  audit = JSON.parse(
+    readFileSync(
+      `docs/${useRegion ? "region-" : ""}audit-${id}${suffix}.json`,
+      "utf8",
+    ),
+  );
 const rows: any[] = [];
 await init();
 const mesh = importNavMesh(readFileSync(`${cache}/${id}/nav.bin`)).navMesh,
@@ -34,7 +42,7 @@ for (const row of audit.rows) {
   const camera = s.markers[row.index - 1].camera.initial.position;
   const goal = {
     index: row.index - 1,
-    radius: 2 as const,
+    radius,
     camera: { x: camera[0], y: camera[1], z: camera[2] },
   };
   const region = p.regions(
@@ -125,7 +133,7 @@ for (const row of audit.rows) {
   });
 }
 writeFileSync(
-  `docs/replay-${id}.json`,
+  `docs/${useRegion ? "region-" : ""}replay-${id}${suffix}.json`,
   JSON.stringify(
     {
       scene: id,
@@ -141,7 +149,11 @@ p.destroy();
 mesh.destroy();
 console.log(
   id,
+  radius,
+  useRegion,
   rows.filter((r) => r.status === "replayed").length,
   "/",
   rows.length,
 );
+
+if (rows.some((r) => r.status !== "replayed")) process.exitCode = 1;
