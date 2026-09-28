@@ -1,0 +1,15 @@
+{
+  "name": "mf79-viewer-trial",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "tsx --test tests/*.test.ts",
+    "generate": "tsx scripts/generate.ts",
+    "dev": "vite --host 127.0.0.1 --port 5184 --strictPort"
+  },
+  "devDependencies": {
+    "recast-navigation": "0.43.0",
+    "tsx": "4.23.15",
+    "vite": "7.3.6"
+  }
+}

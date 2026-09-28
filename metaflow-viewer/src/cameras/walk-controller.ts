@@ -13,6 +13,20 @@ import { SpawnState } from './spawn-state';
 import { findCylinderSpawn } from '../collision/find-spawn';
 import { damp } from '../core/math';
 
+export type WalkPhysicsState = {
+    readonly tick: number;
+    readonly epoch: number;
+    readonly position: Readonly<{ x: number; y: number; z: number }>;
+    readonly velocity: Readonly<{ x: number; y: number; z: number }>;
+    readonly supportHeight: number | null;
+    readonly grounded: boolean;
+    readonly jumping: boolean;
+    readonly collision: 'active' | 'held' | 'missing';
+    readonly yaw: number;
+    readonly input: readonly number[];
+    readonly body: Readonly<{ radius: number; height: number; eye: number; hover: number }>;
+};
+
 const FIXED_DT = 1 / 60;
 const MAX_SUBSTEPS = 10;
 
@@ -114,6 +128,25 @@ class WalkController implements CameraController {
      * Maximum downward raycast distance to search for ground below the capsule.
      */
     groundProbeRange = 1.0;
+
+    /** Internal observation only. Values are detached from all mutable controller state. */
+    onPhysicsStep: ((state: WalkPhysicsState) => void) | null = null;
+
+    private _tick = 0;
+    private _epoch = 0;
+    private _supportHeight: number | null = null;
+
+    readPhysicsState(): WalkPhysicsState {
+        const point = (p: Vec3) => Object.freeze({ x: p.x, y: p.y, z: p.z });
+        return Object.freeze({
+            tick: this._tick, epoch: this._epoch,
+            position: point(this._position), velocity: point(this._velocity),
+            supportHeight: this._supportHeight, grounded: this._grounded, jumping: this._jumping,
+            collision: this._collision ? 'active' : this._pendingCollision ? 'held' : 'missing',
+            yaw: this._angles.y, input: Object.freeze([...moveStep]),
+            body: Object.freeze({ radius: this.capsuleRadius, height: this.capsuleHeight, eye: this.eyeHeight, hover: this.hoverHeight })
+        });
+    }
 
     private _position = new Vec3();
 
@@ -273,6 +306,8 @@ class WalkController implements CameraController {
                 this._prevPosition.copy(this._position);
                 this._step(FIXED_DT, moveStep);
                 this._accumulator -= FIXED_DT;
+                this._tick++;
+                this.onPhysicsStep?.(this.readPhysicsState());
             }
 
             this._pendingMove[0] = 0;
@@ -297,6 +332,7 @@ class WalkController implements CameraController {
 
         // ground probe: cast a ray downward to find the terrain surface
         const groundY = this._probeGround(this._position);
+        this._supportHeight = groundY;
         const hasGround = groundY !== null;
 
         // jump (require release before re-triggering)
@@ -406,6 +442,8 @@ class WalkController implements CameraController {
     }
 
     private _resetMotion() {
+        this._epoch++;
+        this._supportHeight = null;
         this._velocity.set(0, 0, 0);
         this._grounded = false;
         this._jumping = false;
