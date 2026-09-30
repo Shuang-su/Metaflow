@@ -137,7 +137,7 @@ test('BitCity and SZCAF resources keep their explicit public naming and three-fi
     const routeMap = new Map(index.resources.map((resource) => [resource.route, resource]));
 
     assert.equal(index.schemaVersion, '1.2');
-    assert.equal(index.totalResources, 99);
+    assert.equal(index.totalResources, 100);
     assert.deepEqual(index.subcategories.bitcity260711, {
         name: 'BitCity 次元小镇 · 2026-07-11',
         device: '709'
@@ -203,11 +203,11 @@ test('BitCity and SZCAF resources keep their explicit public naming and three-fi
     );
     assert.equal(
         index.resources.filter((resource) => resource.route.startsWith('/acg/szcaf15/')).length,
-        24
+        25
     );
 });
 
-test('Akari is the only event alias and unapproved slug variants stay absent', async () => {
+test('Only approved Akari and Tribbie / Tribios event aliases are public', async () => {
     const index = await readJson(new URL('../../data/index.json', import.meta.url));
     const eventResources = index.resources.filter((resource) => (
         resource.route.startsWith('/acg/bitcity260711/') || resource.route.startsWith('/acg/szcaf15/')
@@ -218,7 +218,7 @@ test('Akari is the only event alias and unapproved slug variants stay absent', a
         ...index.resources.flatMap((resource) => resource.aliases || [])
     ]);
 
-    assert.deepEqual(aliases, ['/acg/szcaf15/akari']);
+    assert.deepEqual(aliases.toSorted(), ['/acg/szcaf15/akari', '/acg/szcaf15/tribbie', '/acg/szcaf15/tribios']);
     const yunuo = index.resources.find((resource) => resource.route === '/acg/szcaf15/yunuo');
     assert.ok(yunuo);
     assert.ok(yunuo.aliases.includes('/acg/szcaf15/akari'));

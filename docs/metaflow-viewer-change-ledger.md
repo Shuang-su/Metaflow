@@ -355,3 +355,20 @@ The 2026-08-15 Viewer 5.19.2 release-record commit updated package/version/index
 
 - Netlify deployment `6ab9587c6a912037fe9fa43e` promoted unchanged from the verified candidate; domain reports 5.20.0 / 348f6fd and 99 resources.
 - Observation 2026-09-27T18:02:03.877Z → 2026-09-27T18:17:06.904Z (903.0s) passed. Accepted LOD memory cost, validation and limits: [MF-85 completion](changes/85-viewer-upstream-v1.35.2/completion.md).
+
+## `5.20.1` · `ff201e5` · MF-93 SZCAF15 Tribbie / Tribios resource
+
+- 动机 / 原行为：SZCAF15 的 24 项遗漏 A001C0190_260726_PQWJ。
+- 具体改动：按用户确认命名“崩坏：星穹铁道 缇宝 / Tribbie / Tribios”，保留来源编号目录；主 LOD0 865,623 点转 SOG 并独立生成体素，55,029 点环境转压缩 PLY。统一旋转 -90,0,0，不抽稀、裁剪或额外缩放。
+- 用户结果：资源总数 100，SZCAF15 25；规范路由 `/acg/szcaf15/honkai_star_rail-tribbie`，短链接 `tribbie`、`tribios`；用户指定相机和 FOV 65，4096×4096 静态无损 WebP。
+- 兼容 / 风险：原 99 项记录与文件保持不变，schema 1.2；设备未知，日期来自目录推断；标签保留审核记录。Viewer 引擎、公共接口及 Editor 不升级。
+- 验证：转换解码、CRC、体素长度、源文件哈希、镜头与封面三种画幅、跨浏览器和索引测试；正式部署与观察结果回填 MF-93 Issue/PR。
+- 发布记录：最终产品 SHA 已回填为 `ff201e5b2e09184395605fc1e255f64db0c7210f`；实际部署和观察结论见 MF-93 Issue/PR。
+- 回退：已核验 5.20.0 Netlify deployment `6ab9587c6a912037fe9fa43e`，发布前再次读取实际生产指针；回退追加记录。
+- 证据：[MF-93](https://github.com/Shuang-su/Metaflow/issues/93)、[review](changes/93-szcaf15-a001c0190/review.md)。
+
+### 5.20.1 production verification · 2026-09-30
+
+- Netlify deployment `6abc7de6a1ea57eba3620225` promoted unchanged from the verified candidate; domain reports 5.20.1 / ff201e5, 100 resources and 25 SZCAF15.
+- Observation 2026-09-30T03:17:34.414Z → 2026-09-30T03:32:37.739Z (903.3s), 26 periodic checks, two continuously open scenes (Tribbie and Dayun); zero script/HTTP errors or lost contexts; analytics responses 200, startup/first-frame/summary each exactly once per session.
+- Validation, candidate-origin analytics limitation, rollback and local integration handoff: [MF-93 completion](changes/93-szcaf15-a001c0190/completion.md).
