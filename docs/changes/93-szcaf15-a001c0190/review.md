@@ -12,7 +12,7 @@ Inputs under `girl/ply-result/point_cloud/iteration_100/`:
 
 - `point_cloud.ply`: 865,623 Gaussian splats, SH0; independently converted to SOG and voxel. No decimation, cropping, extra scale, environment merging or other LOD inputs.
 - `environment.ply`: 55,029 Gaussian splats, independently converted to compressed PLY.
-- Fixed converter: splat-transform 3.6.4, Node 22.20.0; Viewer remains 5.20.0 / PlayCanvas 2.22.4 with Node 20.19.0.
+- Fixed converter: splat-transform 3.6.4, Node 22.20.0; initial review used Viewer 5.20.0 / PlayCanvas 2.22.4 with Node 20.19.0. Resource release 5.20.1 retains that renderer.
 - Rotation `-90,0,0` for all outputs; SOG `--sh-iterations 10`; voxel `--voxel-size 0.08 --voxel-opacity 0.20`.
 
 | Output | Bytes | SHA-256 |
