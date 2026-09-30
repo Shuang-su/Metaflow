@@ -1,14 +1,14 @@
 {
   "schemaVersion": "1.1",
   "cutoffGitRef": "c613a87",
-  "documentedThrough": "348f6fd",
+  "documentedThrough": "d675c03",
   "defaultResourceVersion": "1.0a",
   "current": {
-    "displayVersion": "5.20.0",
-    "appSemver": "5.20.0",
+    "displayVersion": "5.20.1",
+    "appSemver": "5.20.1",
     "indexSchemaVersion": "1.2",
-    "date": "2026-09-28",
-    "gitRef": "348f6fd",
+    "date": "2026-09-30",
+    "gitRef": "d675c03",
     "historyUrl": "/data/version-history.json",
     "upstream": {
       "repository": "playcanvas/supersplat-viewer",
@@ -1498,6 +1498,29 @@
           "to": "v1.35.2",
           "gitRef": "c52f5258df424635323f26aaeebe51361dc0f8e6"
         }
+      }
+    },
+    {
+      "displayVersion": "5.20.1",
+      "appSemver": "5.20.1",
+      "type": "resource",
+      "scope": "data",
+      "date": "2026-09-30",
+      "gitRef": "d675c03",
+      "summary": "feat(data): publish omitted SZCAF15 Tribbie / Tribios resource with approved camera and native 4K WebP",
+      "resourceChanges": [
+        {
+          "action": "add",
+          "routes": [
+            "/acg/szcaf15/honkai_star_rail-tribbie"
+          ]
+        }
+      ],
+      "trace": {
+        "changeId": "MF-93",
+        "issue": "https://github.com/Shuang-su/Metaflow/issues/93",
+        "evidence": "docs/changes/93-szcaf15-a001c0190/review.md",
+        "releaseTag": "viewer-v5.20.1"
       }
     }
   ]

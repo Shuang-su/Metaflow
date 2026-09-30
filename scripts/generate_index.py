@@ -354,6 +354,21 @@ for (event_subcategory, event_folder_name), event_definition in EVENT_RESOURCE_D
 
 RESOURCE_ROUTE_ALIASES[("acg", "szcaf15", "yunuo")] = ["/acg/szcaf15/akari"]
 
+# MF-93: approved omission from SZCAF15, preserving the original source folder.
+RESOURCE_SLUG_OVERRIDES[("acg", "szcaf15", "A001C0190_260726_PQWJ")] = "honkai_star_rail-tribbie"
+RESOURCE_METADATA_OVERRIDES[("acg", "szcaf15", "honkai_star_rail-tribbie")] = {
+    "id": "szcaf15-a001c0190",
+    "title": "崩坏：星穹铁道 缇宝",
+    "titleEn": "Tribbie / Tribios",
+    "route": "/acg/szcaf15/honkai_star_rail-tribbie",
+    "meta": {"date": "2026-07-26", "device": None},
+    "experienceType": "character",
+    "viewer": {"syntheticAnimation": "figure8", "animationFirstExitMode": "orbit"},
+}
+RESOURCE_ROUTE_ALIASES[("acg", "szcaf15", "honkai_star_rail-tribbie")] = [
+    "/acg/szcaf15/tribbie", "/acg/szcaf15/tribios"
+]
+
 
 # MF-81: user-confirmed publication identities; unknown capture dates/devices stay null.
 RESOURCE_SLUG_OVERRIDES[('animals', 'cats', '2609160002')] = '2609160002'

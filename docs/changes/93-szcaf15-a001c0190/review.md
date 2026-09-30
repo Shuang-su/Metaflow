@@ -1,6 +1,6 @@
 # MF-93 — SZCAF15 A001C0190 resource review
 
-Status: conversion and local review prepared; user camera confirmed; identity/naming approval pending. Production remains Viewer 5.20.0 with 99 resources. No public resource, index, version, tag or deployment changed in this checkpoint.
+Status: user confirmed Tribbie / Tribios / 缇宝 and the camera. Formal admission and Viewer 5.20.1 publication are in progress under the approved plan.
 
 Issue: [MF-93](https://github.com/Shuang-su/Metaflow/issues/93). The user-approved plan in the Codex task is the sole execution plan.
 
@@ -24,16 +24,16 @@ Inputs under `girl/ply-result/point_cloud/iteration_100/`:
 | `settings.json` | 1148 | `836a24b0ce009cb68e0d5a634ee8bfc122ed77aa9348ef0ffe80beea5c0edd7d` |
 | `cover-4096.webp` | 11514166 | `274e27f1b8b122d397e9c282dea5f1335e116fa6025bd71a151d3a3c1a1f17a8` |
 
-## Confirmed camera and pending metadata
+## Confirmed camera and naming
 
 - User-confirmed position: `[-0.7729818820953369, 0.44409406185150146, 0.46443819999694824]`.
 - User-confirmed forward: `[0.40358277472010734, -0.06873996439419851, -0.9123572552702716]`; FOV 65; subject plus environment.
 - Settings target: `[-0.024445065209787065, 0.3166000324639885, -1.227737577812384]`, obtained by projecting the original candidate focus onto the confirmed viewing ray. Position, direction and FOV are preserved.
-- Proposed ID: `szcaf15-a001c0190`; date `2026-07-26` is source-directory inference awaiting approval; equipment unknown.
-- Visual identification proposal: **崩坏：星穹铁道 缇安 / Honkai: Star Rail — Trianne**, default outfit. Single-eye fringe, flowers, winged shoulder pieces and asymmetric black/white boots support this inference. Await user approval before admission.
-- Proposed route `/acg/szcaf15/honkai_star_rail-trianne`; short alias `/acg/szcaf15/trianne`. Candidate tags remain review metadata, not a public schema extension.
+- Resource ID: `szcaf15-a001c0190`; date `2026-07-26` is source-directory inference, not independently verified; equipment unknown.
+- User-confirmed display name: **崩坏：星穹铁道 缇宝 / Tribbie / Tribios**. This supersedes the earlier Trianne visual proposal. Default outfit remains a visual description, not an official skin name.
+- Canonical route `/acg/szcaf15/honkai_star_rail-tribbie`; aliases `/acg/szcaf15/tribbie` and `/acg/szcaf15/tribios`. Tags remain review-only: 崩坏：星穹铁道, 缇宝, Tribbie, Tribios, Cosplay, SZCAF15.
 
-Identification references: [official trailer](https://www.bilibili.com/video/BV16HPsezEgp/), [character reference](https://honkai-star-rail.fandom.com/wiki/Trianne), [appearance comparison](https://www.sohu.com/a/864923811_120230066), [bilingual game dialogue](https://wiki.biligame.com/sr/%E7%BC%87%E5%AE%9D/%E8%AF%AD%E9%9F%B3). Search snippets and image results were used; official Bilibili direct access returned 412 and Fandom direct access returned 402. Do not describe the costume inference as user confirmation.
+Historical identification references (the proposal is superseded by user naming): [official trailer](https://www.bilibili.com/video/BV16HPsezEgp/), [character reference](https://honkai-star-rail.fandom.com/wiki/Trianne), [appearance comparison](https://www.sohu.com/a/864923811_120230066), [bilingual game dialogue](https://wiki.biligame.com/sr/%E7%BC%87%E5%AE%9D/%E8%AF%AD%E9%9F%B3). Search snippets and image results were used; official Bilibili direct access returned 412 and Fandom direct access returned 402. Do not describe the costume inference as user confirmation.
 
 ## Local validation
 
@@ -51,6 +51,8 @@ Identification references: [official trailer](https://www.bilibili.com/video/BV1
 - The first comparison harness used obsolete `#application-canvas` and timed out after native cover generation. Updated it to the instance canvas and completed all three comparisons without modifying the cover pixels.
 - The reused implementation checkout is intentionally sparse. The initial integrity probe found absent local data by design; corrected the check to the complete primary checkout and verified all original hashes.
 - Local review assets and detailed evidence are retained under the project `.codex-work/resource-review-szcaf15-a001c0190/`; server is loopback port 8968.
-- Remaining: user metadata approval; formal admission and index generation; release/version validation and final production build; PR squash and final product SHA; tag and GitHub Release; candidate deployment and promotion; production readback and at least 15 minutes observation.
+- Admission validated: 100 resources / 25 SZCAF15, original 99 resource records exactly preserved by route. ID and normalized routes/aliases do not conflict. `validate_data --check-files`, five Python tests, ten route/version tests, Node 20.19.0 typecheck and production build passed. Formal route browser matrix: Chromium WebGL/WebGPU/mobile and WebKit desktop/mobile 5/5 pass.
+- First build invoked shell-default Node 26 arm64 against the existing x64 dependencies; corrected PATH to the required Node 20.19.0 x64, without dependency or lockfile changes beyond the version bump.
+- Remaining: PR squash and final product SHA; tag and GitHub Release; candidate deployment and promotion; production readback and at least 15 minutes observation.
 - Reverified rollback deployment: `6ab9587c6a912037fe9fa43e` (5.20.0), Netlify published pointer ready. Recheck again immediately before publication.
 - This is implementer self-review, not independent review.

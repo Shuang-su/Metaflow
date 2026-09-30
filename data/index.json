@@ -2,15 +2,15 @@
   "version": "1.0",
   "schemaVersion": "1.2",
   "release": {
-    "displayVersion": "5.20.0",
-    "appSemver": "5.20.0",
+    "displayVersion": "5.20.1",
+    "appSemver": "5.20.1",
     "schemaVersion": "1.2",
     "historyUrl": "/data/version-history.json",
-    "updatedAt": "2026-09-28",
-    "gitRef": "348f6fd"
+    "updatedAt": "2026-09-30",
+    "gitRef": "d675c03"
   },
-  "lastUpdated": "2026-09-27",
-  "totalResources": 99,
+  "lastUpdated": "2026-09-30",
+  "totalResources": 100,
   "categories": {
     "animals": {
       "name": "动物",
@@ -3400,6 +3400,49 @@
       "version": {
         "addedIn": "5.18.1",
         "updatedIn": "5.18.1"
+      }
+    },
+    {
+      "id": "szcaf15-a001c0190",
+      "title": "崩坏：星穹铁道 缇宝",
+      "titleEn": "Tribbie / Tribios",
+      "category": [
+        "acg",
+        "szcaf15"
+      ],
+      "route": "/acg/szcaf15/honkai_star_rail-tribbie",
+      "source": "photogrammetry",
+      "experienceType": "character",
+      "files": {
+        "model": "ACG/SZCAF15/A001C0190_260726_PQWJ/scene.sog",
+        "environment": "ACG/SZCAF15/A001C0190_260726_PQWJ/environment.compressed.ply",
+        "settings": "ACG/SZCAF15/A001C0190_260726_PQWJ/settings.json",
+        "thumbnail": "ACG/SZCAF15/A001C0190_260726_PQWJ/cover-4096.webp",
+        "voxel": "ACG/SZCAF15/A001C0190_260726_PQWJ/walk.voxel.json"
+      },
+      "fileSize": {
+        "model": 10563265,
+        "environment": 896601,
+        "thumbnail": 11514166,
+        "total": 25640792,
+        "voxel": 2666760
+      },
+      "meta": {
+        "date": "2026-07-26",
+        "device": null,
+        "folderName": "A001C0190_260726_PQWJ"
+      },
+      "viewer": {
+        "syntheticAnimation": "figure8",
+        "animationFirstExitMode": "orbit"
+      },
+      "aliases": [
+        "/acg/szcaf15/tribbie",
+        "/acg/szcaf15/tribios"
+      ],
+      "version": {
+        "addedIn": "5.20.1",
+        "updatedIn": "5.20.1"
       }
     },
     {
