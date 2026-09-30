@@ -118,7 +118,7 @@ type State = {
     /** Shows the annotation hotspots. Persisted in local storage. */
     showAnnotations: boolean;
     guidanceMode: boolean;
-    guidanceRadius: 2 | 3;
+    guidanceMapVisible: boolean;
     guidanceRouteDisplay: 'full' | 'near';
     guidanceTarget: number | null;
     guidanceStatus: string;
@@ -145,7 +145,7 @@ type WritableStateKey =
     | 'showAnnotations'
     | 'gamingControls'
     | 'guidanceMode'
-    | 'guidanceRadius'
+    | 'guidanceMapVisible'
     | 'guidanceRouteDisplay'
     | 'animationPaused'
     | 'collisionOverlayEnabled'

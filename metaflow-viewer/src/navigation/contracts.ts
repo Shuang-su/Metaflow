@@ -1,13 +1,32 @@
+import type { LayerId, SurfaceIdentityId } from './layers';
 import type { WalkPhysicsState } from '../cameras/walk-controller';
 export type Point = { x: number; y: number; z: number };
 export type Goal = { index: number; camera: Point; radius: 2 | 3 };
-export type Region = { ref: number; vertices: Point[]; floor: number };
-export type Route = { points: Point[]; polys: number[]; asset: string; revision: number };
+export type Region = {
+    ref: number;
+    vertices: Point[];
+    floor: number;
+    layerId?: LayerId;
+    surfaceId?: SurfaceIdentityId;
+    asset?: string;
+};
+/** Surface spans use inclusive point indices [start,end] and cover segments [start,end).
+ * Repeated surfaces carry distinct occurrences. Layer IDs must share the confirmed map catalog. */
+export type Route = {
+    points: Point[];
+    polys: number[];
+    asset: string;
+    revision: number;
+    surfaces?: { surfaceId: SurfaceIdentityId; layerId: LayerId; start: number; end: number }[];
+};
 export type NavigationTaskState =
     'loading' | 'computing' | 'route' | 'ground' | 'floor' | 'exhausted' | 'error' | 'arrived' | 'paused' | 'idle';
 export type NavigationManifest = {
     status: 'building' | 'complete';
     fingerprint: string;
+    sourceHash?: string;
+    mapsUrl?: string;
+    mapSource?: { gaussianHash: string; transform: number[] };
     display: { positionsHash: string; indicesHash: string };
     tiles: { name: string; bounds: { min: Point; max: Point }; positionsHash: string; indicesHash: string }[];
 };

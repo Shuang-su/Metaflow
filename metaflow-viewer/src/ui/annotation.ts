@@ -40,7 +40,15 @@ export class Annotation extends Script {
     /**
      * @private
      */
-    hotspotDom: HTMLDivElement | null = null;
+    hotspotDom: HTMLButtonElement | null = null;
+
+    hotspotVisible = true;
+
+    private guidancePresentation = false;
+
+    private targetPresentation = false;
+
+    private navigablePresentation = false;
 
     /**
      * The hotspot's position in canvas pixels, its distance from the camera and its depth
@@ -60,7 +68,9 @@ export class Annotation extends Script {
     initialize() {
         const ctx = this.context;
 
-        this.hotspotDom = document.createElement('div');
+        this.hotspotDom = document.createElement('button');
+        this.hotspotDom.type = 'button';
+        this.hotspotDom.setAttribute('aria-label', this.title || `标记 ${this.label}`);
         // dimmed until the occlusion test first shows it in view, rather than every hotspot
         // showing at full strength on the reveal and the hidden ones fading afterwards
         this.hotspotDom.className = 'sse-annotation-hotspot sse-occluded';
@@ -73,6 +83,12 @@ export class Annotation extends Script {
         this.hotspotDom.addEventListener('click', onClick);
 
         ctx.hotspotsDom.appendChild(this.hotspotDom);
+        this.setPresentation(
+            this.hotspotVisible,
+            this.guidancePresentation,
+            this.targetPresentation,
+            this.navigablePresentation
+        );
 
         const onPrerender = () => this._update();
         this.app.on('prerender', onPrerender);
@@ -98,6 +114,15 @@ export class Annotation extends Script {
     _update() {
         if (this.destroyed) return;
 
+        if (this.context.dockedTooltip && this.context.activeAnnotation === this) {
+            this.context.tooltipDom.classList.add('sse-visible');
+        }
+        if (!this.hotspotVisible) {
+            this.screen = null;
+            this._hideElements();
+            return;
+        }
+
         const { camera } = this.context;
         const position = this.entity.getPosition();
 
@@ -121,6 +146,30 @@ export class Annotation extends Script {
      */
     setOccluded(occluded: boolean) {
         this.hotspotDom.classList.toggle('sse-occluded', occluded);
+    }
+
+    setPresentation(visible: boolean, guidance: boolean, target: boolean, navigable = false) {
+        this.hotspotVisible = visible;
+        this.guidancePresentation = guidance;
+        this.targetPresentation = target;
+        this.navigablePresentation = navigable;
+        const hotspot = this.hotspotDom;
+        if (!hotspot) return;
+        hotspot.classList.toggle('sse-guidance-hotspot', guidance && navigable);
+        hotspot.classList.toggle('sse-information-hotspot', guidance && !navigable);
+        hotspot.classList.toggle('sse-guidance-target', guidance && target);
+        if (guidance && navigable) {
+            // A location glyph identifies a nearby destination without adding scene numbers.
+            if (!hotspot.firstElementChild) {
+                hotspot.innerHTML =
+                    '<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M12 21s7-6 7-12a7 7 0 0 0-14 0c0 6 7 12 7 12Z" fill="none" stroke="currentColor" stroke-width="1.8"/><circle cx="12" cy="9" r="2.4" fill="currentColor"/></svg>';
+            }
+        } else if (guidance) {
+            hotspot.textContent = 'i';
+        } else if (hotspot.textContent !== this.label) {
+            hotspot.textContent = this.label;
+        }
+        this._update();
     }
 
     /**
@@ -154,7 +203,7 @@ export class Annotation extends Script {
      */
     _hideElements() {
         this.hotspotDom.style.display = 'none';
-        if (this.context.activeAnnotation === this) {
+        if (this.context.activeAnnotation === this && !this.context.dockedTooltip) {
             this.context.tooltipDom.classList.remove('sse-visible');
         }
     }
@@ -178,6 +227,7 @@ export class Annotation extends Script {
         if (ctx.activeAnnotation !== this) {
             return;
         }
+        if (ctx.dockedTooltip) return;
 
         // Re-show tooltip if it was hidden while behind camera
         const tooltip = ctx.tooltipDom;
@@ -242,6 +292,8 @@ class AnnotationContext {
 
     activeAnnotation: Annotation | null = null;
 
+    dockedTooltip = false;
+
     constructor(canvas: HTMLCanvasElement, camera: Entity, parentDom: HTMLElement) {
         this.parentDom = parentDom;
         this.canvas = canvas;
@@ -263,6 +315,15 @@ class AnnotationContext {
         this.textDom.className = 'sse-annotation-text';
 
         this.tooltipDom.append(this.titleDom, this.textDom);
+        this.tooltipDom.addEventListener('pointerdown', (event) => {
+            if (this.dockedTooltip) event.stopPropagation();
+        });
+        this.tooltipDom.addEventListener('wheel', (event) => {
+            if (this.dockedTooltip) event.stopPropagation();
+        });
+        this.tooltipDom.addEventListener('click', (event) => {
+            if (this.dockedTooltip) event.stopPropagation();
+        });
         parentDom.appendChild(this.tooltipDom);
     }
 }

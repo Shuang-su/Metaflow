@@ -1,0 +1,1 @@
+{ "extends":"../metaflow-viewer/tsconfig.json", "compilerOptions":{"module":"es2022","baseUrl":".","paths":{"playcanvas":["../metaflow-viewer/node_modules/playcanvas"]},"noEmit":true}, "include":["src","../metaflow-viewer/types.d.ts"], "exclude":["dist","node_modules"] }

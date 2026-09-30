@@ -236,22 +236,30 @@
 
     <!-- Annotation Navigator -->
     <div class="sse-annotationNav sse-hidden">
-        <button class="sse-annotationPrev">
+        <button type="button" class="sse-annotationPrev" aria-label="上一个标记">
             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20">
                 <g class="sse-stroke"><use href="#chevronLeftIcon" /></g>
                 <g class="sse-fill"><use href="#chevronLeftIcon" /></g>
             </svg>
         </button>
-        <div class="sse-annotationInfo">
+        <button
+            type="button"
+            class="sse-annotationInfo"
+            aria-label="选择标记"
+            aria-haspopup="listbox"
+            aria-expanded="false"
+        >
             <span class="sse-annotationNavNumber"></span>
             <span class="sse-annotationNavTitle"></span>
-        </div>
-        <button class="sse-annotationNext">
+            <span class="sse-annotationMenuChevron" aria-hidden="true">⌄</span>
+        </button>
+        <button type="button" class="sse-annotationNext" aria-label="下一个标记">
             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20">
                 <g class="sse-stroke"><use href="#chevronRightIcon" /></g>
                 <g class="sse-fill"><use href="#chevronRightIcon" /></g>
             </svg>
         </button>
+        <div class="sse-annotationMenu" role="listbox" aria-label="场景标记" hidden></div>
     </div>
 
     <!-- Controls Panel: the current camera mode and its controls, toggled from the toolbar -->

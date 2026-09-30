@@ -1,0 +1,33 @@
+import { readFileSync,writeFileSync,mkdirSync,statSync,statfsSync } from 'node:fs';
+import { createHash } from 'node:crypto';
+import { resolve,sep } from 'node:path';
+import { VoxelCollision } from '../../metaflow-viewer/src/collision/voxel-collision';
+import { acceptedEdits } from '../src/ground/review';
+import { materializeVoxel } from '../src/ground/materialize';
+import type { GroundReview,GroundDecisions } from '../src/ground/types';
+const args=process.argv.slice(2),arg=(n:string)=>{const i=args.indexOf(n);return i<0?undefined:args[i+1];},reviewPath=arg('--review')!,decisionPath=arg('--decisions')!;
+if(!args.includes('--review')||!args.includes('--decisions'))throw Error('--review and --decisions are required; no implicit acceptance');
+const folder=resolve(arg('--output')||'/Volumes/Prism/Metaflow/.codex-work/cache/mf97-navigation/accepted');
+const acceptedRoot='/Volumes/Prism/Metaflow/.codex-work/cache/mf97-navigation/accepted';
+if(folder!==acceptedRoot&&!folder.startsWith(acceptedRoot+sep))throw Error('Independent output must remain under the MF97 accepted cache');
+const decisionBytes=readFileSync(decisionPath),decisions=JSON.parse(decisionBytes.toString()) as GroundDecisions;
+const files=statSync(reviewPath).isDirectory()?JSON.parse(readFileSync(resolve(reviewPath,'coverage.json'),'utf8')).inventory.map((v:any)=>resolve(reviewPath,v.file)):[reviewPath];
+const reviews:GroundReview[]=files.map((f:string)=>JSON.parse(readFileSync(f,'utf8'))),first=reviews[0];if(!first?.sourceFile)throw Error('Original sourceFile is required');
+const sourceFile=first.sourceFile,json=readFileSync(sourceFile),meta=JSON.parse(json.toString()),bin=readFileSync(sourceFile.replace(/\.json$/,'.bin'));
+const sha=(v:Uint8Array)=>createHash('sha256').update(v).digest('hex'),sourceHash=sha(json)+':'+sha(bin);
+if(sourceHash!==first.sourceHash || decisions.sourceHash!==sourceHash || reviews.some(r=>r.sourceHash!==sourceHash||r.analysisHash!==first.analysisHash))throw Error('Source/analysis fingerprint mismatch');
+const available=new Set(reviews.flatMap(r=>r.candidates.map(c=>c.id)));
+for(const id of [...decisions.acceptedCandidateIds,...decisions.rejectedCandidateIds])if(!available.has(id))throw Error('Unknown candidate in decisions');
+const edits=reviews.flatMap(r=>acceptedEdits(r,{...decisions,acceptedCandidateIds:decisions.acceptedCandidateIds.filter(id=>r.candidates.some(c=>c.id===id)),
+    rejectedCandidateIds:decisions.rejectedCandidateIds.filter(id=>r.candidates.some(c=>c.id===id))}));
+const words=new Uint32Array(bin.buffer,bin.byteOffset,bin.byteLength/4),n=meta.nodeWordCount??meta.nodeCount,original=new VoxelCollision(meta,words.subarray(0,n),words.subarray(n));
+const result=materializeVoxel(meta,original,edits);
+if(sha(readFileSync(sourceFile))+':'+sha(readFileSync(sourceFile.replace(/\.json$/,'.bin')))!==sourceHash)throw Error('Original changed during materialization');
+mkdirSync(folder,{recursive:true});const free=statfsSync(folder),required=result.binary.byteLength+1024*1024;
+if(free.bavail*free.bsize-required<10*1024**3 || process.memoryUsage().rss>1.5*1024**3)throw Error('MF97 resource limit');
+const artifact=resolve(folder,sha(decisionBytes).slice(0,20));mkdirSync(artifact,{recursive:true});
+writeFileSync(resolve(artifact,'walk.voxel.json'),JSON.stringify(result.metadata));writeFileSync(resolve(artifact,'walk.voxel.bin'),result.binary);
+const outputHash=sha(readFileSync(resolve(artifact,'walk.voxel.json')))+':'+sha(readFileSync(resolve(artifact,'walk.voxel.bin')));
+const manifest={version:1,protectionVersion:2,sourceFile,sourceHash,analysisHash:first.analysisHash,decisionHash:sha(decisionBytes),outputHash,
+    coordinateSpace:first.coordinateSpace,validation:result.validation,sourceModified:false,appliedToViewer:false,acceptedCandidateCount:decisions.acceptedCandidateIds.length};
+writeFileSync(resolve(artifact,'materialization.json'),JSON.stringify(manifest));console.log(JSON.stringify({artifact,...manifest}));

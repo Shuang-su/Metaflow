@@ -5,6 +5,7 @@ import { Arrival } from './contracts';
 import type { Goal, NavigationUpdate, Region, Route, NavigationManifest, NavigationTaskState } from './contracts';
 import { NavigationDrawing } from './drawing';
 import { NavigationTask } from './task-state';
+import { NAV_ARRIVAL_RADIUS, navigationCapability } from './nav-annotation';
 
 export function installNavigation(global: Global): () => void {
     const { state, events, config, app, settings } = global;
@@ -23,6 +24,54 @@ export function installNavigation(global: Global): () => void {
         destroyed = false,
         startedSession = -1;
     let manifest: NavigationManifest | null = null;
+    let metadataPromise: Promise<NavigationManifest> | null = null;
+    let connectedMap = '';
+    const metadata = () => {
+        if (manifest) return Promise.resolve(manifest);
+        if (!metadataPromise)
+            metadataPromise = (async () => {
+                const response = await fetch(config.navigationManifestUrl);
+                if (!response.ok) throw Error(`导航清单加载失败 (${response.status})`);
+                const value = (await response.json()) as NavigationManifest;
+                if (value.status !== 'complete') throw Error('导航覆盖尚未生成完成');
+                manifest = value;
+                return value;
+            })().finally(() => {
+                metadataPromise = null;
+            });
+        return metadataPromise;
+    };
+    const prepareMap = async () => {
+        // A map-only scene needs no navigation Worker. A sidecar needs only the small manifest.
+        const connect = (url: string, value?: NavigationManifest | null) => {
+            if (destroyed) return;
+            const expected = {
+                collisionHash: value?.sourceHash,
+                gaussianHash: value?.mapSource?.gaussianHash,
+                transform: value?.mapSource?.transform
+            };
+            const identity = `${url}:${JSON.stringify(expected)}`;
+            if (connectedMap === identity) return;
+            connectedMap = identity;
+            drawing.mapAssets(url, expected);
+        };
+        // Explicit visual resources must not wait behind a pending navigation request.
+        if (config.navigationMapUrl && !connectedMap) connect(config.navigationMapUrl);
+        try {
+            const value = config.navigationManifestUrl ? await metadata() : null;
+            if (destroyed) return;
+            const url =
+                config.navigationMapUrl ??
+                (value?.mapsUrl
+                    ? new URL(value.mapsUrl, new URL(config.navigationManifestUrl, location.href)).href
+                    : null);
+            if (!url) return;
+            // Once collision provenance arrives, re-check the visual source binding.
+            connect(url, value);
+        } catch {
+            // Explicit maps have already started. A missing sidecar stays unavailable.
+        }
+    };
     const arrival = new Arrival();
     const task = new NavigationTask();
     const cancellations = new Map<number, ReturnType<typeof setTimeout>>();
@@ -125,12 +174,8 @@ export function installNavigation(global: Global): () => void {
         const mine = ++generation;
         status('正在加载导览地图', 'loading');
         try {
-            if (!manifest) {
-                const res = await fetch(config.navigationManifestUrl);
-                if (!res.ok) throw Error(`地图加载失败 (${res.status})`);
-                manifest = (await res.json()) as NavigationManifest;
-                if (manifest.status !== 'complete') throw Error('导航覆盖尚未生成完成');
-            }
+            manifest = await metadata();
+            void prepareMap();
             if (destroyed || generation !== mine || !state.guidanceMode) return;
             worker = new Worker(config.navigationWorkerUrl, { type: 'module' });
             worker.onmessage = ({ data }: MessageEvent<NavigationUpdate>) => {
@@ -142,7 +187,10 @@ export function installNavigation(global: Global): () => void {
                 }
                 if (data.type === 'ready') {
                     ready = true;
-                    if (manifest) drawing.assets(manifest, config.navigationManifestUrl);
+                    if (manifest) {
+                        drawing.assets(manifest, config.navigationManifestUrl);
+                        void prepareMap();
+                    }
                     if (goal) startQuery();
                     else status('选择一个标点，开始步行导览', 'idle');
                     return;
@@ -198,6 +246,11 @@ export function installNavigation(global: Global): () => void {
             status('此场景暂未提供导览', 'idle');
             return;
         }
+        const capability = navigationCapability(settings.annotations[index]);
+        if (!capability.enabled) {
+            status(capability.reason || '此标识未启用导览', 'idle');
+            return;
+        }
         const initial = settings.annotations[index].camera?.initial;
         if (!initial) {
             cancel();
@@ -214,7 +267,7 @@ export function installNavigation(global: Global): () => void {
         goal = {
             index,
             camera: { x: initial.position[0], y: initial.position[1], z: initial.position[2] },
-            radius: state.guidanceRadius
+            radius: NAV_ARRIVAL_RADIUS
         };
         state.guidanceTarget = index;
         regions = [];
@@ -264,7 +317,7 @@ export function installNavigation(global: Global): () => void {
     const pause = () => {
         paused = !active();
         arrival.interrupt();
-        drawing.visible(state.guidanceMode && !state.xrMode);
+        drawing.visible((state.guidanceMode || state.guidanceMapVisible) && !state.xrMode);
         worker?.postMessage({ type: 'pause', paused });
         present();
         if (!paused && goal && actual) {
@@ -273,28 +326,9 @@ export function installNavigation(global: Global): () => void {
             else worker?.postMessage({ type: 'pose', session, actual });
         }
     };
-    const radius = () => {
-        if (state.guidanceRadius !== 2 && state.guidanceRadius !== 3) {
-            state.guidanceRadius = 2;
-            return;
-        }
-        if (goal) {
-            goal.radius = state.guidanceRadius;
-            cancelSession();
-            session++;
-            regions = [];
-            arrival.interrupt();
-            route = null;
-            drawing.route(null);
-            drawing.regions([]);
-            drawing.choices([]);
-            if (!arrival.fired) startQuery();
-        }
-        drawing.preferences();
-    };
     const mode = () => {
         drawing.preferences();
-        drawing.visible(state.guidanceMode);
+        drawing.visible((state.guidanceMode || state.guidanceMapVisible) && !state.xrMode);
         if (!state.guidanceMode) cancel();
         else if (ready) status('选择一个标点，开始步行导览', 'idle');
         else void boot();
@@ -309,13 +343,17 @@ export function installNavigation(global: Global): () => void {
         events.on('guidance:cancel', cancel),
         events.on('walk:physics', physics),
         events.on('guidanceMode:changed', mode),
-        events.on('guidanceRadius:changed', radius),
+        events.on('guidanceMapVisible:changed', () => {
+            drawing.preferences();
+            drawing.visible((state.guidanceMode || state.guidanceMapVisible) && !state.xrMode);
+        }),
         events.on('cameraMode:changed', pause),
         events.on('xrMode:changed', pause)
     ];
     document.addEventListener('visibilitychange', pause);
     drawing.onCancel = cancel;
     drawing.onSelect = select;
+    if (config.navigationMapUrl || config.navigationManifestUrl) void prepareMap();
     mode();
     return () => {
         destroyed = true;

@@ -1,0 +1,283 @@
+import { defineConfig } from "vite";
+import { createRequire } from "node:module";
+import { fileURLToPath } from "node:url";
+import {
+  readFileSync,
+  createReadStream,
+  statSync,
+  mkdirSync,
+  writeFileSync,
+  statfsSync,
+} from "node:fs";
+import { resolve, relative, extname } from "node:path";
+const project = fileURLToPath(new URL("..", import.meta.url));
+const sass = createRequire(import.meta.url)(
+  resolve(project, "metaflow-viewer/node_modules/sass"),
+);
+export default defineConfig({
+  worker: { format: "es" },
+  plugins: [
+    {
+      name: "mf97-native-styles",
+      resolveId(id) {
+        if (id === "virtual:mf97-viewer-styles") return "\0mf97-viewer-styles";
+      },
+      load(id) {
+        if (id === "\0mf97-viewer-styles") {
+          const css = sass.compile(
+            resolve(project, "metaflow-viewer/src/index.scss"),
+          ).css;
+          return `const style=document.createElement('style');style.textContent=${JSON.stringify(css)};document.head.append(style);`;
+        }
+      },
+    },
+    {
+      // Development evidence only. No arbitrary filenames, no source writes and
+      // no cross-origin access; screenshots stay in the project-local cache.
+      name: "local-navigation-evidence",
+      configureServer(server) {
+        server.middlewares.use((req, res, next) => {
+          if (req.url !== "/__mf79_evidence") return next();
+          if (
+            req.method !== "POST" ||
+            req.headers.origin !== "http://127.0.0.1:5185" ||
+            !["image/png", "image/jpeg"].includes(
+              req.headers["content-type"] ?? "",
+            )
+          ) {
+            res.statusCode = 403;
+            res.end();
+            return;
+          }
+          const chunks: Buffer[] = [];
+          let size = 0;
+          req.on("data", (chunk) => {
+            size += chunk.length;
+            if (size > 5 * 1024 * 1024) {
+              req.destroy();
+              return;
+            }
+            chunks.push(chunk);
+          });
+          req.on("end", () => {
+            const data = Buffer.concat(chunks),
+              dir =
+                "/Volumes/Prism/Metaflow/.codex-work/cache/mf97-navigation/evidence";
+            const png =
+                data.subarray(0, 8).toString("hex") === "89504e470d0a1a0a",
+              jpeg = data.subarray(0, 3).toString("hex") === "ffd8ff";
+            if (!png && !jpeg) {
+              res.statusCode = 400;
+              res.end();
+              return;
+            }
+            try {
+              mkdirSync(dir, { recursive: true });
+              const disk = statfsSync(dir);
+              if (disk.bavail * disk.bsize < 10 * 1024 ** 3)
+                throw Error("Disk reserve");
+              const path = resolve(
+                dir,
+                `viewer-${Date.now()}.${png ? "png" : "jpg"}`,
+              );
+              writeFileSync(path, data);
+              res.setHeader("Content-Type", "application/json");
+              res.end(JSON.stringify({ path }));
+            } catch {
+              res.statusCode = 507;
+              res.end("Evidence resource limit");
+            }
+          });
+        });
+      },
+    },
+    {
+      name: "viewer-ui-template",
+      enforce: "pre",
+      load(id) {
+        if (id.endsWith("/metaflow-viewer/src/ui.html"))
+          return (
+            "export default " +
+            JSON.stringify(
+              readFileSync(id, "utf8").replace(/<!--[\s\S]*?-->/g, " "),
+            )
+          );
+      },
+    },
+    {
+      name: "readonly-trial-assets",
+      configureServer(server) {
+        server.middlewares.use((req, res, next) => {
+          const pathname = decodeURIComponent((req.url ?? "").split("?")[0]);
+          let root: string, part: string;
+          if (pathname.startsWith("/scene-assets/")) {
+            root = "/Volumes/Prism_初号機/3D高斯";
+            part = pathname.slice("/scene-assets/".length);
+          } else if (pathname.startsWith("/navigation/")) {
+            root =
+              "/Volumes/Prism/Metaflow/.codex-work/cache/mf79-native-viewer-v1";
+            part = pathname.slice("/navigation/".length);
+          } else if (pathname.startsWith("/mf97-maps/")) {
+            root =
+              "/Volumes/Prism/Metaflow/.codex-work/cache/mf97-navigation/maps";
+            part = pathname.slice("/mf97-maps/".length);
+          } else if (pathname.startsWith("/repository-data/")) {
+            root = "/Volumes/Prism/Metaflow/data";
+            part = pathname.slice("/repository-data/".length);
+          } else if (pathname.startsWith("/studio/")) {
+            root = "/Volumes/Prism/Metaflow/.codex-work/tmp/mf97-studio-build";
+            part = pathname.slice("/studio/".length) || "index.html";
+          } else if (pathname.startsWith("/mf97-ground/")) {
+            root =
+              "/Volumes/Prism/Metaflow/.codex-work/cache/mf97-navigation/ground";
+            part = pathname.slice("/mf97-ground/".length);
+          } else return next();
+          const p = resolve(root, part);
+          if (
+            relative(root, p).startsWith("..") ||
+            ![
+              ".json",
+              ".bin",
+              ".webp",
+              ".png",
+              ".jpg",
+              ".sog",
+              ".ply",
+              ".html",
+              ".js",
+              ".css",
+              ".svg",
+              ".wasm",
+              ".woff2",
+              ".ttf",
+              ".ico",
+            ].includes(extname(p))
+          ) {
+            res.statusCode = 403;
+            res.end();
+            return;
+          }
+          try {
+            const st = statSync(p);
+            if (!st.isFile()) throw Error();
+            if (
+              pathname.startsWith("/navigation/") &&
+              part.endsWith("/manifest.json")
+            ) {
+              const manifest = JSON.parse(readFileSync(p, "utf8"));
+              const jobPath = resolve(
+                "/Volumes/Prism/Metaflow/.codex-work/cache/mf97-navigation/jobs",
+                `${manifest.scene}.json`,
+              );
+              const job = JSON.parse(readFileSync(jobPath, "utf8"));
+              if (
+                job.scene !== manifest.scene ||
+                job.collisionHash !== manifest.sourceHash
+              )
+                throw Error("Map provenance mismatch");
+              // Local metadata overlay only: preserve the MF79 cache and all original assets.
+              const bytes = Buffer.from(
+                JSON.stringify({
+                  ...manifest,
+                  mapsUrl: `/mf97-maps/${manifest.scene}/manifest.json`,
+                  mapSource: {
+                    gaussianHash: job.gaussianHash,
+                    transform: job.transform,
+                  },
+                }),
+              );
+              res.setHeader("Content-Type", "application/json");
+              res.setHeader("Cache-Control", "no-cache");
+              res.setHeader("Content-Length", bytes.length);
+              if (req.method === "HEAD") res.end();
+              else res.end(bytes);
+              return;
+            }
+            res.setHeader(
+              "Content-Type",
+              (
+                {
+                  ".json": "application/json",
+                  ".html": "text/html",
+                  ".js": "text/javascript",
+                  ".css": "text/css",
+                  ".svg": "image/svg+xml",
+                  ".wasm": "application/wasm",
+                  ".webp": "image/webp",
+                  ".png": "image/png",
+                  ".jpg": "image/jpeg",
+                  ".ttf": "font/ttf",
+                } as Record<string, string>
+              )[extname(p)] ?? "application/octet-stream",
+            );
+            const tag = `\"${st.size}-${st.mtimeMs}\"`;
+            res.setHeader("ETag", tag);
+            res.setHeader(
+              "Cache-Control",
+              extname(p) === ".json" ? "no-cache" : "private,max-age=3600",
+            );
+            res.setHeader("Accept-Ranges", "bytes");
+            if (req.headers["if-none-match"] === tag) {
+              res.statusCode = 304;
+              res.end();
+              return;
+            }
+            const range = req.headers.range?.match(/^bytes=(\d+)-(\d*)$/);
+            if (range) {
+              const start = +range[1],
+                end = range[2] ? Math.min(+range[2], st.size - 1) : st.size - 1;
+              if (start > end) {
+                res.statusCode = 416;
+                res.end();
+                return;
+              }
+              res.statusCode = 206;
+              res.setHeader(
+                "Content-Range",
+                `bytes ${start}-${end}/${st.size}`,
+              );
+              res.setHeader("Content-Length", end - start + 1);
+              createReadStream(p, { start, end }).pipe(res);
+            } else {
+              res.setHeader("Content-Length", st.size);
+              if (req.method === "HEAD") res.end();
+              else createReadStream(p).pipe(res);
+            }
+          } catch {
+            res.statusCode = 404;
+            res.end("Asset not available");
+          }
+        });
+      },
+    },
+  ],
+  resolve: {
+    alias: [
+      {
+        find: /^playcanvas$/,
+        replacement: resolve(
+          project,
+          "metaflow-viewer/node_modules/playcanvas/build/playcanvas/src/index.js",
+        ),
+      },
+    ],
+  },
+  server: {
+    hmr: false,
+    host: "127.0.0.1",
+    port: 5185,
+    strictPort: true,
+    fs: {
+      allow: [
+        project,
+        "/Volumes/Prism/Metaflow/metaflow-viewer/node_modules",
+        "/Volumes/Prism/Metaflow/.codex-work/worktrees/mf-79-jev-guide-lab/jev-guide-lab/node_modules",
+      ],
+      deny: ["**/.env*", "**/.git/**", "**/*.{pem,crt}"],
+    },
+  },
+  build: {
+    outDir: "/Volumes/Prism/Metaflow/.codex-work/tmp/mf97-preview-build",
+    emptyOutDir: false,
+  },
+});

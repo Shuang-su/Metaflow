@@ -1,0 +1,13 @@
+import type { SurfaceIdentity } from '../../../metaflow-viewer/src/navigation/layers';
+export type Point = { x: number; y: number; z: number };
+export type GroundBounds = { min: Point; max: Point };
+export type GroundSpan = Point & { ix: number; iy: number; iz: number; thickness: number; clearance: number };
+export type PlanePatch = { center: number[]; rotation: number[][]; extent: number[]; plane: [number,number,number,number]; pointIndices: number[] };
+export type SparseEdit = { ix: number; iy: number; iz: number; before: boolean; after: boolean; candidateId: string };
+export type GroundCandidate = { id: string; surface: SurfaceIdentity; status: 'proposed' | 'protected' | 'unknown';
+    reasons: string[]; pointCount: number; edits: SparseEdit[]; residualBefore: number; residualAfter: number };
+export type GroundReview = { version: 1; protectionVersion: 2; sourceHash: string; detector: 'Open3D-0.19.0.detect_planar_patches';
+    coordinateSpace: 'world' | 'metaflow-rz180'; voxelResolution: number; candidates: GroundCandidate[];
+    unknownSpanCount: number; scannedColumnCount: number; completeCoverage: boolean;
+    gridBounds?: { min: number[]; max: number[] }; previewPoints?: Point[]; sourceFile?: string; coverageScope?: 'chunk'; analysisHash: string };
+export type GroundDecisions = { version: 1; sourceHash: string; acceptedCandidateIds: string[]; rejectedCandidateIds: string[]; analysisHash: string };

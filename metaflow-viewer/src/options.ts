@@ -19,6 +19,8 @@ type ViewerAssets = {
     /** Optional navigation assets for the local MF-79 Viewer trial. No Studio schema change. */
     navigationManifestUrl?: string;
     navigationWorkerUrl?: string;
+    /** Offline per-layer Gaussian map manifest; independent of guidance availability. */
+    navigationMapUrl?: string;
     voxelUrl?: string;
     voxelManifestUrl?: string;
     voxelCoordinateSpace?: VoxelCoordinateSpace;

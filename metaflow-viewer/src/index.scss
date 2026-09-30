@@ -1200,7 +1200,20 @@
     /* annotationNav */
 
     .sse-annotationNav {
+        position: absolute;
+        top: max(16px, env(safe-area-inset-top));
+        left: 50%;
+        transform: translateX(-50%);
+        width: min(368px, calc(100% - 32px));
+        display: flex;
+        align-items: stretch;
+        border-radius: 12px;
+        border: 1px solid rgba(white, 0.08);
+        background-color: color-mix(in srgb, var(--sse-bkg) 65%, transparent);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
         pointer-events: none;
+        z-index: 15;
 
         &.sse-faded-in {
             visibility: visible;
@@ -1216,8 +1229,7 @@
                 opacity 0.5s ease-out;
         }
 
-        // dimmed with the toolbar before both hide
-        &.sse-dimmed {
+        &.sse-dimmed:not(.sse-menu-open) {
             opacity: 0.4;
         }
 
@@ -1227,175 +1239,321 @@
             border: 0;
             padding: 0;
             margin: 0;
+            min-width: 36px;
+            height: 38px;
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
-
             color: var(--sse-text);
-            background-color: rgba(black, 0.3);
+            background: transparent;
+            border-radius: 10px;
 
-            &:hover {
-                color: var(--sse-text-light);
-                background-color: rgba(black, 0.5);
+            &:hover,
+            &:focus-visible {
+                background-color: rgba(white, 0.1);
+            }
+            &:focus-visible {
+                outline: 2px solid var(--sse-accent);
+                outline-offset: -2px;
+            }
+            &:disabled {
+                opacity: 0.25;
+                cursor: default;
             }
 
             > svg {
                 display: block;
-
-                > g {
-                    &.sse-stroke {
-                        fill: none;
-                        stroke: black;
-                        stroke-width: 3;
-                        stroke-linecap: round;
-                        stroke-linejoin: round;
-                        opacity: 0.4;
-                    }
-
-                    &.sse-fill {
-                        fill: none;
-                        stroke: currentColor;
-                        stroke-width: 2;
-                        stroke-linecap: round;
-                        stroke-linejoin: round;
-                    }
+                > g.sse-stroke {
+                    fill: none;
+                    stroke: black;
+                    stroke-width: 3;
+                    stroke-linecap: round;
+                    stroke-linejoin: round;
+                    opacity: 0.4;
+                }
+                > g.sse-fill {
+                    fill: none;
+                    stroke: currentColor;
+                    stroke-width: 2;
+                    stroke-linecap: round;
+                    stroke-linejoin: round;
                 }
             }
         }
 
-        // Desktop mode: horizontal bar at top center
-        &.sse-desktop {
-            position: absolute;
-            top: max(16px, env(safe-area-inset-top));
-            left: 50%;
-            transform: translateX(-50%);
+        > .sse-annotationInfo {
+            flex: 1;
+            min-width: 0;
+            gap: 8px;
+            padding: 0 8px;
+            color: var(--sse-text-light);
 
-            display: flex;
-            align-items: center;
-            gap: 0;
-
-            border-radius: 6px;
-            overflow: hidden;
-            background-color: rgba(black, 0.6);
-
-            > button {
-                width: 34px;
-                height: 34px;
-                background-color: transparent;
-
-                &:hover {
-                    background-color: rgba(white, 0.1);
-                }
-            }
-
-            > .sse-annotationInfo {
-                pointer-events: none;
+            > .sse-annotationNavNumber {
+                flex-shrink: 0;
                 display: flex;
                 align-items: center;
                 justify-content: center;
-                gap: 8px;
-                padding: 0 12px;
-                white-space: nowrap;
-                width: 300px;
-                // the bar's full height, so its hover highlight fills the space between the
-                // arrows as theirs do
-                align-self: stretch;
-
-                // the annotation's number, drawn like its hotspot in the scene. The hotspot's
-                // plain look, not its selected one: the bar keeps the last annotation after its
-                // panel closes, when nothing is selected
-                > .sse-annotationNavNumber {
-                    flex-shrink: 0;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    box-sizing: border-box;
-                    min-width: 20px;
-                    height: 20px;
-                    padding: 0 4px;
-                    border-radius: 10px;
-                    border: 1.5px solid rgba(white, 0.9);
-                    font-size: 11px;
-                    font-weight: bold;
-                    color: var(--sse-text-light);
-                    background-color: rgba(black, 0.7);
-
-                    &:empty {
-                        display: none;
-                    }
-                }
-
-                > .sse-annotationNavTitle {
-                    min-width: 0;
-                    font-size: 14px;
-                    color: var(--sse-text-light);
-                    overflow: hidden;
-                    text-overflow: ellipsis;
-                }
-
-                > .sse-annotationNavNumber,
-                > .sse-annotationNavTitle {
-                    transition: opacity 150ms ease;
+                min-width: 20px;
+                height: 20px;
+                padding: 0 4px;
+                box-sizing: border-box;
+                border-radius: 10px;
+                border: 1.5px solid rgba(white, 0.9);
+                font-size: 11px;
+                font-weight: bold;
+                &:empty {
+                    display: none;
                 }
             }
 
-            // nothing selected: the last annotation shown is greyed out, and clicking it
-            // selects it
-            &.sse-unselected > .sse-annotationInfo {
-                pointer-events: auto;
-                cursor: pointer;
+            > .sse-annotationNavTitle {
+                min-width: 0;
+                overflow: hidden;
+                white-space: nowrap;
+                text-overflow: ellipsis;
+                font-size: 14px;
+            }
 
-                > .sse-annotationNavNumber,
-                > .sse-annotationNavTitle {
-                    opacity: 0.45;
-                }
-
-                &:hover {
-                    background-color: rgba(white, 0.1);
-
-                    > .sse-annotationNavNumber,
-                    > .sse-annotationNavTitle {
-                        opacity: 1;
-                    }
-                }
+            > .sse-annotationMenuChevron {
+                margin-left: auto;
+                opacity: 0.65;
             }
         }
 
-        // Touch mode: buttons at left/right screen edges
-        &.sse-touch {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
+        &.sse-unselected:not(.sse-menu-open) .sse-annotationNavTitle {
+            opacity: 0.65;
+        }
+        &.sse-touch > button {
+            height: 44px;
+            min-width: 44px;
+        }
 
-            > .sse-annotationInfo {
+        > .sse-annotationMenu {
+            position: absolute;
+            top: calc(100% + 8px);
+            left: 0;
+            right: 0;
+            box-sizing: border-box;
+            padding: 6px;
+            max-height: min(360px, calc(100dvh - 140px));
+            overflow-y: auto;
+            overscroll-behavior: contain;
+            touch-action: pan-y;
+            pointer-events: auto;
+            border-radius: 14px;
+            border: 1px solid rgba(white, 0.08);
+            background-color: color-mix(in srgb, var(--sse-bkg) 85%, transparent);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            &[hidden] {
                 display: none;
             }
 
-            > button {
-                position: absolute;
-                top: 50%;
-                transform: translateY(-50%);
-                width: 44px;
-                height: 80px;
-                background-color: rgba(black, 0.3);
-
-                &:active {
-                    background-color: rgba(black, 0.4);
+            .sse-annotationMenuItem {
+                &[hidden] {
+                    display: none;
+                }
+                display: flex;
+                align-items: center;
+                gap: 12px;
+                width: 100%;
+                min-height: 40px;
+                padding: 8px 10px;
+                box-sizing: border-box;
+                border: 0;
+                border-radius: 8px;
+                background: transparent;
+                color: var(--sse-text);
+                text-align: left;
+                font: inherit;
+                font-size: 13px;
+                cursor: pointer;
+                touch-action: pan-y;
+                &:hover,
+                &:focus-visible {
+                    background: rgba(white, 0.1);
+                    outline: none;
+                }
+                &:disabled {
+                    opacity: 0.55;
+                    cursor: default;
+                }
+                &.sse-active {
+                    background: color-mix(in srgb, var(--sse-accent) 15%, transparent);
+                }
+                > .sse-annotationMenuTitle {
+                    flex: 1;
+                    min-width: 0;
+                    overflow-wrap: anywhere;
+                }
+                > .sse-annotationMenuBadge {
+                    flex-shrink: 0;
+                    max-width: 48%;
+                    overflow-wrap: anywhere;
+                    color: var(--sse-text-dark);
+                    font-size: 11px;
+                }
+                &.sse-navigation-item > .sse-annotationMenuBadge {
+                    color: var(--sse-accent);
                 }
             }
+        }
+    }
 
-            > .sse-annotationPrev {
-                left: max(0px, env(safe-area-inset-left));
-                border-radius: 0 6px 6px 0;
-            }
+    .sse-annotations > .sse-annotation.sse-docked {
+        left: 50%;
+        top: max(72px, calc(env(safe-area-inset-top) + 64px));
+        transform: translateX(-50%) !important;
+        width: min(320px, calc(100% - 32px));
+        max-width: calc(100% - 32px);
+        max-height: calc(100% - 160px);
+        overflow-y: auto;
+        overscroll-behavior: contain;
+        pointer-events: auto;
+        touch-action: pan-y;
+        &::before {
+            display: none;
+        }
+        > * {
+            touch-action: pan-y;
+        }
+    }
 
-            > .sse-annotationNext {
-                right: max(0px, env(safe-area-inset-right));
-                border-radius: 6px 0 0 6px;
+    .sse-annotations > .sse-annotation-hotspots > .sse-annotation-hotspot.sse-guidance-hotspot {
+        width: 34px;
+        height: 34px;
+        padding: 0;
+        color: var(--sse-text-light);
+        border: 1px solid rgba(white, 0.7);
+        backdrop-filter: blur(8px);
+        &.sse-guidance-target {
+            color: var(--sse-accent);
+            border-color: var(--sse-accent);
+            background-color: color-mix(in srgb, var(--sse-bkg) 85%, var(--sse-accent));
+            box-shadow: 0 0 0 4px color-mix(in srgb, var(--sse-accent) 18%, transparent);
+        }
+    }
+
+    .sse-annotations > .sse-annotation-hotspots > .sse-annotation-hotspot.sse-information-hotspot {
+        width: 24px;
+        height: 24px;
+        padding: 0;
+        border-width: 1px;
+        font:
+            bold 15px Georgia,
+            serif;
+    }
+
+    .sse-guidance {
+        position: absolute;
+        left: max(16px, env(safe-area-inset-left));
+        top: max(72px, calc(env(safe-area-inset-top) + 64px));
+        width: 220px;
+        max-width: min(42vw, calc(100% - 32px));
+        box-sizing: border-box;
+        padding: 12px;
+        border-radius: 16px;
+        border: 1px solid rgba(white, 0.08);
+        background: color-mix(in srgb, var(--sse-bkg) 70%, transparent);
+        color: var(--sse-text);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        pointer-events: auto;
+        font-size: 12px;
+        line-height: 1.45;
+        z-index: 12;
+        &[hidden] {
+            display: none;
+        }
+        p {
+            margin: 0 0 8px;
+            overflow-wrap: anywhere;
+        }
+        p:empty {
+            display: none;
+        }
+        canvas {
+            display: block;
+            width: 100%;
+            aspect-ratio: 1;
+            background: var(--sse-bkg-darkest);
+            border-radius: 10px;
+        }
+        select,
+        button {
+            box-sizing: border-box;
+            max-width: 100%;
+            min-height: 32px;
+            padding: 6px 8px;
+            border: 1px solid rgba(white, 0.12);
+            border-radius: 8px;
+            background: var(--sse-bkg-dark);
+            color: var(--sse-text);
+            font: inherit;
+        }
+        select {
+            width: 100%;
+            margin-bottom: 8px;
+        }
+        button {
+            cursor: pointer;
+        }
+        button:hover {
+            background: var(--sse-bkg-light);
+        }
+        .sse-guidanceMapActions {
+            display: flex;
+            gap: 6px;
+            margin: 8px 0;
+            > button {
+                flex: 1;
             }
+        }
+        .sse-guidanceCancel {
+            width: 100%;
+            background: rgba(white, 0.04);
+        }
+    }
+
+    .sse-guidanceSettings .sse-toggleSwitch[aria-disabled='true'] {
+        opacity: 0.4;
+        cursor: default;
+    }
+
+    .sse-guidanceSettings .sse-guidanceRouteSetting {
+        padding: 4px;
+        box-sizing: border-box;
+        > label {
+            color: var(--sse-text-dark);
+            padding-right: 8px;
+            font-size: 13px;
+        }
+        > select {
+            min-height: 30px;
+            padding: 4px 6px;
+            border-radius: 8px;
+            border: 1px solid rgba(white, 0.1);
+            color: var(--sse-text);
+            background: var(--sse-bkg-dark);
+        }
+    }
+
+    @media (max-width: 600px) {
+        .sse-guidance {
+            left: 12px;
+            width: 164px;
+            max-width: 44vw;
+            padding: 8px;
+            font-size: 11px;
+        }
+        .sse-guidance .sse-guidanceMapActions {
+            flex-direction: column;
+        }
+        .sse-annotations > .sse-annotation.sse-docked {
+            top: auto;
+            bottom: max(110px, calc(env(safe-area-inset-bottom) + 90px));
+            max-height: min(180px, calc(100% - 200px));
         }
     }
 }

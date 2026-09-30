@@ -3,6 +3,9 @@ import type { CameraComponent, EventHandle, ScriptComponent } from 'playcanvas';
 
 import type { Picker } from '../picker';
 import type { ViewerHandle } from '../types';
+import type { WalkPhysicsState } from '../cameras/walk-controller';
+
+import { isNavigationAnnotation, nearbyNavigationAnnotationIndices } from '../navigation/nav-annotation';
 
 import { Annotation, AnnotationContext } from './annotation';
 
@@ -19,6 +22,36 @@ const OCCLUSION_TOLERANCE = 0.1;
 
 // the hotspot's radius in css pixels: the opacity in front is averaged over its whole disc
 const HOTSPOT_RADIUS = 13;
+
+export function annotationHotspotPresentation(
+    annotation: unknown,
+    index: number,
+    nearby: ReadonlySet<number>,
+    guidance: boolean,
+    targetIndex: number | null
+) {
+    const navigable = isNavigationAnnotation(annotation);
+    return {
+        visible: !guidance || !navigable || nearby.has(index),
+        guidance,
+        navigable,
+        target: navigable && index === targetIndex,
+        kind: guidance ? (navigable ? 'navigation' : 'information') : 'number'
+    };
+}
+
+/** A previous walk sample must not freeze nearby markers after leaving walk mode. */
+export function annotationPresentationPose(
+    cameraMode: ViewerHandle['state']['cameraMode'],
+    walkPose: Pick<WalkPhysicsState, 'position' | 'supportHeight'> | null,
+    cameraPosition: { x: number; y: number; z: number }
+) {
+    const walking = cameraMode === 'walk' && walkPose;
+    return {
+        position: walking ? walking.position : cameraPosition,
+        supportHeight: walking ? walking.supportHeight : undefined
+    };
+}
 
 // Built-in hotspot and panel presentation. Selection and camera navigation belong to the viewer.
 class Annotations {
@@ -52,6 +85,38 @@ class Annotations {
         app.root.addChild(parent);
         this.parent = parent;
         const scripts: Annotation[] = [];
+        let walkPose: WalkPhysicsState | null = null;
+        let presentationKey = '';
+        const updatePresentation = () => {
+            const pose = annotationPresentationPose(state.cameraMode, walkPose, camera.getPosition());
+            const nearby = state.guidanceMode
+                ? nearbyNavigationAnnotationIndices(
+                      annotations,
+                      pose.position,
+                      pose.supportHeight,
+                      state.guidanceTarget
+                  )
+                : annotations.map((_, index) => index);
+            const key = `${state.guidanceMode}:${state.guidanceTarget}:${nearby.join(',')}`;
+            if (key === presentationKey) return;
+            presentationKey = key;
+            const visible = new Set(nearby);
+            scripts.forEach((script, index) => {
+                const presentation = annotationHotspotPresentation(
+                    annotations[index],
+                    index,
+                    visible,
+                    state.guidanceMode,
+                    state.guidanceTarget
+                );
+                script.setPresentation(
+                    presentation.visible,
+                    presentation.guidance,
+                    presentation.target,
+                    presentation.navigable
+                );
+            });
+        };
 
         for (let i = 0; i < annotations.length; i++) {
             const ann = annotations[i];
@@ -124,6 +189,7 @@ class Annotations {
 
         // after each frame, since the hotspots' screen positions are updated in prerender
         const onFrameEnd = () => {
+            if (state.guidanceMode && state.cameraMode !== 'walk') updatePresentation();
             const { viewMatrix, projectionMatrix } = camera.camera;
             if (lastView.equals(viewMatrix) && lastProjection.equals(projectionMatrix)) return;
             lastView.copy(viewMatrix);
@@ -159,7 +225,14 @@ class Annotations {
         const update = () => {
             const firstPersonGamingControls =
                 (state.cameraMode === 'walk' || state.cameraMode === 'fly') && state.gamingControls;
-            const hidden = !state.loaded || !state.showAnnotations || state.controlsHidden || firstPersonGamingControls;
+            const hidden =
+                !state.loaded ||
+                !state.showAnnotations ||
+                state.controlsHidden ||
+                (firstPersonGamingControls && !state.guidanceMode);
+            context.dockedTooltip = state.guidanceMode;
+            context.tooltipDom.classList.toggle('sse-docked', state.guidanceMode);
+            updatePresentation();
             const wasHidden = parentDom.style.display === 'none';
             parentDom.style.display = hidden ? 'none' : 'block';
             // hotspots coming back may have been covered or uncovered while hidden
@@ -176,6 +249,12 @@ class Annotations {
             events.on('selectedAnnotation:changed', update),
             events.on('controlsHidden:changed', update),
             events.on('showAnnotations:changed', update),
+            events.on('guidanceMode:changed', update),
+            events.on('guidanceTarget:changed', update),
+            events.on('walk:physics', (pose: WalkPhysicsState) => {
+                walkPose = pose;
+                if (state.guidanceMode) updatePresentation();
+            }),
             events.on('cameraMode:changed', update),
             events.on('gamingControls:changed', update)
         ];

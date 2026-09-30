@@ -2,10 +2,25 @@ import type { EventHandler } from 'playcanvas';
 
 import type { State } from './types';
 
-type Preferences = Pick<State, 'performanceMode' | 'gamingControls' | 'showAnnotations' | 'guidanceMode' | 'guidanceRadius' | 'guidanceRouteDisplay'>;
+type Preferences = Pick<
+    State,
+    | 'performanceMode'
+    | 'gamingControls'
+    | 'showAnnotations'
+    | 'guidanceMode'
+    | 'guidanceMapVisible'
+    | 'guidanceRouteDisplay'
+>;
 
 const readPreferences = (mobile: boolean): Preferences => {
-    const defaults = { performanceMode: mobile, gamingControls: false, showAnnotations: true, guidanceMode: false, guidanceRadius: 2 as const, guidanceRouteDisplay: 'full' as const };
+    const defaults = {
+        performanceMode: mobile,
+        gamingControls: false,
+        showAnnotations: true,
+        guidanceMode: false,
+        guidanceMapVisible: true,
+        guidanceRouteDisplay: 'full' as const
+    };
     try {
         // Preserve the legacy preference migration and origin-wide keys.
         const legacyRetina = localStorage.getItem('retinaDisplay');
@@ -24,7 +39,7 @@ const readPreferences = (mobile: boolean): Preferences => {
             gamingControls: localStorage.getItem('gamingControls') === 'true',
             showAnnotations: localStorage.getItem('showAnnotations') !== 'false',
             guidanceMode: localStorage.getItem('guidanceMode') === 'true',
-            guidanceRadius: localStorage.getItem('guidanceRadius') === '3' ? 3 : 2,
+            guidanceMapVisible: localStorage.getItem('guidanceMapVisible') !== 'false',
             guidanceRouteDisplay: localStorage.getItem('guidanceRouteDisplay') === 'near' ? 'near' : 'full'
         };
     } catch {
@@ -35,7 +50,16 @@ const readPreferences = (mobile: boolean): Preferences => {
 
 const persistPreferences = (events: EventHandler) => {
     // Write changes only, so creating a viewer does not persist platform defaults.
-    const subscriptions = (['performanceMode', 'gamingControls', 'showAnnotations', 'guidanceMode', 'guidanceRadius', 'guidanceRouteDisplay'] as const).map((key) =>
+    const subscriptions = (
+        [
+            'performanceMode',
+            'gamingControls',
+            'showAnnotations',
+            'guidanceMode',
+            'guidanceMapVisible',
+            'guidanceRouteDisplay'
+        ] as const
+    ).map((key) =>
         events.on(`${key}:changed`, (value: boolean | number | string) => {
             try {
                 localStorage.setItem(key, String(value));

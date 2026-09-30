@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <title>MF-97 高斯地图离线生成</title>
+    <style>
+      html,
+      body {
+        margin: 0;
+        background: #101c21;
+        color: #dce9ed;
+        font: 14px system-ui;
+      }
+      p {
+        padding: 12px;
+        margin: 0;
+      }
+      canvas {
+        display: block;
+        width: 512px;
+        height: 512px;
+      }
+    </style>
+  </head>
+  <body>
+    <p id="map-generator-status">
+      独立离线生成器；不修改主 Viewer 或原始资产。
+    </p>
+    <canvas width="512" height="512"></canvas>
+    <script type="module" src="/src/maps/generator.ts"></script>
+  </body>
+</html>

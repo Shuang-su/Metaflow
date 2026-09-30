@@ -1,0 +1,61 @@
+#!/usr/bin/env python3
+"""Bounded, read-only triangle audit; surfaces are candidates, never published floors."""
+import argparse
+import hashlib
+import json
+import pathlib
+import shutil
+import numpy as np
+
+parser=argparse.ArgumentParser()
+parser.add_argument("mesh")
+parser.add_argument("--output", required=True)
+parser.add_argument("--stride",type=int,default=32)
+args=parser.parse_args()
+path=pathlib.Path(args.mesh)
+with path.open("rb") as stream:
+    header=b""
+    while not header.endswith(b"end_header\n"):
+        line=stream.readline()
+        if not line or len(header)>16384:raise ValueError("Invalid PLY header")
+        header+=line
+lines=header.decode().splitlines()
+if "format binary_little_endian 1.0" not in lines:raise ValueError("Only binary little endian triangle PLY supported")
+vertices=int(next(x.split()[-1] for x in lines if x.startswith("element vertex ")))
+faces=int(next(x.split()[-1] for x in lines if x.startswith("element face ")))
+vertex_properties=lines[lines.index(f"element vertex {vertices}")+1:lines.index(f"element face {faces}")]
+if vertex_properties!=["property float x","property float y","property float z"]:raise ValueError("Unexpected vertex layout")
+points=np.memmap(path,dtype="<f4",mode="r",offset=len(header),shape=(vertices,3))
+triangles=np.memmap(path,dtype=np.dtype([("n","u1"),("ids","<u4",(3,))]),mode="r",offset=len(header)+vertices*12,shape=(faces,))
+sample=triangles[::args.stride]
+if not (sample["n"]==3).all():raise ValueError("Nontriangular face layout")
+xyz=points[sample["ids"]]
+normals=np.cross(xyz[:,1]-xyz[:,0],xyz[:,2]-xyz[:,0]);magnitude=np.linalg.norm(normals,axis=1)
+normals/=np.maximum(magnitude,1e-12)[:,None];centers=xyz.mean(axis=1)
+axis_areas=[float(np.sum(magnitude[np.abs(normals[:,a])>.94])*args.stride/2) for a in range(3)]
+axis=int(np.argmax(axis_areas));horizontal=(np.abs(normals[:,axis])>.97)&(magnitude>.0002)
+heights=centers[horizontal,axis];areas=magnitude[horizontal]*args.stride/2;bands=np.floor(heights/.25).astype(int)
+hist=sorted([{"heightMin":float(k*.25),"estimatedHorizontalArea":float(areas[bands==k].sum())} for k in np.unique(bands)],key=lambda x:-x["estimatedHorizontalArea"])
+axes=[a for a in range(3) if a!=axis];cells=np.floor(centers[horizontal][:,axes]).astype(int);columns={}
+for cell,height,area in zip(cells,heights,areas):columns.setdefault(tuple(int(v) for v in cell),[]).append((float(height),float(area)))
+overlap=[]
+for cell,values in columns.items():
+    groups=[]
+    for height,area in sorted(values):
+        if not groups or height-groups[-1][0]>.5:groups.append([height,area])
+        else:groups[-1][1]+=area
+    strong=[g for g in groups if g[1]>.15]
+    if len(strong)>1 and strong[-1][0]-strong[0][0]>2:overlap.append({"cell":cell,"heightAreaGroups":strong})
+digest=hashlib.sha256()
+with path.open("rb") as stream:
+    for block in iter(lambda:stream.read(1024*1024),b""):digest.update(block)
+result={"version":1,"asset":"huafa-p1","sourceFile":str(path),"sourceHash":digest.hexdigest(),"vertexCount":vertices,"faceCount":faces,"faceSampleStride":args.stride,
+    "bounds":{"min":points.min(axis=0).tolist(),"max":points.max(axis=0).tolist()},"axisAlignedAreaEstimates":axis_areas,"inferredUpAxis":axis,
+    "axisConfirmedByAuthoringMetadata":False,"topHeightBands":hist[:16],"multiSurfaceCellCount":len(overlap),"examples":overlap[:12],
+    "confirmedWalkableFloors":0,"collisionAssetAvailable":False,"sourceModified":False,
+    "interpretation":"triangle geometry demonstrates stacked surface candidates; ceiling/roof/fixture distinction, registration and stair walkability still require review"}
+target=pathlib.Path(args.output)
+data=json.dumps(result,separators=(",",":"))
+if shutil.disk_usage(target.parent).free-len(data.encode())<10*1024**3:raise RuntimeError("10 GiB reserve")
+target.write_text(data)
+print(json.dumps({k:v for k,v in result.items() if k not in ["examples","topHeightBands"]}))

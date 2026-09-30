@@ -1,0 +1,14 @@
+# Headless analysis environment, Open3D pinned by the approved MF97 Plan.
+# Install Open3D with --no-deps, then these import-required packages using --no-cache-dir.
+# numpy/pandas/Pillow/packaging come from the existing bundled CPython 3.12 runtime.
+# No notebook runtime or ML framework is installed. Open3D's nbformat metadata dependency
+# is intentionally omitted; this entry point never calls notebook visualization.
+open3d==0.19.0
+dash==4.4.1
+PyYAML==6.0.3
+scikit-learn==1.9.1
+tqdm==4.70.1
+pyquaternion==0.9.9
+addict==2.4.0
+matplotlib==3.11.2
+configargparse==1.8.0
