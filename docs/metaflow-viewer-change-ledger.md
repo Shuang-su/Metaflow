@@ -356,7 +356,7 @@ The 2026-08-15 Viewer 5.19.2 release-record commit updated package/version/index
 - Netlify deployment `6ab9587c6a912037fe9fa43e` promoted unchanged from the verified candidate; domain reports 5.20.0 / 348f6fd and 99 resources.
 - Observation 2026-09-27T18:02:03.877Z → 2026-09-27T18:17:06.904Z (903.0s) passed. Accepted LOD memory cost, validation and limits: [MF-85 completion](changes/85-viewer-upstream-v1.35.2/completion.md).
 
-## `5.20.1` · `d675c03` · MF-93 SZCAF15 Tribbie / Tribios resource
+## `5.20.1` · `09f34c7` · MF-93 SZCAF15 Tribbie / Tribios resource
 
 - 动机 / 原行为：SZCAF15 的 24 项遗漏 A001C0190_260726_PQWJ。
 - 具体改动：按用户确认命名“崩坏：星穹铁道 缇宝 / Tribbie / Tribios”，保留来源编号目录；主 LOD0 865,623 点转 SOG 并独立生成体素，55,029 点环境转压缩 PLY。统一旋转 -90,0,0，不抽稀、裁剪或额外缩放。

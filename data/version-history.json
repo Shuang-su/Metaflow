@@ -1,14 +1,14 @@
 {
   "schemaVersion": "1.1",
   "cutoffGitRef": "c613a87",
-  "documentedThrough": "d675c03",
+  "documentedThrough": "09f34c7",
   "defaultResourceVersion": "1.0a",
   "current": {
     "displayVersion": "5.20.1",
     "appSemver": "5.20.1",
     "indexSchemaVersion": "1.2",
     "date": "2026-09-30",
-    "gitRef": "d675c03",
+    "gitRef": "09f34c7",
     "historyUrl": "/data/version-history.json",
     "upstream": {
       "repository": "playcanvas/supersplat-viewer",
@@ -1506,7 +1506,7 @@
       "type": "resource",
       "scope": "data",
       "date": "2026-09-30",
-      "gitRef": "d675c03",
+      "gitRef": "09f34c7",
       "summary": "feat(data): publish omitted SZCAF15 Tribbie / Tribios resource with approved camera and native 4K WebP",
       "resourceChanges": [
         {
