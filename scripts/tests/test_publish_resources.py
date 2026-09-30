@@ -35,7 +35,7 @@ class PublicationTests(unittest.TestCase):
 
     def test_published_batch_contract(self):
         index=json.loads((g.DATA_DIR/'index.json').read_text())
-        self.assertEqual(len(index['resources']),99)
+        self.assertEqual(len(index['resources']),100)
         acg=[r for r in index['resources'] if r['route'].startswith('/acg/sztuccf260919/')]
         cats=[r for r in index['resources'] if r['route'].startswith('/animals/cats/mangzhong/')]
         self.assertEqual(len(acg),9);self.assertEqual(len(cats),3)
@@ -56,5 +56,27 @@ class PublicationTests(unittest.TestCase):
                 if normalized in routes:
                     self.assertEqual(routes[normalized],r['route'],route)
                 routes[normalized]=r['route']
+
+    def test_szcaf15_tribbie_publication_contract(self):
+        index=json.loads((g.DATA_DIR/'index.json').read_text())
+        event=[r for r in index['resources'] if r['category']==['acg','szcaf15']]
+        self.assertEqual(len(event),25)
+        r=next(r for r in event if r['id']=='szcaf15-a001c0190')
+        self.assertEqual(r['title'],'崩坏：星穹铁道 缇宝')
+        self.assertEqual(r['titleEn'],'Tribbie / Tribios')
+        self.assertEqual(r['route'],'/acg/szcaf15/honkai_star_rail-tribbie')
+        self.assertEqual(r['aliases'],['/acg/szcaf15/tribbie','/acg/szcaf15/tribios'])
+        self.assertIsNone(r['meta']['device'])
+        self.assertEqual(r['meta']['date'],'2026-07-26')
+        self.assertNotIn('tags',r)
+        self.assertEqual(r['version'],{'addedIn':'5.20.1','updatedIn':'5.20.1'})
+        self.assertEqual(r['viewer']['syntheticAnimation'],'figure8')
+        self.assertEqual(r['viewer']['animationFirstExitMode'],'orbit')
+        self.assertNotIn('voxelCoordinateSpace',r['viewer'])
+        folder='ACG/SZCAF15/A001C0190_260726_PQWJ/'
+        for key,name in [('model','scene.sog'),('environment','environment.compressed.ply'),
+                         ('settings','settings.json'),('thumbnail','cover-4096.webp'),('voxel','walk.voxel.json')]:
+            self.assertEqual(r['files'][key],folder+name)
+            self.assertTrue((g.DATA_DIR/r['files'][key]).is_file())
 
 if __name__=='__main__':unittest.main()
