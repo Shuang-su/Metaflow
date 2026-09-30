@@ -1,6 +1,6 @@
 # MF-93 — SZCAF15 A001C0190 resource review
 
-Status: user confirmed Tribbie / Tribios / 缇宝 and the camera. Formal admission and Viewer 5.20.1 publication are in progress under the approved plan.
+Status: user confirmed Tribbie / Tribios / 缇宝 and the camera. Formal admission and Viewer 5.20.1 production publication passed; see [completion](completion.md).
 
 Issue: [MF-93](https://github.com/Shuang-su/Metaflow/issues/93). The user-approved plan in the Codex task is the sole execution plan.
 
@@ -12,7 +12,7 @@ Inputs under `girl/ply-result/point_cloud/iteration_100/`:
 
 - `point_cloud.ply`: 865,623 Gaussian splats, SH0; independently converted to SOG and voxel. No decimation, cropping, extra scale, environment merging or other LOD inputs.
 - `environment.ply`: 55,029 Gaussian splats, independently converted to compressed PLY.
-- Fixed converter: splat-transform 3.6.4, Node 22.20.0; Viewer remains 5.20.0 / PlayCanvas 2.22.4 with Node 20.19.0.
+- Fixed converter: splat-transform 3.6.4, Node 22.20.0; initial review used Viewer 5.20.0 / PlayCanvas 2.22.4 with Node 20.19.0. Resource release 5.20.1 retains that renderer.
 - Rotation `-90,0,0` for all outputs; SOG `--sh-iterations 10`; voxel `--voxel-size 0.08 --voxel-opacity 0.20`.
 
 | Output | Bytes | SHA-256 |
@@ -53,6 +53,6 @@ Historical identification references (the proposal is superseded by user naming)
 - Local review assets and detailed evidence are retained under the project `.codex-work/resource-review-szcaf15-a001c0190/`; server is loopback port 8968.
 - Admission validated: 100 resources / 25 SZCAF15, original 99 resource records exactly preserved by route. ID and normalized routes/aliases do not conflict. `validate_data --check-files`, five Python tests, ten route/version tests, Node 20.19.0 typecheck and production build passed. Formal route browser matrix: Chromium WebGL/WebGPU/mobile and WebKit desktop/mobile 5/5 pass.
 - First build invoked shell-default Node 26 arm64 against the existing x64 dependencies; corrected PATH to the required Node 20.19.0 x64, without dependency or lockfile changes beyond the version bump.
-- Remaining: PR squash and final product SHA; tag and GitHub Release; candidate deployment and promotion; production readback and at least 15 minutes observation.
+- Publication completed: product PR #94, release-record PR #95, tag viewer-v5.20.1 and production deployment `6abc7de6a1ea57eba3620225`; 507 online checks, six file hashes and full observation passed. See [completion](completion.md) for details and limits.
 - Reverified rollback deployment: `6ab9587c6a912037fe9fa43e` (5.20.0), Netlify published pointer ready. Recheck again immediately before publication.
 - This is implementer self-review, not independent review.
