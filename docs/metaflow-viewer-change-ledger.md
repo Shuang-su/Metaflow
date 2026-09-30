@@ -366,3 +366,9 @@ The 2026-08-15 Viewer 5.19.2 release-record commit updated package/version/index
 - 发布记录：最终产品 SHA 已回填为 `ff201e5b2e09184395605fc1e255f64db0c7210f`；实际部署和观察结论见 MF-93 Issue/PR。
 - 回退：已核验 5.20.0 Netlify deployment `6ab9587c6a912037fe9fa43e`，发布前再次读取实际生产指针；回退追加记录。
 - 证据：[MF-93](https://github.com/Shuang-su/Metaflow/issues/93)、[review](changes/93-szcaf15-a001c0190/review.md)。
+
+### 5.20.1 production verification · 2026-09-30
+
+- Netlify deployment `6abc7de6a1ea57eba3620225` promoted unchanged from the verified candidate; domain reports 5.20.1 / ff201e5, 100 resources and 25 SZCAF15.
+- Observation 2026-09-30T03:17:34.414Z → 2026-09-30T03:32:37.739Z (903.3s), 26 periodic checks, two continuously open scenes (Tribbie and Dayun); zero script/HTTP errors or lost contexts; analytics responses 200, startup/first-frame/summary each exactly once per session.
+- Validation, candidate-origin analytics limitation, rollback and local integration handoff: [MF-93 completion](changes/93-szcaf15-a001c0190/completion.md).
