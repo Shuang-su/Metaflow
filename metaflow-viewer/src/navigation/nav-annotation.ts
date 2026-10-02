@@ -1,4 +1,16 @@
 /** Built-in annotation capability. Titles and body text are never commands. */
+import type { SurfaceCatalogIndex, SupportAssociation } from './layers';
+type NavigationSurfaceContext = {
+    required: boolean;
+    catalog: SurfaceCatalogIndex | null;
+    association: SupportAssociation | null;
+};
+const surfaceContexts = new WeakMap<readonly unknown[], NavigationSurfaceContext>();
+/** Shared with the existing annotation renderer, without mutating public annotations. */
+export function setNavigationSurfaceContext(annotations: readonly unknown[], context: NavigationSurfaceContext | null) {
+    if (context) surfaceContexts.set(annotations, context);
+    else surfaceContexts.delete(annotations);
+}
 type RecordValue = Record<string, unknown>;
 const record = (value: unknown): RecordValue | null =>
     value !== null && typeof value === 'object' && !Array.isArray(value) ? (value as RecordValue) : null;
@@ -49,6 +61,7 @@ export function nearbyNavigationAnnotationIndices(
     supportHeight: number | null | undefined,
     targetIndex: number | null
 ): number[] {
+    const context = surfaceContexts.get(annotations);
     const candidates = navigationAnnotationIndices(annotations)
         .flatMap((index) => {
             if (index === targetIndex) return [];
@@ -61,7 +74,14 @@ export function nearbyNavigationAnnotationIndices(
                 supportHeight !== null && supportHeight !== undefined
                     ? Math.abs(p[1] - supportHeight - 1.5) <= 1.5
                     : Math.abs(p[1] - position.y) <= 1.5;
-            return distance <= 12 && sameHeight ? [{ index, distance }] : [];
+            const surface = context?.catalog?.destination(index);
+            const sameLayer = context?.required
+                ? context.association?.status === 'confirmed' &&
+                  context.association.catalog === context.catalog?.fingerprint &&
+                  surface?.kind === 'floor' &&
+                  surface.layerId === context.association.layerId
+                : sameHeight;
+            return distance <= 12 && sameLayer ? [{ index, distance }] : [];
         })
         .sort((a, b) => a.distance - b.distance || a.index - b.index);
     const target = targetIndex !== null && isNavigationAnnotation(annotations[targetIndex]) ? [targetIndex] : [];

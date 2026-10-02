@@ -5,7 +5,9 @@ import { Arrival } from './contracts';
 import type { Goal, NavigationUpdate, Region, Route, NavigationManifest, NavigationTaskState } from './contracts';
 import { NavigationDrawing } from './drawing';
 import { NavigationTask } from './task-state';
-import { NAV_ARRIVAL_RADIUS, navigationCapability } from './nav-annotation';
+import { NAV_ARRIVAL_RADIUS, navigationCapability, setNavigationSurfaceContext } from './nav-annotation';
+import { SurfaceCatalogIndex, SupportTracker } from './layers';
+import type { SupportAssociation } from './layers';
 
 export function installNavigation(global: Global): () => void {
     const { state, events, config, app, settings } = global;
@@ -24,6 +26,10 @@ export function installNavigation(global: Global): () => void {
         destroyed = false,
         startedSession = -1;
     let manifest: NavigationManifest | null = null;
+    let catalog: SurfaceCatalogIndex | null = null;
+    let tracker: SupportTracker | null = null;
+    let association: SupportAssociation | null = null;
+    let requireCatalog = false;
     let metadataPromise: Promise<NavigationManifest> | null = null;
     let connectedMap = '';
     const metadata = () => {
@@ -34,6 +40,18 @@ export function installNavigation(global: Global): () => void {
                 if (!response.ok) throw Error(`导航清单加载失败 (${response.status})`);
                 const value = (await response.json()) as NavigationManifest;
                 if (value.status !== 'complete') throw Error('导航覆盖尚未生成完成');
+                if (destroyed) return value;
+                requireCatalog = !!value.requireSurfaceCatalog || !!value.surfaceCatalog;
+                arrival.bindSurfaceCatalog(null, requireCatalog);
+                catalog = value.surfaceCatalog
+                    ? new SurfaceCatalogIndex(value.surfaceCatalog, value.sourceHash ?? '')
+                    : null;
+                if (requireCatalog && !catalog) throw Error('真实楼层与连接目录尚未确认');
+                tracker = catalog ? new SupportTracker(catalog) : null;
+                association = actual && tracker ? tracker.sample(actual) : null;
+                arrival.bindSurfaceCatalog(catalog, requireCatalog);
+                drawing.surfaceContext(catalog, requireCatalog);
+                setNavigationSurfaceContext(settings.annotations, { required: requireCatalog, catalog, association });
                 manifest = value;
                 return value;
             })().finally(() => {
@@ -85,7 +103,11 @@ export function installNavigation(global: Global): () => void {
                 route = null;
                 drawing.route(null);
                 status('正在检查所选地面', 'computing');
-                worker.postMessage({ type: 'floor', session, floor });
+                worker.postMessage(
+                    typeof floor === 'string'
+                        ? { type: 'floor', session, surfaceId: floor }
+                        : { type: 'floor', session, floor }
+                );
             }
         }
     );
@@ -159,10 +181,11 @@ export function installNavigation(global: Global): () => void {
             return;
         }
         task.begin('正在寻找路线，可继续行走');
+        goal.surfaceId = catalog?.destination(goal.index)?.id;
         pending = true;
         startedSession = session;
         queryCount++;
-        worker.postMessage({ type: 'goal', session, goal, actual });
+        worker.postMessage({ type: 'goal', session, goal, actual, support: association });
         status('正在寻找路线，可继续行走', 'computing');
     };
     const boot = async () => {
@@ -206,12 +229,25 @@ export function installNavigation(global: Global): () => void {
                     drawing.route(null);
                 }
                 if (data.type === 'region') {
-                    regions = data.regions ?? [];
+                    regions = (data.regions ?? []).filter(
+                        (r) =>
+                            !requireCatalog ||
+                            (!!catalog &&
+                                r.catalog === catalog.fingerprint &&
+                                !!r.surfaceId &&
+                                catalog.surfaces.get(r.surfaceId)?.kind === 'floor')
+                    );
                     drawing.regions(regions);
                     drawing.choices(data.choices ?? []);
                     if (!regions.length) status(data.message ?? '目标地面待确认', data.taskState ?? 'floor');
                 }
                 if (data.type === 'route' && data.route && !arrival.fired) {
+                    if (requireCatalog && (!catalog || data.route.catalog !== catalog.fingerprint)) {
+                        route = null;
+                        drawing.route(null);
+                        status('路线与楼层目录不一致，等待重新查询', 'error');
+                        return;
+                    }
                     route = data.route;
                     pending = false;
                     drawing.route(route);
@@ -267,7 +303,8 @@ export function installNavigation(global: Global): () => void {
         goal = {
             index,
             camera: { x: initial.position[0], y: initial.position[1], z: initial.position[2] },
-            radius: NAV_ARRIVAL_RADIUS
+            radius: NAV_ARRIVAL_RADIUS,
+            ...(catalog?.destination(index) ? { surfaceId: catalog.destination(index)!.id } : {})
         };
         state.guidanceTarget = index;
         regions = [];
@@ -288,10 +325,12 @@ export function installNavigation(global: Global): () => void {
     };
     const physics = (s: WalkPhysicsState) => {
         actual = s;
-        drawing.pose(s);
+        association = tracker?.sample(s) ?? null;
+        setNavigationSurfaceContext(settings.annotations, { required: requireCatalog, catalog, association });
+        drawing.pose(s, association);
         present();
         if (!goal || !active()) return;
-        if (arrival.sample(s, goal, regions)) {
+        if (arrival.sample(s, goal, regions, association)) {
             state.selectedAnnotation = goal.index;
             route = null;
             drawing.route(null);
@@ -304,13 +343,15 @@ export function installNavigation(global: Global): () => void {
         if (arrival.fired || !worker || !ready) return;
         if (
             !lastSent ||
+            s.epoch !== lastSent.epoch ||
             (s.tick - lastSent.tick >= 6 &&
                 (Math.hypot(s.position.x - lastSent.position.x, s.position.z - lastSent.position.z) >= 0.05 ||
+                    Math.abs((s.supportHeight ?? Infinity) - (lastSent.supportHeight ?? Infinity)) >= 0.04 ||
                     s.collision !== lastSent.collision ||
                     s.grounded !== lastSent.grounded))
         ) {
             lastSent = s;
-            worker.postMessage({ type: 'pose', session, actual: s });
+            worker.postMessage({ type: 'pose', session, actual: s, support: association });
         }
         if (!pending && !route && startedSession !== session) startQuery();
     };
@@ -323,7 +364,7 @@ export function installNavigation(global: Global): () => void {
         if (!paused && goal && actual) {
             lastSent = null;
             if (startedSession !== session) startQuery();
-            else worker?.postMessage({ type: 'pose', session, actual });
+            else worker?.postMessage({ type: 'pose', session, actual, support: association });
         }
     };
     const mode = () => {
@@ -357,6 +398,7 @@ export function installNavigation(global: Global): () => void {
     mode();
     return () => {
         destroyed = true;
+        setNavigationSurfaceContext(settings.annotations, null);
         clearInterval(timer);
         stopWorker();
         subscriptions.forEach((s) => s.off());

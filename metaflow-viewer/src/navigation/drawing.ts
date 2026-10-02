@@ -5,7 +5,8 @@ import type { WalkPhysicsState } from '../cameras/walk-controller';
 import type { Global } from '../types';
 
 import { routeLength } from './contracts';
-import type { Goal, Region, Route, Point, NavigationManifest } from './contracts';
+import type { Goal, Region, Route, Point, NavigationManifest, GroundChoice } from './contracts';
+import type { SurfaceCatalogIndex, SupportAssociation } from './layers';
 import { gaussianRouteMaterial } from './gaussian-depth';
 import { GaussianMapAssets } from './map-assets';
 import type { GaussianMapLayer, MapSourceExpectation } from './map-assets';
@@ -54,7 +55,12 @@ export function mapLayerMembership(
 }
 
 /** Display-only route selection; neither the native route nor Arrival is changed. */
-export function mapRouteForLayer(route: Route | null, layers: readonly MapDisplayLayer[], displayedId: string | null) {
+export function mapRouteForLayer(
+    route: Route | null,
+    layers: readonly MapDisplayLayer[],
+    displayedId: string | null,
+    requireIdentities = false
+) {
     const displayed = layers.find((layer) => layer.id === displayedId);
     const segments: { start: Point; end: Point }[] = [];
     const boundaries: { point: Point; label: string }[] = [];
@@ -63,7 +69,7 @@ export function mapRouteForLayer(route: Route | null, layers: readonly MapDispla
     const spans = (route.surfaces ?? []).filter(
         (span) =>
             !!span.surfaceId &&
-            !!span.layerId &&
+            (!!span.layerId || !!span.transition) &&
             Number.isSafeInteger(span.start) &&
             Number.isSafeInteger(span.end) &&
             span.start >= 0 &&
@@ -72,19 +78,31 @@ export function mapRouteForLayer(route: Route | null, layers: readonly MapDispla
     );
     for (let i = 1; i < route.points.length; i++) {
         const covering = spans.filter((span) => span.start <= i - 1 && span.end >= i);
-        const ids = [...new Set(covering.map((span) => span.layerId))];
+        const ids = [...new Set(covering.flatMap((span) => (span.layerId ? [span.layerId] : (span.transition ?? []))))];
+        const transition = covering.length === 1 && !!covering[0].transition;
         const known = ids.length === 1 && layers.some((layer) => layer.id === ids[0]);
-        if (ids.length > 1 || (!known && layers.length !== 1) || !displayed) {
+        const knownTransition = transition && ids.length === 2 && ids.every((id) => layers.some((l) => l.id === id));
+        if (
+            (ids.length > 1 && !knownTransition) ||
+            (!known && !knownTransition && (layers.length !== 1 || requireIdentities)) ||
+            !displayed
+        ) {
             unconfirmed = true;
             continue;
         }
         if (known && ids[0] !== displayedId) continue;
+        if (knownTransition && !ids.includes(displayedId!)) continue;
         const segment = clipMapSegment(route.points[i - 1], route.points[i], displayed.supportRange);
         if (!segment) continue;
         segments.push({ start: segment.start, end: segment.end });
         // A height slice does not establish stairs, another floor or connectivity.
         if (segment.enters) boundaries.push({ point: segment.start, label: '路线超出当前高度范围' });
         if (segment.exits) boundaries.push({ point: segment.end, label: '路线超出当前高度范围' });
+    }
+    for (const span of spans.filter((s) => s.transition?.includes(displayedId!))) {
+        const destination = layers.find((l) => span.transition!.includes(l.id) && l.id !== displayedId);
+        if (destination)
+            boundaries.push({ point: route.points[span.start], label: `楼梯或坡道连接 ${destination.label}` });
     }
     // Only exact, valid route occurrences linked at a shared endpoint can name
     // another confirmed layer. Repeated occurrences of one surface stay distinct.
@@ -141,6 +159,9 @@ export class NavigationDrawing {
     private manifest: NavigationManifest | null = null;
     private current: Route | null = null;
     private actual: WalkPhysicsState | null = null;
+    private support: SupportAssociation | null = null;
+    private surfaceCatalog: SurfaceCatalogIndex | null = null;
+    private requireCatalog = false;
     private targetRegions: Region[] = [];
     private backgroundError = '';
     private mapOverlayStatus = '';
@@ -156,7 +177,7 @@ export class NavigationDrawing {
     constructor(
         private global: Global,
         private goal: () => Goal | null,
-        choose: (height: number) => void
+        choose: (selection: number | string) => void
     ) {
         const { root, state, app, camera } = global;
         this.mapCapability = !!global.config.navigationMapUrl;
@@ -269,7 +290,8 @@ export class NavigationDrawing {
         this.choicesElement.setAttribute('aria-label', '目标地面待确认');
         this.choicesElement.hidden = true;
         this.choicesElement.onchange = () => {
-            if (this.choicesElement.value !== '') choose(Number(this.choicesElement.value));
+            const selected = this.choicesElement.selectedOptions[0];
+            if (selected && selected.value !== '') choose(selected.dataset.surfaceId ?? Number(selected.value));
         };
         this.panel.append(this.label, this.distance, this.choicesElement, this.mapSection, this.cancel);
         if (global.config.ui) root.append(this.panel);
@@ -425,14 +447,19 @@ export class NavigationDrawing {
     status(message: string) {
         this.label.textContent = message;
     }
-    choices(rows: { floor: number; count: number }[]) {
+    choices(rows: GroundChoice[]) {
         this.choicesElement.replaceChildren();
         this.choicesElement.hidden = rows.length < 2;
         if (rows.length >= 2) {
             this.choicesElement.add(new Option('目标地面待确认，请选择', ''));
-            rows.forEach((r) =>
-                this.choicesElement.add(new Option(`地面高度 ${r.floor.toFixed(2)} 米`, String(r.floor)))
-            );
+            rows.forEach((r) => {
+                const option = new Option(
+                    r.label ?? `地面高度 ${r.floor.toFixed(2)} 米`,
+                    r.surfaceId ?? String(r.floor)
+                );
+                if (r.surfaceId) option.dataset.surfaceId = r.surfaceId;
+                this.choicesElement.add(option);
+            });
         }
     }
     regions(regions: Region[]) {
@@ -446,9 +473,14 @@ export class NavigationDrawing {
         this.drawLine();
         this.drawMap();
     }
-    pose(pose: WalkPhysicsState) {
+    pose(pose: WalkPhysicsState, support: SupportAssociation | null = null) {
         this.actual = pose;
+        this.support = support;
         if (pose.tick % 6 === 0) this.drawMap();
+    }
+    surfaceContext(catalog: SurfaceCatalogIndex | null, required: boolean) {
+        this.surfaceCatalog = catalog;
+        this.requireCatalog = required;
     }
     assets(manifest: NavigationManifest, _url: string) {
         // Navigation geometry belongs to route feasibility and Gaussian depth occlusion.
@@ -628,21 +660,25 @@ export class NavigationDrawing {
             cz = this.mapView.z;
         const xy = (p: Point) => [220 + (p.x - cx) * scale, 220 + (p.z - cz) * scale];
         const membership = (layerId: string | undefined, height: number) =>
-            mapLayerMembership(layerId, height, this.maps.floorList, this.maps.layerId);
+            this.requireCatalog && (!layerId || !this.maps.floorList.some((l) => l.id === layerId))
+                ? 'unconfirmed'
+                : mapLayerMembership(layerId, height, this.maps.floorList, this.maps.layerId);
         const regionMembership = this.targetRegions.map((region) => membership(region.layerId, region.floor));
         const displayedRegions = this.targetRegions.filter((_region, index) => regionMembership[index] === 'shown');
         const targetOnLayer =
-            displayedRegions.length > 0 || (this.maps.floorList.length === 1 && this.targetRegions.length === 0);
-        const mapRoute = mapRouteForLayer(this.current, this.maps.floorList, this.maps.layerId);
+            displayedRegions.length > 0 ||
+            (!this.requireCatalog && this.maps.floorList.length === 1 && this.targetRegions.length === 0);
+        const mapRoute = mapRouteForLayer(this.current, this.maps.floorList, this.maps.layerId, this.requireCatalog);
         const multiLayer = this.maps.floorList.length > 1;
         const unresolvedOverlay =
-            multiLayer &&
+            (multiLayer || this.requireCatalog) &&
             (mapRoute.unconfirmed ||
                 regionMembership.includes('unconfirmed') ||
                 (target && !this.targetRegions.length));
         this.mapOverlayStatus = [
             unresolvedOverlay ? '路线或目标与底图的楼层关联尚未确认，未确认叠层暂不显示' : '',
-            multiLayer ? '当前位置楼层尚未关联；底图切层只改变显示' : ''
+            multiLayer && !this.support?.layerId ? '当前位置楼层尚未关联；底图切层只改变显示' : '',
+            this.support?.status === 'transition' ? '正在经过已确认的楼梯或坡道；抵达出口后切换所在层' : ''
         ]
             .filter(Boolean)
             .join('；');
@@ -657,9 +693,13 @@ export class NavigationDrawing {
         };
         if (!this.mapFloorManual && this.maps.manifest) {
             const suggested =
-                this.maps.floorList.length === 1
-                    ? this.maps.floorList[0].id
-                    : this.maps.suggestLayer(a.supportHeight ?? a.position.y, this.maps.layerId ?? undefined);
+                this.global.state.cameraMode === 'walk' &&
+                this.support?.layerId &&
+                this.support.catalog === this.surfaceCatalog?.fingerprint
+                    ? this.support.layerId
+                    : this.maps.floorList.length === 1 && !this.requireCatalog
+                      ? this.maps.floorList[0].id
+                      : null;
             if (suggested) this.selectMapLayer(suggested);
         }
         for (const tile of this.maps.tiles) {
@@ -742,7 +782,7 @@ export class NavigationDrawing {
                 if (index === this.global.state.guidanceTarget && !targetOnLayer) continue;
                 if (
                     index !== this.global.state.guidanceTarget &&
-                    membership(undefined, a.supportHeight ?? a.position.y) !== 'shown'
+                    membership(this.support?.layerId ?? undefined, a.supportHeight ?? a.position.y) !== 'shown'
                 )
                     continue;
                 const annotation = this.global.settings.annotations[index];
@@ -760,9 +800,9 @@ export class NavigationDrawing {
             }
         }
         if (
-            multiLayer ||
+            (multiLayer && (this.global.state.cameraMode !== 'walk' || !this.support?.layerId)) ||
             (this.global.state.cameraMode === 'walk' &&
-                membership(undefined, a.supportHeight ?? a.position.y) !== 'shown')
+                membership(this.support?.layerId ?? undefined, a.supportHeight ?? a.position.y) !== 'shown')
         )
             return;
         const [x, y] = xy(a.position);

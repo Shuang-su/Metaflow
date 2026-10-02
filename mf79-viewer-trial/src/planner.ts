@@ -12,14 +12,26 @@ import type {
   Goal,
   Region,
   Route,
+  GroundChoice,
 } from "../../metaflow-viewer/src/navigation/contracts";
+import { SurfaceCatalogIndex } from "../../metaflow-viewer/src/navigation/layers";
+import type {
+  SurfaceCatalog,
+  SupportAssociation,
+} from "../../metaflow-viewer/src/navigation/layers";
 import type { WalkPhysicsState } from "../../metaflow-viewer/src/cameras/walk-controller";
 import {
   clipToArrival,
   routeLength,
 } from "../../metaflow-viewer/src/navigation/contracts";
 import { repairCorridor, shortcutCorridor } from "./corridor";
-export type Candidate = { point: Point; eye: Point; ref: number };
+export type Candidate = {
+  point: Point;
+  eye: Point;
+  ref: number;
+  surfaceId?: string;
+  layerId?: string;
+};
 const complete = (status: number) =>
   !(
     status &
@@ -28,6 +40,45 @@ const complete = (status: number) =>
       Detour.DT_OUT_OF_NODES)
   );
 export class NativePlanner {
+  private catalog: SurfaceCatalogIndex | null = null;
+  private requiredCatalog = false;
+  private associations = new Map<string, SupportAssociation>();
+  setSurfaceCatalog(
+    value: SurfaceCatalog | undefined,
+    sourceHash: string,
+    required = false,
+  ) {
+    this.requiredCatalog = required || !!value;
+    this.catalog = value ? new SurfaceCatalogIndex(value, sourceHash) : null;
+    if (this.requiredCatalog && !this.catalog)
+      throw Error("Confirmed surface catalog missing");
+    this.associations.clear();
+    this.candidateCache.clear();
+    this.verificationCache.clear();
+  }
+  setSupport(s: WalkPhysicsState, association?: SupportAssociation) {
+    if (
+      !this.catalog ||
+      !association ||
+      association.catalog !== this.catalog.fingerprint ||
+      association.collisionFingerprint !==
+        this.catalog.catalog.collisionFingerprint ||
+      association.tick !== s.tick ||
+      association.epoch !== s.epoch
+    )
+      return;
+    this.associations.set(`${s.epoch}:${s.tick}`, association);
+    if (this.associations.size > 128)
+      this.associations.delete(this.associations.keys().next().value!);
+  }
+  decorateRoute(route: Route): Route {
+    if (!this.catalog) {
+      if (this.requiredCatalog)
+        throw Error("Confirmed surface catalog missing");
+      return route;
+    }
+    return { ...route, ...this.catalog.route(route.points) };
+  }
   private candidateCache = new Map<string, Candidate[]>();
   candidateCacheHits = 0;
   verificationCacheHits = 0;
@@ -79,7 +130,7 @@ export class NativePlanner {
     this.query.destroy();
     this.localQuery.destroy();
   }
-  polygon(ref: number): Region {
+  polygon(ref: number, surfaceId?: string): Region {
     const r = this.mesh.getTileAndPolyByRef(ref);
     if (!r.success) throw Error("Obsolete surface reference");
     const vertices = Array.from({ length: r.poly.vertCount() }, (_, i) => {
@@ -90,14 +141,36 @@ export class NativePlanner {
         z: r.tile.verts(n + 2),
       };
     });
+    const surface = surfaceId
+      ? this.catalog?.surfaces.get(surfaceId)
+      : undefined;
+    const clipped = surface
+      ? this.catalog!.clip(vertices, surface.id)
+      : vertices;
     return {
       ref,
-      vertices,
-      floor: vertices.reduce((n, p) => n + p.y, 0) / vertices.length,
+      vertices: clipped,
+      floor: clipped.reduce((n, p) => n + p.y, 0) / clipped.length,
+      ...(surface?.kind === "floor"
+        ? {
+            surfaceId: surface.id,
+            layerId: surface.layerId,
+            catalog: this.catalog!.fingerprint,
+            asset: this.asset,
+          }
+        : {}),
     };
   }
   associate(s: WalkPhysicsState) {
     if (s.supportHeight === null || s.collision !== "active") return null;
+    const association = this.associations.get(`${s.epoch}:${s.tick}`);
+    if (
+      this.requiredCatalog &&
+      (!this.catalog ||
+        !association?.surfaceId ||
+        !["confirmed", "transition"].includes(association.status))
+    )
+      return null;
     const foot = { ...s.position, y: s.supportHeight },
       r = this.query.queryPolygons(
         foot,
@@ -118,6 +191,9 @@ export class NativePlanner {
         (a, b) => length(a.closestPoint, foot) - length(b.closestPoint, foot),
       );
     for (const p of candidates) {
+      const surface = this.catalog?.unique(p.closestPoint);
+      if (this.catalog && (!surface || surface.id !== association?.surfaceId))
+        continue;
       const eye = stand(this.space.collision, p.closestPoint);
       if (!eye) continue;
       // Real connection, not a teleport. Short proof is resumed by the caller for routes.
@@ -145,7 +221,20 @@ export class NativePlanner {
           break;
         }
       }
-      if (clear) return { ref: p.ref, point: p.closestPoint, eye };
+      if (clear)
+        return {
+          ref: p.ref,
+          point: p.closestPoint,
+          eye,
+          ...(surface
+            ? {
+                surfaceId: surface.id,
+                ...(surface.kind === "floor"
+                  ? { layerId: surface.layerId }
+                  : {}),
+              }
+            : {}),
+        };
     }
     return null;
   }
@@ -155,6 +244,8 @@ export class NativePlanner {
       BODY,
       goal.camera,
       goal.radius,
+      goal.surfaceId,
+      this.catalog?.fingerprint,
     ]);
     const cached = this.candidateCache.get(cacheKey);
     if (cached) {
@@ -193,7 +284,22 @@ export class NativePlanner {
         if (seen.has(key)) continue;
         seen.add(key);
         const eye = stand(this.space.collision, p.closestPoint);
-        if (eye) out.push({ point: p.closestPoint, eye, ref });
+        const surface = this.catalog?.unique(p.closestPoint);
+        if (
+          this.catalog &&
+          (surface?.kind !== "floor" ||
+            (goal.surfaceId && goal.surfaceId !== surface.id))
+        )
+          continue;
+        if (eye)
+          out.push({
+            point: p.closestPoint,
+            eye,
+            ref,
+            ...(surface?.kind === "floor"
+              ? { surfaceId: surface.id, layerId: surface.layerId }
+              : {}),
+          });
       }
       yield;
     }
@@ -206,12 +312,12 @@ export class NativePlanner {
   regions(
     goal: Goal,
     candidates: Candidate[],
-    floorOverride?: number,
+    floorOverride?: number | string,
     seed?: Candidate | null,
   ): {
     regions: Region[];
     candidates: Candidate[];
-    choices: { floor: number; count: number }[];
+    choices: GroundChoice[];
     ambiguous: boolean;
   } {
     const refs = new Set(candidates.map((c) => c.ref)),
@@ -259,7 +365,14 @@ export class NativePlanner {
       }
       groups.push(candidates.filter((c) => group.has(c.ref)));
     }
-    const scored = groups
+    const grouped = this.catalog
+      ? groups.flatMap((group) =>
+          [...new Set(group.map((c) => c.layerId))].map((layer) =>
+            group.filter((c) => c.layerId === layer),
+          ),
+        )
+      : groups;
+    const scored = grouped
       .map((c) => {
         const floor = c.map((p) => p.point.y).sort((a, b) => a - b)[
           Math.floor(c.length / 2)
@@ -290,9 +403,24 @@ export class NativePlanner {
         );
       }
     }
-    const choices = scored.map((g) => ({ floor: g.floor, count: g.c.length }));
+    const choices = scored.map((g) => ({
+      floor: g.floor,
+      count: g.c.length,
+      ...(this.catalog
+        ? {
+            surfaceId: g.c[0].surfaceId,
+            label: this.catalog.catalog.layers.find(
+              (l) => l.id === g.c[0].layerId,
+            )?.label,
+          }
+        : {}),
+    }));
     let selected = scored[0];
-    if (floorOverride !== undefined)
+    if (typeof floorOverride === "string")
+      selected = scored.find((g) =>
+        g.c.some((c) => c.surfaceId === floorOverride),
+      )!;
+    else if (floorOverride !== undefined && !this.catalog)
       selected = scored.reduce(
         (a, b) =>
           Math.abs(a.floor - floorOverride) < Math.abs(b.floor - floorOverride)
@@ -300,7 +428,10 @@ export class NativePlanner {
             : b,
         scored[0],
       );
-    else if (
+    else if (this.catalog && scored.length > 1 && !goal.surfaceId) {
+      return { regions: [], candidates: [], choices, ambiguous: true };
+    } else if (
+      !this.catalog &&
       scored[1] &&
       Math.abs(scored[1].floor - scored[0].floor) > 0.6 &&
       scored[1].score - scored[0].score < 0.4
@@ -308,9 +439,12 @@ export class NativePlanner {
       return { regions: [], candidates: [], choices, ambiguous: true };
     return {
       regions: selected
-        ? Array.from(new Set(selected.c.map((c) => c.ref)), (ref) =>
-            this.polygon(ref),
-          )
+        ? Array.from(
+            new Map(
+              selected.c.map((c) => [`${c.ref}:${c.surfaceId ?? ""}`, c]),
+            ).values(),
+            (c) => this.polygon(c.ref, c.surfaceId),
+          ).filter((r) => r.vertices.length >= 3)
         : [],
       candidates: selected?.c ?? [],
       choices: [],
@@ -428,9 +562,17 @@ export class NativePlanner {
     if (!clipped) return null;
     const index = path.polys.indexOf(clipped.ref);
     if (index < 0) return null;
+    let annotated;
+    try {
+      annotated = this.catalog?.route(clipped.points);
+    } catch {
+      return null;
+    }
     return {
       ...path,
-      points: clipped.points,
+      points: annotated?.points ?? clipped.points,
+      surfaces: annotated?.surfaces,
+      catalog: annotated?.catalog,
       polys: path.polys.slice(0, index + 1),
       entry: clipped.entry,
       stopRoom: clipped.points.length === 1 || clipped.insetLength >= 0.079,
@@ -547,8 +689,9 @@ export class NativePlanner {
     this.lastRecovery = { ...failure, proof, recovered: proof.ok };
     if (!proof.ok) return null;
     this.recoveries++;
-    return {
-      route: {
+    let rebuilt: Route;
+    try {
+      rebuilt = this.decorateRoute({
         ...route,
         points: [
           { ...actual.position, y: actual.supportHeight! },
@@ -556,7 +699,12 @@ export class NativePlanner {
         ],
         polys: fresh.polys,
         revision: route.revision + 1,
-      },
+      });
+    } catch {
+      return null;
+    }
+    return {
+      route: rebuilt,
       native: start,
     };
   }
@@ -787,8 +935,9 @@ export class NativePlanner {
     const prefix = path.points.slice(0, Math.min(cut + 1, path.points.length));
     const check = yield* this.verify(actual, prefix);
     if (!check.ok) return fail(check.reason);
-    return {
-      route: {
+    let rebuilt: Route;
+    try {
+      rebuilt = this.decorateRoute({
         ...route,
         points: [
           { ...actual.position, y: actual.supportHeight! },
@@ -796,7 +945,12 @@ export class NativePlanner {
         ],
         polys,
         revision: route.revision + 1,
-      },
+      });
+    } catch {
+      return fail("unconfirmed-surface-route");
+    }
+    return {
+      route: rebuilt,
       native: { ref, point, eye },
     };
   }

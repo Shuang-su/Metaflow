@@ -26,9 +26,19 @@ export function navigationTiles(
   cs = 0.08,
   tileCells = TILE_CELLS,
 ) {
+  // World-coordinate subtraction can turn an exact 20.48 m tile into
+  // 20.480000000000018. Only absorb floating-point roundoff, not extra coverage.
+  const count = (extent: number, size: number) => {
+    const ratio = extent / size,
+      nearest = Math.round(ratio);
+    return Math.abs(ratio - nearest) <=
+      8 * Number.EPSILON * Math.max(1, Math.abs(ratio))
+      ? nearest
+      : Math.ceil(ratio);
+  };
   const size = cs * tileCells,
-    nx = Math.ceil((bounds.max.x - bounds.min.x) / size),
-    nz = Math.ceil((bounds.max.z - bounds.min.z) / size);
+    nx = count(bounds.max.x - bounds.min.x, size),
+    nz = count(bounds.max.z - bounds.min.z, size);
   return Array.from({ length: nx * nz }, (_, i) => {
     const x = i % nx,
       z = Math.floor(i / nx);

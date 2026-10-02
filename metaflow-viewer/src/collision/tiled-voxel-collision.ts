@@ -72,6 +72,25 @@ class TiledVoxelCollision implements Collision {
         return new TiledVoxelCollision(manifest, manifestUrl, options);
     }
 
+    /** Offline/Worker query set: reuse native collision resolution for already verified tiles.
+     * This instance does not schedule streaming; callers own its explicit lifetime. */
+    static fromColliders(colliders: readonly VoxelCollision[]): TiledVoxelCollision {
+        if (!colliders.length) throw new Error('A collision query set needs at least one loaded tile');
+        const resolution = colliders[0].voxelResolution;
+        if (colliders.some(c => c.voxelResolution !== resolution)) throw new Error('Mixed voxel resolutions');
+        const result = new TiledVoxelCollision({
+            version: 1, voxelResolution: resolution, tileSize: 0, overlap: 0,
+            fullBounds: { min: [0, 0, 0], max: [0, 0, 0] }, tiles: []
+        }, '', {});
+        colliders.forEach((collision, index) => {
+            const id = String(index);
+            result._loaded.set(id, collision);
+            result._activeIds.add(id);
+        });
+        result._centerId = '0';
+        return result;
+    }
+
     get voxelResolution(): number {
         return this.manifest.voxelResolution;
     }

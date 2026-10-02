@@ -1,7 +1,15 @@
-import type { LayerId, SurfaceIdentityId } from './layers';
+import type {
+    LayerId,
+    SurfaceIdentityId,
+    SurfaceCatalog,
+    SurfaceCatalogIndex,
+    SurfaceSpan,
+    SupportAssociation
+} from './layers';
 import type { WalkPhysicsState } from '../cameras/walk-controller';
 export type Point = { x: number; y: number; z: number };
-export type Goal = { index: number; camera: Point; radius: 2 | 3 };
+export type Goal = { index: number; camera: Point; radius: 2 | 3; surfaceId?: SurfaceIdentityId };
+export type GroundChoice = { floor: number; count: number; surfaceId?: SurfaceIdentityId; label?: string };
 export type Region = {
     ref: number;
     vertices: Point[];
@@ -9,6 +17,7 @@ export type Region = {
     layerId?: LayerId;
     surfaceId?: SurfaceIdentityId;
     asset?: string;
+    catalog?: string;
 };
 /** Surface spans use inclusive point indices [start,end] and cover segments [start,end).
  * Repeated surfaces carry distinct occurrences. Layer IDs must share the confirmed map catalog. */
@@ -17,7 +26,8 @@ export type Route = {
     polys: number[];
     asset: string;
     revision: number;
-    surfaces?: { surfaceId: SurfaceIdentityId; layerId: LayerId; start: number; end: number }[];
+    surfaces?: SurfaceSpan[];
+    catalog?: string;
 };
 export type NavigationTaskState =
     'loading' | 'computing' | 'route' | 'ground' | 'floor' | 'exhausted' | 'error' | 'arrived' | 'paused' | 'idle';
@@ -25,6 +35,8 @@ export type NavigationManifest = {
     status: 'building' | 'complete';
     fingerprint: string;
     sourceHash?: string;
+    surfaceCatalog?: SurfaceCatalog;
+    requireSurfaceCatalog?: boolean;
     mapsUrl?: string;
     mapSource?: { gaussianHash: string; transform: number[] };
     display: { positionsHash: string; indicesHash: string };
@@ -38,7 +50,7 @@ export type NavigationUpdate = {
     invalidRoute?: boolean;
     route?: Route;
     regions?: Region[];
-    choices?: { floor: number; count: number }[];
+    choices?: GroundChoice[];
     timing?: Record<string, number>;
 };
 export const routeLength = (points: Point[]) =>
@@ -169,19 +181,44 @@ export class Arrival {
     private lastTick = -1;
     private epoch = -1;
     fired = false;
+    private catalog: SurfaceCatalogIndex | null = null;
+    private requireCatalog = false;
+    bindSurfaceCatalog(catalog: SurfaceCatalogIndex | null, required: boolean) {
+        this.catalog = catalog;
+        this.requireCatalog = required || !!catalog;
+        this.reset();
+    }
     reset() {
         this.ticks = 0;
         this.lastTick = -1;
         this.epoch = -1;
         this.fired = false;
     }
-    sample(s: WalkPhysicsState, goal: Goal, regions: Region[]) {
+    sample(s: WalkPhysicsState, goal: Goal, regions: Region[], association?: SupportAssociation | null) {
         if (this.fired) return false;
         if (s.tick === this.lastTick && s.epoch === this.epoch) return false;
         if (s.epoch !== this.epoch || s.tick !== this.lastTick + 1) this.ticks = 0;
         this.lastTick = s.tick;
         this.epoch = s.epoch;
         const valid =
+            (!this.requireCatalog ||
+                (!!this.catalog &&
+                    !!association &&
+                    association.catalog === this.catalog.fingerprint &&
+                    association.collisionFingerprint === this.catalog.catalog.collisionFingerprint &&
+                    association.tick === s.tick &&
+                    association.epoch === s.epoch &&
+                    association.status === 'confirmed' &&
+                    !!association.surfaceId &&
+                    this.catalog.surfaces.get(association.surfaceId)?.kind === 'floor' &&
+                    (!goal.surfaceId || goal.surfaceId === association.surfaceId) &&
+                    regions.some(
+                        (r) =>
+                            r.catalog === association.catalog &&
+                            r.surfaceId === association.surfaceId &&
+                            r.layerId === association.layerId &&
+                            inRegion(s.position, s.supportHeight!, r)
+                    ))) &&
             s.collision === 'active' &&
             s.grounded &&
             !s.jumping &&

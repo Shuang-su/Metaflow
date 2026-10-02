@@ -1,6 +1,7 @@
 import { CooperativeWork } from "./scheduler";
 import { init, importNavMesh } from "recast-navigation";
 import { VoxelCollision } from "../../metaflow-viewer/src/collision/voxel-collision";
+import { loadCollisionSource } from "./collision-source";
 import { NativePlanner, type Candidate } from "./planner";
 import { length, horizontal } from "./native-motion";
 import type {
@@ -18,7 +19,7 @@ let planner: NativePlanner,
   native: Candidate | null = null;
 let paused = false,
   arrived = false,
-  floorOverride: number | undefined;
+  floorOverride: number | string | undefined;
 let regions: Region[] = [];
 let candidates: Candidate[] | null = null,
   queries = 0,
@@ -108,6 +109,11 @@ function* globalQuery(begin = performance.now()) {
       asset,
       revision: ++revision,
     };
+    try {
+      proposed = planner.decorateRoute(proposed);
+    } catch {
+      continue;
+    }
     let position = start,
       verifiedOrigin = origin;
     if (actual && length(actual.position, origin.position) > 0.02) {
@@ -247,20 +253,25 @@ async function boot(data: any) {
     if (h !== hash) throw Error("Asset fingerprint mismatch: " + name);
     return b;
   };
-  const m = data.manifest,
-    [nav, collision] = await Promise.all([
-      bytes("nav.bin", m.navHash),
-      bytes("collision.bin", m.collisionHash),
-    ]);
-  const words = new Uint32Array(collision),
-    n = m.meta.nodeWordCount ?? m.meta.nodeCount;
-  const c = new VoxelCollision(m.meta, words.slice(0, n), words.slice(n));
+  const m = data.manifest;
+  const nav = await bytes("nav.bin", m.navHash);
+  const tiled = m.collisionSource
+    ? await loadCollisionSource(m.collisionSource, bytes, { bounds: m.bounds })
+    : null;
+  if (tiled && tiled.sourceHash !== m.sourceHash)
+    throw Error("Collision/navigation source mismatch");
+  const legacy = tiled ? null : await bytes("collision.bin", m.collisionHash);
+  const words = legacy ? new Uint32Array(legacy) : null;
+  const n = words ? (m.meta.nodeWordCount ?? m.meta.nodeCount) : 0;
+  const c = words
+    ? new VoxelCollision(m.meta, words.subarray(0, n), words.subarray(n))
+    : null;
   asset = m.fingerprint;
   const mesh = importNavMesh(new Uint8Array(nav)).navMesh;
   planner = new NativePlanner(
     mesh,
-    {
-      collision: c,
+    tiled?.space ?? {
+      collision: c!,
       bounds: m.bounds,
       known: (x, y, z) =>
         ["x", "y", "z"].every(
@@ -269,6 +280,11 @@ async function boot(data: any) {
         ),
     },
     asset,
+  );
+  planner.setSurfaceCatalog(
+    m.surfaceCatalog,
+    m.sourceHash,
+    !!m.requireSurfaceCatalog,
   );
   send({ type: "ready" });
 }
@@ -298,6 +314,7 @@ onmessage = ({ data }) => {
     session = data.session;
     goal = data.goal;
     actual = data.actual;
+    if (actual) planner.setSupport(actual, data.support);
     route = null;
     native = null;
     arrived = false;
@@ -311,7 +328,7 @@ onmessage = ({ data }) => {
   }
   if (data.session !== session) return;
   if (data.type === "floor") {
-    floorOverride = data.floor;
+    floorOverride = data.surfaceId ?? data.floor;
     route = null;
     native = null;
     send({ type: "progress", taskState: "computing" });
@@ -326,6 +343,7 @@ onmessage = ({ data }) => {
   }
   if (data.type === "pose") {
     actual = data.actual;
+    if (actual) planner.setSupport(actual, data.support);
     if (
       arrived ||
       !goal ||

@@ -21,7 +21,7 @@ export function exposedVoxelMesh(
   const total = dims.reduce((a, b) => a * b, 1);
   if (total > 128_000_000 || total <= 0)
     throw Error("体素几何超出本轮 1.28 亿格离线限制");
-  const data = new Uint8Array(total),
+  const data = new Int8Array(total),
     offset = (x: number, y: number, z: number) =>
       x + dims[0] * (y + dims[1] * z);
   const minimum = axes.map((k, i) => origin[k] + lo[i] * resolution);
@@ -34,22 +34,22 @@ export function exposedVoxelMesh(
           y: minimum[1] + (y + 0.5) * resolution,
           z: minimum[2] + (z + 0.5) * resolution,
         };
-        const solid = !space.collision.isFreeAt(p.x, p.y, p.z);
-        data[offset(x, y, z)] = Number(solid);
+        const known = space.known(p.x, p.y, p.z);
+        const solid = known && !space.collision.isFreeAt(p.x, p.y, p.z);
+        data[offset(x, y, z)] = known ? Number(solid) : -1;
         solids += Number(solid);
       }
   const occupied = (p: number[]) =>
     p.some((v, i) => v < 0 || v >= dims[i])
       ? options.boundary === "source"
-        ? Number(
-            !space.collision.isFreeAt(
-              ...(p.map((v, k) => minimum[k] + (v + 0.5) * resolution) as [
-                number,
-                number,
-                number,
-              ]),
-            ),
-          )
+        ? (() => {
+            const point = p.map(
+              (v, k) => minimum[k] + (v + 0.5) * resolution,
+            ) as [number, number, number];
+            return space.known(...point)
+              ? Number(!space.collision.isFreeAt(...point))
+              : -1;
+          })()
         : 0
       : data[offset(p[0], p[1], p[2])];
   const positions: number[] = [],
@@ -71,8 +71,9 @@ export function exposedVoxelMesh(
           b[d] = slice;
           const left = occupied(a),
             right = occupied(b);
-          mask[j * dims[u] + i] = left === right ? 0 : left ? 1 : -1;
-          if (left !== right) exposedFaces++;
+          mask[j * dims[u] + i] =
+            left < 0 || right < 0 || left === right ? 0 : left ? 1 : -1;
+          if (mask[j * dims[u] + i]) exposedFaces++;
         }
       for (let j = 0; j < dims[v]; j++)
         for (let i = 0; i < dims[u];) {
