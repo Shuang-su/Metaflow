@@ -373,7 +373,7 @@ The 2026-08-15 Viewer 5.19.2 release-record commit updated package/version/index
 - Observation 2026-09-30T03:17:34.414Z → 2026-09-30T03:32:37.739Z (903.3s), 26 periodic checks, two continuously open scenes (Tribbie and Dayun); zero script/HTTP errors or lost contexts; analytics responses 200, startup/first-frame/summary each exactly once per session.
 - Validation, candidate-origin analytics limitation, rollback and local integration handoff: [MF-93 completion](changes/93-szcaf15-a001c0190/completion.md).
 
-## `5.20.2` · `a9e4df3` · MF-103 transparent Metaflow logo
+## `5.20.2` · `c74378e` · MF-103 transparent Metaflow logo
 
 - 动机 / 原行为：5.20.0 同步上游布局时，品牌 SVG 的半透明黑色底板遗留在 Metaflow Logo 上，5.20.1 的资源页面同样显示圆角背景框。
 - 实现 / 用户结果：仅在 Metaflow 品牌 SVG 覆盖为透明背景，并恢复旧版轻微 drop-shadow；保留现有图形大小、8px 点击留白、悬停/键盘聚焦文字展开及链接。
