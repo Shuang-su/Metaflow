@@ -1,6 +1,6 @@
 # MF-97 逐目标原生回放
 
-固定2m、原版0.20m身体；自动驾驶只用于可复跑路径证据，不替代浏览器/用户试走。所有67点保留。
+固定2m、原版0.20m身体；自动驾驶只用于可复跑路径证据，不替代浏览器/用户试走。所有67点保留。下面首次表格为2026-10-01历史原件；本次2026-10-03前后逐点比较另列于文末。
 
 ## apms-2026
 
@@ -85,3 +85,79 @@ markerHash: `f74a134f4efcd7588e97741515e6f5dd0434f2273932ca9e643e1b1ee23fa1b3`
 | 23 | native-replay-passed | 四档通过 | 426.3 | 10.33 |
 | 24 | native-replay-passed | 四档通过 | 207.4 | 0.00 |
 | 25 | native-replay-passed | 四档通过 | 205.7 | 9.98 |
+
+## 2026-10-03 原件与独立修正版逐点比较
+
+修正版仅媒体峰会c98/14的一bit副本d80fd685122da078e4cf90d9；SDI保持原件对照。30/60/120Hz及jitter均要求相同tick和内容一次触发。性能列不作新旧快慢结论：两批运行时间及系统负载不同。
+
+| 场景 | 点 | 原件 | 修正版或原件对照 | 最大tick位置误差m | 触发次数 |
+| --- | ---: | --- | --- | ---: | ---: |
+| apms-2026 | 1 | replayed | replayed | 0 | 1 |
+| apms-2026 | 2 | replayed | replayed | 0 | 1 |
+| apms-2026 | 3 | replayed | replayed | 0 | 1 |
+| apms-2026 | 4 | replayed | replayed | 0 | 1 |
+| apms-2026 | 5 | replayed | replayed | 0 | 1 |
+| apms-2026 | 6 | replayed | replayed | 0 | 1 |
+| apms-2026 | 7 | replayed | replayed | 0 | 1 |
+| apms-2026 | 8 | replayed | replayed | 0 | 1 |
+| apms-2026 | 9 | replayed | replayed | 0 | 1 |
+| apms-2026 | 10 | replayed | replayed | 0 | 1 |
+| apms-2026 | 11 | replayed | replayed | 0 | 1 |
+| apms-2026 | 12 | replayed | replayed | 0 | 1 |
+| apms-2026 | 13 | replayed | replayed | 0 | 1 |
+| apms-2026 | 14 | replayed | replayed | 0 | 1 |
+| apms-2026 | 15 | replayed | replayed | 0 | 1 |
+| apms-2026 | 16 | replayed | replayed | 0 | 1 |
+| apms-2026 | 17 | replayed | replayed | 0 | 1 |
+| apms-2026 | 18 | replayed | replayed | 0 | 1 |
+| apms-2026 | 19 | replayed | replayed | 0 | 1 |
+| apms-2026 | 20 | replayed | replayed | 0 | 1 |
+| apms-2026 | 21 | replayed | replayed | 0 | 1 |
+| apms-2026 | 22 | replayed | replayed | 0 | 1 |
+| apms-2026 | 23 | replayed | replayed | 0 | 1 |
+| apms-2026 | 24 | replayed | replayed | 0 | 1 |
+| apms-2026 | 25 | replayed | replayed | 0 | 1 |
+| apms-2026 | 26 | replayed | replayed | 0 | 1 |
+| apms-2026 | 27 | replayed | replayed | 0 | 1 |
+| apms-2026 | 28 | replayed | replayed | 0 | 1 |
+| apms-2026 | 29 | replayed | replayed | 0 | 1 |
+| apms-2026 | 30 | replayed | replayed | 0 | 1 |
+| apms-2026 | 31 | replayed | replayed | 0 | 1 |
+| apms-2026 | 32 | replayed | replayed | 0 | 1 |
+| apms-2026 | 33 | replayed | replayed | 0 | 1 |
+| apms-2026 | 34 | replayed | replayed | 0 | 1 |
+| apms-2026 | 35 | replayed | replayed | 0 | 1 |
+| apms-2026 | 36 | replayed | replayed | 0 | 1 |
+| apms-2026 | 37 | replayed | replayed | 0 | 1 |
+| apms-2026 | 38 | replayed | replayed | 0 | 1 |
+| apms-2026 | 39 | replayed | replayed | 0 | 1 |
+| apms-2026 | 40 | replayed | replayed | 0 | 1 |
+| apms-2026 | 41 | replayed | replayed | 0 | 1 |
+| apms-2026 | 42 | replayed | replayed | 0 | 1 |
+| sdi-2026 | 1 | replayed | replayed | 0 | 1 |
+| sdi-2026 | 2 | replayed | replayed | 0 | 1 |
+| sdi-2026 | 3 | replayed | replayed | 0 | 1 |
+| sdi-2026 | 4 | replayed | replayed | 0 | 1 |
+| sdi-2026 | 5 | replayed | replayed | 0 | 1 |
+| sdi-2026 | 6 | replayed | replayed | 0 | 1 |
+| sdi-2026 | 7 | replayed | replayed | 0 | 1 |
+| sdi-2026 | 8 | replayed | replayed | 0 | 1 |
+| sdi-2026 | 9 | replayed | replayed | 0 | 1 |
+| sdi-2026 | 10 | replayed | replayed | 0 | 1 |
+| sdi-2026 | 11 | replayed | replayed | 0 | 1 |
+| sdi-2026 | 12 | replayed | replayed | 0 | 1 |
+| sdi-2026 | 13 | replayed | replayed | 0 | 1 |
+| sdi-2026 | 14 | replayed | replayed | 0 | 1 |
+| sdi-2026 | 15 | replayed | replayed | 0 | 1 |
+| sdi-2026 | 16 | replayed | replayed | 0 | 1 |
+| sdi-2026 | 17 | replayed | replayed | 0 | 1 |
+| sdi-2026 | 18 | replayed | replayed | 0 | 1 |
+| sdi-2026 | 19 | replayed | replayed | 0 | 1 |
+| sdi-2026 | 20 | replayed | replayed | 0 | 1 |
+| sdi-2026 | 21 | replayed | replayed | 0 | 1 |
+| sdi-2026 | 22 | replayed | replayed | 0 | 1 |
+| sdi-2026 | 23 | replayed | replayed | 0 | 1 |
+| sdi-2026 | 24 | replayed | replayed | 0 | 1 |
+| sdi-2026 | 25 | replayed | replayed | 0 | 1 |
+
+两批固定20点均20/20，旧七组均7/7，SDI marker-2继续作为额外样本；无删点。修正版执行前冻结47项实现文件、6项输入清单，执行后复验未变，5份完整结果文件均记录SHA。证据为本次continuation的 `validation/regression/` 与 `validation/corrected-regression-v2/`。这组全量成绩不能覆盖大运、未知楼层或未经原生严格穿越的另一份c198副本。

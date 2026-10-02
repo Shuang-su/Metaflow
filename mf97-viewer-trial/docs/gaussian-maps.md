@@ -19,20 +19,29 @@
 
 ## 复跑
 
-在 MF-97 工作树的 `mf97-viewer-trial/` 内执行；先启动该目录的 Vite preview（默认 5185）。资源只读路由分别为 `/scene-assets/`、`/repository-data/`，输出路由为 `/mf97-maps/`。
+在 MF-97 工作树的 `mf97-viewer-trial/` 内执行；先启动该目录的 Vite preview（默认 5185）。资源只读路由分别为 `/scene-assets/`、`/repository-data/`，旧地图只读路由为 `/mf97-maps/`；续作输出为 `/mf97-continuation-maps/`。新job/maps默认写 continuation-20261002，原82块底图不覆盖。
 
 ```sh
 node_modules/.bin/tsx scripts/prepare-gaussian-map-job.ts --scene apms-2026 --scenes ../mf79-viewer-trial/scene-exhibitions.json --layers /Volumes/Prism/Metaflow/.codex-work/cache/mf97-navigation/jobs/apms-2026-layers.json
-node_modules/.bin/tsx scripts/generate-gaussian-map.ts --job /Volumes/Prism/Metaflow/.codex-work/cache/mf97-navigation/jobs/apms-2026.json --origin http://127.0.0.1:5185 --browser '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'
+node_modules/.bin/tsx scripts/generate-gaussian-map.ts --job /Volumes/Prism/Metaflow/.codex-work/cache/mf97-navigation/continuation-20261002/jobs/apms-2026.json --origin http://127.0.0.1:5185 --browser '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'
 node_modules/.bin/tsx scripts/prepare-gaussian-map-job.ts --scene sdi-2026 --scenes ../mf79-viewer-trial/scene-exhibitions.json --layers /Volumes/Prism/Metaflow/.codex-work/cache/mf97-navigation/jobs/sdi-2026-layers.json
-node_modules/.bin/tsx scripts/generate-gaussian-map.ts --job /Volumes/Prism/Metaflow/.codex-work/cache/mf97-navigation/jobs/sdi-2026.json --origin http://127.0.0.1:5185 --browser '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'
+node_modules/.bin/tsx scripts/generate-gaussian-map.ts --job /Volumes/Prism/Metaflow/.codex-work/cache/mf97-navigation/continuation-20261002/jobs/sdi-2026.json --origin http://127.0.0.1:5185 --browser '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'
 node_modules/.bin/tsx --test tests/maps.test.ts
 ```
 
-更换切片、模型变换、源文件或生成像素尺寸时，准备新 job 并使用新的 output 目录；不能覆盖 fingerprint 不一致的旧缓存。代码不自动安装 Chromium。准备脚本流式计算源哈希，生成串行执行，写盘前保留 10 GiB 空闲、Node 进程 RSS 不超过 1.5 GiB。浏览器 GPU 内存尚未得到可靠的跨平台估算，本次未将 Node RSS 当成总 GPU 内存证明。
+更换切片、模型变换、源文件或生成像素尺寸时，准备新 job 并使用新的 output 目录；不能覆盖 fingerprint 不一致的旧缓存。代码不自动安装 Chromium。准备脚本流式计算源哈希，生成串行执行，本轮写盘前保留 5 GiB 空闲（用户授权的MF97续作边界）、Node 进程 RSS 不超过 1.5 GiB。浏览器 GPU 内存尚未得到可靠的跨平台估算，本次未将 Node RSS 当成总 GPU 内存证明。
 
 ## Viewer 载入
 
 内部配置 `navigationMapUrl` 或导航 manifest 的 `mapsUrl` 指向地图 manifest。`GaussianMapAssets` 校验源身份、楼层矩形的完整无重叠覆盖、每张图的 SHA-256 和解码尺寸。最多保留 64 MiB 解码图片，切场景/销毁释放 ImageBitmap。地图加载、缺块、资源错误与路线状态独立。
 
 `suggestLayer()` 只给出显示建议；重叠高度范围没有唯一关联时返回 `null`，不能据此吸附人物、切换导航楼层或触发到达。使用方应优先提供已经确认的稳定表面身份，手选地图层只改变所查看的底图。
+
+## 2026-10-03 来源与恢复收紧
+
+地图准备/生成、ground生成共用外置资源策略。新的single/tiled collision provenance绑定sourceHash；分块源不要求一个不存在的总BIN。Gaussian源逐文件流式SHA核验，精确核对有序inventory哈希；拒绝路径逃逸、symlink别名、同大小同mtime的替换以及核验中变化。完成前再次核对全部输入。
+
+地图逐瓦片prepared/binary/manifest中断恢复测试通过；repeat核验后不重渲染、不写入。生成器同样支持独立高斯侧剖面审查。大运新图只能按经过实景核验的局部表面范围生成，不能将长坡高差或半米分桶直接称为建筑楼层。地图和实际导航验收分列，当前进展见唯一实施报告。
+
+
+本轮大运已实际完成五个局部LOD0视角的来源和解码核对，不等于新底图生成。重叠低位可见室内地面，上位铺装面身份未明；高差连接A/B/中部高斯过于稀疏。未生成或发布未经确认的楼层图。两展原82图像素继续保留；微修正版仅生成独立manifest，绑定新的碰撞版本并记录原map manifest hash与`gaussianUnchanged: true`，复用原图像。
