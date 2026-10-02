@@ -1,14 +1,14 @@
 {
   "schemaVersion": "1.1",
   "cutoffGitRef": "c613a87",
-  "documentedThrough": "ff201e5",
+  "documentedThrough": "a9e4df3",
   "defaultResourceVersion": "1.0a",
   "current": {
-    "displayVersion": "5.20.1",
-    "appSemver": "5.20.1",
+    "displayVersion": "5.20.2",
+    "appSemver": "5.20.2",
     "indexSchemaVersion": "1.2",
-    "date": "2026-09-30",
-    "gitRef": "ff201e5",
+    "date": "2026-10-03",
+    "gitRef": "a9e4df3",
     "historyUrl": "/data/version-history.json",
     "upstream": {
       "repository": "playcanvas/supersplat-viewer",
@@ -1522,6 +1522,20 @@
         "evidence": "docs/changes/93-szcaf15-a001c0190/review.md",
         "releaseTag": "viewer-v5.20.1",
         "pullRequest": "https://github.com/Shuang-su/Metaflow/pull/94"
+      }
+    },
+    {
+      "displayVersion": "5.20.2",
+      "appSemver": "5.20.2",
+      "type": "fix",
+      "scope": "viewer",
+      "date": "2026-10-03",
+      "gitRef": "a9e4df3",
+      "summary": "fix(viewer): restore transparent Metaflow logo after upstream layout sync",
+      "trace": {
+        "changeId": "MF-103",
+        "issue": "https://github.com/Shuang-su/Metaflow/issues/103",
+        "releaseTag": "viewer-v5.20.2"
       }
     }
   ]
