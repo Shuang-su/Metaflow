@@ -4,14 +4,33 @@ import argparse
 import hashlib
 import json
 import pathlib
-import shutil
+import os
+import resource
+import subprocess
+import sys
 import numpy as np
 
 parser=argparse.ArgumentParser()
 parser.add_argument("mesh")
 parser.add_argument("--output", required=True)
 parser.add_argument("--stride",type=int,default=32)
+parser.add_argument("--cache-root",default=os.environ.get("MF97_CACHE_ROOT","/Volumes/Prism/Metaflow/.codex-work/cache/mf97-navigation/continuation-20261002"))
+parser.add_argument("--reserve-gib",type=float,default=float(os.environ.get("MF97_RESERVE_GIB","5")))
+parser.add_argument("--max-added-gib",type=float,default=float(os.environ.get("MF97_MAX_ADDED_GIB","8")))
+parser.add_argument("--max-rss-gib",type=float,default=float(os.environ.get("MF97_MAX_RSS_GIB","1.5")))
+parser.add_argument("--task-output-mib",type=float,default=float(os.environ.get("MF97_TASK_OUTPUT_MIB","256")))
+parser.add_argument("--node",default=os.environ.get("MF97_NODE","/Users/shuangsu/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node"))
 args=parser.parse_args()
+if args.stride<1:raise ValueError("Stride must be positive")
+app=pathlib.Path(__file__).resolve().parent.parent
+writer=[args.node,str(app/"node_modules/tsx/dist/cli.mjs"),str(app/"src/offline-resources.ts"),
+    "--cache-root",args.cache_root,"--reserve-gib",str(args.reserve_gib),"--max-added-gib",str(args.max_added_gib),
+    "--max-rss-gib",str(args.max_rss_gib),"--task-output-mib",str(args.task_output_mib)]
+subprocess.run(writer+["--check","--check-output",args.output],check=True,capture_output=True,text=True)
+def check_memory():
+    rss=resource.getrusage(resource.RUSAGE_SELF).ru_maxrss*(1 if sys.platform=="darwin" else 1024)
+    if rss>args.max_rss_gib*1024**3:raise RuntimeError("MF97 Python RSS limit exceeded")
+check_memory()
 path=pathlib.Path(args.mesh)
 with path.open("rb") as stream:
     header=b""
@@ -30,6 +49,7 @@ triangles=np.memmap(path,dtype=np.dtype([("n","u1"),("ids","<u4",(3,))]),mode="r
 sample=triangles[::args.stride]
 if not (sample["n"]==3).all():raise ValueError("Nontriangular face layout")
 xyz=points[sample["ids"]]
+check_memory()
 normals=np.cross(xyz[:,1]-xyz[:,0],xyz[:,2]-xyz[:,0]);magnitude=np.linalg.norm(normals,axis=1)
 normals/=np.maximum(magnitude,1e-12)[:,None];centers=xyz.mean(axis=1)
 axis_areas=[float(np.sum(magnitude[np.abs(normals[:,a])>.94])*args.stride/2) for a in range(3)]
@@ -54,8 +74,7 @@ result={"version":1,"asset":"huafa-p1","sourceFile":str(path),"sourceHash":diges
     "axisConfirmedByAuthoringMetadata":False,"topHeightBands":hist[:16],"multiSurfaceCellCount":len(overlap),"examples":overlap[:12],
     "confirmedWalkableFloors":0,"collisionAssetAvailable":False,"sourceModified":False,
     "interpretation":"triangle geometry demonstrates stacked surface candidates; ceiling/roof/fixture distinction, registration and stair walkability still require review"}
-target=pathlib.Path(args.output)
 data=json.dumps(result,separators=(",",":"))
-if shutil.disk_usage(target.parent).free-len(data.encode())<10*1024**3:raise RuntimeError("10 GiB reserve")
-target.write_text(data)
+check_memory()
+subprocess.run(writer+["--write-json",args.output],input=data,check=True,capture_output=True,text=True)
 print(json.dumps({k:v for k,v in result.items() if k not in ["examples","topHeightBands"]}))

@@ -13,10 +13,15 @@ import { App } from "../../../metaflow-viewer/src/app";
 import { Capture } from "../../../metaflow-viewer/src/capture";
 import { validateStreamingLodManifest } from "../../../metaflow-viewer/src/resource-source";
 import { sliceModifier } from "./model";
+import {
+  sectionModifier,
+  sectionProjection,
+  type SectionRequest,
+} from "../ground/section";
 import type { MapRenderJob, MapRenderTile } from "./model";
 
 /** Separate app, device, camera and material. The live Viewer is never modified. */
-class GaussianMapGenerator {
+export class GaussianMapGenerator {
   private app: App;
   private camera: Entity;
   private splat: Entity;
@@ -230,6 +235,46 @@ class GaussianMapGenerator {
     };
   }
 
+  async renderSection(request: SectionRequest, signal?: AbortSignal) {
+    if (this.destroyed) throw new Error("Section generator disposed");
+    const projection = sectionProjection(request),
+      { bounds, axis, width, height } = request;
+    this.failures.length = 0;
+    this.app.graphicsDevice.resizeCanvas(width, height);
+    this.camera.camera.orthoHeight = projection.halfY;
+    this.camera.camera.aspectRatio = width / height;
+    this.camera.camera.nearClip = 0.01;
+    this.camera.camera.farClip = 100;
+    const center = new Vec3(
+      projection.center.x,
+      projection.center.y,
+      projection.center.z,
+    );
+    const position = center.clone();
+    if (axis === "z") position.z = bounds.max.z + 2;
+    else position.x = bounds.min.x - 2;
+    this.camera.setPosition(position);
+    this.camera.lookAt(center, new Vec3(0, 1, 0));
+    this.splat.gsplat.setWorkBufferModifier(sectionModifier(bounds));
+    const hasSource = this.sourceBounds.some((b) =>
+      (["x", "y", "z"] as const).every(
+        (k) => b.max[k] >= bounds.min[k] && b.min[k] <= bounds.max[k],
+      ),
+    );
+    const readiness = await this.waitReady(!hasSource, signal);
+    const raw = await this.capture.grab({ width, height, supersample: 1 });
+    if (signal?.aborted) throw new DOMException("Aborted", "AbortError");
+    return {
+      image: new ImageData(
+        Uint8ClampedArray.from(atob(raw.data), (c) => c.charCodeAt(0)),
+        width,
+        height,
+      ),
+      hasSource,
+      ...readiness,
+    };
+  }
+
   private waitReady(
     knownEmpty: boolean,
     signal?: AbortSignal,
@@ -292,24 +337,25 @@ class GaussianMapGenerator {
 
 let generator: GaussianMapGenerator | null = null;
 const status = document.querySelector("#map-generator-status");
-(window as any).mf97MapGenerator = {
-  async create(job: MapRenderJob) {
-    generator?.destroy();
-    status.textContent = `正在加载 ${job.scene} 的独立高斯地图场景`;
-    generator = await GaussianMapGenerator.create(
-      document.querySelector("canvas"),
-      job,
-    );
-    status.textContent = "资源已加载，等待指定瓦片的流式内容和排序";
-  },
-  async render(tile: MapRenderTile) {
-    status.textContent = `生成 ${tile.id}（固定 LOD，世界高度切片）`;
-    const result = await generator.render(tile);
-    status.textContent = `${tile.id} 已完成，${result.frames} 帧准备，${result.splats} 个高斯`;
-    return result;
-  },
-  destroy() {
-    generator?.destroy();
-    generator = null;
-  },
-};
+if (status)
+  (window as any).mf97MapGenerator = {
+    async create(job: MapRenderJob) {
+      generator?.destroy();
+      status.textContent = `正在加载 ${job.scene} 的独立高斯地图场景`;
+      generator = await GaussianMapGenerator.create(
+        document.querySelector("canvas"),
+        job,
+      );
+      status.textContent = "资源已加载，等待指定瓦片的流式内容和排序";
+    },
+    async render(tile: MapRenderTile) {
+      status.textContent = `生成 ${tile.id}（固定 LOD，世界高度切片）`;
+      const result = await generator.render(tile);
+      status.textContent = `${tile.id} 已完成，${result.frames} 帧准备，${result.splats} 个高斯`;
+      return result;
+    },
+    destroy() {
+      generator?.destroy();
+      generator = null;
+    },
+  };

@@ -1,4 +1,4 @@
-import { readFileSync, mkdirSync, writeFileSync, renameSync, statSync, statfsSync, existsSync } from 'node:fs';
+import { readFileSync, statSync, existsSync } from 'node:fs';
 import { createHash } from 'node:crypto';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -9,21 +9,20 @@ import { extractSpans, worldBounds, type VoxelSource } from '../src/ground/spans
 import { proposeGround, acceptedEdits } from '../src/ground/review';
 import { patchedCollision } from '../src/ground/overlay';
 import type { PlanePatch, GroundReview, GroundDecisions, GroundBounds } from '../src/ground/types';
+import { createOfflineResources, offlineResourceOptions } from '../src/offline-resources';
+import { groundAnalysisHash } from '../src/ground-analysis-fingerprint';
 
 const here=dirname(fileURLToPath(import.meta.url));
 const args=process.argv.slice(2), arg=(name:string,fallback?:string)=>{const i=args.indexOf(name);return i<0?fallback:args[i+1];};
-const output=resolve(arg('--output','/Volumes/Prism/Metaflow/.codex-work/cache/mf97-navigation/ground')!);
-const reserve=10*1024**3, outputLimit=256*1024**2;
+const resourceBudget=createOfflineResources(offlineResourceOptions(args));
+const output=resourceBudget.resolveOutput(arg('--output','ground-analysis')!);
 let written=0;
 function resources(){
-    const d=statfsSync(existsSync(output)?output:dirname(output));
-    if(d.bavail*d.bsize<reserve+4*1024**2)throw Error('Prism reserve would fall below 10 GiB');
-    if(process.memoryUsage().rss>1.5*1024**3)throw Error('Ground working memory exceeds 1.5 GiB');
+    resourceBudget.assertCapacity(0,'ground analysis');
 }
-function save(file:string,data:unknown){resources();const text=JSON.stringify(data);written+=Buffer.byteLength(text);if(written>outputLimit)throw Error('Ground output exceeds 256 MiB');writeFileSync(file,text);}
+function save(file:string,data:unknown){resources();const text=JSON.stringify(data);resourceBudget.writeFileAtomic(file,text,{replace:false});written+=Buffer.byteLength(text);}
 const hash=(b:Uint8Array|string)=>createHash('sha256').update(b).digest('hex');
-const analysisHash=hash(['ground-analysis.ts','ground-detect.py','../src/ground/spans.ts','../src/ground/review.ts',
-    '../../metaflow-viewer/src/navigation/layers.ts'].map(f=>hash(readFileSync(resolve(here,f)))).join(':'));
+const analysisHash=groundAnalysisHash();
 const detectorParameters={normalVarianceThresholdDeg:30,coplanarityDeg:75,outlierRatio:.65,minPlaneEdgeLength:.4,minNumPoints:20,
     normalRadius:.45,normalMaxNeighbors:30,searchNeighbors:30,maxCorrectionSourceVoxels:1,minClearance:1.7,minPatchArea:4,coherentPlateauMinNeighbors:1,coherentPlateauNeighborhood:8};
 function load(file:string,flipXY=false){
@@ -38,9 +37,10 @@ function load(file:string,flipXY=false){
 class Detector {
     private child; private pending: {resolve:(p:PlanePatch[])=>void;reject:(e:Error)=>void;timer:ReturnType<typeof setTimeout>} | null=null;
     constructor(){
-        const python=arg('--python','/Volumes/Prism/Metaflow/.codex-work/cache/mf97-navigation/python/bin/python')!;
+        const python=arg('--python',process.env.MF97_GROUND_PYTHON);
+        if(!python || !existsSync(python))throw Error('Provide --python or MF97_GROUND_PYTHON pointing to the verified restored Open3D environment');
         this.child=spawn(python,[resolve(here,'ground-detect.py')],{env:{...process.env,OPEN3D_DISABLE_WEB_VISUALIZER:'true',OMP_NUM_THREADS:'2',
-            MPLCONFIGDIR:'/Volumes/Prism/Metaflow/.codex-work/cache/mf97-navigation/matplotlib'},stdio:['pipe','pipe','pipe']});
+            MPLCONFIGDIR:resourceBudget.resolveOutput('matplotlib')},stdio:['pipe','pipe','pipe']});
         this.child.stderr.on('data',b=>process.stderr.write(b));
         createInterface({input:this.child.stdout}).on('line',line=>{
             const p=this.pending;if(!p)return;clearTimeout(p.timer);this.pending=null;
@@ -65,9 +65,10 @@ async function analyze(){
     const loaded=load(file),{source,sourceHash}=loaded,bounds=worldBounds(source);
     const cell=Number(arg('--cell-size','8')),limit=Number(arg('--limit','Infinity'));
     if(!Number.isFinite(cell)||cell<2||cell>8)throw Error('Ground chunk size must be 2..8m');
-    const folder=resolve(output,sceneId);mkdirSync(folder,{recursive:true});const detector=new Detector();
+    const folder=resolve(output,sceneId);
     const haloSize=Math.ceil(1.04/source.collision.voxelResolution)*source.collision.voxelResolution;
     const coverageFile=resolve(folder,'coverage.json');
+    if(existsSync(coverageFile) && !args.includes('--resume'))throw Error('Existing analysis requires explicit --resume or an independent output directory');
     const previous=args.includes('--resume') && existsSync(coverageFile)?JSON.parse(readFileSync(coverageFile,'utf8')):null;
     if(previous && (previous.sourceHash!==sourceHash || previous.analysisHash!==analysisHash || previous.cellSize!==cell || previous.haloSize!==haloSize))throw Error('Resume source/algorithm/parameters mismatch');
     const inventory:any[]=previous?.inventory??[];let totalSpans=previous?.totalSpans??0,unknown=previous?.unknownSpanCount??0,
@@ -78,10 +79,9 @@ async function analyze(){
             completeCoverage,chunks:index,columns,totalSpans,unknownSpanCount:unknown,proposedCandidateCount:proposed,protectedCandidateCount:protectedCount,
             acceptedCandidateCount:0,sourceModified:false,bytes:written,error,nextChunk:index,
             countSemantics:'span/column observations include halo overlap; inventory core bounds establish whole coverage',inventory};
-        // This small recovery manifest uses the 4 MiB cushion reserved by resources().
-        const text=JSON.stringify(summary),d=statfsSync(folder);if(d.bavail*d.bsize-Buffer.byteLength(text)<reserve)throw Error('Cannot preserve recovery manifest without violating reserve');
-        writeFileSync(coverageFile+'.next',text);renameSync(coverageFile+'.next',coverageFile);return summary;
+        resourceBudget.writeJsonAtomic(coverageFile,summary,{recovery:true});return summary;
     };
+    const detector=new Detector();
     persist(false);
     try{
         for(let x=bounds.min.x;x<bounds.max.x && !stop;x+=cell)for(let z=bounds.min.z;z<bounds.max.z;z+=cell){
@@ -93,9 +93,10 @@ async function analyze(){
                 max:{x:b.max.x+haloSize,y:b.max.y,z:b.max.z+haloSize}};
             const extracted=extractSpans(source,halo),patches=await detector.detect(extracted.spans.map(s=>[s.x,s.y,s.z]),source.collision.voxelResolution);
             const result=proposeGround(source,extracted.spans,patches,sceneId);
-            for(const c of result.candidates)c.edits=c.edits.filter(e=>{const rawX=source.min[0]+(e.ix+.5)*source.collision.voxelResolution;
+            for(const c of result.candidates){c.edits=c.edits.filter(e=>{const rawX=source.min[0]+(e.ix+.5)*source.collision.voxelResolution;
                 const wx=source.flipXY?-rawX:rawX,wz=source.min[2]+(e.iz+.5)*source.collision.voxelResolution;
                 return wx>=b.min.x&&wx<b.max.x&&wz>=b.min.z&&wz<b.max.z;});
+                if(c.status==='proposed' && !c.edits.length){c.status='unknown';c.reasons=[...new Set([...c.reasons,'no-voxel-edits-in-core'])].sort();}}
             const review:GroundReview={version:1,sourceHash,detector:'Open3D-0.19.0.detect_planar_patches',coordinateSpace:'world',
                 voxelResolution:source.collision.voxelResolution,...result,scannedColumnCount:extracted.columns,completeCoverage:true,
                 sourceFile:file,coverageScope:'chunk',analysisHash,
@@ -135,13 +136,14 @@ function dayun(){
     save(resolve(output,'dayun-inventory.json'),result);console.log(JSON.stringify({...result,tiles:undefined}));
 }
 
-mkdirSync(output,{recursive:true});resources();
+resources();
 if(args.includes('--dayun-inventory'))dayun();
 else if(args.includes('--review')){
     const file=arg('--review')!,decisions=JSON.parse(readFileSync(arg('--decisions')!,'utf8')) as GroundDecisions;
     const files=statSync(file).isDirectory()?JSON.parse(readFileSync(resolve(file,'coverage.json'),'utf8')).inventory.map((c:any)=>resolve(file,c.file)):[file];
-    const reviews=files.map((f:string)=>JSON.parse(readFileSync(f,'utf8')) as GroundReview),first=reviews[0];
+    const reviews:GroundReview[]=files.map((f:string)=>JSON.parse(readFileSync(f,'utf8')) as GroundReview),first=reviews[0];
     if(!first?.sourceFile)throw Error('A sourceFile is required to verify the original source');
+    if(first.analysisHash!==analysisHash || reviews.some(r=>r.analysisHash!==analysisHash))throw Error('Current analysis fingerprint is required');
     const loaded=load(arg('--source',first.sourceFile)!,first.coordinateSpace==='metaflow-rz180');
     if(loaded.sourceHash!==first.sourceHash || decisions.sourceHash!==first.sourceHash)throw Error('Original source fingerprint changed');
     const all=new Set(reviews.flatMap((r:GroundReview)=>r.candidates.map(c=>c.id)));
@@ -152,7 +154,7 @@ else if(args.includes('--review')){
     patchedCollision(loaded.source.collision,loaded.meta,edits); // Checks every original before mask and overlapping candidate conflicts.
     const confirmed=load(arg('--source',first.sourceFile)!,first.coordinateSpace==='metaflow-rz180');
     if(confirmed.sourceHash!==first.sourceHash)throw Error('Original source changed during review export');
-    save(resolve(output,'accepted.patch.json'),{version:1,protectionVersion:2,sourceHash:first.sourceHash,analysisHash:first.analysisHash,
+    save(resolve(output,`accepted.${hash(readFileSync(arg('--decisions')!)).slice(0,24)}.patch.json`),{version:1,protectionVersion:2,sourceHash:first.sourceHash,analysisHash:first.analysisHash,
         decisionHash:hash(readFileSync(arg('--decisions')!)),coordinateSpace:first.coordinateSpace,edits,nativeValidation:'pending',sourceModified:false});
     console.log(JSON.stringify({acceptedEdits:edits.length,sourceModified:false}));
 }else await analyze();

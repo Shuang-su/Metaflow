@@ -1,15 +1,16 @@
 import { defineConfig } from "vite";
+import { createHash } from "node:crypto";
+import { groundAnalysisHash } from "./src/ground-analysis-fingerprint";
+import { verifyGaussianJobSource } from "./src/verify-gaussian-source";
+import {
+  createOfflineResources,
+  DEFAULT_CACHE_ROOT,
+} from "./src/offline-resources";
+import exhibitionScenes from "../mf79-viewer-trial/scene-exhibitions.json";
 import { createRequire } from "node:module";
 import { fileURLToPath } from "node:url";
-import {
-  readFileSync,
-  createReadStream,
-  statSync,
-  mkdirSync,
-  writeFileSync,
-  statfsSync,
-} from "node:fs";
-import { resolve, relative, extname } from "node:path";
+import { readFileSync, createReadStream, statSync } from "node:fs";
+import { resolve, relative, extname, dirname } from "node:path";
 const project = fileURLToPath(new URL("..", import.meta.url));
 const sass = createRequire(import.meta.url)(
   resolve(project, "metaflow-viewer/node_modules/sass"),
@@ -17,6 +18,68 @@ const sass = createRequire(import.meta.url)(
 export default defineConfig({
   worker: { format: "es" },
   plugins: [
+    {
+      name: "mf97-review-context",
+      configureServer(server) {
+        server.middlewares.use((req, res, next) => {
+          if (req.url !== "/__mf97_review_context" || req.method !== "GET")
+            return next();
+          void (async () => {
+            try {
+              const sha = (b: Buffer) =>
+                createHash("sha256").update(b).digest("hex");
+              const scenes = [];
+              for (const scene of exhibitionScenes.scenes) {
+                const job = JSON.parse(
+                  readFileSync(
+                    resolve(
+                      "/Volumes/Prism/Metaflow/.codex-work/cache/mf97-navigation/jobs",
+                      `${scene.id}.json`,
+                    ),
+                    "utf8",
+                  ),
+                );
+                const file = resolve(
+                  "/Volumes/Prism_初号機/3D高斯",
+                  scene.collisionUrl.replace("/scene-assets/", ""),
+                );
+                const sourceHash =
+                  sha(readFileSync(file)) +
+                  ":" +
+                  sha(readFileSync(file.replace(/\.json$/, ".bin")));
+                if (sourceHash !== job.collisionHash)
+                  throw Error("Review source changed");
+                const gaussianProof = await verifyGaussianJobSource(
+                  job,
+                  dirname(
+                    resolve(
+                      "/Volumes/Prism_初号機/3D高斯",
+                      job.assetUrl.replace("/scene-assets/", ""),
+                    ),
+                  ),
+                );
+                scenes.push({
+                  id: scene.id,
+                  job,
+                  sourceHash,
+                  gaussianProof,
+                  collisionUrl: scene.collisionUrl,
+                  coverageUrl: `/mf97-ground/${scene.id}/coverage.json`,
+                });
+              }
+              res.setHeader("Content-Type", "application/json");
+              res.setHeader("Cache-Control", "no-store");
+              res.end(
+                JSON.stringify({ analysisHash: groundAnalysisHash(), scenes }),
+              );
+            } catch (error) {
+              res.statusCode = 409;
+              res.end(JSON.stringify({ error: String(error) }));
+            }
+          })();
+        });
+      },
+    },
     {
       name: "mf97-native-styles",
       resolveId(id) {
@@ -61,8 +124,7 @@ export default defineConfig({
           });
           req.on("end", () => {
             const data = Buffer.concat(chunks),
-              dir =
-                "/Volumes/Prism/Metaflow/.codex-work/cache/mf97-navigation/evidence";
+              dir = resolve(DEFAULT_CACHE_ROOT, "evidence");
             const png =
                 data.subarray(0, 8).toString("hex") === "89504e470d0a1a0a",
               jpeg = data.subarray(0, 3).toString("hex") === "ffd8ff";
@@ -72,15 +134,13 @@ export default defineConfig({
               return;
             }
             try {
-              mkdirSync(dir, { recursive: true });
-              const disk = statfsSync(dir);
-              if (disk.bavail * disk.bsize < 10 * 1024 ** 3)
-                throw Error("Disk reserve");
+              const resources = createOfflineResources();
+              resources.assertCapacity(data.length, "browser evidence");
               const path = resolve(
                 dir,
                 `viewer-${Date.now()}.${png ? "png" : "jpg"}`,
               );
-              writeFileSync(path, data);
+              resources.writeFileAtomic(path, data);
               res.setHeader("Content-Type", "application/json");
               res.end(JSON.stringify({ path }));
             } catch {
@@ -121,6 +181,12 @@ export default defineConfig({
             root =
               "/Volumes/Prism/Metaflow/.codex-work/cache/mf97-navigation/maps";
             part = pathname.slice("/mf97-maps/".length);
+          } else if (pathname.startsWith("/mf97-continuation-maps/")) {
+            root = resolve(DEFAULT_CACHE_ROOT, "maps");
+            part = pathname.slice("/mf97-continuation-maps/".length);
+          } else if (pathname.startsWith("/mf97-accepted/")) {
+            root = resolve(DEFAULT_CACHE_ROOT, "accepted");
+            part = pathname.slice("/mf97-accepted/".length);
           } else if (pathname.startsWith("/repository-data/")) {
             root = "/Volumes/Prism/Metaflow/data";
             part = pathname.slice("/repository-data/".length);
@@ -129,7 +195,8 @@ export default defineConfig({
             part = pathname.slice("/studio/".length) || "index.html";
           } else if (pathname.startsWith("/mf97-ground/")) {
             root =
-              "/Volumes/Prism/Metaflow/.codex-work/cache/mf97-navigation/ground";
+              process.env.MF97_GROUND_ROOT ??
+              resolve(DEFAULT_CACHE_ROOT, "ground-v2");
             part = pathname.slice("/mf97-ground/".length);
           } else return next();
           const p = resolve(root, part);

@@ -1,12 +1,9 @@
-import {
-  readFileSync,
-  createReadStream,
-  mkdirSync,
-  writeFileSync,
-  statfsSync,
-} from "node:fs";
+import { readFileSync } from "node:fs";
 import { resolve, dirname, relative } from "node:path";
 import { createHash } from "node:crypto";
+import { createOfflineResources, offlineResourceOptions } from "../src/offline-resources";
+import { verifyGaussianJobSource } from "../src/verify-gaussian-source";
+import { localAsset, sourceChild, mapOutput, collisionIdentity, hashFile } from "./gaussian-map-offline";
 import {
   Mat4,
   Vec3,
@@ -28,30 +25,11 @@ const scene = JSON.parse(readFileSync(sceneFile, "utf8")).scenes.find(
   (s: any) => s.id === sceneId,
 );
 if (!scene) throw new Error("Unknown map scene");
-const local = (url: string) => {
-  const roots = [
-    ["/scene-assets/", "/Volumes/Prism_初号機/3D高斯"],
-    ["/repository-data/", "/Volumes/Prism/Metaflow/data"],
-  ] as const;
-  const match = roots.find(([prefix]) => url.startsWith(prefix));
-  if (!match) throw new Error(`Unsupported read-only asset URL: ${url}`);
-  const path = resolve(
-    match[1],
-    decodeURIComponent(url.slice(match[0].length)),
-  );
-  if (relative(match[1], path).startsWith(".."))
-    throw new Error("Asset path escaped source root");
-  return path;
-};
-const output = resolve(
-  option("--output") ||
-    `/Volumes/Prism/Metaflow/.codex-work/cache/mf97-navigation/jobs/${sceneId}.json`,
-);
-mkdirSync(dirname(output), { recursive: true });
-const disk = statfsSync(dirname(output));
-if (disk.bavail * disk.bsize < 10 * 1024 ** 3)
-  throw new Error("Preserve 10 GiB disk reserve");
-const modelPath = local(scene.assetUrl),
+const resources = createOfflineResources(offlineResourceOptions(args));
+if (!/^[a-zA-Z0-9_-]+$/.test(sceneId)) throw Error("Invalid scene identity");
+const output = mapOutput(resources, option("--output") || `jobs/${sceneId}.json`);
+resources.assertCapacity(1024 * 1024, "Gaussian job preparation");
+const modelPath = localAsset(scene.assetUrl),
   manifestBytes = readFileSync(modelPath),
   model = JSON.parse(manifestBytes.toString());
 if (!Number.isInteger(model.lodLevels) || model.lodLevels < 1)
@@ -70,7 +48,7 @@ const visit = (node: any) => {
 visit(model.tree);
 const sources = new Set<string>([modelPath]);
 for (const index of fileIndices) {
-  const path = resolve(dirname(modelPath), model.filenames[index]);
+  const path = sourceChild(dirname(modelPath), model.filenames[index]);
   if (relative(dirname(modelPath), path).startsWith(".."))
     throw new Error("Gaussian source escaped source directory");
   sources.add(path);
@@ -80,7 +58,7 @@ for (const index of fileIndices) {
       if (!v || typeof v !== "object") return;
       if (Array.isArray(v.files))
         for (const file of v.files) {
-          const child = resolve(dirname(path), file);
+          const child = sourceChild(dirname(modelPath), relative(dirname(modelPath), resolve(dirname(path), file)));
           if (relative(dirname(modelPath), child).startsWith(".."))
             throw new Error("Gaussian texture escaped source directory");
           sources.add(child);
@@ -91,19 +69,17 @@ for (const index of fileIndices) {
     files(data);
   }
 }
-const hashFile = async (path: string) => {
-  const hash = createHash("sha256");
-  for await (const bytes of createReadStream(path)) hash.update(bytes);
-  return hash.digest("hex");
-};
 const inventory: { file: string; sha256: string }[] = [];
-for (const path of [...sources].sort())
+for (const path of [...sources].sort()) {
+  resources.assertCapacity(0, "Gaussian source hashing");
   inventory.push({
     file: relative(dirname(modelPath), path),
     sha256: await hashFile(path),
   });
-const collisionPath = local(scene.collisionUrl);
-const collisionHash = `${await hashFile(collisionPath)}:${await hashFile(collisionPath.replace(/\.json$/, ".bin"))}`;
+}
+const collisionPath = localAsset(scene.collisionUrl);
+const collision = await collisionIdentity(collisionPath, option("--collision-source"));
+const collisionHash = collision.hash;
 const outer = new Mat4().setTRS(
   new Vec3(
     scene.transform?.translation?.x ?? 0,
@@ -119,13 +95,14 @@ const outer = new Mat4().setTRS(
 );
 const visual = new Mat4().setTRS(
   new Vec3(),
-  new Quat().setFromEulerAngles(...(scene.visualRotation ?? [0, 0, 180])),
+  new Quat().setFromEulerAngles(...((scene.visualRotation ?? [0, 0, 180]) as [number, number, number])),
   new Vec3(1, 1, 1),
 );
 const transform = Array.from(new Mat4().mul2(outer, visual).data);
 const job: MapRenderJob & {
   sourceInventory: typeof inventory;
   layersProvenance: unknown;
+  collisionProvenance: typeof collision.provenance;
 } = {
   scene: sceneId,
   assetUrl: scene.assetUrl,
@@ -135,6 +112,7 @@ const job: MapRenderJob & {
     .update(JSON.stringify({ lod, inventory }))
     .digest("hex"),
   collisionHash,
+  collisionProvenance: collision.provenance,
   layers: JSON.parse(readFileSync(layersFile, "utf8")),
   tileMetres: 20.48,
   pixels: 512,
@@ -145,10 +123,12 @@ const job: MapRenderJob & {
     status: "reviewed-display-slices-not-navigation-connectivity",
   },
 };
-writeFileSync(output, JSON.stringify(job, null, 2));
+await verifyGaussianJobSource(job, dirname(modelPath));
+resources.writeJsonAtomic(output, job, { replace: false });
 console.log(
   JSON.stringify({
     output,
+    resources: resources.snapshot(),
     lod,
     sourceFiles: inventory.length,
     gaussianHash: job.gaussianHash,

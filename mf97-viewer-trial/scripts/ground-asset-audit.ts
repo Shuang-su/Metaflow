@@ -1,11 +1,13 @@
-import { readFileSync, writeFileSync, existsSync, statSync, statfsSync, openSync, readSync, closeSync } from 'node:fs';
+import { readFileSync, existsSync, statSync, openSync, readSync, closeSync } from 'node:fs';
 import { resolve, dirname } from 'node:path';
 import { createHash } from 'node:crypto';
 import { FlippedVoxelCollision } from '../../metaflow-viewer/src/collision/voxel-collision';
 import { solidColumn, type VoxelSource } from '../src/ground/spans';
-const base='/Volumes/Prism/Metaflow/data/Shenzhen/250917 Dayun',output='/Volumes/Prism/Metaflow/.codex-work/cache/mf97-navigation/ground';
+import { createOfflineResources, offlineResourceOptions } from '../src/offline-resources';
+const args=process.argv.slice(2),outputIndex=args.indexOf('--output'),resources=createOfflineResources(offlineResourceOptions(args));
+const base='/Volumes/Prism/Metaflow/data/Shenzhen/250917 Dayun',output=resources.resolveOutput(outputIndex<0?'ground-audits':args[outputIndex+1]);
 const hash=(v:Uint8Array|string)=>createHash('sha256').update(v).digest('hex');
-function save(name:string,v:unknown){const text=JSON.stringify(v),d=statfsSync(output);if(d.bavail*d.bsize-Buffer.byteLength(text)<10*1024**3)throw Error('10 GiB reserve');writeFileSync(resolve(output,name),text);}
+function save(name:string,v:unknown){resources.writeJsonAtomic(resolve(output,name),v,{replace:false});}
 
 function visualInventory(){
     const bytes=readFileSync(resolve(base,'lod-meta.json')),model=JSON.parse(bytes.toString()),missingMeta:any[]=[],invalidMetadata:any[]=[],missingAssets:string[]=[],lfsPointers:string[]=[];
@@ -69,4 +71,4 @@ function stairSamples(){
     const result={version:1,asset:'dayun',samples,sourceModified:false,confirmedStairConnections:0};save('dayun-stair-samples.json',result);
     console.log(JSON.stringify({...result,samples:samples.map(s=>({...s,stairCandidateCount:s.stairCandidates.length,stairCandidates:s.stairCandidates.slice(0,1)}))}));
 }
-visualInventory();stairSamples();
+resources.assertCapacity(0,'ground asset audit');visualInventory();stairSamples();
