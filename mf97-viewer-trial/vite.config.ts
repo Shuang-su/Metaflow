@@ -2,6 +2,7 @@ import { defineConfig } from "vite";
 import { createHash } from "node:crypto";
 import { groundAnalysisHash } from "./src/ground-analysis-fingerprint";
 import { verifyGaussianJobSource } from "./src/verify-gaussian-source";
+import { validateTrialBundle } from "./src/trial-bundle";
 import {
   createOfflineResources,
   DEFAULT_CACHE_ROOT,
@@ -170,7 +171,22 @@ export default defineConfig({
         server.middlewares.use((req, res, next) => {
           const pathname = decodeURIComponent((req.url ?? "").split("?")[0]);
           let root: string, part: string;
-          if (pathname.startsWith("/scene-assets/")) {
+          if (pathname.startsWith("/mf97-trial-bundles/")) {
+            const match = pathname.match(/^\/mf97-trial-bundles\/([a-f0-9]{24})\/(bundle\.json|navigation-manifest\.json|map-manifest\.json|nav\.bin|collision\.bin|nav-positions\.bin|nav-indices\.bin)$/);
+            if (!match) { res.statusCode = 404; res.end("Unknown trial asset"); return; }
+            try {
+              root = resolve(DEFAULT_CACHE_ROOT, "trial-bundles", match[1]);
+              const bundle = validateTrialBundle(JSON.parse(readFileSync(resolve(root, "bundle.json"), "utf8")), match[1], "apms-2026");
+              if (createHash("sha256").update(JSON.stringify(bundle.identity)).digest("hex").slice(0,24) !== match[1]) throw Error("Trial identity changed");
+              part = match[2];
+              if (part.endsWith(".bin")) {
+                const navigationRoot = resolve(DEFAULT_CACHE_ROOT, "navigation");
+                const directory = resolve(bundle.identity.inputs.navDirectory);
+                if (!directory.startsWith(navigationRoot + "/")) throw Error("Trial navigation escaped output root");
+                root = directory;
+              }
+            } catch { res.statusCode = 409; res.end("Trial asset identity unavailable"); return; }
+          } else if (pathname.startsWith("/scene-assets/")) {
             root = "/Volumes/Prism_初号機/3D高斯";
             part = pathname.slice("/scene-assets/".length);
           } else if (pathname.startsWith("/navigation/")) {
@@ -227,6 +243,14 @@ export default defineConfig({
           try {
             const st = statSync(p);
             if (!st.isFile()) throw Error();
+            if (pathname.startsWith("/mf97-accepted/")) {
+              const match = part.match(/^([a-f0-9]{24})\/walk\.voxel\.(json|bin)$/);
+              if (!match) throw Error("Unknown accepted collision asset");
+              const material = JSON.parse(readFileSync(resolve(root, match[1], "materialization.json"), "utf8"));
+              const expected = material.outputHash?.split(":")[match[2] === "json" ? 0 : 1];
+              if (material.complete !== true || createHash("sha256").update(readFileSync(p)).digest("hex") !== expected)
+                throw Error("Accepted collision source changed");
+            }
             if (
               pathname.startsWith("/navigation/") &&
               part.endsWith("/manifest.json")

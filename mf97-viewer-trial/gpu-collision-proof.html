@@ -1,0 +1,17 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <title>MF97 GPU 碰撞数据验收</title>
+  </head>
+  <body>
+    <h1>独立 GPU 碰撞数据验收</h1>
+    <p>
+      仅验证上传数据与局部体素占用查询；不替换默认 Viewer，不验证步行公式或
+      Recast。
+    </p>
+    <canvas id="gpu-proof" width="32" height="32"></canvas>
+    <pre id="status">等待测试任务。</pre>
+    <script type="module" src="./src/gpu-collision-proof.ts"></script>
+  </body>
+</html>

@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { readFileSync, writeFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { init, importNavMesh } from "recast-navigation";
-import { source, cache, sha } from "./source";
+import { source, assetDirectory, sha } from "./source";
 import { NativePlanner } from "../src/planner";
 import { NativeDriver } from "../src/native-motion";
 import {
@@ -14,8 +14,8 @@ const [id, ...args] = process.argv.slice(2),
   radius = args.includes("--radius=3") ? 3 : 2;
 const requested = args.filter((v) => !v.startsWith("--")).map(Number),
   s = source(id);
-const m = JSON.parse(readFileSync(resolve(cache, id, "manifest.json"), "utf8"));
-const bytes = readFileSync(resolve(cache, id, "nav.bin"));
+const m = JSON.parse(readFileSync(resolve(assetDirectory(id), "manifest.json"), "utf8"));
+const bytes = readFileSync(resolve(assetDirectory(id), "nav.bin"));
 assert.equal(sha(bytes), m.navHash);
 const mesh = importNavMesh(bytes).navMesh,
   p = new NativePlanner(mesh, s.space, m.fingerprint);

@@ -1,7 +1,7 @@
 import { readFileSync, writeFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { init, importNavMesh } from "recast-navigation";
-import { source, cache, sha } from "./source";
+import { source, assetDirectory, sha } from "./source";
 import { NativePlanner } from "../src/planner";
 import { NativeDriver, support, horizontal } from "../src/native-motion";
 const drain = <T>(g: Generator<unknown, T>): T => {
@@ -13,7 +13,7 @@ await init();
 const rows: any[] = [];
 for (const id of ["apms-2026", "sdi-2026"]) {
   const s = source(id),
-    dir = resolve(cache, id),
+    dir = assetDirectory(id),
     m = JSON.parse(readFileSync(resolve(dir, "manifest.json"), "utf8"));
   const bytes = readFileSync(resolve(dir, "nav.bin"));
   if (sha(bytes) !== m.navHash) throw Error("Fingerprint mismatch");

@@ -37,6 +37,14 @@ export const intersectsBounds = (a: Bounds, b: Bounds) =>
   (["x", "y", "z"] as const).every(
     (k) => a.min[k] < b.max[k] && a.max[k] > b.min[k],
   );
+const validBounds = (bounds: Bounds) =>
+  bounds &&
+  (["x", "y", "z"] as const).every(
+    (axis) =>
+      Number.isFinite(bounds.min?.[axis]) &&
+      Number.isFinite(bounds.max?.[axis]) &&
+      bounds.min[axis] < bounds.max[axis],
+  );
 export function rawToWorldBounds(
   raw: { min: number[]; max: number[] },
   transform: "identity" | "flipXY",
@@ -88,6 +96,14 @@ export async function loadCollisionSource(
   if (manifest.kind === "single" && manifest.tiles.length !== 1)
     throw Error("Single collision source needs exactly one tile");
   const requested = options.bounds ?? manifest.bounds;
+  if (
+    !validBounds(manifest.bounds) ||
+    !validBounds(requested) ||
+    manifest.tiles.some(
+      (tile) => !validBounds(tile.dataBounds) || !validBounds(tile.coreBounds),
+    )
+  )
+    throw Error("Invalid collision source bounds");
   const tiles = manifest.tiles.filter((t) =>
     intersectsBounds(t.dataBounds, requested),
   );

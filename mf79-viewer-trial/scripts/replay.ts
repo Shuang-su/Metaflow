@@ -1,5 +1,5 @@
 import { readFileSync, writeFileSync } from "node:fs";
-import { source, cache } from "./source";
+import { source, assetDirectory } from "./source";
 import { init, importNavMesh } from "recast-navigation";
 import { NativePlanner } from "../src/planner";
 import { NativeDriver, stand, horizontal, length } from "../src/native-motion";
@@ -17,7 +17,7 @@ const id = process.argv[2],
   );
 const rows: any[] = [];
 await init();
-const mesh = importNavMesh(readFileSync(`${cache}/${id}/nav.bin`)).navMesh,
+const mesh = importNavMesh(readFileSync(`${assetDirectory(id)}/nav.bin`)).navMesh,
   p = new NativePlanner(mesh, s.space, audit.asset);
 const drain = <T>(g: Generator<unknown, T>): T => {
   let r = g.next();

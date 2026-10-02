@@ -7,15 +7,22 @@ export const cache =
   "/Volumes/Prism/Metaflow/.codex-work/cache/mf79-native-viewer-v1";
 export const sha = (b: string | Uint8Array) =>
   createHash("sha256").update(b).digest("hex");
+/** Explicit offline replay inputs only; browser defaults and originals stay unchanged. */
+const replayAssets = process.env.MF79_REPLAY_ASSETS
+  ? JSON.parse(readFileSync(process.env.MF79_REPLAY_ASSETS, "utf8"))
+  : {};
+export const assetDirectory = (id: string): string =>
+  replayAssets[id]?.navigation ?? resolve(cache, id);
 export function source(id: string) {
   const scene = JSON.parse(
     readFileSync("scene-exhibitions.json", "utf8"),
   ).scenes.find((s: any) => s.id === id);
   if (!scene) throw Error("Unknown scene");
-  const file = resolve(
+  const originalFile = resolve(
     "/Volumes/Prism_初号機/3D高斯",
     scene.collisionUrl.replace("/scene-assets/", ""),
   );
+  const file = replayAssets[id]?.collision ?? originalFile;
   const bytes = readFileSync(file),
     meta = JSON.parse(bytes.toString()),
     binary = readFileSync(file.replace(/\.json$/, ".bin"));
@@ -43,6 +50,16 @@ export function source(id: string) {
   );
   const raw = JSON.parse(markerBytes.toString()),
     markers = id === "apms-2026" ? raw.experience.annotations : raw.annotations;
+  if (replayAssets[id]) {
+    const manifest = JSON.parse(readFileSync(resolve(assetDirectory(id), "manifest.json"), "utf8"));
+    if (manifest.status !== "complete" || manifest.scene !== id ||
+      manifest.sourceHash !== sha(bytes) + ":" + sha(binary) ||
+      manifest.collisionHash !== sha(binary) || manifest.markerHash !== sha(markerBytes) ||
+      JSON.stringify(manifest.meta) !== JSON.stringify(meta) ||
+      sha(readFileSync(resolve(assetDirectory(id), "collision.bin"))) !== sha(binary)) {
+      throw Error("Replay collision/navigation identity mismatch");
+    }
+  }
   return {
     scene,
     bounds,
@@ -60,4 +77,36 @@ export function resources(path: string) {
     throw Error("Resource reserve below 10 GiB");
   if (process.memoryUsage().rss > 1.5 * 1024 ** 3)
     throw Error("Working memory exceeds 1.5 GiB");
+}
+
+/** Read-only bounded query set for tiled scenes; no original source is copied or rewritten. */
+export async function collisionSourceFile(
+  file: string,
+  bounds?: import("../src/types").Bounds,
+) {
+  const { loadCollisionSource } = await import("../src/collision-source");
+  const manifest = JSON.parse(
+    readFileSync(file, "utf8"),
+  ) as import("../src/collision-source").CollisionSourceManifest;
+  const prefix = "/repository-data/";
+  const result = await loadCollisionSource(
+    manifest,
+    async (url, hash) => {
+      if (!url.startsWith(prefix))
+        throw Error(`Unsupported local collision URL: ${url}`);
+      const root = "/Volumes/Prism/Metaflow/data";
+      const path = resolve(root, decodeURIComponent(url.slice(prefix.length)));
+      if (!path.startsWith(root + "/"))
+        throw Error("Collision source path escaped data root");
+      const bytes = readFileSync(path);
+      if (sha(bytes) !== hash)
+        throw Error(`Source fingerprint mismatch: ${url}`);
+      return bytes.buffer.slice(
+        bytes.byteOffset,
+        bytes.byteOffset + bytes.byteLength,
+      );
+    },
+    { bounds },
+  );
+  return { manifest, ...result };
 }

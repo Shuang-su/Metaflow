@@ -83,6 +83,12 @@ test("single and tiled inputs use the same native collision query results, and r
     () => loadCollisionSource(manifest, async () => a.bytes, { maxBytes: 1 }),
     /partition/,
   );
+  const badBounds = structuredClone(manifest);
+  badBounds.tiles[0].dataBounds.max.x = NaN;
+  await assert.rejects(
+    () => loadCollisionSource(badBounds, async () => a.bytes),
+    /Invalid collision source bounds/,
+  );
   await assert.rejects(
     () =>
       loadCollisionSource(manifest, async (name) =>
@@ -167,6 +173,11 @@ test("adjacent tiled source preserves a real native walk across the seam", async
   assert.equal(
     replayNativePolyline(source.space.collision, wrongFloor).ok,
     false,
+  );
+  assert.equal(
+    replayNativePolyline(source.space.collision, points, (p) => p.x < 3.5)
+      .reason,
+    "known-coverage-missing",
   );
   source.destroy();
 });

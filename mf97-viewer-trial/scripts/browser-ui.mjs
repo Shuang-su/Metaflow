@@ -1,7 +1,9 @@
 import { chromium } from "../../metaflow-viewer/node_modules/@playwright/test/index.mjs";
 import { mkdirSync, writeFileSync } from "node:fs";
 const dir =
-  "/Volumes/Prism/Metaflow/.codex-work/cache/mf97-navigation/evidence";
+  (process.env.MF97_CACHE_ROOT ??
+    "/Volumes/Prism/Metaflow/.codex-work/cache/mf97-navigation/continuation-20261002") +
+  "/validation/ui";
 mkdirSync(dir, { recursive: true });
 const browser = await chromium.launch({
   headless: true,

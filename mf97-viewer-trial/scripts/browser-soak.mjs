@@ -1,11 +1,14 @@
 import { chromium } from "../../metaflow-viewer/node_modules/@playwright/test/index.mjs";
 import { mkdirSync, writeFileSync, statfsSync } from "node:fs";
 import { fileURLToPath } from "node:url";
-const output = fileURLToPath(
-  new URL("../../.codex-work/cache/mf97-soak/", import.meta.url),
-);
+const output =
+  (process.env.MF97_CACHE_ROOT ??
+    "/Volumes/Prism/Metaflow/.codex-work/cache/mf97-navigation/continuation-20261002") +
+  "/validation/soak/";
 mkdirSync(output, { recursive: true });
 const report = {
+  environment:
+    "Chrome headless native keyboard; stability run, not isolated performance or phone validation",
   durationTargetMs: 30 * 60 * 1000,
   errors: [],
   samples: [],
@@ -43,9 +46,9 @@ try {
   let index = 0;
   while (Date.now() - started < report.durationTargetMs) {
     const disk = statfsSync(output);
-    if (disk.bavail * disk.bsize < 512 * 1024 ** 2)
+    if (disk.bavail * disk.bsize < 5 * 1024 ** 3 + 16 * 1024 ** 2)
       throw Error(
-        "Internal volume below 512 MiB: stop only this browser resource test",
+        "Prism reserve below 5 GiB: preserve this browser resource test",
       );
     const goal = [35, 42, 31, 38, 41, 27, 13, 4][index % 8];
     if (await page.evaluate(() => window.mf97.viewer.state.gamingControls))
@@ -110,7 +113,8 @@ try {
   report.failure = error.message;
   process.exitCode = 1;
 } finally {
-  if (report.startedAt) report.elapsedMs ??= Date.now() - Date.parse(report.startedAt);
+  if (report.startedAt)
+    report.elapsedMs ??= Date.now() - Date.parse(report.startedAt);
   await browser.close();
   writeFileSync(`${output}soak.json`, JSON.stringify(report, null, 2));
   console.log(
