@@ -1414,6 +1414,8 @@
 .sse-viewer .sse-viewerBranding svg {
     width: 32px;
     height: 32px;
+    background-color: transparent;
+    filter: drop-shadow(0 2px 4px rgba(black, 0.3));
 }
 
 .sse-viewer {
