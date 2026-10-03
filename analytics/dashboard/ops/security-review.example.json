@@ -1,0 +1,16 @@
+{
+  "reviewed_at": null,
+  "host_persistence_reviewed": false,
+  "admins_sessions_keys_reviewed": false,
+  "firewalls_verified": false,
+  "offsite_backup_restore_verified": false,
+  "subscriptions_migrated_or_absent": false,
+  "metabase_patched": false,
+  "os_security_updates_verified": false,
+  "external_https_verified": false,
+  "approved_images": {
+    "metaflow-metabase": null,
+    "metaflow-metabase-db": null
+  },
+  "evidence_reference": null
+}

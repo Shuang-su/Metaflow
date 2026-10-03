@@ -1,0 +1,13 @@
+# MF-89: public dashboard/API are hosted outside mainland China.
+# Internal analysis only; SSH -L 18080:127.0.0.1:8080.
+http://127.0.0.1:8080 {
+	bind 127.0.0.1
+	handle_path /metaflow/* {
+		root * /data/dashboard-shell
+		try_files {path} {path}/ /index.html
+		file_server
+	}
+	handle {
+		reverse_proxy 127.0.0.1:3000
+	}
+}
