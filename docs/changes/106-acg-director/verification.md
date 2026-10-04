@@ -1,6 +1,6 @@
 # MF-106 验证记录
 
-当前为发布前验证；部署链接、最终产品 SHA 和观察窗口在完成后追加。原 MF-62 的光学研究验收保持独立。
+本文按时间保留候选、发布和补丁记录；旧段落中的“待执行”是当时状态。当前正式结果见末尾5.21.3生产记录，原MF-62的光学研究验收保持独立。
 
 ## 资源与构建
 
@@ -84,3 +84,16 @@
 - 5.21.2 tag保留其不可变构建历史，但该版本未部署生产；极矮窗口修正以5.21.3继续。原六视口验证、渲染与编码路径保持不变，最终生产输出和15分钟观察仍需实际执行。
 
 - 5.21.3产品PR #114已合并`a62e7531d711944ef18686e1befdb0e466ee9a6e`。[CI 37236018012](https://github.com/Shuang-su/Metaflow/actions/runs/37236018012)全部选中检查通过；合并前独立[预览](https://6ac2c4d7490adf56ca4b2adc--charming-salamander-fc1af0.netlify.app/acg/szcaf15/honkai_star_rail-tribbie/director)为ready（8 redirect/9 header），bundle与本地逐字节相同。实际场景128收敛，输出设置开启后顶部与摄影条均可见，无console error。Cursor当时无新增评论，不作为人工独立审查通过。
+
+## 5.21.3 正式生产记录
+
+- 产品SHA `a62e7531d711944ef18686e1befdb0e466ee9a6e`；[PR #115](https://github.com/Shuang-su/Metaflow/pull/115) 发布记录/正式tag `viewer-v5.21.3` 为 `a1a2afb90b3f8315a7fc14d7046ab41c5861d492`。[记录CI](https://github.com/Shuang-su/Metaflow/actions/runs/37236485438)通过。5.21.2保留tag但未生产部署。
+- 最终Netlify `6ac2c6d5e7c93618782656ec` 从已核验预览原样提升生产，2026-10-04T21:38:19.600Z发布；8 redirect/9 header。API生产指针、build.json、公开索引/历史和Director脚本字节核验来源，CLI部署的commit_ref为空，不冒称Git自动构建。
+- 最终100项resource对象与原远端基线逐项相同；未改主模型、环境、设置、资源schema和Editor。
+- 正式[缇宝Director](https://metaflow.shuang-su.com/acg/szcaf15/honkai_star_rail-tribbie/director)实际加载并128收敛；顶部完整、输出设置不挤压页面。PNG1920×1080/128为2621131字节，SHA256 `e46b45fa926bd48b7c2a6613b88f47605aa8615d2e5838eb94cf028d3a4b8324`，与同参数历史候选/生产照片一致。
+
+- 正式UI手工将结束机位yaw从-24°设为0°、光圈控制值13→100，保存机位并缩短为1秒后导出：1920×1080 H.264、30fps、30帧、1.000000秒，892066字节，SHA256 `10b70e0c92a05e1bc97e08dc71a17c0b6fb15e297cf52d774106b9344adfb9d8`。所有帧完整解码，已查看首/中/尾实际运动与焦外变化；不是重复编码同一静帧。
+- 页面截图、正式PNG、上述动态视频及对照图作为[5.21.3 Release附件](https://github.com/Shuang-su/Metaflow/releases/tag/viewer-v5.21.3)提供；5.21.0/.1的三档1080p、短4K及四转场原始附件单独保留，不改名冒充本版本重跑。
+
+- 生产观察自2026-10-04T21:38:39.112397Z开始，累计901.32秒、15轮，build.json、公开资源索引版本与Director/Viewer/Editor/脚本/WASM五类入口无回读错误。这不是对全站全部行为的无限期保证；实际浏览器刷新、拍照和动态输出分别核验，控制台无error。
+- 未通过/未验证继续保留：应用内浏览器4K H.264、Safari/Edge实际环境、全部编码组合与逐帧动画穷举、严格发丝/半透明/强前景及扫描残影；没有下载Edge。原主工作区HEAD `9bf6ac3db`及未跟踪目录未改。
