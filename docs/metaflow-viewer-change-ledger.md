@@ -445,3 +445,8 @@ The 2026-08-15 Viewer 5.19.2 release-record commit updated package/version/index
 - 5.21.2保留tag但未部署；后到审查与844×390实际对照确认摄影body无受限高度，滚轮不能带回底部控制条。
 - 摄影body使用100dvh高度，使已有overflow:auto形成滚动区域；PHOTO/VIDEO实际scrollTop=90、footer.bottom=348。普通Viewer及成像路径不变。
 - [PR #114](https://github.com/Shuang-su/Metaflow/pull/114)、[MF-106](https://github.com/Shuang-su/Metaflow/issues/106)；最终SHA、部署、照片/视频和观察在实际执行后追加，回退仍保留5.20.2。
+
+### `5.21.3` · `a62e7531d` · final product record
+
+- [PR #114](https://github.com/Shuang-su/Metaflow/pull/114)已合并`a62e7531d711944ef18686e1befdb0e466ee9a6e`；不可变rc1保留原始来源。当前镜像指向实际产品SHA。
+- [精确候选CI](https://github.com/Shuang-su/Metaflow/actions/runs/37236018012)成功；Netlify预览`6ac2c4d7490adf56ca4b2adc`实际加载缇宝/环境，128收敛；输出设置开启后header.top=18、footer.bottom=669、body.scrollTop=0，无console error。生产部署及观察另行追加实际结果。

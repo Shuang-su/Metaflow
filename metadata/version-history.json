@@ -1,14 +1,14 @@
 {
   "schemaVersion": "1.1",
   "cutoffGitRef": "c613a87",
-  "documentedThrough": "b958ec1b6",
+  "documentedThrough": "a62e7531d",
   "defaultResourceVersion": "1.0a",
   "current": {
     "displayVersion": "5.21.3",
     "appSemver": "5.21.3",
     "indexSchemaVersion": "1.2",
     "date": "2026-10-05",
-    "gitRef": "b958ec1b6",
+    "gitRef": "a62e7531d",
     "historyUrl": "/data/version-history.json",
     "upstream": {
       "repository": "playcanvas/supersplat-viewer",
@@ -210,6 +210,11 @@
       "gitRef": "64572c37d",
       "date": "2026-10-05",
       "summary": "MF-106 viewport/playhead implementation checkpoint preserved by viewer-v5.21.2-rc1; final product is PR112 squash"
+    },
+    {
+      "gitRef": "b958ec1b6",
+      "date": "2026-10-05",
+      "summary": "Unpublished MF-106 short-window source checkpoint preserved by viewer-v5.21.3-rc1; final product is PR #114 squash."
     }
   ],
   "entries": [
@@ -1629,7 +1634,7 @@
       "type": "fix",
       "scope": "viewer",
       "date": "2026-10-05",
-      "gitRef": "b958ec1b6",
+      "gitRef": "a62e7531d",
       "summary": "修复低于480px窗口中摄影控制条无法滚动到达的问题",
       "trace": {
         "changeId": "MF-106",

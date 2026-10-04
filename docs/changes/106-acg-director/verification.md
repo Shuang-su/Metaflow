@@ -82,3 +82,5 @@
 
 - PR #112 后到审查指出高度不足480px时body虽为auto overflow，但没有受限高度。844×390实际滚轮对照：旧body.clientHeight=480、scrollTop=0、footer.bottom=438，底部不可达；将摄影body高度约束为100dvh后，clientHeight=390、scrollTop=90、footer.bottom=348，PHOTO/VIDEO均能到达全部摄影控件。临时旧规则对照已恢复，未修改Viewer页面样式。
 - 5.21.2 tag保留其不可变构建历史，但该版本未部署生产；极矮窗口修正以5.21.3继续。原六视口验证、渲染与编码路径保持不变，最终生产输出和15分钟观察仍需实际执行。
+
+- 5.21.3产品PR #114已合并`a62e7531d711944ef18686e1befdb0e466ee9a6e`。[CI 37236018012](https://github.com/Shuang-su/Metaflow/actions/runs/37236018012)全部选中检查通过；合并前独立[预览](https://6ac2c4d7490adf56ca4b2adc--charming-salamander-fc1af0.netlify.app/acg/szcaf15/honkai_star_rail-tribbie/director)为ready（8 redirect/9 header），bundle与本地逐字节相同。实际场景128收敛，输出设置开启后顶部与摄影条均可见，无console error。Cursor当时无新增评论，不作为人工独立审查通过。
