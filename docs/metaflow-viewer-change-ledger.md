@@ -450,3 +450,11 @@ The 2026-08-15 Viewer 5.19.2 release-record commit updated package/version/index
 
 - [PR #114](https://github.com/Shuang-su/Metaflow/pull/114)已合并`a62e7531d711944ef18686e1befdb0e466ee9a6e`；不可变rc1保留原始来源。当前镜像指向实际产品SHA。
 - [精确候选CI](https://github.com/Shuang-su/Metaflow/actions/runs/37236018012)成功；Netlify预览`6ac2c4d7490adf56ca4b2adc`实际加载缇宝/环境，128收敛；输出设置开启后header.top=18、footer.bottom=669、body.scrollTop=0，无console error。生产部署及观察另行追加实际结果。
+
+### 5.21.3 production deployment · 2026-10-05
+
+- 产品`a62e7531d711944ef18686e1befdb0e466ee9a6e`，build/tag `a1a2afb90b3f8315a7fc14d7046ab41c5861d492`，PR #114/#115。5.21.2未部署，历史tag未改写。
+- Netlify `6ac2c6d5e7c93618782656ec` 于2026-10-04T21:38:19.600Z从已核验预览原样发布，8 redirect/9 header；生产指针与build.json/公开镜像/脚本字节回读一致。
+- 正式缇宝1080p/128 PNG与同状态候选文件SHA256相同；完整媒体及15分钟观察以[验证记录](changes/106-acg-director/verification.md)、[MF-106](https://github.com/Shuang-su/Metaflow/issues/106)和[Release](https://github.com/Shuang-su/Metaflow/releases/tag/viewer-v5.21.3)实际结果为准。
+
+- 5.21.3正式1秒1080p30 H.264为30帧，实际相机/光圈变化可见，全部解码。15分钟观察累计901.32秒、15轮，build.json、公开资源索引版本与Director/Viewer/Editor/脚本/WASM五类入口无回读错误。原始日志及媒体作为Release附件，历史光学/浏览器限制保持独立。
