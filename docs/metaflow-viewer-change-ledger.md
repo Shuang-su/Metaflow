@@ -434,3 +434,8 @@ The 2026-08-15 Viewer 5.19.2 release-record commit updated package/version/index
 - Director独立管理页面滚动；取景框按真实剩余容器宽高和比例适配，消除固定高度扣减遗漏与继承Viewer hidden body造成的顶部截断。
 - 编辑后播放位置限制到新时间线范围，单次撤销仍恢复镜头；不改渲染算法、孔径、导出尺寸、模型或路由。
 - 19项Director测试/类型/构建、六视口×两主题×两模式24组浏览器布局边界及实际缩短/撤销通过；来源[PR #112](https://github.com/Shuang-su/Metaflow/pull/112)、[MF-106](https://github.com/Shuang-su/Metaflow/issues/106)。正式合并、部署、观察后回填实际记录，回退目标仍为5.20.2。
+
+### `5.21.2` · `f8683e2a1` · final product record
+
+- PR #112 已合并为 `f8683e2a11e906d96e32d2aa8aeef20c78e8d697`。原始实现 `64572c37d` 通过 `viewer-v5.21.2-rc1` 保留；镜像指向最终合并产品。
+- [CI 37234909615](https://github.com/Shuang-su/Metaflow/actions/runs/37234909615) 全部选中检查成功。发布部署与15分钟观察在 MF-106 完成交付及 Release 回读，不由元数据提交提前宣布。
