@@ -1,14 +1,14 @@
 {
   "schemaVersion": "1.1",
   "cutoffGitRef": "c613a87",
-  "documentedThrough": "3f8ad1a3",
+  "documentedThrough": "bb7e8cd85",
   "defaultResourceVersion": "1.0a",
   "current": {
-    "displayVersion": "5.21.0",
-    "appSemver": "5.21.0",
+    "displayVersion": "5.21.1",
+    "appSemver": "5.21.1",
     "indexSchemaVersion": "1.2",
     "date": "2026-10-05",
-    "gitRef": "3f8ad1a3",
+    "gitRef": "bb7e8cd85",
     "historyUrl": "/data/version-history.json",
     "upstream": {
       "repository": "playcanvas/supersplat-viewer",
@@ -1570,6 +1570,24 @@
         "evidence": "docs/changes/106-acg-director/verification.md",
         "pullRequest": "https://github.com/Shuang-su/Metaflow/pull/107",
         "releaseTag": "viewer-v5.21.0"
+      }
+    },
+    {
+      "displayVersion": "5.21.1",
+      "appSemver": "5.21.1",
+      "type": "fix",
+      "scope": "viewer",
+      "date": "2026-10-05",
+      "gitRef": "bb7e8cd85",
+      "summary": "fix(director): serialize thumbnail, focus and export GPU work; restore end-of-timeline replay and bidirectional shot drops",
+      "trace": {
+        "changeId": "MF-106",
+        "issue": "https://github.com/Shuang-su/Metaflow/issues/106",
+        "spec": "docs/changes/106-acg-director/spec.md",
+        "plan": "docs/changes/106-acg-director/plan.md",
+        "evidence": "docs/changes/106-acg-director/verification.md",
+        "releaseTag": "viewer-v5.21.1",
+        "pullRequest": "https://github.com/Shuang-su/Metaflow/pull/109"
       }
     }
   ]

@@ -142,6 +142,7 @@ export function App() {
     animation = useRef<number | null>(null),
     composeIndex = useRef(0),
     abort = useRef<AbortController | null>(null),
+    thumbnailAbort = useRef<AbortController | null>(null),
     wheelTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const pointers = useRef(new Map<number, { x: number; y: number }>()),
     drag = useRef({ x: 0, y: 0, moved: false, pinch: false });
@@ -163,6 +164,17 @@ export function App() {
     ref.current = next;
     setSnapshot(next);
     setDirty(true);
+  };
+  const togglePlayback = () => {
+    const state = current.current;
+    if (!state.ready || state.busy) return;
+    if (
+      !state.playing &&
+      state.time >= totalDuration(ref.current.project.shots)
+    )
+      setTime(0);
+    setLive(false);
+    setPlaying(!state.playing);
   };
   const stopMotion = () => {
     intent.current++;
@@ -349,7 +361,7 @@ export function App() {
       offset = time;
     let id = 0;
     const tick = (now: number) => {
-      const t = offset + (now - start) / 1000,
+      const t = offset + Math.max(0, now - start) / 1000,
         end = totalDuration(ref.current.project.shots);
       setLive(false);
       if (t >= end) {
@@ -398,8 +410,7 @@ export function App() {
       }
       if (e.code === "Space" && mode === "video" && ready && !busy) {
         e.preventDefault();
-        setLive(false);
-        setPlaying((v) => !v);
+        togglePlayback();
       }
     };
     window.addEventListener("keydown", key);
@@ -613,7 +624,9 @@ export function App() {
     return true;
   };
   const save = async () => {
-    if (!runtime.current || busy) return;
+    if (!runtime.current || current.current.busy) return;
+    current.current.busy = true;
+    thumbnailAbort.current?.abort();
     stopMotion();
     setPanel(null);
     setBusy(true);
@@ -675,6 +688,7 @@ export function App() {
     } finally {
       await runtime.current?.stop();
       abort.current = null;
+      current.current.busy = false;
       setBusy(false);
       setProgress("");
       resume();
@@ -697,6 +711,7 @@ export function App() {
         .flatMap((s) => s.keys)
         .filter((k) => !thumbnails[k.id + JSON.stringify(k.pose)]);
     if (!pending.length) return;
+    thumbnailAbort.current = controller;
     const timer = setTimeout(
       () =>
         void (async () => {
@@ -734,6 +749,7 @@ export function App() {
     return () => {
       clearTimeout(timer);
       controller.abort();
+      if (thumbnailAbort.current === controller) thumbnailAbort.current = null;
     };
   }, [mode, ready, busy, playing, count, samples, project, pose]);
   const showPanel = (name: string) =>
@@ -930,11 +946,7 @@ export function App() {
             onSelect={(id, t) => seek(t, id)}
             onDeselect={() => setSelected("")}
             onTime={(t) => seek(t)}
-            onPlay={() => {
-              setLive(false);
-              if (time >= totalDuration(project.shots)) setTime(0);
-              setPlaying((v) => !v);
-            }}
+            onPlay={togglePlayback}
             onUpdate={(fn) => {
               const inGesture = !!gesture.current;
               if (!inGesture) begin();

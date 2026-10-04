@@ -23,6 +23,7 @@ import {
   totalDuration,
   poseAt,
   resizeShot,
+  moveShotBefore,
   uid,
   type Project,
   type Pose,
@@ -584,18 +585,12 @@ export function VideoTimeline(p: Props) {
                 onDragOver={(e) => e.preventDefault()}
                 onDrop={(e) => {
                   e.preventDefault();
+                  if (p.busy) return;
                   const id = e.dataTransfer.getData("director/shot");
                   if (id && id !== s.id)
-                    p.onUpdate((project) => {
-                      const from = project.shots.findIndex((s) => s.id === id),
-                        to = project.shots.findIndex((x) => x.id === s.id);
-                      if (from >= 0)
-                        project.shots.splice(
-                          to,
-                          0,
-                          project.shots.splice(from, 1)[0],
-                        );
-                    });
+                    p.onUpdate((project) =>
+                      moveShotBefore(project.shots, id, s.id),
+                    );
                 }}
                 onContextMenu={(e) => {
                   e.preventDefault();
