@@ -424,3 +424,13 @@ The 2026-08-15 Viewer 5.19.2 release-record commit updated package/version/index
 
 - PR #110 最终合并 SHA `da9c8b685722f2a6a0e00038f6a6187d9764cf49`，包含 PR #109 摄影独占捕获和随后前台恢复修复。`40821a3a1` 是未部署的中间候选，`4e1332c31` 原始修复由 `viewer-v5.21.1-rc2` 保留；公开镜像统一指向最终产品。
 - [最终代码 CI](https://github.com/Shuang-su/Metaflow/actions/runs/37232914202) 全部选中检查通过；Director 19 项，Viewer 144 项。修复后真实 GPU、四转场31帧和三档短4K结果见验证记录。正式 tag/部署/观察以 MF-106 完成交付及 Release 为准；此记录本身不提前证明部署完成。
+
+### 5.21.1 production observation
+
+- `6ac2bbafa8e6de8cf74b1a6b` 已于2026-10-04T20:51:10.133Z提升生产；build/tag `26b4c7df4`，产品 `da9c8b685`。缇宝PNG像素/文件不变；1秒30帧1080p动态输出完整解码。15分钟末次采样900.01秒，版本和五类入口无错误。之后确认的顶部裁切/时长显示问题作为下一补丁记录，观察通过不覆盖它们。
+
+## `5.21.2` · `64572c37d` · MF-106 摄影窗口边界修复
+
+- Director独立管理页面滚动；取景框按真实剩余容器宽高和比例适配，消除固定高度扣减遗漏与继承Viewer hidden body造成的顶部截断。
+- 编辑后播放位置限制到新时间线范围，单次撤销仍恢复镜头；不改渲染算法、孔径、导出尺寸、模型或路由。
+- 19项Director测试/类型/构建、六视口×两主题×两模式24组浏览器布局边界及实际缩短/撤销通过；来源[PR #112](https://github.com/Shuang-su/Metaflow/pull/112)、[MF-106](https://github.com/Shuang-su/Metaflow/issues/106)。正式合并、部署、观察后回填实际记录，回退目标仍为5.20.2。
