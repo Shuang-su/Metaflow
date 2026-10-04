@@ -406,7 +406,7 @@ The 2026-08-15 Viewer 5.19.2 release-record commit updated package/version/index
 - Netlify `6ac2ab491ff6a2cb0c842ec9` 从已验证预览原样提升到生产，2026-10-04T19:40:42.393Z 发布，8 redirect / 9 header。手动上传的 Netlify commit_ref 为空；实际 source SHA 通过同包 `/build.json`、源码 tag 和公开版本镜像联合核验，未声称由 Netlify Git 构建完成。
 - 正式页面已实际输出 1080p PNG，与相同状态的发布前 PNG 字节一致；真实相机旋转/光圈变化的 1 秒 1080p30 H.264 完成 30 帧并全部解码。完整观察、更多输出及限制见 [验证记录](changes/106-acg-director/verification.md) 和 MF-106。
 
-## `5.21.1` · `bb7e8cd85` · MF-106 摄影输出竞争修复
+## `5.21.1` · `40821a3a1` · MF-106 摄影输出竞争修复
 
 - 动机：缩略图和导出可以同时修改同一孔径缓冲；时间轴末尾空格不能重播，前向拖放的插入索引偏移。
 - 实现：捕获与清晰拾取串行拥有相机、累积、合成到读回全过程；导出立即取消缩略图，排队预览保留最新值；关闭排队工作后释放资源。播放按钮/空格共用起播逻辑，重排按目标前插入。
@@ -415,3 +415,5 @@ The 2026-08-15 Viewer 5.19.2 release-record commit updated package/version/index
 - 来源：[MF-106](https://github.com/Shuang-su/Metaflow/issues/106)，回退仍可使用 5.20.2 `6abff1e18f35b1dc30992f92`，不将存在竞争问题的 5.21.0 作为优先回退。
 
 - 补丁 [PR #109](https://github.com/Shuang-su/Metaflow/pull/109)；首轮治理校验指出发布记录缺少刚创建的 PR 链接，补全后重跑。其余选中检查已通过。
+
+- PR #109 已合并为 `40821a3a1cf98d1e2423e5cd3b3633f1e54f640d`；候选原始历史通过 `viewer-v5.21.1-rc1` 保留，当前镜像回填实际产品 SHA。后续部署及观察以 MF-106 完成交付为准。

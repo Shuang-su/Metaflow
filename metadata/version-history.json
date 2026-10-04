@@ -1,14 +1,14 @@
 {
   "schemaVersion": "1.1",
   "cutoffGitRef": "c613a87",
-  "documentedThrough": "bb7e8cd85",
+  "documentedThrough": "40821a3a1",
   "defaultResourceVersion": "1.0a",
   "current": {
     "displayVersion": "5.21.1",
     "appSemver": "5.21.1",
     "indexSchemaVersion": "1.2",
     "date": "2026-10-05",
-    "gitRef": "bb7e8cd85",
+    "gitRef": "40821a3a1",
     "historyUrl": "/data/version-history.json",
     "upstream": {
       "repository": "playcanvas/supersplat-viewer",
@@ -1578,7 +1578,7 @@
       "type": "fix",
       "scope": "viewer",
       "date": "2026-10-05",
-      "gitRef": "bb7e8cd85",
+      "gitRef": "40821a3a1",
       "summary": "fix(director): serialize thumbnail, focus and export GPU work; restore end-of-timeline replay and bidirectional shot drops",
       "trace": {
         "changeId": "MF-106",
