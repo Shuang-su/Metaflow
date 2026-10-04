@@ -419,3 +419,8 @@ The 2026-08-15 Viewer 5.19.2 release-record commit updated package/version/index
 - PR #109 已合并为 `40821a3a1cf98d1e2423e5cd3b3633f1e54f640d`；候选原始历史通过 `viewer-v5.21.1-rc1` 保留，当前镜像回填实际产品 SHA。后续部署及观察以 MF-106 完成交付为准。
 
 - `4e1332c31` 为尚未部署的 5.21.1 前台恢复修复 checkpoint：旧 stop 不再取消较新的 request，新增第 19 项竞争测试。并入 [PR #110](https://github.com/Shuang-su/Metaflow/pull/110)，版本记录保持实际来源链，不将它作为独立已发布版本。
+
+### `5.21.1` · `da9c8b685` · final product record
+
+- PR #110 最终合并 SHA `da9c8b685722f2a6a0e00038f6a6187d9764cf49`，包含 PR #109 摄影独占捕获和随后前台恢复修复。`40821a3a1` 是未部署的中间候选，`4e1332c31` 原始修复由 `viewer-v5.21.1-rc2` 保留；公开镜像统一指向最终产品。
+- [最终代码 CI](https://github.com/Shuang-su/Metaflow/actions/runs/37232914202) 全部选中检查通过；Director 19 项，Viewer 144 项。修复后真实 GPU、四转场31帧和三档短4K结果见验证记录。正式 tag/部署/观察以 MF-106 完成交付及 Release 为准；此记录本身不提前证明部署完成。

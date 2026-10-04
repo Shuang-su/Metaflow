@@ -1,14 +1,14 @@
 {
   "schemaVersion": "1.1",
   "cutoffGitRef": "c613a87",
-  "documentedThrough": "40821a3a1",
+  "documentedThrough": "da9c8b685",
   "defaultResourceVersion": "1.0a",
   "current": {
     "displayVersion": "5.21.1",
     "appSemver": "5.21.1",
     "indexSchemaVersion": "1.2",
     "date": "2026-10-05",
-    "gitRef": "40821a3a1",
+    "gitRef": "da9c8b685",
     "historyUrl": "/data/version-history.json",
     "upstream": {
       "repository": "playcanvas/supersplat-viewer",
@@ -200,6 +200,11 @@
       "gitRef": "4e1332c31",
       "date": "2026-10-05",
       "summary": "MF-106 unpublished 5.21.1 foreground-recovery fix and race regression; final product is recorded after PR110 merge"
+    },
+    {
+      "gitRef": "40821a3a1",
+      "date": "2026-10-05",
+      "summary": "MF-106 unpublished 5.21.1 intermediate product from PR109; foreground recovery completed in final PR110 product"
     }
   ],
   "entries": [
@@ -1583,8 +1588,8 @@
       "type": "fix",
       "scope": "viewer",
       "date": "2026-10-05",
-      "gitRef": "40821a3a1",
-      "summary": "fix(director): serialize thumbnail, focus and export GPU work; restore end-of-timeline replay and bidirectional shot drops",
+      "gitRef": "da9c8b685",
+      "summary": "修复 Director 缩略图与导出共享渲染缓冲的竞争、前台恢复和时间轴播放重排边界",
       "trace": {
         "changeId": "MF-106",
         "issue": "https://github.com/Shuang-su/Metaflow/issues/106",
@@ -1592,7 +1597,7 @@
         "plan": "docs/changes/106-acg-director/plan.md",
         "evidence": "docs/changes/106-acg-director/verification.md",
         "releaseTag": "viewer-v5.21.1",
-        "pullRequest": "https://github.com/Shuang-su/Metaflow/pull/109"
+        "pullRequest": "https://github.com/Shuang-su/Metaflow/pull/110"
       }
     }
   ]
