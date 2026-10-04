@@ -1,14 +1,14 @@
 {
   "schemaVersion": "1.1",
   "cutoffGitRef": "c613a87",
-  "documentedThrough": "64572c37d",
+  "documentedThrough": "f8683e2a1",
   "defaultResourceVersion": "1.0a",
   "current": {
     "displayVersion": "5.21.2",
     "appSemver": "5.21.2",
     "indexSchemaVersion": "1.2",
     "date": "2026-10-05",
-    "gitRef": "64572c37d",
+    "gitRef": "f8683e2a1",
     "historyUrl": "/data/version-history.json",
     "upstream": {
       "repository": "playcanvas/supersplat-viewer",
@@ -205,6 +205,11 @@
       "gitRef": "40821a3a1",
       "date": "2026-10-05",
       "summary": "MF-106 unpublished 5.21.1 intermediate product from PR109; foreground recovery completed in final PR110 product"
+    },
+    {
+      "gitRef": "64572c37d",
+      "date": "2026-10-05",
+      "summary": "MF-106 viewport/playhead implementation checkpoint preserved by viewer-v5.21.2-rc1; final product is PR112 squash"
     }
   ],
   "entries": [
@@ -1606,7 +1611,7 @@
       "type": "fix",
       "scope": "viewer",
       "date": "2026-10-05",
-      "gitRef": "64572c37d",
+      "gitRef": "f8683e2a1",
       "summary": "修复 Director 摄影条聚焦导致顶部截断，以及缩短镜头后的播放头范围",
       "trace": {
         "changeId": "MF-106",
