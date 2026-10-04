@@ -163,6 +163,7 @@ export function App() {
   const commit = (next: Snapshot) => {
     ref.current = next;
     setSnapshot(next);
+    setTime((t) => clamp(t, 0, totalDuration(next.project.shots)));
     setDirty(true);
   };
   const togglePlayback = () => {
@@ -824,7 +825,7 @@ export function App() {
           className="view-fit"
           style={{
             aspectRatio: project.aspect.replace(":", " / "),
-            width: `min(100%,calc((100dvh - ${mode === "video" ? (compact ? "490px" : "420px") : compact ? "330px" : "250px"}) * ${a / b}))`,
+            width: `min(100cqw, calc(100cqh * ${a / b}))`,
           }}
           ref={stage}
           onPointerDown={pointerDown}

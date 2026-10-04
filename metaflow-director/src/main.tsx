@@ -9,4 +9,5 @@ if (!root) {
   document.body.appendChild(root);
 }
 document.title = "Metaflow · Director 实验版";
+document.body.classList.add("director-page");
 createRoot(root).render(<App />);
