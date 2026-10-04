@@ -195,6 +195,11 @@
       "gitRef": "103afad3",
       "date": "2026-10-05",
       "summary": "MF-106 pre-squash implementation preserved by viewer-v5.21.0-rc1; released through PR107 product commit"
+    },
+    {
+      "gitRef": "4e1332c31",
+      "date": "2026-10-05",
+      "summary": "MF-106 unpublished 5.21.1 foreground-recovery fix and race regression; final product is recorded after PR110 merge"
     }
   ],
   "entries": [

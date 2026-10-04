@@ -417,3 +417,5 @@ The 2026-08-15 Viewer 5.19.2 release-record commit updated package/version/index
 - 补丁 [PR #109](https://github.com/Shuang-su/Metaflow/pull/109)；首轮治理校验指出发布记录缺少刚创建的 PR 链接，补全后重跑。其余选中检查已通过。
 
 - PR #109 已合并为 `40821a3a1cf98d1e2423e5cd3b3633f1e54f640d`；候选原始历史通过 `viewer-v5.21.1-rc1` 保留，当前镜像回填实际产品 SHA。后续部署及观察以 MF-106 完成交付为准。
+
+- `4e1332c31` 为尚未部署的 5.21.1 前台恢复修复 checkpoint：旧 stop 不再取消较新的 request，新增第 19 项竞争测试。并入 [PR #110](https://github.com/Shuang-su/Metaflow/pull/110)，版本记录保持实际来源链，不将它作为独立已发布版本。
