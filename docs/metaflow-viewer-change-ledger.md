@@ -392,3 +392,8 @@ The 2026-08-15 Viewer 5.19.2 release-record commit updated package/version/index
 - 构建：仅暂存登记的资源，拒绝 LFS 指针；修复现行 PR Completion Contract 被旧 manifest 强制规则误拒绝的问题，保留旧档案成对及路径校验。
 - 发布状态：候选；最终 squash SHA、生产部署及观察结果在执行后追加。本段不表示已经上线。
 - 回退：此前 5.20.2 deployment `6abff1e18f35b1dc30992f92`，回退追加事实记录，不改写资源和历史。
+
+### 5.21.0 candidate support checkpoints
+
+- `9771f006`：未发布的版本准备与许可文件尾部空行修正。
+- `725527788`：未发布的键盘调焦撤销修复；相机数值与 forward-version 回归夹具修正。最终上线前仍按实际合并 SHA 和部署核验。

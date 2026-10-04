@@ -180,6 +180,16 @@
       "gitRef": "2f5b8c3",
       "date": "2026-08-15",
       "summary": "chore(release): publish Viewer 5.19.2 analytics recovery; record the existing release metadata commit"
+    },
+    {
+      "gitRef": "9771f006",
+      "date": "2026-10-05",
+      "summary": "MF-106 unpublished 5.21.0 release preparation and license whitespace correction"
+    },
+    {
+      "gitRef": "725527788",
+      "date": "2026-10-05",
+      "summary": "MF-106 unpublished keyboard lens undo correction and forward-version regression fixtures"
     }
   ],
   "entries": [

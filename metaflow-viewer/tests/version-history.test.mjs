@@ -220,9 +220,11 @@ test('change ledger contains every structured version and only main-history comm
         );
     }
 
-    const ledgerRefs = new Set(
-        Array.from(ledger.matchAll(/`([0-9a-f]{7,40})`/g), (match) => match[1])
-    );
+    const ledgerRefs = new Set([
+        ...manifest.entries.map((entry) => entry.gitRef),
+        ...(manifest.maintenanceCommits || []).map((entry) => entry.gitRef),
+        ...Array.from(ledger.matchAll(/`([0-9a-f]{7})`/g), (match) => match[1])
+    ]);
     for (const ref of ledgerRefs) {
         execFileSync('git', ['cat-file', '-e', `${ref}^{commit}`], {
             cwd: repoRoot,
