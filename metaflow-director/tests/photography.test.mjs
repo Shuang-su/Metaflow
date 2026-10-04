@@ -121,3 +121,25 @@ test("a stalled codec fails with an explicit timeout and releases its resources"
   );
   assert.equal(closed, 1);
 });
+
+test("shot drops insert before the target in both directions without losing keys", () => {
+  const make = () =>
+    ["a", "b", "c", "d"].map((id) => ({ id, keys: [{ id: id + "-key" }] }));
+  const forward = make();
+  model.moveShotBefore(forward, "a", "d");
+  assert.deepEqual(
+    forward.map((s) => s.id),
+    ["b", "c", "a", "d"],
+  );
+  assert.equal(forward[2].keys[0].id, "a-key");
+  model.moveShotBefore(forward, "d", "b");
+  assert.deepEqual(
+    forward.map((s) => s.id),
+    ["d", "b", "c", "a"],
+  );
+  const copy = structuredClone(forward);
+  model.moveShotBefore(forward, "missing", "a");
+  model.moveShotBefore(forward, "a", "missing");
+  model.moveShotBefore(forward, "c", "c");
+  assert.deepEqual(forward, copy);
+});

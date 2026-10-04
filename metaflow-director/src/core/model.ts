@@ -395,3 +395,12 @@ export function frameToSceneUV(
     v = (y * height - margin) / h;
   return u >= 0 && u <= 1 && v >= 0 && v <= 1 ? [u, v] : null;
 }
+
+/** A drop targets the gap immediately before the target shot in either direction. */
+export function moveShotBefore(shots: Shot[], id: string, target: string) {
+  const from = shots.findIndex((shot) => shot.id === id);
+  const to = shots.findIndex((shot) => shot.id === target);
+  if (from < 0 || to < 0 || from === to) return;
+  const [shot] = shots.splice(from, 1);
+  shots.splice(to - (from < to ? 1 : 0), 0, shot);
+}

@@ -399,3 +399,9 @@ The 2026-08-15 Viewer 5.19.2 release-record commit updated package/version/index
 - `725527788`：未发布的键盘调焦撤销修复；相机数值与 forward-version 回归夹具修正。最终上线前仍按实际合并 SHA 和部署核验。
 
 - `103afad3` 为合并前实现 checkpoint，连同候选修复通过 `viewer-v5.21.0-rc1` 保存；正式产品以 PR #107 的 squash SHA 为准。
+
+### 5.21.0 production deployment · 2026-10-05
+
+- PR #107 产品提交为 `3f8ad1a3696e82260e148587d74dc65a56ef1607`；PR #108 发布记录与 `viewer-v5.21.0` 对应 `a1c677486cc243f20aa0ecb36f3f10942fcd34c5`。
+- Netlify `6ac2ab491ff6a2cb0c842ec9` 从已验证预览原样提升到生产，2026-10-04T19:40:42.393Z 发布，8 redirect / 9 header。手动上传的 Netlify commit_ref 为空；实际 source SHA 通过同包 `/build.json`、源码 tag 和公开版本镜像联合核验，未声称由 Netlify Git 构建完成。
+- 正式页面已实际输出 1080p PNG，与相同状态的发布前 PNG 字节一致；真实相机旋转/光圈变化的 1 秒 1080p30 H.264 完成 30 帧并全部解码。完整观察、更多输出及限制见 [验证记录](changes/106-acg-director/verification.md) 和 MF-106。

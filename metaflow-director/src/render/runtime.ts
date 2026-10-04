@@ -1,6 +1,7 @@
 import { CandidateSession, type Pose as RenderPose } from "./session";
 import { AperturePreview } from "./aperture-preview";
 import { SharedGpuCompositor } from "./gpu-compositor";
+import { OperationQueue } from "../core/operation-queue";
 import {
   evaluate,
   type Project,
@@ -27,6 +28,8 @@ export class ResourceRuntime {
   scheduler: AperturePreview<FrameState>;
   displayed: FrameState | null = null;
   disposed = false;
+  private readonly operations = new OperationQueue();
+  private pendingPreview: FrameState | null = null;
   private constructor(
     primary: CandidateSession,
     onDisplay: (s: FrameState, count: number) => void,
@@ -121,13 +124,40 @@ export class ResourceRuntime {
     );
   }
   request(s: FrameState) {
-    if (!this.disposed) this.scheduler.request(s);
+    if (this.disposed) return;
+    if (this.operations.busy) this.pendingPreview = structuredClone(s);
+    else this.scheduler.request(s);
   }
   async stop() {
+    this.pendingPreview = null;
+    await this.operations.settled();
+    await this.stopPreview();
+  }
+  private async stopPreview() {
     this.scheduler.cancel();
     await this.scheduler.settled();
     await this.primary.settled();
     await this.secondary.settled();
+  }
+  private assertActive(signal?: AbortSignal) {
+    signal?.throwIfAborted();
+    if (this.disposed) throw new DOMException("摄影会话已释放", "AbortError");
+  }
+  private async exclusive<T>(work: () => Promise<T>, signal?: AbortSignal) {
+    try {
+      return await this.operations.run(async () => {
+        this.assertActive(signal);
+        await this.stopPreview();
+        this.assertActive(signal);
+        return work();
+      });
+    } finally {
+      if (!this.operations.busy && this.pendingPreview && !this.disposed) {
+        const latest = this.pendingPreview;
+        this.pendingPreview = null;
+        this.request(latest);
+      }
+    }
   }
   private async compose(s: FrameState, gpu: SharedGpuCompositor) {
     const state = this.state(s),
@@ -194,42 +224,44 @@ export class ResourceRuntime {
     signal: AbortSignal,
     progress?: (n: number) => void,
   ) {
-    await this.stop();
-    const state = this.state(s);
-    this.primary.cancel();
-    this.secondary.cancel();
-    for (let n = 0; n < s.samples; n += 4) {
-      signal.throwIfAborted();
-      await this.primary.advance(
-        camera(state.pose),
-        s.width,
-        s.height,
-        4,
-        false,
-        signal,
-      );
-      if (state.previousPose)
-        await this.secondary.advance(
-          camera(state.previousPose),
+    return this.exclusive(async () => {
+      const state = this.state(s);
+      this.primary.cancel();
+      this.secondary.cancel();
+      for (let n = 0; n < s.samples; n += 4) {
+        this.assertActive(signal);
+        await this.primary.advance(
+          camera(state.pose),
           s.width,
           s.height,
           4,
           false,
           signal,
         );
-      progress?.((n + 4) / s.samples);
-      await new Promise((resolve) => setTimeout(resolve, 0));
-    }
-    signal.throwIfAborted();
-    await this.compose(s, this.output);
-    return this.output.snapshot();
+        if (state.previousPose)
+          await this.secondary.advance(
+            camera(state.previousPose),
+            s.width,
+            s.height,
+            4,
+            false,
+            signal,
+          );
+        progress?.((n + 4) / s.samples);
+        await new Promise((resolve) => setTimeout(resolve, 0));
+      }
+      this.assertActive(signal);
+      await this.compose(s, this.output);
+      return this.output.snapshot();
+    }, signal);
   }
   async pick(x: number, y: number) {
     const s = this.displayed;
     if (!s) return null;
-    await this.stop();
-    this.primary.pose = camera(this.state(s).pose);
-    return this.primary.pick(x, y);
+    return this.exclusive(async () => {
+      this.primary.pose = camera(this.state(s).pose);
+      return this.primary.pick(x, y);
+    });
   }
   async dispose() {
     this.disposed = true;
