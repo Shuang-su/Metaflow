@@ -30,6 +30,7 @@ export class ResourceRuntime {
   disposed = false;
   private readonly operations = new OperationQueue();
   private pendingPreview: FrameState | null = null;
+  private requestVersion = 0;
   private constructor(
     primary: CandidateSession,
     onDisplay: (s: FrameState, count: number) => void,
@@ -125,13 +126,16 @@ export class ResourceRuntime {
   }
   request(s: FrameState) {
     if (this.disposed) return;
+    this.requestVersion++;
     if (this.operations.busy) this.pendingPreview = structuredClone(s);
     else this.scheduler.request(s);
   }
   async stop() {
+    const version = this.requestVersion;
     this.pendingPreview = null;
     await this.operations.settled();
-    await this.stopPreview();
+    // A foreground request may supersede a tab-hide stop while capture drains.
+    if (version === this.requestVersion) await this.stopPreview();
   }
   private async stopPreview() {
     this.scheduler.cancel();
