@@ -1,14 +1,14 @@
 {
   "schemaVersion": "1.1",
   "cutoffGitRef": "c613a87",
-  "documentedThrough": "f8683e2a1",
+  "documentedThrough": "b958ec1b6",
   "defaultResourceVersion": "1.0a",
   "current": {
-    "displayVersion": "5.21.2",
-    "appSemver": "5.21.2",
+    "displayVersion": "5.21.3",
+    "appSemver": "5.21.3",
     "indexSchemaVersion": "1.2",
     "date": "2026-10-05",
-    "gitRef": "f8683e2a1",
+    "gitRef": "b958ec1b6",
     "historyUrl": "/data/version-history.json",
     "upstream": {
       "repository": "playcanvas/supersplat-viewer",
@@ -1621,6 +1621,24 @@
         "evidence": "docs/changes/106-acg-director/verification.md",
         "releaseTag": "viewer-v5.21.2",
         "pullRequest": "https://github.com/Shuang-su/Metaflow/pull/112"
+      }
+    },
+    {
+      "displayVersion": "5.21.3",
+      "appSemver": "5.21.3",
+      "type": "fix",
+      "scope": "viewer",
+      "date": "2026-10-05",
+      "gitRef": "b958ec1b6",
+      "summary": "修复低于480px窗口中摄影控制条无法滚动到达的问题",
+      "trace": {
+        "changeId": "MF-106",
+        "issue": "https://github.com/Shuang-su/Metaflow/issues/106",
+        "spec": "docs/changes/106-acg-director/spec.md",
+        "plan": "docs/changes/106-acg-director/plan.md",
+        "evidence": "docs/changes/106-acg-director/verification.md",
+        "releaseTag": "viewer-v5.21.3",
+        "pullRequest": "https://github.com/Shuang-su/Metaflow/pull/114"
       }
     }
   ]
