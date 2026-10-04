@@ -31,3 +31,9 @@
 - 390×844 窄屏、1280×720 桌面及明暗主题、PHOTO/VIDEO 无水平溢出。AF 点击场景转 MF、pinch 同步 Zoom、手动无穷远及四种转场选项已操作。修正键盘调焦没有独立撤销记录的问题，单次撤销已恢复原焦距；未将选项点击等同于全部转场导出矩阵通过。
 - Netlify CLI 27.10.2 对嵌套 worktree 的配置发现误读原工作区；使用只包含本候选已提交 netlify.toml 的独立稀疏 clone 执行发布（模型仍引用既有 staging）。正确预览 `6ac2a62d2fd4d3c1a2b89651` 已核验 8 条路由和 8 条响应头，真实加载缇宝主模型/环境，无本机请求、无 Viewer 引擎先启动。最终版本追加版本历史镜像 revalidate 响应头。
 - 远端第二轮 Director 12 项通过，Viewer 发布断言发现测试中的固定未来版本与 5.21.0 重合、只支持 7 位 Git 引用和陈旧当前版本。修订为按当前版本派生 future case、支持真实引用长度，并保留产品提交/发布记录检查；候选支撑提交按现有 maintenanceCommits 登记。
+
+## 合并与最终候选
+
+- 最终候选 `693b427d97c78a27dfaabb32ff4ab0f13ae8d11b` 的远端 [工作流](https://github.com/Shuang-su/Metaflow/actions/runs/37228132257) 完成全部选中检查：Viewer dev/build E2E、Director 类型/构建/测试、Editor、数据、发布配置、治理、文档及 CodeQL。
+- 最终 [预览](https://6ac2a922f897d9396cea5f5f--charming-salamander-fc1af0.netlify.app/acg/szcaf15/honkai_star_rail-tribbie/director) 为 ready，8 redirect / 9 header，build.json 对应候选；真实缇宝画面完成 128/128。非 ACG 和流式页面有明确拒绝信息。
+- PR #107 已于 2026-10-04T19:32:27Z 合并，产品 SHA `3f8ad1a3696e82260e148587d74dc65a56ef1607`。不可变 `viewer-v5.21.0-rc1` 保存候选原始提交，正式记录回填合并 SHA。最终生产发布仍待实际部署和观察。
