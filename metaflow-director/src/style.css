@@ -16,6 +16,11 @@
 body {
   margin: 0;
 }
+body.director-page {
+  height: auto;
+  min-height: 100dvh;
+  overflow: auto;
+}
 button,
 a,
 input,
@@ -78,7 +83,8 @@ input[type="range"] {
   --muted: #969ba7;
   --line: #ffffff20;
   --accent: #ffe040;
-  min-height: 100dvh;
+  height: 100dvh;
+  min-height: 480px;
   background: var(--bg);
   color: var(--ink);
   display: flex;
@@ -167,7 +173,8 @@ header button:hover {
 }
 .view-area {
   flex: 1;
-  min-height: 150px;
+  min-height: 0;
+  container-type: size;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -181,7 +188,6 @@ header button:hover {
   background: #22252b;
   touch-action: none;
   max-width: 100%;
-  min-height: 100px;
 }
 .view-fit canvas {
   display: block;

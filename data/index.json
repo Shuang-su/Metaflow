@@ -2,12 +2,12 @@
   "version": "1.0",
   "schemaVersion": "1.2",
   "release": {
-    "displayVersion": "5.21.1",
-    "appSemver": "5.21.1",
+    "displayVersion": "5.21.2",
+    "appSemver": "5.21.2",
     "schemaVersion": "1.2",
     "historyUrl": "/data/version-history.json",
     "updatedAt": "2026-10-05",
-    "gitRef": "da9c8b685"
+    "gitRef": "64572c37d"
   },
   "lastUpdated": "2026-09-30",
   "totalResources": 100,

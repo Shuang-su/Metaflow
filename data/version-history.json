@@ -1,14 +1,14 @@
 {
   "schemaVersion": "1.1",
   "cutoffGitRef": "c613a87",
-  "documentedThrough": "da9c8b685",
+  "documentedThrough": "64572c37d",
   "defaultResourceVersion": "1.0a",
   "current": {
-    "displayVersion": "5.21.1",
-    "appSemver": "5.21.1",
+    "displayVersion": "5.21.2",
+    "appSemver": "5.21.2",
     "indexSchemaVersion": "1.2",
     "date": "2026-10-05",
-    "gitRef": "da9c8b685",
+    "gitRef": "64572c37d",
     "historyUrl": "/data/version-history.json",
     "upstream": {
       "repository": "playcanvas/supersplat-viewer",
@@ -1598,6 +1598,24 @@
         "evidence": "docs/changes/106-acg-director/verification.md",
         "releaseTag": "viewer-v5.21.1",
         "pullRequest": "https://github.com/Shuang-su/Metaflow/pull/110"
+      }
+    },
+    {
+      "displayVersion": "5.21.2",
+      "appSemver": "5.21.2",
+      "type": "fix",
+      "scope": "viewer",
+      "date": "2026-10-05",
+      "gitRef": "64572c37d",
+      "summary": "修复 Director 摄影条聚焦导致顶部截断，以及缩短镜头后的播放头范围",
+      "trace": {
+        "changeId": "MF-106",
+        "issue": "https://github.com/Shuang-su/Metaflow/issues/106",
+        "spec": "docs/changes/106-acg-director/spec.md",
+        "plan": "docs/changes/106-acg-director/plan.md",
+        "evidence": "docs/changes/106-acg-director/verification.md",
+        "releaseTag": "viewer-v5.21.2",
+        "pullRequest": "https://github.com/Shuang-su/Metaflow/pull/112"
       }
     }
   ]
