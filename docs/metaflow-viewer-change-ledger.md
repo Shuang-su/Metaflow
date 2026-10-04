@@ -413,3 +413,5 @@ The 2026-08-15 Viewer 5.19.2 release-record commit updated package/version/index
 - 验证：18 项 Director 测试、类型/构建；真实 GPU 1080p/128 并发与串行照片像素哈希完全相同；末尾空格从头重播。范围和失败项见 [验证记录](changes/106-acg-director/verification.md)。
 - 兼容：不改资源、模型、摄影参数或路由；5.21.0 保留历史。此条是补丁候选，正式合并/部署/观察后追加实际记录。
 - 来源：[MF-106](https://github.com/Shuang-su/Metaflow/issues/106)，回退仍可使用 5.20.2 `6abff1e18f35b1dc30992f92`，不将存在竞争问题的 5.21.0 作为优先回退。
+
+- 补丁 [PR #109](https://github.com/Shuang-su/Metaflow/pull/109)；首轮治理校验指出发布记录缺少刚创建的 PR 链接，补全后重跑。其余选中检查已通过。
