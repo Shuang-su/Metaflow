@@ -77,3 +77,8 @@
 - 布局修复后的1920×1080/128 PNG与同状态生产照片字节相同（SHA256 `e46b45fa926bd48b7c2a6613b88f47605aa8615d2e5838eb94cf028d3a4b8324`）；确认取景框适配不改变固定尺寸成片。
 
 - 5.21.2 产品 [PR #112](https://github.com/Shuang-su/Metaflow/pull/112) 已合并 `f8683e2a11e906d96e32d2aa8aeef20c78e8d697`，精确候选 [CI](https://github.com/Shuang-su/Metaflow/actions/runs/37234909615) 成功。版本镜像回填实际合并 SHA；最终生产证据与观察写入 MF-106 和公开发布附件。
+
+## 极矮窗口补充修复
+
+- PR #112 后到审查指出高度不足480px时body虽为auto overflow，但没有受限高度。844×390实际滚轮对照：旧body.clientHeight=480、scrollTop=0、footer.bottom=438，底部不可达；将摄影body高度约束为100dvh后，clientHeight=390、scrollTop=90、footer.bottom=348，PHOTO/VIDEO均能到达全部摄影控件。临时旧规则对照已恢复，未修改Viewer页面样式。
+- 5.21.2 tag保留其不可变构建历史，但该版本未部署生产；极矮窗口修正以5.21.3继续。原六视口验证、渲染与编码路径保持不变，最终生产输出和15分钟观察仍需实际执行。

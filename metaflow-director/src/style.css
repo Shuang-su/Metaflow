@@ -17,7 +17,7 @@ body {
   margin: 0;
 }
 body.director-page {
-  height: auto;
+  height: 100dvh;
   min-height: 100dvh;
   overflow: auto;
 }
