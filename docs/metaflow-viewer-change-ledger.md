@@ -439,3 +439,9 @@ The 2026-08-15 Viewer 5.19.2 release-record commit updated package/version/index
 
 - PR #112 已合并为 `f8683e2a11e906d96e32d2aa8aeef20c78e8d697`。原始实现 `64572c37d` 通过 `viewer-v5.21.2-rc1` 保留；镜像指向最终合并产品。
 - [CI 37234909615](https://github.com/Shuang-su/Metaflow/actions/runs/37234909615) 全部选中检查成功。发布部署与15分钟观察在 MF-106 完成交付及 Release 回读，不由元数据提交提前宣布。
+
+## `5.21.3` · `b958ec1b6` · MF-106 极矮窗口可滚动
+
+- 5.21.2保留tag但未部署；后到审查与844×390实际对照确认摄影body无受限高度，滚轮不能带回底部控制条。
+- 摄影body使用100dvh高度，使已有overflow:auto形成滚动区域；PHOTO/VIDEO实际scrollTop=90、footer.bottom=348。普通Viewer及成像路径不变。
+- [PR #114](https://github.com/Shuang-su/Metaflow/pull/114)、[MF-106](https://github.com/Shuang-su/Metaflow/issues/106)；最终SHA、部署、照片/视频和观察在实际执行后追加，回退仍保留5.20.2。
