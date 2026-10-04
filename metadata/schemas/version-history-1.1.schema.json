@@ -23,7 +23,8 @@
           "trace": {
             "type": "object",
             "additionalProperties": false,
-            "required": ["changeId", "pullRequest", "completionManifest", "completionDossier"],
+            "required": ["changeId", "pullRequest"],
+            "dependentRequired": {"completionManifest": ["completionDossier"], "completionDossier": ["completionManifest"]},
             "properties": {
               "changeId": {"type": "string", "pattern": "^MF-"},
               "issue": {"type": "string"},

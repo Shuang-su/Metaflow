@@ -34,6 +34,8 @@ import { MeshCollision, TiledVoxelCollision, VoxelCollision } from './collision'
 import { nearlyEquals } from './core/math';
 import type { DebugPanel } from './debug';
 import { captureCameraState, restoreCameraState } from './debug/camera-state';
+import { handoffIdentity, saveDirectorPosition } from './director-handoff';
+import type { DirectorPosition } from './director-handoff';
 import { initFullscreen } from './fullscreen';
 import { GsplatRevealRadial } from './gsplat-reveal-radial';
 import type { RevealDotProfile } from './gsplat-reveal-radial';
@@ -603,6 +605,57 @@ class Viewer {
                 this.gsplatReveal?.beginVisiblePlayback();
             });
         };
+
+        // Remember only a camera that reached a displayed frame, never an animation destination.
+        if (config.exposeGlobals && config.analyticsResource?.category?.includes('acg')) {
+            const refs = config.analyticsResourceUrls;
+            if (refs?.content && refs.settings && /\.(sog|ply)$/i.test(refs.content)) {
+                const file = (url: string) => decodeURIComponent(new URL(url, location.href).pathname);
+                const identity = handoffIdentity({
+                    id: config.analyticsResource.id!,
+                    files: {
+                        model: file(refs.content),
+                        environment: refs.environment ? file(refs.environment) : undefined,
+                        settings: file(refs.settings)
+                    }
+                });
+                let displayed: DirectorPosition | null = null;
+                let saved = '',
+                    lastWrite = 0;
+                const flush = () => {
+                    if (!displayed || JSON.stringify(displayed) === saved) return;
+                    try {
+                        if (saveDirectorPosition(sessionStorage, identity, displayed)) {
+                            saved = JSON.stringify(displayed);
+                            lastWrite = performance.now();
+                        }
+                    } catch {
+                        /* Storage may be unavailable in private or restricted contexts. */
+                    }
+                };
+                const onRendered = () => {
+                    if (!state.loaded || !this.cameraManager || this.destroyed) return;
+                    const current = this.cameraManager.camera;
+                    const target = new Vec3();
+                    current.calcFocusPoint(target);
+                    displayed = {
+                        position: [current.position.x, current.position.y, current.position.z],
+                        target: [target.x, target.y, target.z]
+                    };
+                    if (performance.now() - lastWrite >= 250) flush();
+                };
+                app.on('postrender', onRendered);
+                events.once('firstFrame', () => queueMicrotask(onRendered));
+                window.addEventListener('pagehide', flush);
+                document.addEventListener('visibilitychange', flush);
+                this.disposers.push(() => {
+                    flush();
+                    app.off('postrender', onRendered);
+                    window.removeEventListener('pagehide', flush);
+                    document.removeEventListener('visibilitychange', flush);
+                });
+            }
+        }
 
         // update state on first frame
         events.on('firstFrame', () => {

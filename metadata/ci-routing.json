@@ -79,7 +79,7 @@
     {
       "id": "viewer-source",
       "category": "viewer",
-      "includePaths": ["metaflow-viewer/**"],
+      "includePaths": ["metaflow-viewer/**", "metaflow-director/**"],
       "excludePaths": [
         "**/*.md",
         "**/package.json",

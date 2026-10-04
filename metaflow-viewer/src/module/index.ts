@@ -1,5 +1,5 @@
+import htmlSource from '../../public/embed.html';
 import cssSource from '../../public/index.css';
-import htmlSource from '../../public/index.html';
 import jsSource from '../../public/index.js';
 
 /**

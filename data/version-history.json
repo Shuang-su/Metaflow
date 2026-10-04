@@ -1,14 +1,14 @@
 {
   "schemaVersion": "1.1",
   "cutoffGitRef": "c613a87",
-  "documentedThrough": "0c82e43",
+  "documentedThrough": "103afad3",
   "defaultResourceVersion": "1.0a",
   "current": {
-    "displayVersion": "5.20.2",
-    "appSemver": "5.20.2",
+    "displayVersion": "5.21.0",
+    "appSemver": "5.21.0",
     "indexSchemaVersion": "1.2",
-    "date": "2026-10-03",
-    "gitRef": "0c82e43",
+    "date": "2026-10-05",
+    "gitRef": "103afad3",
     "historyUrl": "/data/version-history.json",
     "upstream": {
       "repository": "playcanvas/supersplat-viewer",
@@ -180,6 +180,16 @@
       "gitRef": "2f5b8c3",
       "date": "2026-08-15",
       "summary": "chore(release): publish Viewer 5.19.2 analytics recovery; record the existing release metadata commit"
+    },
+    {
+      "gitRef": "9771f006",
+      "date": "2026-10-05",
+      "summary": "MF-106 unpublished 5.21.0 release preparation and license whitespace correction"
+    },
+    {
+      "gitRef": "725527788",
+      "date": "2026-10-05",
+      "summary": "MF-106 unpublished keyboard lens undo correction and forward-version regression fixtures"
     }
   ],
   "entries": [
@@ -1537,6 +1547,24 @@
         "issue": "https://github.com/Shuang-su/Metaflow/issues/103",
         "releaseTag": "viewer-v5.20.2",
         "pullRequest": "https://github.com/Shuang-su/Metaflow/pull/104"
+      }
+    },
+    {
+      "displayVersion": "5.21.0",
+      "appSemver": "5.21.0",
+      "type": "feature",
+      "scope": "viewer",
+      "date": "2026-10-05",
+      "gitRef": "103afad3",
+      "summary": "feat(director): add resource-scoped ACG photography with camera handoff and full-aperture photo/video output",
+      "trace": {
+        "changeId": "MF-106",
+        "issue": "https://github.com/Shuang-su/Metaflow/issues/106",
+        "spec": "docs/changes/106-acg-director/spec.md",
+        "plan": "docs/changes/106-acg-director/plan.md",
+        "evidence": "docs/changes/106-acg-director/verification.md",
+        "pullRequest": "https://github.com/Shuang-su/Metaflow/pull/107",
+        "releaseTag": "viewer-v5.21.0"
       }
     }
   ]

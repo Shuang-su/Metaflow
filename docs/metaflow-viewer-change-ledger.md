@@ -381,3 +381,19 @@ The 2026-08-15 Viewer 5.19.2 release-record commit updated package/version/index
 - 验证：线上复现与计算样式、桌面/手机/WebKit 画面、默认/悬停/聚焦、链接、构建及版本检查；实际发布和线上验证记录在 [MF-103](https://github.com/Shuang-su/Metaflow/issues/103)。
 - 发布记录：最终产品 SHA 已回填为 `0c82e43bde7f140de59a88827f22293617c7260b`；实际部署和观察结论见 MF-103 Issue/PR。
 - 回退：5.20.1 deployment `6abc7de6a1ea57eba3620225`；追加回退记录，不改写历史。
+
+## `5.21.0` · `103afad3` · MF-106 ACG Director 实验入口
+
+- 动机 / 原行为：已发布 ACG 只能在 Viewer 浏览，摄影候选依赖本地融合工作区，无法通过资源地址进入。
+- 实现：单文件 ACG 主路由/别名追加 `/director`；启动前分流，独立摄影包加载主体及声明环境。Viewer 只保存同标签 30 分钟 position/target，Director 回退到原 JSON 初始机位；目标点设为 MF 焦点。
+- 用户结果：高精度完整圆孔径四样本交互和 128/256/512 收敛，照片与单场景多镜头视频；自有公开 UI 移除 Studio、工程、素材库、在线服务和设备包装。
+- 兼容 / 风险：100 项资源记录和模型字节、schema 1.2、Viewer SDK 和 Editor 不变。需 WebGPU 浮点能力，导出可能较慢。严格发丝、透明遮挡、源扫描残影继续归 MF-62；应用内浏览器 4K 编码异常不列通过，已有 Chrome 完成真实动态 4K。
+- 验证 / 来源：[MF-106](https://github.com/Shuang-su/Metaflow/issues/106)、[PR #107](https://github.com/Shuang-su/Metaflow/pull/107)、[验证记录](changes/106-acg-director/verification.md)。SuperSplat 3.4.2 / PC 2.22.4 / splat-transform 3.6.4 固定来源及许可随包登记。
+- 构建：仅暂存登记的资源，拒绝 LFS 指针；修复现行 PR Completion Contract 被旧 manifest 强制规则误拒绝的问题，保留旧档案成对及路径校验。
+- 发布状态：候选；最终 squash SHA、生产部署及观察结果在执行后追加。本段不表示已经上线。
+- 回退：此前 5.20.2 deployment `6abff1e18f35b1dc30992f92`，回退追加事实记录，不改写资源和历史。
+
+### 5.21.0 candidate support checkpoints
+
+- `9771f006`：未发布的版本准备与许可文件尾部空行修正。
+- `725527788`：未发布的键盘调焦撤销修复；相机数值与 forward-version 回归夹具修正。最终上线前仍按实际合并 SHA 和部署核验。

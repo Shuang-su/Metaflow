@@ -20,11 +20,11 @@ Metaflow 把基于 [SuperSplat](https://github.com/playcanvas/supersplat) 的 Ed
 
 | 产品 | 当前版本 | 上游基线 | 唯一事实来源 |
 |---|---|---|---|
-| Viewer | `5.20.0` / package `5.20.0` | SuperSplat Viewer `1.35.2` / PlayCanvas `2.22.4` | [`metadata/version-history.json`](metadata/version-history.json) |
+| Viewer | `5.21.0` 候选 / package `5.21.0` | SuperSplat Viewer `1.35.2` / PlayCanvas `2.22.4` | [`metadata/version-history.json`](metadata/version-history.json) |
 | Editor | `1.1` / app `1.1.0` | SuperSplat Editor `2.28.0` | [`metadata/editor-version-history.json`](metadata/editor-version-history.json) |
 | 资源索引 | schema `1.2` | 不适用 | [`data/index.json`](data/index.json) |
 
-Viewer 源码在 `metaflow-viewer/`；Editor 源码在 `supersplat-v2.28.0/`，`metaflow-editor/` 是发布构建。MF-30 的 v1.29.1 运行时产品 SHA 为 `26e311c`，5.19.2 analytics/release 修复 SHA 为 `92d11b0`。`viewer-v5.19.0` 的 prepare 在部署前失败且生产从未切换；`viewer-v5.19.1` 已通过 D2 Prepare、精确 D2 CLI/API 生产发布、真实浏览器 smoke 与 15 分钟观察；5.19.2 进一步恢复 production endpoint 并加入发布前/后校验，此前生产稳定版为 `5.19.3`，MF-81 已发布 3 组芒种和 9 组 SZTUCCF260919 ACG，索引共 99 项；见 [发布核验](docs/changes/81-publish-mangzhong-sztuccf/completion.md)。当前生产稳定版为 **5.20.0**，MF-85 已完成上游 v1.35.2 / PlayCanvas 2.22.4 升级和生产观察；见 [发布核验](docs/changes/85-viewer-upstream-v1.35.2/completion.md)。贡献与变更流程见 [`CONTRIBUTING.md`](CONTRIBUTING.md) 和 [MCL v1.0 candidate](docs/metaflow-change-lifecycle-v1.0.md)。
+Viewer 源码在 `metaflow-viewer/`；Editor 源码在 `supersplat-v2.28.0/`，`metaflow-editor/` 是发布构建。MF-30 的 v1.29.1 运行时产品 SHA 为 `26e311c`，5.19.2 analytics/release 修复 SHA 为 `92d11b0`。`viewer-v5.19.0` 的 prepare 在部署前失败且生产从未切换；`viewer-v5.19.1` 已通过 D2 Prepare、精确 D2 CLI/API 生产发布、真实浏览器 smoke 与 15 分钟观察；5.19.2 进一步恢复 production endpoint 并加入发布前/后校验，此前生产稳定版为 `5.19.3`，MF-81 已发布 3 组芒种和 9 组 SZTUCCF260919 ACG，索引共 99 项；见 [发布核验](docs/changes/81-publish-mangzhong-sztuccf/completion.md)。当前生产稳定版为 **5.20.2**；MF-106 的 **5.21.0** 候选新增 ACG 资源 `/director` 实验摄影入口，发布状态与核验见 [MF-106](docs/changes/106-acg-director/verification.md) 和 PR #107。贡献与变更流程见 [`CONTRIBUTING.md`](CONTRIBUTING.md) 和 [MCL v1.0 candidate](docs/metaflow-change-lifecycle-v1.0.md)。
 
 下方保留原有 Viewer 快速参考，方便已有读者继续使用；新的分层手册和当前契约以 [`docs/README.md`](docs/README.md) 为入口。
 
@@ -49,6 +49,23 @@ npx --no-install serve -s public -l 3000
 ```
 
 服务器将在 http://localhost:3000 启动。
+
+### ACG Director 实验入口
+
+在符合条件的 ACG 单文件 SOG／PLY 资源主路由或别名后追加 `/director`，例如 `/acg/szcaf15/honkai_star_rail-tribbie/director`。页面按索引加载主模型与已声明环境；不支持流式资源，也不接受任意远程模型地址。需要 WebGPU 和浮点渲染能力。Viewer 同标签页的有效机位优先，直接打开则读取资源 JSON 初始机位。
+
+完整站点构建和预览（先物化已登记的 Git LFS 资源）：
+
+```bash
+npm --prefix metaflow-viewer ci
+npm --prefix metaflow-viewer run build
+npm --prefix metaflow-director ci
+npm --prefix metaflow-director run build
+node scripts/stage-director-site.mjs
+node metaflow-director/preview.mjs
+```
+
+预览地址为 `http://127.0.0.1:5207`；所有模型、编码器和字体读取同站路径，不需要原实验服务。发布包使用自有界面、系统字体和许可登记的开源依赖，来源见 [MF-106 Spec](docs/changes/106-acg-director/spec.md)。
 
 ## 开发模式
 
@@ -154,12 +171,12 @@ location / {
 
 | 字段 | 值 |
 |------|----|
-| 展示版本 | `5.20.0`（MF-85，生产交付见 PR #86） |
-| 包版本 | `5.20.0` |
+| 展示版本 | `5.21.0` 候选（MF-106，PR #107） |
+| 包版本 | `5.21.0` |
 | 索引 schema | `1.2` |
 | 上游 SuperSplat Viewer | `v1.35.2` |
 | PlayCanvas | `2.22.4` |
-| 运行时产品实现 commit | `26e311c` |
+| 当前产品实现 commit | `103afad3`（候选） |
 | 发布控制修复 commit | `92d11b0` |
 
 ## 当前 Editor

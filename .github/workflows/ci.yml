@@ -206,6 +206,7 @@ jobs:
             .nvmrc
             .github/workflows/release.yml
             metaflow-viewer
+            metaflow-director
             metaflow-editor
             references/supersplat-v2.18.1/src/ui/timeline-panel.ts
             supersplat-v2.28.0/src
@@ -216,6 +217,7 @@ jobs:
             data/index.json
             data/version-history.json
             data/editor-version-history.json
+            data/ACG/**/*.json
             data/ACG/BitCity260711
             data/ACG/SZCAF15
             data/ACG/FireflyFes38/260502 172930 03 崩坏星穹铁道 昔涟/settings-v2.json
@@ -239,6 +241,9 @@ jobs:
         id: viewer-build
         working-directory: metaflow-viewer
         run: npm run build
+      - name: Build and check public Director
+        working-directory: metaflow-director
+        run: npm ci && npm run prepare:source && npm run type:check && npm test && npm run build
       - name: Test Viewer
         working-directory: metaflow-viewer
         env:
@@ -457,6 +462,7 @@ jobs:
           lfs: false
           sparse-checkout: |
             metaflow-viewer
+            metaflow-director
             supersplat-v2.28.0
             scripts
             supabase/functions

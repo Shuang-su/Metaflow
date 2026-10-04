@@ -1,0 +1,73 @@
+{
+  "compilerOptions": {
+    "target": "ES2023",
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "jsx": "react-jsx",
+    "lib": [
+      "ES2023",
+      "DOM",
+      "DOM.Iterable"
+    ],
+    "noEmit": true,
+    "skipLibCheck": true,
+    "resolveJsonModule": true,
+    "allowImportingTsExtensions": true,
+    "types": [
+      "vite/client",
+      "wicg-file-system-access",
+      "@webgpu/types"
+    ],
+    "paths": {
+      "@upstream/*": [
+        "../.codex-work/downloads/director-source/supersplat-f76e67633f21b298846c29eceab48ae20579fb4e/src/*"
+      ],
+      "@diagnostic/*": [
+        "./src/render/*"
+      ],
+      "@playcanvas/splat-transform/viewer-settings": [
+        "./node_modules/@playcanvas/splat-transform/dist/viewer-settings.d.ts"
+      ],
+      "@zip.js/zip.js": [
+        "./node_modules/@zip.js/zip.js"
+      ],
+      "lucide-react": [
+        "./node_modules/lucide-react"
+      ],
+      "mediabunny": [
+        "./node_modules/mediabunny"
+      ],
+      "motion": [
+        "./node_modules/motion"
+      ],
+      "playcanvas": [
+        "./node_modules/playcanvas"
+      ],
+      "react": [
+        "./node_modules/react"
+      ],
+      "react-dom": [
+        "./node_modules/react-dom"
+      ],
+      "@playcanvas/splat-transform": [
+        "./node_modules/@playcanvas/splat-transform"
+      ],
+      "@playcanvas/pcui": [
+        "./node_modules/@playcanvas/pcui"
+      ],
+      "i18next": [
+        "./node_modules/i18next"
+      ],
+      "i18next-browser-languagedetector": [
+        "./node_modules/i18next-browser-languagedetector"
+      ],
+      "i18next-http-backend": [
+        "./node_modules/i18next-http-backend"
+      ]
+    }
+  },
+  "include": [
+    "src",
+    "../.codex-work/downloads/director-source/supersplat-f76e67633f21b298846c29eceab48ae20579fb4e/global.d.ts"
+  ]
+}

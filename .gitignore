@@ -4,6 +4,14 @@ node_modules/
 # Build outputs
 metaflow-viewer/dist/
 metaflow-viewer/public/index.html
+metaflow-viewer/public/embed.html
+metaflow-viewer/public/director/
+metaflow-viewer/public/build.json
+metaflow-viewer/public/data/
+metaflow-viewer/public/editor/
+metaflow-director/public/static/
+metaflow-director/public/licenses/
+metaflow-director/public/THIRD_PARTY_NOTICES.txt
 metaflow-viewer/public/index.js
 metaflow-viewer/public/index.js.map
 metaflow-viewer/public/index.css

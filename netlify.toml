@@ -1,6 +1,6 @@
 [build]
   base = "metaflow-viewer"
-  command = "node ../scripts/mcl.mjs check-all && python3 ../scripts/validate_platform.py && npm ci && python3 ../scripts/generate_index.py && npm run build && mkdir -p public/data public/editor && rsync -a --delete ../data/ public/data/ && rsync -a --delete ../metaflow-editor/ public/editor/"
+  command = "node ../scripts/mcl.mjs check-all && python3 ../scripts/validate_platform.py && npm ci && npm run build && npm --prefix ../metaflow-director ci && npm --prefix ../metaflow-director run build && node ../scripts/stage-director-site.mjs"
   ignore = "test \"$BRANCH\" = \"main\""
   publish = "public"
 
@@ -28,6 +28,11 @@
   status = 200
 
 # Editor routes - serve editor files directly, SPA fallback for editor
+[[redirects]]
+  from = "/director/*"
+  to = "/director/:splat"
+  status = 200
+
 [[redirects]]
   from = "/editor/*"
   to = "/editor/:splat"
@@ -60,6 +65,16 @@
     Accept-CH = "Sec-CH-UA, Sec-CH-UA-Mobile, Sec-CH-UA-Platform, Sec-CH-UA-Model, Sec-CH-UA-Platform-Version, Sec-CH-UA-Arch, Sec-CH-UA-Bitness"
 
 [[headers]]
+  for = "/director/*"
+  [headers.values]
+    Cache-Control = "public, max-age=0, must-revalidate"
+
+[[headers]]
+  for = "/build.json"
+  [headers.values]
+    Cache-Control = "no-cache"
+
+[[headers]]
   for = "/editor/static/*"
   [headers.values]
     Cache-Control = "public, max-age=31536000, immutable"
@@ -68,6 +83,11 @@
   for = "/data/*"
   [headers.values]
     Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/data/version-history.json"
+  [headers.values]
+    Cache-Control = "public, max-age=0, must-revalidate"
 
 [[headers]]
   for = "/data/index.json"

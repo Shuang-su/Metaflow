@@ -11,6 +11,8 @@ import scss from 'rollup-plugin-scss';
 import { string } from 'rollup-plugin-string';
 import sass from 'sass';
 
+import { siteHtml } from './site-html.mjs';
+
 const analyticsSink = process.env.METAFLOW_ANALYTICS_SINK ?? 'supabase';
 const analyticsEndpoint = process.env.METAFLOW_ANALYTICS_ENDPOINT ?? '';
 const isReleaseBuild =
@@ -41,8 +43,9 @@ function htmlPlugin() {
             this.emitFile({
                 type: 'asset',
                 fileName: 'index.html',
-                source: transformed
+                source: siteHtml(transformed)
             });
+            this.emitFile({ type: 'asset', fileName: 'embed.html', source: transformed });
         }
     };
 }
