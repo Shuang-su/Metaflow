@@ -124,23 +124,24 @@ test('legacy display versions remain valid and future releases require full SemV
     assert.match(rules, /Major releases change public contracts incompatibly.*consumer migration/i);
     assert.match(rules, /Documentation.*governance.*unpublished staging.*do not create Viewer versions/i);
 
+    const [major, minor, patch] = manifest.current.appSemver.split('.').map(Number);
     const compatibleFuture = [
         ...manifest.entries,
         {
-            displayVersion: '5.20.3',
-            appSemver: '5.20.3',
+            displayVersion: `${major}.${minor}.${patch + 1}`,
+            appSemver: `${major}.${minor}.${patch + 1}`,
             type: 'resource',
             scope: 'data'
         },
         {
-            displayVersion: '5.21.0',
-            appSemver: '5.21.0',
+            displayVersion: `${major}.${minor + 1}.0`,
+            appSemver: `${major}.${minor + 1}.0`,
             type: 'feature',
             scope: 'viewer'
         },
         {
-            displayVersion: '6.0.0',
-            appSemver: '6.0.0',
+            displayVersion: `${major + 1}.0.0`,
+            appSemver: `${major + 1}.0.0`,
             type: 'feature',
             scope: 'viewer'
         }
@@ -220,7 +221,7 @@ test('change ledger contains every structured version and only main-history comm
     }
 
     const ledgerRefs = new Set(
-        Array.from(ledger.matchAll(/`([0-9a-f]{7})`/g), (match) => match[1])
+        Array.from(ledger.matchAll(/`([0-9a-f]{7,40})`/g), (match) => match[1])
     );
     for (const ref of ledgerRefs) {
         execFileSync('git', ['cat-file', '-e', `${ref}^{commit}`], {
@@ -348,8 +349,8 @@ test('commits after the legacy cutoff require records only for affected product 
             encoding: 'utf8'
         }).trim().split('\n').filter(Boolean);
         const shortRef = ref.slice(0, 7);
-        const isDocumentedEditorRelease = documentedEditorReleaseRefs.has(shortRef);
-        const isDocumentedViewerRelease = documentedViewerRefs.has(shortRef);
+        const isDocumentedEditorRelease = [...documentedEditorReleaseRefs].some((record) => ref.startsWith(record));
+        const isDocumentedViewerRelease = [...documentedViewerRefs].some((record) => ref.startsWith(record));
         const unexpectedFiles = findUnexpectedProductFiles(files, {
             isDocumentedEditorRelease,
             isDocumentedViewerRelease
@@ -400,7 +401,7 @@ test('package and public release versions match the structured current version',
     assert.equal(pkg.version, manifest.current.appSemver);
     assert.equal(lock.version, manifest.current.appSemver);
     assert.equal(lock.packages[''].version, manifest.current.appSemver);
-    assert.equal(manifest.current.displayVersion, '5.20.2');
+    assert.equal(manifest.current.displayVersion, '5.21.0');
     assert.equal(manifest.current.gitRef, manifest.documentedThrough);
     assert.equal(manifest.current.upstream.repository, 'playcanvas/supersplat-viewer');
     assert.equal(manifest.current.upstream.version, '1.35.2');

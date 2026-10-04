@@ -175,7 +175,8 @@ export function LensRuler({
     drag = useRef({ active: false, x: 0, moved: false });
   const pending = useRef<number | null>(null),
     raf = useRef<number | null>(null),
-    latest = useRef(onChange);
+    latest = useRef(onChange),
+    keyboard = useRef(false);
   latest.current = onChange;
   const flush = () => {
     if (raf.current !== null) cancelAnimationFrame(raf.current);
@@ -258,12 +259,45 @@ export function LensRuler({
         max={max}
         step={1}
         defaultValue={value}
+        onKeyDown={(e) => {
+          if (
+            ![
+              "ArrowLeft",
+              "ArrowRight",
+              "ArrowUp",
+              "ArrowDown",
+              "Home",
+              "End",
+              "PageUp",
+              "PageDown",
+            ].includes(e.key)
+          )
+            return;
+          if (!keyboard.current) {
+            keyboard.current = true;
+            onBegin();
+          }
+        }}
+        onKeyUp={() => {
+          if (!keyboard.current) return;
+          keyboard.current = false;
+          onEnd();
+          endScrub();
+        }}
+        onBlur={() => {
+          if (!keyboard.current) return;
+          keyboard.current = false;
+          onEnd();
+          endScrub();
+        }}
         onChange={(e) => {
           if (drag.current.active) return;
           const n = +e.target.value;
           pulse(n);
           previous.current = n;
+          if (!keyboard.current) onBegin();
           onChange(n);
+          if (!keyboard.current) onEnd();
         }}
         onPointerDown={(e) => {
           if (e.button !== 0) return;

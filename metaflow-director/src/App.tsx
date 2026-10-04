@@ -434,6 +434,7 @@ export function App() {
           };
         });
         setLive(true);
+        setStatus("已对焦到点击位置 · MF");
       }
     } catch (e) {
       setError((e as Error).message);
