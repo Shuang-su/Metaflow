@@ -55,3 +55,6 @@
 - [不可变补丁预览](https://6ac2b2fc4e7ec97ffa75ccf2--charming-salamander-fc1af0.netlify.app/acg/szcaf15/honkai_star_rail-tribbie/director) 实际加载缇宝及环境，进入 MF，完成渐进摄影，无 console error；脚本与本地构建逐字节相同。其来源为 08b4886aa，后续只追加发布记录链接。
 - 补丁本地 1080p30 动态视频为 8 帧/0.266667 秒，完整解码；Chrome 4K/256 生成 3840×2160、24fps、7 帧/0.291667 秒的动态视频，全部解码。512 档测试仍在运行，结果不提前记入。
 - 当前版本镜像已回填 PR #109 最终产品 SHA；正式部署、128/256/512 文件与观察的最终结果通过 [MF-106 完成交付](https://github.com/Shuang-su/Metaflow/issues/106) 及发布附件回读记录。
+
+- 发布前补充检查 PR #109 后到的评论：后台 stop 等待排队任务时，前台新 request 可以被旧 stop 再次取消。新增测试先复现失败，再以 requestVersion 使旧 stop 失效；销毁仍完整释放。Director 现为 19 项通过，类型及构建通过。该修复并入尚未正式发布的 5.21.1，不改写 5.21.0。
+- Chrome 512 档短动态 4K 也已完成：3840×2160、24fps、7 帧、0.291667 秒，全部解码。该补测使用未改变的投影/采样/编码路径，不替代应用内浏览器曾失败的 4K 项。

@@ -181,3 +181,28 @@ test("disposal cancels the active capture and drains queued work before destroyi
   await disposed;
   assert.equal(rt.disposed, true);
 });
+
+test("a newer visible preview supersedes an older tab-hide stop waiting for capture", async () => {
+  let stopping,
+    active = false;
+  const { rt, state } = fixture(() => {
+    stopping = rt.stop();
+    rt.request(state("visible-again", 128, 960));
+  });
+  const cancel = rt.scheduler.cancel.bind(rt.scheduler);
+  rt.scheduler.cancel = () => {
+    active = false;
+    cancel();
+  };
+  rt.scheduler.request = () => {
+    active = true;
+  };
+  await rt.capture(state("thumbnail", 4, 160), new AbortController().signal);
+  await stopping;
+  assert.equal(
+    active,
+    true,
+    "the old stop must not cancel the new visible request",
+  );
+  await rt.dispose();
+});
