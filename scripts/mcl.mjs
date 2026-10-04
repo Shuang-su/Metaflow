@@ -1373,7 +1373,13 @@ export async function validateVersionHistories(root = REPO_ROOT) {
                 assertion(entry.trace && typeof entry.trace === 'object', `${file}: post-MCL entry ${entry.displayVersion ?? entry.appSemver} requires trace`);
             }
             if (!entry.trace) continue;
-            for (const field of ['changeId', 'pullRequest', 'completionManifest', 'completionDossier']) {
+            // Revision 6 uses the PR/Issue Completion Contract. Retain both legacy
+            // archive fields when either is declared; never require new dossiers.
+            const required = ['changeId', 'pullRequest'];
+            if (entry.trace.completionManifest !== undefined || entry.trace.completionDossier !== undefined) {
+                required.push('completionManifest', 'completionDossier');
+            }
+            for (const field of required) {
                 assertion(typeof entry.trace[field] === 'string' && entry.trace[field].length > 0, `${file}: trace.${field} is required`);
             }
             validateChangeId(entry.trace.changeId, `${file}: trace.changeId`);

@@ -1,0 +1,35 @@
+{
+  "name": "metaflow-director",
+  "version": "0.1.0-experimental.1",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host 127.0.0.1 --port 5206 --strictPort",
+    "prepare:source": "node prepare-source.mjs",
+    "build": "npm run prepare:source && vite build",
+    "type:check": "tsc --noEmit",
+    "test": "node --test tests/*.test.mjs"
+  },
+  "dependencies": {
+    "@zip.js/zip.js": "2.8.26",
+    "lucide-react": "0.577.0",
+    "mediabunny": "1.55.2",
+    "motion": "13.2.0",
+    "playcanvas": "2.22.4",
+    "react": "19.3.0",
+    "react-dom": "19.3.0",
+    "@playcanvas/splat-transform": "3.6.4",
+    "@playcanvas/pcui": "6.1.4",
+    "i18next": "26.4.2",
+    "i18next-browser-languagedetector": "8.2.1",
+    "i18next-http-backend": "4.0.2"
+  },
+  "devDependencies": {
+    "vite": "6.4.2",
+    "typescript": "5.9.3",
+    "@types/react": "19.2.2",
+    "@types/react-dom": "19.2.2",
+    "@types/wicg-file-system-access": "2023.10.6",
+    "@webgpu/types": "0.1.65"
+  }
+}

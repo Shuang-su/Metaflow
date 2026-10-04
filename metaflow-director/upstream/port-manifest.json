@@ -1,0 +1,28 @@
+{
+  "candidate": "209cd56c",
+  "files": {
+    "metaflow-camera-lab/diagnostics/supersplat-v3/session.ts": "src/render/session.ts",
+    "metaflow-camera-lab/diagnostics/supersplat-v3/aperture-preview.ts": "src/render/aperture-preview.ts",
+    "metaflow-camera-lab/diagnostics/supersplat-v3/device-events.ts": "src/render/device-events.ts",
+    "metaflow-camera-lab/diagnostics/supersplat-v3/precision-target.ts": "src/render/precision-target.ts",
+    "metaflow-camera-lab/diagnostics/supersplat-v3/stable-order.ts": "src/render/stable-order.ts",
+    "metaflow-camera-lab/diagnostics/supersplat-v3/source-adapter.mjs": "upstream/source-adapter.mjs",
+    "metaflow-camera-lab/diagnostics/supersplat-v3/optics-patch.mjs": "upstream/optics-patch.mjs",
+    "metaflow-camera-lab/diagnostics/supersplat-v3/precision-patch.mjs": "upstream/precision-patch.mjs",
+    "metaflow-camera-lab/diagnostics/supersplat-v3/source-lock.json": "upstream/source-lock.json",
+    "metaflow-camera-lab/diagnostics/supersplat-v3/SUPERSPLAT-LICENSE.txt": "upstream/SUPERSPLAT-LICENSE.txt",
+    "metaflow-camera-lab/workbench/float-image.ts": "src/render/float-image.ts",
+    "metaflow-camera-lab/workbench/gpu-compositor.ts": "src/render/gpu-compositor.ts",
+    "metaflow-viewer/src/photography/aperture-gpu.ts": "src/render/aperture-gpu.ts",
+    "metaflow-viewer/src/photography/srgb.ts": "src/render/srgb.ts",
+    "metaflow-viewer/src/photography/optics.ts": "src/render/optics.ts",
+    "metaflow-camera-lab/src/core/model.ts": "src/core/model.ts",
+    "metaflow-camera-lab/src/core/camera-controls.ts": "src/core/camera-controls.ts",
+    "metaflow-camera-lab/src/core/compose-view.ts": "src/core/compose-view.ts",
+    "metaflow-camera-lab/src/core/encoder.ts": "src/core/encoder.ts",
+    "metaflow-camera-lab/src/core/sounds.ts": "src/core/sounds.ts",
+    "metaflow-camera-lab/src/VideoTimeline.tsx": "src/VideoTimeline.tsx",
+    "metaflow-camera-lab/src/InterestSelector.tsx": "src/InterestSelector.tsx",
+    "supersplat-v2.32.5/src/video-output-transaction.ts": "src/core/video-output-transaction.ts"
+  }
+}

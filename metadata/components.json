@@ -6,6 +6,7 @@
       "kind": "product",
       "ownedPaths": [
         "metaflow-viewer/**",
+        "metaflow-director/**",
         "metadata/version-history.json",
         "data/version-history.json"
       ],

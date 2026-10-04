@@ -1,0 +1,123 @@
+import { test } from "node:test";
+import assert from "node:assert/strict";
+import { build } from "esbuild";
+async function source(entry) {
+  const out = await build({
+    entryPoints: [entry],
+    bundle: true,
+    write: false,
+    format: "esm",
+    platform: "node",
+  });
+  return import(
+    "data:text/javascript;base64," +
+      Buffer.from(out.outputFiles[0].text).toString("base64")
+  );
+}
+const model = await source("src/core/model.ts"),
+  control = await source("src/core/camera-controls.ts"),
+  { AperturePreview } = await source("src/render/aperture-preview.ts");
+test("handoff preserves position/target without changing Director projection or aperture", () => {
+  const initial = { position: [-2, 1, 5], target: [1, 0.25, -1] },
+    p = model.poseFromCamera(initial, model.DEFAULT_POSE);
+  const a = (p.yaw * Math.PI) / 180,
+    b = (p.pitch * Math.PI) / 180;
+  const position = [
+    Math.sin(a) * Math.cos(b),
+    Math.sin(b),
+    Math.cos(a) * Math.cos(b),
+  ].map((v, i) => p.target[i] + v * p.distance);
+  initial.position.forEach((n, i) => assert(Math.abs(n - position[i]) < 1e-10));
+  assert.equal(p.fov, model.DEFAULT_POSE.fov);
+  assert.deepEqual(p.optics, model.DEFAULT_POSE.optics);
+});
+test("infinity focus and control changes do not recalibrate aperture", () => {
+  const p = structuredClone(model.DEFAULT_POSE),
+    q = { ...p, ...control.manualFocusPatch(p, 100) };
+  assert(q.focusInfinity);
+  assert.equal(q.focusPoint, null);
+  assert.equal(q.optics.apertureScale, p.optics.apertureScale);
+  const zoom = control.changeControls(p, { zoom: 500 });
+  assert(zoom.fov < p.fov);
+  assert.deepEqual(zoom.optics, p.optics);
+});
+test("timeline uses real dynamic keyframes, overlap and exact N/fps frame count", () => {
+  const a = model.makeShot("same-scene", model.DEFAULT_POSE);
+  a.duration = 1;
+  a.keys[1].time = 1;
+  a.keys[1].pose.yaw = 45;
+  const b = structuredClone(a);
+  b.id = "other";
+  b.transition = { kind: "fade", duration: 0.25 };
+  assert.equal(model.totalDuration([a, b]), 1.75);
+  assert.equal(model.frameCount(1.75, 30), 53);
+  const s = model.evaluate([a, b], 0.875);
+  assert.equal(s.blend, 0.5);
+  assert(s.previousPose.yaw > 0);
+  assert.notEqual(model.poseAt(a, 0).yaw, model.poseAt(a, 0.5).yaw);
+  for (const aspect of ["16:9", "9:16", "4:3", "4:5", "1:1"]) {
+    const [w, h] = model.outputSize(aspect, 1080),
+      [a, b] = aspect.split(":").map(Number);
+    assert(Math.abs(w / h - a / b) < 0.002);
+    assert.equal(w % 2, 0);
+    assert.equal(h % 2, 0);
+  }
+});
+test("continuous updates show completed batches and eventually the latest final state", async () => {
+  let release;
+  const seen = [];
+  let count = 0,
+    active = null,
+    calls = 0;
+  const scheduler = new AperturePreview({
+    batch: async (s) => {
+      if (active !== s) {
+        active = s;
+        count = 0;
+      }
+      if (calls++ === 0) await new Promise((r) => (release = r));
+      count += 4;
+      return { count, batchMs: 1 };
+    },
+    target: () => 8,
+    count: () => 0,
+    cancel() {},
+    displayed: (s, n) => seen.push([s, n]),
+    error: (e) => {
+      throw e;
+    },
+  });
+  scheduler.request("a");
+  scheduler.request("b");
+  release();
+  await scheduler.settled();
+  assert(seen.some(([s, n]) => s === "a" && n === 4));
+  assert.deepEqual(seen.at(-1), ["b", 8]);
+});
+
+const { abortable } = await source("src/core/abortable.ts");
+test("cancel interrupts a codec which never emits another packet", async () => {
+  const controller = new AbortController();
+  let closed = 0;
+  const job = abortable(
+    new Promise(() => {}),
+    controller.signal,
+    () => closed++,
+  );
+  controller.abort();
+  await assert.rejects(job, { name: "AbortError" });
+  assert.equal(closed, 1);
+});
+test("a stalled codec fails with an explicit timeout and releases its resources", async () => {
+  let closed = 0;
+  await assert.rejects(
+    abortable(
+      new Promise(() => {}),
+      new AbortController().signal,
+      () => closed++,
+      5,
+    ),
+    /视频编码器/,
+  );
+  assert.equal(closed, 1);
+});
