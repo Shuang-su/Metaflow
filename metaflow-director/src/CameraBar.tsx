@@ -151,7 +151,7 @@ export function CameraBar({
   busy: boolean;
   ready: boolean;
   onMode: (m: "photo" | "video") => void;
-  onPose: (p: Partial<Pose>) => void;
+  onPose: (p: Partial<Pose> | ((current: Pose) => Partial<Pose>)) => void;
   onProject: (p: Partial<Project>) => void;
   onBegin: () => void;
   onEnd: () => void;
@@ -244,7 +244,7 @@ export function CameraBar({
     };
   }, [active, compact]);
   const setControl = (patch: Parameters<typeof changeControls>[1]) =>
-    onPose(changeControls(pose, patch));
+    onPose((current) => changeControls(current, patch));
   const tip = (name: string, e: HTMLElement) => {
     const r = e.getBoundingClientRect();
     setHelper({
@@ -626,7 +626,9 @@ export function CameraBar({
                             }}
                             onChange={(n) =>
                               active === "focusDistance"
-                                ? onPose(manualFocusPatch(pose, n))
+                                ? onPose((current) =>
+                                    manualFocusPatch(current, n),
+                                  )
                                 : setControl(
                                     active === "blur"
                                       ? { blurAmount: n }

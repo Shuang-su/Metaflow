@@ -11,9 +11,11 @@ export function InterestSelector({
   onSelect,
   selections,
   onCancel,
+  ready = true,
   clickSize = 0.3,
 }: {
   clickSize?: number;
+  ready?: boolean;
   selections: (InterestArea | null)[];
   onSelect: (area: InterestArea, index: number) => Promise<boolean>;
   onCancel: () => void;
@@ -36,7 +38,7 @@ export function InterestSelector({
   return (
     <>
       <span
-        className={`auto-motion-selection-hint ${area || pending ? "is-hidden" : ""}`}
+        className={`auto-motion-selection-hint ${!ready || area || pending ? "is-hidden" : ""}`}
       >
         <Crop size={13} strokeWidth={1.9} />
         Click or drag to select interest points
@@ -45,7 +47,7 @@ export function InterestSelector({
         className="auto-motion-overlay is-select director-interest-overlay"
         tabIndex={0}
         aria-label="Select interest area"
-        aria-busy={pending}
+        aria-busy={!ready || pending}
         onKeyDown={(e) => {
           if (e.key === "Escape") {
             e.stopPropagation();
@@ -53,7 +55,8 @@ export function InterestSelector({
           }
         }}
         onPointerDown={(e) => {
-          if (pending || e.button !== 0 || pointerId.current !== null) return;
+          if (!ready || pending || e.button !== 0 || pointerId.current !== null)
+            return;
           e.preventDefault();
           pointerId.current = e.pointerId;
           e.currentTarget.setPointerCapture(e.pointerId);
@@ -150,6 +153,7 @@ export function InterestSelector({
                   <button
                     type="button"
                     aria-label={`Edit interest area ${index + 1}`}
+                    disabled={!ready || pending}
                     onPointerDown={(e) => {
                       e.stopPropagation();
                       e.preventDefault();

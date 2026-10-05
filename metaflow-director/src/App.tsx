@@ -122,6 +122,7 @@ export function App() {
       id: number;
     } | null>(null),
     [selectInterest, setSelectInterest] = useState(false),
+    [selectionReady, setSelectionReady] = useState(false),
     [transition, setTransition] = useState<{
       id: string;
       edge: "in" | "out";
@@ -141,6 +142,9 @@ export function App() {
   const [temporaryPose, setTemporaryPose] = useState<Pose | null>(null);
   const temporary = useRef<Pose | null>(null),
     selectionBase = useRef<Pose | null>(null),
+    selectionTarget = useRef<Pose | null>(null),
+    selectionCanPick = useRef(false),
+    selectionPick = useRef(0),
     operatorBase = useRef<Pose | null>(null);
   const setViewOnly = (p: Pose | null) => {
     temporary.current = p;
@@ -198,14 +202,14 @@ export function App() {
     animation.current = null;
     setViewOnly(null);
     selectionBase.current = null;
+    selectionTarget.current = null;
+    selectionCanPick.current = false;
+    setSelectionReady(false);
     setSelectInterest(false);
     setPlaying(false);
   };
   const begin = () => {
-    const interrupted = selectionBase.current ? null : temporary.current;
     stopMotion();
-    if (interrupted)
-      commit({ ...ref.current, pose: structuredClone(interrupted) });
     if (!gesture.current) gesture.current = structuredClone(ref.current);
   };
   const end = () => {
@@ -251,8 +255,14 @@ export function App() {
     commit({ ...ref.current, pose: next });
     setLive(true);
   };
-  const patchPose = (patch: Partial<Pose>) => {
-    updatePose({ ...ref.current.pose, ...patch });
+  const patchPose = (
+    patch: Partial<Pose> | ((current: Pose) => Partial<Pose>),
+  ) => {
+    const base = ref.current.pose;
+    updatePose({
+      ...base,
+      ...(typeof patch === "function" ? patch(base) : patch),
+    });
     if (tutorial === "start" || tutorial === "adjust-end")
       tutorialEndpoint.current = tutorial === "start" ? "start" : "end";
   };
@@ -362,6 +372,16 @@ export function App() {
         loaded.background,
         (_s, n) => {
           setCount(n);
+          // Selection coordinates become usable only after the exact flat view
+          // has reached the canvas, including GPU scheduling delay.
+          if (
+            selectionBase.current &&
+            selectionTarget.current &&
+            JSON.stringify(_s.pose) === JSON.stringify(selectionTarget.current)
+          ) {
+            selectionCanPick.current = true;
+            setSelectionReady(true);
+          }
           if (canvas.current && owned) {
             canvas.current.dataset.apertureBatches = String(
               owned.metrics.batches,
@@ -706,18 +726,16 @@ export function App() {
     stopMotion();
     selectionBase.current = structuredClone(ref.current.pose);
     setSelectInterest(true);
-    animateCamera(
-      from,
-      rebaseControls({
-        ...structuredClone(from),
-        yaw: 0,
-        pitch: 0,
-        roll: 0,
-        dof: false,
-        focusPoint: null,
-      }),
-      true,
-    );
+    const flat = rebaseControls({
+      ...structuredClone(from),
+      yaw: 0,
+      pitch: 0,
+      roll: 0,
+      dof: false,
+      focusPoint: null,
+    });
+    selectionTarget.current = structuredClone(flat);
+    animateCamera(from, flat, true);
   };
   const compose = () => {
     if (!shot || busy) return;
@@ -769,12 +787,19 @@ export function App() {
     setStatus("Compose");
   };
   const interest = async (area: InterestArea, index: number) => {
-    const request = ++intent.current;
+    if (!selectionCanPick.current) return false;
+    const request = ++selectionPick.current,
+      viewVersion = intent.current;
     const hit = await runtime.current?.pick(
       area.x + area.width / 2,
       area.y + area.height / 2,
     );
-    if (request !== intent.current || !hit) {
+    if (
+      request !== selectionPick.current ||
+      viewVersion !== intent.current ||
+      !selectionCanPick.current ||
+      !hit
+    ) {
       resume();
       return false;
     }
@@ -1040,6 +1065,7 @@ export function App() {
               )}
               {selectInterest && (
                 <InterestSelector
+                  ready={selectionReady}
                   selections={shot?.interestAreas ?? []}
                   onSelect={interest}
                   onCancel={closeSelection}
@@ -1208,7 +1234,7 @@ export function App() {
               }
             />
           }
-          pose={temporaryPose ?? pose}
+          pose={pose}
           project={project}
           mode={mode}
           busy={busy}
