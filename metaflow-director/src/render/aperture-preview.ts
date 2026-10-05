@@ -16,6 +16,7 @@ export class AperturePreview<T> {
       ) => Promise<{ count: number; batchMs: number }>;
       target: (state: T) => number;
       count?: (state: T) => number;
+      restore?: (state: T) => Promise<void>;
       cancel: () => void;
       displayed: (
         state: T,
@@ -68,7 +69,9 @@ export class AperturePreview<T> {
           count = this.io.count?.(request.state) ?? 0;
         }
         if (count >= target) {
-          this.latest = null;
+          await this.io.restore?.(request.state);
+          if (identity !== this.identity) continue;
+          if (this.latest?.sequence === request.sequence) this.latest = null;
           this.io.displayed(request.state, count, {
             sequence: request.sequence,
             inputAt: request.at,

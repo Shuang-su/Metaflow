@@ -1,6 +1,8 @@
 import { CandidateSession, type Pose as RenderPose } from "./session";
 import { AperturePreview } from "./aperture-preview";
 import { SharedGpuCompositor } from "./gpu-compositor";
+import { FloatImage } from "./float-image";
+import { FrameCache } from "./frame-cache";
 import { OperationQueue } from "../core/operation-queue";
 import {
   evaluate,
@@ -17,6 +19,8 @@ export type FrameState = {
   height: number;
   samples: number;
   playing: boolean;
+  original?: boolean;
+  peaking?: boolean;
 };
 const camera = (p: Pose) => p as RenderPose;
 /** One device, one scene, two accumulators only when a shot transition requires it. */
@@ -31,6 +35,10 @@ export class ResourceRuntime {
   private readonly operations = new OperationQueue();
   private pendingPreview: FrameState | null = null;
   private requestVersion = 0;
+  readonly metrics = { batches: 0, cacheHits: 0 };
+  private cache = new FrameCache<FloatImage>(128 * 1024 * 1024, (v) =>
+    v.destroy(),
+  );
   private constructor(
     primary: CandidateSession,
     onDisplay: (s: FrameState, count: number) => void,
@@ -52,12 +60,20 @@ export class ResourceRuntime {
     this.scheduler = new AperturePreview({
       target: (s) => (s.playing ? 4 : s.samples),
       count: (s) => this.count(s),
+      restore: async (s) => {
+        const cached = !s.peaking && this.cache.get(this.cacheKey(s));
+        if (cached) {
+          this.preview.presentTexture(cached.texture, s.width, s.height);
+          this.metrics.cacheHits++;
+        } else await this.composePreview(s);
+      },
       cancel: () => {
         primary.cancel();
         this.secondary.cancel();
       },
       batch: async (s, display) => {
         const start = performance.now();
+        this.metrics.batches++;
         const state = this.state(s);
         await primary.advance(camera(state.pose), s.width, s.height, 4, false);
         if (state.previousPose)
@@ -68,7 +84,11 @@ export class ResourceRuntime {
             4,
             false,
           );
-        if (display) await this.compose(s, this.preview);
+        if (display) {
+          await this.composePreview(s);
+          if (!s.playing && !s.peaking && this.count(s) >= s.samples)
+            this.retain(s);
+        }
         return { count: this.count(s), batchMs: performance.now() - start };
       },
       displayed: (s, n) => {
@@ -99,19 +119,57 @@ export class ResourceRuntime {
     }
   }
   private state(s: FrameState) {
-    return (
-      (s.video ? evaluate(s.project.shots, s.time) : null) ?? {
-        pose: s.pose,
-        previousPose: null,
-        previous: null,
-        blend: 1,
-        entryBlend: 1,
-        exitBlend: 1,
-        shot: s.project.shots[0],
-      }
-    );
+    const state = (s.video ? evaluate(s.project.shots, s.time) : null) ?? {
+      pose: s.pose,
+      previousPose: null,
+      previous: null,
+      blend: 1,
+      entryBlend: 1,
+      exitBlend: 1,
+      shot: s.project.shots[0],
+    };
+    return s.original
+      ? {
+          ...state,
+          pose: { ...state.pose, dof: false },
+          previousPose: state.previousPose
+            ? { ...state.previousPose, dof: false }
+            : null,
+        }
+      : state;
+  }
+  private cacheKey(s: FrameState) {
+    return JSON.stringify([
+      this.primary.generation,
+      this.primary.sceneRevision,
+      this.primary.background,
+      this.state(s),
+      s.width,
+      s.height,
+      s.samples,
+    ]);
+  }
+  private retain(s: FrameState) {
+    if (s.width * s.height * 16 > 128 * 1024 * 1024) return;
+    const image = new FloatImage(this.primary.device, s.width, s.height);
+    const device = this.primary.device;
+    device.frameStart();
+    image.copy(this.preview.texture!);
+    device.frameEnd();
+    device.submit();
+    this.cache.set(this.cacheKey(s), image, s.width * s.height * 16);
+  }
+  private async composePreview(s: FrameState) {
+    const state = this.state(s);
+    const mask =
+      s.peaking && !s.original && state.pose.dof
+        ? await this.primary.peakingMask(camera(state.pose), s.width, s.height)
+        : null;
+    await this.compose(s, this.preview, mask);
   }
   private count(s: FrameState) {
+    if (!s.playing && !s.peaking && this.cache.get(this.cacheKey(s)))
+      return s.samples;
     const state = this.state(s);
     return Math.min(
       this.primary.apertureCount(camera(state.pose), s.width, s.height),
@@ -163,7 +221,7 @@ export class ResourceRuntime {
       }
     }
   }
-  private async compose(s: FrameState, gpu: SharedGpuCompositor) {
+  private async compose(s: FrameState, gpu: SharedGpuCompositor, mask?: any) {
     const state = this.state(s),
       w = s.width,
       h = s.height;
@@ -221,13 +279,15 @@ export class ResourceRuntime {
     else if (state.exitBlend < 1)
       layer("incoming", state.exitBlend, state.shot.exitTransition!, false);
     else draw("incoming");
-    await gpu.finish();
+    await gpu.finish(undefined, mask);
   }
   async capture(
     s: FrameState,
     signal: AbortSignal,
     progress?: (n: number) => void,
   ) {
+    // Comparison and optical guides are preview state, never output settings.
+    s = { ...s, original: false, peaking: false };
     return this.exclusive(async () => {
       const state = this.state(s);
       this.primary.cancel();
@@ -270,6 +330,7 @@ export class ResourceRuntime {
   async dispose() {
     this.disposed = true;
     await this.stop();
+    this.cache.clear();
     this.preview.destroy();
     this.output.destroy();
     await this.secondary.dispose();

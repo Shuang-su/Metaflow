@@ -42,8 +42,7 @@ import { exportVideo, preflight } from "./core/encoder";
 import { CameraBar } from "./CameraBar";
 import { Operator } from "./Operator";
 import { TooltipLayer } from "./TooltipLayer";
-import logo from "../../metaflow-viewer/src/assets/metaflow_logo.svg";
-import wordmark from "../../metaflow-viewer/src/assets/metaflow_word.svg";
+import logo from "../../metaflow-viewer/src/assets/metaflow.svg";
 import { VideoTimeline } from "./VideoTimeline";
 import { VideoTutorial, type TutorialStep } from "./VideoTutorial";
 import { TransitionMenu } from "./TransitionMenu";
@@ -103,6 +102,8 @@ export function App() {
     [muted, setMute] = useState(true);
   const [operatorActive, setOperatorActive] = useState(false),
     [focusHint, setFocusHint] = useState("");
+  const [original, setOriginal] = useState(false),
+    [peaking, setPeaking] = useState(false);
   const [resolution, setResolution] = useState(1080),
     [fps, setFps] = useState(30),
     [photoFormat, setPhotoFormat] = useState<"png" | "jpeg">("png"),
@@ -159,8 +160,21 @@ export function App() {
     samples,
     busy,
     ready,
+    original,
+    peaking,
   });
-  current.current = { mode, time, playing, live, size, samples, busy, ready };
+  current.current = {
+    mode,
+    time,
+    playing,
+    live,
+    size,
+    samples,
+    busy,
+    ready,
+    original,
+    peaking,
+  };
   const commit = (next: Snapshot) => {
     ref.current = next;
     setSnapshot(next);
@@ -266,6 +280,8 @@ export function App() {
     height: current.current.size[1],
     samples: current.current.samples,
     playing: current.current.playing,
+    original: current.current.original,
+    peaking: current.current.peaking,
     ...options,
   });
   const resume = () => {
@@ -344,7 +360,21 @@ export function App() {
         loaded.assets,
         loaded.pose,
         loaded.background,
-        (_s, n) => setCount(n),
+        (_s, n) => {
+          setCount(n);
+          if (canvas.current && owned) {
+            canvas.current.dataset.apertureBatches = String(
+              owned.metrics.batches,
+            );
+            canvas.current.dataset.previewCacheHits = String(
+              owned.metrics.cacheHits,
+            );
+            canvas.current.dataset.apertureSamples = String(n);
+            canvas.current.dataset.peaking = String(
+              !!_s.peaking && !_s.original,
+            );
+          }
+        },
         (e) => {
           setError((e as Error).message);
           setPlaying(false);
@@ -407,6 +437,8 @@ export function App() {
     ready,
     busy,
     mode,
+    original,
+    peaking,
   ]);
   useEffect(() => {
     if (!playing) return;
@@ -907,8 +939,7 @@ export function App() {
           href={directorBasePath(location.pathname) ?? "/"}
           aria-label="返回资源 Viewer"
         >
-          <img className="brand-symbol" src={logo} alt="" />
-          <img className="brand-wordmark" src={wordmark} alt="Metaflow" />
+          <img className="brand-lockup" src={logo} alt="Metaflow" />
         </a>
         <span className="brand-beta">beta</span>
         <nav>
@@ -959,74 +990,86 @@ export function App() {
         </nav>
       </header>
       <section className="view-area">
-        <div
-          className="view-fit"
-          style={{
-            aspectRatio: project.aspect.replace(":", " / "),
-            width: `min(100cqw, calc(100cqh * ${a / b}))`,
-          }}
-          ref={stage}
-          onPointerDown={pointerDown}
-          onPointerMove={pointerMove}
-          onPointerUp={pointerUp}
-          onPointerCancel={(e) => {
-            pointers.current.clear();
-            cancelGesture();
-          }}
-          onContextMenu={(e) => e.preventDefault()}
-        >
-          <canvas ref={canvas} aria-label="资源摄影取景框" />
-          {!ready && !error && (
-            <div className="loading">
-              <span className="spinner" />
-              {status}
-            </div>
-          )}
-          {ready && (
-            <span className="render-status" aria-live="off">
-              {count >= samples ? "已收敛" : "渐进成片"} ·{" "}
-              {Math.min(count, samples)}/{samples}
-            </span>
-          )}
-          {focusMark && (
-            <span
-              key={focusMark.id}
-              className="focus-reticle source-focus-reticle"
-              style={{
-                left: `${focusMark.x * 100}%`,
-                top: `${focusMark.y * 100}%`,
+        <div className="view-scene">
+          <div
+            className="view-frame"
+            style={{
+              aspectRatio: project.aspect.replace(":", " / "),
+              width: `min(100cqw, calc((100cqh - 34px) * ${a / b}))`,
+            }}
+          >
+            <div
+              className="view-fit"
+              ref={stage}
+              onPointerDown={pointerDown}
+              onPointerMove={pointerMove}
+              onPointerUp={pointerUp}
+              onPointerCancel={(e) => {
+                pointers.current.clear();
+                cancelGesture();
               }}
+              onContextMenu={(e) => e.preventDefault()}
             >
-              {["top-left", "top-right", "bottom-right", "bottom-left"].map(
-                (c) => (
-                  <span key={c} className={`focus-reticle-corner is-${c}`} />
-                ),
+              <canvas ref={canvas} aria-label="资源摄影取景框" />
+              {!ready && !error && (
+                <div className="loading">
+                  <span className="spinner" />
+                  {status}
+                </div>
               )}
-              <span className="focus-reticle-circle" />
-              <span className="focus-reticle-cross" />
-            </span>
-          )}
-          <AnimatePresence>
-            {focusHint && !selectInterest && (
-              <motion.div
-                className="focus-instruction"
-                initial={{ opacity: 0, y: 5, scale: 0.9 }}
-                animate={{ opacity: 1, y: 0, scale: 1 }}
-                exit={{ opacity: 0, y: 4, scale: 0.94 }}
-                transition={{ duration: 0.2 }}
-              >
-                <Focus size={12} />
-                {focusHint}
-              </motion.div>
-            )}
-          </AnimatePresence>
-          {selectInterest && (
-            <InterestSelector
-              selections={shot?.interestAreas ?? []}
-              onSelect={interest}
-              onCancel={closeSelection}
-            />
-          )}
+              {focusMark && (
+                <span
+                  key={focusMark.id}
+                  className="focus-reticle source-focus-reticle"
+                  style={{
+                    left: `${focusMark.x * 100}%`,
+                    top: `${focusMark.y * 100}%`,
+                  }}
+                >
+                  {["top-left", "top-right", "bottom-right", "bottom-left"].map(
+                    (c) => (
+                      <span
+                        key={c}
+                        className={`focus-reticle-corner is-${c}`}
+                      />
+                    ),
+                  )}
+                  <span className="focus-reticle-circle" />
+                  <span className="focus-reticle-cross" />
+                </span>
+              )}
+              {selectInterest && (
+                <InterestSelector
+                  selections={shot?.interestAreas ?? []}
+                  onSelect={interest}
+                  onCancel={closeSelection}
+                />
+              )}
+            </div>
+            <div className="view-feedback" aria-live="polite">
+              <AnimatePresence>
+                {focusHint && !selectInterest && (
+                  <motion.div
+                    className="focus-instruction"
+                    initial={{ opacity: 0, y: 5, scale: 0.9 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, y: 4, scale: 0.94 }}
+                    transition={{ duration: 0.2 }}
+                  >
+                    <Focus size={12} />
+                    {focusHint}
+                  </motion.div>
+                )}
+              </AnimatePresence>
+              {ready && (
+                <span className="render-status" aria-live="off">
+                  {original
+                    ? "原图对照"
+                    : `${count >= samples ? "已收敛" : "渐进成片"} · ${Math.min(count, samples)}/${samples}`}
+                </span>
+              )}
+            </div>
+          </div>
         </div>
       </section>
       {error && (
@@ -1170,6 +1213,9 @@ export function App() {
           mode={mode}
           busy={busy}
           ready={ready && !error}
+          original={original}
+          onOriginal={() => setOriginal((v) => !v)}
+          onPeaking={setPeaking}
           onMode={(m) => {
             switchMode(m);
             setTutorial(

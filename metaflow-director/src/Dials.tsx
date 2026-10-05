@@ -378,6 +378,15 @@ export function LensRuler({
           schedule(n);
         }}
         onPointerUp={end}
+        onLostPointerCapture={() => {
+          if (!drag.current.active) return;
+          if (raf.current !== null) cancelAnimationFrame(raf.current);
+          raf.current = null;
+          pending.current = null;
+          drag.current.active = false;
+          onCancel();
+          endScrub();
+        }}
         onPointerCancel={(e) => {
           if (raf.current !== null) cancelAnimationFrame(raf.current);
           raf.current = null;

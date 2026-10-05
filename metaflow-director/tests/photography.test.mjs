@@ -17,6 +17,21 @@ async function source(entry) {
 const model = await source("src/core/model.ts"),
   control = await source("src/core/camera-controls.ts"),
   { AperturePreview } = await source("src/render/aperture-preview.ts");
+const { FrameCache } = await source("src/render/frame-cache.ts");
+test("frame cache bounds bytes and two entries, honors recent reuse and releases all GPU owners", () => {
+  const freed = [],
+    cache = new FrameCache(32, (v) => freed.push(v));
+  cache.set("a", "a", 12);
+  cache.set("b", "b", 12);
+  assert.equal(cache.get("a"), "a");
+  cache.set("c", "c", 12);
+  assert.equal(cache.get("b"), null);
+  assert.deepEqual(freed, ["b"]);
+  cache.set("oversize", "too-big", 40);
+  assert.equal(cache.get("oversize"), null);
+  cache.clear();
+  assert.deepEqual(freed, ["b", "too-big", "a", "c"]);
+});
 test("handoff preserves position/target without changing Director projection or aperture", () => {
   const initial = { position: [-2, 1, 5], target: [1, 0.25, -1] },
     p = model.poseFromCamera(initial, model.DEFAULT_POSE);

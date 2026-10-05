@@ -58,22 +58,22 @@
   gap: 10px;
   position: relative;
   z-index: 55;
+  pointer-events: none;
+}
+.director > header > a,
+.director > header > nav {
+  pointer-events: auto;
 }
 .brand {
   display: flex;
   align-items: center;
-  gap: 9px;
-  padding: 0 2px;
+  gap: 0;
+  padding: 0;
   flex-shrink: 0;
 }
-.brand-symbol {
-  width: 27px;
-  height: 26px;
-  object-fit: contain;
-}
-.brand-wordmark {
-  width: 62px;
-  height: 27px;
+.brand-lockup {
+  width: 96px;
+  height: 36.6px;
   object-fit: contain;
 }
 .light .brand img {
@@ -398,17 +398,21 @@
   position: absolute;
 }
 .island-focus-distance-icon {
-  font-size: 22px;
+  font-size: 18px;
   font-weight: 500;
   line-height: 1;
 }
 .top-lens-fstop {
-  font-family: Georgia, serif;
+  display: grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  font-family: Georgia, "Times New Roman", serif;
   font-style: italic;
-  font-size: 24px;
+  font-size: 20px;
   line-height: 1;
   font-weight: 400;
-  transform: translateY(-1px);
+  transform: translateY(-2px);
 }
 .perspective-outer,
 .perspective-inner {
@@ -858,7 +862,7 @@ html[data-director-theme="light"] .director-tooltip {
   position: absolute;
   z-index: 32;
   left: 50%;
-  bottom: 16px;
+  top: 0;
   translate: -50% 0;
   display: flex;
   align-items: center;
@@ -978,16 +982,9 @@ html[data-director-theme="light"] .director-tooltip {
     height: 40px;
     gap: 8px;
   }
-  .brand-symbol {
-    width: 23px;
-    height: 23px;
-  }
-  .brand-wordmark {
-    width: 54px;
-    height: 24px;
-  }
-  .brand {
-    gap: 6px;
+  .brand-lockup {
+    width: 80px;
+    height: 30.5px;
   }
   .brand-beta {
     padding: 4px 7px;
@@ -1096,11 +1093,9 @@ html[data-director-theme="light"] .director-tooltip {
   }
 }
 @media (max-width: 400px) {
-  .brand-wordmark {
-    width: 44px;
-  }
-  .brand-symbol {
-    width: 22px;
+  .brand-lockup {
+    width: 74px;
+    height: 28.2px;
   }
   .director > header nav button {
     width: 26px;

@@ -9,7 +9,7 @@ import {
 } from "react";
 import { createPortal } from "react-dom";
 import { AnimatePresence, motion } from "motion/react";
-import { Eye, SlidersHorizontal, Video } from "lucide-react";
+import { SlidersHorizontal, Video } from "lucide-react";
 import { RotationDial, LensRuler } from "./Dials";
 import {
   blurLabel,
@@ -76,6 +76,46 @@ function ScanBoxIcon() {
     </svg>
   );
 }
+function CompareIcon() {
+  return (
+    <svg
+      width="20"
+      height="20"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.6"
+      aria-hidden="true"
+    >
+      <rect x="3" y="4" width="18" height="16" rx="2" />
+      <path d="M12 4v16" />
+      <path
+        d="M5 6h5v12H5z"
+        fill="currentColor"
+        fillOpacity=".3"
+        stroke="none"
+      />
+    </svg>
+  );
+}
+function AspectIcon({ ratio }: { ratio: string }) {
+  const [a, b] = ratio.split(":").map(Number);
+  const w = a >= b ? 14 : (14 * a) / b,
+    h = b >= a ? 14 : (14 * b) / a;
+  return (
+    <svg
+      width="16"
+      height="16"
+      viewBox="0 0 16 16"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.3"
+      aria-hidden="true"
+    >
+      <rect x={(16 - w) / 2} y={(16 - h) / 2} width={w} height={h} rx="1" />
+    </svg>
+  );
+}
 export type OutputSettings = {
   resolution: number;
   samples: number;
@@ -100,6 +140,9 @@ export function CameraBar({
   output,
   onOutput,
   onFocus,
+  original,
+  onOriginal,
+  onPeaking,
 }: {
   operator: ReactNode;
   pose: Pose;
@@ -117,6 +160,9 @@ export function CameraBar({
   output: OutputSettings;
   onOutput: (patch: Partial<OutputSettings>) => void;
   onFocus: (manual: boolean) => void;
+  original: boolean;
+  onOriginal: () => void;
+  onPeaking: (active: boolean) => void;
 }) {
   const [active, setActive] = useState<string | null>(null),
     [compact, setCompact] = useState(() => innerWidth <= 760);
@@ -134,6 +180,7 @@ export function CameraBar({
     settings = Object.keys(labels),
     collapsedWidth = settings.length * 36 + 60;
   const close = (restoreFocus = false) => {
+    onPeaking(false);
     setActive(null);
     if (restoreFocus)
       requestAnimationFrame(() =>
@@ -152,6 +199,7 @@ export function CameraBar({
   useEffect(() => {
     close();
   }, [mode, busy]);
+  useEffect(() => () => onPeaking(false), [onPeaking]);
   useEffect(() => {
     if (!active) return;
     const outside = (e: PointerEvent) => {
@@ -218,9 +266,7 @@ export function CameraBar({
       return;
     }
     if (name === "original") {
-      onBegin();
-      onPose({ dof: !pose.dof });
-      onEnd();
+      onOriginal();
       return;
     }
     trigger.current = name;
@@ -264,13 +310,13 @@ export function CameraBar({
         {pose.focusInfinity ? "∞" : "↔"}
       </span>
     ) : name === "blur" ? (
-      <span className="top-lens-fstop">ƒ</span>
+      <span className="top-lens-icon top-lens-fstop">ƒ</span>
     ) : name === "zoom" ? (
       <span>{zoomLabel(c.zoom, c.zoomBaseline)}</span>
     ) : name === "perspective" ? (
       <ScanBoxIcon />
     ) : name === "original" ? (
-      <Eye size={19} strokeWidth={1.75} />
+      <CompareIcon />
     ) : name === "record" ? (
       mode === "video" ? (
         <Video size={16} strokeWidth={1.75} />
@@ -539,6 +585,7 @@ export function CameraBar({
                                 sound("toggle", 0.3);
                               }}
                             >
+                              <AspectIcon ratio={r} />
                               {r}
                             </button>
                           ))}
@@ -565,13 +612,16 @@ export function CameraBar({
                             onBegin={() => {
                               interacting.current = true;
                               onBegin();
+                              if (active === "blur") onPeaking(true);
                             }}
                             onEnd={() => {
                               interacting.current = false;
+                              onPeaking(false);
                               onEnd();
                             }}
                             onCancel={() => {
                               interacting.current = false;
+                              onPeaking(false);
                               onCancel();
                             }}
                             onChange={(n) =>
@@ -647,7 +697,7 @@ export function CameraBar({
                               }[name]
                             }
                             aria-pressed={
-                              name === "original" ? !pose.dof : undefined
+                              name === "original" ? original : undefined
                             }
                           >
                             {icon(name)}

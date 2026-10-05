@@ -24,6 +24,8 @@ export class SharedGpuCompositor {
   private target: RenderTarget | null = null;
   private output: ApertureGpu | null = null;
   private shader: any;
+  private peakingShader: any;
+  private peakingTarget: FloatImage | null = null;
   private width = 0;
   private height = 0;
   constructor(
@@ -51,6 +53,22 @@ export class SharedGpuCompositor {
         let mask=1.0-smoothstep(-.5,.5,d);
         output.color=c*uniform.opacity*mask;return output;
       }`.replaceAll(";", ";\n"),
+    });
+    this.peakingShader = ShaderUtils.createShader(device, {
+      uniqueName: "director-preview-peaking",
+      attributes: { vertex_position: SEMANTIC_POSITION },
+      vertexChunk: "fullscreenQuadVS",
+      fragmentWGSL:
+        `varying vUv0:vec2f; var image:texture_2d<f32>; var imageSampler:sampler;
+        var guide:texture_2d<f32>; var guideSampler:sampler;
+        @fragment fn fragmentMain(input:FragmentInput)->FragmentOutput {
+          var output:FragmentOutput;
+          let uv=vec2f(input.vUv0.x,1.0-input.vUv0.y);
+          let c=textureSample(image,imageSampler,uv);
+          let warning=clamp(textureSample(guide,guideSampler,uv).r,0.0,0.76);
+          output.color=vec4f(mix(c.rgb,vec3f(1.0,0.002709,0.001548)*c.a,warning),c.a);
+          return output;
+        }`.replaceAll(";", ";\n"),
     });
   }
   upload(key: string, source: Texture | TexImageSource) {
@@ -104,6 +122,8 @@ export class SharedGpuCompositor {
       this.target?.destroyTextureBuffers();
       this.target?.destroy();
       this.output?.destroy();
+      this.peakingTarget?.destroy();
+      this.peakingTarget = null;
       this.target = new RenderTarget({
         depth: false,
         colorBuffer: new Texture(this.device, {
@@ -165,15 +185,40 @@ export class SharedGpuCompositor {
   get texture() {
     return this.output?.texture;
   }
-  async finish(present = this.presentToCanvas) {
+  async finish(present = this.presentToCanvas, guide?: Texture | null) {
     if (this.shader.failed) throw Error("共享合成器着色器编译失败");
     this.output!.setSource(this.target!.colorBuffer);
+    if (guide) {
+      this.peakingTarget ??= new FloatImage(
+        this.device,
+        this.width,
+        this.height,
+      );
+      const scope = this.device.scope;
+      scope.resolve("image").setValue(this.target!.colorBuffer);
+      scope.resolve("guide").setValue(guide);
+      this.device.setBlendState(BlendState.NOBLEND);
+      drawQuadWithShader(
+        this.device,
+        this.peakingTarget.renderTarget,
+        this.peakingShader,
+      );
+      if (this.peakingShader.failed) throw Error("离焦参考着色器编译失败");
+      this.output!.setSource(this.peakingTarget.texture);
+    }
     if (present) this.output!.present();
     this.device.frameEnd();
     this.device.submit();
   }
   present() {
     this.output?.present();
+  }
+  presentTexture(texture: Texture, width: number, height: number) {
+    this.begin(width, height);
+    this.output!.setSource(texture);
+    this.output!.present();
+    this.device.frameEnd();
+    this.device.submit();
   }
   async snapshot() {
     const frame = await this.output!.read();
@@ -199,6 +244,7 @@ export class SharedGpuCompositor {
     this.target?.destroyTextureBuffers();
     this.target?.destroy();
     this.output?.destroy();
+    this.peakingTarget?.destroy();
     // Cached shader belongs to the shared device's program library.
   }
 }
