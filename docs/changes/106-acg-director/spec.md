@@ -7,7 +7,8 @@
 - 同标签页、同资源及素材引用、30 分钟内的 Viewer 实际显示 position/target 优先；失败读取 JSON camera 或 cameras[0].initial。无合法机位报错，不以包围盒代替。Director 默认投影独立，target 作为 MF 焦点。
 - 保留摄影控制、原始对照、画幅、撤销、本地兴趣点/Compose、同场景视频时间轴、转场和文件输出。移除 Studio、工程系统、素材库、账号、在线服务、Frame/设备及装饰。背景来自资源设置。
 - 独立 package 使用 PlayCanvas 2.22.4、SuperSplat 3.4.2 固定来源、splat-transform 3.6.4；全精度圆孔径四样本交互，静止 120ms 后至 128/256/512。输出固定完整目标，不降低质量。WebGPU/浮点/编码能力不满足时明确报错。
-- 公开界面采用自有 CSS、系统字体、Lucide ISC 图标；不分发 ui.camera 原始 CSS、专有 SVG 或设备模型。
+- 公开界面沿用已验证候选 `209cd56c` 的组件结构、内联摄影条、Operator/Compose、时间轴与交互动画，不以新的通用弹层替代。保留限定单资源范围；样式按候选状态实现，图标使用 Lucide ISC，字体仅从可核验的 OFL 上游取得，不发布参考站整包 CSS、专有 SVG 或设备模型。
+- 2026-10-05 用户修正：顶部去掉资源名及“Director 实验版”两行，直接复用 Viewer 的 `metaflow_logo.svg` 与 `metaflow_word.svg`，右侧为带 padding 与圆角底色的 `beta`。资源名仍用于导出文件名。
 
 ## 验收
 

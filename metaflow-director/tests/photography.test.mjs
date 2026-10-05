@@ -37,6 +37,10 @@ test("infinity focus and control changes do not recalibrate aperture", () => {
   assert(q.focusInfinity);
   assert.equal(q.focusPoint, null);
   assert.equal(q.optics.apertureScale, p.optics.apertureScale);
+  const auto = control.changeControls(q, { focusMode: "auto" });
+  assert.equal(auto.focusInfinity, false);
+  assert.equal(auto.focus, auto.distance);
+  assert.deepEqual(auto.optics, q.optics);
   const zoom = control.changeControls(p, { zoom: 500 });
   assert(zoom.fov < p.fov);
   assert.deepEqual(zoom.optics, p.optics);

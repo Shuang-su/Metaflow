@@ -10,6 +10,7 @@ export function RotationDial({
   onChange,
   onBegin,
   onEnd,
+  onCancel,
   disabled,
 }: {
   axis: string;
@@ -17,6 +18,7 @@ export function RotationDial({
   onChange: (v: number) => void;
   onBegin: () => void;
   onEnd: () => void;
+  onCancel: () => void;
   disabled: boolean;
 }) {
   const [liveValue, setLiveValue] = useState(value);
@@ -24,9 +26,10 @@ export function RotationDial({
     drag = useRef({ x: 0, value: 0, moved: false });
   const pending = useRef<number | null>(null),
     raf = useRef<number | null>(null),
-    button = useRef<HTMLButtonElement>(null);
-  const latest = useRef({ onChange, onBegin, onEnd });
-  latest.current = { onChange, onBegin, onEnd };
+    button = useRef<HTMLButtonElement>(null),
+    pointerId = useRef<number | null>(null);
+  const latest = useRef({ onChange, onBegin, onEnd, onCancel });
+  latest.current = { onChange, onBegin, onEnd, onCancel };
   const flush = () => {
     if (raf.current !== null) cancelAnimationFrame(raf.current);
     raf.current = null;
@@ -54,6 +57,7 @@ export function RotationDial({
   }, [value, scrubbing]);
   const end = (e: ReactPointerEvent<HTMLButtonElement>) => {
     if (!e.currentTarget.hasPointerCapture(e.pointerId)) return;
+    pointerId.current = null;
     e.currentTarget.releasePointerCapture(e.pointerId);
     if (drag.current.moved) {
       flush();
@@ -87,11 +91,16 @@ export function RotationDial({
       onPointerDown={(e) => {
         if (e.button !== 0 || disabled) return;
         drag.current = { x: e.clientX, value, moved: false };
+        pointerId.current = e.pointerId;
         setScrubbing(true);
         e.currentTarget.setPointerCapture(e.pointerId);
       }}
       onPointerMove={(e) => {
-        if (!e.currentTarget.hasPointerCapture(e.pointerId)) return;
+        if (
+          pointerId.current !== e.pointerId ||
+          !e.currentTarget.hasPointerCapture(e.pointerId)
+        )
+          return;
         const d = drag.current,
           dx = e.clientX - d.x;
         if (Math.abs(dx) > 2 && !d.moved) {
@@ -107,8 +116,37 @@ export function RotationDial({
         scrubSound((n + 360) / 720);
       }}
       onPointerUp={end}
-      onPointerCancel={end}
+      onPointerCancel={(e) => {
+        pointerId.current = null;
+        if (raf.current !== null) cancelAnimationFrame(raf.current);
+        raf.current = null;
+        pending.current = null;
+        if (e.currentTarget.hasPointerCapture(e.pointerId))
+          e.currentTarget.releasePointerCapture(e.pointerId);
+        paint(drag.current.value);
+        setScrubbing(false);
+        latest.current.onCancel();
+        endScrub();
+      }}
       onKeyDown={(e) => {
+        if (e.key === "Escape" && scrubbing) {
+          e.preventDefault();
+          e.stopPropagation();
+          if (
+            pointerId.current !== null &&
+            e.currentTarget.hasPointerCapture(pointerId.current)
+          )
+            e.currentTarget.releasePointerCapture(pointerId.current);
+          pointerId.current = null;
+          if (raf.current !== null) cancelAnimationFrame(raf.current);
+          raf.current = null;
+          pending.current = null;
+          paint(drag.current.value);
+          setScrubbing(false);
+          latest.current.onCancel();
+          endScrub();
+          return;
+        }
         if (!["ArrowLeft", "ArrowRight", "Home", "Enter", " "].includes(e.key))
           return;
         e.preventDefault();
@@ -160,6 +198,7 @@ export function LensRuler({
   onChange,
   onBegin,
   onEnd,
+  onCancel,
 }: {
   label: string;
   value: number;
@@ -168,6 +207,7 @@ export function LensRuler({
   onChange: (v: number) => void;
   onBegin: () => void;
   onEnd: () => void;
+  onCancel: () => void;
 }) {
   const [ticks, setTicks] = useState(() => Array(41).fill(0)),
     input = useRef<HTMLInputElement>(null),
@@ -260,6 +300,17 @@ export function LensRuler({
         step={1}
         defaultValue={value}
         onKeyDown={(e) => {
+          if (e.key === "Escape") {
+            e.preventDefault();
+            if (raf.current !== null) cancelAnimationFrame(raf.current);
+            raf.current = null;
+            pending.current = null;
+            drag.current.active = false;
+            keyboard.current = false;
+            onCancel();
+            endScrub();
+            return;
+          }
           if (
             ![
               "ArrowLeft",
@@ -328,11 +379,13 @@ export function LensRuler({
         }}
         onPointerUp={end}
         onPointerCancel={(e) => {
-          flush();
+          if (raf.current !== null) cancelAnimationFrame(raf.current);
+          raf.current = null;
+          pending.current = null;
           drag.current.active = false;
           if (e.currentTarget.hasPointerCapture(e.pointerId))
             e.currentTarget.releasePointerCapture(e.pointerId);
-          onEnd();
+          onCancel();
           endScrub();
         }}
         onClick={(e) => e.preventDefault()}
@@ -340,15 +393,3 @@ export function LensRuler({
     </div>
   );
 }
-const choices = ["16:9", "4:3", "1:1", "4:5", "9:16"];
-const labels: Record<string, string> = {
-  background: "Backdrop",
-  focus: "Focus mode",
-  focusDistance: "Focus distance",
-  blur: "Blur",
-  zoom: "Zoom",
-  perspective: "Field of View",
-  rounding: "Frame",
-  ratio: "Aspect",
-  record: "Recording settings",
-};
