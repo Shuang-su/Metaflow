@@ -147,3 +147,6 @@
 
 - 发布前Viewer再次144项通过；追加未发布来源登记并回填Ledger覆盖后，保留全部历史测试要求。最终候选`e59a58e9b`的[CI 37278019505](https://github.com/Shuang-su/Metaflow/actions/runs/37278019505)成功。对应预览`6ac352514f0d6a9eca1416b2`ready（8 redirect/9 header），实际缇宝与环境128收敛，选区等待/退出恢复，无console error；Director脚本与本地字节一致。一次错误诊断探针请求了不存在的`/director/assets/wasm/webp.wasm`，实际构建的assets/webp-D-qyFmK3.wasm与static/lib/webp/webp.wasm均200并具有WASM魔数，不是页面引用的404。
 - PR #117按常规规则合并为`1d52e6a9289b9f41a584aea72967cb629cee67bb`。两项原自动审查评论在实际修复及浏览器核查后回读并解决；最后一次Cursor重审当时仍pending，不记为独立人工审查通过。正式版本来源和公开镜像回填产品SHA；生产仍需最终构建、上线回读、实际输出与15分钟观察。
+
+
+- PR #117合并后完成的自动重审追加指出快速退出/重进时，旧展平批次可能误开放新选区。正式生产未切换，继续补修：每个预览帧带内部viewRevision，只有当前会话、当前尺寸和最终展平相机一起匹配才允许拾取；任何后续非匹配帧重新关闭拾取，点击前也检查实际displayed状态。该内部字段不进入公开工程/Viewer契约或图像缓存键。新增真实AperturePreview异步旧批次/新工作相机/新展平帧回归，23项及类型/构建通过。

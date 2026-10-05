@@ -21,6 +21,7 @@ export type FrameState = {
   playing: boolean;
   original?: boolean;
   peaking?: boolean;
+  viewRevision?: number;
 };
 const camera = (p: Pose) => p as RenderPose;
 /** One device, one scene, two accumulators only when a shot transition requires it. */

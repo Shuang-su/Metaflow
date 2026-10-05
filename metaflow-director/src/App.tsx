@@ -1,3 +1,4 @@
+import { isSelectionView } from "./render/selection-view";
 import { useEffect, useRef, useState, type PointerEvent as PE } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import {
@@ -292,6 +293,7 @@ export function App() {
     playing: current.current.playing,
     original: current.current.original,
     peaking: current.current.peaking,
+    viewRevision: intent.current,
     ...options,
   });
   const resume = () => {
@@ -372,16 +374,18 @@ export function App() {
         loaded.background,
         (_s, n) => {
           setCount(n);
-          // Selection coordinates become usable only after the exact flat view
-          // has reached the canvas, including GPU scheduling delay.
-          if (
-            selectionBase.current &&
-            selectionTarget.current &&
-            JSON.stringify(_s.pose) === JSON.stringify(selectionTarget.current)
-          ) {
-            selectionCanPick.current = true;
-            setSelectionReady(true);
-          }
+          // Re-entry must not accept an old flat batch; a later non-flat
+          // display also closes picking until this view is fully ready again.
+          const canPick =
+            !!selectionBase.current &&
+            isSelectionView(
+              _s,
+              selectionTarget.current,
+              intent.current,
+              current.current.size,
+            );
+          selectionCanPick.current = canPick;
+          setSelectionReady(canPick);
           if (canvas.current && owned) {
             canvas.current.dataset.apertureBatches = String(
               owned.metrics.batches,
@@ -787,7 +791,16 @@ export function App() {
     setStatus("Compose");
   };
   const interest = async (area: InterestArea, index: number) => {
-    if (!selectionCanPick.current) return false;
+    if (
+      !selectionCanPick.current ||
+      !isSelectionView(
+        runtime.current?.displayed ?? null,
+        selectionTarget.current,
+        intent.current,
+        current.current.size,
+      )
+    )
+      return false;
     const request = ++selectionPick.current,
       viewVersion = intent.current;
     const hit = await runtime.current?.pick(
