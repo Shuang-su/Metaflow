@@ -468,3 +468,9 @@ The 2026-08-15 Viewer 5.19.2 release-record commit updated package/version/index
 - Director22项、类型、24组浏览器布局、实际1080p照片及动态视频验证；发布检查与正式结果见[验证记录](changes/106-acg-director/verification.md)。历史严格光学和未穷举动画项仍独立未通过，未更改资源字节。
 
 - 未发布反馈来源 `3ab7dcfba` 与审查修正 `40713877e` 均由5.21.4携带；后者隔离临时相机历史，并等待展平画面实际显示后开放兴趣拾取。
+
+
+### `5.21.4` · `1d52e6a92` · final product record
+
+- [PR #117](https://github.com/Shuang-su/Metaflow/pull/117)已合并产品`1d52e6a9289b9f41a584aea72967cb629cee67bb`；不可变`viewer-v5.21.4-rc1`保留候选来源。公开版本镜像指向实际产品SHA，原来源`0fcef7032`、`3ab7dcfba`、`40713877e`保留维护记录。
+- [最终候选CI](https://github.com/Shuang-su/Metaflow/actions/runs/37278019505)成功；Netlify预览`6ac352514f0d6a9eca1416b2`实际缇宝/环境128收敛，选区等待/取消恢复、Compose和画外反馈验证。正式部署、媒体与观察结果另行追加实际证据。

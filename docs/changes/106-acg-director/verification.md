@@ -143,3 +143,7 @@
 
 - 发布前PR #117自动审查发现并补修：摄影控件以正式工作相机求值，临时Compose/选区相机不进入撤销历史；兴趣区域仅在最终展平状态实际显示到GPU画布后开放拾取，拾取请求和相机动画使用独立版本。实际71.2ms内打断Compose后仍保留9/-39/-1机位，撤销对焦只恢复MF，下一次撤销恢复4/-24/0。选区早点击时aria-busy=true且区域数0；最终展平后一次点击生成区域，Escape退出恢复原机位。选区期间改AF未写入展平的0/0/0或关闭景深。类型检查、22项测试和构建再次通过。
 - 候选`8c13e92b5`的[CI 37275922079](https://github.com/Shuang-su/Metaflow/actions/runs/37275922079)成功；上述审查修正属于后续提交，需再次执行CI和预览部署，不能引用旧结果替代。
+
+
+- 发布前Viewer再次144项通过；追加未发布来源登记并回填Ledger覆盖后，保留全部历史测试要求。最终候选`e59a58e9b`的[CI 37278019505](https://github.com/Shuang-su/Metaflow/actions/runs/37278019505)成功。对应预览`6ac352514f0d6a9eca1416b2`ready（8 redirect/9 header），实际缇宝与环境128收敛，选区等待/退出恢复，无console error；Director脚本与本地字节一致。一次错误诊断探针请求了不存在的`/director/assets/wasm/webp.wasm`，实际构建的assets/webp-D-qyFmK3.wasm与static/lib/webp/webp.wasm均200并具有WASM魔数，不是页面引用的404。
+- PR #117按常规规则合并为`1d52e6a9289b9f41a584aea72967cb629cee67bb`。两项原自动审查评论在实际修复及浏览器核查后回读并解决；最后一次Cursor重审当时仍pending，不记为独立人工审查通过。正式版本来源和公开镜像回填产品SHA；生产仍需最终构建、上线回读、实际输出与15分钟观察。
