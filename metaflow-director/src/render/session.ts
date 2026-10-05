@@ -3,6 +3,7 @@ import { srgbToLinear } from "./srgb";
 import { clippingRange } from "./clipping";
 import { setScenePrecision } from "./precision-target";
 import { ApertureGpu } from "./aperture-gpu";
+import { FloatImage } from "./float-image";
 import { apertureDiameter, apertureSample } from "./optics";
 import {
   Color,
@@ -59,6 +60,7 @@ export class CandidateSession {
   stableOrder = true;
   private apertureEpoch = 0;
   private job: any = null;
+  private guide: FloatImage | null = null;
   background = "#303030";
   private tail: Promise<unknown> = Promise.resolve();
   private accumulation = new AbortController();
@@ -108,6 +110,8 @@ export class CandidateSession {
     this.job = null;
     this.display?.destroy();
     this.display = null;
+    this.guide?.destroy();
+    this.guide = null;
   }
   get apertureTexture() {
     return this.job?.gpu.texture ?? null;
@@ -418,6 +422,39 @@ export class CandidateSession {
     this.apply(p, width, height);
     await this.frame(false, signal);
     return this.read();
+  }
+  /** Clear geometry produces an alpha-weighted optical warning, independent of accumulation. */
+  peakingMask(p: Pose, width: number, height: number) {
+    const generation = this.generation,
+      revision = this.sceneRevision;
+    return this.enqueue(async () => {
+      if (
+        this.disposed ||
+        generation !== this.generation ||
+        revision !== this.sceneRevision
+      )
+        throw new DOMException("Superseded", "AbortError");
+      this.apply({ ...p, dof: false }, width, height);
+      if (
+        !this.guide ||
+        this.guide.width !== width ||
+        this.guide.height !== height
+      ) {
+        this.guide?.destroy();
+        this.guide = new FloatImage(this.device, width, height);
+      }
+      try {
+        (this.scene as any).directorPeaking = [1, 0, 0, 0];
+        this.scene.camera.clearPass.setClearColor(new Color(0, 0, 0, 0));
+        await this.frame(false, undefined, () =>
+          this.guide!.copy(this.scene.camera.colorTarget.colorBuffer),
+        );
+        return this.guide.texture;
+      } finally {
+        (this.scene as any).directorPeaking = [0, 0, 0, 0];
+        this.apply({ ...p, dof: false }, width, height);
+      }
+    });
   }
   apertureCount(
     p: Pose,
@@ -780,6 +817,8 @@ export class CandidateSession {
     this.disposed = true;
     this.generation++;
     await this.tail;
+    this.guide?.destroy();
+    this.guide = null;
     if (!this.ownsScene) {
       this.display?.destroy();
       this.job?.gpu.destroy();

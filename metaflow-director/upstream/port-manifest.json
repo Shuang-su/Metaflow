@@ -23,6 +23,11 @@
     "metaflow-camera-lab/src/core/sounds.ts": "src/core/sounds.ts",
     "metaflow-camera-lab/src/VideoTimeline.tsx": "src/VideoTimeline.tsx",
     "metaflow-camera-lab/src/InterestSelector.tsx": "src/InterestSelector.tsx",
-    "supersplat-v2.32.5/src/video-output-transaction.ts": "src/core/video-output-transaction.ts"
+    "supersplat-v2.32.5/src/video-output-transaction.ts": "src/core/video-output-transaction.ts",
+    "metaflow-camera-lab/src/Operator.tsx": "src/Operator.tsx",
+    "metaflow-camera-lab/src/TooltipLayer.tsx": "src/TooltipLayer.tsx",
+    "metaflow-camera-lab/src/VideoTutorial.tsx": "src/VideoTutorial.tsx",
+    "metaflow-camera-lab/src/TransitionMenu.tsx": "src/TransitionMenu.tsx",
+    "metaflow-camera-lab/src/CameraControls.tsx": "src/CameraBar.tsx"
   }
 }

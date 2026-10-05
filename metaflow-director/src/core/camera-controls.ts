@@ -79,6 +79,7 @@ export function changeControls(
   }
   if (patch.focusMode === "auto") {
     p.focusPoint = null;
+    p.focusInfinity = false;
     p.focus = p.distance;
   }
   return p;

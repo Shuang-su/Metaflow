@@ -43,10 +43,17 @@ const notices = [
     lock.commit +
     "), MIT.",
   "Mediabunny 1.55.2 is distributed under MPL-2.0. Its unmodified source is available alongside this file at licenses/mediabunny-1.55.2-source.tar.gz.",
-  "No ui.camera styles, fonts, device models or proprietary SVG assets are distributed.",
+  "No raw ui.camera styles, proprietary SVG assets or device models are distributed. Open Runde fonts are obtained independently from their OFL-licensed upstream.",
 ];
 notices.push(
   "## SuperSplat\n\n" + (await readFile(path.join(tree, "LICENSE"), "utf8")),
+);
+notices.push(
+  "## Open Runde\n\nUpstream: https://github.com/lauridskern/open-runde/tree/3e7ed7f3cdfa5523766db7e430066472615fc935\n\n" +
+    (await readFile(
+      path.join(root, "src/assets/open-runde/LICENSE.txt"),
+      "utf8",
+    )),
 );
 const packages = JSON.parse(
   await readFile(path.join(root, "package-lock.json"), "utf8"),

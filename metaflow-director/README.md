@@ -26,11 +26,14 @@ node metaflow-director/preview.mjs
 - [SuperSplat 3.4.2](https://github.com/playcanvas/supersplat/tree/f76e67633f21b298846c29eceab48ae20579fb4e)，MIT；`upstream/source-lock.json` 固定源码归档及每个源文件 SHA256，首次构建下载并核验，后续核验缓存。上游源不原位修改。
 - PlayCanvas 2.22.4、splat-transform 3.6.4，MIT，依赖通过 lockfile 固定；WebP codec 包含 libwebp BSD 许可，保存在 `upstream/licenses/`。没有声称已知其二进制使用的 libwebp 版本。
 - 高精度投影、稳定排序、画布分离适配通过 `upstream/*-patch.mjs` 在打包边界应用。`upstream/port-manifest.json` 记录原候选文件来源；产品 UI、资源解析与生命周期在本目录独立维护。
-- React、Motion 等许可随构建生成 `/director/THIRD_PARTY_NOTICES.txt`；图标使用 Lucide ISC、字体使用系统字体。未包含 ui.camera 原始 CSS、专有 SVG、字体或设备 GLB。
+- React、Motion 等许可随构建生成 `/director/THIRD_PARTY_NOTICES.txt`；图标使用 Lucide ISC。摄影条与 Operator 沿用 MF-62 候选 `209cd56c` 的自有 React 组件和动画状态，按本入口范围裁剪；不以通用浮窗替代内联展开。未包含 ui.camera 原始 CSS、专有 SVG 或设备 GLB。
+- Open Runde 字体来自 [官方上游](https://github.com/lauridskern/open-runde/tree/3e7ed7f3cdfa5523766db7e430066472615fc935)，固定提交并核验字节，使用 SIL OFL 1.1；`src/assets/open-runde/source.json` 保存来源及哈希，完整许可随第三方声明分发。Metaflow Logo 与字标直接引用现有 Viewer 正式 SVG。
 - Mediabunny 1.55.2，MPL-2.0，未修改库源码。构建随包提供 `/director/licenses/mediabunny-1.55.2-source.tar.gz`，内容来自锁定 npm 包的完整 `src`、LICENSE、README 和 package.json。
 
 ## 渲染与边界
 
 一个 WebGPU 设备加载主体及环境。32 位投影缓存、场景与累积缓冲；完整圆孔径的四样本交互，停止 120ms 后继续至 128/256/512。照片和视频使用选定完整采样，视频时间为 N/fps。关闭随机 Alpha、运动剔除及历史 Fast 扩散。最终编码的 8 位输出不代表中间累积精度。
+
+原图对照是独立的预览状态，不改写光圈、机位或视频关键帧。会话最多保留两张完整 RGBA32F 画面，合计上限 128 MiB；相机、焦点、光圈、时间、场景修订、尺寸或采样目标改变后不能命中旧状态。光圈拖动中的红色离焦参考使用单独的清晰几何辅助通道，按逆深度离焦量着色，只用于预览合成；不写入孔径缓冲、照片或视频。
 
 该路径可能需要较长的收敛和导出时间，尤其是大模型和 4K。能力不足报错并提供返回 Viewer，不静默降低质量。发丝、透明层、强遮挡和扫描残影仍按 MF-62 独立跟踪；入口和输出验证不等于严格光学验证。

@@ -34,17 +34,17 @@ export function opticsPatch(code, id) {
     );
     replace(
       "new UniformFormat('numSplats', UNIFORMTYPE_UINT)",
-      "new UniformFormat('directorOptics', UNIFORMTYPE_VEC4),\n            new UniformFormat('numSplats', UNIFORMTYPE_UINT)",
+      "new UniformFormat('directorOptics', UNIFORMTYPE_VEC4),\n            new UniformFormat('directorPeaking', UNIFORMTYPE_VEC4),\n            new UniformFormat('numSplats', UNIFORMTYPE_UINT)",
     );
     replace(
       "compute.setParameter('numSplats',",
-      "compute.setParameter('directorOptics', (this.scene as any).directorOptics ?? [1,0,0,1]);\n            compute.setParameter('numSplats',",
+      "compute.setParameter('directorOptics', (this.scene as any).directorOptics ?? [1,0,0,1]);\n            compute.setParameter('directorPeaking', (this.scene as any).directorPeaking ?? [0,0,0,0]);\n            compute.setParameter('numSplats',",
     );
   }
   if (id.endsWith("/shaders/projected-splat-projector-shader.ts")) {
     replace(
       "struct ProjectorUniforms {",
-      "struct ProjectorUniforms {\n    directorOptics: vec4f,",
+      "struct ProjectorUniforms {\n    directorOptics: vec4f,\n    directorPeaking: vec4f,",
     );
     replace(
       "let determinant = cov00 * cov11 - cov01 * cov01;",
@@ -61,6 +61,16 @@ export function opticsPatch(code, id) {
     replace(
       "gradedAlpha = clamp(gradedAlpha, 0.0, 1.0);",
       "gradedAlpha = clamp(gradedAlpha, 0.0, 1.0) * sqrt(originalDet / max(determinant,1e-20));",
+    );
+    replace(
+      "color = vec4f(graded, gradedAlpha);",
+      `color = vec4f(graded, gradedAlpha);
+    // A separate centered clear pass. Never tint an aperture sample.
+    if (uniforms.directorPeaking.x > 0.5) {
+        let coc = 0.5 * focal.x * uniforms.directorOptics.y * abs(1.0 / max(depth, 1e-6) - 1.0 / uniforms.directorOptics.x) / uniforms.viewport.y;
+        let warning = pow(clamp(1.0 - exp(-coc * 18.0), 0.0, 1.0), 0.85) * 0.76;
+        color = vec4f(vec3f(warning), gradedAlpha);
+    }`,
     );
   }
   return code;

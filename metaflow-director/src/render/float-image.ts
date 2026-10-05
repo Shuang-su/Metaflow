@@ -49,6 +49,9 @@ export class FloatImage {
   get texture() {
     return this.target.colorBuffer;
   }
+  get renderTarget() {
+    return this.target;
+  }
   destroy() {
     this.target.destroyTextureBuffers();
     this.target.destroy();

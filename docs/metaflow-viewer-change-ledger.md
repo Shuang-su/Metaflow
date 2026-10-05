@@ -458,3 +458,13 @@ The 2026-08-15 Viewer 5.19.2 release-record commit updated package/version/index
 - 正式缇宝1080p/128 PNG与同状态候选文件SHA256相同；完整媒体及15分钟观察以[验证记录](changes/106-acg-director/verification.md)、[MF-106](https://github.com/Shuang-su/Metaflow/issues/106)和[Release](https://github.com/Shuang-su/Metaflow/releases/tag/viewer-v5.21.3)实际结果为准。
 
 - 5.21.3正式1秒1080p30 H.264为30帧，实际相机/光圈变化可见，全部解码。15分钟观察累计901.32秒、15轮，build.json、公开资源索引版本与Director/Viewer/Editor/脚本/WASM五类入口无回读错误。原始日志及媒体作为Release附件，历史光学/浏览器限制保持独立。
+
+
+## `5.21.4` · `40713877e` · MF-106 摄影反馈与候选界面恢复
+
+- 包含未发布界面来源 `0fcef7032`；恢复MF-62候选内联摄影条、Operator、视频时间轴与教程，保持公开单资源入口范围。正式组合品牌SVG和beta替代资源名/实验版副标题。
+- 修复header拦截Compose；画幅比例增加真实比例图示；对焦提示和渐进状态放在画外。光圈红色离焦辅助纹理仅进入预览。
+- 原图对照不改写摄影参数；完整RGBA32F画面缓存最多两项/128MiB，按完整状态失效，输出排除对照和辅助色。
+- Director22项、类型、24组浏览器布局、实际1080p照片及动态视频验证；发布检查与正式结果见[验证记录](changes/106-acg-director/verification.md)。历史严格光学和未穷举动画项仍独立未通过，未更改资源字节。
+
+- 未发布反馈来源 `3ab7dcfba` 与审查修正 `40713877e` 均由5.21.4携带；后者隔离临时相机历史，并等待展平画面实际显示后开放兴趣拾取。

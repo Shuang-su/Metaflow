@@ -7,19 +7,10 @@ import {
   Sun,
   Moon,
   HelpCircle,
-  Target,
   Focus,
-  SlidersHorizontal,
-  Scan,
-  Shuffle,
-  Maximize,
-  Eye,
-  Camera,
-  Video,
   X,
   Volume2,
   VolumeX,
-  Plus,
 } from "lucide-react";
 import { ResourceRuntime, type FrameState } from "./render/runtime";
 import { loadResource, type ResourceScene } from "./resource";
@@ -33,6 +24,7 @@ import {
   totalDuration,
   layoutShots,
   interpolatePose,
+  cubicBezier,
   outputSize,
   clamp,
   type Pose,
@@ -44,27 +36,22 @@ import {
   controlsFor,
   changeControls,
   rebaseControls,
-  manualFocusValue,
-  manualFocusPatch,
-  blurLabel,
-  zoomLabel,
 } from "./core/camera-controls";
 import { composeViewPose } from "./core/compose-view";
 import { exportVideo, preflight } from "./core/encoder";
-import { RotationDial, LensRuler } from "./Dials";
+import { CameraBar } from "./CameraBar";
+import { Operator } from "./Operator";
+import { TooltipLayer } from "./TooltipLayer";
+import logo from "../../metaflow-viewer/src/assets/metaflow.svg";
 import { VideoTimeline } from "./VideoTimeline";
+import { VideoTutorial, type TutorialStep } from "./VideoTutorial";
+import { TransitionMenu } from "./TransitionMenu";
 import { InterestSelector, type InterestArea } from "./InterestSelector";
 import { setSoundMuted } from "./core/sounds";
 type Snapshot = { pose: Pose; project: Project };
 const initial: Snapshot = {
   pose: structuredClone(DEFAULT_POSE),
   project: createProject(),
-};
-const buttonMotion = {
-  initial: { opacity: 0, scale: 0.85, y: 8 },
-  animate: { opacity: 1, scale: 1, y: 0 },
-  exit: { opacity: 0, scale: 0.9, y: 6 },
-  transition: { duration: 0.18 },
 };
 function download(blob: Blob, name: string) {
   const url = URL.createObjectURL(blob),
@@ -112,8 +99,11 @@ export function App() {
   const [size, setSize] = useState<[number, number]>([960, 540]),
     [count, setCount] = useState(0),
     [theme, setTheme] = useState<"dark" | "light">("dark"),
-    [panel, setPanel] = useState<string | null>(null),
     [muted, setMute] = useState(true);
+  const [operatorActive, setOperatorActive] = useState(false),
+    [focusHint, setFocusHint] = useState("");
+  const [original, setOriginal] = useState(false),
+    [peaking, setPeaking] = useState(false);
   const [resolution, setResolution] = useState(1080),
     [fps, setFps] = useState(30),
     [photoFormat, setPhotoFormat] = useState<"png" | "jpeg">("png"),
@@ -121,17 +111,22 @@ export function App() {
   const [busy, setBusy] = useState(false),
     [progress, setProgress] = useState(""),
     [dirty, setDirty] = useState(false),
-    [tutorial, setTutorial] = useState(true),
     [help, setHelp] = useState(false);
+  const [tutorial, setTutorial] = useState<TutorialStep>(null);
+  const tutorialDismissed = useRef(false);
+  const tutorialEndpoint = useRef<"start" | "end" | null>(null);
+  const tutorialAfterPlay = useRef<TutorialStep>("operator");
   const [focusMark, setFocusMark] = useState<{
       x: number;
       y: number;
       id: number;
     } | null>(null),
     [selectInterest, setSelectInterest] = useState(false),
+    [selectionReady, setSelectionReady] = useState(false),
     [transition, setTransition] = useState<{
       id: string;
       edge: "in" | "out";
+      anchor: { x: number; y: number };
     } | null>(null);
   const [historyVersion, setHistoryVersion] = useState(0),
     [thumbnails, setThumbnails] = useState<Record<string, string>>({});
@@ -144,6 +139,17 @@ export function App() {
     abort = useRef<AbortController | null>(null),
     thumbnailAbort = useRef<AbortController | null>(null),
     wheelTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [temporaryPose, setTemporaryPose] = useState<Pose | null>(null);
+  const temporary = useRef<Pose | null>(null),
+    selectionBase = useRef<Pose | null>(null),
+    selectionTarget = useRef<Pose | null>(null),
+    selectionCanPick = useRef(false),
+    selectionPick = useRef(0),
+    operatorBase = useRef<Pose | null>(null);
+  const setViewOnly = (p: Pose | null) => {
+    temporary.current = p;
+    setTemporaryPose(p);
+  };
   const pointers = useRef(new Map<number, { x: number; y: number }>()),
     drag = useRef({ x: 0, y: 0, moved: false, pinch: false });
   const { pose, project } = snapshot,
@@ -158,8 +164,21 @@ export function App() {
     samples,
     busy,
     ready,
+    original,
+    peaking,
   });
-  current.current = { mode, time, playing, live, size, samples, busy, ready };
+  current.current = {
+    mode,
+    time,
+    playing,
+    live,
+    size,
+    samples,
+    busy,
+    ready,
+    original,
+    peaking,
+  };
   const commit = (next: Snapshot) => {
     ref.current = next;
     setSnapshot(next);
@@ -181,6 +200,12 @@ export function App() {
     intent.current++;
     if (animation.current !== null) cancelAnimationFrame(animation.current);
     animation.current = null;
+    setViewOnly(null);
+    selectionBase.current = null;
+    selectionTarget.current = null;
+    selectionCanPick.current = false;
+    setSelectionReady(false);
+    setSelectInterest(false);
     setPlaying(false);
   };
   const begin = () => {
@@ -188,6 +213,16 @@ export function App() {
     if (!gesture.current) gesture.current = structuredClone(ref.current);
   };
   const end = () => {
+    if (tutorialEndpoint.current) {
+      const next = structuredClone(ref.current);
+      const sh = next.project.shots.find((s) => s.id === selected);
+      const key =
+        tutorialEndpoint.current === "start" ? sh?.keys[0] : sh?.keys.at(-1);
+      if (key) key.pose = structuredClone(next.pose);
+      commit(next);
+      setTutorial(tutorialEndpoint.current === "start" ? "end" : "playback");
+      tutorialEndpoint.current = null;
+    }
     if (
       gesture.current &&
       JSON.stringify(gesture.current) !== JSON.stringify(ref.current)
@@ -200,6 +235,7 @@ export function App() {
     gesture.current = null;
   };
   const cancelGesture = () => {
+    tutorialEndpoint.current = null;
     stopMotion();
     if (gesture.current) {
       const previous = gesture.current;
@@ -219,8 +255,17 @@ export function App() {
     commit({ ...ref.current, pose: next });
     setLive(true);
   };
-  const patchPose = (patch: Partial<Pose>) =>
-    updatePose({ ...ref.current.pose, ...patch });
+  const patchPose = (
+    patch: Partial<Pose> | ((current: Pose) => Partial<Pose>),
+  ) => {
+    const base = ref.current.pose;
+    updatePose({
+      ...base,
+      ...(typeof patch === "function" ? patch(base) : patch),
+    });
+    if (tutorial === "start" || tutorial === "adjust-end")
+      tutorialEndpoint.current = tutorial === "start" ? "start" : "end";
+  };
   const control = (patch: Parameters<typeof changeControls>[1]) =>
     updatePose(changeControls(ref.current.pose, patch));
   const restore = (back: boolean) => {
@@ -235,13 +280,18 @@ export function App() {
   };
   const frame = (options: Partial<FrameState> = {}): FrameState => ({
     project: structuredClone(ref.current.project),
-    pose: structuredClone(ref.current.pose),
+    pose: structuredClone(temporary.current ?? ref.current.pose),
     time: current.current.time,
-    video: current.current.mode === "video" && !current.current.live,
+    video:
+      !temporary.current &&
+      current.current.mode === "video" &&
+      !current.current.live,
     width: current.current.size[0],
     height: current.current.size[1],
     samples: current.current.samples,
     playing: current.current.playing,
+    original: current.current.original,
+    peaking: current.current.peaking,
     ...options,
   });
   const resume = () => {
@@ -253,6 +303,23 @@ export function App() {
     )
       runtime.current.request(frame());
   };
+  useEffect(() => {
+    if (tutorial === "watch" && !playing) {
+      setTutorial(tutorialAfterPlay.current);
+      if (!tutorialAfterPlay.current) tutorialDismissed.current = true;
+    }
+  }, [playing, tutorial]);
+  useEffect(() => {
+    document.documentElement.dataset.directorTheme = theme;
+    return () => {
+      delete document.documentElement.dataset.directorTheme;
+    };
+  }, [theme]);
+  useEffect(() => {
+    if (!focusHint) return;
+    const timer = setTimeout(() => setFocusHint(""), 2600);
+    return () => clearTimeout(timer);
+  }, [focusHint]);
   useEffect(() => {
     setSoundMuted(muted);
   }, [muted]);
@@ -303,7 +370,31 @@ export function App() {
         loaded.assets,
         loaded.pose,
         loaded.background,
-        (_s, n) => setCount(n),
+        (_s, n) => {
+          setCount(n);
+          // Selection coordinates become usable only after the exact flat view
+          // has reached the canvas, including GPU scheduling delay.
+          if (
+            selectionBase.current &&
+            selectionTarget.current &&
+            JSON.stringify(_s.pose) === JSON.stringify(selectionTarget.current)
+          ) {
+            selectionCanPick.current = true;
+            setSelectionReady(true);
+          }
+          if (canvas.current && owned) {
+            canvas.current.dataset.apertureBatches = String(
+              owned.metrics.batches,
+            );
+            canvas.current.dataset.previewCacheHits = String(
+              owned.metrics.cacheHits,
+            );
+            canvas.current.dataset.apertureSamples = String(n);
+            canvas.current.dataset.peaking = String(
+              !!_s.peaking && !_s.original,
+            );
+          }
+        },
         (e) => {
           setError((e as Error).message);
           setPlaying(false);
@@ -355,7 +446,20 @@ export function App() {
   }, [ready, project.aspect, mode]);
   useEffect(() => {
     if (ready && !busy && runtime.current) runtime.current.request(frame());
-  }, [snapshot, time, live, playing, size, samples, ready, busy, mode]);
+  }, [
+    snapshot,
+    temporaryPose,
+    time,
+    live,
+    playing,
+    size,
+    samples,
+    ready,
+    busy,
+    mode,
+    original,
+    peaking,
+  ]);
   useEffect(() => {
     if (!playing) return;
     const start = performance.now(),
@@ -388,6 +492,7 @@ export function App() {
   }, [dirty, busy]);
   useEffect(() => {
     const key = (e: KeyboardEvent) => {
+      if (e.defaultPrevented) return;
       if (
         e.target instanceof HTMLInputElement ||
         e.target instanceof HTMLTextAreaElement ||
@@ -399,8 +504,8 @@ export function App() {
           abort.current?.abort();
           return;
         }
-        cancelGesture();
-        setPanel(null);
+        if (selectionBase.current) closeSelection();
+        else cancelGesture();
         setTransition(null);
         setSelectInterest(false);
         setHelp(false);
@@ -454,7 +559,7 @@ export function App() {
       if (request <= intent.current) resume();
       setTimeout(
         () => setFocusMark((m) => (m?.id === request ? null : m)),
-        850,
+        1850,
       );
     }
   };
@@ -578,49 +683,139 @@ export function App() {
       setSnapshot(next);
     }
   };
-  const compose = () => {
-    if (!shot || busy) return;
-    begin();
-    const start = structuredClone(ref.current.pose),
-      index = composeIndex.current++,
-      points = shot.interestPoints ?? [],
-      base = points.length
-        ? { ...start, focusPoint: points[index % points.length] }
-        : start,
-      target = composeViewPose(base, index);
+  // MF-62 view-only camera tween. Temporary flattening never enters project history.
+  const animateCamera = (
+    from: Pose,
+    to: Pose,
+    keep = false,
+    complete?: () => void,
+  ) => {
     const started = performance.now(),
       version = intent.current;
+    setViewOnly(structuredClone(from));
     const tick = (now: number) => {
       if (intent.current !== version) return;
-      const t = clamp((now - started) / 600, 0, 1),
-        ease = 1 - (1 - t) ** 3;
-      commit({ ...ref.current, pose: interpolatePose(start, target, ease) });
-      setLive(true);
+      const t = clamp((now - started) / 220, 0, 1);
+      setViewOnly(
+        t === 1
+          ? keep
+            ? structuredClone(to)
+            : null
+          : interpolatePose(from, to, cubicBezier(t, [0.2, 0.8, 0.2, 1])),
+      );
       if (t < 1) animation.current = requestAnimationFrame(tick);
       else {
         animation.current = null;
-        end();
+        complete?.();
       }
     };
     animation.current = requestAnimationFrame(tick);
   };
+  const closeSelection = () => {
+    const back = selectionBase.current,
+      from = temporary.current;
+    stopMotion();
+    if (back && from) animateCamera(from, back);
+  };
+  const enterSelection = () => {
+    if (selectionBase.current) {
+      closeSelection();
+      return;
+    }
+    const from = temporary.current ?? ref.current.pose;
+    stopMotion();
+    selectionBase.current = structuredClone(ref.current.pose);
+    setSelectInterest(true);
+    const flat = rebaseControls({
+      ...structuredClone(from),
+      yaw: 0,
+      pitch: 0,
+      roll: 0,
+      dof: false,
+      focusPoint: null,
+    });
+    selectionTarget.current = structuredClone(flat);
+    animateCamera(from, flat, true);
+  };
+  const compose = () => {
+    if (!shot || busy) return;
+    const from = temporary.current ?? ref.current.pose;
+    begin();
+    const base = structuredClone(operatorBase.current ?? ref.current.pose),
+      index = composeIndex.current++,
+      points = shot.interestPoints ?? [];
+    if (points.length) base.focusPoint = points[index % points.length];
+    const nextPose = composeViewPose(base, index),
+      next = structuredClone(ref.current);
+    let target = nextPose;
+    if (mode === "video") {
+      const sh = next.project.shots.find((s) => s.id === shot.id)!;
+      const poses =
+        points.length > 1
+          ? points.map((point, i) =>
+              composeViewPose({ ...base, focusPoint: point }, i),
+            )
+          : [structuredClone(base), nextPose];
+      sh.keys = poses.map((pose, i) => ({
+        id: uid(),
+        time: (sh.duration * i) / (poses.length - 1),
+        pose,
+      }));
+      target = poses[0];
+      setTime(
+        layoutShots(next.project.shots).find((s) => s.shot.id === shot.id)!
+          .start,
+      );
+    }
+    next.pose = target;
+    commit(next);
+    end();
+    setLive(true);
+    animateCamera(
+      from,
+      target,
+      false,
+      mode === "video"
+        ? () => {
+            setLive(false);
+            setPlaying(true);
+            if (tutorial === "compose" || tutorial === "final-compose")
+              setTutorial("watch");
+          }
+        : undefined,
+    );
+    setStatus("Compose");
+  };
   const interest = async (area: InterestArea, index: number) => {
-    const request = ++intent.current;
+    if (!selectionCanPick.current) return false;
+    const request = ++selectionPick.current,
+      viewVersion = intent.current;
     const hit = await runtime.current?.pick(
       area.x + area.width / 2,
       area.y + area.height / 2,
     );
-    if (request !== intent.current || !hit) {
+    if (
+      request !== selectionPick.current ||
+      viewVersion !== intent.current ||
+      !selectionCanPick.current ||
+      !hit
+    ) {
       resume();
       return false;
     }
-    edit((s) => {
-      const shot = s.project.shots.find((v) => v.id === selected)!;
-      shot.interestAreas ??= [];
-      shot.interestPoints ??= [];
-      shot.interestAreas[index] = area;
-      shot.interestPoints[index] = hit.point as Pose["target"];
-    });
+    // A confirmed selection is one edit; do not cancel the temporary selection view.
+    const previous = structuredClone(ref.current),
+      next = structuredClone(ref.current);
+    const sh = next.project.shots.find((v) => v.id === selected)!;
+    sh.interestAreas ??= [];
+    sh.interestPoints ??= [];
+    sh.interestAreas[index] = area;
+    sh.interestPoints[index] = hit.point as Pose["target"];
+    undo.current.push(previous);
+    redo.current = [];
+    setHistoryVersion((v) => v + 1);
+    commit(next);
+    if (tutorial === "interest-area") setTutorial("final-compose");
     resume();
     return true;
   };
@@ -629,8 +824,8 @@ export function App() {
     current.current.busy = true;
     thumbnailAbort.current?.abort();
     stopMotion();
-    setPanel(null);
     setBusy(true);
+    setTransition(null);
     setError("");
     const controller = new AbortController();
     abort.current = controller;
@@ -753,12 +948,9 @@ export function App() {
       if (thumbnailAbort.current === controller) thumbnailAbort.current = null;
     };
   }, [mode, ready, busy, playing, count, samples, project, pose]);
-  const showPanel = (name: string) =>
-    setPanel((v) => (v === name ? null : name));
   const switchMode = (value: "photo" | "video") => {
     stopMotion();
     setMode(value);
-    setPanel(null);
     setSelectInterest(false);
     if (value === "video") seek(time);
     else setLive(true);
@@ -772,16 +964,12 @@ export function App() {
           href={directorBasePath(location.pathname) ?? "/"}
           aria-label="返回资源 Viewer"
         >
-          <span className="brand-bars" />
-          Metaflow
+          <img className="brand-lockup" src={logo} alt="Metaflow" />
         </a>
-        <div className="resource-title">
-          <strong>{resource?.resource.title ?? "资源摄影"}</strong>
-          <span>Director 实验版</span>
-        </div>
+        <span className="brand-beta">beta</span>
         <nav>
           <button
-            title="撤销 ⌘Z"
+            data-tooltip="Undo · ⌘Z"
             aria-label="撤销"
             disabled={busy || !undo.current.length}
             onClick={() => restore(true)}
@@ -789,7 +977,7 @@ export function App() {
             <Undo2 size={18} />
           </button>
           <button
-            title="重做 ⇧⌘Z"
+            data-tooltip="Redo · ⇧⌘Z"
             aria-label="重做"
             disabled={busy || !redo.current.length}
             onClick={() => restore(false)}
@@ -797,18 +985,24 @@ export function App() {
             <Redo2 size={18} />
           </button>
           <button
+            data-tooltip={muted ? "Sound on" : "Mute"}
             aria-label={muted ? "开启控件声音" : "静音"}
             onClick={() => setMute(!muted)}
           >
             {muted ? <VolumeX size={18} /> : <Volume2 size={18} />}
           </button>
           <button
+            data-tooltip="Appearance"
             aria-label="切换明暗主题"
             onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
           >
             {theme === "dark" ? <Sun size={19} /> : <Moon size={19} />}
           </button>
-          <button aria-label="摄影帮助" onClick={() => setHelp(true)}>
+          <button
+            data-tooltip="Help"
+            aria-label="摄影帮助"
+            onClick={() => setHelp(true)}
+          >
             <HelpCircle size={19} />
           </button>
           <a
@@ -821,60 +1015,87 @@ export function App() {
         </nav>
       </header>
       <section className="view-area">
-        <div
-          className="view-fit"
-          style={{
-            aspectRatio: project.aspect.replace(":", " / "),
-            width: `min(100cqw, calc(100cqh * ${a / b}))`,
-          }}
-          ref={stage}
-          onPointerDown={pointerDown}
-          onPointerMove={pointerMove}
-          onPointerUp={pointerUp}
-          onPointerCancel={(e) => {
-            pointers.current.clear();
-            cancelGesture();
-          }}
-          onContextMenu={(e) => e.preventDefault()}
-        >
-          <canvas ref={canvas} aria-label="资源摄影取景框" />
-          {!ready && !error && (
-            <div className="loading">
-              <span className="spinner" />
-              {status}
+        <div className="view-scene">
+          <div
+            className="view-frame"
+            style={{
+              aspectRatio: project.aspect.replace(":", " / "),
+              width: `min(100cqw, calc((100cqh - 34px) * ${a / b}))`,
+            }}
+          >
+            <div
+              className="view-fit"
+              ref={stage}
+              onPointerDown={pointerDown}
+              onPointerMove={pointerMove}
+              onPointerUp={pointerUp}
+              onPointerCancel={(e) => {
+                pointers.current.clear();
+                cancelGesture();
+              }}
+              onContextMenu={(e) => e.preventDefault()}
+            >
+              <canvas ref={canvas} aria-label="资源摄影取景框" />
+              {!ready && !error && (
+                <div className="loading">
+                  <span className="spinner" />
+                  {status}
+                </div>
+              )}
+              {focusMark && (
+                <span
+                  key={focusMark.id}
+                  className="focus-reticle source-focus-reticle"
+                  style={{
+                    left: `${focusMark.x * 100}%`,
+                    top: `${focusMark.y * 100}%`,
+                  }}
+                >
+                  {["top-left", "top-right", "bottom-right", "bottom-left"].map(
+                    (c) => (
+                      <span
+                        key={c}
+                        className={`focus-reticle-corner is-${c}`}
+                      />
+                    ),
+                  )}
+                  <span className="focus-reticle-circle" />
+                  <span className="focus-reticle-cross" />
+                </span>
+              )}
+              {selectInterest && (
+                <InterestSelector
+                  ready={selectionReady}
+                  selections={shot?.interestAreas ?? []}
+                  onSelect={interest}
+                  onCancel={closeSelection}
+                />
+              )}
             </div>
-          )}
-          {ready && (
-            <span className="render-status" aria-live="off">
-              {count >= samples ? "已收敛" : "渐进成片"} ·{" "}
-              {Math.min(count, samples)}/{samples}
-            </span>
-          )}
-          <AnimatePresence>
-            {focusMark && (
-              <motion.div
-                key={focusMark.id}
-                className="focus-marker"
-                style={{
-                  left: focusMark.x * 100 + "%",
-                  top: focusMark.y * 100 + "%",
-                }}
-                initial={{ scale: 1.7, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                exit={{ scale: 0.8, opacity: 0 }}
-                transition={{ duration: 0.22 }}
-              >
-                <Focus size={36} />
-              </motion.div>
-            )}
-          </AnimatePresence>
-          {selectInterest && (
-            <InterestSelector
-              selections={shot?.interestAreas ?? []}
-              onSelect={interest}
-              onCancel={() => setSelectInterest(false)}
-            />
-          )}
+            <div className="view-feedback" aria-live="polite">
+              <AnimatePresence>
+                {focusHint && !selectInterest && (
+                  <motion.div
+                    className="focus-instruction"
+                    initial={{ opacity: 0, y: 5, scale: 0.9 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, y: 4, scale: 0.94 }}
+                    transition={{ duration: 0.2 }}
+                  >
+                    <Focus size={12} />
+                    {focusHint}
+                  </motion.div>
+                )}
+              </AnimatePresence>
+              {ready && (
+                <span className="render-status" aria-live="off">
+                  {original
+                    ? "原图对照"
+                    : `${count >= samples ? "已收敛" : "渐进成片"} · ${Math.min(count, samples)}/${samples}`}
+                </span>
+              )}
+            </div>
+          </div>
         </div>
       </section>
       {error && (
@@ -896,44 +1117,6 @@ export function App() {
           <a href={directorBasePath(location.pathname) ?? "/"}>返回 Viewer</a>
         </div>
       )}
-      {ready && (
-        <div className="compose-tools">
-          <button disabled={busy || !shot} onClick={compose}>
-            <Shuffle size={16} />
-            构图
-          </button>
-          <button
-            className={selectInterest ? "active" : ""}
-            disabled={busy || !shot}
-            onClick={() => {
-              stopMotion();
-              setSelectInterest(!selectInterest);
-            }}
-          >
-            <Scan size={17} />
-            兴趣区域
-            {shot?.interestPoints?.length
-              ? ` · ${shot.interestPoints.length}`
-              : ""}
-          </button>
-          {selectInterest && (
-            <>
-              <button
-                onClick={() =>
-                  edit((s) => {
-                    const sh = s.project.shots.find((v) => v.id === selected)!;
-                    sh.interestAreas = [];
-                    sh.interestPoints = [];
-                  })
-                }
-              >
-                清除
-              </button>
-              <button onClick={() => setSelectInterest(false)}>完成</button>
-            </>
-          )}
-        </div>
-      )}
       <AnimatePresence>
         {mode === "video" && ready && (
           <VideoTimeline
@@ -947,7 +1130,10 @@ export function App() {
             onSelect={(id, t) => seek(t, id)}
             onDeselect={() => setSelected("")}
             onTime={(t) => seek(t)}
-            onPlay={togglePlayback}
+            onPlay={() => {
+              togglePlayback();
+              if (tutorial === "playback") setTutorial("watch");
+            }}
             onUpdate={(fn) => {
               const inGesture = !!gesture.current;
               if (!inGesture) begin();
@@ -996,346 +1182,106 @@ export function App() {
                 setSelected(added.id);
               })
             }
-            onTransition={(s, edge) => setTransition({ id: s.id, edge })}
+            onEndpoint={(edge) => {
+              if (tutorial === "end" && edge === "end")
+                setTutorial("adjust-end");
+            }}
+            onTransition={(s, edge, anchor) => {
+              stopMotion();
+              setTransition({ id: s.id, edge, anchor });
+            }}
           />
         )}
       </AnimatePresence>
       <footer>
-        <div className="mode-controls">
-          <div className="mode-switch">
-            <button
-              className={mode === "photo" ? "active" : ""}
-              disabled={busy}
-              onClick={() => switchMode("photo")}
-            >
-              PHOTO
-            </button>
-            <button
-              className={mode === "video" ? "active" : ""}
-              disabled={busy}
-              onClick={() => switchMode("video")}
-            >
-              VIDEO
-            </button>
-          </div>
-          <div className="axes">
-            {(["X", "Y", "Z"] as const).map((axis, i) => (
-              <RotationDial
-                key={axis}
-                axis={axis}
-                value={pose[(["pitch", "yaw", "roll"] as const)[i]]}
-                disabled={!ready || busy}
-                onBegin={begin}
-                onEnd={end}
-                onChange={(v) =>
-                  patchPose({
-                    [(["pitch", "yaw", "roll"] as const)[i]]: v,
-                    continuousRotation: true,
-                  })
-                }
-              />
-            ))}
-          </div>
-        </div>
-        <div className="photography-controls" aria-label="摄影控制条">
-          <button
-            disabled={!ready || busy}
-            title="AF / MF"
-            aria-label="切换自动与手动对焦"
-            onClick={() => {
-              edit((s) => {
-                s.pose = changeControls(s.pose, {
-                  focusMode: c.focusMode === "auto" ? "manual" : "auto",
-                });
-                s.pose.focusInfinity = false;
-              });
-              setLive(true);
-              setStatus(
-                c.focusMode === "auto"
-                  ? "点击画面选择焦点"
-                  : "自动对焦到取景目标",
-              );
-            }}
-          >
-            <AnimatePresence mode="wait">
-              <motion.b
-                key={c.focusMode}
-                initial={{ opacity: 0, y: 5 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -5 }}
-              >
-                {c.focusMode === "manual" ? "MF" : "AF"}
-              </motion.b>
-            </AnimatePresence>
-          </button>
-          <button
-            disabled={!ready || busy}
-            title="手动对焦 · 最近至无穷远"
-            aria-label="手动对焦距离"
-            className={panel === "focus" ? "active" : ""}
-            onClick={() => showPanel("focus")}
-          >
-            <Focus size={21} />
-          </button>
-          <button
-            disabled={!ready || busy}
-            title="光圈"
-            aria-label="光圈"
-            className={panel === "aperture" ? "active" : ""}
-            onClick={() => showPanel("aperture")}
-          >
-            <i className="aperture-glyph">ƒ</i>
-          </button>
-          <button
-            disabled={!ready || busy}
-            title="Zoom"
-            aria-label="Zoom"
-            className={panel === "zoom" ? "active" : ""}
-            onClick={() => showPanel("zoom")}
-          >
-            {zoomLabel(c.zoom, c.zoomBaseline)}
-          </button>
-          <button
-            disabled={!ready || busy}
-            title="视角"
-            aria-label="Field of View"
-            className={panel === "fov" ? "active" : ""}
-            onClick={() => showPanel("fov")}
-          >
-            <Maximize size={21} />
-          </button>
-          <button
-            disabled={!ready || busy}
-            title="原始清晰画面对照"
-            aria-label="切换原始画面对照"
-            className={!pose.dof ? "active" : ""}
-            onClick={() => {
-              edit((s) => {
-                s.pose.dof = !s.pose.dof;
-              });
-              setLive(true);
-            }}
-          >
-            <Eye size={21} />
-          </button>
-          <button
-            disabled={busy}
-            title="画幅"
-            aria-label="画幅比例"
-            className={panel === "aspect" ? "active" : ""}
-            onClick={() => showPanel("aspect")}
-          >
-            {project.aspect}
-          </button>
-          <button
-            disabled={busy}
-            title="输出设置"
-            aria-label="输出设置"
-            className={panel === "output" ? "active" : ""}
-            onClick={() => showPanel("output")}
-          >
-            <SlidersHorizontal size={20} />
-          </button>
-          <button
-            className={`shutter ${mode}`}
-            disabled={!ready || busy || !!error}
-            onClick={save}
-            aria-label={mode === "photo" ? "拍摄照片" : "导出视频"}
-          >
-            {mode === "photo" ? (
-              <Camera size={23} />
-            ) : (
-              <>
-                <span />
-                REC
-              </>
-            )}
-          </button>
-        </div>
-        <AnimatePresence>
-          {panel && (
-            <motion.div
-              className="settings-popover"
-              role="dialog"
-              aria-label={panel}
-              {...buttonMotion}
-            >
-              <div className="popover-title">
-                <strong>
-                  {
-                    {
-                      focus: "手动对焦",
-                      aperture: "光圈",
-                      zoom: "Zoom",
-                      fov: "Field of View",
-                      aspect: "画幅比例",
-                      output: "输出设置",
-                    }[panel]
+        <CameraBar
+          operator={
+            <Operator
+              active={operatorActive}
+              selecting={selectInterest}
+              disabled={!ready || busy || !shot}
+              interestCount={shot?.interestPoints?.length ?? 0}
+              onPrimary={() => {
+                if (!operatorActive) {
+                  operatorBase.current = structuredClone(ref.current.pose);
+                  setOperatorActive(true);
+                  if (tutorial === "operator") setTutorial("compose");
+                } else {
+                  compose();
+                  if (tutorial === "compose" || tutorial === "final-compose") {
+                    tutorialAfterPlay.current =
+                      tutorial === "compose" ? "interest" : null;
+                    setTutorial(null);
                   }
-                </strong>
-                <button aria-label="关闭设置" onClick={() => setPanel(null)}>
-                  <X size={16} />
-                </button>
-              </div>
-              {["focus", "aperture", "zoom", "fov"].includes(panel) && (
-                <>
-                  <output>
-                    {panel === "aperture"
-                      ? blurLabel(c.blurAmount)
-                      : panel === "zoom"
-                        ? zoomLabel(c.zoom, c.zoomBaseline)
-                        : panel === "fov"
-                          ? `${c.perspective > 0 ? "+" : ""}${Math.round(c.perspective)}`
-                          : pose.focusInfinity
-                            ? "∞"
-                            : pose.focus.toPrecision(3) + " 场景单位"}
-                  </output>
-                  <LensRuler
-                    key={panel}
-                    label={
-                      {
-                        focus: "对焦距离",
-                        aperture: "光圈",
-                        zoom: "Zoom",
-                        fov: "Field of View",
-                      }[panel]
-                    }
-                    value={
-                      panel === "focus"
-                        ? manualFocusValue(pose)
-                        : panel === "aperture"
-                          ? c.blurAmount
-                          : panel === "zoom"
-                            ? c.zoom
-                            : c.perspective
-                    }
-                    min={panel === "zoom" ? 50 : panel === "fov" ? -100 : 0}
-                    max={panel === "zoom" ? 500 : 100}
-                    onBegin={begin}
-                    onEnd={end}
-                    onChange={(v) => {
-                      if (panel === "focus")
-                        patchPose(manualFocusPatch(ref.current.pose, v));
-                      else
-                        control({
-                          [panel === "aperture"
-                            ? "blurAmount"
-                            : panel === "zoom"
-                              ? "zoom"
-                              : "perspective"]: v,
-                        });
-                    }}
-                  />
-                  {panel === "focus" && (
-                    <div className="scale-labels">
-                      <span>最近</span>
-                      <span>∞</span>
-                    </div>
-                  )}
-                </>
-              )}
-              {panel === "aspect" && (
-                <div className="choices">
-                  {["16:9", "9:16", "4:3", "4:5", "1:1"].map((v) => (
-                    <button
-                      key={v}
-                      className={project.aspect === v ? "active" : ""}
-                      onClick={() =>
-                        edit((s) => {
-                          s.project.aspect = v;
-                        })
-                      }
-                    >
-                      {v}
-                    </button>
-                  ))}
-                </div>
-              )}
-              {panel === "output" && (
-                <>
-                  <label>
-                    分辨率
-                    <select
-                      value={resolution}
-                      onChange={(e) => setResolution(+e.target.value)}
-                    >
-                      {[720, 1080, 2160].map((v) => (
-                        <option key={v} value={v}>
-                          {v === 2160 ? "4K" : v + "p"} ·{" "}
-                          {outputSize(project.aspect, v).join(" × ")}
-                        </option>
-                      ))}
-                    </select>
-                  </label>
-                  <label>
-                    精细度
-                    <select
-                      value={samples}
-                      onChange={(e) => setSamples(+e.target.value)}
-                    >
-                      {[128, 256, 512].map((v) => (
-                        <option key={v} value={v}>
-                          {v} 孔径样本
-                        </option>
-                      ))}
-                    </select>
-                  </label>
-                  {mode === "photo" ? (
-                    <label>
-                      照片格式
-                      <select
-                        value={photoFormat}
-                        onChange={(e) => setPhotoFormat(e.target.value as any)}
-                      >
-                        <option value="png">PNG</option>
-                        <option value="jpeg">JPEG</option>
-                      </select>
-                    </label>
-                  ) : (
-                    <>
-                      <label>
-                        帧率
-                        <select
-                          value={fps}
-                          onChange={(e) => setFps(+e.target.value)}
-                        >
-                          {[24, 30, 60].map((v) => (
-                            <option key={v}>{v}</option>
-                          ))}
-                        </select>
-                      </label>
-                      <label>
-                        视频格式
-                        <select
-                          value={videoFormat}
-                          onChange={(e) =>
-                            setVideoFormat(e.target.value as any)
-                          }
-                        >
-                          <option value="mp4">MP4 / H.264</option>
-                          <option value="webm">WebM / VP9</option>
-                        </select>
-                      </label>
-                    </>
-                  )}
-                </>
-              )}
-            </motion.div>
-          )}
-        </AnimatePresence>
+                }
+              }}
+              onInterest={() => {
+                enterSelection();
+                if (tutorial === "interest") setTutorial("interest-area");
+              }}
+              onClose={() => {
+                closeSelection();
+                setOperatorActive(false);
+              }}
+              onClearInterest={() =>
+                edit((s) => {
+                  const sh = s.project.shots.find((v) => v.id === selected);
+                  if (sh) {
+                    sh.interestPoints = [];
+                    sh.interestAreas = [];
+                  }
+                })
+              }
+            />
+          }
+          pose={pose}
+          project={project}
+          mode={mode}
+          busy={busy}
+          ready={ready && !error}
+          original={original}
+          onOriginal={() => setOriginal((v) => !v)}
+          onPeaking={setPeaking}
+          onMode={(m) => {
+            switchMode(m);
+            setTutorial(
+              m === "video" && !tutorialDismissed.current ? "start" : null,
+            );
+          }}
+          onPose={patchPose}
+          onProject={(patch) => edit((s) => Object.assign(s.project, patch))}
+          onBegin={begin}
+          onEnd={end}
+          onCancel={cancelGesture}
+          onCapture={save}
+          onFocus={(manual) => {
+            setFocusHint(manual ? "Click to set focus" : "");
+            if (manual) setFocusMark(null);
+          }}
+          output={{ resolution, fps, samples, photoFormat, videoFormat }}
+          onOutput={(patch) => {
+            if (patch.resolution !== undefined) setResolution(patch.resolution);
+            if (patch.fps !== undefined) setFps(patch.fps);
+            if (patch.samples !== undefined) setSamples(patch.samples);
+            if (patch.photoFormat) setPhotoFormat(patch.photoFormat);
+            if (patch.videoFormat) setVideoFormat(patch.videoFormat);
+          }}
+        />
       </footer>
+      <TooltipLayer />
       <p className="status-note" role="status">
         {status}
       </p>
-      {tutorial && ready && (
-        <aside className="tutorial">
-          <strong>把三维场景带回来重新摄影</strong>
-          <p>拖动环绕 · ⇧拖动平移 · 滚轮移动机位 · 双指缩放</p>
-          <p>
-            点击画面对焦，调节 ƒ 控制虚化。视频模式中保存机位，再导出镜头运动。
-          </p>
-          <button onClick={() => setTutorial(false)}>知道了，关闭教程</button>
-        </aside>
+      {mode === "video" && ready && (
+        <VideoTutorial
+          step={tutorial}
+          onClose={() => {
+            setTutorial(null);
+            if (gesture.current) cancelGesture();
+            else closeSelection();
+            tutorialDismissed.current = true;
+          }}
+        />
       )}
       {help && (
         <div className="modal-backdrop" onClick={() => setHelp(false)}>
@@ -1366,97 +1312,45 @@ export function App() {
           </section>
         </div>
       )}
-      {transition && (
-        <div className="modal-backdrop" onClick={() => setTransition(null)}>
-          <section
-            className="modal"
-            role="dialog"
-            aria-label="镜头转场"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <button
-              className="close"
-              aria-label="关闭转场"
-              onClick={() => setTransition(null)}
-            >
-              <X />
-            </button>
-            <h2>{transition.edge === "in" ? "入场" : "出场"}转场</h2>
-            {(() => {
-              const sh = project.shots.find((s) => s.id === transition.id)!;
-              const value =
-                transition.edge === "in"
-                  ? sh.transition
-                  : (sh.exitTransition ?? { kind: "cut", duration: 0.5 });
-              const change = (patch: Partial<Transition>) =>
+      <AnimatePresence>
+        {transition &&
+          runtime.current &&
+          project.shots.some((s) => s.id === transition.id) && (
+            <TransitionMenu
+              key={`${transition.id}-${transition.edge}`}
+              project={project}
+              shotId={transition.id}
+              edge={transition.edge}
+              anchor={transition.anchor}
+              renderFrame={(t, signal) =>
+                runtime.current!.capture(
+                  frame({
+                    time: t,
+                    video: true,
+                    width: 260,
+                    height: 146,
+                    samples: 4,
+                    playing: false,
+                  }),
+                  signal,
+                )
+              }
+              onChange={(value) =>
                 edit((s) => {
                   const sh = s.project.shots.find(
                     (v) => v.id === transition.id,
                   )!;
-                  const k =
-                    transition.edge === "in" ? "transition" : "exitTransition";
-                  sh[k] = { ...value, ...patch };
-                });
-              return (
-                <>
-                  <div className="choices">
-                    {(["cut", "fade", "push", "zoom"] as const).map((kind) => (
-                      <button
-                        key={kind}
-                        className={value.kind === kind ? "active" : ""}
-                        onClick={() => change({ kind })}
-                      >
-                        {kind.toUpperCase()}
-                      </button>
-                    ))}
-                  </div>
-                  <div className={`transition-preview ${value.kind}`}>
-                    <span>A</span>
-                    <span>B</span>
-                  </div>
-                  <label>
-                    时长（秒）
-                    <input
-                      aria-label="转场时长"
-                      type="number"
-                      min="0"
-                      max={sh.duration / 2}
-                      step="0.1"
-                      value={value.duration}
-                      onChange={(e) =>
-                        change({
-                          duration: clamp(+e.target.value, 0, sh.duration / 2),
-                        })
-                      }
-                    />
-                  </label>
-                  {["push", "zoom"].includes(value.kind) && (
-                    <label>
-                      方向
-                      <select
-                        value={
-                          value.direction ??
-                          (value.kind === "push" ? "left" : "in")
-                        }
-                        onChange={(e) =>
-                          change({ direction: e.target.value as any })
-                        }
-                      >
-                        {(value.kind === "push"
-                          ? ["left", "right", "up", "down"]
-                          : ["in", "out"]
-                        ).map((d) => (
-                          <option key={d}>{d}</option>
-                        ))}
-                      </select>
-                    </label>
-                  )}
-                </>
-              );
-            })()}
-          </section>
-        </div>
-      )}
+                  if (transition.edge === "in") sh.transition = value;
+                  else sh.exitTransition = value;
+                })
+              }
+              onClose={() => {
+                setTransition(null);
+                resume();
+              }}
+            />
+          )}
+      </AnimatePresence>
       {busy && (
         <div className="modal-backdrop">
           <section className="modal" role="dialog" aria-label="正在导出">

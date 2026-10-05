@@ -11,14 +11,19 @@ const out = await build({
     {
       name: "headless-gpu-boundary",
       setup(b) {
-        b.onResolve({ filter: /^\.\/(session|gpu-compositor)$/ }, (args) => ({
-          path: args.path,
-          namespace: "mock",
-        }));
+        b.onResolve(
+          { filter: /^\.\/(session|gpu-compositor|float-image)$/ },
+          (args) => ({
+            path: args.path,
+            namespace: "mock",
+          }),
+        );
         b.onLoad({ filter: /.*/, namespace: "mock" }, (args) => ({
           contents: args.path.endsWith("session")
             ? "export class CandidateSession { static attach(scene) { return scene; } }"
-            : "export class SharedGpuCompositor { upload(){} present(){} destroy(){} snapshot(){return this.result;} }",
+            : args.path.endsWith("float-image")
+              ? "export class FloatImage { texture={}; copy(){} destroy(){} }"
+              : "export class SharedGpuCompositor { texture={}; upload(){} present(){} presentTexture(){this.restored=true;} destroy(){} snapshot(){return this.result;} }",
           loader: "js",
         }));
       },
@@ -40,7 +45,7 @@ function fixture(afterFirstBatch) {
     batches = 0;
   const primary = {
     background: "#000000",
-    device: {},
+    device: { frameStart() {}, frameEnd() {}, submit() {} },
     scene: null,
     settled: () => serial,
     cancel() {
@@ -50,18 +55,18 @@ function fixture(afterFirstBatch) {
     advance(p, w, h, n) {
       const task = serial.then(async () => {
         await new Promise((r) => setTimeout(r, 2));
-        if (value?.id !== p.id) {
+        if (value?.id !== p.id || value?.dof !== p.dof) {
           count = 0;
         }
-        value = { id: p.id, w, h };
+        value = { id: p.id, w, h, dof: p.dof };
         count += n;
         if (batches++ === 0) afterFirstBatch?.();
       });
       serial = task.catch(() => {});
       return task;
     },
-    apertureCount() {
-      return count;
+    apertureCount(p) {
+      return value?.id === p.id && value?.dof === p.dof ? count : 0;
     },
     async dispose() {},
     async pick() {
@@ -88,8 +93,10 @@ function fixture(afterFirstBatch) {
       s.width,
       "thumbnail/export dimensions must never mix",
     );
-    assert.equal(count, s.samples, "all samples must belong to this capture");
-    gpu.result = { ...value, count };
+    if (gpu === rt.output)
+      assert.equal(count, s.samples, "all samples must belong to this capture");
+    const { dof, ...delivered } = value;
+    gpu.result = { ...delivered, count };
   };
   const state = (id, samples, width) => ({
     pose: { id },
@@ -103,6 +110,43 @@ function fixture(afterFirstBatch) {
   });
   return { rt, state };
 }
+test("completed original/composed previews restore without another aperture batch; changed state misses", async () => {
+  const { rt, state } = fixture();
+  const s = state("working", 8, 640);
+  s.pose.dof = true;
+  rt.request(s);
+  await rt.scheduler.settled();
+  rt.request({ ...s, original: true });
+  await rt.scheduler.settled();
+  const batches = rt.metrics.batches;
+  rt.request(s);
+  await rt.scheduler.settled();
+  assert.equal(rt.metrics.batches, batches);
+  assert.equal(rt.metrics.cacheHits, 1);
+  assert.equal(rt.preview.restored, true);
+  rt.request({ ...s, pose: { ...s.pose, id: "new-camera" } });
+  await rt.scheduler.settled();
+  assert(rt.metrics.batches > batches);
+  await rt.dispose();
+});
+test("capture never carries original comparison or optical guide into output", async () => {
+  const { rt, state } = fixture();
+  const s = state("output", 8, 640);
+  s.pose.dof = true;
+  const compose = rt.compose;
+  rt.compose = (state, gpu, mask) => {
+    assert.equal(state.original, false);
+    assert.equal(state.peaking, false);
+    assert.equal(mask, undefined);
+    return compose(state, gpu);
+  };
+  await rt.capture(
+    { ...s, original: true, peaking: true },
+    new AbortController().signal,
+  );
+  assert.equal(rt.primary.pose, undefined);
+  await rt.dispose();
+});
 test("thumbnail and export started together retain exclusive state through final composition", async () => {
   const { rt, state } = fixture(),
     signal = new AbortController().signal;

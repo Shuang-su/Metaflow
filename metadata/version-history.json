@@ -1,14 +1,14 @@
 {
   "schemaVersion": "1.1",
   "cutoffGitRef": "c613a87",
-  "documentedThrough": "a62e7531d",
+  "documentedThrough": "40713877e",
   "defaultResourceVersion": "1.0a",
   "current": {
-    "displayVersion": "5.21.3",
-    "appSemver": "5.21.3",
+    "displayVersion": "5.21.4",
+    "appSemver": "5.21.4",
     "indexSchemaVersion": "1.2",
     "date": "2026-10-05",
-    "gitRef": "a62e7531d",
+    "gitRef": "40713877e",
     "historyUrl": "/data/version-history.json",
     "upstream": {
       "repository": "playcanvas/supersplat-viewer",
@@ -215,6 +215,16 @@
       "gitRef": "b958ec1b6",
       "date": "2026-10-05",
       "summary": "Unpublished MF-106 short-window source checkpoint preserved by viewer-v5.21.3-rc1; final product is PR #114 squash."
+    },
+    {
+      "gitRef": "0fcef7032",
+      "date": "2026-10-05",
+      "summary": "Unpublished MF-106 restoration checkpoint; candidate CameraBar, Operator, timeline and tutorial are carried by the 5.21.4 product release."
+    },
+    {
+      "gitRef": "3ab7dcfba",
+      "date": "2026-10-05",
+      "summary": "Unpublished MF-106 feedback and optical guide checkpoint; included by the final 5.21.4 source."
     }
   ],
   "entries": [
@@ -1644,6 +1654,24 @@
         "evidence": "docs/changes/106-acg-director/verification.md",
         "releaseTag": "viewer-v5.21.3",
         "pullRequest": "https://github.com/Shuang-su/Metaflow/pull/114"
+      }
+    },
+    {
+      "displayVersion": "5.21.4",
+      "appSemver": "5.21.4",
+      "type": "fix",
+      "scope": "viewer",
+      "date": "2026-10-05",
+      "gitRef": "40713877e",
+      "summary": "恢复已验证的Director摄影界面、构图交互、光圈红色参考及完整帧复用，提示和收敛状态移至画面外",
+      "trace": {
+        "changeId": "MF-106",
+        "issue": "https://github.com/Shuang-su/Metaflow/issues/106",
+        "spec": "docs/changes/106-acg-director/spec.md",
+        "plan": "docs/changes/106-acg-director/plan.md",
+        "evidence": "docs/changes/106-acg-director/verification.md",
+        "releaseTag": "viewer-v5.21.4",
+        "pullRequest": "https://github.com/Shuang-su/Metaflow/pull/117"
       }
     }
   ]

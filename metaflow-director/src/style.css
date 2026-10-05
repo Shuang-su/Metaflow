@@ -1,4 +1,4 @@
-/* Metaflow public photography UI. Authored here; no reference-site stylesheet or font. */
+/* Base layout for the single-resource camera. Component chrome is in camera-chrome.css. */
 :root {
   font-family:
     ui-sans-serif,
@@ -109,44 +109,6 @@ header {
   align-items: center;
   gap: 18px;
 }
-.brand {
-  display: flex;
-  gap: 10px;
-  align-items: center;
-  font-weight: 750;
-  letter-spacing: -0.5px;
-}
-.brand-bars {
-  width: 22px;
-  height: 23px;
-  background: linear-gradient(
-    90deg,
-    currentColor 0 22%,
-    transparent 22% 38%,
-    currentColor 38% 60%,
-    transparent 60% 76%,
-    currentColor 76%
-  );
-  transform: skewY(-8deg);
-}
-.resource-title {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  min-width: 0;
-  flex: 1;
-}
-.resource-title strong {
-  font-size: 13px;
-  overflow: hidden;
-  white-space: nowrap;
-  text-overflow: ellipsis;
-}
-.resource-title span {
-  font-size: 11px;
-  letter-spacing: 0.05em;
-  color: var(--muted);
-}
 header nav {
   display: flex;
   align-items: center;
@@ -174,14 +136,34 @@ header button:hover {
 .view-area {
   flex: 1;
   min-height: 0;
+  display: flex;
+  flex-direction: column;
+  padding: 24px 0 12px;
+}
+.view-scene {
+  flex: 1;
+  min-height: 0;
+  width: 100%;
   container-type: size;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 24px 0 12px;
+}
+.view-frame {
+  position: relative;
+}
+.view-feedback {
+  position: absolute;
+  top: 100%;
+  height: 28px;
+  width: 100%;
+  margin-top: 6px;
+  pointer-events: none;
 }
 .view-fit {
   position: relative;
+  width: 100%;
+  height: 100%;
   overflow: hidden;
   border-radius: 18px;
   box-shadow: 0 15px 50px #00000012;
@@ -224,265 +206,15 @@ header button:hover {
 }
 .render-status {
   position: absolute;
-  right: 10px;
-  bottom: 10px;
+  right: 0;
+  top: 3px;
   padding: 5px 8px;
   font-size: 10px;
-  background: #15151599;
-  color: white;
+  background: transparent;
+  color: var(--muted);
   border-radius: 16px;
   pointer-events: none;
   font-variant-numeric: tabular-nums;
-}
-.focus-marker {
-  position: absolute;
-  pointer-events: none;
-  color: #ffdc31;
-  margin: -18px 0 0 -18px;
-  filter: drop-shadow(0 1px 2px #000);
-}
-.compose-tools {
-  height: 34px;
-  display: flex;
-  justify-content: center;
-  gap: 6px;
-}
-.compose-tools button {
-  font-size: 12px;
-  padding: 6px 10px;
-  border-radius: 20px;
-  background: var(--raised);
-}
-button.active,
-.choices .active {
-  color: var(--accent);
-  background: var(--line);
-}
-footer {
-  flex-shrink: 0;
-  position: relative;
-  display: flex;
-  gap: 12px;
-  align-items: center;
-  justify-content: center;
-  padding: 18px 0 8px;
-}
-.mode-controls,
-.axes {
-  display: flex;
-  gap: 8px;
-  align-items: center;
-}
-.mode-switch,
-.photography-controls {
-  display: flex;
-  align-items: center;
-  background: #17191f;
-  border: 1px solid #ffffff13;
-  color: #b7bac4;
-  border-radius: 40px;
-  padding: 5px;
-  box-shadow: 0 4px 16px #0002;
-}
-.mode-switch button {
-  height: 38px;
-  border-radius: 25px;
-  padding: 0 15px;
-  font-size: 11px;
-  font-weight: 750;
-}
-.mode-switch .active {
-  background: #000;
-  color: #ffe040;
-  box-shadow: 0 0 0 1px #ffffff19;
-}
-.photography-controls {
-  gap: 1px;
-}
-.photography-controls > button {
-  height: 40px;
-  min-width: 43px;
-  padding: 0 10px;
-  border-radius: 24px;
-  font-size: 12px;
-  font-weight: 650;
-}
-.photography-controls > button:hover {
-  color: #f1f2f4;
-  background: #ffffff0a;
-}
-.photography-controls > button.active {
-  color: #ffe040;
-}
-.photography-controls .shutter {
-  background: #ffe040;
-  color: #171717;
-  min-width: 62px;
-  box-shadow:
-    inset 0 0 0 2px #17191f,
-    0 0 0 1px #ffe040;
-  margin-left: 5px;
-}
-.photography-controls .shutter.video {
-  background: #e63d3b;
-  color: white;
-  box-shadow: none;
-}
-.shutter.video span {
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  background: white;
-}
-.aperture-glyph {
-  font-family: Georgia, serif;
-  font-size: 24px;
-}
-.bottom-axis-button {
-  width: 46px;
-  height: 46px;
-  position: relative;
-  border: 1px solid #ffffff2a;
-  border-radius: 50%;
-  background: #1b1d23;
-  color: #f7f7f7;
-  display: flex;
-  flex-direction: column;
-  gap: 0;
-  touch-action: none;
-  flex-shrink: 0;
-}
-.axis-compass-ring {
-  position: absolute;
-  inset: 3px;
-  width: 38px;
-  height: 38px;
-  transform: rotate(var(--axis-ring-rotation));
-  transition: transform 0.3s ease;
-  stroke: #9299a6;
-  stroke-width: 1;
-}
-.is-scrubbing .axis-compass-ring {
-  transition: none;
-}
-.axis-zero-tick {
-  stroke: #ee6966;
-}
-.axis-label {
-  font-size: 8px;
-  font-weight: 750;
-}
-.bottom-axis-button strong {
-  font-size: 10px;
-}
-.bottom-axis-button.is-changed:before {
-  content: "";
-  position: absolute;
-  inset: -2px;
-  border-radius: 50%;
-  background: conic-gradient(
-    from var(--axis-arc-start),
-    #ffdd35 var(--axis-arc-sweep),
-    transparent 0
-  );
-  mask: radial-gradient(circle, transparent 65%, #000 66%);
-}
-.bottom-axis-button:hover {
-  transform: scale(1.06);
-}
-.axis-scrub-hint {
-  display: none;
-  position: absolute;
-  bottom: calc(100% + 10px);
-  background: #272930;
-  border-radius: 12px;
-  padding: 5px;
-  white-space: nowrap;
-  font-size: 10px;
-}
-.bottom-axis-button:hover .axis-scrub-hint {
-  display: block;
-}
-.settings-popover {
-  position: absolute;
-  bottom: calc(100% + 8px);
-  right: max(0px, calc((100% - 750px) / 2));
-  width: 320px;
-  background: var(--raised);
-  border: 1px solid var(--line);
-  border-radius: 18px;
-  padding: 18px;
-  box-shadow: 0 10px 40px #0004;
-  z-index: 25;
-}
-.popover-title {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  font-size: 13px;
-  margin-bottom: 15px;
-}
-.popover-title button {
-  width: 26px;
-  height: 26px;
-  border-radius: 50%;
-}
-.settings-popover output {
-  display: block;
-  text-align: center;
-  font-variant-numeric: tabular-nums;
-  font-size: 20px;
-  margin: 12px;
-}
-.lens-tick-slider {
-  height: 48px;
-  position: relative;
-}
-.lens-slider-ticks {
-  height: 32px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 2px;
-}
-.lens-slider-ticks span {
-  height: 8px;
-  width: 1px;
-  background: var(--muted);
-}
-.lens-slider-ticks span.is-step {
-  height: 16px;
-}
-.lens-slider-ticks .is-pulsing {
-  animation: tick 0.32s ease-out;
-}
-@keyframes tick {
-  from {
-    transform: translateY(-7px) scaleY(1.4);
-    background: var(--accent);
-  }
-  to {
-    transform: none;
-  }
-}
-.lens-tick-slider input {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 32px;
-  background: transparent;
-  border: 0;
-  appearance: none;
-  touch-action: none;
-}
-.lens-tick-slider input::-webkit-slider-thumb {
-  appearance: none;
-  width: 5px;
-  height: 29px;
-  border-radius: 4px;
-  background: var(--accent);
-  box-shadow: 0 0 0 2px var(--raised);
-  cursor: ew-resize;
 }
 .scale-labels {
   display: flex;
@@ -521,29 +253,6 @@ label input {
   font-size: 10px;
   color: var(--muted);
   min-height: 15px;
-}
-.tutorial {
-  position: fixed;
-  right: 25px;
-  top: 95px;
-  width: 310px;
-  background: var(--raised);
-  border: 1px solid var(--line);
-  border-radius: 18px;
-  box-shadow: 0 15px 50px #0003;
-  padding: 20px;
-  z-index: 30;
-  font-size: 12px;
-  line-height: 1.8;
-}
-.tutorial strong {
-  font-size: 14px;
-}
-.tutorial button {
-  padding: 8px 12px;
-  border-radius: 18px;
-  background: var(--line);
-  margin-top: 5px;
 }
 .modal-backdrop {
   position: fixed;
@@ -995,128 +704,6 @@ label input {
   100% {
     opacity: 1;
     transform: scale(1);
-  }
-}
-@media (max-width: 900px) {
-  .director {
-    padding: 10px 14px 15px;
-  }
-  header {
-    gap: 12px;
-  }
-  header button {
-    width: 29px;
-    height: 32px;
-  }
-  .brand {
-    font-size: 13px;
-  }
-  .resource-title strong {
-    max-width: 210px;
-  }
-  .viewer-link {
-    font-size: 0;
-    padding: 5px;
-  }
-  .viewer-link svg {
-    width: 18px;
-  }
-  .mode-controls {
-    gap: 10px;
-  }
-  footer {
-    gap: 9px;
-  }
-  .photography-controls > button {
-    min-width: 37px;
-    padding: 0 8px;
-  }
-  .photography-controls .shutter {
-    min-width: 50px;
-  }
-  .mode-switch button {
-    padding: 0 11px;
-  }
-  .axes {
-    gap: 5px;
-  }
-  .bottom-axis-button {
-    width: 42px;
-    height: 42px;
-  }
-  .axis-compass-ring {
-    width: 34px;
-    height: 34px;
-  }
-  .view-area {
-    padding: 20px 0;
-  }
-  .tutorial {
-    top: 80px;
-    right: 15px;
-  }
-}
-@media (max-width: 760px) {
-  footer {
-    flex-wrap: wrap;
-    padding: 8px 0;
-    gap: 12px;
-  }
-  .mode-controls {
-    justify-content: center;
-    width: 100%;
-  }
-  .photography-controls {
-    max-width: 100%;
-    justify-content: center;
-  }
-  .photography-controls > button {
-    min-width: 35px;
-    height: 39px;
-    padding: 0 7px;
-  }
-  .settings-popover {
-    right: 0;
-    max-width: calc(100vw - 28px);
-  }
-  header nav button:nth-child(3) {
-    display: none;
-  }
-  .view-area {
-    padding: 10px 0;
-  }
-  .view-fit {
-    border-radius: 14px;
-  }
-  .resource-title strong {
-    max-width: 140px;
-  }
-  .brand {
-    font-size: 0;
-  }
-  .brand-bars {
-    width: 20px;
-  }
-  .tutorial {
-    max-width: calc(100vw - 30px);
-  }
-  .timeline-track-tool-label {
-    display: none;
-  }
-  .timeline-toolbar-left {
-    min-width: 0;
-  }
-  .timeline-transport {
-    gap: 12px;
-  }
-  .status-note {
-    font-size: 9px;
-  }
-  .director {
-    gap: 6px;
-  }
-  .compose-tools button {
-    font-size: 11px;
   }
 }
 @media (prefers-reduced-motion: reduce) {
