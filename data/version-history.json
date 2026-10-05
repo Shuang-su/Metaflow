@@ -1,14 +1,14 @@
 {
   "schemaVersion": "1.1",
   "cutoffGitRef": "c613a87",
-  "documentedThrough": "3ab7dcfba",
+  "documentedThrough": "40713877e",
   "defaultResourceVersion": "1.0a",
   "current": {
     "displayVersion": "5.21.4",
     "appSemver": "5.21.4",
     "indexSchemaVersion": "1.2",
     "date": "2026-10-05",
-    "gitRef": "3ab7dcfba",
+    "gitRef": "40713877e",
     "historyUrl": "/data/version-history.json",
     "upstream": {
       "repository": "playcanvas/supersplat-viewer",
@@ -220,6 +220,11 @@
       "gitRef": "0fcef7032",
       "date": "2026-10-05",
       "summary": "Unpublished MF-106 restoration checkpoint; candidate CameraBar, Operator, timeline and tutorial are carried by the 5.21.4 product release."
+    },
+    {
+      "gitRef": "3ab7dcfba",
+      "date": "2026-10-05",
+      "summary": "Unpublished MF-106 feedback and optical guide checkpoint; included by the final 5.21.4 source."
     }
   ],
   "entries": [
@@ -297,9 +302,7 @@
       "resourceChanges": [
         {
           "action": "add",
-          "routes": [
-            "/sztu/b1-sdi-206"
-          ]
+          "routes": ["/sztu/b1-sdi-206"]
         }
       ]
     },
@@ -377,9 +380,7 @@
       "resourceChanges": [
         {
           "action": "update",
-          "routes": [
-            "/sztu/b1-sdi-206"
-          ]
+          "routes": ["/sztu/b1-sdi-206"]
         }
       ]
     },
@@ -394,9 +395,7 @@
       "resourceChanges": [
         {
           "action": "update",
-          "routes": [
-            "/sztu/b1-sdi-206"
-          ]
+          "routes": ["/sztu/b1-sdi-206"]
         }
       ]
     },
@@ -411,9 +410,7 @@
       "resourceChanges": [
         {
           "action": "update",
-          "routes": [
-            "/sztu/c2-lib"
-          ]
+          "routes": ["/sztu/c2-lib"]
         }
       ]
     },
@@ -446,9 +443,7 @@
       "resourceChanges": [
         {
           "action": "update",
-          "routes": [
-            "/acg/j04/wanderer"
-          ]
+          "routes": ["/acg/j04/wanderer"]
         }
       ]
     },
@@ -661,10 +656,7 @@
       "resourceChanges": [
         {
           "action": "add",
-          "routes": [
-            "/sztu/c4-hangpai",
-            "/sztu/d1-utl-107"
-          ]
+          "routes": ["/sztu/c4-hangpai", "/sztu/d1-utl-107"]
         }
       ]
     },
@@ -787,9 +779,7 @@
       "resourceChanges": [
         {
           "action": "add",
-          "routePatterns": [
-            "/acg/j05/*"
-          ]
+          "routePatterns": ["/acg/j05/*"]
         }
       ]
     },
@@ -804,9 +794,7 @@
       "resourceChanges": [
         {
           "action": "update",
-          "routePatterns": [
-            "/acg/j05/*"
-          ]
+          "routePatterns": ["/acg/j05/*"]
         }
       ]
     },
@@ -839,9 +827,7 @@
       "resourceChanges": [
         {
           "action": "update",
-          "routes": [
-            "/acg/j05/寻洋派"
-          ]
+          "routes": ["/acg/j05/寻洋派"]
         }
       ]
     },
@@ -883,9 +869,7 @@
       "resourceChanges": [
         {
           "action": "update",
-          "routePatterns": [
-            "/acg/j05/*"
-          ]
+          "routePatterns": ["/acg/j05/*"]
         }
       ]
     },
@@ -990,9 +974,7 @@
       "resourceChanges": [
         {
           "action": "add",
-          "routes": [
-            "/shenzhen/dayun"
-          ]
+          "routes": ["/shenzhen/dayun"]
         }
       ]
     },
@@ -1061,15 +1043,11 @@
       "resourceChanges": [
         {
           "action": "add",
-          "routePatterns": [
-            "/acg/phoenixfes26/*"
-          ]
+          "routePatterns": ["/acg/phoenixfes26/*"]
         },
         {
           "action": "update",
-          "routes": [
-            "/shenzhen/dayun"
-          ]
+          "routes": ["/shenzhen/dayun"]
         }
       ]
     },
@@ -1093,12 +1071,8 @@
       "resourceChanges": [
         {
           "action": "add",
-          "routes": [
-            "/sztu/c1-bdi-206"
-          ],
-          "routePatterns": [
-            "/sztu/fes/*"
-          ]
+          "routes": ["/sztu/c1-bdi-206"],
+          "routePatterns": ["/sztu/fes/*"]
         }
       ]
     },
@@ -1122,9 +1096,7 @@
       "resourceChanges": [
         {
           "action": "add",
-          "routePatterns": [
-            "/acg/fireflyfes38/*"
-          ]
+          "routePatterns": ["/acg/fireflyfes38/*"]
         }
       ]
     },
@@ -1139,9 +1111,7 @@
       "resourceChanges": [
         {
           "action": "update",
-          "routes": [
-            "/acg/fireflyfes38/azur-lane"
-          ]
+          "routes": ["/acg/fireflyfes38/azur-lane"]
         }
       ]
     },
@@ -1156,15 +1126,11 @@
       "resourceChanges": [
         {
           "action": "add",
-          "routePatterns": [
-            "/acg/2568/*"
-          ]
+          "routePatterns": ["/acg/2568/*"]
         },
         {
           "action": "update",
-          "routePatterns": [
-            "/acg/fireflyfes38/*"
-          ]
+          "routePatterns": ["/acg/fireflyfes38/*"]
         }
       ]
     },
@@ -1188,9 +1154,7 @@
       "resourceChanges": [
         {
           "action": "update",
-          "routes": [
-            "/shenzhen/dayun"
-          ]
+          "routes": ["/shenzhen/dayun"]
         }
       ]
     },
@@ -1241,9 +1205,7 @@
       "resourceChanges": [
         {
           "action": "update",
-          "routes": [
-            "/acg/fireflyfes38/cyrene"
-          ]
+          "routes": ["/acg/fireflyfes38/cyrene"]
         }
       ]
     },
@@ -1393,9 +1355,7 @@
       "resourceChanges": [
         {
           "action": "add",
-          "routes": [
-            "/shenzhen/bijiashan"
-          ]
+          "routes": ["/shenzhen/bijiashan"]
         }
       ]
     },
@@ -1420,10 +1380,7 @@
       "resourceChanges": [
         {
           "action": "add",
-          "routePatterns": [
-            "/acg/bitcity260711/*",
-            "/acg/szcaf15/*"
-          ]
+          "routePatterns": ["/acg/bitcity260711/*", "/acg/szcaf15/*"]
         }
       ]
     },
@@ -1509,10 +1466,7 @@
       "resourceChanges": [
         {
           "action": "add",
-          "routePatterns": [
-            "/acg/sztuccf260919/*",
-            "/animals/cats/mangzhong/*"
-          ]
+          "routePatterns": ["/acg/sztuccf260919/*", "/animals/cats/mangzhong/*"]
         }
       ]
     },
@@ -1551,9 +1505,7 @@
       "resourceChanges": [
         {
           "action": "add",
-          "routes": [
-            "/acg/szcaf15/honkai_star_rail-tribbie"
-          ]
+          "routes": ["/acg/szcaf15/honkai_star_rail-tribbie"]
         }
       ],
       "trace": {
@@ -1657,7 +1609,7 @@
       "type": "fix",
       "scope": "viewer",
       "date": "2026-10-05",
-      "gitRef": "3ab7dcfba",
+      "gitRef": "40713877e",
       "summary": "恢复已验证的Director摄影界面、构图交互、光圈红色参考及完整帧复用，提示和收敛状态移至画面外",
       "trace": {
         "changeId": "MF-106",

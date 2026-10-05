@@ -7,7 +7,7 @@
     "schemaVersion": "1.2",
     "historyUrl": "/data/version-history.json",
     "updatedAt": "2026-10-05",
-    "gitRef": "3ab7dcfba"
+    "gitRef": "40713877e"
   },
   "lastUpdated": "2026-09-30",
   "totalResources": 100,
@@ -92,10 +92,7 @@
       "id": "2026",
       "title": "2026",
       "titleEn": "2026",
-      "category": [
-        "acg",
-        "2568"
-      ],
+      "category": ["acg", "2568"],
       "route": "/acg/2568/2026",
       "source": "photogrammetry",
       "experienceType": "character",
@@ -132,10 +129,7 @@
       "id": "sztuccf260919-a003c0005",
       "title": "Fate/stay night 间桐樱1",
       "titleEn": "Sakura Matou 1",
-      "category": [
-        "acg",
-        "sztuccf260919"
-      ],
+      "category": ["acg", "sztuccf260919"],
       "route": "/acg/sztuccf260919/fate_stay_night-sakura_matou-1",
       "source": "photogrammetry",
       "experienceType": "character",
@@ -161,9 +155,7 @@
       "viewer": {
         "animationFirstExitMode": "orbit"
       },
-      "aliases": [
-        "/acg/sztuccf260919/sakuramatou1"
-      ],
+      "aliases": ["/acg/sztuccf260919/sakuramatou1"],
       "animation": {
         "duration": 20,
         "frameRate": 1,
@@ -178,10 +170,7 @@
       "id": "sztuccf260919-a003c0006",
       "title": "Fate/stay night 间桐樱2",
       "titleEn": "Sakura Matou 2",
-      "category": [
-        "acg",
-        "sztuccf260919"
-      ],
+      "category": ["acg", "sztuccf260919"],
       "route": "/acg/sztuccf260919/fate_stay_night-sakura_matou-2",
       "source": "photogrammetry",
       "experienceType": "character",
@@ -207,9 +196,7 @@
       "viewer": {
         "animationFirstExitMode": "orbit"
       },
-      "aliases": [
-        "/acg/sztuccf260919/sakuramatou2"
-      ],
+      "aliases": ["/acg/sztuccf260919/sakuramatou2"],
       "animation": {
         "duration": 20,
         "frameRate": 1,
@@ -224,10 +211,7 @@
       "id": "sztuccf260919-a003c0010",
       "title": "EVA 明日香 · 赛车风服装",
       "titleEn": "Asuka · Racing Outfit",
-      "category": [
-        "acg",
-        "sztuccf260919"
-      ],
+      "category": ["acg", "sztuccf260919"],
       "route": "/acg/sztuccf260919/evangelion-asuka-racing_outfit",
       "source": "photogrammetry",
       "experienceType": "character",
@@ -253,9 +237,7 @@
       "viewer": {
         "animationFirstExitMode": "orbit"
       },
-      "aliases": [
-        "/acg/sztuccf260919/asuka"
-      ],
+      "aliases": ["/acg/sztuccf260919/asuka"],
       "animation": {
         "duration": 20,
         "frameRate": 1,
@@ -270,10 +252,7 @@
       "id": "sztuccf260919-a003c0011",
       "title": "明日方舟 安洁莉娜",
       "titleEn": "Angelina",
-      "category": [
-        "acg",
-        "sztuccf260919"
-      ],
+      "category": ["acg", "sztuccf260919"],
       "route": "/acg/sztuccf260919/arknights-angelina",
       "source": "photogrammetry",
       "experienceType": "character",
@@ -299,9 +278,7 @@
       "viewer": {
         "animationFirstExitMode": "orbit"
       },
-      "aliases": [
-        "/acg/sztuccf260919/angelina"
-      ],
+      "aliases": ["/acg/sztuccf260919/angelina"],
       "animation": {
         "duration": 20,
         "frameRate": 1,
@@ -316,10 +293,7 @@
       "id": "sztuccf260919-a003c0012",
       "title": "颂乐人偶 八幡海铃 · Timoris",
       "titleEn": "Timoris / Umiri Yahata",
-      "category": [
-        "acg",
-        "sztuccf260919"
-      ],
+      "category": ["acg", "sztuccf260919"],
       "route": "/acg/sztuccf260919/ave_mujica-timoris",
       "source": "photogrammetry",
       "experienceType": "character",
@@ -345,9 +319,7 @@
       "viewer": {
         "animationFirstExitMode": "orbit"
       },
-      "aliases": [
-        "/acg/sztuccf260919/timoris"
-      ],
+      "aliases": ["/acg/sztuccf260919/timoris"],
       "animation": {
         "duration": 20,
         "frameRate": 1,
@@ -362,10 +334,7 @@
       "id": "sztuccf260919-a003c0013",
       "title": "明日方舟 W",
       "titleEn": "W",
-      "category": [
-        "acg",
-        "sztuccf260919"
-      ],
+      "category": ["acg", "sztuccf260919"],
       "route": "/acg/sztuccf260919/arknights-w",
       "source": "photogrammetry",
       "experienceType": "character",
@@ -391,9 +360,7 @@
       "viewer": {
         "animationFirstExitMode": "orbit"
       },
-      "aliases": [
-        "/acg/sztuccf260919/w"
-      ],
+      "aliases": ["/acg/sztuccf260919/w"],
       "animation": {
         "duration": 20,
         "frameRate": 1,
@@ -408,10 +375,7 @@
       "id": "sztuccf260919-a003c0023",
       "title": "明日方舟 能天使",
       "titleEn": "Exusiai",
-      "category": [
-        "acg",
-        "sztuccf260919"
-      ],
+      "category": ["acg", "sztuccf260919"],
       "route": "/acg/sztuccf260919/arknights-exusiai",
       "source": "photogrammetry",
       "experienceType": "character",
@@ -437,9 +401,7 @@
       "viewer": {
         "animationFirstExitMode": "orbit"
       },
-      "aliases": [
-        "/acg/sztuccf260919/exusiai"
-      ],
+      "aliases": ["/acg/sztuccf260919/exusiai"],
       "animation": {
         "duration": 20,
         "frameRate": 1,
@@ -454,10 +416,7 @@
       "id": "sztuccf260919-a003c0024",
       "title": "明日方舟 拉普兰德",
       "titleEn": "Lappland",
-      "category": [
-        "acg",
-        "sztuccf260919"
-      ],
+      "category": ["acg", "sztuccf260919"],
       "route": "/acg/sztuccf260919/arknights-lappland",
       "source": "photogrammetry",
       "experienceType": "character",
@@ -483,9 +442,7 @@
       "viewer": {
         "animationFirstExitMode": "orbit"
       },
-      "aliases": [
-        "/acg/sztuccf260919/lappland"
-      ],
+      "aliases": ["/acg/sztuccf260919/lappland"],
       "animation": {
         "duration": 20,
         "frameRate": 1,
@@ -500,10 +457,7 @@
       "id": "sztuccf260919-a003c0025",
       "title": "酒红色蕾丝 Lolita",
       "titleEn": "Burgundy Lace Lolita",
-      "category": [
-        "acg",
-        "sztuccf260919"
-      ],
+      "category": ["acg", "sztuccf260919"],
       "route": "/acg/sztuccf260919/lolita-burgundy_lace",
       "source": "photogrammetry",
       "experienceType": "character",
@@ -529,9 +483,7 @@
       "viewer": {
         "animationFirstExitMode": "orbit"
       },
-      "aliases": [
-        "/acg/sztuccf260919/lolita"
-      ],
+      "aliases": ["/acg/sztuccf260919/lolita"],
       "animation": {
         "duration": 20,
         "frameRate": 1,
@@ -546,10 +498,7 @@
       "id": "yzx",
       "title": "yzx",
       "titleEn": "Yzx",
-      "category": [
-        "acg",
-        "yzx"
-      ],
+      "category": ["acg", "yzx"],
       "route": "/acg/yzx/yzx",
       "source": "photogrammetry",
       "experienceType": "character",
@@ -587,10 +536,7 @@
       "id": "delta-force",
       "title": "三角洲",
       "titleEn": "Delta Force",
-      "category": [
-        "acg",
-        "ad05"
-      ],
+      "category": ["acg", "ad05"],
       "route": "/acg/ad05/delta-force",
       "source": "scanner",
       "experienceType": "character",
@@ -628,10 +574,7 @@
       "id": "frieren",
       "title": "葬送的芙莉莲 芙莉莲辛美尔",
       "titleEn": "Frieren",
-      "category": [
-        "acg",
-        "ad05"
-      ],
+      "category": ["acg", "ad05"],
       "route": "/acg/ad05/frieren",
       "source": "scanner",
       "experienceType": "character",
@@ -669,10 +612,7 @@
       "id": "gongsunli",
       "title": "王者荣耀 公孙离 花间舞",
       "titleEn": "Gongsunli",
-      "category": [
-        "acg",
-        "ad05"
-      ],
+      "category": ["acg", "ad05"],
       "route": "/acg/ad05/gongsunli",
       "source": "scanner",
       "experienceType": "character",
@@ -710,10 +650,7 @@
       "id": "jiangyanli",
       "title": "魔道祖师 江厌离",
       "titleEn": "Jiangyanli",
-      "category": [
-        "acg",
-        "ad05"
-      ],
+      "category": ["acg", "ad05"],
       "route": "/acg/ad05/jiangyanli",
       "source": "scanner",
       "experienceType": "character",
@@ -751,10 +688,7 @@
       "id": "sephiroth",
       "title": "最终幻想 萨菲罗斯",
       "titleEn": "Sephiroth",
-      "category": [
-        "acg",
-        "ad05"
-      ],
+      "category": ["acg", "ad05"],
       "route": "/acg/ad05/sephiroth",
       "source": "scanner",
       "experienceType": "character",
@@ -792,10 +726,7 @@
       "id": "violet",
       "title": "紫罗兰永恒花园 薇尔莉特·伊芙加登",
       "titleEn": "Violet",
-      "category": [
-        "acg",
-        "ad05"
-      ],
+      "category": ["acg", "ad05"],
       "route": "/acg/ad05/violet",
       "source": "scanner",
       "experienceType": "character",
@@ -833,10 +764,7 @@
       "id": "zhugeliang",
       "title": "如鸢 诸葛亮",
       "titleEn": "Zhugeliang",
-      "category": [
-        "acg",
-        "ad05"
-      ],
+      "category": ["acg", "ad05"],
       "route": "/acg/ad05/zhugeliang",
       "source": "scanner",
       "experienceType": "character",
@@ -874,10 +802,7 @@
       "id": "amu",
       "title": "守护甜心 日奈森亚梦",
       "titleEn": "Amu",
-      "category": [
-        "acg",
-        "j04"
-      ],
+      "category": ["acg", "j04"],
       "route": "/acg/j04/amu",
       "source": "scanner",
       "experienceType": "character",
@@ -915,10 +840,7 @@
       "id": "denji",
       "title": "电锯人 电次",
       "titleEn": "Denji",
-      "category": [
-        "acg",
-        "j04"
-      ],
+      "category": ["acg", "j04"],
       "route": "/acg/j04/denji",
       "source": "scanner",
       "experienceType": "character",
@@ -956,10 +878,7 @@
       "id": "dolia1",
       "title": "王者荣耀 朵莉亚1",
       "titleEn": "Dolia1",
-      "category": [
-        "acg",
-        "j04"
-      ],
+      "category": ["acg", "j04"],
       "route": "/acg/j04/dolia1",
       "source": "scanner",
       "experienceType": "character",
@@ -997,10 +916,7 @@
       "id": "dolia2",
       "title": "王者荣耀 朵莉亚2",
       "titleEn": "Dolia2",
-      "category": [
-        "acg",
-        "j04"
-      ],
+      "category": ["acg", "j04"],
       "route": "/acg/j04/dolia2",
       "source": "scanner",
       "experienceType": "character",
@@ -1038,10 +954,7 @@
       "id": "furry",
       "title": "福瑞",
       "titleEn": "Furry",
-      "category": [
-        "acg",
-        "j04"
-      ],
+      "category": ["acg", "j04"],
       "route": "/acg/j04/furry",
       "source": "scanner",
       "experienceType": "character",
@@ -1079,10 +992,7 @@
       "id": "ggc",
       "title": "场景 ggc高谷仓",
       "titleEn": "Ggc",
-      "category": [
-        "acg",
-        "j04"
-      ],
+      "category": ["acg", "j04"],
       "route": "/acg/j04/ggc",
       "source": "scanner",
       "experienceType": "scene",
@@ -1117,10 +1027,7 @@
       "id": "itasha",
       "title": "痛车",
       "titleEn": "Itasha",
-      "category": [
-        "acg",
-        "j04"
-      ],
+      "category": ["acg", "j04"],
       "route": "/acg/j04/itasha",
       "source": "scanner",
       "experienceType": "scene",
@@ -1163,10 +1070,7 @@
       "id": "kamen-rider",
       "title": "假面骑士 build创骑 极狐 景和将军形态",
       "titleEn": "Kamen Rider",
-      "category": [
-        "acg",
-        "j04"
-      ],
+      "category": ["acg", "j04"],
       "route": "/acg/j04/kamen-rider",
       "source": "scanner",
       "experienceType": "character",
@@ -1204,10 +1108,7 @@
       "id": "lucy",
       "title": "赛博朋克边缘行者 露西",
       "titleEn": "Lucy",
-      "category": [
-        "acg",
-        "j04"
-      ],
+      "category": ["acg", "j04"],
       "route": "/acg/j04/lucy",
       "source": "scanner",
       "experienceType": "character",
@@ -1240,10 +1141,7 @@
       "id": "mirai",
       "title": "境界的彼方 栗山未来",
       "titleEn": "Mirai",
-      "category": [
-        "acg",
-        "j04"
-      ],
+      "category": ["acg", "j04"],
       "route": "/acg/j04/mirai",
       "source": "scanner",
       "experienceType": "character",
@@ -1281,10 +1179,7 @@
       "id": "shaosiyuan",
       "title": "王者荣耀 少司缘",
       "titleEn": "Shaosiyuan",
-      "category": [
-        "acg",
-        "j04"
-      ],
+      "category": ["acg", "j04"],
       "route": "/acg/j04/shaosiyuan",
       "source": "scanner",
       "experienceType": "character",
@@ -1322,10 +1217,7 @@
       "id": "surtr",
       "title": "明日方舟 史尔特尔",
       "titleEn": "Surtr",
-      "category": [
-        "acg",
-        "j04"
-      ],
+      "category": ["acg", "j04"],
       "route": "/acg/j04/surtr",
       "source": "scanner",
       "experienceType": "character",
@@ -1363,10 +1255,7 @@
       "id": "tohru",
       "title": "小林家的龙女仆 托尔",
       "titleEn": "Tohru",
-      "category": [
-        "acg",
-        "j04"
-      ],
+      "category": ["acg", "j04"],
       "route": "/acg/j04/tohru",
       "source": "scanner",
       "experienceType": "character",
@@ -1404,10 +1293,7 @@
       "id": "wanderer",
       "title": "原神 散兵",
       "titleEn": "Wanderer",
-      "category": [
-        "acg",
-        "j04"
-      ],
+      "category": ["acg", "j04"],
       "route": "/acg/j04/wanderer",
       "source": "scanner",
       "experienceType": "character",
@@ -1445,10 +1331,7 @@
       "id": "xiaoqiao",
       "title": "王者荣耀 小乔 纯白花嫁",
       "titleEn": "Xiaoqiao",
-      "category": [
-        "acg",
-        "j04"
-      ],
+      "category": ["acg", "j04"],
       "route": "/acg/j04/xiaoqiao",
       "source": "scanner",
       "experienceType": "character",
@@ -1486,10 +1369,7 @@
       "id": "xishi",
       "title": "王者荣耀 西施 织梦人",
       "titleEn": "Xishi",
-      "category": [
-        "acg",
-        "j04"
-      ],
+      "category": ["acg", "j04"],
       "route": "/acg/j04/xishi",
       "source": "scanner",
       "experienceType": "character",
@@ -1527,10 +1407,7 @@
       "id": "yor1",
       "title": "间谍过家家 约尔1",
       "titleEn": "Yor1",
-      "category": [
-        "acg",
-        "j04"
-      ],
+      "category": ["acg", "j04"],
       "route": "/acg/j04/yor1",
       "source": "scanner",
       "experienceType": "character",
@@ -1568,10 +1445,7 @@
       "id": "yor2",
       "title": "间谍过家家 约尔2",
       "titleEn": "Yor2",
-      "category": [
-        "acg",
-        "j04"
-      ],
+      "category": ["acg", "j04"],
       "route": "/acg/j04/yor2",
       "source": "scanner",
       "experienceType": "character",
@@ -1609,10 +1483,7 @@
       "id": "01",
       "title": "01",
       "titleEn": "01",
-      "category": [
-        "acg",
-        "j05"
-      ],
+      "category": ["acg", "j05"],
       "route": "/acg/j05/01",
       "source": "scanner",
       "experienceType": "character",
@@ -1650,10 +1521,7 @@
       "id": "beryl",
       "title": "05 重返未來1999 贝丽尔",
       "titleEn": "Beryl",
-      "category": [
-        "acg",
-        "j05"
-      ],
+      "category": ["acg", "j05"],
       "route": "/acg/j05/beryl",
       "source": "scanner",
       "experienceType": "character",
@@ -1691,10 +1559,7 @@
       "id": "bloodyqueen",
       "title": "06 第五人格 红夫人 小女孩",
       "titleEn": "Bloodyqueen",
-      "category": [
-        "acg",
-        "j05"
-      ],
+      "category": ["acg", "j05"],
       "route": "/acg/j05/bloodyqueen",
       "source": "scanner",
       "experienceType": "character",
@@ -1732,10 +1597,7 @@
       "id": "ciel",
       "title": "02 黑执事 夏尔",
       "titleEn": "Ciel",
-      "category": [
-        "acg",
-        "j05"
-      ],
+      "category": ["acg", "j05"],
       "route": "/acg/j05/ciel",
       "source": "scanner",
       "experienceType": "character",
@@ -1773,10 +1635,7 @@
       "id": "lolita",
       "title": "03 lolita",
       "titleEn": "Lolita",
-      "category": [
-        "acg",
-        "j05"
-      ],
+      "category": ["acg", "j05"],
       "route": "/acg/j05/lolita",
       "source": "scanner",
       "experienceType": "character",
@@ -1814,10 +1673,7 @@
       "id": "lolita2",
       "title": "04 lolita2",
       "titleEn": "Lolita2",
-      "category": [
-        "acg",
-        "j05"
-      ],
+      "category": ["acg", "j05"],
       "route": "/acg/j05/lolita2",
       "source": "scanner",
       "experienceType": "character",
@@ -1855,10 +1711,7 @@
       "id": "lolita3",
       "title": "09 lolita3",
       "titleEn": "Lolita3",
-      "category": [
-        "acg",
-        "j05"
-      ],
+      "category": ["acg", "j05"],
       "route": "/acg/j05/lolita3",
       "source": "scanner",
       "experienceType": "character",
@@ -1896,10 +1749,7 @@
       "id": "navia",
       "title": "07 原神 娜维娅",
       "titleEn": "Navia",
-      "category": [
-        "acg",
-        "j05"
-      ],
+      "category": ["acg", "j05"],
       "route": "/acg/j05/navia",
       "source": "scanner",
       "experienceType": "character",
@@ -1937,10 +1787,7 @@
       "id": "xunyangpai",
       "title": "08 寻洋派",
       "titleEn": "Xunyangpai",
-      "category": [
-        "acg",
-        "j05"
-      ],
+      "category": ["acg", "j05"],
       "route": "/acg/j05/xunyangpai",
       "source": "scanner",
       "experienceType": "scene",
@@ -1963,9 +1810,7 @@
         "device": "J05",
         "folderName": "260315 184701 J05 08 寻洋派"
       },
-      "aliases": [
-        "/acg/j05/寻洋派"
-      ],
+      "aliases": ["/acg/j05/寻洋派"],
       "viewer": {
         "voxelCoordinateSpace": "metaflow-rz180",
         "defaultCameraMode": "fly"
@@ -1984,10 +1829,7 @@
       "id": "huaijiao",
       "title": "怀娇",
       "titleEn": "Huaijiao",
-      "category": [
-        "acg",
-        "phoenixfes26"
-      ],
+      "category": ["acg", "phoenixfes26"],
       "route": "/acg/phoenixfes26/huaijiao",
       "source": "photogrammetry",
       "experienceType": "character",
@@ -2023,10 +1865,7 @@
       "id": "itasha",
       "title": "痛车",
       "titleEn": "Itasha",
-      "category": [
-        "acg",
-        "phoenixfes26"
-      ],
+      "category": ["acg", "phoenixfes26"],
       "route": "/acg/phoenixfes26/itasha",
       "source": "photogrammetry",
       "experienceType": "scene",
@@ -2067,10 +1906,7 @@
       "id": "silver-wolf",
       "title": "崩铁 银狼",
       "titleEn": "Silver Wolf",
-      "category": [
-        "acg",
-        "phoenixfes26"
-      ],
+      "category": ["acg", "phoenixfes26"],
       "route": "/acg/phoenixfes26/silver-wolf",
       "source": "photogrammetry",
       "experienceType": "character",
@@ -2106,10 +1942,7 @@
       "id": "stage",
       "title": "舞台",
       "titleEn": "Stage",
-      "category": [
-        "acg",
-        "phoenixfes26"
-      ],
+      "category": ["acg", "phoenixfes26"],
       "route": "/acg/phoenixfes26/stage",
       "source": "photogrammetry",
       "experienceType": "scene",
@@ -2150,10 +1983,7 @@
       "id": "azur-lane",
       "title": "Azur Lane",
       "titleEn": "Azur Lane",
-      "category": [
-        "acg",
-        "fireflyfes38"
-      ],
+      "category": ["acg", "fireflyfes38"],
       "route": "/acg/fireflyfes38/azur-lane",
       "source": "photogrammetry",
       "experienceType": "scene",
@@ -2194,10 +2024,7 @@
       "id": "cyrene",
       "title": "崩坏星穹铁道 昔涟",
       "titleEn": "Cyrene",
-      "category": [
-        "acg",
-        "fireflyfes38"
-      ],
+      "category": ["acg", "fireflyfes38"],
       "route": "/acg/fireflyfes38/cyrene",
       "source": "photogrammetry",
       "experienceType": "character",
@@ -2234,10 +2061,7 @@
       "id": "diaochan",
       "title": "王者荣耀 貂蝉 馥梦繁花",
       "titleEn": "Diaochan",
-      "category": [
-        "acg",
-        "fireflyfes38"
-      ],
+      "category": ["acg", "fireflyfes38"],
       "route": "/acg/fireflyfes38/diaochan",
       "source": "photogrammetry",
       "experienceType": "character",
@@ -2274,10 +2098,7 @@
       "id": "fireflyfes38",
       "title": "FireflyFes38",
       "titleEn": "FireflyFes38",
-      "category": [
-        "acg",
-        "fireflyfes38"
-      ],
+      "category": ["acg", "fireflyfes38"],
       "route": "/acg/fireflyfes38/fireflyfes38",
       "source": "photogrammetry",
       "experienceType": "scene",
@@ -2318,10 +2139,7 @@
       "id": "fursuit",
       "title": "国风兽装",
       "titleEn": "Fursuit",
-      "category": [
-        "acg",
-        "fireflyfes38"
-      ],
+      "category": ["acg", "fireflyfes38"],
       "route": "/acg/fireflyfes38/fursuit",
       "source": "photogrammetry",
       "experienceType": "character",
@@ -2358,10 +2176,7 @@
       "id": "nangong-yu",
       "title": "绝区零 南宫羽",
       "titleEn": "Nangong Yu",
-      "category": [
-        "acg",
-        "fireflyfes38"
-      ],
+      "category": ["acg", "fireflyfes38"],
       "route": "/acg/fireflyfes38/nangong-yu",
       "source": "photogrammetry",
       "experienceType": "character",
@@ -2398,10 +2213,7 @@
       "id": "remielle-dan",
       "title": "绝区零 拉米尔",
       "titleEn": "Remielle Dan",
-      "category": [
-        "acg",
-        "fireflyfes38"
-      ],
+      "category": ["acg", "fireflyfes38"],
       "route": "/acg/fireflyfes38/remielle-dan",
       "source": "photogrammetry",
       "experienceType": "character",
@@ -2438,10 +2250,7 @@
       "id": "remielle-dan-b",
       "title": "绝区零 拉米尔",
       "titleEn": "Remielle Dan_B",
-      "category": [
-        "acg",
-        "fireflyfes38"
-      ],
+      "category": ["acg", "fireflyfes38"],
       "route": "/acg/fireflyfes38/remielle-dan-b",
       "source": "photogrammetry",
       "experienceType": "character",
@@ -2478,10 +2287,7 @@
       "id": "rem",
       "title": "雷姆",
       "titleEn": "Rem",
-      "category": [
-        "acg",
-        "bitcity260711"
-      ],
+      "category": ["acg", "bitcity260711"],
       "route": "/acg/bitcity260711/rem",
       "source": "photogrammetry",
       "experienceType": "character",
@@ -2515,10 +2321,7 @@
       "id": "xielian",
       "title": "天官赐福 异域谢怜",
       "titleEn": "Xie Lian",
-      "category": [
-        "acg",
-        "bitcity260711"
-      ],
+      "category": ["acg", "bitcity260711"],
       "route": "/acg/bitcity260711/xielian",
       "source": "photogrammetry",
       "experienceType": "character",
@@ -2552,10 +2355,7 @@
       "id": "xielian2",
       "title": "天官赐福 异域谢怜 2",
       "titleEn": "Xie Lian 2",
-      "category": [
-        "acg",
-        "bitcity260711"
-      ],
+      "category": ["acg", "bitcity260711"],
       "route": "/acg/bitcity260711/xielian2",
       "source": "photogrammetry",
       "experienceType": "character",
@@ -2589,10 +2389,7 @@
       "id": "dajishi",
       "title": "傩戏大祭司",
       "titleEn": "Dajishi",
-      "category": [
-        "acg",
-        "szcaf15"
-      ],
+      "category": ["acg", "szcaf15"],
       "route": "/acg/szcaf15/dajishi",
       "source": "photogrammetry",
       "experienceType": "character",
@@ -2626,10 +2423,7 @@
       "id": "hackclaw",
       "title": "麦晓雯 维什戴尔",
       "titleEn": "Hackclaw (Mai Xiaowen)",
-      "category": [
-        "acg",
-        "szcaf15"
-      ],
+      "category": ["acg", "szcaf15"],
       "route": "/acg/szcaf15/hackclaw",
       "source": "photogrammetry",
       "experienceType": "character",
@@ -2663,10 +2457,7 @@
       "id": "luna",
       "title": "露娜 霜月吟",
       "titleEn": "Luna",
-      "category": [
-        "acg",
-        "szcaf15"
-      ],
+      "category": ["acg", "szcaf15"],
       "route": "/acg/szcaf15/luna",
       "source": "photogrammetry",
       "experienceType": "character",
@@ -2700,10 +2491,7 @@
       "id": "new-jersey",
       "title": "花园 新泽西 花嫁",
       "titleEn": "New Jersey",
-      "category": [
-        "acg",
-        "szcaf15"
-      ],
+      "category": ["acg", "szcaf15"],
       "route": "/acg/szcaf15/new-jersey",
       "source": "photogrammetry",
       "experienceType": "character",
@@ -2737,10 +2525,7 @@
       "id": "rem",
       "title": "女警雷姆",
       "titleEn": "Rem",
-      "category": [
-        "acg",
-        "szcaf15"
-      ],
+      "category": ["acg", "szcaf15"],
       "route": "/acg/szcaf15/rem",
       "source": "photogrammetry",
       "experienceType": "character",
@@ -2774,10 +2559,7 @@
       "id": "sandrone",
       "title": "桑多涅",
       "titleEn": "Sandrone",
-      "category": [
-        "acg",
-        "szcaf15"
-      ],
+      "category": ["acg", "szcaf15"],
       "route": "/acg/szcaf15/sandrone",
       "source": "photogrammetry",
       "experienceType": "character",
@@ -2811,10 +2593,7 @@
       "id": "shi",
       "title": "西施 续相思",
       "titleEn": "Shi",
-      "category": [
-        "acg",
-        "szcaf15"
-      ],
+      "category": ["acg", "szcaf15"],
       "route": "/acg/szcaf15/shi",
       "source": "photogrammetry",
       "experienceType": "character",
@@ -2848,10 +2627,7 @@
       "id": "bloody-queen",
       "title": "红夫人 虚妄",
       "titleEn": "Bloody Queen",
-      "category": [
-        "acg",
-        "szcaf15"
-      ],
+      "category": ["acg", "szcaf15"],
       "route": "/acg/szcaf15/bloody-queen",
       "source": "photogrammetry",
       "experienceType": "character",
@@ -2885,10 +2661,7 @@
       "id": "chang-e",
       "title": "嫦娥 落星盏",
       "titleEn": "Chang'e",
-      "category": [
-        "acg",
-        "szcaf15"
-      ],
+      "category": ["acg", "szcaf15"],
       "route": "/acg/szcaf15/chang-e",
       "source": "photogrammetry",
       "experienceType": "character",
@@ -2922,10 +2695,7 @@
       "id": "denia",
       "title": "达妮娅",
       "titleEn": "Denia",
-      "category": [
-        "acg",
-        "szcaf15"
-      ],
+      "category": ["acg", "szcaf15"],
       "route": "/acg/szcaf15/denia",
       "source": "photogrammetry",
       "experienceType": "character",
@@ -2959,10 +2729,7 @@
       "id": "denia2",
       "title": "达妮娅 2",
       "titleEn": "Denia 2",
-      "category": [
-        "acg",
-        "szcaf15"
-      ],
+      "category": ["acg", "szcaf15"],
       "route": "/acg/szcaf15/denia2",
       "source": "photogrammetry",
       "experienceType": "character",
@@ -2996,10 +2763,7 @@
       "id": "isolde",
       "title": "重返未来 1999 伊索尔德 若向死振翅",
       "titleEn": "Isolde",
-      "category": [
-        "acg",
-        "szcaf15"
-      ],
+      "category": ["acg", "szcaf15"],
       "route": "/acg/szcaf15/isolde",
       "source": "photogrammetry",
       "experienceType": "character",
@@ -3033,10 +2797,7 @@
       "id": "navia",
       "title": "娜维娅",
       "titleEn": "Navia",
-      "category": [
-        "acg",
-        "szcaf15"
-      ],
+      "category": ["acg", "szcaf15"],
       "route": "/acg/szcaf15/navia",
       "source": "photogrammetry",
       "experienceType": "character",
@@ -3070,10 +2831,7 @@
       "id": "rem-duo",
       "title": "雷姆 双人",
       "titleEn": "Rem Duo",
-      "category": [
-        "acg",
-        "szcaf15"
-      ],
+      "category": ["acg", "szcaf15"],
       "route": "/acg/szcaf15/rem-duo",
       "source": "photogrammetry",
       "experienceType": "character",
@@ -3107,10 +2865,7 @@
       "id": "robin",
       "title": "知更鸟",
       "titleEn": "Robin",
-      "category": [
-        "acg",
-        "szcaf15"
-      ],
+      "category": ["acg", "szcaf15"],
       "route": "/acg/szcaf15/robin",
       "source": "photogrammetry",
       "experienceType": "character",
@@ -3144,10 +2899,7 @@
       "id": "yaria",
       "title": "瑶 时之祈愿",
       "titleEn": "Yaria",
-      "category": [
-        "acg",
-        "szcaf15"
-      ],
+      "category": ["acg", "szcaf15"],
       "route": "/acg/szcaf15/yaria",
       "source": "photogrammetry",
       "experienceType": "character",
@@ -3181,10 +2933,7 @@
       "id": "yunuo",
       "title": "雨诺 Akari",
       "titleEn": "Akari",
-      "category": [
-        "acg",
-        "szcaf15"
-      ],
+      "category": ["acg", "szcaf15"],
       "route": "/acg/szcaf15/yunuo",
       "source": "photogrammetry",
       "experienceType": "character",
@@ -3209,9 +2958,7 @@
         "syntheticAnimation": "figure8",
         "animationFirstExitMode": "orbit"
       },
-      "aliases": [
-        "/acg/szcaf15/akari"
-      ],
+      "aliases": ["/acg/szcaf15/akari"],
       "version": {
         "addedIn": "5.18.1",
         "updatedIn": "5.18.1"
@@ -3221,10 +2968,7 @@
       "id": "arli",
       "title": "公孙离 离恨烟",
       "titleEn": "Arli",
-      "category": [
-        "acg",
-        "szcaf15"
-      ],
+      "category": ["acg", "szcaf15"],
       "route": "/acg/szcaf15/arli",
       "source": "photogrammetry",
       "experienceType": "character",
@@ -3258,10 +3002,7 @@
       "id": "diaochan2",
       "title": "貂蝉 馥梦繁花 2",
       "titleEn": "Diaochan 2",
-      "category": [
-        "acg",
-        "szcaf15"
-      ],
+      "category": ["acg", "szcaf15"],
       "route": "/acg/szcaf15/diaochan2",
       "source": "photogrammetry",
       "experienceType": "character",
@@ -3295,10 +3036,7 @@
       "id": "female-dancer",
       "title": "舞女 琉璃的月光",
       "titleEn": "Female Dancer",
-      "category": [
-        "acg",
-        "szcaf15"
-      ],
+      "category": ["acg", "szcaf15"],
       "route": "/acg/szcaf15/female-dancer",
       "source": "photogrammetry",
       "experienceType": "character",
@@ -3332,10 +3070,7 @@
       "id": "lixin",
       "title": "李信 问剑心",
       "titleEn": "Li Xin",
-      "category": [
-        "acg",
-        "szcaf15"
-      ],
+      "category": ["acg", "szcaf15"],
       "route": "/acg/szcaf15/lixin",
       "source": "photogrammetry",
       "experienceType": "character",
@@ -3369,10 +3104,7 @@
       "id": "racing-miku",
       "title": "赛车初音",
       "titleEn": "Racing Miku",
-      "category": [
-        "acg",
-        "szcaf15"
-      ],
+      "category": ["acg", "szcaf15"],
       "route": "/acg/szcaf15/racing-miku",
       "source": "photogrammetry",
       "experienceType": "character",
@@ -3406,10 +3138,7 @@
       "id": "szcaf15-a001c0190",
       "title": "崩坏：星穹铁道 缇宝",
       "titleEn": "Tribbie / Tribios",
-      "category": [
-        "acg",
-        "szcaf15"
-      ],
+      "category": ["acg", "szcaf15"],
       "route": "/acg/szcaf15/honkai_star_rail-tribbie",
       "source": "photogrammetry",
       "experienceType": "character",
@@ -3436,10 +3165,7 @@
         "syntheticAnimation": "figure8",
         "animationFirstExitMode": "orbit"
       },
-      "aliases": [
-        "/acg/szcaf15/tribbie",
-        "/acg/szcaf15/tribios"
-      ],
+      "aliases": ["/acg/szcaf15/tribbie", "/acg/szcaf15/tribios"],
       "version": {
         "addedIn": "5.20.1",
         "updatedIn": "5.20.1"
@@ -3449,10 +3175,7 @@
       "id": "xiaoqiao",
       "title": "小乔",
       "titleEn": "Xiao Qiao",
-      "category": [
-        "acg",
-        "szcaf15"
-      ],
+      "category": ["acg", "szcaf15"],
       "route": "/acg/szcaf15/xiaoqiao",
       "source": "photogrammetry",
       "experienceType": "character",
@@ -3486,10 +3209,7 @@
       "id": "zipingyin",
       "title": "殷紫萍 天禄瑞光",
       "titleEn": "Ziping Yin",
-      "category": [
-        "acg",
-        "szcaf15"
-      ],
+      "category": ["acg", "szcaf15"],
       "route": "/acg/szcaf15/zipingyin",
       "source": "photogrammetry",
       "experienceType": "character",
@@ -3523,10 +3243,7 @@
       "id": "mangzhong-2609160002",
       "title": "芒种 · 2026-09-16 00:02",
       "titleEn": "Mangzhong · 2026-09-16 00:02",
-      "category": [
-        "animals",
-        "cats"
-      ],
+      "category": ["animals", "cats"],
       "route": "/animals/cats/mangzhong/2609160002",
       "source": "photogrammetry",
       "experienceType": "object",
@@ -3563,10 +3280,7 @@
       "id": "mangzhong-2609160028",
       "title": "芒种 · 2026-09-16 00:28",
       "titleEn": "Mangzhong · 2026-09-16 00:28",
-      "category": [
-        "animals",
-        "cats"
-      ],
+      "category": ["animals", "cats"],
       "route": "/animals/cats/mangzhong/2609160028",
       "source": "photogrammetry",
       "experienceType": "object",
@@ -3603,10 +3317,7 @@
       "id": "mangzhong-2609160031",
       "title": "芒种 · 2026-09-16 00:31",
       "titleEn": "Mangzhong · 2026-09-16 00:31",
-      "category": [
-        "animals",
-        "cats"
-      ],
+      "category": ["animals", "cats"],
       "route": "/animals/cats/mangzhong/2609160031",
       "source": "photogrammetry",
       "experienceType": "object",
@@ -3643,9 +3354,7 @@
       "id": "dayun",
       "title": "Dayun",
       "titleEn": "Dayun",
-      "category": [
-        "shenzhen"
-      ],
+      "category": ["shenzhen"],
       "route": "/shenzhen/dayun",
       "source": "photogrammetry",
       "experienceType": "scene",
@@ -3687,9 +3396,7 @@
       "id": "bijiashan",
       "title": "Bijiashan Park",
       "titleEn": "Bijiashan",
-      "category": [
-        "shenzhen"
-      ],
+      "category": ["shenzhen"],
       "route": "/shenzhen/bijiashan",
       "source": "photogrammetry",
       "experienceType": "scene",
@@ -3712,10 +3419,7 @@
         "device": null,
         "folderName": "260326 Bijiashan Park"
       },
-      "aliases": [
-        "/shenzhen/bijiashanpark",
-        "/shenzhen/bijiashan-park"
-      ],
+      "aliases": ["/shenzhen/bijiashanpark", "/shenzhen/bijiashan-park"],
       "viewer": {
         "voxelCoordinateSpace": "metaflow-rz180",
         "defaultCameraMode": "fly"
@@ -3734,9 +3438,7 @@
       "id": "ciqi",
       "title": "ciqi",
       "titleEn": "Ciqi",
-      "category": [
-        "szcaee"
-      ],
+      "category": ["szcaee"],
       "route": "/szcaee/ciqi",
       "source": "photogrammetry",
       "experienceType": "object",
@@ -3771,9 +3473,7 @@
       "id": "foxiang",
       "title": "foxiang",
       "titleEn": "Foxiang",
-      "category": [
-        "szcaee"
-      ],
+      "category": ["szcaee"],
       "route": "/szcaee/foxiang",
       "source": "photogrammetry",
       "experienceType": "object",
@@ -3808,9 +3508,7 @@
       "id": "guanyin",
       "title": "guanyin",
       "titleEn": "Guanyin",
-      "category": [
-        "szcaee"
-      ],
+      "category": ["szcaee"],
       "route": "/szcaee/guanyin",
       "source": "photogrammetry",
       "experienceType": "object",
@@ -3845,9 +3543,7 @@
       "id": "广电大厦6楼演播室",
       "title": "广电大厦6楼演播室",
       "titleEn": "广电大厦6楼演播室",
-      "category": [
-        "szmg"
-      ],
+      "category": ["szmg"],
       "route": "/szmg/广电大厦6楼演播室",
       "source": "photogrammetry",
       "experienceType": "scene",
@@ -3882,9 +3578,7 @@
       "id": "c4-hangpai",
       "title": "C4-HangPai",
       "titleEn": "C4 Hangpai",
-      "category": [
-        "sztu"
-      ],
+      "category": ["sztu"],
       "route": "/sztu/c4-hangpai",
       "source": "photogrammetry",
       "experienceType": "scene",
@@ -3905,9 +3599,7 @@
         "device": "SZTU",
         "folderName": "250324 SZTU C4-HangPai"
       },
-      "aliases": [
-        "/c4-hangpai"
-      ],
+      "aliases": ["/c4-hangpai"],
       "animation": {
         "duration": 20,
         "frameRate": 60,
@@ -3922,9 +3614,7 @@
       "id": "c2-lib",
       "title": "C2-Lib",
       "titleEn": "C2 Lib",
-      "category": [
-        "sztu"
-      ],
+      "category": ["sztu"],
       "route": "/sztu/c2-lib",
       "source": "photogrammetry",
       "experienceType": "scene",
@@ -3948,9 +3638,7 @@
       "viewer": {
         "animationFirstExitMode": "orbit"
       },
-      "aliases": [
-        "/c2-lib"
-      ],
+      "aliases": ["/c2-lib"],
       "animation": {
         "duration": 40,
         "frameRate": 60,
@@ -3965,9 +3653,7 @@
       "id": "b1-sdi-206",
       "title": "B1-SDI-206",
       "titleEn": "B1 Sdi 206",
-      "category": [
-        "sztu"
-      ],
+      "category": ["sztu"],
       "route": "/sztu/b1-sdi-206",
       "source": "photogrammetry",
       "experienceType": "scene",
@@ -3996,9 +3682,7 @@
         "device": "SZTU",
         "folderName": "251220 SZTU B1-SDI-206"
       },
-      "aliases": [
-        "/b1-sdi-206"
-      ],
+      "aliases": ["/b1-sdi-206"],
       "animation": {
         "duration": 341.6666666666667,
         "frameRate": 60,
@@ -4013,9 +3697,7 @@
       "id": "d1-utl-107",
       "title": "D1-UTL-107",
       "titleEn": "D1 Utl 107",
-      "category": [
-        "sztu"
-      ],
+      "category": ["sztu"],
       "route": "/sztu/d1-utl-107",
       "source": "photogrammetry",
       "experienceType": "scene",
@@ -4036,9 +3718,7 @@
         "device": "SZTU",
         "folderName": "251225 SZTU D1-UTL-107"
       },
-      "aliases": [
-        "/d1-utl-107"
-      ],
+      "aliases": ["/d1-utl-107"],
       "animation": {
         "duration": 90,
         "frameRate": 60,
@@ -4053,9 +3733,7 @@
       "id": "c1-bdi-206",
       "title": "C1-BDI-206",
       "titleEn": "C1 Bdi 206",
-      "category": [
-        "sztu"
-      ],
+      "category": ["sztu"],
       "route": "/sztu/c1-bdi-206",
       "source": "photogrammetry",
       "experienceType": "scene",
@@ -4078,9 +3756,7 @@
         "device": "SZTU",
         "folderName": "260418 SZTU C1-BDI-206"
       },
-      "aliases": [
-        "/c1-bdi-206"
-      ],
+      "aliases": ["/c1-bdi-206"],
       "viewer": {
         "voxelCoordinateSpace": "metaflow-rz180",
         "defaultCameraMode": "fly"
@@ -4099,10 +3775,7 @@
       "id": "top10-26",
       "title": "Top10_26",
       "titleEn": "Top10 26",
-      "category": [
-        "sztu",
-        "fes"
-      ],
+      "category": ["sztu", "fes"],
       "route": "/sztu/fes/top10-26",
       "source": "photogrammetry",
       "experienceType": "scene",
@@ -4125,10 +3798,7 @@
         "device": "FES",
         "folderName": "260418 Top10_26"
       },
-      "aliases": [
-        "/top10-26",
-        "/fes/top10-26"
-      ],
+      "aliases": ["/top10-26", "/fes/top10-26"],
       "viewer": {
         "voxelCoordinateSpace": "metaflow-rz180"
       },
