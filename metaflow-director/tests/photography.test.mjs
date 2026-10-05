@@ -162,3 +162,58 @@ test("shot drops insert before the target in both directions without losing keys
   model.moveShotBefore(forward, "c", "c");
   assert.deepEqual(forward, copy);
 });
+
+const { isSelectionView } = await source("src/render/selection-view.ts");
+test("re-entered interest selection rejects old flat batches and closes on a working view", async () => {
+  const flat = structuredClone(model.DEFAULT_POSE),
+    working = { ...flat, yaw: 30 },
+    size = [960, 540],
+    events = [];
+  let releaseOld,
+    ready = false;
+  const scheduler = new AperturePreview({
+    target: () => 4,
+    count: () => 0,
+    batch: async (s) => {
+      if (s.viewRevision === 1) await new Promise((r) => (releaseOld = r));
+      return { count: 4, batchMs: 1 };
+    },
+    cancel() {},
+    displayed: (s) => {
+      ready = isSelectionView(s, flat, 2, size);
+      events.push([s.viewRevision, s.pose.yaw, ready]);
+    },
+    error: (e) => {
+      throw e;
+    },
+  });
+  const frame = (pose, viewRevision) => ({
+    pose,
+    viewRevision,
+    width: 960,
+    height: 540,
+    video: false,
+  });
+  scheduler.request(frame(flat, 1)); // Exit/re-enter while the old GPU batch runs.
+  scheduler.request(frame(working, 2));
+  releaseOld();
+  await scheduler.settled();
+  assert.deepEqual(events, [
+    [1, flat.yaw, false],
+    [2, 30, false],
+  ]);
+  scheduler.request(frame(flat, 2));
+  await scheduler.settled();
+  assert.equal(ready, true);
+  scheduler.request(frame(working, 2));
+  await scheduler.settled();
+  assert.equal(
+    ready,
+    false,
+    "a later different displayed camera must close picking",
+  );
+  assert.equal(
+    isSelectionView({ ...frame(flat, 2), width: 540 }, flat, 2, size),
+    false,
+  );
+});

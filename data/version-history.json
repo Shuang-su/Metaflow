@@ -1,14 +1,14 @@
 {
   "schemaVersion": "1.1",
   "cutoffGitRef": "c613a87",
-  "documentedThrough": "40713877e",
+  "documentedThrough": "792e20dae",
   "defaultResourceVersion": "1.0a",
   "current": {
     "displayVersion": "5.21.4",
     "appSemver": "5.21.4",
     "indexSchemaVersion": "1.2",
     "date": "2026-10-05",
-    "gitRef": "40713877e",
+    "gitRef": "792e20dae",
     "historyUrl": "/data/version-history.json",
     "upstream": {
       "repository": "playcanvas/supersplat-viewer",
@@ -225,6 +225,16 @@
       "gitRef": "3ab7dcfba",
       "date": "2026-10-05",
       "summary": "Unpublished MF-106 feedback and optical guide checkpoint; included by the final 5.21.4 source."
+    },
+    {
+      "gitRef": "40713877e",
+      "date": "2026-10-05",
+      "summary": "Unpublished MF-106 review fix source checkpoint preserved by viewer-v5.21.4-rc1; final product is PR #117 squash."
+    },
+    {
+      "gitRef": "1d52e6a92",
+      "date": "2026-10-05",
+      "summary": "MF-106 interface product PR #117 was merged but not deployed; 5.21.4 also includes interest re-entry readiness repair."
     }
   ],
   "entries": [
@@ -1662,7 +1672,7 @@
       "type": "fix",
       "scope": "viewer",
       "date": "2026-10-05",
-      "gitRef": "40713877e",
+      "gitRef": "792e20dae",
       "summary": "恢复已验证的Director摄影界面、构图交互、光圈红色参考及完整帧复用，提示和收敛状态移至画面外",
       "trace": {
         "changeId": "MF-106",
