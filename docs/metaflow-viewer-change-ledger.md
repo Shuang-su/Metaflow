@@ -501,3 +501,9 @@ The 2026-08-15 Viewer 5.19.2 release-record commit updated package/version/index
 ### `5.21.4` · `9b1c51e23` · final interaction product
 
 - [PR #121](https://github.com/Shuang-su/Metaflow/pull/121)已合并产品`9b1c51e2394ad29da9e3ccca7373a287df8fd301`，包含PR #117/#118及2026-10-08按压/字体/紧凑恢复、中心对焦框/XYZ刻度/Operator修正。原未发布产品`6969f80af`与交互来源`c13a34baf`、`1fac1be31`作为维护记录保留。正式部署回读、输出和观察仍另行追加。
+
+
+### `5.21.4` · `9b1c51e23` · production verification
+
+- 正式tag/build `ef4e140cd9c9b2a814d7605181a292bb8d53f1a9`，产品SHA仍为`9b1c51e23`；Netlify `6ac6aa7d71ba3f321eafa17e`于2026-10-07T20:29:26.440Z发布，公开版本、build.json与生产指针回读一致。16轮可用性观察持续900.0089秒，无回读错误。
+- 正式1920×1080/128 PNG为2621131字节，SHA256 `e46b45fa926bd48b7c2a6613b88f47605aa8615d2e5838eb94cf028d3a4b8324`。正式UI生成并导出一秒动态视频：1920×1080 H.264/30fps/30帧、1128866字节，全部解码、30帧不同，SHA256 `69f3c73e87ac16ce349d49beb6b61bd50624efae19bc4396fe1667bab920ae9e`。后续反馈另以5.21.5修正，不改5.21.4历史来源。

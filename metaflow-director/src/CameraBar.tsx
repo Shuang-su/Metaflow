@@ -313,7 +313,9 @@ export function CameraBar({
     ) : name === "blur" ? (
       <span className="top-lens-icon top-lens-fstop">ƒ</span>
     ) : name === "zoom" ? (
-      <span className="island-zoom-icon">{zoomLabel(c.zoom, c.zoomBaseline)}</span>
+      <span className="island-zoom-icon">
+        {zoomLabel(c.zoom, c.zoomBaseline)}
+      </span>
     ) : name === "perspective" ? (
       <ScanBoxIcon />
     ) : name === "original" ? (
@@ -614,7 +616,11 @@ export function CameraBar({
                             onBegin={() => {
                               interacting.current = true;
                               onBegin();
-                              if (active === "blur") onPeaking(true);
+                              if (
+                                active === "blur" ||
+                                active === "focusDistance"
+                              )
+                                onPeaking(true);
                             }}
                             onEnd={() => {
                               interacting.current = false;
