@@ -180,3 +180,12 @@
 - PR #121 的 P2 审查发现退出动画仍保留滑杆捕获。现在关闭时主动取消RAF/待提交值、释放捕获，退出输入禁用；实际649宽度拖动Zoom从70到395，持指针切到1263再移动/释放，重开值仍为70，不产生退出回写。旧失败不通过改变测试绕过。
 - 实际8个底部摄影控件×明暗两主题的16项悬停均为透明底色、黄色、无额外transform。六既定视口×两主题×两模式的24项布局无横向溢出，提示与采样状态在画外；初次自动Operator测试中4项紧凑PHOTO在切换运动中没有命中。保留初始记录，等待实际几何稳定后以当前坐标重测649/390×两主题，4项均展开、opacity1、兴趣按钮命中；移动中的点击/全部反向动画尚未逐帧穷举。
 - 新证据：`detail-focus-oct8.json`、`detail-controls-oct8.json`、`operator-retest-oct8.json`、`operator-mobile-oct8.png`。原失败记录保留。Director定向23项、类型/构建通过；最终提交、生产照片/视频、精确HEAD CI及正式观察执行后追加。
+
+## 5.21.4最终来源固定
+
+- 产品PR #121 squash `9b1c51e2394ad29da9e3ccca7373a287df8fd301`；最终公开镜像/索引指向`9b1c51e23`，不改模型/环境/设置字节。精确候选CI和生产证据分别记录。
+- 修正后新增24组实际布局（六视口×明暗×PHOTO/VIDEO）通过，无横向溢出、顶部/底部越界和反馈侵入成片；`layout-24-oct8.json`为本轮记录。
+
+- PR #121精确HEAD `1e7684cc33a3f6882cf9ca6ecf5a0559feddfbe5`的[CI 37680156598](https://github.com/Shuang-su/Metaflow/actions/runs/37680156598)成功：Viewer单元/类型/构建/E2E、治理、数据、文档和CodeQL；路由未选中的Editor/Design等项目为skipped，不当作本轮通过。审查退出捕获P2已回复并解决；没有独立人工审查。
+- 最终源码来源`1fac1be31`、维护记录`1e7684cc3`与产品squash各自保留。来源/局部过程已经验证；最终正式tag、部署和生产输出仍待执行。
+- 回填squash来源后Viewer首次143/144：保留来源提交尚未有release tag见证。新增不可变`viewer-v5.21.4-rc3`指向已验证候选`1e7684cc33a3f6882cf9ca6ecf5a0559feddfbe5`，保留c13a34baf/1fac1be31历史并回读远端；没有改版本检查。rc3为候选来源，非生产发布。
