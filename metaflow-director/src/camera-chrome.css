@@ -1108,6 +1108,10 @@ html[data-director-theme="light"] .director-tooltip {
   height: 90px;
   background: #ff453a;
 }
+.director-playhead input {
+  top: 68px;
+  height: 30px;
+}
 .director-ruler {
   top: 68px;
   height: 24px;

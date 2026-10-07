@@ -731,6 +731,9 @@ export function VideoTimeline(p: Props) {
                     tabIndex={0}
                     aria-label={`Resize ${edge} of ${s.name}`}
                     className={`timeline-clip-handle ${edge === "start" ? "is-left" : "is-right"}`}
+                    style={{
+                      width: `min(20px, ${100 / (Math.max(1, s.keys.length) * 4)}%)`,
+                    }}
                     onKeyDown={(e) => {
                       if (e.key === "ArrowLeft" || e.key === "ArrowRight") {
                         e.preventDefault();
