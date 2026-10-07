@@ -1,14 +1,14 @@
 {
   "schemaVersion": "1.1",
   "cutoffGitRef": "c613a87",
-  "documentedThrough": "eef25bfe1",
+  "documentedThrough": "c64f21097",
   "defaultResourceVersion": "1.0a",
   "current": {
     "displayVersion": "5.21.5",
     "appSemver": "5.21.5",
     "indexSchemaVersion": "1.2",
     "date": "2026-10-08",
-    "gitRef": "eef25bfe1",
+    "gitRef": "c64f21097",
     "historyUrl": "/data/version-history.json",
     "upstream": {
       "repository": "playcanvas/supersplat-viewer",
@@ -266,6 +266,11 @@
       "gitRef": "19860f1da",
       "date": "2026-10-08",
       "summary": "MF-106 Easing placement source; superseded within the unpublished 5.21.5 candidate by final shutter geometry."
+    },
+    {
+      "gitRef": "eef25bfe1",
+      "date": "2026-10-08",
+      "summary": "MF-106 final shutter source preserved; unpublished 5.21.5 also includes short-clip hit-area correction."
     }
   ],
   "entries": [
@@ -1721,8 +1726,8 @@
       "type": "fix",
       "scope": "viewer",
       "date": "2026-10-08",
-      "gitRef": "eef25bfe1",
-      "summary": "修复光圈辅助帧闪动、手动焦距红色参考、双行快门裁切与亮色边框；完善视频播放/刻度/窄屏布局及Easing入口和退场输入",
+      "gitRef": "c64f21097",
+      "summary": "修复光圈辅助帧闪动、手动焦距红色参考、双行快门裁切与亮色边框；完善视频播放/刻度/窄屏布局及Easing入口和退场输入及最短胶片机位命中",
       "trace": {
         "changeId": "MF-106",
         "issue": "https://github.com/Shuang-su/Metaflow/issues/106",

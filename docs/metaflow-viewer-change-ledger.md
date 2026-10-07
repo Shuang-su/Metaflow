@@ -523,3 +523,8 @@ The 2026-08-15 Viewer 5.19.2 release-record commit updated package/version/index
 ### `5.21.5` · `eef25bfe1` · final shutter source
 
 - 再次实际核对来源后统一Capture/REC的64px宽、桌面32px/窄屏42px高、内部描边、REC10px/800/15px、7px圆点与默认/hover红色。重新24+12组布局、25项Director测试、类型与构建通过；保留初次快速点击未命中与过渡色值记录，未以其作为静止终态通过。最终HEAD CI/部署另行追加。
+
+
+### `5.21.5` · `c64f21097` · short clip input source
+
+- 自动审查P2复现后限制短胶片两侧手柄为每格最多四分之一，并将透明播放头命中区移到刻度；0.25秒/40px四机位可点击，长度拖动一步撤销、播放头拖动实际通过。Director25项、类型、构建通过，原失败与修正证据保留。精确HEAD CI和最终部署另行记录；自动审查不等于独立人工审查。
