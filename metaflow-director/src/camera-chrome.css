@@ -580,7 +580,6 @@
   flex: none;
   overflow: hidden;
   min-height: 40px;
-  padding-block: 3px;
 }
 .pill-capture-button {
   display: inline-flex;
@@ -597,35 +596,39 @@
   background: var(--action-accent);
   color: #171619;
   padding: 0;
-  box-shadow:
-    0 0 0 1.5px var(--pill-bg),
-    0 0 0 3px var(--action-accent);
+  box-shadow: none;
   overflow: hidden;
 }
 .pill-capture-shutter {
-  position: absolute;
-  inset: 0;
+  width: calc(100% - 4px);
+  height: calc(100% - 4px);
+  border: 2px solid var(--pill-bg);
   border-radius: inherit;
 }
+.pill-capture-button:hover:not(:disabled) {
+  background: #f5c92a;
+}
 .is-video .pill-capture-button {
-  width: 72px;
-  min-width: 72px;
-  height: 34px;
-  background: #e73735;
+  background: #e23b36;
   box-shadow: none;
   color: #fff;
+}
+.is-video .pill-capture-button:hover:not(:disabled) {
+  background: #ef4943;
 }
 .pill-capture-rec {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 5px;
-  font-size: 11px;
-  font-weight: 750;
+  font-size: 10px;
+  font-weight: 800;
+  line-height: 15px;
+  letter-spacing: 0.055em;
 }
 .pill-capture-rec > span {
-  width: 6px;
-  height: 6px;
+  width: 7px;
+  height: 7px;
   background: white;
   border-radius: 50%;
 }
@@ -1255,10 +1258,15 @@ html[data-director-theme="light"] .director-tooltip {
     gap: 10px;
   }
   .is-axis-capture .pill-capture-button {
-    height: 36px;
+    height: 42px;
+    margin-inline: 0;
   }
   .is-axis-capture {
     min-height: 42px;
+  }
+  .is-axis-capture.is-video .pill-capture-button,
+  .director.light .is-axis-capture .pill-capture-button {
+    border: 1px solid #171619;
   }
   .timeline-track-tool-label {
     display: none;

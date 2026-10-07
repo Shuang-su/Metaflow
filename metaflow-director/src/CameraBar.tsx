@@ -335,7 +335,7 @@ export function CameraBar({
       initial={false}
       animate={{
         opacity: active && !compact ? 0 : 1,
-        maxWidth: active && !compact ? 0 : mode === "video" ? 78 : 70,
+        maxWidth: active && !compact ? 0 : compact ? 64 : 70,
       }}
       transition={{ opacity: { duration: 0.18 }, maxWidth: STUDIO_TRANSITION }}
       style={{ pointerEvents: active && !compact ? "none" : "auto" }}
