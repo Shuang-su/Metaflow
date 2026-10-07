@@ -1,6 +1,16 @@
-import { useEffect, useLayoutEffect, useRef, useState } from "react";
-import type { CSSProperties, PointerEvent as ReactPointerEvent } from "react";
-import { motion } from "motion/react";
+import {
+  useEffect,
+  useImperativeHandle,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from "react";
+import type {
+  CSSProperties,
+  PointerEvent as ReactPointerEvent,
+  Ref,
+} from "react";
+import { motion, useIsPresent } from "motion/react";
 import { clamp } from "./core/model";
 import { rotationFromDrag } from "./core/camera-controls";
 import { sound, startScrub, scrubSound, endScrub } from "./core/sounds";
@@ -190,7 +200,9 @@ export function RotationDial({
     </button>
   );
 }
+export type LensRulerHandle = { cancel: () => void };
 export function LensRuler({
+  ref,
   label,
   value,
   min,
@@ -200,6 +212,7 @@ export function LensRuler({
   onEnd,
   onCancel,
 }: {
+  ref?: Ref<LensRulerHandle>;
   label: string;
   value: number;
   min: number;
@@ -212,18 +225,38 @@ export function LensRuler({
   const [ticks, setTicks] = useState(() => Array(41).fill(0)),
     input = useRef<HTMLInputElement>(null),
     previous = useRef(value),
-    drag = useRef({ active: false, x: 0, moved: false });
+    drag = useRef({ active: false, x: 0, moved: false }),
+    pointer = useRef<number | null>(null);
+  const present = useIsPresent();
   const pending = useRef<number | null>(null),
     raf = useRef<number | null>(null),
     latest = useRef(onChange),
     keyboard = useRef(false);
   latest.current = onChange;
+  const cancel = () => {
+    const wasActive = drag.current.active || keyboard.current;
+    if (raf.current !== null) cancelAnimationFrame(raf.current);
+    raf.current = null;
+    pending.current = null;
+    drag.current.active = false;
+    keyboard.current = false;
+    const id = pointer.current;
+    pointer.current = null;
+    if (id !== null && input.current?.hasPointerCapture(id))
+      input.current.releasePointerCapture(id);
+    if (wasActive) onCancel();
+    endScrub();
+  };
+  useImperativeHandle(ref, () => ({ cancel }));
+  useLayoutEffect(() => {
+    if (!present) cancel();
+  }, [present]);
   const flush = () => {
     if (raf.current !== null) cancelAnimationFrame(raf.current);
     raf.current = null;
     const v = pending.current;
     pending.current = null;
-    if (v !== null) latest.current(v);
+    if (v !== null && present) latest.current(v);
   };
   const schedule = (v: number) => {
     pending.current = v;
@@ -275,6 +308,7 @@ export function LensRuler({
     }
     flush();
     drag.current.active = false;
+    pointer.current = null;
     previous.current = n;
     if (e.currentTarget.hasPointerCapture(e.pointerId))
       e.currentTarget.releasePointerCapture(e.pointerId);
@@ -299,16 +333,11 @@ export function LensRuler({
         max={max}
         step={1}
         defaultValue={value}
+        disabled={!present}
         onKeyDown={(e) => {
           if (e.key === "Escape") {
             e.preventDefault();
-            if (raf.current !== null) cancelAnimationFrame(raf.current);
-            raf.current = null;
-            pending.current = null;
-            drag.current.active = false;
-            keyboard.current = false;
-            onCancel();
-            endScrub();
+            cancel();
             return;
           }
           if (
@@ -342,7 +371,7 @@ export function LensRuler({
           endScrub();
         }}
         onChange={(e) => {
-          if (drag.current.active) return;
+          if (!present || drag.current.active) return;
           const n = +e.target.value;
           pulse(n);
           previous.current = n;
@@ -351,11 +380,12 @@ export function LensRuler({
           if (!keyboard.current) onEnd();
         }}
         onPointerDown={(e) => {
-          if (e.button !== 0) return;
+          if (!present || e.button !== 0) return;
           e.preventDefault();
           const n = at(e.clientX, e.currentTarget);
           previous.current = n;
           drag.current = { active: true, x: e.clientX, moved: false };
+          pointer.current = e.pointerId;
           e.currentTarget.setPointerCapture(e.pointerId);
           onBegin();
           startScrub((n - min) / (max - min));
@@ -365,6 +395,7 @@ export function LensRuler({
         onPointerMove={(e) => {
           const d = drag.current;
           if (
+            !present ||
             !d.active ||
             !e.currentTarget.hasPointerCapture(e.pointerId) ||
             (!d.moved && Math.abs(e.clientX - d.x) <= 3)
@@ -380,23 +411,9 @@ export function LensRuler({
         onPointerUp={end}
         onLostPointerCapture={() => {
           if (!drag.current.active) return;
-          if (raf.current !== null) cancelAnimationFrame(raf.current);
-          raf.current = null;
-          pending.current = null;
-          drag.current.active = false;
-          onCancel();
-          endScrub();
+          cancel();
         }}
-        onPointerCancel={(e) => {
-          if (raf.current !== null) cancelAnimationFrame(raf.current);
-          raf.current = null;
-          pending.current = null;
-          drag.current.active = false;
-          if (e.currentTarget.hasPointerCapture(e.pointerId))
-            e.currentTarget.releasePointerCapture(e.pointerId);
-          onCancel();
-          endScrub();
-        }}
+        onPointerCancel={cancel}
         onClick={(e) => e.preventDefault()}
       />
     </div>

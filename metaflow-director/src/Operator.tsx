@@ -25,7 +25,9 @@ export function Operator({
   const anchor = useRef<HTMLDivElement>(null);
   const latestClose = useRef(onClose);
   latestClose.current = onClose;
-  const [settled, setSettled] = useState(false);
+  // Moving between the header and compact row remounts this component. With
+  // initial={false}, an already-open island has no enter animation to complete.
+  const [settled, setSettled] = useState(active);
   useEffect(() => {
     if (!active || selecting) return;
     const outside = (e: PointerEvent) => {
@@ -79,7 +81,7 @@ export function Operator({
             opacity: { duration: 0.1, delay: active ? 0.02 : 0 },
           }}
           onAnimationStart={() => setSettled(false)}
-          onAnimationComplete={() => setSettled(true)}
+          onAnimationComplete={() => setSettled(active)}
           style={{
             overflow: active && settled ? "visible" : "hidden",
             pointerEvents: active ? "auto" : "none",

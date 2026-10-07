@@ -24,7 +24,7 @@ Metaflow 把基于 [SuperSplat](https://github.com/playcanvas/supersplat) 的 Ed
 | Editor | `1.1` / app `1.1.0` | SuperSplat Editor `2.28.0` | [`metadata/editor-version-history.json`](metadata/editor-version-history.json) |
 | 资源索引 | schema `1.2` | 不适用 | [`data/index.json`](data/index.json) |
 
-Viewer 源码在 `metaflow-viewer/`；Editor 源码在 `supersplat-v2.28.0/`，`metaflow-editor/` 是发布构建。MF-30 的 v1.29.1 运行时产品 SHA 为 `26e311c`，5.19.2 analytics/release 修复 SHA 为 `92d11b0`。`viewer-v5.19.0` 的 prepare 在部署前失败且生产从未切换；`viewer-v5.19.1` 已通过 D2 Prepare、精确 D2 CLI/API 生产发布、真实浏览器 smoke 与 15 分钟观察；5.19.2 进一步恢复 production endpoint 并加入发布前/后校验，此前生产稳定版为 `5.19.3`，MF-81 已发布 3 组芒种和 9 组 SZTUCCF260919 ACG，索引共 99 项；见 [发布核验](docs/changes/81-publish-mangzhong-sztuccf/completion.md)。当前集成版本为 **5.21.4**；MF-106 新增 ACG 资源 `/director` 实验摄影入口，发布状态与核验见 [MF-106](docs/changes/106-acg-director/verification.md) 和 PR #117。贡献与变更流程见 [`CONTRIBUTING.md`](CONTRIBUTING.md) 和 [MCL v1.0 candidate](docs/metaflow-change-lifecycle-v1.0.md)。
+Viewer 源码在 `metaflow-viewer/`；Editor 源码在 `supersplat-v2.28.0/`，`metaflow-editor/` 是发布构建。MF-30 的 v1.29.1 运行时产品 SHA 为 `26e311c`，5.19.2 analytics/release 修复 SHA 为 `92d11b0`。`viewer-v5.19.0` 的 prepare 在部署前失败且生产从未切换；`viewer-v5.19.1` 已通过 D2 Prepare、精确 D2 CLI/API 生产发布、真实浏览器 smoke 与 15 分钟观察；5.19.2 进一步恢复 production endpoint 并加入发布前/后校验，此前生产稳定版为 `5.19.3`，MF-81 已发布 3 组芒种和 9 组 SZTUCCF260919 ACG，索引共 99 项；见 [发布核验](docs/changes/81-publish-mangzhong-sztuccf/completion.md)。当前集成版本为 **5.21.4**；MF-106 新增 ACG 资源 `/director` 实验摄影入口，发布状态与核验见 [MF-106](docs/changes/106-acg-director/verification.md) 和 PR #117/#118。贡献与变更流程见 [`CONTRIBUTING.md`](CONTRIBUTING.md) 和 [MCL v1.0 candidate](docs/metaflow-change-lifecycle-v1.0.md)。
 
 下方保留原有 Viewer 快速参考，方便已有读者继续使用；新的分层手册和当前契约以 [`docs/README.md`](docs/README.md) 为入口。
 
@@ -171,7 +171,7 @@ location / {
 
 | 字段 | 值 |
 |------|----|
-| 展示版本 | `5.21.4` （MF-106，PR #117） |
+| 展示版本 | `5.21.4` （MF-106，PR #117/#118） |
 | 包版本 | `5.21.4` |
 | 索引 schema | `1.2` |
 | 上游 SuperSplat Viewer | `v1.35.2` |
