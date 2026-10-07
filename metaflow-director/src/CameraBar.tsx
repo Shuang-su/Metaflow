@@ -10,7 +10,7 @@ import {
 import { createPortal } from "react-dom";
 import { AnimatePresence, motion } from "motion/react";
 import { SlidersHorizontal, Video } from "lucide-react";
-import { RotationDial, LensRuler } from "./Dials";
+import { RotationDial, LensRuler, type LensRulerHandle } from "./Dials";
 import {
   blurLabel,
   zoomLabel,
@@ -173,6 +173,7 @@ export function CameraBar({
   } | null>(null);
   const island = useRef<HTMLDivElement>(null),
     shell = useRef<HTMLDivElement>(null),
+    ruler = useRef<LensRulerHandle>(null),
     interacting = useRef(false),
     trigger = useRef<string | null>(null);
   const [expandedWidth, setExpandedWidth] = useState(412);
@@ -180,6 +181,9 @@ export function CameraBar({
     settings = Object.keys(labels),
     collapsedWidth = settings.length * 36 + 60;
   const close = (restoreFocus = false) => {
+    // Presence keeps the exit animation mounted. Stop input and queued writes
+    // before rolling back the gesture, rather than waiting for that animation.
+    ruler.current?.cancel();
     onPeaking(false);
     setActive(null);
     if (restoreFocus)
@@ -199,11 +203,6 @@ export function CameraBar({
   useEffect(() => {
     // An expanded compact island owns the whole bottom row. Its measurements
     // must not survive moving the Operator back to the desktop header.
-    if (interacting.current) {
-      interacting.current = false;
-      onCancel();
-      endScrub();
-    }
     close();
     setHelper(null);
   }, [compact]);
@@ -595,6 +594,7 @@ export function CameraBar({
                       ) : (
                         <>
                           <LensRuler
+                            ref={ruler}
                             label={
                               active === "focusDistance"
                                 ? "对焦距离"

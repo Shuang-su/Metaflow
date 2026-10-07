@@ -186,14 +186,24 @@
   position: relative;
   z-index: 1;
   font-size: 10px;
-  line-height: 1;
-  font-weight: 750;
+  line-height: 1.5;
+  font-weight: 680;
   padding: 0;
-  color: var(--pill-ink);
+  color: var(--muted);
   border-radius: 999px;
+  transition: background-color 0.15s, color 0.15s;
+}
+.studio-mode-toggle button:not(.is-active):hover {
+  color: var(--action-accent);
+  background: transparent;
 }
 .studio-mode-toggle button.is-active {
   color: var(--action-accent);
+}
+.director .studio-mode-toggle button:active:not(:disabled),
+.director .bottom-axis-button:active:not(:disabled),
+.director .auto-motion-actions button:active:not(:disabled) {
+  transform: none;
 }
 .studio-mode-highlight {
   position: absolute;
@@ -257,22 +267,32 @@
   --axis-control-scale: 1.035;
   background: var(--pill-hover);
 }
+.bottom-axis-button:hover:not(:disabled):before {
+  background-image:
+    linear-gradient(var(--pill-hover), var(--pill-hover)),
+    conic-gradient(
+      from var(--axis-arc-start),
+      var(--axis-ring-leading) 0deg var(--axis-arc-sweep),
+      var(--axis-ring-trailing) var(--axis-arc-sweep) 360deg
+    );
+}
 .axis-compass-ring {
   position: absolute;
-  width: 36px;
-  height: 36px;
-  left: 3px;
-  top: 3px;
-  stroke: #9d9da5;
-  stroke-width: 1;
-  transform: rotate(var(--axis-ring-rotation));
-  transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+  width: calc(100% - 2px);
+  height: calc(100% - 2px);
+  left: 1px;
+  top: 1px;
+  stroke: var(--pill-ink);
+  stroke-width: 1.2px;
+  transform: rotate(var(--axis-ring-rotation)) scale(var(--axis-control-scale));
+  transform-origin: center;
+  transition: transform 80ms linear;
 }
 .is-scrubbing .axis-compass-ring {
   transition: none;
 }
 .axis-zero-tick {
-  stroke: #ec605c;
+  stroke: #ff453a;
 }
 .axis-label,
 .bottom-axis-button strong {
@@ -723,9 +743,9 @@ html[data-director-theme="light"] .director-tooltip {
 .auto-motion-actions {
   display: flex;
   align-items: center;
-  gap: 3px;
+  gap: 0;
   background: #151517;
-  border: 1px solid #353538;
+  border: 1px solid #ffffff1a;
   border-radius: 999px;
   padding: 3px;
   box-shadow:
@@ -737,11 +757,12 @@ html[data-director-theme="light"] .director-tooltip {
   background: #2f80ff;
   color: #fff;
   min-height: 34px;
-  min-width: 91px;
   border-radius: 999px;
   padding: 0 13px;
   font-size: 11px;
-  font-weight: 700;
+  font-weight: 680;
+  line-height: 1;
+  gap: 6px;
   position: relative;
 }
 .auto-motion-primary-island:hover:not(:disabled) {
@@ -757,12 +778,19 @@ html[data-director-theme="light"] .director-tooltip {
 .auto-motion-island-state {
   display: flex;
   align-items: center;
-  gap: 2px;
+  flex: none;
+  min-width: 0;
+  gap: 5px;
+}
+.auto-motion-actions:not(.is-idle) .auto-motion-island-state {
+  margin-left: 3px;
+  padding-right: 3px;
 }
 .auto-motion-icon-button {
   position: relative;
-  width: 29px;
-  height: 30px;
+  flex: none;
+  width: 28px;
+  height: 28px;
   padding: 0;
   color: #fff;
   border-radius: 50%;
@@ -794,6 +822,7 @@ html[data-director-theme="light"] .director-tooltip {
   width: 72px;
   height: 72px;
   transform: translate(-50%, -50%);
+  transform-origin: center;
   --focus-reticle-color: #ffd60a;
   filter: drop-shadow(0 0 0.5px #0000002e);
   animation: focus-reticle-life 1.85s cubic-bezier(0.22, 1, 0.36, 1) both;
@@ -861,20 +890,20 @@ html[data-director-theme="light"] .director-tooltip {
 @keyframes focus-reticle-life {
   0% {
     opacity: 0;
-    scale: 1.42;
+    transform: translate(-50%, -50%) scale(1.42);
   }
   8% {
     opacity: 0.45;
-    scale: 1.42;
+    transform: translate(-50%, -50%) scale(1.42);
   }
   22%,
   58% {
     opacity: 1;
-    scale: 1;
+    transform: translate(-50%, -50%) scale(1);
   }
   100% {
     opacity: 0;
-    scale: 1;
+    transform: translate(-50%, -50%) scale(1);
   }
 }
 
@@ -1056,7 +1085,14 @@ html[data-director-theme="light"] .director-tooltip {
     position: relative;
     inset: auto;
     transform: none;
-    flex-shrink: 0;
+    flex: none;
+    width: max-content;
+    max-width: none;
+    opacity: 1;
+    transition:
+      max-width 0.28s cubic-bezier(0.22, 1, 0.36, 1),
+      opacity 0.16s,
+      transform 0.28s cubic-bezier(0.22, 1, 0.36, 1);
   }
   .mobile-camera-controls-row .topbar-utility-controls {
     flex: 0 1 auto;
@@ -1086,7 +1122,11 @@ html[data-director-theme="light"] .director-tooltip {
     font-size: 10px;
   }
   .mobile-camera-controls-row:has(.is-expanded) .director-operator {
-    display: none;
+    pointer-events: none;
+    opacity: 0;
+    max-width: 0;
+    overflow: hidden;
+    transform: translateX(-10px) scale(0.92);
   }
   .mobile-camera-controls-row:has(.is-expanded) {
     gap: 0;
@@ -1123,11 +1163,6 @@ html[data-director-theme="light"] .director-tooltip {
   }
   .brand-beta {
     padding: 4px 6px;
-  }
-  .mobile-camera-controls-row .auto-motion-primary-island {
-    min-width: 78px;
-    padding: 0 9px;
-    font-size: 10px;
   }
   .top-setting-hit > button {
     font-size: 9px;
