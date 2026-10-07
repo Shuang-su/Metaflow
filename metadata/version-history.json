@@ -1,14 +1,14 @@
 {
   "schemaVersion": "1.1",
   "cutoffGitRef": "c613a87",
-  "documentedThrough": "6969f80af",
+  "documentedThrough": "9b1c51e23",
   "defaultResourceVersion": "1.0a",
   "current": {
     "displayVersion": "5.21.4",
     "appSemver": "5.21.4",
     "indexSchemaVersion": "1.2",
     "date": "2026-10-08",
-    "gitRef": "6969f80af",
+    "gitRef": "9b1c51e23",
     "historyUrl": "/data/version-history.json",
     "upstream": {
       "repository": "playcanvas/supersplat-viewer",
@@ -251,6 +251,11 @@
       "gitRef": "1fac1be31",
       "date": "2026-10-08",
       "summary": "MF-106 unshipped Director detail source: centered focus reticle, XYZ and mode hover, Operator padding/restoration and cancellation of exiting sliders; included by 5.21.4."
+    },
+    {
+      "gitRef": "6969f80af",
+      "date": "2026-10-05",
+      "summary": "MF-106 product PR #118 was merged but not deployed; 5.21.4 also includes final responsive/focus feedback correction."
     }
   ],
   "entries": [
@@ -1688,8 +1693,8 @@
       "type": "fix",
       "scope": "viewer",
       "date": "2026-10-08",
-      "gitRef": "6969f80af",
-      "summary": "恢复已验证的Director摄影界面、构图交互、光圈红色参考及完整帧复用，提示和收敛状态移至画面外",
+      "gitRef": "9b1c51e23",
+      "summary": "恢复Director已验证界面、红色参考与完整帧复用；修正构图、画外提示、窄屏恢复及摄影条按压/hover/字体、中心对焦框、XYZ刻度与Operator padding",
       "trace": {
         "changeId": "MF-106",
         "issue": "https://github.com/Shuang-su/Metaflow/issues/106",
@@ -1697,7 +1702,7 @@
         "plan": "docs/changes/106-acg-director/plan.md",
         "evidence": "docs/changes/106-acg-director/verification.md",
         "releaseTag": "viewer-v5.21.4",
-        "pullRequest": "https://github.com/Shuang-su/Metaflow/pull/118"
+        "pullRequest": "https://github.com/Shuang-su/Metaflow/pull/121"
       }
     }
   ]

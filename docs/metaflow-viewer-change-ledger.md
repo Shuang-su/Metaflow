@@ -496,3 +496,8 @@ The 2026-08-15 Viewer 5.19.2 release-record commit updated package/version/index
 ### `5.21.4` · `1fac1be31` · final control detail source
 
 - 未发布来源`1fac1be31`补齐中心对焦框、XYZ刻度随环缩放、PHOTO/VIDEO主题色、Operator padding/恢复与退出滑杆取消；纳入[PR #121](https://github.com/Shuang-su/Metaflow/pull/121)，Director23项及类型通过，实际过程及失败/复测范围见[验证记录](changes/106-acg-director/verification.md)。最终HEAD CI与正式部署另行回读。
+
+
+### `5.21.4` · `9b1c51e23` · final interaction product
+
+- [PR #121](https://github.com/Shuang-su/Metaflow/pull/121)已合并产品`9b1c51e2394ad29da9e3ccca7373a287df8fd301`，包含PR #117/#118及2026-10-08按压/字体/紧凑恢复、中心对焦框/XYZ刻度/Operator修正。原未发布产品`6969f80af`与交互来源`c13a34baf`、`1fac1be31`作为维护记录保留。正式部署回读、输出和观察仍另行追加。
