@@ -1,14 +1,14 @@
 {
   "schemaVersion": "1.1",
   "cutoffGitRef": "c613a87",
-  "documentedThrough": "19860f1da",
+  "documentedThrough": "eef25bfe1",
   "defaultResourceVersion": "1.0a",
   "current": {
     "displayVersion": "5.21.5",
     "appSemver": "5.21.5",
     "indexSchemaVersion": "1.2",
     "date": "2026-10-08",
-    "gitRef": "19860f1da",
+    "gitRef": "eef25bfe1",
     "historyUrl": "/data/version-history.json",
     "upstream": {
       "repository": "playcanvas/supersplat-viewer",
@@ -261,6 +261,11 @@
       "gitRef": "c85b6859d",
       "date": "2026-10-08",
       "summary": "MF-106 unpublished optical-feedback and VIDEO source checkpoint; included by 5.21.5."
+    },
+    {
+      "gitRef": "19860f1da",
+      "date": "2026-10-08",
+      "summary": "MF-106 Easing placement source; superseded within the unpublished 5.21.5 candidate by final shutter geometry."
     }
   ],
   "entries": [
@@ -1716,7 +1721,7 @@
       "type": "fix",
       "scope": "viewer",
       "date": "2026-10-08",
-      "gitRef": "19860f1da",
+      "gitRef": "eef25bfe1",
       "summary": "修复光圈辅助帧闪动、手动焦距红色参考、双行快门裁切与亮色边框；完善视频播放/刻度/窄屏布局及Easing入口和退场输入",
       "trace": {
         "changeId": "MF-106",

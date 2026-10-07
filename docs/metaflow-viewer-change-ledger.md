@@ -519,3 +519,7 @@ The 2026-08-15 Viewer 5.19.2 release-record commit updated package/version/index
 - 原孔径大小、4→128/256/512累积、模型字节、Viewer机位和Editor不变。最终照片字节与原同状态1080p/128一致；局部录帧不能替代完整动画、4K或严格遮挡验收。回退为5.21.4部署`6ac6aa7d71ba3f321eafa17e`。
 
 - 候选取消后重试真实一秒1080p30/128视频成功：30帧全部解码且各不相同，与5.21.4同状态视频30个解码帧逐帧一致；容器SHA不同。Viewer144项、类型、发布契约、125份文档链接和12947份仓库卫生检查通过；版本断言与index.release schema初始失败原因及修正见验证记录。
+
+### `5.21.5` · `eef25bfe1` · final shutter source
+
+- 再次实际核对来源后统一Capture/REC的64px宽、桌面32px/窄屏42px高、内部描边、REC10px/800/15px、7px圆点与默认/hover红色。重新24+12组布局、25项Director测试、类型与构建通过；保留初次快速点击未命中与过渡色值记录，未以其作为静止终态通过。最终HEAD CI/部署另行追加。
