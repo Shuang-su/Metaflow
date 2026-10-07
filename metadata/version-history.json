@@ -7,7 +7,7 @@
     "displayVersion": "5.21.4",
     "appSemver": "5.21.4",
     "indexSchemaVersion": "1.2",
-    "date": "2026-10-05",
+    "date": "2026-10-08",
     "gitRef": "6969f80af",
     "historyUrl": "/data/version-history.json",
     "upstream": {
@@ -1676,7 +1676,7 @@
       "appSemver": "5.21.4",
       "type": "fix",
       "scope": "viewer",
-      "date": "2026-10-05",
+      "date": "2026-10-08",
       "gitRef": "6969f80af",
       "summary": "恢复已验证的Director摄影界面、构图交互、光圈红色参考及完整帧复用，提示和收敛状态移至画面外",
       "trace": {
