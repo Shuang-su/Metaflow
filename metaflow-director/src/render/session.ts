@@ -446,9 +446,13 @@ export class CandidateSession {
       try {
         (this.scene as any).directorPeaking = [1, 0, 0, 0];
         this.scene.camera.clearPass.setClearColor(new Color(0, 0, 0, 0));
-        await this.frame(false, undefined, () =>
-          this.guide!.copy(this.scene.camera.colorTarget.colorBuffer),
-        );
+        await this.frame(false, undefined, () => {
+          this.guide!.copy(this.scene.camera.colorTarget.colorBuffer);
+          // The auxiliary pass also acquires the shared canvas swapchain.
+          // Keep its previous composed image visible until the new mask and
+          // aperture image are composed; never expose the mask/clear frame.
+          this.presentation?.();
+        });
         return this.guide.texture;
       } finally {
         (this.scene as any).directorPeaking = [0, 0, 0, 0];

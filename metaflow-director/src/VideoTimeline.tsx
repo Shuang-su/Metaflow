@@ -85,6 +85,25 @@ function ShotTools({ name, children }: { name: string; children: ReactNode }) {
   );
 }
 
+function EasingMenu({ name, children }: { name: string; children: ReactNode }) {
+  const present = useIsPresent();
+  return (
+    <motion.div
+      className="shot-easing-menu"
+      role="dialog"
+      aria-label={`Easing for ${name}`}
+      aria-hidden={!present}
+      inert={!present}
+      style={{ pointerEvents: present ? undefined : "none" }}
+      initial={{ opacity: 0, y: 6, scale: 0.96 }}
+      animate={{ opacity: 1, y: 0, scale: 1 }}
+      exit={{ opacity: 0, y: 4, scale: 0.98 }}
+    >
+      {children}
+    </motion.div>
+  );
+}
+
 export function VideoTimeline(p: Props) {
   const rows = layoutShots(p.project.shots),
     duration = totalDuration(p.project.shots);
@@ -100,6 +119,7 @@ export function VideoTimeline(p: Props) {
   const root = useRef<HTMLElement>(null),
     scroll = useRef<HTMLDivElement>(null);
   const finishDrag = useRef<(() => void) | null>(null);
+  const dragSource = useRef<HTMLElement | null>(null);
   const keyboardResize = useRef(false);
   const present = useIsPresent();
   useEffect(() => {
@@ -114,6 +134,10 @@ export function VideoTimeline(p: Props) {
   useEffect(() => {
     setPanel((current) => (current === "context" ? current : null));
   }, [p.selected]);
+  useEffect(() => {
+    if (panel !== "easing" && dragSource.current?.closest(".shot-easing-menu"))
+      finishDrag.current?.();
+  }, [panel]);
   useEffect(() => {
     if (!panel) return;
     const trigger = document.activeElement as HTMLElement | null;
@@ -139,7 +163,21 @@ export function VideoTimeline(p: Props) {
     };
   }, [panel]);
   const visibleDuration = Math.max(14, duration + 2),
-    scale = Math.max(20, (size - 64) / visibleDuration);
+    scale = Math.max(20, (size - 64) / visibleDuration),
+    // The reference uses fewer ruler marks in compact layouts so short
+    // marks remain distinct instead of merging into a solid band.
+    tickStep =
+      size <= 760
+        ? visibleDuration <= 15
+          ? 0.25
+          : visibleDuration <= 30
+            ? 0.5
+            : 1
+        : visibleDuration <= 15
+          ? 0.05
+          : visibleDuration <= 30
+            ? 0.1
+            : 0.125;
   const update = (fn: (s: Shot) => void) =>
     p.onUpdate((project) => {
       const s = project.shots.find((s) => s.id === shot?.id);
@@ -167,6 +205,7 @@ export function VideoTimeline(p: Props) {
       if (event && (event as PointerEvent).pointerId !== e.pointerId) return;
       if (finishDrag.current !== end) return;
       finishDrag.current = null;
+      dragSource.current = null;
       if (event?.type === "pointerup") p.onEnd();
       else p.onCancel();
       window.removeEventListener("keydown", key, true);
@@ -189,6 +228,7 @@ export function VideoTimeline(p: Props) {
     window.addEventListener("keydown", key, true);
     window.addEventListener("blur", cancelled);
     finishDrag.current = end;
+    dragSource.current = target;
     target.addEventListener("pointermove", onMove);
     target.addEventListener("pointerup", end);
     target.addEventListener("pointercancel", end);
@@ -197,7 +237,7 @@ export function VideoTimeline(p: Props) {
   return (
     <motion.section
       ref={root}
-      className="tracks-timeline is-scene-focused director-video-timeline"
+      className={`tracks-timeline director-video-timeline ${shot ? "is-scene-focused" : ""}`}
       aria-label="Animation timeline"
       aria-busy={p.busy}
       initial={{ opacity: 0, height: 0 }}
@@ -226,14 +266,7 @@ export function VideoTimeline(p: Props) {
                     </button>
                     <AnimatePresence>
                       {panel === "easing" && (
-                        <motion.div
-                          className="shot-easing-menu"
-                          role="dialog"
-                          aria-label={`Easing for ${shot.name}`}
-                          initial={{ opacity: 0, y: 6, scale: 0.96 }}
-                          animate={{ opacity: 1, y: 0, scale: 1 }}
-                          exit={{ opacity: 0, y: 4, scale: 0.98 }}
-                        >
+                        <EasingMenu name={shot.name}>
                           <div className="shot-easing-preview">
                             {[
                               "is-horizontal-one",
@@ -377,7 +410,7 @@ export function VideoTimeline(p: Props) {
                               </button>
                             ))}
                           </div>
-                        </motion.div>
+                        </EasingMenu>
                       )}
                     </AnimatePresence>
                   </div>
@@ -495,7 +528,7 @@ export function VideoTimeline(p: Props) {
             aria-label="Jump to project start"
             onClick={() => seek(0)}
           >
-            <SkipBack size={19} />
+            <SkipBack size={19} fill="currentColor" strokeWidth={1.5} />
           </button>
           <motion.button
             className="timeline-play-button"
@@ -516,7 +549,11 @@ export function VideoTimeline(p: Props) {
                   exit={{ opacity: 0, scale: 1.25, filter: "blur(3px)" }}
                   transition={{ type: "spring", bounce: 0.25, duration: 0.24 }}
                 >
-                  {p.playing ? <Pause size={19} /> : <Play size={19} />}
+                  {p.playing ? (
+                    <Pause size={19} fill="currentColor" strokeWidth={0} />
+                  ) : (
+                    <Play size={19} fill="currentColor" strokeWidth={0} />
+                  )}
                 </motion.span>
               </AnimatePresence>
             </span>
@@ -526,7 +563,7 @@ export function VideoTimeline(p: Props) {
             aria-label="Jump to project end"
             onClick={() => seek(duration)}
           >
-            <SkipForward size={19} />
+            <SkipForward size={19} fill="currentColor" strokeWidth={1.5} />
           </button>
         </div>
       </div>
@@ -546,16 +583,21 @@ export function VideoTimeline(p: Props) {
             }}
           >
             {Array.from(
-              { length: Math.ceil(visibleDuration * 10) + 1 },
-              (_, i) => (
-                <i
-                  key={i}
-                  className={i % 10 === 0 ? "major" : ""}
-                  style={{ left: 32 + (i / 10) * scale }}
-                >
-                  {i % 10 === 0 ? <span>{i / 10}</span> : null}
-                </i>
-              ),
+              { length: Math.ceil(visibleDuration / tickStep) + 1 },
+              (_, i) => {
+                const time = i * tickStep;
+                const second = Math.abs(time - Math.round(time)) < 0.001;
+                const half = Math.abs(time * 2 - Math.round(time * 2)) < 0.001;
+                return (
+                  <i
+                    key={i}
+                    className={second ? "major" : half ? "half" : ""}
+                    style={{ left: 32 + time * scale }}
+                  >
+                    {second ? <span>{time}</span> : null}
+                  </i>
+                );
+              },
             )}
           </div>
           <div
@@ -620,7 +662,11 @@ export function VideoTimeline(p: Props) {
                     p.onTransition(s, "in", { x: r.x + r.width / 2, y: r.y });
                   }}
                 >
-                  <Spline size={12} />
+                  {s.transition.kind === "cut" ? (
+                    <span className="transition-cut-mark" aria-hidden="true" />
+                  ) : (
+                    <Spline size={12} />
+                  )}
                 </button>
                 <div
                   className="timeline-filmstrip-frames is-position-frames"
@@ -685,6 +731,9 @@ export function VideoTimeline(p: Props) {
                     tabIndex={0}
                     aria-label={`Resize ${edge} of ${s.name}`}
                     className={`timeline-clip-handle ${edge === "start" ? "is-left" : "is-right"}`}
+                    style={{
+                      width: `min(20px, ${100 / (Math.max(1, s.keys.length) * 4)}%)`,
+                    }}
                     onKeyDown={(e) => {
                       if (e.key === "ArrowLeft" || e.key === "ArrowRight") {
                         e.preventDefault();
@@ -749,7 +798,14 @@ export function VideoTimeline(p: Props) {
                       });
                     }}
                   >
-                    <Spline size={12} />
+                    {!s.exitTransition || s.exitTransition.kind === "cut" ? (
+                      <span
+                        className="transition-cut-mark"
+                        aria-hidden="true"
+                      />
+                    ) : (
+                      <Spline size={12} />
+                    )}
                   </button>
                 )}
               </div>

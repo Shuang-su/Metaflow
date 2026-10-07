@@ -313,7 +313,9 @@ export function CameraBar({
     ) : name === "blur" ? (
       <span className="top-lens-icon top-lens-fstop">ƒ</span>
     ) : name === "zoom" ? (
-      <span className="island-zoom-icon">{zoomLabel(c.zoom, c.zoomBaseline)}</span>
+      <span className="island-zoom-icon">
+        {zoomLabel(c.zoom, c.zoomBaseline)}
+      </span>
     ) : name === "perspective" ? (
       <ScanBoxIcon />
     ) : name === "original" ? (
@@ -333,7 +335,7 @@ export function CameraBar({
       initial={false}
       animate={{
         opacity: active && !compact ? 0 : 1,
-        maxWidth: active && !compact ? 0 : mode === "video" ? 78 : 70,
+        maxWidth: active && !compact ? 0 : compact ? 64 : 70,
       }}
       transition={{ opacity: { duration: 0.18 }, maxWidth: STUDIO_TRANSITION }}
       style={{ pointerEvents: active && !compact ? "none" : "auto" }}
@@ -614,7 +616,11 @@ export function CameraBar({
                             onBegin={() => {
                               interacting.current = true;
                               onBegin();
-                              if (active === "blur") onPeaking(true);
+                              if (
+                                active === "blur" ||
+                                active === "focusDistance"
+                              )
+                                onPeaking(true);
                             }}
                             onEnd={() => {
                               interacting.current = false;
