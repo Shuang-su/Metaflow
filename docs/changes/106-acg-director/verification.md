@@ -228,3 +228,6 @@
 - PR #123 的自动审查P2实际复现：0.25秒/40px胶片两侧20px手柄遮住机位；透明播放头输入的75px命中区也遮住首个机位。按机位格宽限制手柄为最多四分之一格，将播放头输入限制在胶片下的刻度/时间气泡区域，保留可见红线。
 - 同一40px胶片两机位时手柄4.5px，四机位时2.25px；四个中心均实际命中各自机位，点击时间依次为0/0.0625/0.125/0.25。实际拖动末尾手柄后时长0.3923728814，一次撤销恢复0.25且四机位保留；播放头实际拖动到0.11秒。证据为`short-clip-before.json`、`short-clip-after.json`、`short-clip-four-positions.json`、`short-clip-resize-undo.json`、`short-clip-scrub.json`。自动审查不作为独立人工审查。
 - 本次追加后Director25项、类型及构建通过；精确新HEAD的CI、预览及生产验证另行登记，不以276ae343c的旧成功结果替代。
+
+- 最终候选`3399f187062b1db83d5c91d3f289991a849917a3`的[CI 37693000251](https://github.com/Shuang-su/Metaflow/actions/runs/37693000251)成功，路径选择的治理/文档/数据、Viewer及Director测试/类型/构建、Viewer开发和构建E2E、CodeQL通过；未选中的Editor/Design/reference等为skipped。最终预览`6ac6c08ed23a7dd45b5b6b3c`回读8个资源响应与JS/CSS哈希，实际主模型/环境128收敛，390px亮色42px快门完整、border=0、VIDEO与教程关闭通过，无console error。P2回复与解决状态回读确认。
+- [PR #123](https://github.com/Shuang-su/Metaflow/pull/123)实际产品squash为`35862e44040ab63ca5915a89f7b5336e722f6f6d`。rc1来源tag指向3399f1870并回读远端；正式tag、生产部署/输出与观察执行后追加。

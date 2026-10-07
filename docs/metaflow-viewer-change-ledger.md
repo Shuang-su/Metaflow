@@ -528,3 +528,9 @@ The 2026-08-15 Viewer 5.19.2 release-record commit updated package/version/index
 ### `5.21.5` · `c64f21097` · short clip input source
 
 - 自动审查P2复现后限制短胶片两侧手柄为每格最多四分之一，并将透明播放头命中区移到刻度；0.25秒/40px四机位可点击，长度拖动一步撤销、播放头拖动实际通过。Director25项、类型、构建通过，原失败与修正证据保留。精确HEAD CI和最终部署另行记录；自动审查不等于独立人工审查。
+
+
+### `5.21.5` · `35862e440` · final feedback product
+
+- [PR #123](https://github.com/Shuang-su/Metaflow/pull/123)按常规规则合并为`35862e44040ab63ca5915a89f7b5336e722f6f6d`。精确候选3399f1870的[CI 37693000251](https://github.com/Shuang-su/Metaflow/actions/runs/37693000251)成功；最终预览`6ac6c08ed23a7dd45b5b6b3c`实际主模型/环境128收敛，390px亮色Capture完整、border=0、VIDEO输出和教程关闭通过，控制台无错误。公开脚本/CSS字节与本地一致。
+- `viewer-v5.21.5-rc1`固定来源3399f187062b1db83d5c91d3f289991a849917a3；原始来源c85b6859d/19860f1da/eef25bfe1/c64f21097保留维护记录，未改写历史。正式tag/build/部署与生产输出、15分钟观察尚待执行。
