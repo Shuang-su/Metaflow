@@ -246,6 +246,11 @@
       "date": "2026-10-08",
       "type": "maintenance",
       "summary": "Unpublished MF-106 responsive/focus feedback checkpoint; included by the final 5.21.4 product source."
+    },
+    {
+      "gitRef": "1fac1be31",
+      "date": "2026-10-08",
+      "summary": "MF-106 unshipped Director detail source: centered focus reticle, XYZ and mode hover, Operator padding/restoration and cancellation of exiting sliders; included by 5.21.4."
     }
   ],
   "entries": [

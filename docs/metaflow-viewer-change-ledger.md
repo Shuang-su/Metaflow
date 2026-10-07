@@ -491,3 +491,8 @@ The 2026-08-15 Viewer 5.19.2 release-record commit updated package/version/index
 
 - 未发布来源`c13a34baf`补齐跨紧凑布局恢复、AF/MF按压/hover提示和展开字体，见[PR #121](https://github.com/Shuang-su/Metaflow/pull/121)。Director23项、类型与构建、Viewer144项本地通过；390/649×四菜单跨断点恢复和按压过程实际验证。
 - 初次CI `37674851990` 因源码提交尚无Version History记录失败；保留测试，补齐来源后重新验证。未将合并或CI等同正式上线。
+
+
+### `5.21.4` · `1fac1be31` · final control detail source
+
+- 未发布来源`1fac1be31`补齐中心对焦框、XYZ刻度随环缩放、PHOTO/VIDEO主题色、Operator padding/恢复与退出滑杆取消；纳入[PR #121](https://github.com/Shuang-su/Metaflow/pull/121)，Director23项及类型通过，实际过程及失败/复测范围见[验证记录](changes/106-acg-director/verification.md)。最终HEAD CI与正式部署另行回读。
