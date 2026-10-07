@@ -485,3 +485,9 @@ The 2026-08-15 Viewer 5.19.2 release-record commit updated package/version/index
 
 - [PR #118](https://github.com/Shuang-su/Metaflow/pull/118)产品`6969f80af0ca5a7d6495b130b0b2630841b964da`包含PR #117及最终选区竞态修正；rc1/rc2保留原始来源`40713877e`、`792e20dae`。所有公开镜像指向实际产品SHA。
 - 精确候选45e0d9813的[CI](https://github.com/Shuang-su/Metaflow/actions/runs/37280109044)成功，Cursor自动重审无新增评论，属于自动检查而非独立人工审查。预览`6ac357452fc6c236c48dade2`实际主模型/环境128收敛、Compose运动与控制台验证通过。最终构建、媒体和生产观察另行追加实际结果。
+
+
+### `5.21.4` · `c13a34baf` · responsive controls and focus feedback source
+
+- 未发布来源`c13a34baf`补齐跨紧凑布局恢复、AF/MF按压/hover提示和展开字体，见[PR #121](https://github.com/Shuang-su/Metaflow/pull/121)。Director23项、类型与构建、Viewer144项本地通过；390/649×四菜单跨断点恢复和按压过程实际验证。
+- 初次CI `37674851990` 因源码提交尚无Version History记录失败；保留测试，补齐来源后重新验证。未将合并或CI等同正式上线。
