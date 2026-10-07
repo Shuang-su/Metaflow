@@ -507,3 +507,15 @@ The 2026-08-15 Viewer 5.19.2 release-record commit updated package/version/index
 
 - 正式tag/build `ef4e140cd9c9b2a814d7605181a292bb8d53f1a9`，产品SHA仍为`9b1c51e23`；Netlify `6ac6aa7d71ba3f321eafa17e`于2026-10-07T20:29:26.440Z发布，公开版本、build.json与生产指针回读一致。16轮可用性观察持续900.0089秒，无回读错误。
 - 正式1920×1080/128 PNG为2621131字节，SHA256 `e46b45fa926bd48b7c2a6613b88f47605aa8615d2e5838eb94cf028d3a4b8324`。正式UI生成并导出一秒动态视频：1920×1080 H.264/30fps/30帧、1128866字节，全部解码、30帧不同，SHA256 `69f3c73e87ac16ce349d49beb6b61bd50624efae19bc4396fe1667bab920ae9e`。后续反馈另以5.21.5修正，不改5.21.4历史来源。
+
+
+### `5.21.5` · `c85b6859d` · optical feedback and VIDEO source
+
+- 未发布来源`c85b6859d`修复辅助遮罩交换链呈现、手动焦距参考、快门外圈空间和亮色边框，补齐VIDEO播放图形、命中区、胶片/手柄/刻度与窄屏选中布局；Easing退场禁用并取消所属拖动。Director25项、类型/构建通过，连续光圈/焦距及36组布局记录见MF-106。
+
+### `5.21.5` · `19860f1da` · candidate product
+
+- 来源`19860f1da`追加修正Easing弹层覆盖自身入口；真实命中、退场inert、预设保留和一次撤销通过。由[PR #123](https://github.com/Shuang-su/Metaflow/pull/123)准备兼容PATCH；实际squash来源、CI、部署和媒体另行回填，尚未宣称5.21.5生产。
+- 原孔径大小、4→128/256/512累积、模型字节、Viewer机位和Editor不变。最终照片字节与原同状态1080p/128一致；局部录帧不能替代完整动画、4K或严格遮挡验收。回退为5.21.4部署`6ac6aa7d71ba3f321eafa17e`。
+
+- 候选取消后重试真实一秒1080p30/128视频成功：30帧全部解码且各不相同，与5.21.4同状态视频30个解码帧逐帧一致；容器SHA不同。Viewer144项、类型、发布契约、125份文档链接和12947份仓库卫生检查通过；版本断言与index.release schema初始失败原因及修正见验证记录。

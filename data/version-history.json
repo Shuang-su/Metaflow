@@ -1,14 +1,14 @@
 {
   "schemaVersion": "1.1",
   "cutoffGitRef": "c613a87",
-  "documentedThrough": "9b1c51e23",
+  "documentedThrough": "19860f1da",
   "defaultResourceVersion": "1.0a",
   "current": {
-    "displayVersion": "5.21.4",
-    "appSemver": "5.21.4",
+    "displayVersion": "5.21.5",
+    "appSemver": "5.21.5",
     "indexSchemaVersion": "1.2",
     "date": "2026-10-08",
-    "gitRef": "9b1c51e23",
+    "gitRef": "19860f1da",
     "historyUrl": "/data/version-history.json",
     "upstream": {
       "repository": "playcanvas/supersplat-viewer",
@@ -256,6 +256,11 @@
       "gitRef": "6969f80af",
       "date": "2026-10-05",
       "summary": "MF-106 product PR #118 was merged but not deployed; 5.21.4 also includes final responsive/focus feedback correction."
+    },
+    {
+      "gitRef": "c85b6859d",
+      "date": "2026-10-08",
+      "summary": "MF-106 unpublished optical-feedback and VIDEO source checkpoint; included by 5.21.5."
     }
   ],
   "entries": [
@@ -1703,6 +1708,24 @@
         "evidence": "docs/changes/106-acg-director/verification.md",
         "releaseTag": "viewer-v5.21.4",
         "pullRequest": "https://github.com/Shuang-su/Metaflow/pull/121"
+      }
+    },
+    {
+      "displayVersion": "5.21.5",
+      "appSemver": "5.21.5",
+      "type": "fix",
+      "scope": "viewer",
+      "date": "2026-10-08",
+      "gitRef": "19860f1da",
+      "summary": "修复光圈辅助帧闪动、手动焦距红色参考、双行快门裁切与亮色边框；完善视频播放/刻度/窄屏布局及Easing入口和退场输入",
+      "trace": {
+        "changeId": "MF-106",
+        "issue": "https://github.com/Shuang-su/Metaflow/issues/106",
+        "spec": "docs/changes/106-acg-director/spec.md",
+        "plan": "docs/changes/106-acg-director/plan.md",
+        "evidence": "docs/changes/106-acg-director/verification.md",
+        "releaseTag": "viewer-v5.21.5",
+        "pullRequest": "https://github.com/Shuang-su/Metaflow/pull/123"
       }
     }
   ]
