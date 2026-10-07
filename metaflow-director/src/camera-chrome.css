@@ -1017,6 +1017,9 @@ html[data-director-theme="light"] .director-tooltip {
   position: relative;
   height: 56px;
 }
+.timeline-selected-easing-wrap .shot-easing-menu {
+  bottom: calc(100% + 8px);
+}
 .timeline-transport {
   gap: 7px;
 }
