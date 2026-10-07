@@ -379,23 +379,39 @@
   height: 36px;
   padding: 0;
   border-radius: 999px;
-  font-size: 11px;
-  font-weight: 700;
+  font-size: 12px;
+  font-weight: 400;
   white-space: nowrap;
   color: var(--pill-ink);
   transition:
     color 0.16s,
-    background 0.16s;
+    background-color 0.16s,
+    transform 0.16s;
 }
-.top-setting-hit > button:hover {
-  color: var(--pill-bright);
-  background: var(--pill-hover);
+.top-setting-hit > button:hover:not(:disabled) {
+  color: var(--action-accent);
+  background: transparent;
 }
 .top-setting-hit > button[aria-pressed="true"] {
   color: var(--action-accent);
 }
 .island-focus-icon {
-  position: absolute;
+  letter-spacing: -0.025em;
+  font-size: 11px;
+  font-weight: 750;
+}
+.island-zoom-icon {
+  letter-spacing: -0.045em;
+  font-size: 11px;
+  font-weight: 700;
+  display: grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+}
+/* Motion owns the .82 press and spring release; no second generic transform. */
+.director .top-setting-hit > button:active:not(:disabled) {
+  transform: none;
 }
 .island-focus-distance-icon {
   font-size: 18px;
@@ -447,19 +463,23 @@
 .top-lens-expanded output {
   display: grid;
   gap: 2px;
-  line-height: 1.2;
+  line-height: 1.5;
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
 .top-lens-expanded output small {
   font-size: 7px;
-  font-weight: 550;
-  color: var(--pill-ink);
+  font-weight: 650;
+  color: color-mix(in srgb, var(--pill-bright) 48%, transparent);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  text-overflow: ellipsis;
+  overflow: hidden;
   white-space: nowrap;
 }
 .top-lens-expanded output strong {
-  font-size: 12px;
-  font-weight: 650;
+  font-size: 10px;
+  font-weight: 700;
   color: var(--action-accent);
 }
 .lens-tick-slider {

@@ -197,6 +197,17 @@ export function CameraBar({
     return () => window.removeEventListener("resize", resize);
   }, []);
   useEffect(() => {
+    // An expanded compact island owns the whole bottom row. Its measurements
+    // must not survive moving the Operator back to the desktop header.
+    if (interacting.current) {
+      interacting.current = false;
+      onCancel();
+      endScrub();
+    }
+    close();
+    setHelper(null);
+  }, [compact]);
+  useEffect(() => {
     close();
   }, [mode, busy]);
   useEffect(() => () => onPeaking(false), [onPeaking]);
@@ -254,8 +265,8 @@ export function CameraBar({
     });
   };
   const open = (name: string, anchor: HTMLButtonElement) => {
-    setHelper(null);
-    sound("tick");
+    if (name !== "focus") setHelper(null);
+    sound("tick", 0.12);
     if (name === "focus") {
       onBegin();
       const manual = c.focusMode !== "manual";
@@ -293,18 +304,9 @@ export function CameraBar({
           : `${value > 0 ? "+" : ""}${value}`;
   const icon = (name: string) =>
     name === "focus" ? (
-      <AnimatePresence mode="popLayout" initial={false}>
-        <motion.span
-          key={c.focusMode}
-          className="island-focus-icon"
-          initial={{ opacity: 0, scale: 0.76, filter: "blur(5px)" }}
-          animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
-          exit={{ opacity: 0, scale: 1.12, filter: "blur(4px)" }}
-          transition={{ duration: 0.18 }}
-        >
-          {c.focusMode === "manual" ? "MF" : "AF"}
-        </motion.span>
-      </AnimatePresence>
+      <span className="island-focus-icon" aria-hidden="true">
+        {c.focusMode === "manual" ? "MF" : "AF"}
+      </span>
     ) : name === "focusDistance" ? (
       <span className="island-focus-distance-icon">
         {pose.focusInfinity ? "∞" : "↔"}
@@ -312,7 +314,7 @@ export function CameraBar({
     ) : name === "blur" ? (
       <span className="top-lens-icon top-lens-fstop">ƒ</span>
     ) : name === "zoom" ? (
-      <span>{zoomLabel(c.zoom, c.zoomBaseline)}</span>
+      <span className="island-zoom-icon">{zoomLabel(c.zoom, c.zoomBaseline)}</span>
     ) : name === "perspective" ? (
       <ScanBoxIcon />
     ) : name === "original" ? (
@@ -733,7 +735,9 @@ export function CameraBar({
               exit={{ opacity: 0, y: -2, scale: 0.94 }}
               transition={{ duration: 0.14, ease: "easeOut" }}
             >
-              {labels[helper.name]}
+              {helper.name === "focus"
+                ? `Focus · ${c.focusMode === "manual" ? "Manual" : "Auto"}`
+                : labels[helper.name]}
             </motion.span>
           )}
         </AnimatePresence>,
