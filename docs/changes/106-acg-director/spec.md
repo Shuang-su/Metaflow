@@ -1,6 +1,6 @@
 # MF-106 · ACG Director 线上实验入口
 
-状态：实施中；关联 [MF-106](https://github.com/Shuang-su/Metaflow/issues/106)、[MF-62](https://github.com/Shuang-su/Metaflow/issues/62)。本 Spec 是 MF-62 摄影候选在限定 ACG 入口的产品化授权，不提升其他实验成熟度。
+状态：限定ACG实验入口已上线5.21.6，继续验收剩余动画、浏览器及严格画质；关联 [MF-106](https://github.com/Shuang-su/Metaflow/issues/106)、[MF-62](https://github.com/Shuang-su/Metaflow/issues/62)。本 Spec 是 MF-62 摄影候选在限定 ACG 入口的产品化授权，不提升其他实验成熟度。
 
 - 公开接口仅为已发布 ACG 单文件 SOG/PLY 主路由或别名追加 `/director`。索引动态判断格式；流式、未知和非 ACG 返回具体说明。
 - 主体、声明的环境、JSON 设置全部准备后开放摄影；环境失败必须可重试，不呈现完整加载状态。源文件、资源索引字段、Editor 和 Viewer SDK 不变。
