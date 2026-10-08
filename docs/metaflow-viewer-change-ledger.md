@@ -555,3 +555,10 @@ The 2026-08-15 Viewer 5.19.2 release-record commit updated package/version/index
 
 - [PR #126](https://github.com/Shuang-su/Metaflow/pull/126)已合并产品`31babb2cf12ebc034d4f8c60ff905e2fd26dff7a`，不可变rc1保存`188840eae`/`32275d3a1`源码。精确候选[CI](https://github.com/Shuang-su/Metaflow/actions/runs/37827529935)成功；实际四镜头Cut/Fade/Push/Zoom取消重试44帧动态视频、10次同状态预览/捕获零差、原图切回缓存和末机位转PHOTO通过。
 - 完整候选预览8项字节比对和300项资源/路由检查通过，实际Fast/释放恢复、390亮色快门/教程关闭已核验。最终正式配置、tag/build/部署及观察另行追加，未将候选称为生产。严格光学和未穷举动画继续独立登记。
+
+
+### `5.21.6` · `31babb2cf12ebc034d4f8c60ff905e2fd26dff7a` · production verification
+
+- 正式tag/build为 `2749f519e367e4c347a60241837502f7544ad898`（[PR #127](https://github.com/Shuang-su/Metaflow/pull/127)），产品SHA保持 `31babb2cf12ebc034d4f8c60ff905e2fd26dff7a`（[PR #126](https://github.com/Shuang-su/Metaflow/pull/126)）。精确发布记录head [CI 37830044599](https://github.com/Shuang-su/Metaflow/actions/runs/37830044599) 所选检查通过。Netlify `6ac7ec0fa8239794c0ab5d12`于2026-10-08T19:19:50.676Z发布，8 redirect／9 header、8文件字节、300路由／引用及生产指针／build／版本回读通过；16轮观察900.0006秒无错误。
+- 正式1080p/128及512 PNG与本地同状态字节一致；正式一秒H.264 1080p30/128动态视频在第4帧取消后重试成功，30帧全部解码且不同，SHA256 `6d6fedd5ed308a159534d84ad51508f05684797a64246ab178dd98f6d0d9ee1c`。三档本地4K短动态、四转场视频、中文交互反馈及生产证据共25项[公开Release附件](https://github.com/Shuang-su/Metaflow/releases/tag/viewer-v5.21.6)，大小／哈希回读核对。Issue原生视频附件仍未完成，使用公开资产正文图片和链接。
+- 释放/取消后的完整孔径、Fast及红色参考的输出排除、恢复512偏好收敛以及原生DPR2布局已实际核验。严格遮挡／发丝／透明层、Fast与圆孔径核差异、扫描缺陷、所有动画／主观音效和未运行浏览器继续开放；不宣布完整复刻。模型／环境／settings／schema／Editor不变，未下载Edge。回退5.21.5部署 `6ac6c28ddf5facdf0177e2b0`；详细边界与失败候选见[实际验证记录](changes/106-acg-director/verification.md)。
