@@ -1,14 +1,14 @@
 {
   "schemaVersion": "1.1",
   "cutoffGitRef": "c613a87",
-  "documentedThrough": "188840eae",
+  "documentedThrough": "31babb2cf12ebc034d4f8c60ff905e2fd26dff7a",
   "defaultResourceVersion": "1.0a",
   "current": {
     "displayVersion": "5.21.6",
     "appSemver": "5.21.6",
     "indexSchemaVersion": "1.2",
     "date": "2026-10-09",
-    "gitRef": "188840eae",
+    "gitRef": "31babb2cf12ebc034d4f8c60ff905e2fd26dff7a",
     "historyUrl": "/data/version-history.json",
     "upstream": {
       "repository": "playcanvas/supersplat-viewer",
@@ -276,6 +276,16 @@
       "gitRef": "c64f21097",
       "date": "2026-10-08",
       "summary": "MF-106 short-clip source checkpoint included in PR #123; immutable viewer-v5.21.5-rc1 preserves the source chain."
+    },
+    {
+      "gitRef": "188840eae",
+      "date": "2026-10-09",
+      "summary": "MF-106 Fast feedback and interaction source preserved by viewer-v5.21.6-rc1; product is PR #126 squash."
+    },
+    {
+      "gitRef": "32275d3a1",
+      "date": "2026-10-09",
+      "summary": "MF-106 5.21.6 candidate release mirrors and evidence, preserved by viewer-v5.21.6-rc1."
     }
   ],
   "entries": [
@@ -1749,7 +1759,7 @@
       "type": "fix",
       "scope": "viewer",
       "date": "2026-10-09",
-      "gitRef": "188840eae",
+      "gitRef": "31babb2cf12ebc034d4f8c60ff905e2fd26dff7a",
       "summary": "恢复光圈/手动焦距/相机调整Fast反馈并隔离辅助画布；修复采样下调、视频工作机位、兴趣区域恢复、胶片刻度/缩略图及取消/焦点/声音输入",
       "trace": {
         "changeId": "MF-106",
