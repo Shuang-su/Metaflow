@@ -1,6 +1,6 @@
 // MF-62 209cd56c transition menu; render through the public shared capture queue.
 import { useEffect, useRef } from "react";
-import { motion } from "motion/react";
+import { motion, useIsPresent } from "motion/react";
 import { layoutShots, type Project, type Transition } from "./core/model";
 export function TransitionMenu({
   project,
@@ -10,6 +10,9 @@ export function TransitionMenu({
   anchor,
   onChange,
   onClose,
+  onBegin,
+  onEnd,
+  onCancel,
 }: {
   project: Project;
   shotId: string;
@@ -21,8 +24,42 @@ export function TransitionMenu({
   anchor: { x: number; y: number };
   onChange: (transition: Transition) => void;
   onClose: () => void;
+  onBegin: () => void;
+  onEnd: () => void;
+  onCancel: () => void;
 }) {
   const panel = useRef<HTMLElement>(null);
+  const editing = useRef(false);
+  const present = useIsPresent();
+  const cancelEdit = useRef(onCancel);
+  cancelEdit.current = onCancel;
+  const startEdit = () => {
+    if (!editing.current) {
+      editing.current = true;
+      onBegin();
+    }
+  };
+  const finishEdit = () => {
+    if (!editing.current) return;
+    editing.current = false;
+    onEnd();
+  };
+  const cancel = () => {
+    if (!editing.current) return;
+    editing.current = false;
+    cancelEdit.current();
+  };
+  useEffect(() => {
+    if (!present) cancel();
+  }, [present]);
+  useEffect(() => {
+    const blur = () => cancel();
+    window.addEventListener("blur", blur);
+    return () => {
+      window.removeEventListener("blur", blur);
+      cancel();
+    };
+  }, []);
   const latestRender = useRef(renderFrame);
   latestRender.current = renderFrame;
   useEffect(() => {
@@ -84,6 +121,8 @@ export function TransitionMenu({
         ),
       }}
       tabIndex={-1}
+      aria-hidden={!present}
+      inert={!present}
       ref={panel}
       initial={{ opacity: 0, scale: 0.97 }}
       animate={{ opacity: 1, scale: 1 }}
@@ -91,6 +130,7 @@ export function TransitionMenu({
       onKeyDown={(e) => {
         if (e.key === "Escape") {
           e.stopPropagation();
+          cancel();
           onClose();
         }
       }}
@@ -167,7 +207,33 @@ export function TransitionMenu({
           max={shot.duration / 2}
           step={0.05}
           value={value.duration}
-          onChange={(e) => onChange({ ...value, duration: +e.target.value })}
+          onPointerDown={startEdit}
+          onPointerUp={finishEdit}
+          onPointerCancel={cancel}
+          onLostPointerCapture={cancel}
+          onKeyDown={(e) => {
+            if (
+              [
+                "ArrowLeft",
+                "ArrowRight",
+                "ArrowUp",
+                "ArrowDown",
+                "Home",
+                "End",
+                "PageUp",
+                "PageDown",
+              ].includes(e.key)
+            )
+              startEdit();
+          }}
+          onKeyUp={finishEdit}
+          onBlur={finishEdit}
+          onChange={(e) => {
+            const standalone = !editing.current;
+            startEdit();
+            onChange({ ...value, duration: +e.target.value });
+            if (standalone) finishEdit();
+          }}
         />
         <output>{value.duration.toFixed(2)}s</output>
       </label>

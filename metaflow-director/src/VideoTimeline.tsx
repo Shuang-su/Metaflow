@@ -30,6 +30,7 @@ import {
   type Shot,
   type Keyframe,
 } from "./core/model";
+import { timelineLayout } from "./core/timeline-layout";
 
 type Props = {
   project: Project;
@@ -121,11 +122,42 @@ export function VideoTimeline(p: Props) {
   const finishDrag = useRef<(() => void) | null>(null);
   const dragSource = useRef<HTMLElement | null>(null);
   const keyboardResize = useRef(false);
+  const fieldEditing = useRef(false);
+  const latestCancel = useRef(p.onCancel);
+  latestCancel.current = p.onCancel;
+  const cancelKeys = () => {
+    if (!keyboardResize.current && !fieldEditing.current) return;
+    keyboardResize.current = false;
+    fieldEditing.current = false;
+    latestCancel.current();
+  };
+  const beginField = () => {
+    fieldEditing.current = true;
+    p.onBegin();
+  };
+  const endField = () => {
+    if (!fieldEditing.current) return;
+    fieldEditing.current = false;
+    p.onEnd();
+  };
   const present = useIsPresent();
   useEffect(() => {
-    if (!present || p.busy) finishDrag.current?.();
+    if (!present || p.busy) {
+      finishDrag.current?.();
+      cancelKeys();
+    }
   }, [present, p.busy]);
-  useEffect(() => () => finishDrag.current?.(), []);
+  useEffect(() => {
+    const cancel = () => {
+      finishDrag.current?.();
+      cancelKeys();
+    };
+    window.addEventListener("blur", cancel);
+    return () => {
+      window.removeEventListener("blur", cancel);
+      cancel();
+    };
+  }, []);
   useEffect(() => {
     const o = new ResizeObserver((es) => setSize(es[0].contentRect.width));
     if (scroll.current) o.observe(scroll.current);
@@ -162,8 +194,8 @@ export function VideoTimeline(p: Props) {
       window.removeEventListener("keydown", key);
     };
   }, [panel]);
-  const visibleDuration = Math.max(14, duration + 2),
-    scale = Math.max(20, (size - 64) / visibleDuration),
+  const geometry = timelineLayout(p.project.shots, size);
+  const { visibleDuration, scale } = geometry,
     // The reference uses fewer ruler marks in compact layouts so short
     // marks remain distinct instead of merging into a solid band.
     tickStep =
@@ -240,6 +272,7 @@ export function VideoTimeline(p: Props) {
       className={`tracks-timeline director-video-timeline ${shot ? "is-scene-focused" : ""}`}
       aria-label="Animation timeline"
       aria-busy={p.busy}
+      inert={p.busy || !present}
       initial={{ opacity: 0, height: 0 }}
       animate={{ opacity: 1, height: 164 }}
       exit={{ opacity: 0, height: 0 }}
@@ -354,6 +387,16 @@ export function VideoTimeline(p: Props) {
                                 max={1}
                                 step={0.01}
                                 value={Number(shot.easing[i].toFixed(2))}
+                                onFocus={beginField}
+                                onBlur={endField}
+                                onKeyDown={(e) => {
+                                  if (e.key === "Escape") {
+                                    e.preventDefault();
+                                    e.stopPropagation();
+                                    cancelKeys();
+                                    setPanel(null);
+                                  }
+                                }}
                                 onChange={(e) =>
                                   update((s) => {
                                     s.easing[i] = clamp(
@@ -568,18 +611,15 @@ export function VideoTimeline(p: Props) {
         </div>
       </div>
       <div className="director-video-scroll" ref={scroll}>
-        <div
-          className="director-video-lane"
-          style={{ width: Math.max(size, visibleDuration * scale + 64) }}
-        >
+        <div className="director-video-lane" style={{ width: geometry.width }}>
           <div
             className="director-ruler"
             role="group"
             aria-label="Timeline ruler"
             onPointerDown={(e) => {
               const r = e.currentTarget.getBoundingClientRect();
-              seek((e.clientX - r.x - 32) / scale);
-              drag(e, (dx) => seek((e.clientX - r.x - 32 + dx) / scale));
+              seek(geometry.timeAt(e.clientX - r.x));
+              drag(e, (dx) => seek(geometry.timeAt(e.clientX - r.x + dx)));
             }}
           >
             {Array.from(
@@ -592,7 +632,7 @@ export function VideoTimeline(p: Props) {
                   <i
                     key={i}
                     className={second ? "major" : half ? "half" : ""}
-                    style={{ left: 32 + time * scale }}
+                    style={{ left: geometry.position(time) }}
                   >
                     {second ? <span>{time}</span> : null}
                   </i>
@@ -609,13 +649,13 @@ export function VideoTimeline(p: Props) {
               }
             }}
           >
-            {rows.map(({ shot: s, start }, index) => (
+            {geometry.clips.map(({ shot: s, start, left, width }, index) => (
               <div
                 key={s.id}
                 className={`timeline-clip is-shot director-filmstrip ${s.id === p.selected ? "is-selected" : ""}`}
                 style={{
-                  left: 32 + start * scale,
-                  width: Math.max(40, s.duration * scale - 4),
+                  left,
+                  width,
                 }}
                 data-timeline-clip-id={s.id}
                 role="group"
@@ -735,6 +775,13 @@ export function VideoTimeline(p: Props) {
                       width: `min(20px, ${100 / (Math.max(1, s.keys.length) * 4)}%)`,
                     }}
                     onKeyDown={(e) => {
+                      if (e.key === "Escape" && keyboardResize.current) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        keyboardResize.current = false;
+                        p.onCancel();
+                        return;
+                      }
                       if (e.key === "ArrowLeft" || e.key === "ArrowRight") {
                         e.preventDefault();
                         e.stopPropagation();
@@ -813,7 +860,7 @@ export function VideoTimeline(p: Props) {
             <button
               className="timeline-add-shot-button director-add-scene"
               aria-label="Add scene"
-              style={{ left: 32 + duration * scale + 18 }}
+              style={{ left: geometry.addLeft }}
               onClick={p.onAdd}
             >
               <Plus size={18} />
@@ -821,7 +868,12 @@ export function VideoTimeline(p: Props) {
           </div>
           <div
             className="director-playhead"
-            style={{ left: 32 + Math.min(p.time, duration) * scale }}
+            style={{
+              left: geometry.position(
+                Math.min(p.time, duration),
+                p.playing ? undefined : p.selected,
+              ),
+            }}
           >
             <input
               aria-label="Timeline playhead"
@@ -831,7 +883,10 @@ export function VideoTimeline(p: Props) {
               step={0.01}
               value={Math.min(p.time, duration)}
               onChange={(e) => seek(+e.target.value)}
-              onPointerDown={(e) => drag(e, (dx) => seek(p.time + dx / scale))}
+              onPointerDown={(e) => {
+                const x = geometry.position(p.time, p.selected);
+                drag(e, (dx) => seek(geometry.timeAt(x + dx)));
+              }}
             />
             <span>{p.time.toFixed(1)}</span>
           </div>
@@ -848,8 +903,16 @@ export function VideoTimeline(p: Props) {
                 min="0.25"
                 step="0.25"
                 value={shot.duration}
-                onFocus={p.onBegin}
-                onBlur={p.onEnd}
+                onFocus={beginField}
+                onBlur={endField}
+                onKeyDown={(e) => {
+                  if (e.key === "Escape") {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    cancelKeys();
+                    setPanel(null);
+                  }
+                }}
                 onChange={(e) =>
                   p.onUpdate((pr) => {
                     const i = pr.shots.findIndex((s) => s.id === shot.id);

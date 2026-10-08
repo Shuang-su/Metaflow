@@ -37,7 +37,9 @@ export function RotationDial({
   const pending = useRef<number | null>(null),
     raf = useRef<number | null>(null),
     button = useRef<HTMLButtonElement>(null),
-    pointerId = useRef<number | null>(null);
+    pointerId = useRef<number | null>(null),
+    keyboard = useRef(false),
+    cancelDrag = useRef<() => void>(() => {});
   const latest = useRef({ onChange, onBegin, onEnd, onCancel });
   latest.current = { onChange, onBegin, onEnd, onCancel };
   const flush = () => {
@@ -47,12 +49,14 @@ export function RotationDial({
     pending.current = null;
     if (v !== null) latest.current.onChange(v);
   };
-  useEffect(
-    () => () => {
-      if (raf.current !== null) cancelAnimationFrame(raf.current);
-    },
-    [],
-  );
+  useEffect(() => {
+    const cancel = () => cancelDrag.current();
+    window.addEventListener("blur", cancel);
+    return () => {
+      window.removeEventListener("blur", cancel);
+      cancel();
+    };
+  }, []);
   const paint = (n: number) => {
     const e = button.current;
     if (!e) return;
@@ -65,6 +69,26 @@ export function RotationDial({
   useLayoutEffect(() => {
     if (!scrubbing) paint(value);
   }, [value, scrubbing]);
+  const cancel = () => {
+    const id = pointerId.current;
+    const active = id !== null || keyboard.current;
+    pointerId.current = null;
+    keyboard.current = false;
+    if (raf.current !== null) cancelAnimationFrame(raf.current);
+    raf.current = null;
+    pending.current = null;
+    if (id !== null && button.current?.hasPointerCapture(id))
+      button.current.releasePointerCapture(id);
+    if (!active) return;
+    paint(drag.current.value);
+    setScrubbing(false);
+    latest.current.onCancel();
+    endScrub();
+  };
+  cancelDrag.current = cancel;
+  useEffect(() => {
+    if (disabled) cancel();
+  }, [disabled]);
   const end = (e: ReactPointerEvent<HTMLButtonElement>) => {
     if (!e.currentTarget.hasPointerCapture(e.pointerId)) return;
     pointerId.current = null;
@@ -126,41 +150,25 @@ export function RotationDial({
         scrubSound((n + 360) / 720);
       }}
       onPointerUp={end}
-      onPointerCancel={(e) => {
-        pointerId.current = null;
-        if (raf.current !== null) cancelAnimationFrame(raf.current);
-        raf.current = null;
-        pending.current = null;
-        if (e.currentTarget.hasPointerCapture(e.pointerId))
-          e.currentTarget.releasePointerCapture(e.pointerId);
-        paint(drag.current.value);
-        setScrubbing(false);
-        latest.current.onCancel();
-        endScrub();
+      onPointerCancel={cancel}
+      onLostPointerCapture={() => {
+        if (pointerId.current !== null) cancel();
       }}
       onKeyDown={(e) => {
-        if (e.key === "Escape" && scrubbing) {
+        if (e.key === "Escape" && (scrubbing || keyboard.current)) {
           e.preventDefault();
           e.stopPropagation();
-          if (
-            pointerId.current !== null &&
-            e.currentTarget.hasPointerCapture(pointerId.current)
-          )
-            e.currentTarget.releasePointerCapture(pointerId.current);
-          pointerId.current = null;
-          if (raf.current !== null) cancelAnimationFrame(raf.current);
-          raf.current = null;
-          pending.current = null;
-          paint(drag.current.value);
-          setScrubbing(false);
-          latest.current.onCancel();
-          endScrub();
+          cancel();
           return;
         }
         if (!["ArrowLeft", "ArrowRight", "Home", "Enter", " "].includes(e.key))
           return;
         e.preventDefault();
-        onBegin();
+        if (!keyboard.current) {
+          keyboard.current = true;
+          drag.current.value = value;
+          onBegin();
+        }
         onChange(
           e.key === "ArrowLeft"
             ? Math.max(-360, value - (e.shiftKey ? 5 : 0.1))
@@ -168,7 +176,23 @@ export function RotationDial({
               ? Math.min(360, value + (e.shiftKey ? 5 : 0.1))
               : 0,
         );
-        onEnd();
+      }}
+      onKeyUp={(e) => {
+        if (
+          !keyboard.current ||
+          !["ArrowLeft", "ArrowRight", "Home", "Enter", " "].includes(e.key)
+        )
+          return;
+        keyboard.current = false;
+        latest.current.onEnd();
+        endScrub();
+      }}
+      onBlur={() => {
+        if (keyboard.current) {
+          keyboard.current = false;
+          latest.current.onEnd();
+          endScrub();
+        }
       }}
     >
       <svg

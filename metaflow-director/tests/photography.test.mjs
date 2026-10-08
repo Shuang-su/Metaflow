@@ -18,6 +18,74 @@ const model = await source("src/core/model.ts"),
   control = await source("src/core/camera-controls.ts"),
   { AperturePreview } = await source("src/render/aperture-preview.ts");
 const { FrameCache } = await source("src/render/frame-cache.ts");
+const { viewPose, thumbnailKey, thumbnailSize } = await source(
+  "src/core/view-state.ts",
+);
+const { timelineLayout } = await source("src/core/timeline-layout.ts");
+test("filmstrip layout matches observed desktop and compact origins and preserves short clip seeking", () => {
+  const shot = model.makeShot("resource", model.DEFAULT_POSE);
+  shot.duration = 3;
+  shot.keys[1].time = 3;
+  const desktop = timelineLayout([shot], 1280);
+  assert.equal(desktop.clips[0].left, 52);
+  assert.equal(desktop.position(0), 33);
+  assert(Math.abs(desktop.position(3) - (52 + 258.42857 + 19)) < 0.01);
+  assert(desktop.position(14) > desktop.position(6));
+  assert(Math.abs(desktop.clips[0].width - 258.42857) < 0.01);
+  const compact = timelineLayout([shot], 390);
+  assert.equal(compact.clips[0].left, 38);
+  assert.equal(compact.position(0), 19);
+  const short = model.resizeShot(shot, 0.25),
+    second = structuredClone(short);
+  second.id = "second";
+  const layout = timelineLayout([short, second], 390);
+  assert.equal(layout.clips[0].width, 40);
+  assert.equal(layout.clips[1].left, 118);
+  for (const clip of layout.clips) {
+    for (const fraction of [0, 0.2, 0.5, 0.8, 1]) {
+      const time = clip.start + fraction * clip.shot.duration;
+      assert(
+        Math.abs(layout.timeAt(layout.position(time, clip.shot.id)) - time) <
+          1e-10,
+      );
+    }
+  }
+});
+test("controls resolve the displayed timeline and temporary camera without rewriting saved positions", () => {
+  const project = model.createProject();
+  const shot = model.makeShot("resource", model.DEFAULT_POSE);
+  shot.duration = 1;
+  shot.keys[1].time = 1;
+  shot.keys[1].pose.yaw = 40;
+  shot.keys[1].pose.focus = 8;
+  project.shots = [shot];
+  const saved = structuredClone(project);
+  const working = { ...model.DEFAULT_POSE, yaw: -20 };
+  assert.equal(
+    viewPose(working, project, 0.5, true).yaw,
+    model.poseAt(shot, 0.5).yaw,
+  );
+  assert.equal(viewPose(working, project, 0.5, false), working);
+  const flat = { ...working, yaw: 0, dof: false };
+  assert.equal(viewPose(working, project, 0.5, true, flat), flat);
+  const editing = structuredClone(viewPose(working, project, 0.5, true));
+  editing.roll = 25;
+  assert.deepEqual(project, saved);
+});
+test("thumbnail identity changes with camera and crop and fits horizontal and portrait renders", () => {
+  const project = model.createProject();
+  const key = model.makeShot("resource", model.DEFAULT_POSE).keys[0];
+  const before = thumbnailKey(project, key);
+  project.aspect = "9:16";
+  assert.notEqual(thumbnailKey(project, key), before);
+  const portrait = thumbnailSize(project.aspect);
+  assert(portrait[0] < portrait[1]);
+  assert(Math.abs(portrait[0] / portrait[1] - 9 / 16) < 0.02);
+  assert.deepEqual(thumbnailSize("16:9"), [160, 90]);
+  const changed = structuredClone(key);
+  changed.pose.focus *= 2;
+  assert.notEqual(thumbnailKey(project, changed), thumbnailKey(project, key));
+});
 test("frame cache bounds bytes and two entries, honors recent reuse and releases all GPU owners", () => {
   const freed = [],
     cache = new FrameCache(32, (v) => freed.push(v));
