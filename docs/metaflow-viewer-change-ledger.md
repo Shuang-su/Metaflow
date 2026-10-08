@@ -541,3 +541,11 @@ The 2026-08-15 Viewer 5.19.2 release-record commit updated package/version/index
 - 正式tag/build `586f8bf2935a6d982621978278b5431e5dc344c7`，产品SHA `35862e440`；[PR #124](https://github.com/Shuang-su/Metaflow/pull/124)回填来源，精确head CI 37693585361通过选中检查。Netlify `6ac6c28ddf5facdf0177e2b0`于2026-10-07T22:09:18.380Z发布，生产指针/build.json/版本和脚本字节回读一致；16轮观察900.0107秒，无回读错误。
 - 正式1080p/128 PNG SHA256 `e46b45fa926bd48b7c2a6613b88f47605aa8615d2e5838eb94cf028d3a4b8324`；实际取消后重试动态1080p30/1秒/30帧视频SHA256 `eb711bec241c1651e770e8f40baaaf390846391c88279a175b7064c1649a768a`，完整解码、30帧不同，与5.21.4同状态解码帧一致。中文光圈/调焦反馈、竖屏Capture/VIDEO和统计发布为[Release附件](https://github.com/Shuang-su/Metaflow/releases/tag/viewer-v5.21.5)。
 - 原图回切生产实测批次740不变、缓存命中12→13；ƒ4.3手动调焦红色参考进退场验证。完整动画、严格光学、DPR2截图质量、4K/三档输出矩阵和未运行浏览器仍不通过/未验证，见[验证记录](changes/106-acg-director/verification.md)。模型/环境/settings/Editor未改动；回退为5.21.4 `6ac6aa7d71ba3f321eafa17e`。
+
+
+### `5.21.6` · `188840eae` · Fast adjustment and interaction completion source
+
+- [PR #126](https://github.com/Shuang-su/Metaflow/pull/126)包含本轮已验证来源：按用户修订，调整机位/光圈/手动焦距时高精度Fast反馈，松手圆孔径渐进；Fast及红色参考不进入最终缓存、照片或视频。引擎辅助渲染与可见交换链隔离，不恢复低精度投影缓存或随机Alpha。
+- 修复512→128后实际样本未下调、VIDEO实际显示机位交接、临时兴趣区域展平/恢复、胶片/刻度分离及缩略图身份，补齐取消/退场inert、键盘单次撤销、模态焦点与默认静音合成反馈。模型、环境、设置和公开schema不变。
+- Director33/33、Viewer144/144和类型/构建通过；实际DPR2布局、五轮连续光圈/调焦、三档1080p照片及三档真实4K短动态输出见[验证记录](changes/106-acg-director/verification.md)。原始帧未确认整幅黑闪，不把工具预览异常称为修复前证据。
+- 本轮四镜头转场、精确HEAD CI、预览及正式部署/观察另行追加；尚未宣称生产5.21.6。严格遮挡/发丝/透明层、Fast与圆孔径焦外核及扫描缺陷继续独立记录。回退目标为5.21.5部署`6ac6c28ddf5facdf0177e2b0`。

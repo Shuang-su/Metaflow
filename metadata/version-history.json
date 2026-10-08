@@ -1,14 +1,14 @@
 {
   "schemaVersion": "1.1",
   "cutoffGitRef": "c613a87",
-  "documentedThrough": "35862e440",
+  "documentedThrough": "188840eae",
   "defaultResourceVersion": "1.0a",
   "current": {
-    "displayVersion": "5.21.5",
-    "appSemver": "5.21.5",
+    "displayVersion": "5.21.6",
+    "appSemver": "5.21.6",
     "indexSchemaVersion": "1.2",
-    "date": "2026-10-08",
-    "gitRef": "35862e440",
+    "date": "2026-10-09",
+    "gitRef": "188840eae",
     "historyUrl": "/data/version-history.json",
     "upstream": {
       "repository": "playcanvas/supersplat-viewer",
@@ -1741,6 +1741,24 @@
         "evidence": "docs/changes/106-acg-director/verification.md",
         "releaseTag": "viewer-v5.21.5",
         "pullRequest": "https://github.com/Shuang-su/Metaflow/pull/123"
+      }
+    },
+    {
+      "displayVersion": "5.21.6",
+      "appSemver": "5.21.6",
+      "type": "fix",
+      "scope": "viewer",
+      "date": "2026-10-09",
+      "gitRef": "188840eae",
+      "summary": "恢复光圈/手动焦距/相机调整Fast反馈并隔离辅助画布；修复采样下调、视频工作机位、兴趣区域恢复、胶片刻度/缩略图及取消/焦点/声音输入",
+      "trace": {
+        "changeId": "MF-106",
+        "issue": "https://github.com/Shuang-su/Metaflow/issues/106",
+        "spec": "docs/changes/106-acg-director/spec.md",
+        "plan": "docs/changes/106-acg-director/plan.md",
+        "evidence": "docs/changes/106-acg-director/verification.md",
+        "releaseTag": "viewer-v5.21.6",
+        "pullRequest": "https://github.com/Shuang-su/Metaflow/pull/126"
       }
     }
   ]
