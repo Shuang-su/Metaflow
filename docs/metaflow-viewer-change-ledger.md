@@ -549,3 +549,9 @@ The 2026-08-15 Viewer 5.19.2 release-record commit updated package/version/index
 - 修复512→128后实际样本未下调、VIDEO实际显示机位交接、临时兴趣区域展平/恢复、胶片/刻度分离及缩略图身份，补齐取消/退场inert、键盘单次撤销、模态焦点与默认静音合成反馈。模型、环境、设置和公开schema不变。
 - Director33/33、Viewer144/144和类型/构建通过；实际DPR2布局、五轮连续光圈/调焦、三档1080p照片及三档真实4K短动态输出见[验证记录](changes/106-acg-director/verification.md)。原始帧未确认整幅黑闪，不把工具预览异常称为修复前证据。
 - 本轮四镜头转场、精确HEAD CI、预览及正式部署/观察另行追加；尚未宣称生产5.21.6。严格遮挡/发丝/透明层、Fast与圆孔径焦外核及扫描缺陷继续独立记录。回退目标为5.21.5部署`6ac6c28ddf5facdf0177e2b0`。
+
+
+### `5.21.6` · `31babb2cf12ebc034d4f8c60ff905e2fd26dff7a` · interaction product
+
+- [PR #126](https://github.com/Shuang-su/Metaflow/pull/126)已合并产品`31babb2cf12ebc034d4f8c60ff905e2fd26dff7a`，不可变rc1保存`188840eae`/`32275d3a1`源码。精确候选[CI](https://github.com/Shuang-su/Metaflow/actions/runs/37827529935)成功；实际四镜头Cut/Fade/Push/Zoom取消重试44帧动态视频、10次同状态预览/捕获零差、原图切回缓存和末机位转PHOTO通过。
+- 完整候选预览8项字节比对和300项资源/路由检查通过，实际Fast/释放恢复、390亮色快门/教程关闭已核验。最终正式配置、tag/build/部署及观察另行追加，未将候选称为生产。严格光学和未穷举动画继续独立登记。

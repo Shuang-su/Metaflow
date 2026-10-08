@@ -277,3 +277,15 @@
 - 真实UI生成四镜头/每镜头两不同机位，默认Cut后接Fade/Push/Zoom，后三类各0.10秒。第4帧渲染中取消，未生成Blob、控件/原机位恢复；立即重试完成H.264 1920×1080、30fps、44帧、1.466667秒、1827144字节、SHA256`52b45921bf589d3adb28faa6d625a7c3c2881c3c23719b8c00c5e2138389f211`；完整解码，44帧各不相同。逐帧完整128样本，转场两侧独立累积；已保存首、中、尾和转场局部图。
 - VIDEO末机位到PHOTO的pitch/yaw/roll/焦距/光圈实际一致，保留保存关键帧；`video-photo-before.json`/`after.json`数值核对。对应相机为(-8.5028262905°, -8.8622836103°, 1.4°)，不再回跳到最初工作机位。
 - 207个实际交互原始采样帧另存；中文过程视频删除长空闲、未插帧，包含Operator、多点兴趣区域、恢复、Compose/撤销和重复点击对焦。它是录帧剪辑，不称为原生帧率或全组合动画证明。
+
+
+### 5.21.6 合并前复验与来源记录
+
+- 128同状态暂停预览与独立捕获（1770×996）重复10次，8bit最大通道差均0；原图返回孔径批次1360保持不变、缓存命中16→17。它是指定场景/状态的数值检查，不证明严格遮挡物理准确。
+- 390宽度展开Operator后打开底部菜单、恢复1280：菜单自动关闭、Operator回到102.3046875×42px、opacity1、pointer-events auto，无横向溢出。原先在已关闭菜单寻找slider的no_matches属于工具陈旧目标，未当作产品失败。
+- 首次预览`6ac7e714a82397762eab5e00`只上传Director子包，build.json缺失，未发布生产；第二次完整站点`6ac7e786633999ac7db5d18f`为ready，8个文件逐字节匹配和300项路由/引用HEAD通过，覆盖79条主模型及51个环境。该次CLI配置发现仍只处理7条redirect/6条header，最终发布必须在独立配置目录重新核验8/9，不把候选状态等同正式部署。
+- 第二预览真实缇宝/环境加载，拖动对焦显示Fast“调整预览”，释放收敛128/128；一次撤销恢复初始焦距。390×844亮色PHOTO Capture为64×42、y=670，VIDEO REC为64×42、y=736；stage border0、Close tutorial后无Show按钮、console error为0。一次持指针截图工具失败后已释放，最终正常收敛，无残留输入。
+- 精确head `32275d3a1063d7b470f00c31ade4dca843397b15` [CI 37827529935](https://github.com/Shuang-su/Metaflow/actions/runs/37827529935)完成所选Viewer/Director/Viewer E2E、数据、治理、文档及CodeQL。Cursor/Copilot额度不足；Codex对188840报告完成且无行内评论，均不作为最终head独立人工审查。
+- 不可变`viewer-v5.21.6-rc1`指向32275d3a1，保留188840eae来源；[PR #126](https://github.com/Shuang-su/Metaflow/pull/126)常规squash合并产品`31babb2cf12ebc034d4f8c60ff905e2fd26dff7a`，未使用admin或绕过分支规则。当前正式生产仍是5.21.5；发布记录、正式tag/build、生产回读及观察继续执行。
+
+- 发布记录初次Viewer检查发现Ledger标题只写短SHA而当前gitRef已为完整SHA，随后维护提交32275缺少code标识；按真实来源补齐Ledger，不修改测试。修正后144项、发布契约与125份文档链接通过。
