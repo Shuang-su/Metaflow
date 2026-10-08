@@ -30,7 +30,7 @@ const out = await build({
     },
   ],
 });
-const { ResourceRuntime } = await import(
+const { ResourceRuntime, isFastPreview } = await import(
   "data:text/javascript;base64," +
     Buffer.from(out.outputFiles[0].text).toString("base64")
 );
@@ -67,6 +67,14 @@ function fixture(afterFirstBatch) {
     },
     apertureCount(p) {
       return value?.id === p.id && value?.dof === p.dof ? count : 0;
+    },
+    async previewFrame(p, w, h) {
+      value = { id: p.id, w, h, dof: p.dof };
+      count = 0;
+      return { kind: "fast", id: p.id };
+    },
+    async peakingMask() {
+      return { kind: "guide" };
     },
     async dispose() {},
     async pick() {
@@ -129,6 +137,25 @@ test("completed original/composed previews restore without another aperture batc
   assert(rt.metrics.batches > batches);
   await rt.dispose();
 });
+test("lowering the preview target rebuilds its exact sample prefix and retains both cached targets", async () => {
+  const { rt, state } = fixture();
+  const high = state("working", 16, 640);
+  rt.request(high);
+  await rt.scheduler.settled();
+  assert.equal(rt.preview.result.count, 16);
+  const low = { ...high, samples: 8 };
+  rt.request(low);
+  await rt.scheduler.settled();
+  assert.equal(rt.preview.result.count, 8);
+  const batches = rt.metrics.batches;
+  rt.request(high);
+  await rt.scheduler.settled();
+  rt.request(low);
+  await rt.scheduler.settled();
+  assert.equal(rt.metrics.batches, batches);
+  assert.equal(rt.metrics.cacheHits, 2);
+  await rt.dispose();
+});
 test("capture never carries original comparison or optical guide into output", async () => {
   const { rt, state } = fixture();
   const s = state("output", 8, 640);
@@ -137,14 +164,41 @@ test("capture never carries original comparison or optical guide into output", a
   rt.compose = (state, gpu, mask) => {
     assert.equal(state.original, false);
     assert.equal(state.peaking, false);
+    assert.equal(state.adjusting, false);
     assert.equal(mask, undefined);
     return compose(state, gpu);
   };
   await rt.capture(
-    { ...s, original: true, peaking: true },
+    { ...s, original: true, peaking: true, adjusting: true },
     new AbortController().signal,
   );
   assert.equal(rt.primary.pose, undefined);
+  await rt.dispose();
+});
+test("Fast adjustment never contributes aperture samples or completes the final cache", async () => {
+  const { rt, state } = fixture();
+  const s = state("working", 8, 640);
+  s.pose.dof = true;
+  assert(isFastPreview({ ...s, adjusting: true }));
+  assert(isFastPreview({ ...s, peaking: true }));
+  assert(!isFastPreview({ ...s, adjusting: true, original: true }));
+  assert(!isFastPreview({ ...s, adjusting: true, playing: true }));
+  rt.request({ ...s, adjusting: true, peaking: true });
+  await rt.scheduler.settled();
+  assert.equal(rt.primary.apertureCount(s.pose), 0);
+  assert.equal(rt.displayed.adjusting, true);
+  const afterFast = rt.metrics.batches;
+  rt.request(s);
+  await rt.scheduler.settled();
+  assert.equal(rt.primary.apertureCount(s.pose), 8);
+  assert.equal(rt.metrics.batches, afterFast + 2);
+  rt.request({ ...s, adjusting: true });
+  await rt.scheduler.settled();
+  const completed = rt.metrics.batches;
+  rt.request(s);
+  await rt.scheduler.settled();
+  assert.equal(rt.metrics.batches, completed);
+  assert.equal(rt.metrics.cacheHits, 1);
   await rt.dispose();
 });
 test("thumbnail and export started together retain exclusive state through final composition", async () => {

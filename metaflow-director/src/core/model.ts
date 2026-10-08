@@ -117,10 +117,10 @@ export const makeShot = (
   id: uid(),
   name,
   assetId,
-  duration: 5,
+  duration: 3,
   keys: [
     { id: uid(), time: 0, pose: structuredClone(pose) },
-    { id: uid(), time: 5, pose: structuredClone(pose) },
+    { id: uid(), time: 3, pose: structuredClone(pose) },
   ],
   easing: [0.25, 0.1, 0.25, 1],
   transition: { kind: "cut", duration: 0.5 },

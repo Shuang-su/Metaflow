@@ -4,6 +4,7 @@ import { clippingRange } from "./clipping";
 import { setScenePrecision } from "./precision-target";
 import { ApertureGpu } from "./aperture-gpu";
 import { FloatImage } from "./float-image";
+import { OffscreenSurface } from "./offscreen-surface";
 import { apertureDiameter, apertureSample } from "./optics";
 import {
   Color,
@@ -55,12 +56,14 @@ export class CandidateSession {
   minimumPixelSize = 0;
   path = "native";
   precision: "packed" | "alpha" | "float32" = "float32";
-  /** Only historical diagnostics may enable the old single-splat approximation. */
+  /** Historical diagnostics retain this switch; public adjustment uses previewFrame. */
   legacyFast = false;
   stableOrder = true;
   private apertureEpoch = 0;
   private job: any = null;
   private guide: FloatImage | null = null;
+  private adjustment: FloatImage | null = null;
+  private surface: OffscreenSurface | null = null;
   background = "#303030";
   private tail: Promise<unknown> = Promise.resolve();
   private accumulation = new AbortController();
@@ -112,6 +115,10 @@ export class CandidateSession {
     this.display = null;
     this.guide?.destroy();
     this.guide = null;
+    this.adjustment?.destroy();
+    this.adjustment = null;
+    this.surface?.destroy();
+    this.surface = null;
   }
   get apertureTexture() {
     return this.job?.gpu.texture ?? null;
@@ -271,7 +278,7 @@ export class CandidateSession {
       }
     });
   }
-  apply(p: Pose, width = 960, height = 540) {
+  apply(p: Pose, width = 960, height = 540, fast = false) {
     this.pose = structuredClone(p);
     const camera = this.scene.camera;
     camera.renderOverlays = false;
@@ -367,7 +374,7 @@ export class CandidateSession {
     (this.scene as any).directorOptics = [
       Math.max(camera.near, focus),
       apertureDiameter(p.optics as any, p.blur),
-      this.path === "candidate" && this.legacyFast && p.dof ? 1 : 0,
+      this.path === "candidate" && (fast || this.legacyFast) && p.dof ? 1 : 0,
       p.nearBlur ? 1 : 0,
     ];
   }
@@ -393,7 +400,10 @@ export class CandidateSession {
       typeof display === "function" ? display() : this.present(true);
     if (display) this.scene.app.once("postrender", present);
     try {
-      this.scene.app.render();
+      if (this.path === "candidate" && this.presentation) {
+        this.surface ??= new OffscreenSurface(this.device);
+        this.surface.run(() => this.scene.app.render());
+      } else this.scene.app.render();
     } finally {
       this.scene.app.off("postrender", present);
     }
@@ -423,6 +433,45 @@ export class CandidateSession {
     await this.frame(false, signal);
     return this.read();
   }
+  /** One centered float splat preview, never an aperture sample or readback. */
+  previewFrame(p: Pose, width: number, height: number) {
+    const generation = this.generation,
+      revision = this.sceneRevision,
+      epoch = this.apertureEpoch;
+    return this.enqueue(async () => {
+      const valid = () => {
+        if (
+          this.disposed ||
+          generation !== this.generation ||
+          revision !== this.sceneRevision ||
+          epoch !== this.apertureEpoch
+        )
+          throw new DOMException("Superseded", "AbortError");
+      };
+      valid();
+      if (
+        !this.adjustment ||
+        this.adjustment.width !== width ||
+        this.adjustment.height !== height
+      ) {
+        this.adjustment?.destroy();
+        this.adjustment = new FloatImage(this.device, width, height);
+      }
+      this.apply(p, width, height, true);
+      this.scene.lockedRenderMode = true;
+      try {
+        await this.frame(false, undefined, () => {
+          this.adjustment!.copy(this.scene.camera.colorTarget.colorBuffer);
+          this.presentation?.();
+        });
+        valid();
+        return this.adjustment.texture;
+      } finally {
+        this.scene.lockedRenderMode = false;
+        this.apply(p, width, height);
+      }
+    });
+  }
   /** Clear geometry produces an alpha-weighted optical warning, independent of accumulation. */
   peakingMask(p: Pose, width: number, height: number) {
     const generation = this.generation,
@@ -448,9 +497,8 @@ export class CandidateSession {
         this.scene.camera.clearPass.setClearColor(new Color(0, 0, 0, 0));
         await this.frame(false, undefined, () => {
           this.guide!.copy(this.scene.camera.colorTarget.colorBuffer);
-          // The auxiliary pass also acquires the shared canvas swapchain.
-          // Keep its previous composed image visible until the new mask and
-          // aperture image are composed; never expose the mask/clear frame.
+          // Preserve the previous composition on the isolated frame surface.
+          // Only composePreview presents the finished image to the browser.
           this.presentation?.();
         });
         return this.guide.texture;
@@ -823,6 +871,10 @@ export class CandidateSession {
     await this.tail;
     this.guide?.destroy();
     this.guide = null;
+    this.adjustment?.destroy();
+    this.adjustment = null;
+    this.surface?.destroy();
+    this.surface = null;
     if (!this.ownsScene) {
       this.display?.destroy();
       this.job?.gpu.destroy();

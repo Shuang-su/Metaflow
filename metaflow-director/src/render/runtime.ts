@@ -21,9 +21,12 @@ export type FrameState = {
   playing: boolean;
   original?: boolean;
   peaking?: boolean;
+  adjusting?: boolean;
   viewRevision?: number;
 };
 const camera = (p: Pose) => p as RenderPose;
+export const isFastPreview = (s: FrameState) =>
+  !!(s.adjusting || s.peaking) && !s.original && !s.playing;
 /** One device, one scene, two accumulators only when a shot transition requires it. */
 export class ResourceRuntime {
   primary: CandidateSession;
@@ -59,7 +62,7 @@ export class ResourceRuntime {
     primary.presentation = () => this.preview.present();
     this.secondary.presentation = primary.presentation;
     this.scheduler = new AperturePreview({
-      target: (s) => (s.playing ? 4 : s.samples),
+      target: (s) => (isFastPreview(s) ? 1 : s.playing ? 4 : s.samples),
       count: (s) => this.count(s),
       restore: async (s) => {
         const cached = !s.peaking && this.cache.get(this.cacheKey(s));
@@ -76,6 +79,38 @@ export class ResourceRuntime {
         const start = performance.now();
         this.metrics.batches++;
         const state = this.state(s);
+        if (isFastPreview(s)) {
+          const incoming = await primary.previewFrame(
+            camera(state.pose),
+            s.width,
+            s.height,
+          );
+          const previous = state.previousPose
+            ? await this.secondary.previewFrame(
+                camera(state.previousPose),
+                s.width,
+                s.height,
+              )
+            : null;
+          await this.composePreview(s, { incoming, previous });
+          return { count: 1, batchMs: performance.now() - start };
+        }
+        const target = s.playing ? 4 : s.samples;
+        // A higher-count average cannot become an exact lower-count prefix.
+        // Reset only that accumulator; completed targets stay in the frame cache.
+        if (
+          primary.apertureCount(camera(state.pose), s.width, s.height) > target
+        )
+          primary.cancel();
+        if (
+          state.previousPose &&
+          this.secondary.apertureCount(
+            camera(state.previousPose),
+            s.width,
+            s.height,
+          ) > target
+        )
+          this.secondary.cancel();
         await primary.advance(camera(state.pose), s.width, s.height, 4, false);
         if (state.previousPose)
           await this.secondary.advance(
@@ -160,19 +195,23 @@ export class ResourceRuntime {
     device.submit();
     this.cache.set(this.cacheKey(s), image, s.width * s.height * 16);
   }
-  private async composePreview(s: FrameState) {
+  private async composePreview(
+    s: FrameState,
+    textures?: { incoming: any; previous: any },
+  ) {
     const state = this.state(s);
     const mask =
       s.peaking && !s.original && state.pose.dof
         ? await this.primary.peakingMask(camera(state.pose), s.width, s.height)
         : null;
-    await this.compose(s, this.preview, mask);
+    await this.compose(s, this.preview, mask, textures);
   }
   private count(s: FrameState) {
+    if (isFastPreview(s)) return 0;
     if (!s.playing && !s.peaking && this.cache.get(this.cacheKey(s)))
       return s.samples;
     const state = this.state(s);
-    return Math.min(
+    const count = Math.min(
       this.primary.apertureCount(camera(state.pose), s.width, s.height),
       state.previousPose
         ? this.secondary.apertureCount(
@@ -182,6 +221,7 @@ export class ResourceRuntime {
           )
         : Infinity,
     );
+    return count > (s.playing ? 4 : s.samples) ? 0 : count;
   }
   request(s: FrameState) {
     if (this.disposed) return;
@@ -222,13 +262,24 @@ export class ResourceRuntime {
       }
     }
   }
-  private async compose(s: FrameState, gpu: SharedGpuCompositor, mask?: any) {
+  private async compose(
+    s: FrameState,
+    gpu: SharedGpuCompositor,
+    mask?: any,
+    textures?: { incoming: any; previous: any },
+  ) {
     const state = this.state(s),
       w = s.width,
       h = s.height;
-    gpu.uploadBorrowed("incoming", this.primary.apertureTexture);
+    gpu.uploadBorrowed(
+      "incoming",
+      textures?.incoming ?? this.primary.apertureTexture,
+    );
     if (state.previousPose)
-      gpu.uploadBorrowed("previous", this.secondary.apertureTexture);
+      gpu.uploadBorrowed(
+        "previous",
+        textures?.previous ?? this.secondary.apertureTexture,
+      );
     gpu.begin(w, h);
     gpu.draw("backdrop", 0, 0, w, h);
     const draw = (key: string, x = 0, y = 0, scale = 1, opacity = 1) =>
@@ -288,7 +339,7 @@ export class ResourceRuntime {
     progress?: (n: number) => void,
   ) {
     // Comparison and optical guides are preview state, never output settings.
-    s = { ...s, original: false, peaking: false };
+    s = { ...s, original: false, peaking: false, adjusting: false };
     return this.exclusive(async () => {
       const state = this.state(s);
       this.primary.cancel();

@@ -40,6 +40,18 @@ export function Operator({
     <div
       ref={anchor}
       className="director-operator reference-operator auto-motion-actions-anchor"
+      onKeyDown={(e) => {
+        if (e.key === "Escape" && active) {
+          e.preventDefault();
+          e.stopPropagation();
+          latestClose.current();
+          requestAnimationFrame(() =>
+            anchor.current
+              ?.querySelector<HTMLButtonElement>(".auto-motion-primary-island")
+              ?.focus({ preventScroll: true }),
+          );
+        }
+      }}
     >
       <div
         className={`auto-motion-actions is-stage-floating ${active ? "is-generating" : "is-idle"}`}

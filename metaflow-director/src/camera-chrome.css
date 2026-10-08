@@ -955,20 +955,67 @@ html[data-director-theme="light"] .director-tooltip {
   place-items: center;
   padding: 0;
 }
+.auto-motion-selection-hint {
+  min-height: 30px;
+  padding: 0 11px;
+  border: 1px solid #ffffff38;
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1;
+  transition:
+    opacity 0.1s,
+    transform 0.16s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.auto-motion-selection-hint.is-hidden {
+  transform: translateX(-50%) scale(0.94);
+}
 .director-filmstrip {
   height: 60px;
   border-radius: 12px;
-  background: #f8f8fa;
-  border-color: #737378;
+  background: #fff;
+  border-color: #dedee2;
+}
+.director-video-timeline {
+  margin: 0 -22px;
+  margin-bottom: 4px;
+}
+.timeline-toolbar {
+  padding: 0 22px;
+}
+.timeline-shot-tools-motion {
+  gap: 10px;
+  min-height: 32px;
+}
+.timeline-selected-shot-action {
+  min-height: 30px;
+}
+.timeline-easing-button {
+  padding: 0 8px;
+  gap: 6px;
+  font-size: 10px;
+  line-height: 15px;
+}
+.director-add-scene {
+  width: 60px;
+  height: 60px;
+}
+@media (max-width: 760px) {
+  .director-video-timeline {
+    margin: 0 -8px;
+    margin-bottom: 4px;
+  }
+  .timeline-toolbar {
+    padding: 0 8px;
+  }
 }
 .director-filmstrip.is-selected {
-  border-color: #ffdf00;
+  border-color: var(--action-accent);
 }
 .position-thumb {
   border-right-color: #222;
 }
 .director-filmstrip.is-selected .position-thumb {
-  border-right-color: #ffdf00;
+  border-right-color: var(--action-accent);
 }
 .director-position-tag {
   position: absolute;
@@ -977,7 +1024,7 @@ html[data-director-theme="light"] .director-tooltip {
   bottom: auto;
   z-index: 6;
   display: block;
-  width: 40px;
+  width: 39.55px;
   height: 14px;
   padding: 0;
   border-radius: 0;
@@ -1118,7 +1165,7 @@ html[data-director-theme="light"] .director-tooltip {
 }
 .director-ruler > i {
   top: 50%;
-  transform: translateY(-50%);
+  transform: translate(-0.5px, -50%);
   height: 9.6px;
   background: color-mix(in srgb, var(--ink) 8%, transparent);
 }

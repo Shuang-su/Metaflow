@@ -52,7 +52,9 @@ export function opticsPatch(code, id) {
     var defocus = 0.0;
     if (uniforms.directorOptics.z > 0.5 && depth > 0.0 && (uniforms.directorOptics.w > 0.5 || depth >= uniforms.directorOptics.x)) {
         let coc = 0.5 * focal.x * uniforms.directorOptics.y * abs(1.0 / max(depth, 1e-6) - 1.0 / uniforms.directorOptics.x);
-        defocus = coc * coc;
+        // coc is the circle radius. A uniform disk has per-axis variance R^2/4.
+        // Match the final aperture's second moment instead of treating R as sigma.
+        defocus = 0.25 * coc * coc;
     }
     cov00 += defocus;
     cov11 += defocus;

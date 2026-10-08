@@ -13,7 +13,11 @@ import {
   Volume2,
   VolumeX,
 } from "lucide-react";
-import { ResourceRuntime, type FrameState } from "./render/runtime";
+import {
+  ResourceRuntime,
+  isFastPreview,
+  type FrameState,
+} from "./render/runtime";
 import { loadResource, type ResourceScene } from "./resource";
 import { directorBasePath } from "../../metaflow-viewer/src/director-handoff";
 import {
@@ -27,6 +31,7 @@ import {
   interpolatePose,
   cubicBezier,
   outputSize,
+  frameCount,
   clamp,
   type Pose,
   type Project,
@@ -39,12 +44,14 @@ import {
   rebaseControls,
 } from "./core/camera-controls";
 import { composeViewPose } from "./core/compose-view";
+import { viewPose, thumbnailKey, thumbnailSize } from "./core/view-state";
 import { exportVideo, preflight } from "./core/encoder";
 import { CameraBar } from "./CameraBar";
 import { Operator } from "./Operator";
 import { TooltipLayer } from "./TooltipLayer";
 import logo from "../../metaflow-viewer/src/assets/metaflow.svg";
 import { VideoTimeline } from "./VideoTimeline";
+import { Modal } from "./Modal";
 import { VideoTutorial, type TutorialStep } from "./VideoTutorial";
 import { TransitionMenu } from "./TransitionMenu";
 import { InterestSelector, type InterestArea } from "./InterestSelector";
@@ -104,7 +111,9 @@ export function App() {
   const [operatorActive, setOperatorActive] = useState(false),
     [focusHint, setFocusHint] = useState("");
   const [original, setOriginal] = useState(false),
-    [peaking, setPeaking] = useState(false);
+    [peaking, setPeaking] = useState(false),
+    [adjusting, setAdjusting] = useState(false),
+    [displayedFast, setDisplayedFast] = useState(false);
   const [resolution, setResolution] = useState(1080),
     [fps, setFps] = useState(30),
     [photoFormat, setPhotoFormat] = useState<"png" | "jpeg">("png"),
@@ -167,6 +176,7 @@ export function App() {
     ready,
     original,
     peaking,
+    adjusting,
   });
   current.current = {
     mode,
@@ -179,6 +189,7 @@ export function App() {
     ready,
     original,
     peaking,
+    adjusting,
   };
   const commit = (next: Snapshot) => {
     ref.current = next;
@@ -198,6 +209,8 @@ export function App() {
     setPlaying(!state.playing);
   };
   const stopMotion = () => {
+    current.current.adjusting = false;
+    setAdjusting(false);
     intent.current++;
     if (animation.current !== null) cancelAnimationFrame(animation.current);
     animation.current = null;
@@ -213,7 +226,38 @@ export function App() {
     stopMotion();
     if (!gesture.current) gesture.current = structuredClone(ref.current);
   };
+  const materializeCamera = () => {
+    if (current.current.mode !== "video" || current.current.live) return;
+    // Use the completed batch's time rather than an undrawn navigation target.
+    const displayed = runtime.current?.displayed;
+    const p = displayed
+      ? viewPose(
+          displayed.pose,
+          displayed.project,
+          displayed.time,
+          displayed.video,
+        )
+      : viewPose(
+          ref.current.pose,
+          ref.current.project,
+          current.current.time,
+          true,
+        );
+    const next = { ...ref.current, pose: structuredClone(p) };
+    ref.current = next;
+    setSnapshot(next);
+    current.current.live = true;
+    setLive(true);
+  };
+  const beginCamera = () => {
+    materializeCamera();
+    begin();
+    current.current.adjusting = true;
+    setAdjusting(true);
+  };
   const end = () => {
+    current.current.adjusting = false;
+    setAdjusting(false);
     if (tutorialEndpoint.current) {
       const next = structuredClone(ref.current);
       const sh = next.project.shots.find((s) => s.id === selected);
@@ -236,6 +280,11 @@ export function App() {
     gesture.current = null;
   };
   const cancelGesture = () => {
+    current.current.adjusting = false;
+    setAdjusting(false);
+    pointers.current.clear();
+    if (wheelTimer.current) clearTimeout(wheelTimer.current);
+    wheelTimer.current = null;
     tutorialEndpoint.current = null;
     stopMotion();
     if (gesture.current) {
@@ -293,6 +342,7 @@ export function App() {
     playing: current.current.playing,
     original: current.current.original,
     peaking: current.current.peaking,
+    adjusting: current.current.adjusting,
     viewRevision: intent.current,
     ...options,
   });
@@ -374,6 +424,7 @@ export function App() {
         loaded.background,
         (_s, n) => {
           setCount(n);
+          setDisplayedFast(isFastPreview(_s));
           // Re-entry must not accept an old flat batch; a later non-flat
           // display also closes picking until this view is fully ready again.
           const canPick =
@@ -393,7 +444,12 @@ export function App() {
             canvas.current.dataset.previewCacheHits = String(
               owned.metrics.cacheHits,
             );
-            canvas.current.dataset.apertureSamples = String(n);
+            canvas.current.dataset.apertureSamples = String(
+              isFastPreview(_s) ? 0 : n,
+            );
+            canvas.current.dataset.previewMode = isFastPreview(_s)
+              ? "fast"
+              : "aperture";
             canvas.current.dataset.peaking = String(
               !!_s.peaking && !_s.original,
             );
@@ -463,6 +519,7 @@ export function App() {
     mode,
     original,
     peaking,
+    adjusting,
   ]);
   useEffect(() => {
     if (!playing) return;
@@ -524,7 +581,14 @@ export function App() {
       }
     };
     window.addEventListener("keydown", key);
-    return () => window.removeEventListener("keydown", key);
+    const blur = () => {
+      if (pointers.current.size || wheelTimer.current) cancelGesture();
+    };
+    window.addEventListener("blur", blur);
+    return () => {
+      window.removeEventListener("keydown", key);
+      window.removeEventListener("blur", blur);
+    };
   }, [busy, ready, mode]);
   useEffect(() => {
     const onVisible = () => {
@@ -538,6 +602,7 @@ export function App() {
   }, []);
   const focus = async (x: number, y: number) => {
     if (!runtime.current || busy) return;
+    materializeCamera();
     stopMotion();
     const request = ++intent.current;
     setFocusMark({ x, y, id: request });
@@ -558,7 +623,8 @@ export function App() {
         setStatus("已对焦到点击位置 · MF");
       }
     } catch (e) {
-      setError((e as Error).message);
+      if (request === intent.current && (e as Error).name !== "AbortError")
+        setError((e as Error).message);
     } finally {
       if (request <= intent.current) resume();
       setTimeout(
@@ -572,8 +638,13 @@ export function App() {
     e.preventDefault();
     e.currentTarget.setPointerCapture(e.pointerId);
     if (!pointers.current.size) {
-      begin();
-      drag.current = { x: e.clientX, y: e.clientY, moved: false, pinch: false };
+      beginCamera();
+      drag.current = {
+        x: e.clientX,
+        y: e.clientY,
+        moved: false,
+        pinch: e.button !== 0,
+      };
     }
     pointers.current.set(e.pointerId, { x: e.clientX, y: e.clientY });
     if (pointers.current.size > 1) {
@@ -650,7 +721,7 @@ export function App() {
     const wheel = (e: WheelEvent) => {
       if (!current.current.ready || current.current.busy) return;
       e.preventDefault();
-      begin();
+      beginCamera();
       if (e.ctrlKey)
         control({
           zoom: clamp(
@@ -693,13 +764,14 @@ export function App() {
     to: Pose,
     keep = false,
     complete?: () => void,
+    duration = 220,
   ) => {
     const started = performance.now(),
       version = intent.current;
     setViewOnly(structuredClone(from));
     const tick = (now: number) => {
       if (intent.current !== version) return;
-      const t = clamp((now - started) / 220, 0, 1);
+      const t = clamp((now - started) / duration, 0, 1);
       setViewOnly(
         t === 1
           ? keep
@@ -726,18 +798,24 @@ export function App() {
       closeSelection();
       return;
     }
+    materializeCamera();
     const from = temporary.current ?? ref.current.pose;
     stopMotion();
     selectionBase.current = structuredClone(ref.current.pose);
     setSelectInterest(true);
-    const flat = rebaseControls({
-      ...structuredClone(from),
-      yaw: 0,
-      pitch: 0,
-      roll: 0,
-      dof: false,
-      focusPoint: null,
-    });
+    const flat = changeControls(
+      rebaseControls({
+        ...structuredClone(from),
+        yaw: 0,
+        pitch: 0,
+        roll: 0,
+        dof: false,
+        blur: 0,
+        focusPoint: null,
+        controls: { ...controlsFor(from), blurAmount: 0 },
+      }),
+      { zoom: 70 },
+    );
     selectionTarget.current = structuredClone(flat);
     animateCamera(from, flat, true);
   };
@@ -787,6 +865,7 @@ export function App() {
               setTutorial("watch");
           }
         : undefined,
+      240,
     );
     setStatus("Compose");
   };
@@ -870,8 +949,10 @@ export function App() {
       } else {
         if (!project.shots.length) throw Error("请先添加一个镜头");
         const settings = { width, height, fps, format: videoFormat };
+        setProgress("正在核验编码能力…");
         if (!(await preflight(settings)))
           throw Error("当前设备不支持所选视频尺寸、帧率或编码，请选择可用组合");
+        const frames = frameCount(totalDuration(project.shots), fps);
         const blob = await exportVideo(
           settings,
           totalDuration(project.shots),
@@ -879,6 +960,10 @@ export function App() {
             runtime.current!.capture(
               { ...base, time: t, video: true },
               controller.signal,
+              (n) =>
+                setProgress(
+                  `视频 · 第 ${Math.round(t * fps) + 1}/${frames} 帧 · 孔径 ${Math.round(n * samples)}/${samples}`,
+                ),
             ),
           controller.signal,
           (n) =>
@@ -918,7 +1003,7 @@ export function App() {
       controller = new AbortController(),
       pending = project.shots
         .flatMap((s) => s.keys)
-        .filter((k) => !thumbnails[k.id + JSON.stringify(k.pose)]);
+        .filter((k) => !thumbnails[thumbnailKey(project, k)]);
     if (!pending.length) return;
     thumbnailAbort.current = controller;
     const timer = setTimeout(
@@ -932,20 +1017,30 @@ export function App() {
                 frame({
                   pose: k.pose,
                   video: false,
-                  width: 160,
-                  height: 90,
+                  width: thumbnailSize(project.aspect)[0],
+                  height: thumbnailSize(project.aspect)[1],
                   samples: 4,
                   playing: false,
                 }),
                 controller.signal,
               );
-              images[k.id + JSON.stringify(k.pose)] = image.toDataURL(
+              images[thumbnailKey(project, k)] = image.toDataURL(
                 "image/jpeg",
                 0.75,
               );
             }
             if (!controller.signal.aborted)
-              setThumbnails((t) => ({ ...t, ...images }));
+              setThumbnails((t) =>
+                Object.fromEntries(
+                  project.shots
+                    .flatMap((s) => s.keys)
+                    .map((k) => {
+                      const key = thumbnailKey(project, k);
+                      return [key, images[key] ?? t[key]];
+                    })
+                    .filter(([, image]) => image),
+                ),
+              );
           } catch (e) {
             if ((e as Error).name !== "AbortError")
               setStatus("缩略图尚未就绪，可继续摄影");
@@ -962,6 +1057,7 @@ export function App() {
     };
   }, [mode, ready, busy, playing, count, samples, project, pose]);
   const switchMode = (value: "photo" | "video") => {
+    materializeCamera();
     stopMotion();
     setMode(value);
     setSelectInterest(false);
@@ -1046,6 +1142,9 @@ export function App() {
                 pointers.current.clear();
                 cancelGesture();
               }}
+              onLostPointerCapture={(e) => {
+                if (pointers.current.has(e.pointerId)) cancelGesture();
+              }}
               onContextMenu={(e) => e.preventDefault()}
             >
               <canvas ref={canvas} aria-label="资源摄影取景框" />
@@ -1104,7 +1203,9 @@ export function App() {
                 <span className="render-status" aria-live="off">
                   {original
                     ? "原图对照"
-                    : `${count >= samples ? "已收敛" : "渐进成片"} · ${Math.min(count, samples)}/${samples}`}
+                    : displayedFast
+                      ? "调整预览"
+                      : `${count >= samples ? "已收敛" : "渐进成片"} · ${Math.min(count, samples)}/${samples}`}
                 </span>
               )}
             </div>
@@ -1134,12 +1235,18 @@ export function App() {
         {mode === "video" && ready && (
           <VideoTimeline
             project={project}
-            workingPose={pose}
+            workingPose={viewPose(
+              pose,
+              project,
+              time,
+              mode === "video" && !live,
+              temporaryPose,
+            )}
             selected={selected}
             time={time}
             playing={playing}
             busy={busy}
-            thumbnail={(k) => thumbnails[k.id + JSON.stringify(k.pose)]}
+            thumbnail={(k) => thumbnails[thumbnailKey(project, k)]}
             onSelect={(id, t) => seek(t, id)}
             onDeselect={() => setSelected("")}
             onTime={(t) => seek(t)}
@@ -1184,7 +1291,8 @@ export function App() {
               setTime(0);
               setLive(true);
             }}
-            onAdd={() =>
+            onAdd={() => {
+              materializeCamera();
               edit((s) => {
                 const added = makeShot(
                   resource!.resource.id,
@@ -1193,8 +1301,8 @@ export function App() {
                 );
                 s.project.shots.push(added);
                 setSelected(added.id);
-              })
-            }
+              });
+            }}
             onEndpoint={(edge) => {
               if (tutorial === "end" && edge === "end")
                 setTutorial("adjust-end");
@@ -1216,6 +1324,7 @@ export function App() {
               interestCount={shot?.interestPoints?.length ?? 0}
               onPrimary={() => {
                 if (!operatorActive) {
+                  materializeCamera();
                   operatorBase.current = structuredClone(ref.current.pose);
                   setOperatorActive(true);
                   if (tutorial === "operator") setTutorial("compose");
@@ -1236,18 +1345,33 @@ export function App() {
                 closeSelection();
                 setOperatorActive(false);
               }}
-              onClearInterest={() =>
-                edit((s) => {
+              onClearInterest={() => {
+                const clear = (s: Snapshot) => {
                   const sh = s.project.shots.find((v) => v.id === selected);
                   if (sh) {
                     sh.interestPoints = [];
                     sh.interestAreas = [];
                   }
-                })
-              }
+                };
+                if (selectionBase.current) {
+                  selectionPick.current++;
+                  undo.current.push(structuredClone(ref.current));
+                  redo.current = [];
+                  const next = structuredClone(ref.current);
+                  clear(next);
+                  commit(next);
+                  setHistoryVersion((v) => v + 1);
+                } else edit(clear);
+              }}
             />
           }
-          pose={pose}
+          pose={viewPose(
+            pose,
+            project,
+            time,
+            mode === "video" && !live,
+            temporaryPose,
+          )}
           project={project}
           mode={mode}
           busy={busy}
@@ -1263,7 +1387,7 @@ export function App() {
           }}
           onPose={patchPose}
           onProject={(patch) => edit((s) => Object.assign(s.project, patch))}
-          onBegin={begin}
+          onBegin={beginCamera}
           onEnd={end}
           onCancel={cancelGesture}
           onCapture={save}
@@ -1297,33 +1421,30 @@ export function App() {
         />
       )}
       {help && (
-        <div className="modal-backdrop" onClick={() => setHelp(false)}>
-          <section className="modal" onClick={(e) => e.stopPropagation()}>
-            <button
-              className="close"
-              aria-label="关闭帮助"
-              onClick={() => setHelp(false)}
-            >
-              <X />
-            </button>
-            <h2>资源摄影</h2>
-            <p>
-              此页面只使用当前资源及其环境。点击画面对焦会切换为
-              MF；手动对焦可从近端连续调整到 ∞。
-            </p>
-            <p>
-              操作中先显示 4
-              个孔径样本，停下后收敛到所选精细度。照片与视频逐帧使用完整采样，复杂场景可能需要较长时间。
-            </p>
-            <p>
-              视频：添加镜头、保存机位、拖动调整时长，点击镜头间的小方块设置转场。␣
-              播放 / 暂停，⌘Z 撤销。
-            </p>
-            <p>
-              刷新会重新载入资源，页面内镜头不会保存为工程。原资源文件不会被修改。
-            </p>
-          </section>
-        </div>
+        <Modal label="摄影帮助" onDismiss={() => setHelp(false)}>
+          <button
+            className="close"
+            aria-label="关闭帮助"
+            onClick={() => setHelp(false)}
+          >
+            <X />
+          </button>
+          <h2>资源摄影</h2>
+          <p>
+            此页面只使用当前资源及其环境。点击画面对焦会切换为
+            MF；手动对焦可从近端连续调整到 ∞。
+          </p>
+          <p>
+            调整时使用快速高斯预览及红色光学参考，停下后以圆孔径累积收敛到所选精细度。两者焦外形状可能有差别；照片与视频逐帧使用完整采样，复杂场景可能需要较长时间。
+          </p>
+          <p>
+            视频：添加镜头、保存机位、拖动调整时长，点击镜头间的小方块设置转场。␣
+            播放 / 暂停，⌘Z 撤销。
+          </p>
+          <p>
+            刷新会重新载入资源，页面内镜头不会保存为工程。原资源文件不会被修改。
+          </p>
+        </Modal>
       )}
       <AnimatePresence>
         {transition &&
@@ -1348,15 +1469,19 @@ export function App() {
                   signal,
                 )
               }
-              onChange={(value) =>
-                edit((s) => {
-                  const sh = s.project.shots.find(
-                    (v) => v.id === transition.id,
-                  )!;
-                  if (transition.edge === "in") sh.transition = value;
-                  else sh.exitTransition = value;
-                })
-              }
+              onBegin={begin}
+              onEnd={end}
+              onCancel={cancelGesture}
+              onChange={(value) => {
+                const inGesture = !!gesture.current;
+                if (!inGesture) begin();
+                const s = structuredClone(ref.current);
+                const sh = s.project.shots.find((v) => v.id === transition.id)!;
+                if (transition.edge === "in") sh.transition = value;
+                else sh.exitTransition = value;
+                commit(s);
+                if (!inGesture) end();
+              }}
               onClose={() => {
                 setTransition(null);
                 resume();
@@ -1365,15 +1490,17 @@ export function App() {
           )}
       </AnimatePresence>
       {busy && (
-        <div className="modal-backdrop">
-          <section className="modal" role="dialog" aria-label="正在导出">
-            <span className="spinner" />
-            <h2>正在生成成片</h2>
-            <p>{progress}</p>
-            <p>保持此页面打开；每帧使用完整的 {samples} 个孔径样本。</p>
-            <button onClick={() => abort.current?.abort()}>取消导出</button>
-          </section>
-        </div>
+        <Modal
+          label="正在导出"
+          dismissOutside={false}
+          onDismiss={() => abort.current?.abort()}
+        >
+          <span className="spinner" />
+          <h2>正在生成成片</h2>
+          <p>{progress}</p>
+          <p>保持此页面打开；每帧使用完整的 {samples} 个孔径样本。</p>
+          <button onClick={() => abort.current?.abort()}>取消导出</button>
+        </Modal>
       )}
     </main>
   );
