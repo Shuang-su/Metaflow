@@ -8,7 +8,7 @@
     "appSemver": "5.21.9",
     "indexSchemaVersion": "1.2",
     "date": "2026-10-09",
-    "gitRef": "62d593659d1a4167aa37f1cc1c1e18c788184d7b",
+    "gitRef": "b708555e71a1cea8e87225e6b30105e24ba84802",
     "historyUrl": "/data/version-history.json",
     "upstream": {
       "repository": "playcanvas/supersplat-viewer",
@@ -316,6 +316,16 @@
       "gitRef": "f54794bb53385f58a11a98448c9d1c31521f7d07",
       "date": "2026-10-09",
       "summary": "MF-106 5.21.9 candidate version mirrors and adapter-selection source; preserved by viewer-v5.21.9-rc1."
+    },
+    {
+      "gitRef": "62d593659d1a4167aa37f1cc1c1e18c788184d7b",
+      "date": "2026-10-09",
+      "summary": "MF-106 original browser-default adapter source, preserved by viewer-v5.21.9-rc1; completed candidate additionally handles slow startup and device-loss restoration."
+    },
+    {
+      "gitRef": "f75646559d6fcabfa9c355e4dee2eafde146af05",
+      "date": "2026-10-09",
+      "summary": "MF-106 initial 5.21.9 candidate trace and exact-head CI; preserved by viewer-v5.21.9-rc1."
     }
   ],
   "entries": [
@@ -1843,8 +1853,8 @@
       "type": "fix",
       "scope": "viewer",
       "date": "2026-10-09",
-      "gitRef": "62d593659d1a4167aa37f1cc1c1e18c788184d7b",
-      "summary": "摄影设备采用浏览器默认WebGPU适配器策略，保留RGBA32F能力检查及完整孔径成片；记录实际初始化失败和恢复对照",
+      "gitRef": "b708555e71a1cea8e87225e6b30105e24ba84802",
+      "summary": "摄影采用浏览器默认WebGPU设备策略；慢启动继续等待，取消释放迟到设备，设备丢失后保留取景与视频编辑重建；完整RGBA32F孔径成片不变",
       "trace": {
         "changeId": "MF-106",
         "issue": "https://github.com/Shuang-su/Metaflow/issues/106",

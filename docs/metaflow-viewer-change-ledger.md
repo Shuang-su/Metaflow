@@ -607,3 +607,6 @@ The 2026-08-15 Viewer 5.19.2 release-record commit updated package/version/index
 - Director36项/类型及同资源本地128收敛通过；正常PR、精确HEAD CI、完整预览、生产实际摄影/输出及观察随后回填。范围、模型和公开接口不变，回退5.21.8部署`6ac87f543e88e78932eb4e4e`。
 
 - [PR #136](https://github.com/Shuang-su/Metaflow/pull/136)记录设备选择修正；候选维护来源`f54794bb53385f58a11a98448c9d1c31521f7d07`同步PATCH镜像与既有版本断言，未改变模型资源。
+
+| 2026-10-09 | MF-106 | 5.21.9 candidate | `b708555e71a1cea8e87225e6b30105e24ba84802` | 默认设备策略之外，20秒慢提示／90秒明确边界、取消和迟到设备释放、GPU丢失立即停止任务并保留现有编辑重建；44单元／类型及原生迟到、重建与撤销实测通过。真实OS低电量模式仍未验证。PR136，未部署。 |
+| 2026-10-09 | MF-106 | 5.21.9 trace | `f75646559d6fcabfa9c355e4dee2eafde146af05` | 初始候选记录及精确HEAD CI通过，rc1固定保留。 |
