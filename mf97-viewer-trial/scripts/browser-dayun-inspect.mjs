@@ -1,3 +1,4 @@
+import { loadAssetConfig, resolveAssetUrl } from "../../scripts/mf97/asset-config.mjs";
 /** Read-only original Gaussian views at native-proof poses. Never publishes a floor catalog. */
 import assert from "node:assert/strict";
 import { readFileSync, statSync, realpathSync } from "node:fs";
@@ -12,7 +13,7 @@ resources.assertCapacity(
   8 * 1024 ** 2,
   "Dayun three local Gaussian inspection frames",
 );
-const root = realpathSync("/Volumes/Prism/Metaflow/data/Shenzhen/250917 Dayun");
+const root = realpathSync(resolveAssetUrl("/repository-data/Shenzhen/250917%20Dayun"));
 const hash = (bytes) => createHash("sha256").update(bytes).digest("hex");
 const proofBytes = readFileSync(
   resolve(resources.root, "dayun/recast-proof/x10-z20-v4.json"),

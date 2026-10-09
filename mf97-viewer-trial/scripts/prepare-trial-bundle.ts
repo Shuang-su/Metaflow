@@ -1,3 +1,4 @@
+import { resolveRecordedPath } from "../../scripts/mf97/asset-config.mjs";
 /** Prepare three small local-only overlays after all paired collision proofs pass. */
 import { existsSync, readFileSync, realpathSync } from "node:fs";
 import { basename, dirname, relative, resolve, sep } from "node:path";
@@ -283,7 +284,7 @@ export function prepareTrialBundle(options: TrialBundleOptions) {
   };
   const originalCollision = decode(
       source.old.meta,
-      read(source.material.sourceFile.replace(/\.json$/, ".bin")),
+      read(resolveRecordedPath(source.material.sourceFile).replace(/\.json$/, ".bin")),
     ),
     acceptedCollision = decode(
       source.meta,

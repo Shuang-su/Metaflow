@@ -7,6 +7,7 @@ import studio from "../../mf79-viewer-trial/apms-markers-42.mfstudio.json";
 import sdi from "../../mf79-viewer-trial/sdi-25.settings.json";
 import { selectDayunInspectionSource } from "./dayun-inspection-source";
 import { loadTrialBundle } from "./trial-bundle";
+import navigationWorkerUrl from "../../mf79-viewer-trial/src/worker.ts?worker&url";
 const params = new URLSearchParams(location.search),
   id = params.get("scene") ?? "apms-2026",
   dayun = id === "dayun";
@@ -161,10 +162,7 @@ const viewer = await createViewer({
         navigationManifestUrl:
           trial?.navigationManifestUrl ??
           `/navigation/${scene.id}/manifest.json`,
-        navigationWorkerUrl: new URL(
-          "../../mf79-viewer-trial/src/worker.ts",
-          import.meta.url,
-        ).href,
+        navigationWorkerUrl,
       }),
   navigationMapUrl: inspection
     ? undefined

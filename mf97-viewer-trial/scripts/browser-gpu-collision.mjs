@@ -1,3 +1,4 @@
+import { loadAssetConfig, resolveAssetUrl } from "../../scripts/mf97/asset-config.mjs";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { createHash } from "node:crypto";
@@ -61,12 +62,14 @@ for (let z = -2; z <= 2; z++)
   for (let y = -2; y <= 2; y++)
     for (let x = -2; x <= 2; x++)
       queries.push([edited.ix + x, edited.iy + y, edited.iz + z]);
-const assetRoot = "/Volumes/Prism_初号機/3D高斯/";
-assert.ok(materialization.sourceFile.startsWith(assetRoot));
+const scene = JSON.parse(readFileSync(new URL("../../mf79-viewer-trial/scene-exhibitions.json", import.meta.url), "utf8")).scenes.find(s => s.id === review.sceneId);
+assert.ok(scene, "Reviewed scene must exist");
+const assetFile = resolveAssetUrl(scene.collisionUrl);
+assert.equal(createHash("sha256").update(readFileSync(assetFile)).digest("hex") + ":" + createHash("sha256").update(readFileSync(assetFile.replace(/\.json$/, ".bin"))).digest("hex"), materialization.sourceHash);
 const sources = [
   {
     label: "original",
-    url: "/scene-assets/" + materialization.sourceFile.slice(assetRoot.length),
+    url: scene.collisionUrl,
     hash: materialization.sourceHash,
   },
   {

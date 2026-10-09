@@ -1,3 +1,4 @@
+import { loadAssetConfig, resolveAssetUrl } from "../scripts/mf97/asset-config.mjs";
 import { defineConfig } from "vite";
 import { createHash } from "node:crypto";
 import { groundAnalysisHash } from "./src/ground-analysis-fingerprint";
@@ -10,9 +11,10 @@ import {
 import exhibitionScenes from "../mf79-viewer-trial/scene-exhibitions.json";
 import { createRequire } from "node:module";
 import { fileURLToPath } from "node:url";
-import { readFileSync, createReadStream, statSync } from "node:fs";
-import { resolve, relative, extname, dirname } from "node:path";
+import { readFileSync, createReadStream, statSync, realpathSync } from "node:fs";
+import { resolve, relative, extname, dirname, basename } from "node:path";
 const project = fileURLToPath(new URL("..", import.meta.url));
+const assets = loadAssetConfig();
 const sass = createRequire(import.meta.url)(
   resolve(project, "metaflow-viewer/node_modules/sass"),
 );
@@ -34,16 +36,13 @@ export default defineConfig({
                 const job = JSON.parse(
                   readFileSync(
                     resolve(
-                      "/Volumes/Prism/Metaflow/.codex-work/cache/mf97-navigation/jobs",
+                      assets.roots.mapJobs,
                       `${scene.id}.json`,
                     ),
                     "utf8",
                   ),
                 );
-                const file = resolve(
-                  "/Volumes/Prism_初号機/3D高斯",
-                  scene.collisionUrl.replace("/scene-assets/", ""),
-                );
+                const file = resolveAssetUrl(scene.collisionUrl, assets);
                 const sourceHash =
                   sha(readFileSync(file)) +
                   ":" +
@@ -53,10 +52,7 @@ export default defineConfig({
                 const gaussianProof = await verifyGaussianJobSource(
                   job,
                   dirname(
-                    resolve(
-                      "/Volumes/Prism_初号機/3D高斯",
-                      job.assetUrl.replace("/scene-assets/", ""),
-                    ),
+                    resolveAssetUrl(job.assetUrl, assets),
                   ),
                 );
                 scenes.push({
@@ -155,12 +151,15 @@ export default defineConfig({
     {
       name: "viewer-ui-template",
       enforce: "pre",
+      resolveId(source, importer) {
+        if (source === "./ui.html" && importer?.endsWith("/metaflow-viewer/src/index.ts")) return "\0mf-viewer-ui-template.js";
+      },
       load(id) {
-        if (id.endsWith("/metaflow-viewer/src/ui.html"))
+        if (id === "\0mf-viewer-ui-template.js")
           return (
             "export default " +
             JSON.stringify(
-              readFileSync(id, "utf8").replace(/<!--[\s\S]*?-->/g, " "),
+              readFileSync(resolve(project, "metaflow-viewer/src/ui.html"), "utf8").replace(/<!--[\s\S]*?-->/g, " "),
             )
           );
       },
@@ -187,15 +186,17 @@ export default defineConfig({
               }
             } catch { res.statusCode = 409; res.end("Trial asset identity unavailable"); return; }
           } else if (pathname.startsWith("/scene-assets/")) {
-            root = "/Volumes/Prism_初号機/3D高斯";
-            part = pathname.slice("/scene-assets/".length);
+            try {
+              const file = resolveAssetUrl(pathname, assets);
+              root = dirname(file); part = basename(file);
+            } catch (error) { res.statusCode = 409; res.end(String(error)); return; }
           } else if (pathname.startsWith("/navigation/")) {
             root =
-              "/Volumes/Prism/Metaflow/.codex-work/cache/mf79-native-viewer-v1";
+              assets.roots.navigation;
             part = pathname.slice("/navigation/".length);
           } else if (pathname.startsWith("/mf97-maps/")) {
             root =
-              "/Volumes/Prism/Metaflow/.codex-work/cache/mf97-navigation/maps";
+              assets.roots.maps;
             part = pathname.slice("/mf97-maps/".length);
           } else if (pathname.startsWith("/mf97-continuation-maps/")) {
             root = resolve(DEFAULT_CACHE_ROOT, "maps");
@@ -204,10 +205,12 @@ export default defineConfig({
             root = resolve(DEFAULT_CACHE_ROOT, "accepted");
             part = pathname.slice("/mf97-accepted/".length);
           } else if (pathname.startsWith("/repository-data/")) {
-            root = "/Volumes/Prism/Metaflow/data";
-            part = pathname.slice("/repository-data/".length);
+            try {
+              const file = resolveAssetUrl(pathname, assets);
+              root = dirname(file); part = basename(file);
+            } catch (error) { res.statusCode = 409; res.end(String(error)); return; }
           } else if (pathname.startsWith("/studio/")) {
-            root = "/Volumes/Prism/Metaflow/.codex-work/tmp/mf97-studio-build";
+            root = assets.roots.studioBuild;
             part = pathname.slice("/studio/".length) || "index.html";
           } else if (pathname.startsWith("/mf97-ground/")) {
             root =
@@ -257,7 +260,7 @@ export default defineConfig({
             ) {
               const manifest = JSON.parse(readFileSync(p, "utf8"));
               const jobPath = resolve(
-                "/Volumes/Prism/Metaflow/.codex-work/cache/mf97-navigation/jobs",
+                assets.roots.mapJobs,
                 `${manifest.scene}.json`,
               );
               const job = JSON.parse(readFileSync(jobPath, "utf8"));
@@ -361,14 +364,14 @@ export default defineConfig({
     fs: {
       allow: [
         project,
-        "/Volumes/Prism/Metaflow/metaflow-viewer/node_modules",
-        "/Volumes/Prism/Metaflow/.codex-work/worktrees/mf-79-jev-guide-lab/jev-guide-lab/node_modules",
+        realpathSync(resolve(project, "metaflow-viewer/node_modules")),
+        realpathSync(resolve(project, "mf97-viewer-trial/node_modules")),
       ],
       deny: ["**/.env*", "**/.git/**", "**/*.{pem,crt}"],
     },
   },
   build: {
-    outDir: "/Volumes/Prism/Metaflow/.codex-work/tmp/mf97-preview-build",
+    outDir: assets.roots.previewBuild,
     emptyOutDir: false,
   },
 });

@@ -6,10 +6,11 @@ import {
 } from 'node:fs';
 import { dirname, relative, resolve, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { loadAssetConfig, machineLimits, overlaps } from '../../scripts/mf97/asset-config.mjs';
 
 export const GiB = 1024 ** 3;
 export const MiB = 1024 ** 2;
-export const DEFAULT_CACHE_ROOT = '/Volumes/Prism/Metaflow/.codex-work/cache/mf97-navigation/continuation-20261002';
+export const DEFAULT_CACHE_ROOT = loadAssetConfig().roots.continuation;
 export type OfflineResourceOptions = {
     root?: string; reserveBytes?: number; maxAddedBytes?: number; maxRssBytes?: number;
     taskOutputBytes?: number; recoveryBytes?: number;
@@ -17,6 +18,7 @@ export type OfflineResourceOptions = {
     measureFreeBytes?: (path: string) => number; measureRssBytes?: () => number;
 };
 export function offlineResourceOptions(args: string[] = process.argv.slice(2)): OfflineResourceOptions {
+    const limits = machineLimits();
     const option = (name: string, fallback: string) => {
         const index = args.indexOf(name);
         if (index < 0) return fallback;
@@ -25,9 +27,9 @@ export function offlineResourceOptions(args: string[] = process.argv.slice(2)): 
     };
     return {
         root: option('--cache-root', process.env.MF97_CACHE_ROOT ?? DEFAULT_CACHE_ROOT),
-        reserveBytes: Number(option('--reserve-gib', process.env.MF97_RESERVE_GIB ?? '5')) * GiB,
-        maxAddedBytes: Number(option('--max-added-gib', process.env.MF97_MAX_ADDED_GIB ?? '8')) * GiB,
-        maxRssBytes: Number(option('--max-rss-gib', process.env.MF97_MAX_RSS_GIB ?? '1.5')) * GiB,
+        reserveBytes: Number(option('--reserve-gib', process.env.MF97_RESERVE_GIB ?? String(limits.reserveGiB))) * GiB,
+        maxAddedBytes: Number(option('--max-added-gib', process.env.MF97_MAX_ADDED_GIB ?? String(limits.maxAddedGiB))) * GiB,
+        maxRssBytes: Number(option('--max-rss-gib', process.env.MF97_MAX_RSS_GIB ?? String(limits.maxRssGiB))) * GiB,
         taskOutputBytes: Number(option('--task-output-mib', process.env.MF97_TASK_OUTPUT_MIB ?? '256')) * MiB
     };
 }
@@ -62,15 +64,18 @@ export function createOfflineResources(options: OfflineResourceOptions = {}) {
     const requestedAncestor = existingParent(requestedRoot);
     // Canonicalize the root too: aliases must not hide source/output overlap.
     const root = resolve(realpathSync(requestedAncestor), relative(requestedAncestor, requestedRoot));
-    const reserveBytes = options.reserveBytes ?? 5 * GiB, maxAddedBytes = options.maxAddedBytes ?? 8 * GiB;
-    const maxRssBytes = options.maxRssBytes ?? 1.5 * GiB, taskOutputBytes = options.taskOutputBytes ?? 256 * MiB;
+    const config = loadAssetConfig();
+    if ([config.roots.gaussian, config.roots.repositoryData, ...config.mounts.map(m => m.path)].filter((p): p is string => !!p).some(input => overlaps(input, root))) throw Error('Output overlaps a read-only scene root');
+    const limits = machineLimits();
+    const reserveBytes = options.reserveBytes ?? limits.reserveGiB * GiB, maxAddedBytes = options.maxAddedBytes ?? limits.maxAddedGiB * GiB;
+    const maxRssBytes = options.maxRssBytes ?? limits.maxRssGiB * GiB, taskOutputBytes = options.taskOutputBytes ?? 256 * MiB;
     const recoveryBytes = options.recoveryBytes ?? 4 * MiB;
     for (const [name, value] of Object.entries({ reserveBytes, maxAddedBytes, maxRssBytes, taskOutputBytes, recoveryBytes })) {
         if (!Number.isFinite(value) || value < 0) throw Error(`Invalid ${name}`);
     }
     // CLI policy may be tightened, but cannot silently exceed the user's approved limits.
-    if (!options.measureFreeBytes && (reserveBytes < 5 * GiB || maxAddedBytes > 8 * GiB || maxRssBytes > 1.5 * GiB)) {
-        throw Error('MF97 approved limits: reserve >= 5 GiB, added <= 8 GiB, RSS <= 1.5 GiB');
+    if (!options.measureFreeBytes && (reserveBytes < limits.reserveGiB * GiB || maxAddedBytes > limits.maxAddedGiB * GiB || maxRssBytes > limits.maxRssGiB * GiB)) {
+        throw Error(`MF97 approved limits: reserve >= ${limits.reserveGiB} GiB, added <= ${limits.maxAddedGiB} GiB, RSS <= ${limits.maxRssGiB} GiB`);
     }
     const free = options.measureFreeBytes ?? ((path: string) => { const disk = statfsSync(path); return disk.bavail * disk.bsize; });
     const rss = options.measureRssBytes ?? (() => process.memoryUsage().rss);

@@ -4,6 +4,7 @@ import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, symlinkSync, 
 import { resolve } from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { createOfflineResources, offlineResourceOptions, GiB } from '../src/offline-resources';
+import { machineLimits } from '../../scripts/mf97/asset-config.mjs';
 
 const temporaryRoot = resolve(import.meta.dirname, '../../.codex-work/tmp/mf97-resource-tests');
 mkdirSync(temporaryRoot, { recursive: true });
@@ -16,8 +17,9 @@ function fixture() {
 }
 test('approved resource CLI defaults can only be tightened', () => {
     const defaults = offlineResourceOptions([]);
-    assert.equal(defaults.reserveBytes, 5 * GiB); assert.equal(defaults.maxAddedBytes, 8 * GiB); assert.equal(defaults.maxRssBytes, 1.5 * GiB);
-    assert.throws(() => createOfflineResources({ reserveBytes: 4 * GiB }), /approved limits/);
+    const limits = machineLimits();
+    assert.equal(defaults.reserveBytes, limits.reserveGiB * GiB); assert.equal(defaults.maxAddedBytes, limits.maxAddedGiB * GiB); assert.equal(defaults.maxRssBytes, limits.maxRssGiB * GiB);
+    assert.throws(() => createOfflineResources({ reserveBytes: (limits.reserveGiB - 1) * GiB }), /approved limits/);
     assert.throws(() => offlineResourceOptions(['--cache-root']), /Missing value/);
     assert.throws(() => createOfflineResources({ maxAddedBytes: NaN }), /Invalid/);
 });

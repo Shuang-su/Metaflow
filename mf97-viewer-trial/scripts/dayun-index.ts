@@ -1,3 +1,4 @@
+import { loadAssetConfig, resolveAssetUrl } from "../../scripts/mf97/asset-config.mjs";
 /** Full-resolution, all-height sparse support inventory. No navigation/floor certification. */
 import { readFileSync, existsSync } from "node:fs";
 import { resolve } from "node:path";
@@ -20,7 +21,7 @@ const args = process.argv.slice(2),
     args.includes(name) ? args[args.indexOf(name) + 1] : fallback;
 const base = argument(
   "--source",
-  "/Volumes/Prism/Metaflow/data/Shenzhen/250917 Dayun/tiled-voxel",
+  resolveAssetUrl("/repository-data/Shenzhen/250917%20Dayun/tiled-voxel"),
 );
 const indexPath = resolve(base, "voxel-tiles.json"),
   indexBytes = readFileSync(indexPath),

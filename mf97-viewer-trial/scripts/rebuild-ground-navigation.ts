@@ -1,3 +1,4 @@
+import { resolveRecordedPath } from "../../scripts/mf97/asset-config.mjs";
 /** Rebuild only navigation whose geometry/support halo intersects accepted bits.
  * Every reused tile retains the hash and provenance of its complete original cache. */
 import { readFileSync, existsSync, realpathSync } from 'node:fs';
@@ -44,7 +45,7 @@ export function prepareGroundNavigation(options: RebuildOptions) {
     const validation = parse(options.nativeValidation), originalManifestFile = resolve(original,'manifest.json'), old = parse(originalManifestFile);
     const review = parse(options.review), decisions = parse(options.decisions);
     const json = read(resolve(artifact,'walk.voxel.json')), binary = read(resolve(artifact,'walk.voxel.bin')), meta = JSON.parse(json.toString());
-    const sourceJson = read(material.sourceFile), sourceBin = read(material.sourceFile.replace(/\.json$/,'.bin')), sourceMeta = JSON.parse(sourceJson.toString());
+    const sourceJson = read(resolveRecordedPath(material.sourceFile)), sourceBin = read(resolveRecordedPath(material.sourceFile).replace(/\.json$/,'.bin')), sourceMeta = JSON.parse(sourceJson.toString());
     const sourceHash = `${sha(sourceJson)}:${sha(sourceBin)}`, outputHash = `${sha(json)}:${sha(binary)}`;
     if (!material.complete || material.protectionVersion !== 2 || material.coordinateSpace !== 'world' || sourceHash !== material.sourceHash || outputHash !== material.outputHash ||
         material.analysisHash !== groundAnalysisHash() || sha(read(options.decisions)) !== material.decisionHash || review.sourceFile !== material.sourceFile || review.sourceHash !== sourceHash || review.analysisHash !== material.analysisHash || review.coordinateSpace !== 'world') throw Error('Accepted/source/current analysis identity mismatch');
@@ -73,7 +74,7 @@ export function prepareGroundNavigation(options: RebuildOptions) {
     const key = { ...old.key, sourceHash:outputHash, generator:'mf97-accepted-voxel-tiles-v2', originalManifestHash:sha(read(originalManifestFile)), materializationHash:sha(read(materialFile)), nativeValidationHash:sha(read(options.nativeValidation)), implementation };
     const fingerprint = sha(JSON.stringify(key));
     const output = physical(options.resources.resolveOutput(options.output ?? `navigation/${old.scene}-${fingerprint.slice(0,12)}`));
-    const protectedPaths = [original, artifact, dirname(realpathSync(material.sourceFile)), ...frozen.keys()];
+    const protectedPaths = [original, artifact, dirname(realpathSync(resolveRecordedPath(material.sourceFile))), ...frozen.keys()];
     const checkOutput = (name: string) => {
         const path = physical(options.resources.resolveOutput(resolve(output,name)));
         if (protectedPaths.some(source => overlap(path,source))) throw Error('Navigation output aliases original or validated input');

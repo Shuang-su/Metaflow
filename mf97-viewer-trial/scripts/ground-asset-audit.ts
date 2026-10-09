@@ -1,3 +1,4 @@
+import { loadAssetConfig, resolveAssetUrl } from "../../scripts/mf97/asset-config.mjs";
 import { readFileSync, existsSync, statSync, openSync, readSync, closeSync } from 'node:fs';
 import { resolve, dirname } from 'node:path';
 import { createHash } from 'node:crypto';
@@ -5,7 +6,7 @@ import { FlippedVoxelCollision } from '../../metaflow-viewer/src/collision/voxel
 import { solidColumn, type VoxelSource } from '../src/ground/spans';
 import { createOfflineResources, offlineResourceOptions } from '../src/offline-resources';
 const args=process.argv.slice(2),outputIndex=args.indexOf('--output'),resources=createOfflineResources(offlineResourceOptions(args));
-const base='/Volumes/Prism/Metaflow/data/Shenzhen/250917 Dayun',output=resources.resolveOutput(outputIndex<0?'ground-audits':args[outputIndex+1]);
+const base=resolveAssetUrl("/repository-data/Shenzhen/250917%20Dayun"),output=resources.resolveOutput(outputIndex<0?'ground-audits':args[outputIndex+1]);
 const hash=(v:Uint8Array|string)=>createHash('sha256').update(v).digest('hex');
 function save(name:string,v:unknown){resources.writeJsonAtomic(resolve(output,name),v,{replace:false});}
 

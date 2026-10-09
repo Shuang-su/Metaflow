@@ -1,3 +1,4 @@
+import { loadAssetConfig, resolveAssetUrl } from "../../scripts/mf97/asset-config.mjs";
 /** Re-run original-source regression into a new evidence directory, never old reports. */
 import { readFileSync, mkdirSync, existsSync, readdirSync } from "node:fs";
 import { resolve, dirname, relative } from "node:path";
@@ -19,11 +20,11 @@ const implementationFiles = new Set<string>();
 const collect = (file: string) => {
   if (implementationFiles.has(file)) return;
   implementationFiles.add(file);
-  if (!file.endsWith(".ts")) return;
+  if (!/\.(ts|mjs)$/.test(file)) return;
   const text = readFileSync(file, "utf8");
   for (const match of text.matchAll(/(?:from\s*|import\s*\(\s*|import\s*)["'](\.[^"']+)["']/g)) {
     const base = resolve(dirname(file), match[1]);
-    const dependency = [base + ".ts", resolve(base, "index.ts"), base].find(v => existsSync(v) && /\.(ts|json)$/.test(v));
+    const dependency = [base + ".ts", resolve(base, "index.ts"), base].find(v => existsSync(v) && /\.(ts|mjs|json)$/.test(v));
     if (dependency) collect(dependency);
   }
 };
@@ -35,7 +36,8 @@ const implementation = [...implementationFiles].sort().map(file => ({ file: rela
 const replayAssets = corrected ? JSON.parse(readFileSync(process.env.MF79_REPLAY_ASSETS!, "utf8")) : {};
 const inputFiles = ["scene-exhibitions.json", "apms-markers-42.mfstudio.json", "sdi-25.settings.json"].map(v => resolve(original, v));
 if (corrected) inputFiles.push(resolve(process.env.MF79_REPLAY_ASSETS!));
-for (const scene of ["apms-2026", "sdi-2026"]) inputFiles.push(resolve(replayAssets[scene]?.navigation ?? `/Volumes/Prism/Metaflow/.codex-work/cache/mf79-native-viewer-v1/${scene}`, "manifest.json"));
+for (const scene of ["apms-2026", "sdi-2026"]) inputFiles.push(resolve(replayAssets[scene]?.navigation ?? resolve(loadAssetConfig().roots.navigation, scene), "manifest.json"));
+if (loadAssetConfig().configured) inputFiles.push(loadAssetConfig().file);
 const manifestHashes = inputFiles.map(file => ({ file, sha256: sha(file) }));
 resources.assertCapacity(32 * 1024 ** 2, "source-bound regression");
 if (existsSync(resolve(runRoot, "summary.json"))) throw Error("Completed evidence exists; select a new MF97_REGRESSION_OUTPUT directory");

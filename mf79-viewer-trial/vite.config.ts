@@ -1,3 +1,4 @@
+import { loadAssetConfig, resolveAssetUrl, machineLimits } from "../scripts/mf97/asset-config.mjs";
 import { defineConfig } from "vite";
 import { fileURLToPath } from "node:url";
 import {
@@ -8,7 +9,7 @@ import {
   writeFileSync,
   statfsSync,
 } from "node:fs";
-import { resolve, relative, extname } from "node:path";
+import { resolve, relative, extname, dirname, basename } from "node:path";
 const project = fileURLToPath(new URL("..", import.meta.url));
 export default defineConfig({
   worker: { format: "es" },
@@ -44,7 +45,7 @@ export default defineConfig({
           req.on("end", () => {
             const data = Buffer.concat(chunks),
               dir =
-                "/Volumes/Prism/Metaflow/.codex-work/cache/mf79-native-evidence";
+                resolve(loadAssetConfig().roots.continuation, "mf79-evidence");
             const png =
                 data.subarray(0, 8).toString("hex") === "89504e470d0a1a0a",
               jpeg = data.subarray(0, 3).toString("hex") === "ffd8ff";
@@ -56,7 +57,7 @@ export default defineConfig({
             try {
               mkdirSync(dir, { recursive: true });
               const disk = statfsSync(dir);
-              if (disk.bavail * disk.bsize < 10 * 1024 ** 3)
+              if (disk.bavail * disk.bsize < machineLimits().reserveGiB * 1024 ** 3)
                 throw Error("Disk reserve");
               const path = resolve(
                 dir,
@@ -76,12 +77,15 @@ export default defineConfig({
     {
       name: "viewer-ui-template",
       enforce: "pre",
+      resolveId(source, importer) {
+        if (source === "./ui.html" && importer?.endsWith("/metaflow-viewer/src/index.ts")) return "\0mf-viewer-ui-template.js";
+      },
       load(id) {
-        if (id.endsWith("/metaflow-viewer/src/ui.html"))
+        if (id === "\0mf-viewer-ui-template.js")
           return (
             "export default " +
             JSON.stringify(
-              readFileSync(id, "utf8").replace(/<!--[\s\S]*?-->/g, " "),
+              readFileSync(resolve(project, "metaflow-viewer/src/ui.html"), "utf8").replace(/<!--[\s\S]*?-->/g, " "),
             )
           );
       },
@@ -93,11 +97,13 @@ export default defineConfig({
           const pathname = decodeURIComponent((req.url ?? "").split("?")[0]);
           let root: string, part: string;
           if (pathname.startsWith("/scene-assets/")) {
-            root = "/Volumes/Prism_初号機/3D高斯";
-            part = pathname.slice("/scene-assets/".length);
+            try {
+              const file = resolveAssetUrl(pathname);
+              root = dirname(file); part = basename(file);
+            } catch (error) { res.statusCode = 409; res.end(String(error)); return; }
           } else if (pathname.startsWith("/navigation/")) {
             root =
-              "/Volumes/Prism/Metaflow/.codex-work/cache/mf79-native-viewer-v1";
+              loadAssetConfig().roots.navigation;
             part = pathname.slice("/navigation/".length);
           } else return next();
           const p = resolve(root, part);
@@ -189,7 +195,7 @@ export default defineConfig({
     },
   },
   build: {
-    outDir: "/Volumes/Prism/Metaflow/.codex-work/tmp/mf79-native-preview-build",
+    outDir: resolve(loadAssetConfig().projectRoot, ".codex-work/tmp/mf79-native-preview-build"),
     emptyOutDir: false,
   },
 });

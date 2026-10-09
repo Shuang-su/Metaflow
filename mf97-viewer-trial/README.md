@@ -19,6 +19,8 @@ node node_modules/vite/bin/vite.js --host 127.0.0.1 --port 5185 --strictPort
 
 Node使用既有arm64 runtime；依赖在本机复用只读node_modules。新机可按各项目现有lockfile安装，不能将复用symlink当成可移植依赖包。此试用Vite直接编译当前SCSS，改样式后重启服务器；不依赖旧public/index.css。
 
+2026-10-09 起新机器使用固定 Node22.23.3、独立 lockfile 与统一本地资源配置，不再需要旧机器的目录布局或依赖链接。按 [Mac Studio 迁移步骤](./docs/mac-studio-migration.md) 获取必要代码、复用已有场景和选择缓存。上面的旧绝对路径仅描述原机；新机入口仍为 `127.0.0.1:5185`。旧实景证明不会自动成为迁移后的验证。
+
 ## 验证
 
 ```sh

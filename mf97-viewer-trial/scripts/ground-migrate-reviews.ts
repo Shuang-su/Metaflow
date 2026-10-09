@@ -1,3 +1,4 @@
+import { loadAssetConfig, resolveAssetUrl, resolveRecordedPath } from "../../scripts/mf97/asset-config.mjs";
 /** Copy and migrate complete UNACCEPTED reports; source reports/collision remain immutable. */
 import { readFileSync, existsSync, realpathSync } from 'node:fs';
 import { createHash } from 'node:crypto';
@@ -10,7 +11,7 @@ import { groundAnalysisHash } from '../src/ground-analysis-fingerprint';
 import type { GroundReview, SparseEdit } from '../src/ground/types';
 
 export const SUPPORTED_ORIGINAL_ANALYSIS_HASH = 'b595d2a99dd4966ea755ccfb08b176ad3516084eba8394a60fbcea21cf8e0262';
-export const DEFAULT_GROUND_INPUT = '/Volumes/Prism/Metaflow/.codex-work/cache/mf97-navigation/ground';
+export const DEFAULT_GROUND_INPUT = loadAssetConfig().roots.groundReports;
 const sha = (v: Uint8Array | string) => createHash('sha256').update(v).digest('hex');
 export { groundAnalysisHash } from '../src/ground-analysis-fingerprint';
 const editKey = (e: SparseEdit) => `${e.ix},${e.iy},${e.iz}:${e.before}:${e.after}`;
@@ -26,7 +27,8 @@ function safeChild(root: string, name: string) {
     return file;
 }
 function verifySource(sourceFile: string, expected: string) {
-    const json = readFileSync(sourceFile), bin = readFileSync(sourceFile.replace(/\.json$/, '.bin'));
+    const located = resolveRecordedPath(sourceFile);
+    const json = readFileSync(located), bin = readFileSync(located.replace(/\.json$/, '.bin'));
     const sourceHash = sha(json) + ':' + sha(bin);
     if (sourceHash !== expected) throw Error('Original source changed');
     const meta = JSON.parse(json.toString()), n = meta.nodeWordCount ?? meta.nodeCount;

@@ -1,9 +1,10 @@
+import { loadAssetConfig, machineLimits } from "../../scripts/mf97/asset-config.mjs";
 import { chromium } from "../../metaflow-viewer/node_modules/@playwright/test/index.mjs";
 import { mkdirSync, writeFileSync, statfsSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 const output =
   (process.env.MF97_CACHE_ROOT ??
-    "/Volumes/Prism/Metaflow/.codex-work/cache/mf97-navigation/continuation-20261002") +
+    loadAssetConfig().roots.continuation) +
   "/validation/soak/";
 mkdirSync(output, { recursive: true });
 const report = {
@@ -46,9 +47,9 @@ try {
   let index = 0;
   while (Date.now() - started < report.durationTargetMs) {
     const disk = statfsSync(output);
-    if (disk.bavail * disk.bsize < 5 * 1024 ** 3 + 16 * 1024 ** 2)
+    if (disk.bavail * disk.bsize < machineLimits().reserveGiB * 1024 ** 3 + 16 * 1024 ** 2)
       throw Error(
-        "Prism reserve below 5 GiB: preserve this browser resource test",
+        "Configured disk reserve violated: preserve this browser resource test",
       );
     const goal = [35, 42, 31, 38, 41, 27, 13, 4][index % 8];
     if (await page.evaluate(() => window.mf97.viewer.state.gamingControls))

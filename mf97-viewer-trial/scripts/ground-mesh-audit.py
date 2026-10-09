@@ -5,21 +5,32 @@ import hashlib
 import json
 import pathlib
 import os
+import shutil
 import resource
 import subprocess
 import sys
 import numpy as np
 
+project=pathlib.Path(__file__).resolve().parents[2]
+config_file=pathlib.Path(os.environ.get("MF_ASSET_CONFIG",project/".codex-work/config/assets.local.json"))
+config=json.loads(config_file.read_text()) if config_file.exists() else {"version":1}
+if config.get("version")!=1:raise ValueError("Unsupported asset configuration")
+cache_root=str((project/config.get("roots",{}).get("continuation",".codex-work/cache/mf97-navigation/continuation-20261002")).resolve())
+node=os.environ.get("MF97_NODE") or shutil.which("node")
+if not node:raise ValueError("Add the pinned Node runtime to PATH or set MF97_NODE")
+# Node computes measured-machine policy; Python does not duplicate RAM assumptions.
+limits=json.loads(subprocess.check_output([node,"--input-type=module","-e",
+    "import {machineLimits} from './scripts/mf97/asset-config.mjs'; console.log(JSON.stringify(machineLimits()))"],cwd=project,text=True))
 parser=argparse.ArgumentParser()
 parser.add_argument("mesh")
 parser.add_argument("--output", required=True)
 parser.add_argument("--stride",type=int,default=32)
-parser.add_argument("--cache-root",default=os.environ.get("MF97_CACHE_ROOT","/Volumes/Prism/Metaflow/.codex-work/cache/mf97-navigation/continuation-20261002"))
-parser.add_argument("--reserve-gib",type=float,default=float(os.environ.get("MF97_RESERVE_GIB","5")))
-parser.add_argument("--max-added-gib",type=float,default=float(os.environ.get("MF97_MAX_ADDED_GIB","8")))
-parser.add_argument("--max-rss-gib",type=float,default=float(os.environ.get("MF97_MAX_RSS_GIB","1.5")))
+parser.add_argument("--cache-root",default=os.environ.get("MF97_CACHE_ROOT",cache_root))
+parser.add_argument("--reserve-gib",type=float,default=float(os.environ.get("MF97_RESERVE_GIB",str(limits["reserveGiB"]))))
+parser.add_argument("--max-added-gib",type=float,default=float(os.environ.get("MF97_MAX_ADDED_GIB",str(limits["maxAddedGiB"]))))
+parser.add_argument("--max-rss-gib",type=float,default=float(os.environ.get("MF97_MAX_RSS_GIB",str(limits["maxRssGiB"]))))
 parser.add_argument("--task-output-mib",type=float,default=float(os.environ.get("MF97_TASK_OUTPUT_MIB","256")))
-parser.add_argument("--node",default=os.environ.get("MF97_NODE","/Users/shuangsu/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node"))
+parser.add_argument("--node",default=node)
 args=parser.parse_args()
 if args.stride<1:raise ValueError("Stride must be positive")
 app=pathlib.Path(__file__).resolve().parent.parent

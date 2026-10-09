@@ -1,3 +1,4 @@
+import { resolveRecordedPath } from "../../scripts/mf97/asset-config.mjs";
 /** Native validation of an explicitly accepted materialized artifact. Never accepts edits or applies it to Viewer. */
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
@@ -127,12 +128,12 @@ export function validateRealPatch(options: { artifact: string; review: string; d
         manifest.analysisHash !== groundAnalysisHash() || manifest.analysisHash !== decisions.analysisHash || manifest.sourceFile !== review.sourceFile) throw Error('Materialization/decision/current review identity mismatch');
     const edits = acceptedEdits(review, decisions);
     if (!edits.length) throw Error('No explicitly accepted edit');
-    const original = decode(manifest.sourceFile), changed = decode(resolve(options.artifact, 'walk.voxel.json'));
+    const original = decode(resolveRecordedPath(manifest.sourceFile)), changed = decode(resolve(options.artifact, 'walk.voxel.json'));
     if (original.hash !== manifest.sourceHash || changed.hash !== manifest.outputHash || JSON.stringify(original.meta.gridBounds) !== JSON.stringify(changed.meta.gridBounds) || original.meta.voxelResolution !== changed.meta.voxelResolution) throw Error('Materialized/source hash or grid differs');
     const difference = compareVoxelTrees(original.collision, changed.collision, edits);
     const r = original.meta.voxelResolution, min = original.meta.gridBounds.min;
     const native = edits.map(e => compareNativeMotion(original.collision, changed.collision, { x: min[0]+(e.ix+.5)*r, y:min[1]+(e.iy+.5)*r, z:min[2]+(e.iz+.5)*r }, r));
-    if (decode(manifest.sourceFile).hash !== original.hash || decode(resolve(options.artifact, 'walk.voxel.json')).hash !== changed.hash || sha(readFileSync(options.decisions)) !== manifest.decisionHash || sha(readFileSync(options.review)) !== sha(reviewBytes)) throw Error('Input changed during native validation');
+    if (decode(resolveRecordedPath(manifest.sourceFile)).hash !== original.hash || decode(resolve(options.artifact, 'walk.voxel.json')).hash !== changed.hash || sha(readFileSync(options.decisions)) !== manifest.decisionHash || sha(readFileSync(options.review)) !== sha(reviewBytes)) throw Error('Input changed during native validation');
     if (implementation.some(item => sha(readFileSync(item.file)) !== item.sha256)) throw Error('Native validator implementation changed during validation');
     const report = { version: 1, implementation, artifact: resolve(options.artifact), sourceHash: original.hash, outputHash: changed.hash, materializationHash: sha(manifestBytes),
         decisionHash: manifest.decisionHash, analysisHash: manifest.analysisHash, reviewHash: sha(reviewBytes), difference, native, nativePassed: native.every(n => n.passed), nativeCrossingPassed: native.every(n => n.crossingPassed), nativeIncomplete: native.some(n => !n.passed),

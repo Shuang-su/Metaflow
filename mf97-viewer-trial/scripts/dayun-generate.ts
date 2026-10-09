@@ -1,3 +1,4 @@
+import { resolveRecordedPath } from "../../scripts/mf97/asset-config.mjs";
 /** Explicit bounded navigation job. Analysis-only jobs cannot be mounted as Viewer navigation. */
 import { readFileSync, existsSync } from "node:fs";
 import {
@@ -56,11 +57,11 @@ for (const axis of ["x", "z"] as const) {
 geometryBounds.min.y -= RECAST_CONFIG.ch;
 geometryBounds.max.y += RECAST_CONFIG.ch;
 const loaded = await collisionSourceFile(
-  job.collisionSourceFile,
+  resolveRecordedPath(job.collisionSourceFile),
   geometryBounds,
 );
 const catalog = job.surfaceCatalogFile
-  ? JSON.parse(readFileSync(job.surfaceCatalogFile, "utf8"))
+  ? JSON.parse(readFileSync(resolveRecordedPath(job.surfaceCatalogFile), "utf8"))
   : undefined;
 if (catalog) new SurfaceCatalogIndex(catalog, loaded.sourceHash);
 const key = {
@@ -123,7 +124,7 @@ const key = {
   ).version,
   analysisOnly: !!job.analysisOnly,
   collisionSource: loaded.sourceHash,
-  collisionManifest: sha(readFileSync(job.collisionSourceFile)),
+  collisionManifest: sha(readFileSync(resolveRecordedPath(job.collisionSourceFile))),
   scope: job.bounds,
   geometryScope: geometryBounds,
   body: BODY,

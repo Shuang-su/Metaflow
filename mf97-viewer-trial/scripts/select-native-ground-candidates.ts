@@ -1,3 +1,4 @@
+import { loadAssetConfig, resolveAssetUrl, resolveRecordedPath } from "../../scripts/mf97/asset-config.mjs";
 /** Read-only candidate shortlist; this command never writes a decision or collision asset. */
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
@@ -10,16 +11,16 @@ import { compareNativeMotion } from './real-patch-validate';
 import { sha } from './gaussian-map-offline';
 const args=process.argv.slice(2),arg=(name:string)=>args.includes(name)?args[args.indexOf(name)+1]:undefined;
 const resources=createOfflineResources(offlineResourceOptions(args));
-const cache='/Volumes/Prism/Metaflow/.codex-work/cache/mf97-navigation';
+const cache = loadAssetConfig().roots.mapJobs;
 const scenes=JSON.parse(readFileSync(resolve(import.meta.dirname,'../../mf79-viewer-trial/scene-exhibitions.json'),'utf8')).scenes;
 const excluded=new Set(['apms-2026:layer:0:surface:77aa844b5314e44f:patch:9']);
 const report:any={version:1,analysisHash:groundAnalysisHash(),implementation:{selector:sha(readFileSync(fileURLToPath(import.meta.url))),nativeValidator:sha(readFileSync(resolve(import.meta.dirname,'real-patch-validate.ts')))},selection:'Existing proposed single-bit isolated bumps on the entrance exhibition floor, native 5-ray radius .2m diagnostic, original-collider same-layer 0.4m traversal in four directions',acceptedByThisCommand:false,sourceModified:false,scenes:[],evaluated:[],shortlist:[]};
 for(const scene of scenes){
  const folder=resolve(resources.root,'ground-v2',scene.id),coverage=JSON.parse(readFileSync(resolve(folder,'coverage.json'),'utf8'));
- const json=readFileSync(coverage.sourceFile),bin=readFileSync(coverage.sourceFile.replace(/\.json$/,'.bin')),meta=JSON.parse(json.toString()),n=meta.nodeWordCount??meta.nodeCount;
+ const json=readFileSync(resolveRecordedPath(coverage.sourceFile)),bin=readFileSync(resolveRecordedPath(coverage.sourceFile).replace(/\.json$/,'.bin')),meta=JSON.parse(json.toString()),n=meta.nodeWordCount??meta.nodeCount;
  if(sha(json)+':'+sha(bin)!==coverage.sourceHash||coverage.analysisHash!==report.analysisHash)throw Error('Source/analysis identity mismatch');
  const words=new Uint32Array(bin.buffer,bin.byteOffset,bin.length/4),collision=new VoxelCollision(meta,words.subarray(0,n),words.subarray(n));
- const entry=collision.queryRay(scene.start.x,scene.start.y+1,scene.start.z,0,-1,0,8),job=JSON.parse(readFileSync(resolve(cache,'jobs',scene.id+'.json'),'utf8')),band=job.layers[0].supportRange;
+ const entry=collision.queryRay(scene.start.x,scene.start.y+1,scene.start.z,0,-1,0,8),job=JSON.parse(readFileSync(resolve(cache,scene.id+'.json'),'utf8')),band=job.layers[0].supportRange;
  const candidates:any[]=[];let singleBumps=0;
  for(const item of coverage.inventory){
   const path=resolve(folder,item.file),bytes=readFileSync(path),review=JSON.parse(bytes.toString());
@@ -52,7 +53,7 @@ for(const scene of scenes){
   if(passed)report.shortlist.push({...candidate,diagnostic,crossing:cases.map(({trajectory,...rest})=>rest),nativeOriginalOnly:true});
   console.log(JSON.stringify({scene:scene.id,chunk:candidate.chunk,index:candidate.candidateIndex,passed,crossing:cases.map(c=>({id:c.scenario.id,passed:c.passed,distance:c.crossing?.closestHorizontalDistance,span:c.fullPointFourMetres}))}));
  }
- if(sha(readFileSync(coverage.sourceFile))+':'+sha(readFileSync(coverage.sourceFile.replace(/\.json$/,'.bin')))!==coverage.sourceHash)throw Error('Original collision changed during screening');
+ if(sha(readFileSync(resolveRecordedPath(coverage.sourceFile)))+':'+sha(readFileSync(resolveRecordedPath(coverage.sourceFile).replace(/\.json$/,'.bin')))!==coverage.sourceHash)throw Error('Original collision changed during screening');
 }
 report.shortlist.sort((a:any,b:any)=>a.distanceFromEntryMetres-b.distanceFromEntryMetres);report.shortlist=report.shortlist.slice(0,3);
 report.result=report.shortlist.length?'selected-for-gaussian-review-only':'no-candidate-passed-original-native-crossing';

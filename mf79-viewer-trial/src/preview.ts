@@ -4,6 +4,7 @@ import scenes from "../scene-exhibitions.json";
 import apms from "../apms.settings.json";
 import studio from "../apms-markers-42.mfstudio.json";
 import sdi from "../sdi-25.settings.json";
+import navigationWorkerUrl from "./worker.ts?worker&url";
 const params = new URLSearchParams(location.search),
   scene =
     scenes.scenes.find((s) => s.id === (params.get("scene") ?? "apms-2026")) ??
@@ -27,7 +28,7 @@ const viewer = await createViewer({
   collisionUrl: scene.collisionUrl,
   voxelCoordinateSpace: "world",
   navigationManifestUrl: `/navigation/${scene.id}/manifest.json`,
-  navigationWorkerUrl: new URL("./worker.ts", import.meta.url).href,
+  navigationWorkerUrl,
   defaultCameraMode: "walk",
   experienceType: "scene",
   ui: true,

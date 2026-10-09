@@ -3,8 +3,8 @@ import { resolve } from "node:path";
 import { createHash } from "node:crypto";
 import { VoxelCollision } from "../../metaflow-viewer/src/collision/voxel-collision";
 import type { Space, Point } from "../src/types";
-export const cache =
-  "/Volumes/Prism/Metaflow/.codex-work/cache/mf79-native-viewer-v1";
+import { loadAssetConfig, machineLimits, resolveAssetUrl } from "../../scripts/mf97/asset-config.mjs";
+export const cache = loadAssetConfig().roots.navigation;
 export const sha = (b: string | Uint8Array) =>
   createHash("sha256").update(b).digest("hex");
 /** Explicit offline replay inputs only; browser defaults and originals stay unchanged. */
@@ -18,10 +18,7 @@ export function source(id: string) {
     readFileSync("scene-exhibitions.json", "utf8"),
   ).scenes.find((s: any) => s.id === id);
   if (!scene) throw Error("Unknown scene");
-  const originalFile = resolve(
-    "/Volumes/Prism_初号機/3D高斯",
-    scene.collisionUrl.replace("/scene-assets/", ""),
-  );
+  const originalFile = resolveAssetUrl(scene.collisionUrl);
   const file = replayAssets[id]?.collision ?? originalFile;
   const bytes = readFileSync(file),
     meta = JSON.parse(bytes.toString()),
@@ -72,11 +69,12 @@ export function source(id: string) {
   };
 }
 export function resources(path: string) {
+  const limits = machineLimits();
   const s = statfsSync(path);
-  if (s.bavail * s.bsize < 10 * 1024 ** 3)
-    throw Error("Resource reserve below 10 GiB");
-  if (process.memoryUsage().rss > 1.5 * 1024 ** 3)
-    throw Error("Working memory exceeds 1.5 GiB");
+  if (s.bavail * s.bsize < limits.reserveGiB * 1024 ** 3)
+    throw Error(`Resource reserve below ${limits.reserveGiB} GiB`);
+  if (process.memoryUsage().rss > limits.maxRssGiB * 1024 ** 3)
+    throw Error(`Working memory exceeds ${limits.maxRssGiB} GiB`);
 }
 
 /** Read-only bounded query set for tiled scenes; no original source is copied or rewritten. */
@@ -94,10 +92,7 @@ export async function collisionSourceFile(
     async (url, hash) => {
       if (!url.startsWith(prefix))
         throw Error(`Unsupported local collision URL: ${url}`);
-      const root = "/Volumes/Prism/Metaflow/data";
-      const path = resolve(root, decodeURIComponent(url.slice(prefix.length)));
-      if (!path.startsWith(root + "/"))
-        throw Error("Collision source path escaped data root");
+      const path = resolveAssetUrl(url);
       const bytes = readFileSync(path);
       if (sha(bytes) !== hash)
         throw Error(`Source fingerprint mismatch: ${url}`);

@@ -1,3 +1,4 @@
+import { resolveRecordedPath } from "../../scripts/mf97/asset-config.mjs";
 import { readFileSync, existsSync, statSync } from 'node:fs';
 import { createHash } from 'node:crypto';
 import { resolve, sep } from 'node:path';
@@ -30,8 +31,8 @@ export function materializeGround(options: {
     if (!first?.sourceFile) throw Error('Original sourceFile is required');
     const expectedAnalysisHash = groundAnalysisHash();
     if (first.analysisHash !== expectedAnalysisHash || decisions.analysisHash !== expectedAnalysisHash) throw Error('Current analysis fingerprint is required');
-    const sourceFile = first.sourceFile, json = readFileSync(sourceFile), meta = JSON.parse(json.toString());
-    const bin = readFileSync(sourceFile.replace(/\.json$/, '.bin')), sourceHash = sha(json) + ':' + sha(bin);
+    const sourceFile = first.sourceFile, located = resolveRecordedPath(sourceFile), json = readFileSync(located), meta = JSON.parse(json.toString());
+    const bin = readFileSync(located.replace(/\.json$/, '.bin')), sourceHash = sha(json) + ':' + sha(bin);
     if (sourceHash !== first.sourceHash || decisions.sourceHash !== sourceHash || reviews.some(r =>
         r.sourceHash !== sourceHash || r.sourceFile !== sourceFile || r.analysisHash !== expectedAnalysisHash || r.coordinateSpace !== first.coordinateSpace)) throw Error('Source/analysis/coordinate fingerprint mismatch');
     const available = new Set(reviews.flatMap(r => r.candidates.map(c => c.id)));
@@ -54,7 +55,7 @@ export function materializeGround(options: {
     const words = new Uint32Array(bin.buffer, bin.byteOffset, bin.byteLength / 4), original = new VoxelCollision(meta, words.subarray(0, n), words.subarray(n));
     const result = materializeVoxel(meta, original, edits);
     resources.assertCapacity(result.binary.byteLength + MiB, 'materialization exact output');
-    const sourceStillMatches = () => sha(readFileSync(sourceFile)) + ':' + sha(readFileSync(sourceFile.replace(/\.json$/, '.bin'))) === sourceHash;
+    const sourceStillMatches = () => sha(readFileSync(located)) + ':' + sha(readFileSync(located.replace(/\.json$/, '.bin'))) === sourceHash;
     if (!sourceStillMatches()) throw Error('Original changed during materialization');
     resources.writeJsonAtomic(resolve(artifact, 'preparation.json'), { version: 1, ...identity, sourceFile, complete: false }, { replace: false });
     options.onCheckpoint?.('prepared');

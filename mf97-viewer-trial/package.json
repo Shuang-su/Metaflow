@@ -1,1 +1,23 @@
-{ "name":"mf97-viewer-trial", "private":true, "type":"module", "scripts":{"test":"tsx --test tests/*.test.ts", "dev":"vite --host 127.0.0.1 --port 5185 --strictPort"}, "devDependencies":{"recast-navigation":"0.43.0","tsx":"4.23.15","vite":"7.3.6"} }
+{
+  "name": "mf97-viewer-trial",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "tsx --test tests/*.test.ts",
+    "dev": "vite --host 127.0.0.1 --port 5185 --strictPort",
+    "doctor": "tsx scripts/doctor.ts",
+    "transfer": "tsx scripts/cache-transfer.ts",
+    "job": "node ../scripts/mf97/run-job.mjs"
+  },
+  "devDependencies": {
+    "recast-navigation": "0.43.0",
+    "tsx": "4.23.15",
+    "vite": "7.3.6",
+    "playcanvas": "2.22.4",
+    "@types/node": "25.1.0",
+    "typescript": "5.9.3"
+  },
+  "engines": {
+    "node": ">=22.13.0 <23"
+  }
+}

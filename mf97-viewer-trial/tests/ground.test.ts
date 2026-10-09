@@ -1,3 +1,4 @@
+import { loadAssetConfig } from "../../scripts/mf97/asset-config.mjs";
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
@@ -135,8 +136,8 @@ test('materialization splits a compressed solid subtree and can introduce a new 
     assert.throws(()=>materializeVoxel(emptyMeta,empty,[{ix:5,iy:17,iz:33,before:true,after:false,candidateId:'invalid'}]));
 });
 test('Open3D detector actually runs on a local noisy-plane fixture',(t)=>{
-    const python=process.env.MF97_GROUND_PYTHON??'/Volumes/Prism/Metaflow/.codex-work/cache/mf97-navigation/python/bin/python';
-    if(!existsSync(python)){t.skip('Optional local Open3D analysis environment is absent');return;}
+    const python=process.env.MF97_GROUND_PYTHON??loadAssetConfig().python;
+    if(!python || !existsSync(python)){t.skip('Optional local Open3D analysis environment is absent');return;}
     const points:number[][]=[];for(let x=0;x<50;x++)for(let z=0;z<50;z++)points.push([x*.08,((x*13+z*7)%11-5)*.0002,z*.08]);
     const run=spawnSync(python,[new URL('../scripts/ground-detect.py',import.meta.url).pathname],{input:JSON.stringify({points,voxelResolution:.08})+'\n',encoding:'utf8',timeout:60000,
         env:{...process.env,OPEN3D_DISABLE_WEB_VISUALIZER:'true',OMP_NUM_THREADS:'2',MPLCONFIGDIR:process.env.MPLCONFIGDIR??new URL('../../.codex-work/cache/mf97-matplotlib',import.meta.url).pathname}});

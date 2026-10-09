@@ -1,6 +1,17 @@
-# MF-97 Plan — 续作已批准实施计划
+# MF-97 Plan — Mac Studio 轻量续作
 
-唯一 Spec：[spec.md](./spec.md)。从干净 `3b8ba998` 继续，保留已实现 Nav、Studio、列表与两场高斯底图。当前分支 `codex/mf97-navigation`，工作树 `/Users/shuangsu/.codex/worktrees/mf97-navigation/Metaflow`。本轮本地试用，不推送/发布/部署。
+唯一 Spec：[spec.md](./spec.md)。当前阶段从干净 `6fc5dd20` 继续，沿用 `codex/mf97-navigation`；此前以 `3b8ba998` 开始的多层/地面续作及未完成项保留在下文。本轮已明确授权正常推送该分支，不合并/改写 main、不创建 PR、不发布/部署。迁移工具与实景交付分开记录。
+
+## 当前批准顺序
+
+1. **先推送现有成果**：复核工作树/范围/远端，推送 `codex/mf97-navigation` 并设 upstream，读取远端 SHA；更新 Issue97 的分支、Spec/Plan/报告链接及关键多层未完成状态。路径适配另作原子提交，再正常推送。
+2. **轻量取得代码**：Mac Studio 新目录使用 `--filter=blob:none --no-checkout --single-branch --no-tags`，保留历史。先配置本仓 LFS skip-smudge，再 cone sparse checkout Viewer、MF79/MF97、Studio、docs、metadata、scripts。旧目录存在时只检查，不覆盖；不展开 data，不全量拉 LFS。
+3. **统一资源定位**：添加机器本地 `MF_ASSET_CONFIG`，默认忽略配置；服务/离线/回放/地面/地图/大运共用，只替换磁盘路径。配置已有场景目录并逐源校验，保持 URL/变换/碰撞版本；缺失不自动下载。导航、地图、地面报告和大运缓存按清单迁移，原资产只读，输出在新机 `.codex-work`。旧绝对路径身份不修改，独立记录定位与重新验证。
+4. **固定环境与预算**：原生 arm64 Node22.23.3 与官方校验；四目录独立 lockfile，移除隐式共享依赖前提；Open3D0.19 独立新环境。首批单重任务、heap32GiB/RSS64GiB上限，实际 RAM 不足时限制至半数；继续瓦片、原子写出/恢复。新增产物8GiB、远端磁盘预留20GiB，具体全场任务先估算。保留 transform 版本和作业参数。
+5. **迁移验证**：三处 commit 一致，sparse 无 data 删除/下载；断开旧机后能启动服务/构建 Studio、查询导航、执行真实 detector 和大运瓦片；资源逐场景匹配/缺失/重建分列。复验67/20/7和浏览器，记录 Node24→22 差异。远端 SSH 不通时独立完成工具与本机验证，明确远端未执行项，不以脚本准备完成代替迁移成功。
+6. **交付与后续**：更新报告和 Issue、核验远端写入；提供配置、清单、引导和复跑命令，保存 checkpoint。随后在 Mac Studio 继续大运楼层、双向通道和地图；不扩展到新导航库、光点或自动行走。完整步骤见 [迁移操作](../../../mf97-viewer-trial/docs/mac-studio-migration.md)。
+
+## 原多层/地面阶段：保留的工作与验收
 
 1. **外置资源与报告恢复**：统一资源配置；产物写 Prism `continuation-20261002/`，用户批准临时5GiB reserve，累计8GiB cap。每批核算正式/临时输出与恢复余量，串行重任务。核验旧472块与源hash，复制后新版保护重筛，不新增旧报告外的edits；补中断恢复、repeat、指纹/源变化拒绝。需真实detector时从已验证归档恢复到外置独立tools目录，保留原链接/归档。
 2. **大运分块输入与楼层关联**：生成器/Worker共用single/tiled碰撞适配，复用原Viewer坐标和查询；缺块不是空域。完整293块多span索引，取消旧方向/高度范围漏检。先验证原件中一个双向正常步行连接，不抬步高/补楼梯/吸附。明确layer/surface/transition身份，物理tick后只读关联；目标、附近Nav、到达、地图共享身份。所有路径裁剪/维护更新表面span，重复经过不混淆。大运LOD0先生成已确认局部双层图，准确标范围；不以样本代替全场。华发继续本地尺度/轴向/资料核验，无新LCC管线或公开入口。

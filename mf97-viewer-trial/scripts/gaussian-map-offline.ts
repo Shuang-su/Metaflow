@@ -1,3 +1,4 @@
+import { loadAssetConfig, resolveAssetUrl, resolveRecordedPath } from "../../scripts/mf97/asset-config.mjs";
 /** Node-only source/output helpers shared by the offline map CLIs. */
 import { createHash } from 'node:crypto';
 import { createReadStream, existsSync, readFileSync, realpathSync } from 'node:fs';
@@ -15,10 +16,7 @@ const inside = (root: string, path: string) => {
     return part !== '..' && !part.startsWith(`..${sep}`) && !isAbsolute(part);
 };
 export function localAsset(url: string) {
-    const roots = [['/scene-assets/', '/Volumes/Prism_初号機/3D高斯'], ['/repository-data/', '/Volumes/Prism/Metaflow/data']] as const;
-    const match = roots.find(([prefix]) => url.startsWith(prefix));
-    if (!match) throw Error(`Unsupported read-only asset URL: ${url}`);
-    return sourceChild(match[1], decodeURIComponent(url.slice(match[0].length)));
+    return resolveAssetUrl(url);
 }
 export function sourceChild(root: string, child: string) {
     const path = resolve(root, child), canonicalRoot = realpathSync(root);
@@ -31,7 +29,7 @@ export function mapOutput(resources: ReturnType<typeof createOfflineResources>, 
     while (!existsSync(ancestor)) ancestor = dirname(ancestor);
     const physical = resolve(realpathSync(ancestor), relative(ancestor, output));
     for (const kind of ['jobs', 'maps']) {
-        const original = `/Volumes/Prism/Metaflow/.codex-work/cache/mf97-navigation/${kind}`;
+        const original = kind === "jobs" ? loadAssetConfig().roots.mapJobs : loadAssetConfig().roots.maps;
         if (inside(original, physical)) throw Error('Original Gaussian jobs/maps are read-only; use the continuation cache');
     }
     return output;
@@ -69,6 +67,7 @@ export async function collisionIdentity(collisionPath: string, frozenFile?: stri
 }
 export async function verifyCollisionProvenance(proof: CollisionProvenance | undefined, expected: string) {
     if (!proof) return; // Legacy single-file jobs already bind their JSON/BIN hashes.
-    if (proof.sourceHash !== expected || sha(readFileSync(proof.file)) !== proof.sha256 || proof.indexFile && sha(readFileSync(proof.indexFile)) !== proof.indexSha256) throw Error('Frozen collision provenance changed');
-    if (proof.binaryValidation === 'current-single-file-hash' && `${proof.sha256}:${await hashFile(proof.file.replace(/\.json$/, '.bin'))}` !== expected) throw Error('Single collision binary changed');
+    const file = resolveRecordedPath(proof.file);
+    if (proof.sourceHash !== expected || sha(readFileSync(file)) !== proof.sha256 || proof.indexFile && sha(readFileSync(resolveRecordedPath(proof.indexFile))) !== proof.indexSha256) throw Error('Frozen collision provenance changed');
+    if (proof.binaryValidation === 'current-single-file-hash' && `${proof.sha256}:${await hashFile(file.replace(/\.json$/, '.bin'))}` !== expected) throw Error('Single collision binary changed');
 }

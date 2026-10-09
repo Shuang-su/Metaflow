@@ -1,3 +1,4 @@
+import { loadAssetConfig, resolveAssetUrl, resolveRecordedPath } from "../../scripts/mf97/asset-config.mjs";
 import { readFileSync, statSync, existsSync } from 'node:fs';
 import { createHash } from 'node:crypto';
 import { dirname, resolve } from 'node:path';
@@ -25,7 +26,8 @@ const hash=(b:Uint8Array|string)=>createHash('sha256').update(b).digest('hex');
 const analysisHash=groundAnalysisHash();
 const detectorParameters={normalVarianceThresholdDeg:30,coplanarityDeg:75,outlierRatio:.65,minPlaneEdgeLength:.4,minNumPoints:20,
     normalRadius:.45,normalMaxNeighbors:30,searchNeighbors:30,maxCorrectionSourceVoxels:1,minClearance:1.7,minPatchArea:4,coherentPlateauMinNeighbors:1,coherentPlateauNeighborhood:8};
-function load(file:string,flipXY=false){
+function load(recorded:string,flipXY=false){
+    const file = resolveRecordedPath(recorded);
     const json=readFileSync(file),meta=JSON.parse(json.toString()),bin=readFileSync(file.replace(/\.json$/,'.bin'));
     const words=new Uint32Array(bin.buffer,bin.byteOffset,bin.byteLength/4),c=meta.nodeWordCount??meta.nodeCount;
     if((c+meta.leafDataCount)*4!==bin.byteLength)throw Error('Voxel binary length mismatch');
@@ -37,7 +39,7 @@ function load(file:string,flipXY=false){
 class Detector {
     private child; private pending: {resolve:(p:PlanePatch[])=>void;reject:(e:Error)=>void;timer:ReturnType<typeof setTimeout>} | null=null;
     constructor(){
-        const python=arg('--python',process.env.MF97_GROUND_PYTHON);
+        const python=arg('--python',process.env.MF97_GROUND_PYTHON ?? loadAssetConfig().python);
         if(!python || !existsSync(python))throw Error('Provide --python or MF97_GROUND_PYTHON pointing to the verified restored Open3D environment');
         this.child=spawn(python,[resolve(here,'ground-detect.py')],{env:{...process.env,OPEN3D_DISABLE_WEB_VISUALIZER:'true',OMP_NUM_THREADS:'2',
             MPLCONFIGDIR:resourceBudget.resolveOutput('matplotlib')},stdio:['pipe','pipe','pipe']});
@@ -61,7 +63,7 @@ async function analyze(){
     const sceneId=arg('--scene','apms-2026')!;
     const scenes=JSON.parse(readFileSync(resolve(here,'../../mf79-viewer-trial/scene-exhibitions.json'),'utf8')).scenes;
     const scene=scenes.find((s:any)=>s.id===sceneId);if(!scene)throw Error('Unknown exhibition');
-    const file=resolve('/Volumes/Prism_初号機/3D高斯',scene.collisionUrl.replace('/scene-assets/',''));
+    const file=resolveAssetUrl(scene.collisionUrl);
     const loaded=load(file),{source,sourceHash}=loaded,bounds=worldBounds(source);
     const cell=Number(arg('--cell-size','8')),limit=Number(arg('--limit','Infinity'));
     if(!Number.isFinite(cell)||cell<2||cell>8)throw Error('Ground chunk size must be 2..8m');
@@ -116,7 +118,7 @@ async function analyze(){
 }
 
 function dayun(){
-    const base='/Volumes/Prism/Metaflow/data/Shenzhen/250917 Dayun/tiled-voxel',file=resolve(base,'voxel-tiles.json');
+    const base=resolveAssetUrl("/repository-data/Shenzhen/250917%20Dayun/tiled-voxel"),file=resolve(base,'voxel-tiles.json');
     const manifestBytes=readFileSync(file),manifest=JSON.parse(manifestBytes.toString());
     let bytes=0;const tiles=manifest.tiles.map((t:any)=>{
         const f=resolve(base,t.url),json=readFileSync(f),m=JSON.parse(json.toString()),binary=f.replace(/\.json$/,'.bin');

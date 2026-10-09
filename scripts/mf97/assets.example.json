@@ -1,0 +1,14 @@
+{
+  "version": 1,
+  "profile": "mac-studio",
+  "roots": {
+    "repositoryData": ".codex-work/assets/repository-data",
+    "navigation": ".codex-work/cache/mf79-native-viewer-v1",
+    "maps": ".codex-work/cache/mf97-navigation/maps",
+    "mapJobs": ".codex-work/cache/mf97-navigation/jobs",
+    "groundReports": ".codex-work/cache/mf97-navigation/ground",
+    "continuation": ".codex-work/cache/mf97-navigation/continuation-20261002",
+    "tools": ".codex-work/tools/mf97"
+  },
+  "mounts": []
+}

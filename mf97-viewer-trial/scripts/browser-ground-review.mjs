@@ -1,3 +1,4 @@
+import { loadAssetConfig } from "../../scripts/mf97/asset-config.mjs";
 import { chromium } from "../../metaflow-viewer/node_modules/@playwright/test/index.mjs";
 import {
   readFileSync,
@@ -9,7 +10,7 @@ import {
 import { resolve } from "node:path";
 const root =
   process.env.MF97_CACHE_ROOT ??
-  "/Volumes/Prism/Metaflow/.codex-work/cache/mf97-navigation/continuation-20261002";
+  loadAssetConfig().roots.continuation;
 const input = process.env.MF97_REVIEW_ROOT ?? resolve(root, "ground-v2"),
   output = resolve(root, "validation/ground-browser");
 if (
