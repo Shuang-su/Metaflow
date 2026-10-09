@@ -4,6 +4,7 @@ import { SharedGpuCompositor } from "./gpu-compositor";
 import { FloatImage } from "./float-image";
 import { FrameCache } from "./frame-cache";
 import { OperationQueue } from "../core/operation-queue";
+import { observeFailure } from "./device-events";
 import {
   evaluate,
   type Project,
@@ -40,6 +41,11 @@ export class ResourceRuntime {
   private pendingPreview: FrameState | null = null;
   private requestVersion = 0;
   readonly metrics = { batches: 0, cacheHits: 0 };
+  get needsDeviceRecovery() {
+    return (
+      this.primary.needsDeviceRecovery || this.secondary.needsDeviceRecovery
+    );
+  }
   private cache = new FrameCache<FloatImage>(128 * 1024 * 1024, (v) =>
     v.destroy(),
   );
@@ -133,6 +139,15 @@ export class ResourceRuntime {
       },
       error: onError,
     });
+    if (primary.device.wgpu)
+      primary.disposers.push(
+        observeFailure(primary.device.wgpu, (error) => {
+          if (this.disposed) return;
+          this.pendingPreview = null;
+          this.scheduler.cancel();
+          onError(error);
+        }),
+      );
   }
   static async create(
     canvas: HTMLCanvasElement,
@@ -141,13 +156,16 @@ export class ResourceRuntime {
     background: string,
     onDisplay: (s: FrameState, count: number) => void,
     onError: (e: unknown) => void,
+    startup: import("./device-startup").DeviceStartup = {},
   ) {
-    const session = await CandidateSession.create(canvas);
+    const session = await CandidateSession.create(canvas, startup);
     try {
+      startup.signal?.throwIfAborted();
       if (!session.device.textureFloatRenderable)
         throw Error("当前图形设备不支持 RGBA32F 浮点摄影，请返回 Viewer");
       session.background = background;
-      await session.loadScene(assets, camera(pose));
+      await session.loadScene(assets, camera(pose), startup.signal);
+      startup.signal?.throwIfAborted();
       return new ResourceRuntime(session, onDisplay, onError);
     } catch (e) {
       await session.dispose();

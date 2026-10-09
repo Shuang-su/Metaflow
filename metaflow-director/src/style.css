@@ -199,6 +199,18 @@ header button:hover {
   height: 24px;
   animation: spin 1s linear infinite;
 }
+.startup-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 12px;
+}
+.startup-actions button,
+.startup-actions a {
+  padding: 8px 14px;
+  border: 1px solid #737781;
+  border-radius: 18px;
+}
 @keyframes spin {
   to {
     transform: rotate(360deg);

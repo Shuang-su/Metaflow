@@ -1,14 +1,14 @@
 {
   "schemaVersion": "1.1",
   "cutoffGitRef": "c613a87",
-  "documentedThrough": "066ab435f5f4a11282053e0f087205fa8dc0369e",
+  "documentedThrough": "3aecaba6b0a7242570c0b03c38fad6a331672b86",
   "defaultResourceVersion": "1.0a",
   "current": {
-    "displayVersion": "5.21.8",
-    "appSemver": "5.21.8",
+    "displayVersion": "5.21.9",
+    "appSemver": "5.21.9",
     "indexSchemaVersion": "1.2",
     "date": "2026-10-09",
-    "gitRef": "066ab435f5f4a11282053e0f087205fa8dc0369e",
+    "gitRef": "3aecaba6b0a7242570c0b03c38fad6a331672b86",
     "historyUrl": "/data/version-history.json",
     "upstream": {
       "repository": "playcanvas/supersplat-viewer",
@@ -311,6 +311,36 @@
       "gitRef": "25eea922cead3e38006780d55859f76c5f050010",
       "date": "2026-10-09",
       "summary": "MF-106 original bounded-import recovery source, preserved by viewer-v5.21.8-rc1; final product is PR 133 squash."
+    },
+    {
+      "gitRef": "f54794bb53385f58a11a98448c9d1c31521f7d07",
+      "date": "2026-10-09",
+      "summary": "MF-106 5.21.9 candidate version mirrors and adapter-selection source; preserved by viewer-v5.21.9-rc1."
+    },
+    {
+      "gitRef": "62d593659d1a4167aa37f1cc1c1e18c788184d7b",
+      "date": "2026-10-09",
+      "summary": "MF-106 original browser-default adapter source, preserved by viewer-v5.21.9-rc1; completed candidate additionally handles slow startup and device-loss restoration."
+    },
+    {
+      "gitRef": "f75646559d6fcabfa9c355e4dee2eafde146af05",
+      "date": "2026-10-09",
+      "summary": "MF-106 initial 5.21.9 candidate trace and exact-head CI; preserved by viewer-v5.21.9-rc1."
+    },
+    {
+      "gitRef": "ecfdc1749eeb8366afe1ca9fe96d36e0b3f21d01",
+      "date": "2026-10-09",
+      "summary": "MF-106 slow-device candidate provenance and ledger records, preserved by viewer-v5.21.9-rc2."
+    },
+    {
+      "gitRef": "b708555e71a1cea8e87225e6b30105e24ba84802",
+      "date": "2026-10-09",
+      "summary": "MF-106 slow-device lifecycle and GPU recovery source, preserved by viewer-v5.21.9-rc2; final candidate also ends stale slow status after failure."
+    },
+    {
+      "gitRef": "150c307ab8ff53b12c04889671e51264f4b34cbb",
+      "date": "2026-10-09",
+      "summary": "MF-106 rc2 product-reference mirrors; subsequent CI identified documentedThrough and canonical Ledger mismatches, corrected without relaxing checks."
     }
   ],
   "entries": [
@@ -1830,6 +1860,24 @@
         "evidence": "docs/changes/106-acg-director/verification.md",
         "releaseTag": "viewer-v5.21.8",
         "pullRequest": "https://github.com/Shuang-su/Metaflow/pull/133"
+      }
+    },
+    {
+      "displayVersion": "5.21.9",
+      "appSemver": "5.21.9",
+      "type": "fix",
+      "scope": "viewer",
+      "date": "2026-10-09",
+      "gitRef": "3aecaba6b0a7242570c0b03c38fad6a331672b86",
+      "summary": "摄影采用浏览器默认WebGPU设备策略；慢启动继续等待，取消释放迟到设备，设备丢失后保留取景与视频编辑重建；完整RGBA32F孔径成片不变",
+      "trace": {
+        "changeId": "MF-106",
+        "issue": "https://github.com/Shuang-su/Metaflow/issues/106",
+        "spec": "docs/changes/106-acg-director/spec.md",
+        "plan": "docs/changes/106-acg-director/plan.md",
+        "evidence": "docs/changes/106-acg-director/verification.md",
+        "releaseTag": "viewer-v5.21.9",
+        "pullRequest": "https://github.com/Shuang-su/Metaflow/pull/136"
       }
     }
   ]
