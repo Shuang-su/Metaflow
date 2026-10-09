@@ -1,6 +1,6 @@
 # MF-97 实施与阶段验收
 
-更新：2026-10-09。隔离分支已获准推送，整体仍为试用；不发布、部署或修改公开资源索引。唯一范围为 [Spec](./spec.md) 与 [Plan](./plan.md)。下列实景结果属于 2026-10-03 的地面/多层阶段，迁移阶段见文末。Viewer 5.20.1 保留 MF-79 原生导览，Studio 沿用隔离活动源码；此前续作起点为 `3b8ba998`，分支 `codex/mf97-navigation`。
+更新：2026-10-09。隔离分支已获准推送，整体仍为试用；不发布、部署或修改公开资源索引。唯一范围为 [Spec](./spec.md) 与 [Plan](./plan.md)。下列实景结果属于 2026-10-03 的地面/多层阶段，最新Mac Studio资源补齐与复验见文末。Viewer 5.20.1 保留 MF-79 原生导览，Studio 沿用隔离活动源码；此前续作起点为 `3b8ba998`，分支 `codex/mf97-navigation`。
 
 ## 本轮实际结果
 
@@ -164,3 +164,33 @@ Node22.23.3原生arm64核对官方SHASUMS与固定tarball SHA，四目录独立n
 服务实际运行于Mac Studio的127.0.0.1:5185，两展?scene=apms-2026或sdi-2026，Studio /studio/；localhost属于本机，未开放公网。导航/地图暂不就绪，大运/修正版不是已通过入口。
 
 Spec符合性自查：设备初始化、资源迁移和多层完成分列；原件只读、固定依赖/预算/旧身份/分母保留，不伪造原机成绩。代码/文档质量自查：无产品源码修改，合同/三类型/两构建真实通过，诊断保留；本机配置/证据忽略，阶段差异仅唯一Spec/Plan/报告。均为self-review，未称独立审查。正常推送后读回SHA并回填Issue97；无main修改、PR、发布或部署。
+
+## 2026-10-09 Mac Studio：Prism资源补齐与实际复跑
+
+用户提供挂载的Prism/Metaflow目录后，实际找到指定v2迁移包及大运tiled-voxel、流式LOD0。从287dcb6ea73b307c1178afcf4add5985f42bd9ee继续，原始输入与外置包只读，新增输出在本机忽略目录；不将外置盘已有检出当作当前工作树。此前“缺包/缺293块/缺LOD0”是初始化checkpoint状态，本阶段已解除这些缺失。
+
+| 本阶段检查 | Mac Studio实际结果 |
+| --- | --- |
+| 缓存导入 | ID ea0cc739c070fcc91de6bf7f，2071文件/1649对象，1,416,806,621去重bytes；cache-transfer import逐对象/写出文件SHA通过，receipt已读回 |
+| 历史完整性 | 复跑后再次对照包清单，2071/2071文件、1,480,030,262逻辑bytes全部匹配；旧472报告、ground-v2、接受决定、试用包和证明未改写。receipt仍historicalEvidenceOnly=true、runtimeRevalidation=pending |
+| 两展冻结源 | Gaussian与collision均matching；APMS54、SDI28导航/地图瓦片匹配，共82。输入保留原变换、voxel1.1/0.08m，未复制/重压缩原高斯 |
+| 大运原体素 | 全293块冻结源匹配，BIN共1,178,793,196bytes，flipXY；sourceHash cfbe6431889f55190146086e9642d82b18b9ca9068875e3d06f14c40504b070d |
+| 大运LOD0索引 | 19,043叶、225,110,447 splats，397 metadata、2383引用文件共2,660,641,189bytes，全引用存在且SHA完成；lod-meta hash 3cd91b904efbaf17c96fa4ff15863dd4b2e2d882135960d138452f4e0b557a82匹配5份历史inspection。仅低/高局部视图实际渲染，未全场解码/确认建筑楼层 |
+| 新大运任务 | mac-studio-pilot-v1，原40.96m范围、4瓦片，analysisOnly；共享MF79 Recast runtime生成。navHash cd02cf05d385fee2d4218dba9ea60f824d2a1b8bcea7bb9ef56708a8e7003eb7与原pilot一致；重复运行恢复4块且SHA通过 |
+| 新真实查询 | 同XZ原低/高两端forward/reverse均partial，verifiedBidirectional=0；加载x15_z8、x15_z9、x16_z8、x16_z9。未改步高/碰撞/吸附参数补通 |
+| 原件回归 | validation/mac-studio-original-v1：APMS42/42、SDI25/25、固定20/20、旧7/7，完整分母，exit0；为新设备实际执行，摘要保存实现/配置/输入/输出指纹 |
+| 历史修正版诊断回放 | validation/mac-studio-historical-pair-v1：APMS历史物化碰撞/同源导航与SDI原件成套回放，42/42、25/25、20/20、7/7，exit0。此回放不续签接受决定、不代表新原生/GPU或新试用包通过 |
+| 最终完整doctor | 新报告根配置后exit0，11项全部matching；此前2项ground needs-revalidation与exit1日志保留 |
+| 真实浏览器 | SDI高斯/小地图实际渲染，导览目标2→1→2和取消已操作，恢复导览关/地图开，当前控制台error为空；截图已保存。大运局部低/高视图已渲染，但不具备完整导览入口；本轮长路线、触控、30分钟及人工验收未执行 |
+
+旧groundReports在新独立ground-portable-mac-studio-v1重筛，共336+136=472块，当前分析指纹488c81cbd209fcf0fbe6c761608780e0c4c883a5397dc396cbedbdd12ce0ae66。APMS157拟改/2063保护/25未知、1771编辑引用/1770唯一体素；SDI81拟改/958保护/12未知、603引用/600唯一体素。新集合均为旧集合子集，addedVoxelEdits=0、acceptedCandidateCount=0；分析完成不等于接受或应用。
+
+尝试将旧d80fd685122da078e4cf90d9物化资产及旧审查决定用于新原生验证，程序在当前分析身份核验处以Materialization/decision/current review identity mismatch拒绝（exit1），无新验证报告写出，失败log和launcher记录保留。未绕过身份检查或自动迁移接受。新审查、物化/导航配对、原生/GPU证据、新试用包ID及修正版成套切回仍待完成。
+
+本阶段重任务经Mac profile串行launcher，4瓦片生成采样RSS峰896,385,024bytes，重筛257,589,248bytes，原件回归584,368,128bytes、历史修正版回归522,600,448bytes。小于1秒的恢复/查询未捕获有效RSS采样，不将记录中的0视作真实零峰值。全新派生缓存、两构建和两阶段证据的统计快照为1,538,922,090bytes（小于8GiB），doctor磁盘余量64.56GiB（预留20GiB）。Prism只读，无外置盘新增产物。
+
+本机入口source .codex-work/config/env.sh，配置指向cache/mf97-import-v2/assets.imported.local.json，MF97_GROUND_ROOT指向本次新重筛目录；原基础配置和旧receipt保留。当前服务127.0.0.1:5185，两展?scene=apms-2026或sdi-2026、Studio /studio/。证据为.codex-work/evidence/mac-studio-assets-20261009/；新导航、查询、地面和两组回归在import continuation下各自的新目录，绝对输入路径只在本机忽略配置/证据。仅localhost，不发布或开放公网。
+
+Spec符合性自查：资源补齐、迁移字节核验、新机原件复验和多层完成分别记录；保留源、历史身份、472/67/20/7分母、固定参数与预算。大运建筑楼层/双向正常楼梯/分层高斯底图仍未完成，华发仍未上线；旧证明未升格为新验收。
+
+代码/文档质量自查：本阶段无产品源码/依赖变化；使用原脚本执行真实导入、重筛、生成、恢复、查询和回归，所有新输出均忽略，失败和未执行项保留。文档仅唯一Spec/Plan/报告，检查diff与链接；未重复运行此前已通过且输入未变的111/27/9合同、三类型和两构建。两项均为self-review。阶段正常推送后读回SHA并追加Issue97，Issue保持Open，不改main、不创建PR/发布/部署。
