@@ -111,9 +111,10 @@ test("Viewer bootstrap never imports the engine on the Director branch", async (
     await readFile("../metaflow-viewer/src/index.html", "utf8"),
   );
   assert(!html.includes("import { createViewer } from './index.js'"));
-  assert(html.includes("await import('/director/entry.js')"));
+  assert(html.includes("await (async function loadDirectorEntry("));
+  assert(html.includes("await importer(`/director/entry.js${attempt"));
   assert.match(
     html,
-    /metaflowDirectorPath[\s\S]*await import\('\/director\/entry.js'\)[\s\S]*else[\s\S]*await import\('\.\/index.js'\)/,
+    /if \(window\.metaflowDirectorPath\)[\s\S]*await \(async function loadDirectorEntry\([\s\S]*\}\)\(\);\s*\} else \{\s*const \{ createViewer \} = await import\('\.\/index.js'\)/,
   );
 });
