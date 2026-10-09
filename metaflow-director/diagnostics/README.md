@@ -6,7 +6,7 @@
 - `optical.ts` 固定机位、背景、孔径及只读模型 URL，保存清晰、Fast、4—512 孔径阶段。同源 CPU Float64 求和检查 GPU 累积；它不是独立光学真值，也不是不含读回的性能基准。
 - `thin-lens-reference.py` 使用独立 Cartesian 圆孔径求积及圆盘边缘分布的解析积分，检查受控不透明／0.5 透明平面。它不调用高斯加载、GPU 排序、产品孔径序列或绘制。模型内叠加高斯的透明度与物理表面参数不等价，不能将其当作扫描人物的逐像素真值。
 
-开发服务准备好只读 `/data/` 以及 `/fixture/depth-ramp.ply`、`/fixture/depth-layers.ply` 后，打开 `/diagnostics/index.html`。页面将诊断方法公开为 `window.__opticalParity`，供当前页面的开发者工具取证；生产入口没有此对象。先后运行各场景，不同时占用 GPU。
+开发服务准备好只读 `/data/` 以及 `/fixture/depth-ramp.ply`、`/fixture/depth-layers.ply` 后，打开 `/director/diagnostics/index.html`（开发 base 为 `/director/`）。页面将诊断方法公开为 `window.__opticalParity`，供当前页面的开发者工具取证；生产入口没有此对象。先后运行各场景，不同时占用 GPU。
 
 独立参照运行方式：
 

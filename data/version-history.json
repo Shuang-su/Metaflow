@@ -1,14 +1,14 @@
 {
   "schemaVersion": "1.1",
   "cutoffGitRef": "c613a87",
-  "documentedThrough": "31babb2cf12ebc034d4f8c60ff905e2fd26dff7a",
+  "documentedThrough": "2ed2ae21280d4115a78dedce2d316994b847379f",
   "defaultResourceVersion": "1.0a",
   "current": {
-    "displayVersion": "5.21.6",
-    "appSemver": "5.21.6",
+    "displayVersion": "5.21.7",
+    "appSemver": "5.21.7",
     "indexSchemaVersion": "1.2",
     "date": "2026-10-09",
-    "gitRef": "31babb2cf12ebc034d4f8c60ff905e2fd26dff7a",
+    "gitRef": "2ed2ae21280d4115a78dedce2d316994b847379f",
     "historyUrl": "/data/version-history.json",
     "upstream": {
       "repository": "playcanvas/supersplat-viewer",
@@ -1769,6 +1769,23 @@
         "evidence": "docs/changes/106-acg-director/verification.md",
         "releaseTag": "viewer-v5.21.6",
         "pullRequest": "https://github.com/Shuang-su/Metaflow/pull/126"
+      }
+    },
+    {
+      "displayVersion": "5.21.7",
+      "appSemver": "5.21.7",
+      "type": "fix",
+      "scope": "viewer",
+      "date": "2026-10-09",
+      "gitRef": "2ed2ae21280d4115a78dedce2d316994b847379f",
+      "summary": "校准Fast焦外尺度并修复宽深度范围的透明排序；对齐Operator、对焦生命周期、内联控件及胶片编辑，保留同光学状态缓存",
+      "trace": {
+        "changeId": "MF-106",
+        "issue": "https://github.com/Shuang-su/Metaflow/issues/106",
+        "spec": "docs/changes/106-acg-director/spec.md",
+        "plan": "docs/changes/106-acg-director/plan.md",
+        "evidence": "docs/changes/106-acg-director/verification.md",
+        "releaseTag": "viewer-v5.21.7"
       }
     }
   ]
