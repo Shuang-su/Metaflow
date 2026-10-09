@@ -1,4 +1,5 @@
 import { observeFailure, observeProfile } from "./device-events";
+import { waitForGraphicsDevice, type DeviceStartup } from "./device-startup";
 import { srgbToLinear } from "./srgb";
 import { clippingRange } from "./clipping";
 import { setScenePrecision } from "./precision-target";
@@ -128,7 +129,11 @@ export class CandidateSession {
     return this.job?.gpu.texture ?? null;
   }
   private gpuError: Error | null = null;
-  static async create(canvas: HTMLCanvasElement) {
+  get needsDeviceRecovery() {
+    return this.gpuError !== null;
+  }
+  static async create(canvas: HTMLCanvasElement, startup: DeviceStartup = {}) {
+    startup.signal?.throwIfAborted();
     WebPCodec.wasmUrl = "/director/static/lib/webp/webp.wasm";
     const s = new CandidateSession();
     s.canvas = canvas;
@@ -142,43 +147,16 @@ export class CandidateSession {
       // checked below and by ResourceRuntime before photography is enabled.
       powerPreference: "default",
     });
-    let timer: ReturnType<typeof setTimeout>;
-    try {
-      s.device = await Promise.race([
-        creating,
-        new Promise<never>((_, reject) => {
-          timer = setTimeout(
-            () =>
-              reject(
-                new Error(
-                  "WebGPU 图形设备 20 秒内未响应。请重新打开浏览器后重试，或返回 Viewer。",
-                ),
-              ),
-            20_000,
-          );
-        }),
-      ]);
-    } catch (error) {
-      void creating.then((device) => device.destroy()).catch(() => {});
-      throw error;
-    } finally {
-      clearTimeout(timer!);
-    }
+    s.device = await waitForGraphicsDevice(creating, startup);
     if (!s.device.isWebGPU) {
       s.device.destroy();
       throw Error("摄影需要 WebGPU，请返回 Viewer");
     }
-    const gpuFailure = (event: any) => {
-      s.gpuError = new Error(`摄影 GPU 错误：${event.error.message}`);
-    };
-    s.device.wgpu.addEventListener("uncapturederror", gpuFailure);
-    s.disposers.push(() =>
-      s.device.wgpu.removeEventListener("uncapturederror", gpuFailure),
+    s.disposers.push(
+      observeFailure(s.device.wgpu, (error) => {
+        s.gpuError = error;
+      }),
     );
-    void s.device.wgpu.lost.then((info: any) => {
-      if (!s.disposed)
-        s.gpuError = new Error(`摄影 GPU 已丢失：${info.message}`);
-    });
     const events = new Events();
     events.function("workbench.mode", () => "director");
     const defaults: any = {
@@ -251,7 +229,11 @@ export class CandidateSession {
     this.apertureEpoch++;
   }
   /** All declared scene members load together; missing environments never count as ready. */
-  loadScene(assets: { name: string; bytes: ArrayBuffer }[], pose: Pose) {
+  loadScene(
+    assets: { name: string; bytes: ArrayBuffer }[],
+    pose: Pose,
+    signal?: AbortSignal,
+  ) {
     this.cancel();
     const version = ++this.generation;
     return this.enqueue(async () => {
@@ -265,8 +247,9 @@ export class CandidateSession {
       let points = 0;
       try {
         for (const asset of assets) {
+          signal?.throwIfAborted();
           const splat = await this.scene.assetLoader.load(asset.name, this.fs);
-          if (this.disposed || version !== this.generation) {
+          if (this.disposed || version !== this.generation || signal?.aborted) {
             splat?.destroy();
             throw new DOMException("Superseded", "AbortError");
           }

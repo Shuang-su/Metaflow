@@ -31,7 +31,8 @@ const bundled = await build({
       name: "isolated-engine-boundary",
       setup(b) {
         b.onResolve({ filter: /.*/ }, (args) =>
-          args.importer.endsWith("/render/session.ts")
+          args.importer.endsWith("/render/session.ts") &&
+          args.path !== "./device-startup"
             ? { path: args.path, namespace: "engine-stub" }
             : undefined,
         );

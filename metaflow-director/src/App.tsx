@@ -84,9 +84,17 @@ export function App() {
   const [snapshot, setSnapshot] = useState(initial),
     ref = useRef(snapshot);
   ref.current = snapshot;
+  const recovery = useRef<{
+    resourceId: string;
+    files: string;
+    snapshot: Snapshot;
+    selected: string;
+    dirty: boolean;
+  } | null>(null);
   const [resource, setResource] = useState<ResourceScene | null>(null),
     [status, setStatus] = useState("正在准备摄影页面…"),
     [ready, setReady] = useState(false),
+    [deviceSlow, setDeviceSlow] = useState(false),
     [error, setError] = useState(""),
     [retry, setRetry] = useState(0);
   const [mode, setMode] = useState<"photo" | "video">("photo"),
@@ -351,6 +359,7 @@ export function App() {
       runtime.current &&
       current.current.ready &&
       !current.current.busy &&
+      !runtime.current.needsDeviceRecovery &&
       !document.hidden
     )
       runtime.current.request(frame());
@@ -390,6 +399,7 @@ export function App() {
     const controller = new AbortController();
     let owned: ResourceRuntime | null = null;
     setReady(false);
+    setDeviceSlow(false);
     setError("");
     (async () => {
       if (!navigator.gpu)
@@ -403,7 +413,12 @@ export function App() {
       );
       controller.signal.throwIfAborted();
       setStatus("模型已下载，正在创建摄影场景…");
-      const p = createProject();
+      const saved = recovery.current;
+      const restoring =
+        saved?.resourceId === loaded.resource.id &&
+        saved.files === JSON.stringify(loaded.resource.files);
+      const workingPose = restoring ? saved.snapshot.pose : loaded.pose;
+      const p = restoring ? saved.snapshot.project : createProject();
       p.name = loaded.resource.title ?? loaded.resource.id;
       p.backdrop = loaded.background;
       p.mobileCanvasFill = false;
@@ -416,13 +431,15 @@ export function App() {
           hash: loaded.resource.id,
         },
       ];
-      p.shots = [makeShot(loaded.resource.id, loaded.pose, "镜头 1")];
+      if (!restoring)
+        p.shots = [makeShot(loaded.resource.id, loaded.pose, "镜头 1")];
       owned = await ResourceRuntime.create(
         canvas.current!,
         loaded.assets,
-        loaded.pose,
+        workingPose,
         loaded.background,
         (_s, n) => {
+          if (controller.signal.aborted) return;
           setCount(n);
           setDisplayedFast(isFastPreview(_s));
           // Re-entry must not accept an old flat batch; a later non-flat
@@ -456,8 +473,19 @@ export function App() {
           }
         },
         (e) => {
+          if (controller.signal.aborted) return;
+          abort.current?.abort();
+          thumbnailAbort.current?.abort();
+          cancelGesture();
           setError((e as Error).message);
-          setPlaying(false);
+        },
+        {
+          signal: controller.signal,
+          onSlow: () => {
+            if (controller.signal.aborted) return;
+            setDeviceSlow(true);
+            setStatus("浏览器准备图形设备较慢，仍在等待响应…");
+          },
         },
       );
       if (controller.signal.aborted) {
@@ -467,19 +495,24 @@ export function App() {
       runtime.current = owned;
       loaded.assets = [];
       setResource(loaded);
-      const next = { pose: loaded.pose, project: p };
+      const next = { pose: workingPose, project: p };
       ref.current = next;
       setSnapshot(next);
-      setSelected(p.shots[0].id);
+      setSelected(restoring ? saved.selected : p.shots[0].id);
       setReady(true);
-      setDirty(false);
+      setDeviceSlow(false);
+      setDirty(restoring ? saved.dirty : false);
+      recovery.current = null;
       setStatus(
-        loaded.cameraSource === "viewer"
-          ? "已承接 Viewer 当前机位"
-          : "已载入资源 JSON 初始机位",
+        restoring
+          ? "已重新创建图形设备，保留当前取景与镜头编辑"
+          : loaded.cameraSource === "viewer"
+            ? "已承接 Viewer 当前机位"
+            : "已载入资源 JSON 初始机位",
       );
     })().catch((e) => {
-      if (e.name !== "AbortError") setError(e.message);
+      if (!controller.signal.aborted && e.name !== "AbortError")
+        setError(e.message);
     });
     return () => {
       controller.abort();
@@ -505,7 +538,13 @@ export function App() {
     return () => observer.disconnect();
   }, [ready, project.aspect, mode]);
   useEffect(() => {
-    if (ready && !busy && runtime.current) runtime.current.request(frame());
+    if (
+      ready &&
+      !busy &&
+      runtime.current &&
+      !runtime.current.needsDeviceRecovery
+    )
+      runtime.current.request(frame());
   }, [
     snapshot,
     temporaryPose,
@@ -1151,6 +1190,16 @@ export function App() {
                 <div className="loading">
                   <span className="spinner" />
                   {status}
+                  {deviceSlow && (
+                    <div className="startup-actions">
+                      <button onClick={() => setRetry((v) => v + 1)}>
+                        重新尝试
+                      </button>
+                      <a href={directorBasePath(location.pathname) ?? "/"}>
+                        返回 Viewer
+                      </a>
+                    </div>
+                  )}
                 </div>
               )}
               {focusMark && (
@@ -1200,11 +1249,13 @@ export function App() {
               </AnimatePresence>
               {ready && (
                 <span className="render-status" aria-live="off">
-                  {original
-                    ? "原图对照"
-                    : displayedFast
-                      ? "调整预览"
-                      : `${count >= samples ? "已收敛" : "渐进成片"} · ${Math.min(count, samples)}/${samples}`}
+                  {error
+                    ? "画面已暂停"
+                    : original
+                      ? "原图对照"
+                      : displayedFast
+                        ? "调整预览"
+                        : `${count >= samples ? "已收敛" : "渐进成片"} · ${Math.min(count, samples)}/${samples}`}
                 </span>
               )}
             </div>
@@ -1220,11 +1271,27 @@ export function App() {
           ) : (
             <button
               onClick={() => {
-                setError("");
-                resume();
+                if (runtime.current?.needsDeviceRecovery && resource) {
+                  end();
+                  stopMotion();
+                  recovery.current = {
+                    resourceId: resource.resource.id,
+                    files: JSON.stringify(resource.resource.files),
+                    snapshot: structuredClone(ref.current),
+                    selected,
+                    dirty,
+                  };
+                  setCount(0);
+                  setRetry((v) => v + 1);
+                } else {
+                  setError("");
+                  resume();
+                }
               }}
             >
-              重试当前画面
+              {runtime.current?.needsDeviceRecovery
+                ? "重新创建图形设备"
+                : "重试当前画面"}
             </button>
           )}
           <a href={directorBasePath(location.pathname) ?? "/"}>返回 Viewer</a>
@@ -1244,7 +1311,7 @@ export function App() {
             selected={selected}
             time={time}
             playing={playing}
-            busy={busy}
+            busy={busy || !!error}
             thumbnail={(k) => thumbnails[thumbnailKey(project, k)]}
             onSelect={(id, t) => seek(t, id)}
             onDeselect={() => setSelected("")}
@@ -1319,7 +1386,7 @@ export function App() {
             <Operator
               active={operatorActive}
               selecting={selectInterest}
-              disabled={!ready || busy || !shot}
+              disabled={!ready || busy || !!error || !shot}
               interestCount={shot?.interestPoints?.length ?? 0}
               onPrimary={() => {
                 if (!operatorActive) {
