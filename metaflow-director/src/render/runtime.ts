@@ -175,11 +175,32 @@ export class ResourceRuntime {
       : state;
   }
   private cacheKey(s: FrameState) {
+    const state = this.state(s);
+    const renderPose = (pose: Pose | null) => {
+      if (!pose) return null;
+      // Controls are already resolved into FOV/distance/blur/focus. Labels,
+      // AF/MF mode and the obsolete focus band do not alter a rendered frame.
+      const {
+        controls: _controls,
+        focusRange: _focusRange,
+        ...rendered
+      } = pose;
+      return rendered;
+    };
+    const transition = state.previousPose
+      ? [state.blend, state.shot.transition]
+      : state.entryBlend < 1
+        ? [state.entryBlend, state.shot.transition]
+        : state.exitBlend < 1
+          ? [state.exitBlend, state.shot.exitTransition]
+          : null;
     return JSON.stringify([
       this.primary.generation,
       this.primary.sceneRevision,
       this.primary.background,
-      this.state(s),
+      renderPose(state.pose),
+      renderPose(state.previousPose),
+      transition,
       s.width,
       s.height,
       s.samples,

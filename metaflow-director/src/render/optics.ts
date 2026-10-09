@@ -59,3 +59,8 @@ export function apertureSample(
   const angle = 2 * Math.PI * inverse(index + 1, 3);
   return [radius * Math.cos(angle), radius * Math.sin(angle)];
 }
+// Pinned projector axes are sqrt(8 * covariance); its radial kernel is
+// (exp(-4*r²)-exp(-4))/(1-exp(-4)), truncated at r=1. Re-basing the tail
+// reduces its actual per-axis variance. Compensate that kernel, not the aperture.
+export const PROJECTED_KERNEL_VARIANCE =
+  (1 - 13 * Math.exp(-4)) / (1 - 5 * Math.exp(-4));

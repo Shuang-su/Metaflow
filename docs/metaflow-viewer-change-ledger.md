@@ -562,3 +562,12 @@ The 2026-08-15 Viewer 5.19.2 release-record commit updated package/version/index
 - 正式tag/build为 `2749f519e367e4c347a60241837502f7544ad898`（[PR #127](https://github.com/Shuang-su/Metaflow/pull/127)），产品SHA保持 `31babb2cf12ebc034d4f8c60ff905e2fd26dff7a`（[PR #126](https://github.com/Shuang-su/Metaflow/pull/126)）。精确发布记录head [CI 37830044599](https://github.com/Shuang-su/Metaflow/actions/runs/37830044599) 所选检查通过。Netlify `6ac7ec0fa8239794c0ab5d12`于2026-10-08T19:19:50.676Z发布，8 redirect／9 header、8文件字节、300路由／引用及生产指针／build／版本回读通过；16轮观察900.0006秒无错误。
 - 正式1080p/128及512 PNG与本地同状态字节一致；正式一秒H.264 1080p30/128动态视频在第4帧取消后重试成功，30帧全部解码且不同，SHA256 `6d6fedd5ed308a159534d84ad51508f05684797a64246ab178dd98f6d0d9ee1c`。三档本地4K短动态、四转场视频、中文交互反馈及生产证据共25项[公开Release附件](https://github.com/Shuang-su/Metaflow/releases/tag/viewer-v5.21.6)，大小／哈希回读核对。Issue原生视频附件仍未完成，使用公开资产正文图片和链接。
 - 释放/取消后的完整孔径、Fast及红色参考的输出排除、恢复512偏好收敛以及原生DPR2布局已实际核验。严格遮挡／发丝／透明层、Fast与圆孔径核差异、扫描缺陷、所有动画／主观音效和未运行浏览器继续开放；不宣布完整复刻。模型／环境／settings／schema／Editor不变，未下载Edge。回退5.21.5部署 `6ac6c28ddf5facdf0177e2b0`；详细边界与失败候选见[实际验证记录](changes/106-acg-director/verification.md)。
+
+
+### `5.21.7` · `2ed2ae21280d4115a78dedce2d316994b847379f` · optical and parity source candidate
+
+- 修复宽深度范围20位归一化合桶造成的近处遮挡错误，摄影路径使用Float32深度位模式及稳定entry ID，仍复用上游GPU radix；原生对照保留。校准实际截断高斯核方差，Fast与GPU512白点等效半径差由-8.27%减至+0.07%，不修改光圈或焦点标定。
+- Operator、内联滑杆/读数、兴趣区域/Compose时序和对焦标记生命周期按当前来源修正；时间轴新机位插入/端点删除、时长提交/取消/焦点恢复及实际渲染状态缓存修正。公开摄影范围及资产/schema不变。
+- Director36项、类型/构建；四场景重新对照Spark/GPU/CPU及各10次重复；24本地+24来源DPR2状态、真实一秒1080p与三档短动态4K通过。具体计时、压缩、资产及未运行设备边界见[验证记录](changes/106-acg-director/verification.md)。精确HEAD CI、预览与正式部署/15分钟观察另行回读；当前生产仍为5.21.6。回退部署`6ac7ec0fa8239794c0ab5d12`。
+
+- 候选维护来源`9147392fc56e356ad5a09e05232367fc35096bb6`更新5.21.7镜像、诊断开发基址与实际转场输出；源码checkpoint仍为2ed2ae212，正式产品/部署另行回填。

@@ -156,6 +156,42 @@ test("lowering the preview target rebuilds its exact sample prefix and retains b
   assert.equal(rt.metrics.cacheHits, 2);
   await rt.dispose();
 });
+test("nonvisual shot metadata reuses the completed photo while optical state changes still miss", async () => {
+  const { rt, state } = fixture();
+  const s = state("working", 8, 640);
+  rt.request(s);
+  await rt.scheduler.settled();
+  const batches = rt.metrics.batches;
+  const edited = structuredClone(s);
+  edited.project.shots[0] = {
+    name: "renamed",
+    interestAreas: [{ x: 0.3, y: 0.3, width: 0.2, height: 0.2 }],
+    interestPoints: [[1, 2, 3]],
+    keys: [{ id: "saved-camera" }],
+    duration: 12,
+  };
+  rt.request(edited);
+  await rt.scheduler.settled();
+  assert.equal(rt.metrics.batches, batches);
+  assert.equal(rt.metrics.cacheHits, 1);
+  const labeled = {
+    ...edited,
+    pose: {
+      ...edited.pose,
+      controls: { focusMode: "manual", zoomBaseline: 120 },
+      focusRange: 10,
+    },
+  };
+  rt.request(labeled);
+  await rt.scheduler.settled();
+  assert.equal(rt.metrics.batches, batches);
+  assert.equal(rt.metrics.cacheHits, 2);
+  rt.request({ ...edited, pose: { ...edited.pose, id: "new-focus" } });
+  await rt.scheduler.settled();
+  assert(rt.metrics.batches > batches);
+  assert.notEqual(rt.cacheKey(edited), rt.cacheKey({ ...edited, width: 1280 }));
+  await rt.dispose();
+});
 test("capture never carries original comparison or optical guide into output", async () => {
   const { rt, state } = fixture();
   const s = state("output", 8, 640);

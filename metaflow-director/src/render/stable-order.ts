@@ -16,9 +16,10 @@ import {
   Vec2,
 } from "playcanvas";
 
-/** Stable secondary entry ID, then the ORIGINAL 20-bit depth key. Both sorts use
+/** Stable secondary entry ID, then positive float32 view depth. Both sorts use
  * the pinned upstream GPU radix implementation; this kernel only gathers keys.
- * No CPU readback, replacement sort algorithm or change to depth quantization. */
+ * Normalizing to the scene's near/far range loses nearby layers in large scenes.
+ * Positive IEEE-754 bits preserve the stored depth order without a CPU readback. */
 export class StableOrder {
   private sorter: ComputeRadixSort;
   private compute: Compute;
@@ -60,8 +61,7 @@ export class StableOrder {
         let i=id.x+id.y*groups.x*256u; if(i>=count[0]){return;}
         let entry=ordered[i]; let uv=vec2i(i32(entry%uniforms.width),i32(entry/uniforms.width));
         let depth=bitcast<f32>(textureLoad(cache,uv,0).y);
-        let normDepth=clamp((depth-uniforms.near)/(uniforms.far-uniforms.near),0.0,1.0);
-        keys[i]=u32((1.0-normDepth)*f32((1u<<20u)-1u)); values[i]=entry;
+        keys[i]=~bitcast<u32>(max(depth,0.0)); values[i]=entry;
       }`,
       computeBindGroupFormat: this.bindings,
       computeUniformBufferFormats: { uniforms: uniform },
