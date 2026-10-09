@@ -1,14 +1,14 @@
 {
   "schemaVersion": "1.1",
   "cutoffGitRef": "c613a87",
-  "documentedThrough": "62d593659d1a4167aa37f1cc1c1e18c788184d7b",
+  "documentedThrough": "3aecaba6b0a7242570c0b03c38fad6a331672b86",
   "defaultResourceVersion": "1.0a",
   "current": {
     "displayVersion": "5.21.9",
     "appSemver": "5.21.9",
     "indexSchemaVersion": "1.2",
     "date": "2026-10-09",
-    "gitRef": "b708555e71a1cea8e87225e6b30105e24ba84802",
+    "gitRef": "3aecaba6b0a7242570c0b03c38fad6a331672b86",
     "historyUrl": "/data/version-history.json",
     "upstream": {
       "repository": "playcanvas/supersplat-viewer",
@@ -331,6 +331,16 @@
       "gitRef": "ecfdc1749eeb8366afe1ca9fe96d36e0b3f21d01",
       "date": "2026-10-09",
       "summary": "MF-106 slow-device candidate provenance and ledger records, preserved by viewer-v5.21.9-rc2."
+    },
+    {
+      "gitRef": "b708555e71a1cea8e87225e6b30105e24ba84802",
+      "date": "2026-10-09",
+      "summary": "MF-106 slow-device lifecycle and GPU recovery source, preserved by viewer-v5.21.9-rc2; final candidate also ends stale slow status after failure."
+    },
+    {
+      "gitRef": "150c307ab8ff53b12c04889671e51264f4b34cbb",
+      "date": "2026-10-09",
+      "summary": "MF-106 rc2 product-reference mirrors; subsequent CI identified documentedThrough and canonical Ledger mismatches, corrected without relaxing checks."
     }
   ],
   "entries": [
@@ -1858,7 +1868,7 @@
       "type": "fix",
       "scope": "viewer",
       "date": "2026-10-09",
-      "gitRef": "b708555e71a1cea8e87225e6b30105e24ba84802",
+      "gitRef": "3aecaba6b0a7242570c0b03c38fad6a331672b86",
       "summary": "摄影采用浏览器默认WebGPU设备策略；慢启动继续等待，取消释放迟到设备，设备丢失后保留取景与视频编辑重建；完整RGBA32F孔径成片不变",
       "trace": {
         "changeId": "MF-106",

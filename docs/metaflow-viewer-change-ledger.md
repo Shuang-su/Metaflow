@@ -611,3 +611,9 @@ The 2026-08-15 Viewer 5.19.2 release-record commit updated package/version/index
 | 2026-10-09 | MF-106 | 5.21.9 candidate | `b708555e71a1cea8e87225e6b30105e24ba84802` | 默认设备策略之外，20秒慢提示／90秒明确边界、取消和迟到设备释放、GPU丢失立即停止任务并保留现有编辑重建；44单元／类型及原生迟到、重建与撤销实测通过。真实OS低电量模式仍未验证。PR136，未部署。 |
 | 2026-10-09 | MF-106 | 5.21.9 trace | `f75646559d6fcabfa9c355e4dee2eafde146af05` | 初始候选记录及精确HEAD CI通过，rc1固定保留。 |
 | 2026-10-09 | MF-106 | 5.21.9 mirrors | `ecfdc1749eeb8366afe1ca9fe96d36e0b3f21d01` | 候选源与Ledger记录；补齐index.release的相同productGitRef后重新验证。 |
+
+
+### `5.21.9` · `3aecaba6b0a7242570c0b03c38fad6a331672b86` · slow startup and device recovery candidate
+
+- 完整来源包含默认适配器策略、20秒慢提示／90秒错误边界、取消与迟到设备释放、GPU丢失停止任务并恢复取景／镜头／撤销历史；失败后关闭旧慢提示。来源`b708555e71a1cea8e87225e6b30105e24ba84802`和候选`150c307ab8ff53b12c04889671e51264f4b34cbb`由不可变rc2保留。
+- [CI 37899588517](https://github.com/Shuang-su/Metaflow/actions/runs/37899588517)指出Ledger规范行与documentedThrough不一致；修复实际镜像及记录，未削弱断言。新精确HEAD CI和生产回读随后追加。[PR #136](https://github.com/Shuang-su/Metaflow/pull/136)。

@@ -423,3 +423,5 @@
 - 浏览器尚未完成真实OS低电量模式和不同驱动/硬件测试；此项保持未验证。原图/严格发丝物理准确性等光学研究边界不被初始化修正替代。
 
 候选记录首次release-contract检查发现index.release仍指向前一源62d5936，已同步为b708555e并重新通过；资源对象与origin/main完整相等，未更改素材或设置。该记录问题不作为生产通过证据。
+
+- rc2精确HEAD150c307的[CI 37899588517](https://github.com/Shuang-su/Metaflow/actions/runs/37899588517)中治理/数据/文档/CodeQL通过，Viewer148项中的两项指出Ledger规范版本行及documentedThrough与当前来源不一致。对齐实际来源、镜像和总账，不修改断言；首次失败保留。随后补齐90秒失败后不残留“仍在等待”的状态，Director44项/类型通过，来源`3aecaba6b0a7242570c0b03c38fad6a331672b86`。
