@@ -1,14 +1,14 @@
 {
   "schemaVersion": "1.1",
   "cutoffGitRef": "c613a87",
-  "documentedThrough": "f7459408edecc7ef0b744dd9c5aaa3620a4ebd51",
+  "documentedThrough": "25eea922cead3e38006780d55859f76c5f050010",
   "defaultResourceVersion": "1.0a",
   "current": {
-    "displayVersion": "5.21.7",
-    "appSemver": "5.21.7",
+    "displayVersion": "5.21.8",
+    "appSemver": "5.21.8",
     "indexSchemaVersion": "1.2",
     "date": "2026-10-09",
-    "gitRef": "f7459408edecc7ef0b744dd9c5aaa3620a4ebd51",
+    "gitRef": "25eea922cead3e38006780d55859f76c5f050010",
     "historyUrl": "/data/version-history.json",
     "upstream": {
       "repository": "playcanvas/supersplat-viewer",
@@ -1797,6 +1797,24 @@
         "evidence": "docs/changes/106-acg-director/verification.md",
         "releaseTag": "viewer-v5.21.7",
         "pullRequest": "https://github.com/Shuang-su/Metaflow/pull/131"
+      }
+    },
+    {
+      "displayVersion": "5.21.8",
+      "appSemver": "5.21.8",
+      "type": "fix",
+      "scope": "viewer",
+      "date": "2026-10-09",
+      "gitRef": "25eea922cead3e38006780d55859f76c5f050010",
+      "summary": "摄影入口临时获取失败自动有限重试，耗尽后提供重试与原资源Viewer返回入口；不改变摄影成像或普通Viewer",
+      "trace": {
+        "changeId": "MF-106",
+        "issue": "https://github.com/Shuang-su/Metaflow/issues/106",
+        "spec": "docs/changes/106-acg-director/spec.md",
+        "plan": "docs/changes/106-acg-director/plan.md",
+        "evidence": "docs/changes/106-acg-director/verification.md",
+        "releaseTag": "viewer-v5.21.8",
+        "pullRequest": "https://github.com/Shuang-su/Metaflow/pull/133"
       }
     }
   ]

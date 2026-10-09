@@ -578,3 +578,15 @@ The 2026-08-15 Viewer 5.19.2 release-record commit updated package/version/index
 - [PR #131](https://github.com/Shuang-su/Metaflow/pull/131)已合并；精确候选[CI 37884934299](https://github.com/Shuang-su/Metaflow/actions/runs/37884934299)所选检查通过，不绕过分支规则。不可变rc1固定8194cdb3a并保留源码`2ed2ae21280d4115a78dedce2d316994b847379f`及既有维护记录。
 - 四场景100轮输入全部有呈现、最终状态与128收敛；24本地+24来源DPR2状态、原生控件及缓存、三档真实动态4K、四转场取消重试见[验证记录](changes/106-acg-director/verification.md)。完整站点预览、79/51资源、8redirect/9header通过。
 - [原生正文附件](https://github.com/Shuang-su/Metaflow/issues/106#issuecomment-6074383785)7图2视频已匿名GET/哈希验证；Fast方差及Float32深度稳定排序两项因果修复与扫描/材料边界分开说明。正式tag/build/部署随后记录，未将候选称为生产。
+
+
+### `5.21.8` · `25eea922cead3e38006780d55859f76c5f050010` · startup recovery candidate
+
+- [PR #133](https://github.com/Shuang-su/Metaflow/pull/133)修复生产一次入口获取失败后的人工刷新依赖。网络类动态导入最多四次、新URL及100/300/900ms退避；运行、语法、GPU错误不重试，耗尽提供明确重试/原资源返回入口。
+- Viewer148/148、四项行为验证和实际首次/持续503注入通过；构建版本、精确HEAD CI、正式部署及观察另行追加。5.21.7连续16轮900.009秒HTTP观察通过，但单次浏览器获取错误保留，不能称全部零故障。摄影算法、资源及原Viewer/SDK启动不改变。
+
+
+### `5.21.7` · `f7459408edecc7ef0b744dd9c5aaa3620a4ebd51` · production verification
+
+- 正式tag/build `42b3e172324c4f03a4c63a2b3df0552df8999fd8`，Netlify `6ac873b8382d690120124c07`于2026-10-09T04:58:24.432Z发布。8文件/300路由引用、79/51资源、8redirect/9header及900.009秒16轮HTTP观察通过。真实Viewer交接误差≤4.44e-16、含环境512收敛。
+- 单次浏览器动态模块获取失败后刷新恢复，原因未证实，作为5.21.8有限重试修复继续登记。HTTP检查不代表没有此浏览器故障。实际光学、输出和原生GitHub正文媒体见MF-106验证记录，源资产缺陷与材料模型边界独立说明。

@@ -403,7 +403,7 @@ test('package and public release versions match the structured current version',
     assert.equal(pkg.version, manifest.current.appSemver);
     assert.equal(lock.version, manifest.current.appSemver);
     assert.equal(lock.packages[''].version, manifest.current.appSemver);
-    assert.equal(manifest.current.displayVersion, '5.21.7');
+    assert.equal(manifest.current.displayVersion, '5.21.8');
     assert.equal(manifest.current.gitRef, manifest.documentedThrough);
     assert.equal(manifest.current.upstream.repository, 'playcanvas/supersplat-viewer');
     assert.equal(manifest.current.upstream.version, '1.35.2');
