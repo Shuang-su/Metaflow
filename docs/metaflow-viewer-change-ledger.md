@@ -593,3 +593,9 @@ The 2026-08-15 Viewer 5.19.2 release-record commit updated package/version/index
 
 
 - 5.21.8候选维护来源`b6250e41720009b92f9a530508da543af01a069a`记录版本镜像及5.21.7生产证据；`00d3e56285bb1f3816853ebb532e76af2688dd7c`更新宿主隔离测试以验证新重试入口，并保留首次CI/预览失败，不改变摄影运行时。最终精确HEAD与实际产品SHA另行回填。
+
+
+### `5.21.8` · `066ab435f5f4a11282053e0f087205fa8dc0369e` · startup recovery product
+
+- [PR #133](https://github.com/Shuang-su/Metaflow/pull/133)已正常合并；精确候选ebb787fda的[CI 37888868821](https://github.com/Shuang-su/Metaflow/actions/runs/37888868821)所选Viewer/Director、开发及构建E2E、治理、文档、数据和CodeQL及summary成功。自动审查提出旧断言，实际修复、CI验证并解决审查线程后正常合并，没有管理员绕过。
+- 不可变viewer-v5.21.8-rc1保留来源`25eea922cead3e38006780d55859f76c5f050010`及b6250e417/00d3e5628维护记录；本版本尚未生产的候选来源指向实际产品SHA，旧正式条目不改写。实际构建503自动恢复/失败退出及Viewer返回通过；正式tag/build、最终部署、照片/视频及观察另行追加。

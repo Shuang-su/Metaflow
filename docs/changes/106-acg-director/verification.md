@@ -398,3 +398,8 @@
 - 第一个CLI预览6ac87940的版本历史文件出现immutable缓存头，未提升生产；重新使用已验证的部署工作目录，继续检查8redirect/9header及实际HTTP，失败候选保留。
 
 - CI 37888362657的Director36项、构建及两种Viewer E2E已通过；Viewer版本历史检查指出00d3e5628测试维护来源缺少maintenance记录。追加实际来源，不改测试/检查规则；精确最终head重跑。初次本地输入`typecheck`脚本名不存在，更正既有`type:check`后正常通过，保留命令修正记录。配置工作目录预览6ac87a38已ready，8文件/300路由引用及版本文件非immutable缓存头回读匹配，失败候选未生产。
+
+## 5.21.8 合并与正式来源
+
+- [PR #133](https://github.com/Shuang-su/Metaflow/pull/133)于2026-10-09T05:36:37Z常规squash合并为`066ab435f5f4a11282053e0f087205fa8dc0369e`。精确候选ebb787fda的[CI 37888868821](https://github.com/Shuang-su/Metaflow/actions/runs/37888868821)所选检查全部成功。初次合并因自动审查的未解决旧断言线程被规则阻止；断言已修正且36项/完整CI验证，标记解决并回读后正常合并，无admin参数或规则绕过。
+- viewer-v5.21.8-rc1固定ebb787fda并保存全部来源，尚未正式发布的本版本镜像/索引release回填实际产品SHA；原正式5.21.7及更旧记录不改写。主模型、环境、settings与资源对象不改变。正式tag/build及生产仍待最终发布记录精确HEAD检查、完整站点回读和实际输出。
