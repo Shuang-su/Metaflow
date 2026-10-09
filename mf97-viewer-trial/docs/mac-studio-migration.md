@@ -102,6 +102,25 @@ node scripts/mf97/run-job.mjs mf97-viewer-trial/node_modules/tsx/dist/cli.mjs \
 
 Mac Studio profile以实际RAM限制预算：单任务、heap≤32GiB、整个子进程树RSS≤64GiB且不超过一半内存；每秒监测并保留结束/中断记录。原子瓦片和resume身份核验保留。新产物额度初始8GiB，每个输出根记账；批次合计仍须核对，不能通过新建多个根放大授权额度。远端卷至少预留20GiB，本机local为5GiB/1.5GiB。full Dayun先估算产物，不因512GB内存省略几何核验。
 
+大运第一批可复用已经审查的40.96m分析窗口，创建新任务，不覆盖旧任务。配置大运并通过源检查、导入缓存后，在项目根目录执行：
+
+```sh
+node --input-type=module <<'JS'
+import {readFileSync, writeFileSync} from 'node:fs';
+import {resolve} from 'node:path';
+import {loadAssetConfig} from './scripts/mf97/asset-config.mjs';
+const root = loadAssetConfig().roots.continuation;
+const job = JSON.parse(readFileSync(resolve(root, 'dayun/jobs/x16-z8-overlap-recast-v1.json'), 'utf8'));
+job.id = 'mac-studio-pilot-v1';
+job.collisionSourceFile = resolve(root, 'dayun/collision-source.json');
+const file = resolve(root, 'dayun/jobs/mac-studio-pilot-v1.json');
+writeFileSync(file, JSON.stringify(job, null, 2) + '\n', {flag: 'wx'});
+console.log(file);
+JS
+```
+
+把输出路径作为launcher的`--job`参数；再次执行同一job即验证四块hash后续跑。任务仅用于离线分析，原同XZ上下两端仍为partial，不是已完成跨层路线。全场扩大另行估算并确认覆盖。
+
 transform继续使用具体作业已固定的工具版本、输入和参数；不要通过全局npm升级改变已有转换链。该launcher可启动已安装的transform Node入口，版本/输入/参数随作业保存。worker和viewer使用同样配置。页面/服务器默认仅`127.0.0.1:5185`，SSH恢复后可转发：
 
 ```sh

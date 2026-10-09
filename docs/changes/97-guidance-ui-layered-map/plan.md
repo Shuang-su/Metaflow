@@ -5,11 +5,13 @@
 ## 当前批准顺序
 
 1. **先推送现有成果**：复核工作树/范围/远端，推送 `codex/mf97-navigation` 并设 upstream，读取远端 SHA；更新 Issue97 的分支、Spec/Plan/报告链接及关键多层未完成状态。路径适配另作原子提交，再正常推送。
-2. **轻量取得代码**：Mac Studio 新目录使用 `--filter=blob:none --no-checkout --single-branch --no-tags`，保留历史。先配置本仓 LFS skip-smudge，再 cone sparse checkout Viewer、MF79/MF97、Studio、docs、metadata、scripts。旧目录存在时只检查，不覆盖；不展开 data，不全量拉 LFS。
+2. **轻量取得代码**：Mac Studio 新目录使用 `--filter=blob:none --no-checkout --single-branch --no-tags`，保留历史。先配置本仓 LFS skip-smudge，再 cone sparse checkout Viewer、MF79/MF97、Studio、docs、metadata、scripts及实际构建要求的analytics。旧目录存在时只检查，不覆盖；不展开 data，不全量拉 LFS。
 3. **统一资源定位**：添加机器本地 `MF_ASSET_CONFIG`，默认忽略配置；服务/离线/回放/地面/地图/大运共用，只替换磁盘路径。配置已有场景目录并逐源校验，保持 URL/变换/碰撞版本；缺失不自动下载。导航、地图、地面报告和大运缓存按清单迁移，原资产只读，输出在新机 `.codex-work`。旧绝对路径身份不修改，独立记录定位与重新验证。
 4. **固定环境与预算**：原生 arm64 Node22.23.3 与官方校验；四目录独立 lockfile，移除隐式共享依赖前提；Open3D0.19 独立新环境。首批单重任务、heap32GiB/RSS64GiB上限，实际 RAM 不足时限制至半数；继续瓦片、原子写出/恢复。新增产物8GiB、远端磁盘预留20GiB，具体全场任务先估算。保留 transform 版本和作业参数。
 5. **迁移验证**：三处 commit 一致，sparse 无 data 删除/下载；断开旧机后能启动服务/构建 Studio、查询导航、执行真实 detector 和大运瓦片；资源逐场景匹配/缺失/重建分列。复验67/20/7和浏览器，记录 Node24→22 差异。远端 SSH 不通时独立完成工具与本机验证，明确远端未执行项，不以脚本准备完成代替迁移成功。
 6. **交付与后续**：更新报告和 Issue、核验远端写入；提供配置、清单、引导和复跑命令，保存 checkpoint。随后在 Mac Studio 继续大运楼层、双向通道和地图；不扩展到新导航库、光点或自动行走。完整步骤见 [迁移操作](../../../mf97-viewer-trial/docs/mac-studio-migration.md)。
+
+2026-10-09阶段状态：分支推送、路径/预算配置、独立安装、轻量克隆、缓存磁盘往返、真实Open3D detector与独立大运四瓦片生成/续跑/查询已经在本机验证。首克隆识别并修复本机lockfile链接、遗漏analytics及重复Recast WASM实例，失败记录保留。SSH端口22仍超时，远端硬件/目录/项目注册、独立Python安装、断开旧机后的运行、67/20/7实景与浏览器验收未完成；这些门槛保留，不标记迁移完成。
 
 ## 原多层/地面阶段：保留的工作与验收
 
