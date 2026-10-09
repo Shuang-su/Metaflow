@@ -137,7 +137,10 @@ export class CandidateSession {
       antialias: false,
       depth: false,
       stencil: false,
-      powerPreference: "high-performance",
+      // Let the browser select its available adapter. A power hint does not
+      // establish rendering precision; the actual float capabilities are
+      // checked below and by ResourceRuntime before photography is enabled.
+      powerPreference: "default",
     });
     let timer: ReturnType<typeof setTimeout>;
     try {
