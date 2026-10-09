@@ -286,6 +286,11 @@
       "gitRef": "32275d3a1",
       "date": "2026-10-09",
       "summary": "MF-106 5.21.6 candidate release mirrors and evidence, preserved by viewer-v5.21.6-rc1."
+    },
+    {
+      "gitRef": "9147392fc56e356ad5a09e05232367fc35096bb6",
+      "date": "2026-10-09",
+      "summary": "MF-106 5.21.7 candidate release mirrors, diagnostic URL correction and evidence; source preserved by viewer-v5.21.7-rc1."
     }
   ],
   "entries": [
