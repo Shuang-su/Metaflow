@@ -1,6 +1,12 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { mkdtempSync, mkdirSync, writeFileSync, symlinkSync } from "node:fs";
+import {
+  mkdtempSync,
+  mkdirSync,
+  writeFileSync,
+  symlinkSync,
+  readFileSync,
+} from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import {
@@ -108,4 +114,37 @@ test("missing scene mount is an explicit configuration error and machine profile
   assert.equal(machineLimits(mac, 32 * GiB).maxRssGiB, 16);
   assert.equal(machineLimits(mac, 32 * GiB).heapGiB, 8);
   assert.equal(machineLimits(mac, 512 * GiB).reserveGiB, 20);
+});
+
+test("trial lockfiles contain registry packages rather than machine-local dependency links", () => {
+  for (const name of ["mf79-viewer-trial", "mf97-viewer-trial"]) {
+    const root = new URL(`../../${name}/`, import.meta.url);
+    const pkg = JSON.parse(readFileSync(new URL("package.json", root), "utf8"));
+    const lock = JSON.parse(
+      readFileSync(new URL("package-lock.json", root), "utf8"),
+    );
+    assert.equal(lock.lockfileVersion, 3);
+    assert.deepEqual(lock.packages[""].devDependencies, pkg.devDependencies);
+    for (const [path, entry] of Object.entries(lock.packages) as [
+      string,
+      any,
+    ][]) {
+      assert.ok(
+        !path || path.startsWith("node_modules/"),
+        `${name}: external package ${path}`,
+      );
+      assert.ok(
+        !entry.link && !entry.extraneous,
+        `${name}: local link or unrelated package ${path}`,
+      );
+      if (path)
+        assert.match(entry.resolved, /^https:\/\/registry\.npmjs\.org\//);
+    }
+    for (const [dependency, version] of Object.entries(pkg.devDependencies)) {
+      assert.equal(
+        lock.packages[`node_modules/${dependency}`].version,
+        version,
+      );
+    }
+  }
 });
