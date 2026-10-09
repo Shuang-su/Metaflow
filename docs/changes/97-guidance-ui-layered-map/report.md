@@ -134,3 +134,33 @@ Spec自查：授权的正常推送、必要代码稀疏清单、独立安装、�
 2026-10-09 用户说明“不是ssh，用codex连接”，并展示 Mac Studio 的 `splat-transform` 项目绿色连接状态。随后读取 Codex 项目列表，确认远端 host `remote-control:env_e_6a79d133f6a483218d3618aa58948e17` 的项目路径为 `/Users/szmg/Documents/splat-transform`，另有 Livecho；当前 MF97 对话仍在本机执行。此前 SSH 超时是单独访问方式的失败，不能作为 Codex 远端续作不可用的结论。
 
 已修正 Spec、Plan 和迁移指引，以 Codex 远端任务作为执行入口，独立 Metaflow 目录与资源核验要求保持。现有 1.32GiB 派生包仍在原机，不能通过项目列表或绿色标识认定它已到达远端；代码初始化、文件传输及远端实景验收分别记录。未执行的远端硬件、资源和浏览器检查继续保留。
+
+## 2026-10-09 Mac Studio：初始化完成，缓存与多层验收待续
+
+通过Codex设备任务实际执行于SZMGdeMac-Studio.local，Darwin arm64；hw.memsize=549755813888，即512GiB。开始内置卷约34GiB可用，后续实测约65GiB，任务未清理原件；变化来自设备当前状态。新环境、缓存、构建和证据均在新Metaflow的.codex-work。Prism_初号機约8.6GiB只作只读检查；新输出仍在内置卷，Mac profile预留20GiB、产物8GiB、heap32GiB/进程树RSS64GiB、单重任务。
+
+基线89b7ea512ff83842c3e356cb3888bb0d0d11b2bf，Git2.54.0。固定提交bootstrap已检查，检查克隆保留；正式目录由原脚本创建，完整MF97_EXPECT_COMMIT核验一致。blob:none/promisor、single-branch/no-tags/no-checkout、完整历史、指定八个cone sparse目录、repo-local LFS skip-smudge均核验；data未展开且无Git删除。Git LFS3.8.0官方arm64包与官方sha256sums一致，仅本任务使用。splat-transform/Livecho未修改。
+
+Node22.23.3原生arm64核对官方SHASUMS与固定tarball SHA，四目录独立npm ci且无旧node_modules链接。已有原生Python3.12.13建立新venv，按固定requirements安装Open3D0.19.0并登记忽略配置；外置盘旧Python归档未搬入。
+
+| Mac Studio实际检查 | 结果与边界 |
+| --- | --- |
+| MF97/MF79/Studio合同 | 111/111、27/27、9/9，0跳过；含真实Open3D detector |
+| Viewer/MF97/tools类型 | 三项全部通过 |
+| Studio/MF97 Viewer构建 | 全部通过；既有大chunk、Studio循环依赖/this和4处analytics PointerEvent诊断保留 |
+| launcher构建预算 | 串行exit0；Studio采样峰2,323,775,488bytes，Viewer1,009,254,400bytes；不宣称无间隔绝对峰 |
+| 两展源索引 | APMS225文件、SDI177文件全部引用存在并逐SHA；碰撞BIN长度一致；2.6.0/voxel1.1/0.08m与原变换保留 |
+| 全doctor | exit1，11项资源missing；缺mapJobs/Nav/地图/地面覆盖/大运冻结输入，不当匹配 |
+| 浏览器 | 两展实际高斯渲染，导览/地图独立开关、取消、SDI原件标点1→2与步行短S按键已操作；地图/Nav清单404，导览目标切换控件不可用，完整路线未通过 |
+| Studio | 初次输出位置不等于配置根导致404，移到正确忽略根后HTTP200且实际编辑界面打开 |
+| 自动回归/人工验收 | 未运行/未进行；67/固定20/旧7、新原生/GPU及修正版切回待完整匹配源，不继承原机成绩 |
+
+本机证据在.codex-work/evidence/mac-studio-20261009/：validation-summary、各检查log、source-inventory、browser-check、Python安装及doctor。构建已移到配置指定的.codex-work/tmp/mf97-studio-build和mf97-preview-build；launcher记录在continuation/job-control。截图仅在本次工具输出，未形成新试用包证明。
+
+两展只读配置指向本机Downloads内20260922派生根；碰撞JSON指纹分别等于scene provenance的5482cf4b…与39e85d25…。完整JSON:BIN哈希、全部流式清单引用SHA保存于忽略证据，待迁移冻结清单比较；不能用同名目录认定旧源一致。外置盘同名两展原件保留，不额外复制高斯。
+
+迁移包ea0cc739c070fcc91de6bf7f（2071文件/1649对象/1,416,806,621bytes）未送达，用户确认稍后提供；未import、无receipt。外置盘旧MF97缓存仅发现Python归档/审计；大运目录只见原PLY/LCC，未找到指定tiled-voxel/voxel-tiles.json或流式LOD0，不能当匹配导航输入。新身份四瓦片生成/恢复/Detour查询、472旧报告新版重筛、移机原生/GPU/回归与新试用包ID均未执行。原同XZ上下仍双向partial，建筑楼层/双向楼梯/分层高斯底图仍未完成；华发仍未上线。
+
+服务实际运行于Mac Studio的127.0.0.1:5185，两展?scene=apms-2026或sdi-2026，Studio /studio/；localhost属于本机，未开放公网。导航/地图暂不就绪，大运/修正版不是已通过入口。
+
+Spec符合性自查：设备初始化、资源迁移和多层完成分列；原件只读、固定依赖/预算/旧身份/分母保留，不伪造原机成绩。代码/文档质量自查：无产品源码修改，合同/三类型/两构建真实通过，诊断保留；本机配置/证据忽略，阶段差异仅唯一Spec/Plan/报告。均为self-review，未称独立审查。正常推送后读回SHA并回填Issue97；无main修改、PR、发布或部署。
