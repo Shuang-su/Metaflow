@@ -129,7 +129,7 @@ const key = {
   recastVersion: JSON.parse(
     readFileSync(
       new URL(
-        "../node_modules/recast-navigation/package.json",
+        "../../mf79-viewer-trial/node_modules/recast-navigation/package.json",
         import.meta.url,
       ),
       "utf8",
