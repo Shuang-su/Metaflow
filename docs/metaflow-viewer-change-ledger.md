@@ -623,3 +623,10 @@ The 2026-08-15 Viewer 5.19.2 release-record commit updated package/version/index
 
 - [PR #136](https://github.com/Shuang-su/Metaflow/pull/136)于2026-10-09T08:03:07Z正常squash合并。候选`43a2adc6b0b36406e4a738108651b359d2e31947`的[CI37900845431](https://github.com/Shuang-su/Metaflow/actions/runs/37900845431)所选Viewer/Director、开发及构建E2E、治理、数据、文档、CodeQL和summary通过。rc3保持完整来源可达；审查线程回读来源后解决，未使用管理员绕过。
 - 完整预览`6ac89bde11544c2d46c51840`：8文件字节/300路由引用、79主体/51环境及缓存头通过；真实缇宝/环境128收敛，实际UI1920×1080 PNG/128完成。当前浏览器照片215秒、空队列通知约9.9秒，性能异常仍单列；没有由Agent开启OS低电量。正式tag/build、生产输出和观察另行回填。
+
+### `5.21.9` · `70961255c1b03a37be91079de4316fb9cf2b3a09` · production recovery validation
+
+- 正式tag/build`b0ececaf61f1c41b63e819f64f7fe50e1428dc49`（PR137，精确CI37902837466通过）；产品PR136、CI37900845431通过。Netlify`6ac8a216e683f6d6589d8376`于2026-10-09T08:18:15.000Z发布，原样提升完整预览，实际版本/SHA/字节回读一致；未改历史tag。
+- 当前IAB正式128预览，实际1080p/128 PNG5.808秒与慢候选照片字节相同；真实UI相机/焦点/光圈变化H.264 1080p30/1秒/30不同帧、每帧128，157.173秒，完整解码。再次启动在能力检查阶段取消，无新Blob，控制恢复。
+- 正式测试页销毁GPU后立即暂停，重建保持完整摄影/镜头JSON与time=1，Undo/Redo有效。真实OS低电量未开启/验证；旧20秒超时、215秒慢候选及驱动现象保留，不由恢复推断唯一原因或降画质。
+- 8文件/300路线引用/79主体/51环境及缓存头通过；首次TLS EOF后完整重跑无重试。16轮900.006260秒生产观察无回读错误。26[公开附件](https://github.com/Shuang-su/Metaflow/releases/tag/viewer-v5.21.9)匿名大小/SHA匹配；[原生Issue图片/视频与中文分析](https://github.com/Shuang-su/Metaflow/issues/106#issuecomment-6077533228)。模型、环境、settings、资源对象、schema与Editor不改；回退5.21.8部署`6ac87f543e88e78932eb4e4e`。完整边界见[验证记录](changes/106-acg-director/verification.md)。
