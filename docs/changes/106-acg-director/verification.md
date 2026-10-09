@@ -350,6 +350,12 @@
 ## 5.21.7 合并及发布准备
 
 - [PR #131](https://github.com/Shuang-su/Metaflow/pull/131)常规squash合并产品 `f7459408edecc7ef0b744dd9c5aaa3620a4ebd51`，精确候选 `8194cdb3a4c8d0eb0f57c116c952d549b2207855` 的[CI 37884934299](https://github.com/Shuang-su/Metaflow/actions/runs/37884934299)所选Viewer/Director/Viewer开发及构建E2E、数据、治理、文档、CodeQL及summary成功。未选中的组件skipped。`viewer-v5.21.7-rc1`保留所有本轮来源，5.21.7尚未生产发布的candidate记录回填实际产品SHA，旧正式版本条目不改写。
+
+## 5.21.8 启动恢复来源验证
+
+- 5.21.7生产浏览器在2026-10-09T05:01:23.076Z记录一次`Failed to fetch dynamically imported module: /director/entry.js`；普通刷新后入口、字体、WASM均200，主模型/环境512收敛。获取失败前未启用网络录制，不能推断具体网络或浏览器原因。单次失败历史不从观察记录删除。
+- 主动503故障注入：首次入口失败后使用`?mf_retry=1`自动恢复，无人工刷新，实际场景128收敛；持续失败按每轮四次退出，显示重试按钮及对应Viewer链接。按钮再次启动累计八次，未无限循环。故障服务器直接调用宿主转换函数，非正式构建；构建版本和正常Viewer返回继续复查。
+- 四项新增行为测试、Viewer完整148/148通过；语法/运行/GPU错误不重试、预算及最终错误保留、SDK模板不改变。JSON与当前Viewer交接的生产误差均小于1e-6，参数/焦点核对见本地`production-handoff-actual.json`。实际源码、构建、CI与部署另行回填。
 - 完整预览8个文件字节/300路线及引用、79主模型/51环境、8redirect/9header通过。当前预览真实缇宝/环境128收敛，Operator展开、390亮色PHOTO Capture64×42、VIDEO REC64×42、教程关闭不出现Show、border=0、无横向溢出及console error为0。只读布局脚本初次使用不存在的.stage选择器失败，修正为实际.view-frame后核对；非产品错误。
 - 7张中文对照图与2个过程视频已通过GitHub原生附件发布于[MF-106正文](https://github.com/Shuang-su/Metaflow/issues/106#issuecomment-6074383785)及[MF-62分析](https://github.com/Shuang-su/Metaflow/issues/62#issuecomment-6074392326)。匿名GET全部200、字节和SHA256与本地一致，正文video controls播放器实际存在。此前原生附件失败的历史记录保留，本轮通路已完成。
 - 四场景960×540、五类输入各五轮、每轮5秒，共100轮产品调度测试，耗时537.4秒：全有新画面、最终状态必达、无错误；最终各场景恢复128。通过程序化摄影状态输入，非原生DOM/真机手势，也未称GPU时间。原始输入/呈现时间、哈希、相机和逐轮统计在four-scene-input-current/summary.json。首轮取证脚本未重置样本计数而中断，修正后完整重跑；首轮不充作验收。
