@@ -1,14 +1,14 @@
 {
   "schemaVersion": "1.1",
   "cutoffGitRef": "c613a87",
-  "documentedThrough": "066ab435f5f4a11282053e0f087205fa8dc0369e",
+  "documentedThrough": "62d593659d1a4167aa37f1cc1c1e18c788184d7b",
   "defaultResourceVersion": "1.0a",
   "current": {
-    "displayVersion": "5.21.8",
-    "appSemver": "5.21.8",
+    "displayVersion": "5.21.9",
+    "appSemver": "5.21.9",
     "indexSchemaVersion": "1.2",
     "date": "2026-10-09",
-    "gitRef": "066ab435f5f4a11282053e0f087205fa8dc0369e",
+    "gitRef": "62d593659d1a4167aa37f1cc1c1e18c788184d7b",
     "historyUrl": "/data/version-history.json",
     "upstream": {
       "repository": "playcanvas/supersplat-viewer",
@@ -1830,6 +1830,23 @@
         "evidence": "docs/changes/106-acg-director/verification.md",
         "releaseTag": "viewer-v5.21.8",
         "pullRequest": "https://github.com/Shuang-su/Metaflow/pull/133"
+      }
+    },
+    {
+      "displayVersion": "5.21.9",
+      "appSemver": "5.21.9",
+      "type": "fix",
+      "scope": "viewer",
+      "date": "2026-10-09",
+      "gitRef": "62d593659d1a4167aa37f1cc1c1e18c788184d7b",
+      "summary": "摄影设备采用浏览器默认WebGPU适配器策略，保留RGBA32F能力检查及完整孔径成片；记录实际初始化失败和恢复对照",
+      "trace": {
+        "changeId": "MF-106",
+        "issue": "https://github.com/Shuang-su/Metaflow/issues/106",
+        "spec": "docs/changes/106-acg-director/spec.md",
+        "plan": "docs/changes/106-acg-director/plan.md",
+        "evidence": "docs/changes/106-acg-director/verification.md",
+        "releaseTag": "viewer-v5.21.9"
       }
     }
   ]

@@ -599,3 +599,9 @@ The 2026-08-15 Viewer 5.19.2 release-record commit updated package/version/index
 
 - [PR #133](https://github.com/Shuang-su/Metaflow/pull/133)已正常合并；精确候选ebb787fda的[CI 37888868821](https://github.com/Shuang-su/Metaflow/actions/runs/37888868821)所选Viewer/Director、开发及构建E2E、治理、文档、数据和CodeQL及summary成功。自动审查提出旧断言，实际修复、CI验证并解决审查线程后正常合并，没有管理员绕过。
 - 不可变viewer-v5.21.8-rc1保留来源`25eea922cead3e38006780d55859f76c5f050010`及b6250e417/00d3e5628维护记录；本版本尚未生产的候选来源指向实际产品SHA，旧正式条目不改写。实际构建503自动恢复/失败退出及Viewer返回通过；正式tag/build、最终部署、照片/视频及观察另行追加。
+
+
+### `5.21.9` · `62d593659d1a4167aa37f1cc1c1e18c788184d7b` · WebGPU adapter selection candidate
+
+- 摄影使用浏览器默认适配器策略，去掉非质量契约的高性能电源提示；WebGPU、RGBA32F、采样、分辨率、孔径、编码能力及20秒边界均保持。原始设备超时与HTTP检查分别记录，未推断唯一驱动原因。
+- Director36项/类型及同资源本地128收敛通过；正常PR、精确HEAD CI、完整预览、生产实际摄影/输出及观察随后回填。范围、模型和公开接口不变，回退5.21.8部署`6ac87f543e88e78932eb4e4e`。

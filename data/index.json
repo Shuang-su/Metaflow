@@ -2,9 +2,9 @@
   "version": "1.0",
   "schemaVersion": "1.2",
   "release": {
-    "displayVersion": "5.21.8",
-    "appSemver": "5.21.8",
-    "gitRef": "066ab435f5f4a11282053e0f087205fa8dc0369e",
+    "displayVersion": "5.21.9",
+    "appSemver": "5.21.9",
+    "gitRef": "62d593659d1a4167aa37f1cc1c1e18c788184d7b",
     "schemaVersion": "1.2",
     "historyUrl": "/data/version-history.json",
     "updatedAt": "2026-10-09"
