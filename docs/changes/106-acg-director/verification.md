@@ -343,3 +343,5 @@
 - 发布准备初次Viewer检查在索引镜像仍为5.21.6及测试固定版本常量时失败；只更新release镜像和既有版本断言至5.21.7，100个资源对象逐项与origin/main一致。fmt脚本实际名为fmt，修正取证命令；未修改测试以绕过代码问题。
 
 - 发布候选完整预览 `6ac86d1c8db6a7638d84d9b1` 已ready，8项文件与300项路由/资源引用回读匹配，8条redirect/9条header。精确head e1e4c3e 的CI 37883820495中Viewer/Director成功，治理因5.21.7新增条目尚未写入已创建PR #131链接失败；补齐真实trace后本地check-all通过，不绕过检查。
+
+- PR trace回填后release-contract发现公开version-history镜像尚未同步，随后同步metadata/data两份记录并重跑；两次失败都属于发布记录，产品代码未变。
