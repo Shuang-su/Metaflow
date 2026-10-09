@@ -605,3 +605,5 @@ The 2026-08-15 Viewer 5.19.2 release-record commit updated package/version/index
 
 - 摄影使用浏览器默认适配器策略，去掉非质量契约的高性能电源提示；WebGPU、RGBA32F、采样、分辨率、孔径、编码能力及20秒边界均保持。原始设备超时与HTTP检查分别记录，未推断唯一驱动原因。
 - Director36项/类型及同资源本地128收敛通过；正常PR、精确HEAD CI、完整预览、生产实际摄影/输出及观察随后回填。范围、模型和公开接口不变，回退5.21.8部署`6ac87f543e88e78932eb4e4e`。
+
+- [PR #136](https://github.com/Shuang-su/Metaflow/pull/136)记录设备选择修正；候选维护来源`f54794bb53385f58a11a98448c9d1c31521f7d07`同步PATCH镜像与既有版本断言，未改变模型资源。

@@ -311,6 +311,11 @@
       "gitRef": "25eea922cead3e38006780d55859f76c5f050010",
       "date": "2026-10-09",
       "summary": "MF-106 original bounded-import recovery source, preserved by viewer-v5.21.8-rc1; final product is PR 133 squash."
+    },
+    {
+      "gitRef": "f54794bb53385f58a11a98448c9d1c31521f7d07",
+      "date": "2026-10-09",
+      "summary": "MF-106 5.21.9 candidate version mirrors and adapter-selection source; preserved by viewer-v5.21.9-rc1."
     }
   ],
   "entries": [
@@ -1846,7 +1851,8 @@
         "spec": "docs/changes/106-acg-director/spec.md",
         "plan": "docs/changes/106-acg-director/plan.md",
         "evidence": "docs/changes/106-acg-director/verification.md",
-        "releaseTag": "viewer-v5.21.9"
+        "releaseTag": "viewer-v5.21.9",
+        "pullRequest": "https://github.com/Shuang-su/Metaflow/pull/136"
       }
     }
   ]
