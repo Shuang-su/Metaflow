@@ -617,3 +617,9 @@ The 2026-08-15 Viewer 5.19.2 release-record commit updated package/version/index
 
 - 完整来源包含默认适配器策略、20秒慢提示／90秒错误边界、取消与迟到设备释放、GPU丢失停止任务并恢复取景／镜头／撤销历史；失败后关闭旧慢提示。来源`b708555e71a1cea8e87225e6b30105e24ba84802`和候选`150c307ab8ff53b12c04889671e51264f4b34cbb`由不可变rc2保留。
 - [CI 37899588517](https://github.com/Shuang-su/Metaflow/actions/runs/37899588517)指出Ledger规范行与documentedThrough不一致；修复实际镜像及记录，未削弱断言。新精确HEAD CI和生产回读随后追加。[PR #136](https://github.com/Shuang-su/Metaflow/pull/136)。
+
+
+### `5.21.9` · `70961255c1b03a37be91079de4316fb9cf2b3a09` · slow-device recovery product
+
+- [PR #136](https://github.com/Shuang-su/Metaflow/pull/136)于2026-10-09T08:03:07Z正常squash合并。候选`43a2adc6b0b36406e4a738108651b359d2e31947`的[CI37900845431](https://github.com/Shuang-su/Metaflow/actions/runs/37900845431)所选Viewer/Director、开发及构建E2E、治理、数据、文档、CodeQL和summary通过。rc3保持完整来源可达；审查线程回读来源后解决，未使用管理员绕过。
+- 完整预览`6ac89bde11544c2d46c51840`：8文件字节/300路由引用、79主体/51环境及缓存头通过；真实缇宝/环境128收敛，实际UI1920×1080 PNG/128完成。当前浏览器照片215秒、空队列通知约9.9秒，性能异常仍单列；没有由Agent开启OS低电量。正式tag/build、生产输出和观察另行回填。
