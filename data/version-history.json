@@ -296,6 +296,16 @@
       "gitRef": "2ed2ae21280d4115a78dedce2d316994b847379f",
       "date": "2026-10-09",
       "summary": "MF-106 5.21.7 original optical and interaction source checkpoint, preserved by viewer-v5.21.7-rc1; final product is PR 131 squash."
+    },
+    {
+      "gitRef": "b6250e41720009b92f9a530508da543af01a069a",
+      "date": "2026-10-09",
+      "summary": "MF-106 5.21.8 candidate version mirrors and 5.21.7 production evidence; original behavior source 25eea922c."
+    },
+    {
+      "gitRef": "00d3e56285bb1f3816853ebb532e76af2688dd7c",
+      "date": "2026-10-09",
+      "summary": "MF-106 bootstrap isolation assertion adapts to bounded importer, preserving routing semantics; browser fault and failed CI evidence."
     }
   ],
   "entries": [

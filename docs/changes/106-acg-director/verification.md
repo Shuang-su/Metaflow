@@ -396,3 +396,5 @@
 - 实际完整构建5.21.8再次注入首次503自动恢复，场景128收敛；持续503四次后返回入口实际导航到原资源Viewer，正常呈现动画控制。独立预览正常完整加载，控制台无错误。
 - 精确head b6250e417的[CI 37887980827](https://github.com/Shuang-su/Metaflow/actions/runs/37887980827)因Director旧测试硬编码直接`await import`字符串失败；实际行为已替换为有限重试函数。断言改为保留摄影/Viewer分支和初始化顺序检查，新增四项网络重试行为检查仍保留，不削弱隔离要求；本地Director36项及类型通过，修订head重跑CI。
 - 第一个CLI预览6ac87940的版本历史文件出现immutable缓存头，未提升生产；重新使用已验证的部署工作目录，继续检查8redirect/9header及实际HTTP，失败候选保留。
+
+- CI 37888362657的Director36项、构建及两种Viewer E2E已通过；Viewer版本历史检查指出00d3e5628测试维护来源缺少maintenance记录。追加实际来源，不改测试/检查规则；精确最终head重跑。初次本地输入`typecheck`脚本名不存在，更正既有`type:check`后正常通过，保留命令修正记录。配置工作目录预览6ac87a38已ready，8文件/300路由引用及版本文件非immutable缓存头回读匹配，失败候选未生产。
