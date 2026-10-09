@@ -326,6 +326,11 @@
       "gitRef": "f75646559d6fcabfa9c355e4dee2eafde146af05",
       "date": "2026-10-09",
       "summary": "MF-106 initial 5.21.9 candidate trace and exact-head CI; preserved by viewer-v5.21.9-rc1."
+    },
+    {
+      "gitRef": "ecfdc1749eeb8366afe1ca9fe96d36e0b3f21d01",
+      "date": "2026-10-09",
+      "summary": "MF-106 slow-device candidate provenance and ledger records, preserved by viewer-v5.21.9-rc2."
     }
   ],
   "entries": [
