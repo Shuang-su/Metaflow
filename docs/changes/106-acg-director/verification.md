@@ -350,6 +350,12 @@
 ## 5.21.7 合并及发布准备
 
 - [PR #131](https://github.com/Shuang-su/Metaflow/pull/131)常规squash合并产品 `f7459408edecc7ef0b744dd9c5aaa3620a4ebd51`，精确候选 `8194cdb3a4c8d0eb0f57c116c952d549b2207855` 的[CI 37884934299](https://github.com/Shuang-su/Metaflow/actions/runs/37884934299)所选Viewer/Director/Viewer开发及构建E2E、数据、治理、文档、CodeQL及summary成功。未选中的组件skipped。`viewer-v5.21.7-rc1`保留所有本轮来源，5.21.7尚未生产发布的candidate记录回填实际产品SHA，旧正式版本条目不改写。
+
+## 5.21.8 启动恢复来源验证
+
+- 5.21.7生产浏览器在2026-10-09T05:01:23.076Z记录一次`Failed to fetch dynamically imported module: /director/entry.js`；普通刷新后入口、字体、WASM均200，主模型/环境512收敛。获取失败前未启用网络录制，不能推断具体网络或浏览器原因。单次失败历史不从观察记录删除。
+- 主动503故障注入：首次入口失败后使用`?mf_retry=1`自动恢复，无人工刷新，实际场景128收敛；持续失败按每轮四次退出，显示重试按钮及对应Viewer链接。按钮再次启动累计八次，未无限循环。故障服务器直接调用宿主转换函数，非正式构建；构建版本和正常Viewer返回继续复查。
+- 四项新增行为测试、Viewer完整148/148通过；语法/运行/GPU错误不重试、预算及最终错误保留、SDK模板不改变。JSON与当前Viewer交接的生产误差均小于1e-6，参数/焦点核对见本地`production-handoff-actual.json`。实际源码、构建、CI与部署另行回填。
 - 完整预览8个文件字节/300路线及引用、79主模型/51环境、8redirect/9header通过。当前预览真实缇宝/环境128收敛，Operator展开、390亮色PHOTO Capture64×42、VIDEO REC64×42、教程关闭不出现Show、border=0、无横向溢出及console error为0。只读布局脚本初次使用不存在的.stage选择器失败，修正为实际.view-frame后核对；非产品错误。
 - 7张中文对照图与2个过程视频已通过GitHub原生附件发布于[MF-106正文](https://github.com/Shuang-su/Metaflow/issues/106#issuecomment-6074383785)及[MF-62分析](https://github.com/Shuang-su/Metaflow/issues/62#issuecomment-6074392326)。匿名GET全部200、字节和SHA256与本地一致，正文video controls播放器实际存在。此前原生附件失败的历史记录保留，本轮通路已完成。
 - 四场景960×540、五类输入各五轮、每轮5秒，共100轮产品调度测试，耗时537.4秒：全有新画面、最终状态必达、无错误；最终各场景恢复128。通过程序化摄影状态输入，非原生DOM/真机手势，也未称GPU时间。原始输入/呈现时间、哈希、相机和逐轮统计在four-scene-input-current/summary.json。首轮取证脚本未重置样本计数而中断，修正后完整重跑；首轮不充作验收。
@@ -378,3 +384,17 @@
 |interior|aperture|245|104.9/120.8|305.3|
 
 正式tag/build/生产部署与15分钟观察仍在执行，回退仍为5.21.6 `6ac7ec0fa8239794c0ab5d12`。
+
+## 5.21.7 正式回读及5.21.8准备
+
+- 正式tag/build `42b3e172324c4f03a4c63a2b3df0552df8999fd8`，产品 `f7459408edecc7ef0b744dd9c5aaa3620a4ebd51`；Netlify `6ac873b8382d690120124c07`于2026-10-09T04:58:24.432Z发布。8文件与300路由/引用、79符合入口/51环境、8redirect/9header回读匹配。16轮HTTP观察900.009秒无回读错误。浏览器单次模块获取错误及刷新恢复另列，不能以HTTP观察覆盖。
+- 已承接实际Viewer机位：最大位置误差4.44e-16，target/focusPoint误差0；实际865623点含环境，512收敛。原光圈标定保持0.2493011431231506。
+- 5.21.8准备脚本初次使用错误元数据键`releases`，未写任何文件；更正现有`entries`后版本契约/MCL通过。Viewer148项、类型/lint/fmt通过；全部100资源对象与上次正式数据一致。只追加本版本，旧历史未改写。
+
+## 5.21.8 构建及首次CI核查
+
+- 实际完整构建5.21.8再次注入首次503自动恢复，场景128收敛；持续503四次后返回入口实际导航到原资源Viewer，正常呈现动画控制。独立预览正常完整加载，控制台无错误。
+- 精确head b6250e417的[CI 37887980827](https://github.com/Shuang-su/Metaflow/actions/runs/37887980827)因Director旧测试硬编码直接`await import`字符串失败；实际行为已替换为有限重试函数。断言改为保留摄影/Viewer分支和初始化顺序检查，新增四项网络重试行为检查仍保留，不削弱隔离要求；本地Director36项及类型通过，修订head重跑CI。
+- 第一个CLI预览6ac87940的版本历史文件出现immutable缓存头，未提升生产；重新使用已验证的部署工作目录，继续检查8redirect/9header及实际HTTP，失败候选保留。
+
+- CI 37888362657的Director36项、构建及两种Viewer E2E已通过；Viewer版本历史检查指出00d3e5628测试维护来源缺少maintenance记录。追加实际来源，不改测试/检查规则；精确最终head重跑。初次本地输入`typecheck`脚本名不存在，更正既有`type:check`后正常通过，保留命令修正记录。配置工作目录预览6ac87a38已ready，8文件/300路由引用及版本文件非immutable缓存头回读匹配，失败候选未生产。
