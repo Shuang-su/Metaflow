@@ -12,7 +12,7 @@
 sh /path/to/mf97-bootstrap.sh /Users/szmg/Documents/Metaflow
 ```
 
-脚本使用 `--filter=blob:none --no-checkout --single-branch --no-tags`，仓库本地 LFS skip-smudge，稀疏展开 `metaflow-viewer mf79-viewer-trial mf97-viewer-trial supersplat-v2.32.5 docs metadata scripts`。不浅克隆、不全量 LFS 拉取；保持历史可用。可设置 `MF97_EXPECT_COMMIT` 核对交付 SHA。默认保留20GiB空闲及2GiB依赖估算；只在本机验证时使用 `MF97_BOOTSTRAP_PROFILE=local`。
+脚本使用 `--filter=blob:none --no-checkout --single-branch --no-tags`，仓库本地 LFS skip-smudge，稀疏展开 `metaflow-viewer mf79-viewer-trial mf97-viewer-trial supersplat-v2.32.5 docs metadata scripts analytics`。`analytics`仅包含Viewer编译所需的tracking-plan.json，来自全新构建的实际依赖检查。不浅克隆、不全量 LFS 拉取；保持历史可用。可设置 `MF97_EXPECT_COMMIT` 核对交付 SHA。默认保留20GiB空闲及2GiB依赖估算；只在本机验证时使用 `MF97_BOOTSTRAP_PROFILE=local`。
 
 Node22.23.3 官方 arm64 tar.gz SHA-256 固定为 `23b25245dcfb9af7262f8ff142e9e2e0af025368117329e7a7458a51e5922f53`，同时比对官方 SHASUMS256。Node、下载和 npm 缓存均在新项目 `.codex-work`。四目录正常执行 `npm ci`，不禁用安装脚本；两试用目录已补 lockfile、固定直接依赖及 TypeScript/Node 类型依赖。
 

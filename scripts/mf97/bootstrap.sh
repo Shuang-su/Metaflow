@@ -21,7 +21,7 @@ GIT_LFS_SKIP_SMUDGE=1 git clone --filter=blob:none --no-checkout --single-branch
     --branch codex/mf97-navigation https://github.com/Shuang-su/Metaflow.git "$target"
 cd "$target"
 git lfs install --local --skip-smudge
-git sparse-checkout set --cone metaflow-viewer mf79-viewer-trial mf97-viewer-trial supersplat-v2.32.5 docs metadata scripts
+git sparse-checkout set --cone metaflow-viewer mf79-viewer-trial mf97-viewer-trial supersplat-v2.32.5 docs metadata scripts analytics
 GIT_LFS_SKIP_SMUDGE=1 git checkout codex/mf97-navigation
 if [ -n "${MF97_EXPECT_COMMIT:-}" ] && [ "$(git rev-parse HEAD)" != "$MF97_EXPECT_COMMIT" ]; then
     printf '%s\n' 'Branch SHA differs from the requested checkpoint; preserve the checkout for inspection.' >&2; exit 1
