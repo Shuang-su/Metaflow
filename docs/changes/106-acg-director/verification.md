@@ -345,3 +345,36 @@
 - 发布候选完整预览 `6ac86d1c8db6a7638d84d9b1` 已ready，8项文件与300项路由/资源引用回读匹配，8条redirect/9条header。精确head e1e4c3e 的CI 37883820495中Viewer/Director成功，治理因5.21.7新增条目尚未写入已创建PR #131链接失败；补齐真实trace后本地check-all通过，不绕过检查。
 
 - PR trace回填后release-contract发现公开version-history镜像尚未同步，随后同步metadata/data两份记录并重跑；两次失败都属于发布记录，产品代码未变。
+
+
+## 5.21.7 合并及发布准备
+
+- [PR #131](https://github.com/Shuang-su/Metaflow/pull/131)常规squash合并产品 `f7459408edecc7ef0b744dd9c5aaa3620a4ebd51`，精确候选 `8194cdb3a4c8d0eb0f57c116c952d549b2207855` 的[CI 37884934299](https://github.com/Shuang-su/Metaflow/actions/runs/37884934299)所选Viewer/Director/Viewer开发及构建E2E、数据、治理、文档、CodeQL及summary成功。未选中的组件skipped。`viewer-v5.21.7-rc1`保留所有本轮来源，5.21.7尚未生产发布的candidate记录回填实际产品SHA，旧正式版本条目不改写。
+- 完整预览8个文件字节/300路线及引用、79主模型/51环境、8redirect/9header通过。当前预览真实缇宝/环境128收敛，Operator展开、390亮色PHOTO Capture64×42、VIDEO REC64×42、教程关闭不出现Show、border=0、无横向溢出及console error为0。只读布局脚本初次使用不存在的.stage选择器失败，修正为实际.view-frame后核对；非产品错误。
+- 7张中文对照图与2个过程视频已通过GitHub原生附件发布于[MF-106正文](https://github.com/Shuang-su/Metaflow/issues/106#issuecomment-6074383785)及[MF-62分析](https://github.com/Shuang-su/Metaflow/issues/62#issuecomment-6074392326)。匿名GET全部200、字节和SHA256与本地一致，正文video controls播放器实际存在。此前原生附件失败的历史记录保留，本轮通路已完成。
+- 四场景960×540、五类输入各五轮、每轮5秒，共100轮产品调度测试，耗时537.4秒：全有新画面、最终状态必达、无错误；最终各场景恢复128。通过程序化摄影状态输入，非原生DOM/真机手势，也未称GPU时间。原始输入/呈现时间、哈希、相机和逐轮统计在four-scene-input-current/summary.json。首轮取证脚本未重置样本计数而中断，修正后完整重跑；首轮不充作验收。
+
+|场景|输入|5轮呈现数|输入至显示中位/p95 ms|最终值p95 ms|
+|---|---|---:|---:|---:|
+|foreground|orbit|2374|14.8/18.9|26.1|
+|foreground|pan|2417|14.8/19.4|31.9|
+|foreground|zoom|2480|14.2/19.2|24.8|
+|foreground|focus|1349|22.1/31.0|41.8|
+|foreground|aperture|1606|20.4/26.0|38.8|
+|ramp|orbit|2330|15.0/19.1|32.8|
+|ramp|pan|2317|15.1/18.9|38.2|
+|ramp|zoom|2327|15.0/19.2|30.8|
+|ramp|focus|1219|24.3/32.3|37.9|
+|ramp|aperture|1613|20.5/25.6|44.6|
+|portrait|orbit|872|33.0/38.9|98.4|
+|portrait|pan|871|32.9/38.3|98.3|
+|portrait|zoom|817|34.5/42.4|115.1|
+|portrait|focus|503|53.6/62.7|121.3|
+|portrait|aperture|573|48.0/55.1|110.0|
+|interior|orbit|434|59.6/78.7|277.0|
+|interior|pan|368|67.8/93.3|348.7|
+|interior|zoom|379|66.9/88.3|282.9|
+|interior|focus|220|112.7/180.3|296.4|
+|interior|aperture|245|104.9/120.8|305.3|
+
+正式tag/build/生产部署与15分钟观察仍在执行，回退仍为5.21.6 `6ac7ec0fa8239794c0ab5d12`。
