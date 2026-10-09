@@ -571,3 +571,10 @@ The 2026-08-15 Viewer 5.19.2 release-record commit updated package/version/index
 - Director36项、类型/构建；四场景重新对照Spark/GPU/CPU及各10次重复；24本地+24来源DPR2状态、真实一秒1080p与三档短动态4K通过。具体计时、压缩、资产及未运行设备边界见[验证记录](changes/106-acg-director/verification.md)。精确HEAD CI、预览与正式部署/15分钟观察另行回读；当前生产仍为5.21.6。回退部署`6ac7ec0fa8239794c0ab5d12`。
 
 - 候选维护来源`9147392fc56e356ad5a09e05232367fc35096bb6`更新5.21.7镜像、诊断开发基址与实际转场输出；源码checkpoint仍为2ed2ae212，正式产品/部署另行回填。
+
+
+### `5.21.7` · `f7459408edecc7ef0b744dd9c5aaa3620a4ebd51` · optical and feedback product
+
+- [PR #131](https://github.com/Shuang-su/Metaflow/pull/131)已合并；精确候选[CI 37884934299](https://github.com/Shuang-su/Metaflow/actions/runs/37884934299)所选检查通过，不绕过分支规则。不可变rc1固定8194cdb3a并保留源码`2ed2ae21280d4115a78dedce2d316994b847379f`及既有维护记录。
+- 四场景100轮输入全部有呈现、最终状态与128收敛；24本地+24来源DPR2状态、原生控件及缓存、三档真实动态4K、四转场取消重试见[验证记录](changes/106-acg-director/verification.md)。完整站点预览、79/51资源、8redirect/9header通过。
+- [原生正文附件](https://github.com/Shuang-su/Metaflow/issues/106#issuecomment-6074383785)7图2视频已匿名GET/哈希验证；Fast方差及Float32深度稳定排序两项因果修复与扫描/材料边界分开说明。正式tag/build/部署随后记录，未将候选称为生产。

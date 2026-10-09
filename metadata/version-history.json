@@ -1,14 +1,14 @@
 {
   "schemaVersion": "1.1",
   "cutoffGitRef": "c613a87",
-  "documentedThrough": "2ed2ae21280d4115a78dedce2d316994b847379f",
+  "documentedThrough": "f7459408edecc7ef0b744dd9c5aaa3620a4ebd51",
   "defaultResourceVersion": "1.0a",
   "current": {
     "displayVersion": "5.21.7",
     "appSemver": "5.21.7",
     "indexSchemaVersion": "1.2",
     "date": "2026-10-09",
-    "gitRef": "2ed2ae21280d4115a78dedce2d316994b847379f",
+    "gitRef": "f7459408edecc7ef0b744dd9c5aaa3620a4ebd51",
     "historyUrl": "/data/version-history.json",
     "upstream": {
       "repository": "playcanvas/supersplat-viewer",
@@ -291,6 +291,11 @@
       "gitRef": "9147392fc56e356ad5a09e05232367fc35096bb6",
       "date": "2026-10-09",
       "summary": "MF-106 5.21.7 candidate release mirrors, diagnostic URL correction and evidence; source preserved by viewer-v5.21.7-rc1."
+    },
+    {
+      "gitRef": "2ed2ae21280d4115a78dedce2d316994b847379f",
+      "date": "2026-10-09",
+      "summary": "MF-106 5.21.7 original optical and interaction source checkpoint, preserved by viewer-v5.21.7-rc1; final product is PR 131 squash."
     }
   ],
   "entries": [
@@ -1782,7 +1787,7 @@
       "type": "fix",
       "scope": "viewer",
       "date": "2026-10-09",
-      "gitRef": "2ed2ae21280d4115a78dedce2d316994b847379f",
+      "gitRef": "f7459408edecc7ef0b744dd9c5aaa3620a4ebd51",
       "summary": "校准Fast焦外尺度并修复宽深度范围的透明排序；对齐Operator、对焦生命周期、内联控件及胶片编辑，保留同光学状态缓存",
       "trace": {
         "changeId": "MF-106",
