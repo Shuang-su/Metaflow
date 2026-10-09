@@ -1,14 +1,14 @@
 {
   "schemaVersion": "1.1",
   "cutoffGitRef": "c613a87",
-  "documentedThrough": "3aecaba6b0a7242570c0b03c38fad6a331672b86",
+  "documentedThrough": "70961255c1b03a37be91079de4316fb9cf2b3a09",
   "defaultResourceVersion": "1.0a",
   "current": {
     "displayVersion": "5.21.9",
     "appSemver": "5.21.9",
     "indexSchemaVersion": "1.2",
     "date": "2026-10-09",
-    "gitRef": "3aecaba6b0a7242570c0b03c38fad6a331672b86",
+    "gitRef": "70961255c1b03a37be91079de4316fb9cf2b3a09",
     "historyUrl": "/data/version-history.json",
     "upstream": {
       "repository": "playcanvas/supersplat-viewer",
@@ -341,6 +341,16 @@
       "gitRef": "150c307ab8ff53b12c04889671e51264f4b34cbb",
       "date": "2026-10-09",
       "summary": "MF-106 rc2 product-reference mirrors; subsequent CI identified documentedThrough and canonical Ledger mismatches, corrected without relaxing checks."
+    },
+    {
+      "gitRef": "3aecaba6b0a7242570c0b03c38fad6a331672b86",
+      "date": "2026-10-09",
+      "summary": "MF-106 complete slow-device source and final failure-status correction; preserved by viewer-v5.21.9-rc3, final product is PR 136 squash."
+    },
+    {
+      "gitRef": "43a2adc6b0b36406e4a738108651b359d2e31947",
+      "date": "2026-10-09",
+      "summary": "MF-106 complete rc3 trace and exact-head successful CI; preserved by immutable viewer-v5.21.9-rc3."
     }
   ],
   "entries": [
@@ -1868,7 +1878,7 @@
       "type": "fix",
       "scope": "viewer",
       "date": "2026-10-09",
-      "gitRef": "3aecaba6b0a7242570c0b03c38fad6a331672b86",
+      "gitRef": "70961255c1b03a37be91079de4316fb9cf2b3a09",
       "summary": "摄影采用浏览器默认WebGPU设备策略；慢启动继续等待，取消释放迟到设备，设备丢失后保留取景与视频编辑重建；完整RGBA32F孔径成片不变",
       "trace": {
         "changeId": "MF-106",
