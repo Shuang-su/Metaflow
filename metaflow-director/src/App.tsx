@@ -342,7 +342,7 @@ export function App() {
     playing: current.current.playing,
     original: current.current.original,
     peaking: current.current.peaking,
-    adjusting: current.current.adjusting,
+    adjusting: current.current.adjusting || animation.current !== null,
     viewRevision: intent.current,
     ...options,
   });
@@ -606,6 +606,8 @@ export function App() {
     stopMotion();
     const request = ++intent.current;
     setFocusMark({ x, y, id: request });
+    // The marker lifetime starts at input, independently of asynchronous picking.
+    setTimeout(() => setFocusMark((m) => (m?.id === request ? null : m)), 1850);
     try {
       const hit = await runtime.current.pick(x, y);
       if (request !== intent.current) return;
@@ -627,10 +629,6 @@ export function App() {
         setError((e as Error).message);
     } finally {
       if (request <= intent.current) resume();
-      setTimeout(
-        () => setFocusMark((m) => (m?.id === request ? null : m)),
-        1850,
-      );
     }
   };
   const pointerDown = (e: PE<HTMLDivElement>) => {
@@ -812,7 +810,11 @@ export function App() {
         dof: false,
         blur: 0,
         focusPoint: null,
-        controls: { ...controlsFor(from), blurAmount: 0 },
+        controls: {
+          ...controlsFor(from),
+          blurAmount: 0,
+          focusMode: "auto",
+        },
       }),
       { zoom: 70 },
     );
@@ -853,20 +855,17 @@ export function App() {
     commit(next);
     end();
     setLive(true);
-    animateCamera(
-      from,
-      target,
-      false,
-      mode === "video"
-        ? () => {
-            setLive(false);
-            setPlaying(true);
-            if (tutorial === "compose" || tutorial === "final-compose")
-              setTutorial("watch");
-          }
-        : undefined,
-      240,
-    );
+    if (mode === "video") {
+      // The reference starts the generated sequence immediately. Its 240ms
+      // camera-moving flag is not an additional camera animation or delay.
+      setLive(false);
+      setPlaying(true);
+      if (tutorial === "compose" || tutorial === "final-compose")
+        setTutorial("watch");
+    } else {
+      // Match the observed frame transform's 220ms cubic-bezier transition.
+      animateCamera(from, target);
+    }
     setStatus("Compose");
   };
   const interest = async (area: InterestArea, index: number) => {

@@ -25,6 +25,10 @@ export function precisionPatch(code, id) {
             const sortedIndices = this.sorter.sortIndirect(`,
     );
     replace(
+      "const sortBits = roundUp(SORT_KEY_BITS, this.sorter.radixBits);",
+      "const sortBits = (this.scene as any).directorStableOrder ? 32 : roundUp(SORT_KEY_BITS, this.sorter.radixBits);",
+    );
+    replace(
       "this.sorter.destroy();",
       "this.directorOrder?.destroy();\n        this.sorter.destroy();",
     );

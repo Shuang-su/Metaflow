@@ -28,6 +28,8 @@ export function Operator({
   // Moving between the header and compact row remounts this component. With
   // initial={false}, an already-open island has no enter animation to complete.
   const [settled, setSettled] = useState(active);
+  const interestLabel =
+    interestCount > 0 ? "Interest points" : "Set interest points";
   useEffect(() => {
     if (!active || selecting) return;
     const outside = (e: PointerEvent) => {
@@ -103,13 +105,13 @@ export function Operator({
           <button
             type="button"
             className={`auto-motion-icon-button auto-motion-focus-positions ${selecting ? "is-selecting" : ""}`}
-            aria-label="Set interest points"
-            data-tooltip="Set interest points"
+            aria-label={interestLabel}
+            data-tooltip={interestLabel}
             disabled={!active || disabled}
             onClick={onInterest}
           >
             <Focus size={18} strokeWidth={1.9} />
-            {interestCount > 0 && (
+            {active && interestCount > 0 && (
               <span className="auto-motion-position-badge" aria-hidden="true">
                 {Math.min(99, interestCount)}
               </span>
@@ -124,7 +126,7 @@ export function Operator({
                 className="auto-motion-icon-button"
                 aria-label="Clear interest points"
                 data-tooltip="Clear interest points"
-                disabled={disabled}
+                disabled={!active || disabled}
                 initial={{ opacity: 0, scale: 0.72, width: 0 }}
                 animate={{ opacity: 1, scale: 1, width: 28 }}
                 exit={{ opacity: 0, scale: 0.72, width: 0 }}

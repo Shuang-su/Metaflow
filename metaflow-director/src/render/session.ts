@@ -5,7 +5,11 @@ import { setScenePrecision } from "./precision-target";
 import { ApertureGpu } from "./aperture-gpu";
 import { FloatImage } from "./float-image";
 import { OffscreenSurface } from "./offscreen-surface";
-import { apertureDiameter, apertureSample } from "./optics";
+import {
+  apertureDiameter,
+  apertureSample,
+  PROJECTED_KERNEL_VARIANCE,
+} from "./optics";
 import {
   Color,
   Entity,
@@ -249,6 +253,7 @@ export class CandidateSession {
     const version = ++this.generation;
     return this.enqueue(async () => {
       this.scene.clear();
+      this.splat = null;
       this.fs?.sources.forEach((source: any) => source.close());
       this.fs = new MappedReadFileSystem();
       assets.forEach((asset) =>
@@ -274,6 +279,7 @@ export class CandidateSession {
         return { points, models: assets.length };
       } catch (error) {
         this.scene.clear();
+        this.splat = null;
         throw error;
       }
     });
@@ -374,7 +380,9 @@ export class CandidateSession {
     (this.scene as any).directorOptics = [
       Math.max(camera.near, focus),
       apertureDiameter(p.optics as any, p.blur),
-      this.path === "candidate" && (fast || this.legacyFast) && p.dof ? 1 : 0,
+      this.path === "candidate" && (fast || this.legacyFast) && p.dof
+        ? 1 / PROJECTED_KERNEL_VARIANCE
+        : 0,
       p.nearBlur ? 1 : 0,
     ];
   }

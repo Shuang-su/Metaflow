@@ -22,6 +22,67 @@ const { viewPose, thumbnailKey, thumbnailSize } = await source(
   "src/core/view-state.ts",
 );
 const { timelineLayout } = await source("src/core/timeline-layout.ts");
+const { PROJECTED_KERNEL_VARIANCE } = await source("src/render/optics.ts");
+test("inserting and removing camera positions preserves views and evenly timed endpoints", () => {
+  const shot = model.makeShot("resource", model.DEFAULT_POSE);
+  shot.duration = 3;
+  shot.keys[1].time = 3;
+  shot.keys[0].pose.yaw = 10;
+  shot.keys[1].pose.yaw = 50;
+  const before = structuredClone(shot);
+  const middle = model.insertCameraPosition(shot, 0);
+  assert.deepEqual(shot, before);
+  assert.deepEqual(
+    middle.shot.keys.map((k) => k.time),
+    [0, 1.5, 3],
+  );
+  assert.deepEqual(
+    middle.shot.keys.map((k) => k.pose.yaw),
+    [10, 30, 50],
+  );
+  assert.equal(middle.time, 1.5);
+  const end = model.insertCameraPosition(shot, 3, {
+    ...shot.keys[1].pose,
+    yaw: 80,
+  });
+  assert.deepEqual(
+    end.shot.keys.map((k) => k.pose.yaw),
+    [10, 80, 80],
+  );
+  assert.equal(end.time, 3);
+  assert.equal(end.shot.keys[0].id, shot.keys[0].id);
+  assert.equal(end.shot.keys[1].id, shot.keys[1].id);
+  for (const t of [0, 1.5, 3]) {
+    const removed = model.removeCameraPosition(middle.shot, t);
+    assert.deepEqual(
+      removed.shot.keys.map((k) => k.time),
+      [0, 3],
+    );
+    assert.equal(removed.shot.keys.length, 2);
+  }
+  assert.deepEqual(model.removeCameraPosition(shot, 0).shot, shot);
+});
+test("fast aperture calibration matches the measured moment of the pinned radial profile", () => {
+  // Independent numerical integration of the rendered profile, not its formula.
+  const steps = 100000;
+  let mass = 0,
+    radialMoment = 0;
+  for (let i = 0; i < steps; i++) {
+    const r = (i + 0.5) / steps;
+    const density = (Math.exp(-4 * r * r) - Math.exp(-4)) / (1 - Math.exp(-4));
+    mass += r * density;
+    radialMoment += r * r * r * density;
+  }
+  // One axis contributes half the radial moment; projected axes are sqrt(8λ).
+  const measured = (4 * radialMoment) / mass;
+  assert(Math.abs(measured - PROJECTED_KERNEL_VARIANCE) < 1e-9);
+  for (const radius of [0.001, 0.1, 1, 100, 10000]) {
+    const covariance = (radius * radius) / (4 * PROJECTED_KERNEL_VARIANCE);
+    assert(
+      Math.abs((covariance * measured) / ((radius * radius) / 4) - 1) < 1e-9,
+    );
+  }
+});
 test("filmstrip layout matches observed desktop and compact origins and preserves short clip seeking", () => {
   const shot = model.makeShot("resource", model.DEFAULT_POSE);
   shot.duration = 3;

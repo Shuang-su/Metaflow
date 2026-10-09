@@ -473,7 +473,9 @@
   align-items: center;
   gap: 7px;
   width: 100%;
-  height: 40px;
+  height: 28px;
+  font-size: 12px;
+  line-height: 18px;
   box-sizing: border-box;
 }
 .top-settings-expanded.is-slider {
@@ -508,7 +510,8 @@
   color: var(--action-accent);
 }
 .lens-tick-slider {
-  height: 20px;
+  --lens-slider-active-height: 26px;
+  height: 28px;
   width: 100%;
   position: relative;
 }
@@ -519,28 +522,36 @@
   align-items: center;
   justify-content: space-between;
   pointer-events: none;
+  overflow: hidden;
 }
 .lens-slider-ticks span {
+  --tick-rest-height: 6px;
+  --tick-rest-opacity: 0.3;
   width: 1px;
-  height: 5px;
-  background: #717179;
+  height: var(--tick-rest-height);
+  background: var(--pill-bright);
+  opacity: var(--tick-rest-opacity);
+  border-radius: 999px;
   flex-shrink: 0;
   transform-origin: center;
 }
 .lens-slider-ticks span.is-step {
-  height: 9px;
-  background: #91919a;
+  --tick-rest-height: 11px;
+  --tick-rest-opacity: 0.62;
+  width: 2px;
 }
 .lens-slider-ticks span.is-pulsing {
-  animation: lens-tick-fall 0.32s ease-out;
+  animation: lens-tick-fall 0.32s cubic-bezier(0.22, 0.8, 0.3, 1) both;
 }
 @keyframes lens-tick-fall {
-  from {
-    transform: scaleY(1.8);
-    background: #f2f2f4;
+  0%,
+  7% {
+    height: var(--lens-slider-active-height);
+    opacity: 0.86;
   }
   to {
-    transform: scaleY(1);
+    height: var(--tick-rest-height);
+    opacity: var(--tick-rest-opacity);
   }
 }
 .lens-tick-slider input {
@@ -551,27 +562,40 @@
   margin: 0;
   padding: 0;
   width: 100%;
-  height: 20px;
+  height: 28px;
   background: transparent;
   border: 0;
   border-radius: 0;
   touch-action: none;
   cursor: ew-resize;
 }
+.lens-tick-slider input::-webkit-slider-runnable-track {
+  height: 20px;
+  background: transparent;
+  border-radius: 0;
+}
 .lens-tick-slider input::-webkit-slider-thumb {
   appearance: none;
   width: 4px;
-  height: 18px;
+  height: var(--lens-slider-active-height);
   border: 0;
-  border-radius: 3px;
+  border-radius: 2px;
+  margin-top: -3px;
   background: var(--action-accent);
-  box-shadow: 0 0 0 2px var(--pill-bg);
+  box-shadow: 0 0 0 1px
+    color-mix(in srgb, var(--action-accent) 26%, transparent);
+}
+.lens-tick-slider input::-moz-range-track {
+  height: 20px;
+  background: transparent;
+  border: 0;
+  border-radius: 0;
 }
 .lens-tick-slider input::-moz-range-thumb {
   width: 4px;
-  height: 18px;
+  height: var(--lens-slider-active-height);
   border: 0;
-  border-radius: 3px;
+  border-radius: 2px;
   background: var(--action-accent);
 }
 .pill-capture-wrap {
@@ -757,9 +781,10 @@ html[data-director-theme="light"] .director-tooltip {
   border: 1px solid #ffffff1a;
   border-radius: 999px;
   padding: 3px;
+  font-size: 12px;
   box-shadow:
-    0 1px 2px #0003,
-    0 6px 16px #00000012;
+    0 1px 2px #0000001f,
+    0 5px 16px #00000012;
   min-height: 42px;
 }
 .auto-motion-primary-island {
@@ -803,15 +828,19 @@ html[data-director-theme="light"] .director-tooltip {
   padding: 0;
   color: #fff;
   border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-size: 11px;
+  font-weight: 600;
+  gap: 6px;
 }
-.auto-motion-icon-button:hover,
-.auto-motion-icon-button.is-selecting {
-  background: #ffffff12;
+.auto-motion-icon-button:hover {
+  background: #ffffff2e;
 }
 .auto-motion-position-badge {
   position: absolute;
   top: -3px;
-  right: -3px;
+  right: -4px;
   display: grid;
   place-items: center;
   width: 16px;
@@ -820,7 +849,7 @@ html[data-director-theme="light"] .director-tooltip {
   background: #2f80ff;
   color: #fff;
   border: 2px solid #151517;
-  font-size: 8px;
+  font-size: 9px;
   font-weight: 750;
   pointer-events: none;
 }
@@ -1066,6 +1095,14 @@ html[data-director-theme="light"] .director-tooltip {
 .timeline-toolbar {
   position: relative;
   height: 56px;
+  font-size: 12px;
+}
+.director-filmstrip {
+  font-size: 12px;
+}
+/* The October reference keeps position labels in its DOM but hides them. */
+.director-position-tag {
+  display: none;
 }
 .timeline-selected-easing-wrap .shot-easing-menu {
   bottom: calc(100% + 8px);
@@ -1112,6 +1149,10 @@ html[data-director-theme="light"] .director-tooltip {
   height: 100%;
   top: 0;
   background: transparent;
+  color: #171619;
+  transition:
+    color 0.16s,
+    opacity 0.16s;
 }
 .timeline-clip-handle.is-left {
   left: 0;
@@ -1122,13 +1163,32 @@ html[data-director-theme="light"] .director-tooltip {
 .timeline-clip-handle:before {
   content: "";
   position: absolute;
-  left: 50%;
-  top: 18px;
-  height: 20px;
-  width: 3px;
-  margin-left: -1.5px;
-  border-radius: 2px;
-  background: #a1a1aa;
+  left: 5px;
+  top: 50%;
+  height: 18px;
+  width: 2px;
+  border-radius: 999px;
+  background: currentColor;
+  opacity: 0.42;
+  transform: translate(-50%, -50%);
+  transition:
+    opacity 0.14s,
+    transform 0.14s;
+}
+.timeline-clip-handle.is-right:before {
+  left: calc(100% - 5px);
+}
+.timeline-clip-handle:hover:before {
+  opacity: 0.72;
+  transform: translate(-50%, -50%) scale(1.15);
+}
+.timeline-clip-handle:active:before {
+  opacity: 0.9;
+  transform: translate(-50%, -50%) scale(1.2, 1.28);
+}
+.dark .director-filmstrip:not(.is-selected) .timeline-clip-handle:before {
+  opacity: 1;
+  background: #5d5d60;
 }
 .director-transition-slot {
   width: 22px;
@@ -1197,6 +1257,21 @@ html[data-director-theme="light"] .director-tooltip {
   .director {
     padding: 10px 10px 14px;
     gap: 8px;
+  }
+  .top-settings-expanded.is-slider,
+  .lens-tick-slider,
+  .lens-tick-slider input {
+    height: 36px;
+  }
+  .lens-tick-slider {
+    --lens-slider-active-height: 28px;
+  }
+  .lens-tick-slider input::-webkit-slider-thumb {
+    width: 5px;
+    margin-top: -4px;
+  }
+  .lens-tick-slider input::-moz-range-thumb {
+    width: 5px;
   }
   .director > header {
     height: 40px;

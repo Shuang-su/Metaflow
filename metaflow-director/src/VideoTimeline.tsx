@@ -23,6 +23,8 @@ import {
   totalDuration,
   poseAt,
   resizeShot,
+  insertCameraPosition,
+  removeCameraPosition,
   moveShotBefore,
   uid,
   type Project,
@@ -140,6 +142,16 @@ export function VideoTimeline(p: Props) {
     fieldEditing.current = false;
     p.onEnd();
   };
+  const restorePositionFocus = () => {
+    const position =
+      root.current?.querySelector<HTMLElement>(
+        ".timeline-clip.is-selected .director-position.active",
+      ) ??
+      root.current?.querySelector<HTMLElement>(
+        ".timeline-clip.is-selected .director-position",
+      );
+    position?.focus({ preventScroll: true });
+  };
   const present = useIsPresent();
   useEffect(() => {
     if (!present || p.busy) {
@@ -178,11 +190,16 @@ export function VideoTimeline(p: Props) {
         !(e.target as Element).closest(
           ".shot-easing-menu,.timeline-easing-button,.director-scene-context",
         )
-      )
+      ) {
+        // Commit before the input disappears: unmounting a focused field does
+        // not dispatch blur, and must not leave its undo gesture open.
+        endField();
         setPanel(null);
+      }
     };
     const key = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
+        cancelKeys();
         setPanel(null);
         if (trigger?.isConnected) trigger.focus({ preventScroll: true });
       }
@@ -481,23 +498,16 @@ export function VideoTimeline(p: Props) {
                     className="timeline-selected-shot-action"
                     aria-label={`Add camera position to ${shot.name}`}
                     onClick={() => {
-                      let t = local;
-                      if (shot.keys.some((k) => Math.abs(k.time - t) < 0.015)) {
-                        let gaps = shot.keys
-                          .slice(1)
-                          .map((k, i) => [shot.keys[i].time, k.time])
-                          .sort((a, b) => b[1] - b[0] - (a[1] - a[0]));
-                        t = (gaps[0][0] + gaps[0][1]) / 2;
-                      }
-                      update((s) => {
-                        s.keys.push({
-                          id: uid(),
-                          time: t,
-                          pose: structuredClone(p.workingPose ?? poseAt(s, t)),
-                        });
-                        s.keys.sort((a, b) => a.time - b.time);
-                      });
-                      p.onSelect(shot.id, (selectedRow?.start ?? 0) + t);
+                      const next = insertCameraPosition(
+                        shot,
+                        local,
+                        p.workingPose,
+                      );
+                      update((s) => Object.assign(s, next.shot));
+                      p.onSelect(
+                        shot.id,
+                        (selectedRow?.start ?? 0) + next.time,
+                      );
                     }}
                   >
                     <CirclePlus size={17} />
@@ -505,25 +515,18 @@ export function VideoTimeline(p: Props) {
                       Add position
                     </span>
                   </button>
-                  {shot.keys.some(
-                    (k, i) =>
-                      i > 0 &&
-                      i < shot.keys.length - 1 &&
-                      Math.abs(k.time - local) < 0.015,
-                  ) && (
+                  {shot.keys.length > 2 && (
                     <button
                       className="timeline-selected-shot-action"
                       aria-label="Remove position"
-                      onClick={() =>
-                        update((s) => {
-                          s.keys = s.keys.filter(
-                            (k, i) =>
-                              i === 0 ||
-                              i === s.keys.length - 1 ||
-                              Math.abs(k.time - local) > 0.015,
-                          );
-                        })
-                      }
+                      onClick={() => {
+                        const next = removeCameraPosition(shot, local);
+                        update((s) => Object.assign(s, next.shot));
+                        p.onSelect(
+                          shot.id,
+                          (selectedRow?.start ?? 0) + next.time,
+                        );
+                      }}
                     >
                       <CircleMinus size={17} />
                       <span className="timeline-track-tool-label">
@@ -906,11 +909,18 @@ export function VideoTimeline(p: Props) {
                 onFocus={beginField}
                 onBlur={endField}
                 onKeyDown={(e) => {
-                  if (e.key === "Escape") {
+                  if (e.key === "Enter") {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    endField();
+                    setPanel(null);
+                    restorePositionFocus();
+                  } else if (e.key === "Escape") {
                     e.preventDefault();
                     e.stopPropagation();
                     cancelKeys();
                     setPanel(null);
+                    restorePositionFocus();
                   }
                 }}
                 onChange={(e) =>

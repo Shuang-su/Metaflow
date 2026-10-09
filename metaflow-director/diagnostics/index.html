@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="zh-CN">
+  <meta charset="utf-8" /><meta
+    name="viewport"
+    content="width=device-width,initial-scale=1"
+  /><title>Director 光学逐因子诊断</title>
+  <style>
+    body {
+      background: #171719;
+      color: #eee;
+      font: 14px system-ui;
+      margin: 20px;
+    }
+    canvas {
+      max-width: 100%;
+      display: block;
+    }
+    button,
+    select {
+      font: inherit;
+      margin: 6px;
+      padding: 8px;
+    }
+    pre {
+      white-space: pre-wrap;
+    }
+  </style>
+  <h1>Director 光学逐因子诊断</h1>
+  <p>仅用于本地验收，不进入公开发布包。原模型只读；各渲染路径顺序运行。</p>
+  <select id="scene">
+    <option value="depth">近同深度遮挡与大范围</option>
+    <option value="ramp">连续深度斜面</option>
+    <option value="foreground">强前景与透明条</option>
+    <option value="portrait">人物</option>
+    <option value="interior">室内</option>
+  </select>
+  <button id="load" disabled>加载场景</button
+  ><button id="sharp" disabled>清晰原片</button
+  ><button id="fast" disabled>调整预览</button
+  ><button id="aperture" disabled>128 孔径成片</button>
+  <pre id="status">正在初始化</pre>
+  <canvas id="view" width="960" height="540"></canvas>
+  <script type="module" src="./optical.ts"></script>
+</html>

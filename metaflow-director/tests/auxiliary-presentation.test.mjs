@@ -10,7 +10,7 @@ const exportsByPath = {
   "./precision-target": "setScenePrecision",
   "./aperture-gpu": "ApertureGpu",
   "./offscreen-surface": "OffscreenSurface",
-  "./optics": "apertureDiameter apertureSample",
+  "./optics": "apertureDiameter apertureSample PROJECTED_KERNEL_VARIANCE",
   playcanvas:
     "Entity Vec3 GAMMA_NONE GAMMA_SRGB TONEMAP_NONE createGraphicsDevice",
   "@playcanvas/splat-transform": "WebPCodec",

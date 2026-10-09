@@ -334,6 +334,58 @@ export function resizeShot(shot: Shot, duration: number): Shot {
     keys: shot.keys.map((k) => ({ ...k, time: (k.time / shot.duration) * d })),
   };
 }
+
+/** The observed camera-position editor inserts after the selected position,
+ * interpolates the next view, and redistributes the sequence over the shot. */
+export function insertCameraPosition(
+  shot: Shot,
+  time: number,
+  workingPose?: Pose,
+) {
+  const result = structuredClone(shot);
+  result.keys.sort((a, b) => a.time - b.time);
+  const selected = result.keys.reduce(
+    (best, key, i) =>
+      Math.abs(key.time - time) < Math.abs(result.keys[best].time - time)
+        ? i
+        : best,
+    0,
+  );
+  if (workingPose) result.keys[selected].pose = structuredClone(workingPose);
+  const after = selected + 1,
+    a = result.keys[selected].pose,
+    b = result.keys[after]?.pose;
+  result.keys.splice(after, 0, {
+    id: uid(),
+    time: 0,
+    pose: b ? interpolatePose(a, b, 0.5) : structuredClone(a),
+  });
+  result.keys.forEach((key, i) => {
+    key.time = (shot.duration * i) / (result.keys.length - 1);
+  });
+  return { shot: result, time: result.keys[after].time };
+}
+
+export function removeCameraPosition(shot: Shot, time: number) {
+  if (shot.keys.length <= 2) return { shot: structuredClone(shot), time };
+  const result = structuredClone(shot);
+  result.keys.sort((a, b) => a.time - b.time);
+  const selected = result.keys.reduce(
+    (best, key, i) =>
+      Math.abs(key.time - time) < Math.abs(result.keys[best].time - time)
+        ? i
+        : best,
+    0,
+  );
+  result.keys.splice(selected, 1);
+  result.keys.forEach((key, i) => {
+    key.time = (shot.duration * i) / (result.keys.length - 1);
+  });
+  return {
+    shot: result,
+    time: result.keys[Math.min(selected, result.keys.length - 1)].time,
+  };
+}
 export function outputSize(
   aspect: string,
   shortSide: number,
