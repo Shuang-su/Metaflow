@@ -511,8 +511,11 @@ export function App() {
             : "已载入资源 JSON 初始机位",
       );
     })().catch((e) => {
-      if (!controller.signal.aborted && e.name !== "AbortError")
+      if (!controller.signal.aborted && e.name !== "AbortError") {
+        setDeviceSlow(false);
+        setStatus("摄影初始化未完成，可重新加载");
         setError(e.message);
+      }
     });
     return () => {
       controller.abort();
