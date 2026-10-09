@@ -1,7 +1,7 @@
 /** Existing Detour connected-surface query supplies analysis leads, never floor IDs. */
 import { readFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
-import { init, importNavMesh, NavMeshQuery, Detour } from "recast-navigation";
+import { init, importNavMesh, NavMeshQuery, Detour } from "../../mf79-viewer-trial/src/recast-runtime";
 import { sha } from "../../mf79-viewer-trial/scripts/source";
 import { BODY } from "../../mf79-viewer-trial/src/native-motion";
 import {

@@ -1,7 +1,7 @@
 /** Bounded analysis only. Complete Detour paths still need unchanged native walking. */
 import { readFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
-import { init, importNavMesh } from "recast-navigation";
+import { init, importNavMesh } from "../../mf79-viewer-trial/src/recast-runtime";
 import {
   collisionSourceFile,
   sha,

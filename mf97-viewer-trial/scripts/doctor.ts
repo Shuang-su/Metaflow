@@ -31,10 +31,11 @@ const checks = async (component: string, callback: () => Promise<unknown>) => {
   } catch (error) {
     messages.push({
       component,
-      status:
-        (error as NodeJS.ErrnoException).code === "ENOENT"
-          ? "missing"
-          : "version-different",
+      status: ["ENOENT", "MF_ASSET_MISSING"].includes(
+        (error as NodeJS.ErrnoException).code ?? "",
+      )
+        ? "missing"
+        : "version-different",
       detail: String(error),
     });
   }
@@ -126,6 +127,13 @@ for (const scene of scenes) {
           : "needs-revalidation",
       detail:
         "Historical reports are preserved; current analysis fingerprint must match before acceptance.",
+    });
+  else
+    messages.push({
+      component: `${scene.id}:ground-reports`,
+      status: "missing",
+      detail:
+        "Ground coverage manifest is absent; import reports or regenerate against matching source.",
     });
 }
 await checks("dayun:collision", async () => {

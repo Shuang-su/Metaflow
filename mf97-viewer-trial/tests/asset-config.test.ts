@@ -104,10 +104,9 @@ test("missing scene mount is an explicit configuration error and machine profile
     projectRoot: root,
     ignoreEnvironment: true,
   });
-  assert.throws(
-    () => resolveAssetUrl("/scene-assets/model.json", config),
-    /Configure/,
-  );
+  assert.throws(() => resolveAssetUrl("/scene-assets/model.json", config), {
+    code: "MF_ASSET_MISSING",
+  });
   assert.equal(machineLimits(config, 512 * GiB).maxRssGiB, 1.5);
   const mac = { ...config, profile: "mac-studio" as const };
   assert.equal(machineLimits(mac, 512 * GiB).maxRssGiB, 64);

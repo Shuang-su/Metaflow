@@ -4,7 +4,7 @@ import { resolveRecordedPath } from "../../scripts/mf97/asset-config.mjs";
 import { readFileSync, existsSync, realpathSync } from 'node:fs';
 import { dirname, relative, resolve, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { init, exportNavMesh, getNavMeshPositionsAndIndices } from 'recast-navigation';
+import { init, exportNavMesh, getNavMeshPositionsAndIndices } from '../../mf79-viewer-trial/src/recast-runtime';
 import { createOfflineResources, offlineResourceOptions } from '../src/offline-resources';
 import { VoxelCollision } from '../../metaflow-viewer/src/collision/voxel-collision';
 import { RecastTileBuilder, navigationTiles } from '../../mf79-viewer-trial/src/tiles';

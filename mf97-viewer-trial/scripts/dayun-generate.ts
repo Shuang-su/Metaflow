@@ -5,7 +5,7 @@ import {
   init,
   exportNavMesh,
   getNavMeshPositionsAndIndices,
-} from "recast-navigation";
+} from "../../mf79-viewer-trial/src/recast-runtime";
 import {
   collisionSourceFile,
   sha,
@@ -61,7 +61,9 @@ const loaded = await collisionSourceFile(
   geometryBounds,
 );
 const catalog = job.surfaceCatalogFile
-  ? JSON.parse(readFileSync(resolveRecordedPath(job.surfaceCatalogFile), "utf8"))
+  ? JSON.parse(
+      readFileSync(resolveRecordedPath(job.surfaceCatalogFile), "utf8"),
+    )
   : undefined;
 if (catalog) new SurfaceCatalogIndex(catalog, loaded.sourceHash);
 const key = {
@@ -70,6 +72,17 @@ const key = {
   implementations: Object.fromEntries(
     [
       ["generator", new URL(import.meta.url)],
+      [
+        "recastRuntime",
+        new URL(
+          "../../mf79-viewer-trial/src/recast-runtime.ts",
+          import.meta.url,
+        ),
+      ],
+      [
+        "recastDependencyLock",
+        new URL("../../mf79-viewer-trial/package-lock.json", import.meta.url),
+      ],
       ["jobValidation", new URL("../src/dayun-job.ts", import.meta.url)],
       [
         "tileBuilder",
@@ -124,7 +137,9 @@ const key = {
   ).version,
   analysisOnly: !!job.analysisOnly,
   collisionSource: loaded.sourceHash,
-  collisionManifest: sha(readFileSync(resolveRecordedPath(job.collisionSourceFile))),
+  collisionManifest: sha(
+    readFileSync(resolveRecordedPath(job.collisionSourceFile)),
+  ),
   scope: job.bounds,
   geometryScope: geometryBounds,
   body: BODY,

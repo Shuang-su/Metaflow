@@ -157,8 +157,13 @@ export function resolveAssetUrl(url, config = loadAssetConfig()) {
     path: config.roots.repositoryData,
   });
   const mount = mounts.find((m) => path.startsWith(m.urlPrefix));
-  if (!mount)
-    throw Error(`Configure a read-only mount for ${path} in ${config.file}`);
+  if (!mount) {
+    const error = Error(
+      `Configure a read-only mount for ${path} in ${config.file}`,
+    );
+    error.code = "MF_ASSET_MISSING";
+    throw error;
+  }
   const file = resolve(mount.path, path.slice(mount.urlPrefix.length));
   if (!contained(mount.path, file))
     throw Error("Asset escaped its configured root");

@@ -16,6 +16,8 @@ sh /path/to/mf97-bootstrap.sh /Users/szmg/Documents/Metaflow
 
 Node22.23.3 官方 arm64 tar.gz SHA-256 固定为 `23b25245dcfb9af7262f8ff142e9e2e0af025368117329e7a7458a51e5922f53`，同时比对官方 SHASUMS256。Node、下载和 npm 缓存均在新项目 `.codex-work`。四目录正常执行 `npm ci`，不禁用安装脚本；两试用目录已补 lockfile、固定直接依赖及 TypeScript/Node 类型依赖。
 
+MF97通过明确的MF79 `recast-runtime`入口复用同一WASM实例。不能在MF97目录另行初始化第二份Recast后交给MF79构建器；四目录仍需全部安装，各自不使用外部node_modules链接。生成脚本指纹变化时，旧瓦片任务应保留并使用新任务ID重建，不改旧manifest来绕过resume校验。
+
 ```sh
 cd /Users/szmg/Documents/Metaflow
 export PATH="$PWD/.codex-work/tools/mf97/node-v22.23.3-darwin-arm64/bin:$PATH"
