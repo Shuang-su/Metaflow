@@ -2,6 +2,8 @@
 
 代码用 Git；已有高斯/碰撞保持原位；派生缓存按清单迁移。无需展开 `data` 或复制 `node_modules`。本阶段不发布，不部署；大运楼层和真实上下连接尚未完成。
 
+用户确认使用 Codex 已连接的 Mac Studio，SSH 不是前提。初始化命令须由绑定该设备的任务执行；本机任务的命令不会因侧边栏显示远端项目而自动改在远端运行。已核验的远端项目 `splat-transform` 位于 `/Users/szmg/Documents/splat-transform`，仅用作设备入口；先检查独立 Metaflow 目录，不修改 splat-transform 或 Livecho。设备连接可用、仓库安装成功、资源匹配和实景通过分别记录。
+
 ## 取得必要代码与 Node
 
 在 Mac Studio 选择一个不存在的新目录，保留现有 Livecho。需要 Git、Git LFS、curl 与 macOS arm64。现有目录不要覆盖，先检查分支、upstream 和未提交状态。
@@ -59,7 +61,7 @@ node mf97-viewer-trial/node_modules/tsx/dist/cli.mjs mf97-viewer-trial/scripts/c
 
 可用 `--groups navigation,maps,mapJobs,groundReports,continuation` 只选需要的分组。清单是逐文件哈希与大小，不含模型/依赖/截图；pack按内容哈希去重。源改变、symlink、损坏或资源不足明确停止，已完成对象可续写。`continuation`只收接受副本、同源导航、试用包、地面报告、JSON证明与大运续作数据，工具环境不复制。
 
-只把pack目录送到Mac Studio，可用外置盘或SSH恢复后按目录rsync；不必搬整个项目。接收后：
+只把pack目录送到Mac Studio，不必搬整个项目。Codex 远端任务不能直接读取原机的 `/Volumes/Prism` 文件；远端代码初始化可先进行，缓存须通过另行可用的文件传输或外置盘送达并核验。没有传输清单和 receipt 时，不能声称缓存已迁移。接收后：
 
 ```sh
 node mf97-viewer-trial/node_modules/tsx/dist/cli.mjs mf97-viewer-trial/scripts/cache-transfer.ts \
@@ -121,13 +123,7 @@ JS
 
 把输出路径作为launcher的`--job`参数；再次执行同一job即验证四块hash后续跑。任务仅用于离线分析，原同XZ上下两端仍为partial，不是已完成跨层路线。全场扩大另行估算并确认覆盖。
 
-transform继续使用具体作业已固定的工具版本、输入和参数；不要通过全局npm升级改变已有转换链。该launcher可启动已安装的transform Node入口，版本/输入/参数随作业保存。worker和viewer使用同样配置。页面/服务器默认仅`127.0.0.1:5185`，SSH恢复后可转发：
-
-```sh
-ssh -N -L 5185:127.0.0.1:5185 szmg@192.168.5.7
-```
-
-这里的地址当前仍连接超时；不把连接设备在Codex显示为在线当作SSH已可用。
+transform继续使用具体作业已固定的工具版本、输入和参数；不要通过全局npm升级改变已有转换链。该launcher可启动已安装的transform Node入口，版本/输入/参数随作业保存。worker和viewer使用同样配置。页面/服务器默认仅`127.0.0.1:5185`，该地址属于 Mac Studio 本机；由远端任务核验服务，在 Mac Studio 浏览器验收。原机访问需实际可用的端口转发能力，不能仅因 Codex 设备在线就将原机 localhost 指向远端，也不为预览默认开放公网监听。
 
 ## 检查、构建与续作
 
