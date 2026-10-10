@@ -30,3 +30,6 @@
 - 受控本地网络不代表用户真实弱网；无iOS/iPadOS实体设备。未新增全链路请求重试。原生W3C输入限制见MF-139，未改既有相机行为。公开资源仍100项/schema1.2，Editor/Director未改。
 
 证据：项目.codex-work/online-diagnostic-20261010/ 下 fine-browser.json、fine-native-samples-safari.json、fine-native-safari.json、poster-browser.json、最终168单测/类型/lint/格式/构建/包日志和截图。候选及生产发布后追加实际SHA/部署/线上回读/观察。
+
+
+官方品牌调整：ui.html 展开内容复用原 metaflow_word.svg 路径并内联到所有 Viewer 构建入口，无额外资产请求，无新背景或边框。桌面／触屏／键盘交互和正式部署复查后追加结果。CI38040250845 缺少 trace.pullRequest，已补齐 PR144 并重跑；Viewer 本体验收通过不代替完整 CI。

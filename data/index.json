@@ -4,7 +4,7 @@
   "release": {
     "displayVersion": "5.21.11",
     "appSemver": "5.21.11",
-    "gitRef": "2d0b04010",
+    "gitRef": "c8730ca8c50c495861012008112d1b05c0e7e555",
     "schemaVersion": "1.2",
     "historyUrl": "/data/version-history.json",
     "updatedAt": "2026-10-10"
