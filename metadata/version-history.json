@@ -366,6 +366,11 @@
       "gitRef": "8defe00c06a489379fc83ad1c0a524320566b361",
       "date": "2026-10-10",
       "summary": "MF-139 Director bootstrap test compatibility; no Director runtime changes"
+    },
+    {
+      "gitRef": "fcc73c7833d741cd8c46acd924def11cc7f53561",
+      "date": "2026-10-10",
+      "summary": "MF-139 SDK loading timeline starts before config prefetches"
     }
   ],
   "entries": [

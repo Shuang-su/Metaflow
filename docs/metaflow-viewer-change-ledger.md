@@ -638,3 +638,5 @@ The 2026-08-15 Viewer 5.19.2 release-record commit updated package/version/index
 - 160 单测、构建／类型／lint／格式／publint，Chromium/WebKit 7 用例、真实 Safari 7 用例及数字标题复查通过。100 项资源、schema 1.2、引擎、Editor、Director 保持；候选、产品最终 SHA、生产回读与 15 分钟观察待追加，当前生产仍 5.21.9。回退核验部署 `6ac8a216e683f6d6589d8376`。未做 iOS/iPadOS 真机与真实弱网验收。
 
 - MF-139 测试兼容提交 `c4d66bb5648e15d47135fc8dafdc58cd0900c58d`、`8defe00c06a489379fc83ad1c0a524320566b361` 保留 Director 分支隔离断言；本地安装依赖并补齐 sparse settings 后 44 项通过。
+
+- 审查修正 `fcc73c7833d741cd8c46acd924def11cc7f53561`：SDK 在 resolveConfig 预取前记录实例加载起点，避免内容/环境计数丢失；新增实际嵌入式双预取 E2E 行为断言。

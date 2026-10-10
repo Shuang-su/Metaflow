@@ -36,3 +36,6 @@ Safari 18.5 原生浏览器在 `/shenzhen/dayun` 请求错误的 `/shenzhen/inde
 - 完整 staging 核验 10,255 个文件（5,453 个 LFS），注册数据/Editor 共 14,471,658,141 字节；LFS 按仓库 OID 和大小验证，小型文件从 release tree 物化。资源对象 100 项逐项与发布前相等。
 
 - 本地首次 Director 测试缺少 esbuild，安装锁定依赖后剩余两项缺少 sparse settings；补齐仅 settings JSON 后 44 项通过。额外根 URL 文本断言变量拼写修正为帮助函数实际 baseUrl；相关旧日志保留。Netlify config clone 下误用相对 validator 路径失败，改用绝对路径重跑成功，不把该失败视为完整性通过。
+
+- 精确 HEAD CI [38036576096](https://github.com/Shuang-su/Metaflow/actions/runs/38036576096) 全部所选检查通过。自动审查指出 SDK 默认 exposeGlobals=false 的计时起点晚于预取；将起点移至 resolveConfig 前并新增真实 SDK 双预取 E2E；再次验证最新 HEAD 后才合并。候选 6ac9f140f81ab29064093fef：Safari 18.5 三场景、Chromium 三场景及 WebKit 大运通过；15 文件字节和 513 route/reference HEAD 通过。候选 analytics 被既有来源白名单拒绝，正式域名再验收，不扩大白名单。
+- npm audit --omit=dev 报告已有间接依赖告警：dompurify low、fflate moderate、source-map-js high，共 3 项，依赖树与 5.21.9 相同；本次兼容修复不升级依赖。单列审计失败，不称 audit 通过。
