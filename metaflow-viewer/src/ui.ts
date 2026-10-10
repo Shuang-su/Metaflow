@@ -544,6 +544,14 @@ const initUI = (global: Global, viewer: ViewerHandle, getPicker: () => Picker | 
     tooltip.register(dom.enterFullscreen, localize('tooltip.fullscreen'), 'top');
     tooltip.register(dom.exitFullscreen, localize('tooltip.fullscreen'), 'top');
 
+    // Touch devices use the first tap to reveal the official lockup, then follow the link.
+    dom.viewerBranding.addEventListener('click', (event) => {
+        if (window.matchMedia('(hover: none)').matches && !dom.viewerBranding.classList.contains('sse-expanded')) {
+            event.preventDefault();
+            dom.viewerBranding.classList.add('sse-expanded');
+        }
+    });
+
     const isThirdPartyEmbedded = () => {
         try {
             return window.location.hostname !== window.parent.location.hostname;

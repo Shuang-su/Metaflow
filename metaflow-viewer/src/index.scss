@@ -1619,14 +1619,17 @@
     opacity: 0;
 }
 .sse-viewer .sse-viewerBranding:hover,
-.sse-viewer .sse-viewerBranding:focus-visible {
+.sse-viewer .sse-viewerBranding:focus-visible,
+.sse-viewer .sse-viewerBranding.sse-expanded {
     width: calc(32px * 1052 / 450 + 16px);
 }
 .sse-viewer .sse-viewerBranding:hover span.sse-brandingSymbol,
-.sse-viewer .sse-viewerBranding:focus-visible span.sse-brandingSymbol {
+.sse-viewer .sse-viewerBranding:focus-visible span.sse-brandingSymbol,
+.sse-viewer .sse-viewerBranding.sse-expanded span.sse-brandingSymbol {
     opacity: 0;
 }
 .sse-viewer .sse-viewerBranding:hover span.sse-brandingLockup,
-.sse-viewer .sse-viewerBranding:focus-visible span.sse-brandingLockup {
+.sse-viewer .sse-viewerBranding:focus-visible span.sse-brandingLockup,
+.sse-viewer .sse-viewerBranding.sse-expanded span.sse-brandingLockup {
     opacity: 1;
 }
