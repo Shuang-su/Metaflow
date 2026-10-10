@@ -251,7 +251,7 @@ test('route index bypasses stale immutable browser caches', async () => {
     const html = (await sources('index.html', 'ui.html')).join('\n');
     const netlify = await readFile(new URL('../../netlify.toml', import.meta.url), 'utf8');
 
-    assert.match(html, /fetch\('\/data\/index\.json',\s*\{\s*cache:\s*'no-store'\s*\}\)/s);
+    assert.match(html, /fetchWithRetry\('\/data\/index\.json',\s*\{\s*cache:\s*'no-store'\s*\}\)/s);
     assert.match(
         netlify,
         /\[\[headers\]\]\s+for = "\/data\/index\.json"\s+\[headers\.values\]\s+Cache-Control = "public, max-age=0, must-revalidate"/s

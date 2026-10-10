@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import test from 'node:test';
-import { loadDirectorEntry, siteHtml } from '../site-html.mjs';
+import { loadDirectorEntry, loadViewerEntry, siteHtml } from '../site-html.mjs';
 
 test('Director startup recovers from rejected network imports with fresh module URLs', async () => {
     const urls = [], delays = [];
@@ -40,6 +40,6 @@ test('only the hosted Director bootstrap gets bounded recovery and explicit exit
     assert.match(hosted, /重试摄影页面/);
     assert.match(hosted, /retry\.addEventListener\('click', \(\) => location\.reload\(\)\)/);
     assert.match(hosted, /back\.href = location\.pathname\.replace/);
-    assert.match(hosted, /else \{\s*const \{ createViewer \} = await import\('\.\/index\.js'\)/);
+    assert.ok(hosted.includes(loadViewerEntry.toString()));
     assert.ok(!template.includes('mf_retry='), 'SDK/export template is unchanged');
 });

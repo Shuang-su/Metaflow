@@ -486,6 +486,7 @@ const createViewer = async (options: CreateViewerOptions): Promise<ViewerHandle>
     // nothing on the host's own element is read or written, and destroy() removes it whole
     const root = document.createElement('div');
     root.className = 'sse-viewer';
+    root.dataset.loadStarted = String(performance.now());
     root.tabIndex = 0;
     root.addEventListener(
         'pointerdown',

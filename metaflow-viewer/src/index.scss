@@ -390,6 +390,9 @@
         flex-direction: column;
 
         padding: 16px;
+        box-sizing: border-box;
+        max-height: calc(100% - 160px);
+        overflow-y: auto;
 
         > .sse-loadingText {
             font-size: 18px;
@@ -1402,10 +1405,24 @@
 
 .sse-viewer .sse-loadingStatus {
     margin-top: 8px;
-    max-width: 320px;
+    width: 100%;
     text-align: center;
     font-size: 12px;
+    color: white;
+    text-shadow: 0 0 4px rgba(0, 0, 0, 0.5);
     opacity: 0.85;
+}
+.sse-viewer .sse-loadingDetails {
+    margin-top: 8px;
+    white-space: pre-line;
+    overflow-wrap: anywhere;
+    font-size: 12px;
+    line-height: 1.6;
+    color: white;
+    text-shadow: 0 0 4px rgba(0, 0, 0, 0.5);
+}
+.sse-viewer .sse-loadingBar.sse-indeterminate {
+    opacity: 0.65;
 }
 .sse-viewer .sse-viewerBranding {
     color: white;
