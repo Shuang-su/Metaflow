@@ -39,3 +39,7 @@ Safari 18.5 原生浏览器在 `/shenzhen/dayun` 请求错误的 `/shenzhen/inde
 
 - 精确 HEAD CI [38036576096](https://github.com/Shuang-su/Metaflow/actions/runs/38036576096) 全部所选检查通过。自动审查指出 SDK 默认 exposeGlobals=false 的计时起点晚于预取；将起点移至 resolveConfig 前并新增真实 SDK 双预取 E2E；再次验证最新 HEAD 后才合并。候选 6ac9f140f81ab29064093fef：Safari 18.5 三场景、Chromium 三场景及 WebKit 大运通过；15 文件字节和 513 route/reference HEAD 通过。候选 analytics 被既有来源白名单拒绝，正式域名再验收，不扩大白名单。
 - npm audit --omit=dev 报告已有间接依赖告警：dompurify low、fflate moderate、source-map-js high，共 3 项，依赖树与 5.21.9 相同；本次兼容修复不升级依赖。单列审计失败，不称 audit 通过。
+
+## 最终产品合并
+
+[PR #140](https://github.com/Shuang-su/Metaflow/pull/140) 正常 squash 产品 SHA `92958b569259e9cf1918efe0c006071b4fef2458`；最新精确 HEAD [CI38037012781](https://github.com/Shuang-su/Metaflow/actions/runs/38037012781) 所选检查全通过，包含新增 SDK 桌面/手机双预取 E2E。来源 rc1/rc2/rc3 标签可达，两个审查线程已响应并解决。正式 release record 回填实际产品 SHA，当前生产仍是 5.21.9。

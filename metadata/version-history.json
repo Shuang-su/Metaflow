@@ -1,14 +1,14 @@
 {
   "schemaVersion": "1.1",
   "cutoffGitRef": "c613a87",
-  "documentedThrough": "e72cff4d3f3042db10fccf495dec2148c6a7d8c0",
+  "documentedThrough": "92958b569259e9cf1918efe0c006071b4fef2458",
   "defaultResourceVersion": "1.0a",
   "current": {
     "displayVersion": "5.21.10",
     "appSemver": "5.21.10",
     "indexSchemaVersion": "1.2",
     "date": "2026-10-10",
-    "gitRef": "e72cff4d3f3042db10fccf495dec2148c6a7d8c0",
+    "gitRef": "92958b569259e9cf1918efe0c006071b4fef2458",
     "historyUrl": "/data/version-history.json",
     "upstream": {
       "repository": "playcanvas/supersplat-viewer",
@@ -1916,7 +1916,7 @@
       "type": "fix",
       "scope": "viewer",
       "date": "2026-10-10",
-      "gitRef": "e72cff4d3f3042db10fccf495dec2148c6a7d8c0",
+      "gitRef": "92958b569259e9cf1918efe0c006071b4fef2458",
       "summary": "修复 Safari 深层路由入口解析；启动模块与资源索引有限重试，加载详情常显、百分比与阶段分离，保持透明样式",
       "trace": {
         "changeId": "MF-139",

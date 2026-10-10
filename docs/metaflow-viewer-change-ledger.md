@@ -640,3 +640,7 @@ The 2026-08-15 Viewer 5.19.2 release-record commit updated package/version/index
 - MF-139 测试兼容提交 `c4d66bb5648e15d47135fc8dafdc58cd0900c58d`、`8defe00c06a489379fc83ad1c0a524320566b361` 保留 Director 分支隔离断言；本地安装依赖并补齐 sparse settings 后 44 项通过。
 
 - 审查修正 `fcc73c7833d741cd8c46acd924def11cc7f53561`：SDK 在 resolveConfig 预取前记录实例加载起点，避免内容/环境计数丢失；新增实际嵌入式双预取 E2E 行为断言。
+
+### `5.21.10` · `92958b569259e9cf1918efe0c006071b4fef2458` · Safari startup recovery product
+
+- [PR #140](https://github.com/Shuang-su/Metaflow/pull/140) 正常 squash 合并；最终产品 SHA 已回填全部版本镜像。精确候选 HEAD `7328de7bdc686532476d02815c398af9da4e479c` 与 [CI38037012781](https://github.com/Shuang-su/Metaflow/actions/runs/38037012781) 通过；SDK 双预取 E2E 在桌面/手机画幅通过。来源由 rc1/rc2/rc3 保留，审查线程已处理，无管理员绕过。正式 tag、生产部署及观察随后追加。
