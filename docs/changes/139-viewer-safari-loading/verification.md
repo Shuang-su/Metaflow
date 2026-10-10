@@ -29,3 +29,5 @@ Safari 18.5 原生浏览器在 `/shenzhen/dayun` 请求错误的 `/shenzhen/inde
 ## 发布执行
 
 产品 PR、最终产品 SHA、tag/build、完整候选部署、生产指针/字节/浏览器/分析回读和至少 15 分钟观察完成后追加。保持 100 项资源对象、schema、模型/settings/环境/体素/封面、Editor 和 Director 原值；复用已核验的大型静态文件，避免再次复制 14 GB。无管理员绕过、强推或本地主线重置。
+
+- 产品 [PR #140](https://github.com/Shuang-su/Metaflow/pull/140)；版本候选再次运行 160 单测及构建/类型/lint/格式/publint、数据/平台/Markdown 校验通过。精确 HEAD 远端检查正在运行。

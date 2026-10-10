@@ -1908,7 +1908,8 @@
         "issue": "https://github.com/Shuang-su/Metaflow/issues/139",
         "plan": "https://github.com/Shuang-su/Metaflow/issues/139",
         "evidence": "docs/changes/139-viewer-safari-loading/verification.md",
-        "releaseTag": "viewer-v5.21.10"
+        "releaseTag": "viewer-v5.21.10",
+        "pullRequest": "https://github.com/Shuang-su/Metaflow/pull/140"
       }
     }
   ]
