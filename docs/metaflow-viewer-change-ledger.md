@@ -636,3 +636,5 @@ The 2026-08-15 Viewer 5.19.2 release-record commit updated package/version/index
 - [MF-139](https://github.com/Shuang-su/Metaflow/issues/139)：真实 macOS Safari 18.5 在深层路由把入口请求解析为 `/shenzhen/index.js`；按 document.baseURI 固定根入口。模块网络错误独立 URL 有限重试，索引失败有限重试并明确报错；耗尽后提供手动重新加载。settings 与响应体读取未全面新增重试。
 - 来源 `a86119f27b5214b16b23a5a73dbfcc7bcaacd1b7` 实现启动恢复与加载详情；百分比调整来源 `e72cff4d3f3042db10fccf495dec2148c6a7d8c0`。请求、速率、耗时、重试与错误常显；上方百分比，下方保留不同加载阶段和 LOD 提示；九语言，无新增边框或背景。
 - 160 单测、构建／类型／lint／格式／publint，Chromium/WebKit 7 用例、真实 Safari 7 用例及数字标题复查通过。100 项资源、schema 1.2、引擎、Editor、Director 保持；候选、产品最终 SHA、生产回读与 15 分钟观察待追加，当前生产仍 5.21.9。回退核验部署 `6ac8a216e683f6d6589d8376`。未做 iOS/iPadOS 真机与真实弱网验收。
+
+- MF-139 测试兼容提交 `c4d66bb5648e15d47135fc8dafdc58cd0900c58d`、`8defe00c06a489379fc83ad1c0a524320566b361` 保留 Director 分支隔离断言；本地安装依赖并补齐 sparse settings 后 44 项通过。

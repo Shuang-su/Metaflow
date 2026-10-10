@@ -34,3 +34,5 @@ Safari 18.5 原生浏览器在 `/shenzhen/dayun` 请求错误的 `/shenzhen/inde
 
 - 首轮远端 CI [38036181523](https://github.com/Shuang-su/Metaflow/actions/runs/38036181523) 在 Director bootstrap 旧文本断言失败：仍要求直接 `await import('./index.js')`。更新为新帮助函数，保留 Director 分支不静态导入 Viewer、Director 动态入口位于分支内、Viewer 仅在 else 初始化的断言；未删除测试或改变 Director 产品代码。重新跑 Director 44 项与精确 HEAD CI。
 - 完整 staging 核验 10,255 个文件（5,453 个 LFS），注册数据/Editor 共 14,471,658,141 字节；LFS 按仓库 OID 和大小验证，小型文件从 release tree 物化。资源对象 100 项逐项与发布前相等。
+
+- 本地首次 Director 测试缺少 esbuild，安装锁定依赖后剩余两项缺少 sparse settings；补齐仅 settings JSON 后 44 项通过。额外根 URL 文本断言变量拼写修正为帮助函数实际 baseUrl；相关旧日志保留。Netlify config clone 下误用相对 validator 路径失败，改用绝对路径重跑成功，不把该失败视为完整性通过。

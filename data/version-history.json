@@ -356,6 +356,16 @@
       "gitRef": "a86119f27b5214b16b23a5a73dbfcc7bcaacd1b7",
       "date": "2026-10-10",
       "summary": "MF-139 startup recovery and loading-detail implementation source; included in 5.21.10"
+    },
+    {
+      "gitRef": "c4d66bb5648e15d47135fc8dafdc58cd0900c58d",
+      "date": "2026-10-10",
+      "summary": "MF-139 Director bootstrap test compatibility; no Director runtime changes"
+    },
+    {
+      "gitRef": "8defe00c06a489379fc83ad1c0a524320566b361",
+      "date": "2026-10-10",
+      "summary": "MF-139 Director bootstrap test compatibility; no Director runtime changes"
     }
   ],
   "entries": [
