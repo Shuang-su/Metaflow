@@ -31,3 +31,6 @@ Safari 18.5 原生浏览器在 `/shenzhen/dayun` 请求错误的 `/shenzhen/inde
 产品 PR、最终产品 SHA、tag/build、完整候选部署、生产指针/字节/浏览器/分析回读和至少 15 分钟观察完成后追加。保持 100 项资源对象、schema、模型/settings/环境/体素/封面、Editor 和 Director 原值；复用已核验的大型静态文件，避免再次复制 14 GB。无管理员绕过、强推或本地主线重置。
 
 - 产品 [PR #140](https://github.com/Shuang-su/Metaflow/pull/140)；版本候选再次运行 160 单测及构建/类型/lint/格式/publint、数据/平台/Markdown 校验通过。精确 HEAD 远端检查正在运行。
+
+- 首轮远端 CI [38036181523](https://github.com/Shuang-su/Metaflow/actions/runs/38036181523) 在 Director bootstrap 旧文本断言失败：仍要求直接 `await import('./index.js')`。更新为新帮助函数，保留 Director 分支不静态导入 Viewer、Director 动态入口位于分支内、Viewer 仅在 else 初始化的断言；未删除测试或改变 Director 产品代码。重新跑 Director 44 项与精确 HEAD CI。
+- 完整 staging 核验 10,255 个文件（5,453 个 LFS），注册数据/Editor 共 14,471,658,141 字节；LFS 按仓库 OID 和大小验证，小型文件从 release tree 物化。资源对象 100 项逐项与发布前相等。
