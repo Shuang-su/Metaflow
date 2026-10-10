@@ -63,10 +63,15 @@ function htmlTemplatePlugin() {
             // another comment opener. Unclosed comments must fail the build.
             let markup = code.replace(/<!--[\s\S]*?-->/g, ' ').replace(/\n{3,}/g, '\n\n');
             if (markup.includes('<!--')) throw new Error(`Unclosed HTML comment in ${id}`);
-            if (markup.includes('%METAFLOW_WORDMARK%')) {
-                const asset = new URL('./src/assets/metaflow_word.svg', import.meta.url);
-                this.addWatchFile(asset.pathname);
-                markup = markup.replace('%METAFLOW_WORDMARK%', readFileSync(asset, 'utf8'));
+            for (const [token, filename] of [
+                ['%METAFLOW_SYMBOL%', 'metaflow_logo.svg'],
+                ['%METAFLOW_LOCKUP%', 'metaflow.svg']
+            ]) {
+                if (markup.includes(token)) {
+                    const asset = new URL(`./src/assets/${filename}`, import.meta.url);
+                    this.addWatchFile(asset.pathname);
+                    markup = markup.replace(token, readFileSync(asset, 'utf8'));
+                }
             }
             return { code: `export default ${JSON.stringify(markup)};`, map: { mappings: '' } };
         }
