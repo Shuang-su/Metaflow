@@ -472,6 +472,7 @@ const fetchWithRetry = async (url: string): Promise<Response> => {
 };
 
 const createViewer = async (options: CreateViewerOptions): Promise<ViewerHandle> => {
+    const loadStarted = performance.now();
     const { container } = options;
     const config = resolveConfig(options);
     // Prefetch may fail while the graphics device initializes. Keep the original rejection
@@ -486,7 +487,7 @@ const createViewer = async (options: CreateViewerOptions): Promise<ViewerHandle>
     // nothing on the host's own element is read or written, and destroy() removes it whole
     const root = document.createElement('div');
     root.className = 'sse-viewer';
-    root.dataset.loadStarted = String(performance.now());
+    root.dataset.loadStarted = String(loadStarted);
     root.tabIndex = 0;
     root.addEventListener(
         'pointerdown',
