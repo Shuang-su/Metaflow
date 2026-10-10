@@ -1,6 +1,6 @@
 # MF-139 Safari 启动修复与加载信息发布核验
 
-唯一计划与范围：[Issue #139](https://github.com/Shuang-su/Metaflow/issues/139)。当前阶段：5.21.10 已发布生产，上线回读与 15 分钟观察进行中。生产基线重新核验为 5.21.9，100 项资源，schema 1.2，Netlify `6ac8a216e683f6d6589d8376`；回退采用该已成功部署。
+唯一计划与范围：[Issue #139](https://github.com/Shuang-su/Metaflow/issues/139)。当前阶段：5.21.10 已发布生产，上线回读已完成，15 分钟观察含一次探针请求失败，追加复核进行中。生产基线重新核验为 5.21.9，100 项资源，schema 1.2，Netlify `6ac8a216e683f6d6589d8376`；回退采用该已成功部署。
 
 ## 问题与实际变更
 
@@ -52,3 +52,10 @@ Safari 18.5 原生浏览器在 `/shenzhen/dayun` 请求错误的 `/shenzhen/inde
 - 于 2026-10-10T08:31:02.201Z 原样提升候选，重新读取 Netlify published_deploy.id 为 `6ac9f5892bf0719ac8c32a8b`，正式域名 build.json 的版本/产品/构建身份一致。deploy_source=cli、commit_ref=null、原 deploy context=deploy-preview；生产身份由实际 published pointer 与 tag/tree/字节回读证明，不将 context 标签当作生产指针。
 - 使用用户授权的完整 CLI/API 发布路径；现有 Controlled release workflow 仍要求 legacy strict Completion Dossier，本常规兼容修复未复制该旧结构，也未宣称该旧 gate 已通过。
 - 生产浏览器、分析、HTTP 回读及至少 15 分钟观察结果随后追加。回退候选仍 `6ac8a216e683f6d6589d8376`，截至当前未触发回退。
+
+## 正式域名回读与观察
+
+- Chromium 大运、笔架山、390×844 缇宝及 WebKit 大运加载/交互通过；15 文件逐字节/哈希与 513 路由引用 HEAD 通过。生产分析 3 批 HTTP 200，共 18 个唯一 event_id，服务端 accepted 18/rejected 0，page_viewed/first_frame_ready 各一次。
+- 原生 Safari 18.5 三场景均完成加载，根入口正确。W3C click 有间歇未投递：捕获事件探针记录笔架山/缇宝失败时没有 click 事件，DOM click 可切换 fly；1280×900 大运/笔架山曾实际按钮通过。保留原生输入自动化限制，不以 DOM click 冒充真实按钮覆盖全部通过，也不再把该问题唯一归因于就绪时序。
+- 2026-10-10T08:32:44.847Z 至08:47:44.848Z 共16轮/900.003秒；前15轮身份、脚本哈希、100索引、路由与持续浏览器状态通过，最后一轮探针 fetch 报 TypeError: fetch failed。持续浏览器未记录脚本或资源失败；不将本轮标作全部通过。补充回读随后追加，没有出现阻断性白屏、广泛加载失败或路由损坏，未触发回退。
+- 新增用户反馈由 MF-142 另做 5.21.11：细化分块内读取百分比、缇宝压缩编码 4K WebP；5.21.10 tag/产物不改写。

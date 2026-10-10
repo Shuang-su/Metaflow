@@ -649,3 +649,5 @@ The 2026-08-15 Viewer 5.19.2 release-record commit updated package/version/index
 
 - tag/build `7188544bc8778784a1a568a28aa5d027da4fd285`（PR141，精确 CI38037281801 通过）；最终完整候选 `6ac9f5892bf0719ac8c32a8b` 的 Safari 三场景、Chromium/WebKit 及 15 文件字节／513 route/reference HEAD 通过，于2026-10-10T08:31:02.201Z原样提升。实际 published pointer、正式版本和产品/构建 SHA 回读一致；CLI 来源/空 commit_ref 不代替上述身份核验。
 - 100资源/schema1.2/模型/settings/环境/体素/封面/Editor/Director不变。正式域名浏览器、分析和15分钟观察随后追加；回退已核验5.21.9 `6ac8a216e683f6d6589d8376`，未触发。
+
+- 生产回读：15字节匹配/513引用HEAD、Chromium/WebKit和原生Safari三场景加载通过；分析18唯一事件被接收、无拒绝或重复。16轮900.003秒观察前15轮通过、末轮探针fetch失败，额外复核进行中；未出现阻断产品异常。Safari W3C click 间歇无事件投递，DOM click及此前原生按钮通过分别记录，不将其归因确定为产品或就绪。详见MF-139验证记录。
