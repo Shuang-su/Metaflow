@@ -25,7 +25,6 @@ import {
 } from 'playcanvas';
 import type { CameraComponent, Entity, GraphicsDevice, GSplatComponent, Layer } from 'playcanvas';
 
-import { observeInitialLodProgress } from './streaming-progress';
 
 import { CameraManager, isWalkAllowed } from './camera-manager';
 import type { Camera } from './cameras/camera';
@@ -46,6 +45,7 @@ import { MeshDebugOverlay } from './mesh-debug-overlay';
 import { NavCursor } from './nav-cursor';
 import { Picker } from './picker';
 import type { ExperienceSettings, PostEffectSettings } from './settings';
+import { observeInitialLodProgress } from './streaming-progress';
 import type { LoadMode, CaptureOptions, Config, Global, XrMode } from './types';
 import { TiledVoxelDebugOverlay, VoxelDebugOverlay } from './voxel-debug-overlay';
 import { initXr } from './xr';

@@ -4,8 +4,8 @@ import type { EventHandler } from 'playcanvas';
 import { version as appVersion } from '../package.json';
 
 import { initLoadingDetails } from './loading-details';
-import { initPoster } from './poster';
 import type { Picker } from './picker';
+import { initPoster } from './poster';
 import { Tooltip } from './tooltip';
 import type { Global, ViewerHandle } from './types';
 import { initAnnotationControls } from './ui/annotation-controls';
