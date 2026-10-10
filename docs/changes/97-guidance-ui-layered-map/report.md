@@ -1,6 +1,6 @@
 # MF-97 实施与阶段验收
 
-更新：2026-10-09。隔离分支已获准推送，整体仍为试用；不发布、部署或修改公开资源索引。唯一范围为 [Spec](./spec.md) 与 [Plan](./plan.md)。下列实景结果属于 2026-10-03 的地面/多层阶段，最新Mac Studio资源补齐与复验见文末。Viewer 5.20.1 保留 MF-79 原生导览，Studio 沿用隔离活动源码；此前续作起点为 `3b8ba998`，分支 `codex/mf97-navigation`。
+更新：2026-10-10。隔离分支已获准推送，整体仍为试用；不发布、部署或修改公开资源索引。唯一范围为 [Spec](./spec.md) 与 [Plan](./plan.md)。下列实景结果属于 2026-10-03 的地面/多层阶段，最新Mac Studio资源补齐与复验见文末。Viewer 5.20.1 保留 MF-79 原生导览，Studio 沿用隔离活动源码；此前续作起点为 `3b8ba998`，分支 `codex/mf97-navigation`。
 
 ## 本轮实际结果
 
@@ -200,3 +200,40 @@ Spec符合性自查：资源补齐、迁移字节核验、新机原件复验和�
 用户要求大运原始体素和LOD0放进内置盘，并明确“直接复制不要校验”。已用cp -R复制Prism上的大运运行资源目录（含tiled-voxel、LOD0和配套流式文件/清单）至.codex-work/assets/repository-data/Shenzhen/250917 Dayun，命令exit0，外置源保留。基础assets.local.json与活动assets.imported.local.json的大运URL挂载已切到内置目录，配置旧版备份保留，5185服务重启；recordedRoots历史身份不改。后续两展与大运已配置运行输入均在内置盘，Prism无需继续挂载供这些任务读取。
 
 本次未做SHA或文件内容比对，未运行doctor、浏览器、导航/物理/GPU/回归检查；不宣称副本已校验，不提升多层或修正版验收。忽略证据dayun-internal-copy-20261010/copy-receipt.json记录复制完成及checksumVerification=false。Spec符合性自查：当前用户跳过校验指令优先，源只读/历史身份和后续验收门槛保留。文档质量自查：仅记录复制、配置切换和未执行项，无产品源码变化；两项均self-review。
+
+## 2026-10-10 大运：扩大局部导航、逐帧通行与高斯剖面
+
+用户要求继续多层实验。本批从内置运行副本选取作业所需的12块碰撞输入，不重新做整个复制目录SHA审核。源只读，原Recast参数、Viewer物理、BODY及控制输入不变，无自动跳跃或产品自动行走；没有将研究导航挂入Viewer。新作业 `mac-studio-x16-122x164-all-y-v1` 的X[-752,-629.12]、Z[-363.84,-200]、Y[-24,48.64]覆盖相关12块输入全部高度；48个20.48m瓦片完成并复跑恢复，导航hash `5eafe9a25ea97098a2310af0c5236b883c871480d3c44177dd84cedfe6f3b1a3`，作业指纹 `12f12864c0b5e4e1cf67501afff86965c4dcdd785348c20dfd47f61f9a97a381`。全部仍为analysis-only，不代表293块全场导航覆盖。
+
+新增 `dayun-recast-components.ts` 直接枚举Detour瓦片/多边形与互反链接，避免有界query缓冲截断；284,165个合格多边形、7,586组、0单向链接，3组产生7个高度差至少2m的候选。对旧82m窗口的39,762多边形/1,588组仍发现0候选，对已知x10窗口的12,637多边形/234组仍发现6候选；完整分母保留。连通组件只提供线索，不赋予楼层身份。
+
+| 候选组 | 原生实际结果 | 高斯画面及本批判断 |
+|---|---|---|
+| 5111821，1个样本 | 支撑高度差3.248m；正向/逆向与各自原路反向复走均成功，四段逐帧着地 | 12×12m原件见扶梯及周边铺地，实际轨迹投影经过静态扶梯几何；不等于建筑内普通楼梯或楼层确认 |
+| 6160417，3个样本 | 高度差4.240/3.824/3.824m；上述四段均成功，逐帧着地 | 选0.05样本附近12×12m原件，可辨认室外阶梯/栏杆，轨迹投影经过阶梯；尚未建立对应建筑楼层 |
+| 6489392，3个样本 | 极端上行卡住；另2个四段成功到达，但下行/原路返回各有2帧离地，不进入稳定候选 | 8×8m切片和剖面主要为绿色植被状表面，未确认建筑连接；诊断保留 |
+
+旧回放器的 `ok` 判断包含终点着地，不保证途中每帧着地。因此保留其6/7到达成绩，并另外逐帧审查四段：仅4/7作为本批稳定步行候选，属于2个组件，不能说6个独立楼梯。10个x16_z8/z9同XZ上下线索在扩大窗口后仍全部双向partial；旧失败未被新的其他通路替代。
+
+新增 `dayun-map-inspection.ts` 准备小范围原始LOD0选择，保留叶file/offset/count，按选中文件索引来源；可选轨迹必须匹配同源证明且四段均成功/逐帧着地，失败或短暂离地证明在任何输出前被拒绝。独立GaussianMapGenerator实际生成世界Y切片与X/Y、Z/Y剖面，等待排序/稳定frame/readback；不修改原高斯或Viewer相机/物理。5111821视图选择73叶/3,989,879高斯/12个SOG，整文件解码7,341,006；6160417视图选择6叶/333,880高斯/3个SOG，整文件解码1,620,518。二者均低于500万选择/800万整文件解码限制，不声称全场加载。
+
+新增 `dayun-map-import.ts` 校验导出jobHash、精确瓦片/剖面请求、PNG尺寸、来源选择/原生证明及渲染实现身份，复用现有原子/恢复链保存4张WebP、4张PNG与清单。两处tiles清单各2/2 complete仅表示请求的局部切片完成，`namedFloors=false`、`connected=false`研究标记保留于job；没有发布楼层底图。6160417复跑显示alreadyComplete、taskWrittenBytes=0。保存的review.html无需重跑GPU即可查看轨迹/切片/剖面；真实浏览器核验4图已加载、轨迹开关往返及console无error/warn。
+
+本批证据根为忽略的 `.codex-work/evidence/dayun-multilayer-20261010/`；作业、导航/候选/原生证明在continuation/dayun，地图在continuation/maps的 `dayun-connection-6160417-20261010-route-v2` 和 `dayun-connection-5111821-20261010-route-v2`。操作命令沿用固定环境和串行launcher：
+
+```bash
+source .codex-work/config/env.sh
+node scripts/mf97/run-job.mjs mf97-viewer-trial/node_modules/tsx/dist/cli.mjs mf97-viewer-trial/scripts/dayun-map-inspection.ts --view VIEW.json
+# 在5185的inspection.html点击生成，以浏览器DOM分段保存完整导出JSON。
+node scripts/mf97/run-job.mjs mf97-viewer-trial/node_modules/tsx/dist/cli.mjs mf97-viewer-trial/scripts/dayun-map-import.ts --job JOB.json --renders EXPORT.json
+```
+
+实际验证：111/111 MF97合同、tools tsc通过；新组件枚举三窗口集成、扩大导航生成/恢复、两个地图写出及恢复通过。17组原生检查完成，成功、partial及物理失败结果均保留，见上表。失败原生证明、短暂离地证明和错误导出jobHash均在写出前拒绝。原67/20/7实景成绩与分母保留，本批未再跑两展路线、Studio/Viewer构建、原件整体doctor、楼层目录运行时或用户验收。
+
+导航生成采样峰RSS3,045,261,312bytes。浏览器守卫首次误匹配Codex.app进程而失败，未把0样本当作测量；修正实际ChatGPT.app进程范围后成功采样，诊断及两轮研究GPU最高聚合RSS10,750,410,752bytes，低于64GiB。该值覆盖整个宿主应用，不是独立GPU显存，也非无间隔绝对峰。初次完整导出被长文本截断，未用于地图写出；随后DOM按64KB分段读取并解析完整JSON。初始服务不可达、CLI漏用tsx等运行失败及其修正日志均保留。
+
+累计内置运行副本、迁移/续作缓存、证据及两构建约7.511GiB，距8GiB上限约501MiB；内置磁盘余量约54.35GiB，保持20GiB预留。当前运行及研究地图不依赖Prism保持挂载。未改旧地面接受决定或修正版试用包。
+
+Spec符合性自查：原参数、源/历史身份、全分母及缺块边界保留；区分到达、全程着地、静态扶梯几何、室外阶梯与建筑楼层；APMS上层未采集不作跨层、华发仍未上线。建筑楼层目录、同XZ上下连通和正式分层地图/导览仍未完成，Issue97保持Open。
+
+代码/文档质量自查：新增范围仅研究CLI与唯一Plan/报告，输入只读、输出原子、重复恢复不替换不同字节，错误/短暂离地证明拒绝已实测；局部complete未升格为楼层/全场覆盖。路由选择器对文档给出docs/governance，对三个研究CLI仍unowned/unrouted（exit2）；这是检查建议，不声称GitHub必需Gate通过，未为此扩展仓库治理。均为self-review，无独立非实现作者审查。正常推送与Issue写入后另读回确认；无main合并、PR、发布或部署。
