@@ -61,8 +61,13 @@ function htmlTemplatePlugin() {
             if (!id.endsWith('.html')) return null;
             // Leave a separator so removing a comment cannot join fragments into
             // another comment opener. Unclosed comments must fail the build.
-            const markup = code.replace(/<!--[\s\S]*?-->/g, ' ').replace(/\n{3,}/g, '\n\n');
+            let markup = code.replace(/<!--[\s\S]*?-->/g, ' ').replace(/\n{3,}/g, '\n\n');
             if (markup.includes('<!--')) throw new Error(`Unclosed HTML comment in ${id}`);
+            if (markup.includes('%METAFLOW_WORDMARK%')) {
+                const asset = new URL('./src/assets/metaflow_word.svg', import.meta.url);
+                this.addWatchFile(asset.pathname);
+                markup = markup.replace('%METAFLOW_WORDMARK%', readFileSync(asset, 'utf8'));
+            }
             return { code: `export default ${JSON.stringify(markup)};`, map: { mappings: '' } };
         }
     };
