@@ -615,6 +615,10 @@ def find_settings_file(folder_path):
 
 
 def find_thumbnail_file(folder_path):
+    # Lightweight loading cover takes precedence; original 4K capture stays available.
+    loading_cover = folder_path / "cover-loading.webp"
+    if loading_cover.is_file():
+        return loading_cover
     thumbnails = sorted(
         file for pattern in ("*.jpg", "*.png", "*.webp")
         for file in folder_path.glob(pattern)

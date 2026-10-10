@@ -25,6 +25,8 @@ import {
 } from 'playcanvas';
 import type { CameraComponent, Entity, GraphicsDevice, GSplatComponent, Layer } from 'playcanvas';
 
+import { observeInitialLodProgress } from './streaming-progress';
+
 import { CameraManager, isWalkAllowed } from './camera-manager';
 import type { Camera } from './cameras/camera';
 import { Capture } from './capture';
@@ -89,6 +91,7 @@ const rendererTable: Record<Config['renderer'], number> = {
 type GSplatOctreeResourceLike = {
     octree?: {
         lodLevels: number;
+        files?: { url: string }[];
     } | null;
 };
 
@@ -787,10 +790,31 @@ class Viewer {
         // `gsplatLoad` alone lets the bar track the one load it can measure, from the moment
         // that load begins. The reveal below stops it and puts the bar at 100.
         let stopProgress: (() => void) | undefined;
-        gsplatLoad.then(() => {
+        gsplatLoad.then((entity) => {
             if (this.destroyed) return;
 
             const eventHandler = app.systems.gsplat;
+
+            const octree = (entity.gsplat?.resource as GSplatOctreeResourceLike | null)?.octree;
+            if (octree?.files) {
+                const progress = observeInitialLodProgress(
+                    app.assets,
+                    octree.files.map((file) => file.url),
+                    document.baseURI,
+                    (value) => {
+                        state.progress = Math.max(state.progress, value);
+                    }
+                );
+                const frame = (camera: CameraComponent, layer: Layer, ready: boolean, loading: number) =>
+                    progress.frame(loading);
+                eventHandler.on('frame:ready', frame);
+                stopProgress = () => {
+                    eventHandler.off('frame:ready', frame);
+                    progress.stop();
+                };
+                this.onDestroy(stopProgress);
+                return;
+            }
 
             // `loading` counts the node files the streamer has requested and not yet made
             // resident. Before the reveal the LOD range is clamped to the coarsest level, so this
