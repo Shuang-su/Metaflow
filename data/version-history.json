@@ -1,14 +1,14 @@
 {
   "schemaVersion": "1.1",
   "cutoffGitRef": "c613a87",
-  "documentedThrough": "b739c2fa3",
+  "documentedThrough": "2d0b04010",
   "defaultResourceVersion": "1.0a",
   "current": {
     "displayVersion": "5.21.11",
     "appSemver": "5.21.11",
     "indexSchemaVersion": "1.2",
     "date": "2026-10-10",
-    "gitRef": "b739c2fa3",
+    "gitRef": "2d0b04010",
     "historyUrl": "/data/version-history.json",
     "upstream": {
       "repository": "playcanvas/supersplat-viewer",
@@ -1943,6 +1943,38 @@
           ]
         }
       ],
+      "trace": {
+        "changeId": "MF-142",
+        "issue": "https://github.com/Shuang-su/Metaflow/issues/142",
+        "plan": "https://github.com/Shuang-su/Metaflow/issues/142",
+        "evidence": "docs/changes/142-loading-progress/verification.md",
+        "releaseTag": "viewer-v5.21.11"
+      }
+    },
+    {
+      "displayVersion": "5.21.11",
+      "appSemver": "5.21.11",
+      "type": "fix",
+      "scope": "data",
+      "date": "2026-10-10",
+      "gitRef": "b8d1772b0a0f929fcfb09df433048f1c94c63ddd",
+      "summary": "按用户要求保持加载图 4096² WebP，撤回1024候选并移除旧无损正式文件",
+      "trace": {
+        "changeId": "MF-142",
+        "issue": "https://github.com/Shuang-su/Metaflow/issues/142",
+        "plan": "https://github.com/Shuang-su/Metaflow/issues/142",
+        "evidence": "docs/changes/142-loading-progress/verification.md",
+        "releaseTag": "viewer-v5.21.11"
+      }
+    },
+    {
+      "displayVersion": "5.21.11",
+      "appSemver": "5.21.11",
+      "type": "fix",
+      "scope": "viewer",
+      "date": "2026-10-10",
+      "gitRef": "2d0b04010",
+      "summary": "恢复加载图就绪后出现加载UI；失败/超时透明降级，首帧与销毁清理",
       "trace": {
         "changeId": "MF-142",
         "issue": "https://github.com/Shuang-su/Metaflow/issues/142",

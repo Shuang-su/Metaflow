@@ -645,6 +645,7 @@ The 2026-08-15 Viewer 5.19.2 release-record commit updated package/version/index
 
 - [PR #140](https://github.com/Shuang-su/Metaflow/pull/140) 正常 squash 合并；最终产品 SHA 已回填全部版本镜像。精确候选 HEAD `7328de7bdc686532476d02815c398af9da4e479c` 与 [CI38037012781](https://github.com/Shuang-su/Metaflow/actions/runs/38037012781) 通过；SDK 双预取 E2E 在桌面/手机画幅通过。来源由 rc1/rc2/rc3 保留，审查线程已处理，无管理员绕过。正式 tag、生产部署及观察随后追加。
 
+<<<<<<< HEAD
 
 ### `5.21.11` · `b739c2fa3` · finer initial LOD loading progress candidate
 
@@ -652,3 +653,22 @@ The 2026-08-15 Viewer 5.19.2 release-record commit updated package/version/index
 - 缇宝将既有 thumbnail 指向 1024²、66,670 字节 WebP 加载图；原 4096² 无损 11,514,166 字节保留。其他 99 资源、模型/settings/环境/体素/路由、schema、引擎、Editor/Director 不改。透明/百分比标题/分阶段提示保持；定向 4 单测和慢速 Chromium 分块读取推进通过，完整验证和发布另行追加。详见[验证记录](changes/142-loading-progress/verification.md)。
 
 - 用户纠正：撤回上述 1024 候选；正式加载图保持 4096²，采用 q82 WebP 编码降低体积，新文件名避免旧 CDN 缓存；按要求移除正式包旧无损版，历史/source 不改。实际候选验证与大小另行回填。
+=======
+### `5.21.10` · `92958b569259e9cf1918efe0c006071b4fef2458` · production promotion
+
+- tag/build `7188544bc8778784a1a568a28aa5d027da4fd285`（PR141，精确 CI38037281801 通过）；最终完整候选 `6ac9f5892bf0719ac8c32a8b` 的 Safari 三场景、Chromium/WebKit 及 15 文件字节／513 route/reference HEAD 通过，于2026-10-10T08:31:02.201Z原样提升。实际 published pointer、正式版本和产品/构建 SHA 回读一致；CLI 来源/空 commit_ref 不代替上述身份核验。
+- 100资源/schema1.2/模型/settings/环境/体素/封面/Editor/Director不变。正式域名浏览器、分析和15分钟观察随后追加；回退已核验5.21.9 `6ac8a216e683f6d6589d8376`，未触发。
+
+- 生产回读：15字节匹配/513引用HEAD、Chromium/WebKit和原生Safari三场景加载通过；分析18唯一事件被接收、无拒绝或重复。16轮900.003秒观察前15轮通过、末轮探针fetch失败，额外复核进行中；未出现阻断产品异常。Safari W3C click 间歇无事件投递，DOM click及此前原生按钮通过分别记录，不将其归因确定为产品或就绪。详见MF-139验证记录。
+
+- 追加复核 2026-10-10T08:50:16.213Z 至08:51:46.213Z、4轮90秒全部通过：正式版本/身份、脚本字节、100项索引、五条路线和实际持续浏览器状态。单次探针 fetch 故障未复现；记录为未定位的传输失败，不隐藏也不据此认定广泛产品故障。观察完成，未回退。
+>>>>>>> origin/main
+
+
+### `5.21.11` · `b8d1772b0a0f929fcfb09df433048f1c94c63ddd` · 4K loading cover correction
+
+- 按用户纠正撤回 1024 降采样方案；正式 cover-4096-q82.webp 保持 4096×4096，静态有损 WebP q82、361,112 字节。既有 thumbnail 引用新文件名，减少约 96.9%体积，避免旧 immutable 缓存；按要求从本次资源包移除旧无损版，历史 tag/source 不改。
+
+### `5.21.11` · `2d0b04010` · poster readiness restoration
+
+- 恢复图片可显示后才出现其他 UI：实例 pending 状态隐藏 chrome，图片 load/缓存完成并到可绘制帧后显示。图片错误或10秒未完成呈现九语言降级提示，继续模型加载；模型先就绪直接显示真实场景，不让 poster 阻塞首帧。完成、销毁、settings/图形设备初始化失败清理事件/计时器。4项行为测试通过。详见MF-142验证记录。
