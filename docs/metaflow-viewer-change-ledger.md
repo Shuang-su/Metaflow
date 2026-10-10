@@ -670,3 +670,5 @@ The 2026-08-15 Viewer 5.19.2 release-record commit updated package/version/index
 ### `5.21.11` · `2d0b04010` · poster readiness restoration
 
 - 恢复图片可显示后才出现其他 UI：实例 pending 状态隐藏 chrome，图片 load/缓存完成并到可绘制帧后显示。图片错误或10秒未完成呈现九语言降级提示，继续模型加载；模型先就绪直接显示真实场景，不让 poster 阻塞首帧。完成、销毁、settings/图形设备初始化失败清理事件/计时器。4项行为测试通过。详见MF-142验证记录。
+
+- 机械导入/格式修正来源 `58c2c0b6588d1c5e9c26b8e4034583b88d8bf0b1`、`6c48ca882066ae1112f76eccd965270f2958467a`；既有lint/格式要求不变。候选版本检查发现维护来源尚缺Ledger行，补齐记录后定向重跑并以最新精确HEAD CI验收。
