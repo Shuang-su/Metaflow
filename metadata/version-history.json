@@ -406,6 +406,11 @@
       "gitRef": "444ca70d412a4dca33127fc94d14f95cf03f94f9",
       "date": "2026-10-10",
       "summary": "MF-142: canonical lockup and animation implementation; touch compatibility follows"
+    },
+    {
+      "gitRef": "f1284501fcfc7454d78f3db9b9eabc6dd829e49a",
+      "date": "2026-10-10",
+      "summary": "MF-142: format brand CSS and record candidate animation validation"
     }
   ],
   "entries": [

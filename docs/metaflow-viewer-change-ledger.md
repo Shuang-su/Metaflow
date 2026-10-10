@@ -690,3 +690,5 @@ The 2026-08-15 Viewer 5.19.2 release-record commit updated package/version/index
 
 - 对照5.19.3明确恢复 hover:none 下首次点击只展开、第二次点击首页的实例内处理；沿用官方完整组合和200ms动画，桌面hover／焦点逻辑保持。来源 `444ca70d412a4dca33127fc94d14f95cf03f94f9` 的官方布局与动画作为候选维护记录保留。
 - Chromium／WebKit实际检验SVG原路径与viewBox、多个动画中间帧、首次点击没有新页面、第二次实际打开首页；反向收起、透明／无边框通过。168单测、fmt、构建通过，精确最新CI随后验收。
+
+- 机械格式／镜像记录来源 `f1284501fcfc7454d78f3db9b9eabc6dd829e49a` 补登记为候选维护；CI38041561032指出该格式提交同时触及CSS却缺少来源记录，前向补齐后重新验收，不削弱版本覆盖断言。
