@@ -678,3 +678,9 @@ The 2026-08-15 Viewer 5.19.2 release-record commit updated package/version/index
 
 - MF-142 / PR144：展开后的普通 Metaflow 文本改用仓库官方 metaflow_word.svg，保留英文／川流路径原值并在构建时内联；独立嵌入不依赖站点 assets 请求。维持 hover/focus 和手机点击、首页链接，无新增背景或边框。原字标资产不修改。
 - 前一实现来源 `2d0b04010` 作为本次未发布候选维护记录保留，唯一版本 entry 指向包含全部行为的当前来源。首次 CI38040250845 的 Viewer/数据/文档/CodeQL 通过，governance 指出缺少 trace.pullRequest，补齐实际 PR144 后重新验证；不跳过检查。
+
+
+### `5.21.11` · `444ca70d412a4dca33127fc94d14f95cf03f94f9` · canonical logo lockup and reveal
+
+- 按用户反馈撤回 `c8730ca8c50c495861012008112d1b05c0e7e555` 的独立图标＋字标拼接；折叠状态复用 metaflow_logo.svg，展开使用完整 metaflow.svg，保留官方 viewBox／路径／内部间距与相对比例，按图标同尺度切换。宽度与透明度过渡、桌面 hover、键盘 focus、手机首击展开保留，无新增背景或边框。官方资产未修改。
+- Chromium／WebKit 检查两份官方路径与 viewBox 完全一致、透明背景／0px边框、首页链接、最终组合状态；动画中间帧及生产复查随后追加。先前精确 CI38040908690 全通过；这次图形纠正后重新运行 CI。

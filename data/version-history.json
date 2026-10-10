@@ -1,14 +1,14 @@
 {
   "schemaVersion": "1.1",
   "cutoffGitRef": "c613a87",
-  "documentedThrough": "c8730ca8c50c495861012008112d1b05c0e7e555",
+  "documentedThrough": "444ca70d412a4dca33127fc94d14f95cf03f94f9",
   "defaultResourceVersion": "1.0a",
   "current": {
     "displayVersion": "5.21.11",
     "appSemver": "5.21.11",
     "indexSchemaVersion": "1.2",
     "date": "2026-10-10",
-    "gitRef": "c8730ca8c50c495861012008112d1b05c0e7e555",
+    "gitRef": "444ca70d412a4dca33127fc94d14f95cf03f94f9",
     "historyUrl": "/data/version-history.json",
     "upstream": {
       "repository": "playcanvas/supersplat-viewer",
@@ -396,6 +396,11 @@
       "gitRef": "2d0b04010",
       "date": "2026-10-10",
       "summary": "Viewer 5.21.11 poster readiness implementation candidate"
+    },
+    {
+      "gitRef": "c8730ca8c50c495861012008112d1b05c0e7e555",
+      "date": "2026-10-10",
+      "summary": "MF-142: superseded separate wordmark candidate; official combined SVG correction follows"
     }
   ],
   "entries": [
@@ -1958,8 +1963,8 @@
       "type": "fix",
       "scope": "viewer",
       "date": "2026-10-10",
-      "gitRef": "c8730ca8c50c495861012008112d1b05c0e7e555",
-      "summary": "初始 LOD 进度纳入分块内读取比例；缇宝保持压缩编码4K WebP，恢复图片就绪后显示UI; restore official Metaflow / 川流 branding wordmark",
+      "gitRef": "444ca70d412a4dca33127fc94d14f95cf03f94f9",
+      "summary": "初始 LOD 进度纳入分块内读取比例；缇宝保持压缩编码4K WebP，恢复图片就绪后显示UI; restore official Metaflow / 川流 official combined SVG proportions and reveal animation",
       "resourceChanges": [
         {
           "action": "update",
