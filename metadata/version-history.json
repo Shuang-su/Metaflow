@@ -1,14 +1,14 @@
 {
   "schemaVersion": "1.1",
   "cutoffGitRef": "c613a87",
-  "documentedThrough": "92958b569259e9cf1918efe0c006071b4fef2458",
+  "documentedThrough": "26e9cbd0603267614177098da752ff89e226ff9a",
   "defaultResourceVersion": "1.0a",
   "current": {
-    "displayVersion": "5.21.10",
-    "appSemver": "5.21.10",
+    "displayVersion": "5.21.11",
+    "appSemver": "5.21.11",
     "indexSchemaVersion": "1.2",
     "date": "2026-10-10",
-    "gitRef": "92958b569259e9cf1918efe0c006071b4fef2458",
+    "gitRef": "26e9cbd0603267614177098da752ff89e226ff9a",
     "historyUrl": "/data/version-history.json",
     "upstream": {
       "repository": "playcanvas/supersplat-viewer",
@@ -371,6 +371,46 @@
       "gitRef": "fcc73c7833d741cd8c46acd924def11cc7f53561",
       "date": "2026-10-10",
       "summary": "MF-139 SDK loading timeline starts before config prefetches"
+    },
+    {
+      "gitRef": "b739c2fa3",
+      "date": "2026-10-10",
+      "summary": "MF-142 implementation source: in-flight LOD progress; superseded 1024 poster candidate"
+    },
+    {
+      "gitRef": "b8d1772b0a0f929fcfb09df433048f1c94c63ddd",
+      "date": "2026-10-10",
+      "summary": "MF-142 source correction: approved 4K encoded WebP replaces unpublished 1024 candidate"
+    },
+    {
+      "gitRef": "58c2c0b6588d1c5e9c26b8e4034583b88d8bf0b1",
+      "date": "2026-10-10",
+      "summary": "MF-142: order loading helper imports; no behavior change"
+    },
+    {
+      "gitRef": "6c48ca882066ae1112f76eccd965270f2958467a",
+      "date": "2026-10-10",
+      "summary": "MF-142: format loading helper import group; no behavior change"
+    },
+    {
+      "gitRef": "2d0b04010",
+      "date": "2026-10-10",
+      "summary": "Viewer 5.21.11 poster readiness implementation candidate"
+    },
+    {
+      "gitRef": "c8730ca8c50c495861012008112d1b05c0e7e555",
+      "date": "2026-10-10",
+      "summary": "MF-142: superseded separate wordmark candidate; official combined SVG correction follows"
+    },
+    {
+      "gitRef": "444ca70d412a4dca33127fc94d14f95cf03f94f9",
+      "date": "2026-10-10",
+      "summary": "MF-142: canonical lockup and animation implementation; touch compatibility follows"
+    },
+    {
+      "gitRef": "f1284501fcfc7454d78f3db9b9eabc6dd829e49a",
+      "date": "2026-10-10",
+      "summary": "MF-142: format brand CSS and record candidate animation validation"
     }
   ],
   "entries": [
@@ -1925,6 +1965,31 @@
         "evidence": "docs/changes/139-viewer-safari-loading/verification.md",
         "releaseTag": "viewer-v5.21.10",
         "pullRequest": "https://github.com/Shuang-su/Metaflow/pull/140"
+      }
+    },
+    {
+      "displayVersion": "5.21.11",
+      "appSemver": "5.21.11",
+      "type": "fix",
+      "scope": "viewer",
+      "date": "2026-10-10",
+      "gitRef": "26e9cbd0603267614177098da752ff89e226ff9a",
+      "summary": "初始 LOD 进度纳入分块内读取比例；缇宝保持压缩编码4K WebP，恢复图片就绪后显示UI; restore official Metaflow / 川流 official combined SVG proportions and reveal animation",
+      "resourceChanges": [
+        {
+          "action": "update",
+          "routes": [
+            "/acg/szcaf15/honkai_star_rail-tribbie"
+          ]
+        }
+      ],
+      "trace": {
+        "changeId": "MF-142",
+        "issue": "https://github.com/Shuang-su/Metaflow/issues/142",
+        "plan": "https://github.com/Shuang-su/Metaflow/issues/142",
+        "evidence": "docs/changes/142-loading-progress/verification.md",
+        "releaseTag": "viewer-v5.21.11",
+        "pullRequest": "https://github.com/Shuang-su/Metaflow/pull/144"
       }
     }
   ]

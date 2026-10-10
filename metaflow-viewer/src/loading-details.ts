@@ -183,7 +183,8 @@ function initLoadingDetails(global: Global, node: HTMLElement) {
             `${localize('loading.elapsed')} ${seconds.toFixed(1)} s · ${localize('loading.retries')} ${metrics.retries} · ${localize('loading.cache')} ${metrics.cached}` +
             (metrics.lastError
                 ? `\n${localize('loading.last-error')} ${localize(loadingIssueKey(metrics.lastError))}`
-                : '');
+                : '') +
+            (root.dataset.posterStatus === 'unavailable' ? `\n${localize('loading.poster.unavailable')}` : '');
     };
     update();
     const interval = setInterval(update, 500);

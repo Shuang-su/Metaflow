@@ -98,5 +98,6 @@
     "loading.issue.busy": "Dienst ausgelastet",
     "loading.issue.service": "Ressourcendienst nicht verfügbar",
     "loading.issue.timeout": "Zeitüberschreitung",
-    "loading.issue.request": "Ressourcenanfrage fehlgeschlagen"
+    "loading.issue.request": "Ressourcenanfrage fehlgeschlagen",
+    "loading.poster.unavailable": "Vorschaubild nicht verfügbar. Die Szene wird weiter geladen."
 }

@@ -98,5 +98,6 @@
     "loading.issue.busy": "Servicio ocupado",
     "loading.issue.service": "Servicio no disponible",
     "loading.issue.timeout": "Solicitud agotada",
-    "loading.issue.request": "Solicitud fallida"
+    "loading.issue.request": "Solicitud fallida",
+    "loading.poster.unavailable": "Vista previa no disponible. La escena sigue cargando."
 }

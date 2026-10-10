@@ -121,5 +121,6 @@
     "loading.issue.busy": "服务繁忙",
     "loading.issue.service": "资源服务暂时不可用",
     "loading.issue.timeout": "请求超时",
-    "loading.issue.request": "资源请求失败"
+    "loading.issue.request": "资源请求失败",
+    "loading.poster.unavailable": "加载图暂不可用，正在继续加载场景"
 }

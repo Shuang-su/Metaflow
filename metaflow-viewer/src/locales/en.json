@@ -98,5 +98,6 @@
     "loading.issue.busy": "Service busy",
     "loading.issue.service": "Resource service unavailable",
     "loading.issue.timeout": "Request timed out",
-    "loading.issue.request": "Resource request failed"
+    "loading.issue.request": "Resource request failed",
+    "loading.poster.unavailable": "Preview unavailable. Continuing to load the scene."
 }

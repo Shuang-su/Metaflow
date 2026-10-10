@@ -44,6 +44,7 @@ import { MeshDebugOverlay } from './mesh-debug-overlay';
 import { NavCursor } from './nav-cursor';
 import { Picker } from './picker';
 import type { ExperienceSettings, PostEffectSettings } from './settings';
+import { observeInitialLodProgress } from './streaming-progress';
 import type { LoadMode, CaptureOptions, Config, Global, XrMode } from './types';
 import { TiledVoxelDebugOverlay, VoxelDebugOverlay } from './voxel-debug-overlay';
 import { initXr } from './xr';
@@ -89,6 +90,7 @@ const rendererTable: Record<Config['renderer'], number> = {
 type GSplatOctreeResourceLike = {
     octree?: {
         lodLevels: number;
+        files?: { url: string }[];
     } | null;
 };
 
@@ -787,10 +789,31 @@ class Viewer {
         // `gsplatLoad` alone lets the bar track the one load it can measure, from the moment
         // that load begins. The reveal below stops it and puts the bar at 100.
         let stopProgress: (() => void) | undefined;
-        gsplatLoad.then(() => {
+        gsplatLoad.then((entity) => {
             if (this.destroyed) return;
 
             const eventHandler = app.systems.gsplat;
+
+            const octree = (entity.gsplat?.resource as GSplatOctreeResourceLike | null)?.octree;
+            if (octree?.files) {
+                const progress = observeInitialLodProgress(
+                    app.assets,
+                    octree.files.map((file) => file.url),
+                    document.baseURI,
+                    (value) => {
+                        state.progress = Math.max(state.progress, value);
+                    }
+                );
+                const frame = (camera: CameraComponent, layer: Layer, ready: boolean, loading: number) =>
+                    progress.frame(loading);
+                eventHandler.on('frame:ready', frame);
+                stopProgress = () => {
+                    eventHandler.off('frame:ready', frame);
+                    progress.stop();
+                };
+                this.onDestroy(stopProgress);
+                return;
+            }
 
             // `loading` counts the node files the streamer has requested and not yet made
             // resident. Before the reveal the LOD range is clamped to the coarsest level, so this

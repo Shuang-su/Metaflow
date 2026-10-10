@@ -514,9 +514,7 @@ const createViewer = async (options: CreateViewerOptions): Promise<ViewerHandle>
     // the poster covers the hidden canvas from the first moment, before the graphics device
     // exists. It is part of the ui, so a headless instance shows the canvas from the start and
     // its host covers the wait however it likes
-    if (config.poster && config.ui) {
-        initPoster(root, config.poster, events);
-    }
+    const disposePoster = config.poster && config.ui ? initPoster(root, config.poster, events) : null;
 
     // resolve settings after showing the poster, including a fetch started by the document
     let importedSettings: ReturnType<typeof importSettings>;
@@ -527,6 +525,7 @@ const createViewer = async (options: CreateViewerOptions): Promise<ViewerHandle>
                 : await options.settings;
         importedSettings = importSettings(settingsJson);
     } catch (error) {
+        disposePoster?.();
         root.remove();
         throw error;
     }
@@ -552,6 +551,7 @@ const createViewer = async (options: CreateViewerOptions): Promise<ViewerHandle>
     resizeCanvas(canvas, measureCanvas(canvas), preferences.performanceMode);
 
     const { app, camera, renderer } = await createApp(canvas, config).catch((error) => {
+        disposePoster?.();
         root.remove();
         throw error;
     });
@@ -863,6 +863,7 @@ const createViewer = async (options: CreateViewerOptions): Promise<ViewerHandle>
     if (disposeUI) {
         viewer.onDestroy(disposeUI);
     }
+    if (disposePoster) viewer.onDestroy(disposePoster);
     if (disposeAudio) {
         viewer.onDestroy(disposeAudio);
     }

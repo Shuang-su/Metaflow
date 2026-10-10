@@ -653,3 +653,42 @@ The 2026-08-15 Viewer 5.19.2 release-record commit updated package/version/index
 - 生产回读：15字节匹配/513引用HEAD、Chromium/WebKit和原生Safari三场景加载通过；分析18唯一事件被接收、无拒绝或重复。16轮900.003秒观察前15轮通过、末轮探针fetch失败，额外复核进行中；未出现阻断产品异常。Safari W3C click 间歇无事件投递，DOM click及此前原生按钮通过分别记录，不将其归因确定为产品或就绪。详见MF-139验证记录。
 
 - 追加复核 2026-10-10T08:50:16.213Z 至08:51:46.213Z、4轮90秒全部通过：正式版本/身份、脚本字节、100项索引、五条路线和实际持续浏览器状态。单次探针 fetch 故障未复现；记录为未定位的传输失败，不隐藏也不据此认定广泛产品故障。观察完成，未回退。
+
+
+### `5.21.11` · `b739c2fa3` · finer initial LOD loading progress candidate
+
+- [MF-142](https://github.com/Shuang-su/Metaflow/issues/142)：初始 LOD 从仅分块完成推进，改为本实例分块 progress/load，计入读取量/总量比例；未知总量不伪造读取进度，重试不重复计数，取消不等同完成，99 上限到场景就绪才 100；无新下载或内容缓冲，完成/销毁清理。
+- 缇宝将既有 thumbnail 指向 1024²、66,670 字节 WebP 加载图；原 4096² 无损 11,514,166 字节保留。其他 99 资源、模型/settings/环境/体素/路由、schema、引擎、Editor/Director 不改。透明/百分比标题/分阶段提示保持；定向 4 单测和慢速 Chromium 分块读取推进通过，完整验证和发布另行追加。详见[验证记录](changes/142-loading-progress/verification.md)。
+
+- 用户纠正：撤回上述 1024 候选；正式加载图保持 4096²，采用 q82 WebP 编码降低体积，新文件名避免旧 CDN 缓存；按要求移除正式包旧无损版，历史/source 不改。实际候选验证与大小另行回填。
+
+
+### `5.21.11` · `b8d1772b0a0f929fcfb09df433048f1c94c63ddd` · 4K loading cover correction
+
+- 按用户纠正撤回 1024 降采样方案；正式 cover-4096-q82.webp 保持 4096×4096，静态有损 WebP q82、361,112 字节。既有 thumbnail 引用新文件名，减少约 96.9%体积，避免旧 immutable 缓存；按要求从本次资源包移除旧无损版，历史 tag/source 不改。
+
+### `5.21.11` · `2d0b04010` · poster readiness restoration
+
+- 恢复图片可显示后才出现其他 UI：实例 pending 状态隐藏 chrome，图片 load/缓存完成并到可绘制帧后显示。图片错误或10秒未完成呈现九语言降级提示，继续模型加载；模型先就绪直接显示真实场景，不让 poster 阻塞首帧。完成、销毁、settings/图形设备初始化失败清理事件/计时器。4项行为测试通过。详见MF-142验证记录。
+
+- 机械导入/格式修正来源 `58c2c0b6588d1c5e9c26b8e4034583b88d8bf0b1`、`6c48ca882066ae1112f76eccd965270f2958467a`；既有lint/格式要求不变。候选版本检查发现维护来源尚缺Ledger行，补齐记录后定向重跑并以最新精确HEAD CI验收。
+
+
+### `5.21.11` · `c8730ca8c50c495861012008112d1b05c0e7e555` · official bilingual branding candidate
+
+- MF-142 / PR144：展开后的普通 Metaflow 文本改用仓库官方 metaflow_word.svg，保留英文／川流路径原值并在构建时内联；独立嵌入不依赖站点 assets 请求。维持 hover/focus 和手机点击、首页链接，无新增背景或边框。原字标资产不修改。
+- 前一实现来源 `2d0b04010` 作为本次未发布候选维护记录保留，唯一版本 entry 指向包含全部行为的当前来源。首次 CI38040250845 的 Viewer/数据/文档/CodeQL 通过，governance 指出缺少 trace.pullRequest，补齐实际 PR144 后重新验证；不跳过检查。
+
+
+### `5.21.11` · `444ca70d412a4dca33127fc94d14f95cf03f94f9` · canonical logo lockup and reveal
+
+- 按用户反馈撤回 `c8730ca8c50c495861012008112d1b05c0e7e555` 的独立图标＋字标拼接；折叠状态复用 metaflow_logo.svg，展开使用完整 metaflow.svg，保留官方 viewBox／路径／内部间距与相对比例，按图标同尺度切换。宽度与透明度过渡、桌面 hover、键盘 focus、手机首击展开保留，无新增背景或边框。官方资产未修改。
+- Chromium／WebKit 检查两份官方路径与 viewBox 完全一致、透明背景／0px边框、首页链接、最终组合状态；动画中间帧及生产复查随后追加。先前精确 CI38040908690 全通过；这次图形纠正后重新运行 CI。
+
+
+### `5.21.11` · `26e9cbd0603267614177098da752ff89e226ff9a` · touch branding compatibility
+
+- 对照5.19.3明确恢复 hover:none 下首次点击只展开、第二次点击首页的实例内处理；沿用官方完整组合和200ms动画，桌面hover／焦点逻辑保持。来源 `444ca70d412a4dca33127fc94d14f95cf03f94f9` 的官方布局与动画作为候选维护记录保留。
+- Chromium／WebKit实际检验SVG原路径与viewBox、多个动画中间帧、首次点击没有新页面、第二次实际打开首页；反向收起、透明／无边框通过。168单测、fmt、构建通过，精确最新CI随后验收。
+
+- 机械格式／镜像记录来源 `f1284501fcfc7454d78f3db9b9eabc6dd829e49a` 补登记为候选维护；CI38041561032指出该格式提交同时触及CSS却缺少来源记录，前向补齐后重新验收，不削弱版本覆盖断言。

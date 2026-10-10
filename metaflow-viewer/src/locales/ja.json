@@ -98,5 +98,6 @@
     "loading.issue.busy": "サービスが混雑しています",
     "loading.issue.service": "サービスが利用できません",
     "loading.issue.timeout": "タイムアウトしました",
-    "loading.issue.request": "リクエストに失敗しました"
+    "loading.issue.request": "リクエストに失敗しました",
+    "loading.poster.unavailable": "プレビューを表示できません。シーンの読み込みを続けています。"
 }
