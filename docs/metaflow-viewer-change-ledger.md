@@ -698,3 +698,11 @@ The 2026-08-15 Viewer 5.19.2 release-record commit updated package/version/index
 
 - PR144正常squash合并，实际产品SHA回填全部版本镜像与index.release。精确候选4df289436的CI38041926779通过：Viewer／Director、开发及构建E2E、数据、治理、文档、CodeQL与summary。来源由不可变rc1／rc2保留，无管理员绕过。
 - 初始LOD更细进度、4K q82加载图、图片先于UI、官方完整组合比例与触屏首击展开／二击主页及展开动画已本地验证。100资源／schema1.2、99既有对象及模型／settings／环境／体素／路由、引擎与Editor／Director保持。正式tag/build、完整候选及生产回读／观察随后追加。
+
+
+### `5.21.11` · `a9b4f41782c9d96cae0aa1c2c81ea8eee7d3ebe9` · production promotion
+
+- 正式tag/build `988c8e7cbe5844af3133a38ac4a988af2601092b`（PR145，精确CI38042207531通过），产品PR144／CI38041926779通过。完整候选 `6aca09261511aa373989bac4` 的15文件字节／513路由引用、Chromium／WebKit、原生Safari三场景、官方组合布局／动画／触屏两击以及图片待机／404降级通过；于2026-10-10T09:50:44.558Z原样提升生产。实际published pointer、版本、产品／构建SHA回读一致。
+- 正式15文件／513引用、五组浏览器、官方Logo复查、17唯一分析事件／零拒绝／页面和首帧各一次通过；100资源、其他99对象和模型／settings／环境／体素／路由、schema1.2、引擎、Editor／Director保持。15分钟观察完成后追加；回退已核验5.21.10 `6ac9f5892bf0719ac8c32a8b`。
+
+- 生产观察完成：2026-10-10T09:52:03.470Z 至 2026-10-10T10:07:03.472Z，16轮、900.002秒全部通过；每轮核对版本／产品／构建SHA、100资源索引、脚本字节、五条路线及持续运行的大运浏览器状态。脚本错误0、请求失败0，未触发回退。正式GitHub Release已公开；发布证据与限制见MF-142验证记录。
