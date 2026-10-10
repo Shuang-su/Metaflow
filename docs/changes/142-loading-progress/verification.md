@@ -21,3 +21,12 @@
 恢复既有设计：pending 时隐藏其他 UI，图片可显示并经过帧回调后显示；cached/错误/10秒超时/提前场景首帧/销毁/初始化失败有定向断言。图片失败/未就绪时透明提示继续加载场景，不修改首帧等待逻辑；九语言、无额外背景边框。4 项 poster 行为测试通过。原生Safari的 W3C click 未投递已在 MF-139 单列，实际场景加载与DOM按钮状态分开，不假定是产品问题。
 
 并入 MF-139 发布记录时 Ledger 出现单文件追加冲突，早期提交保留了冲突标记；通过后续前向修复保留两批完整记录，重新检查 diff/Markdown 与版本，不改写已推送历史。
+
+## 最终本地验收
+
+- 168 单测通过；8 项新增行为覆盖分块读取与 poster 顺序/失败/超时/提前首帧/清理。类型、lint、格式、生产构建与 npm tarball 的 publint 通过。最初 publint 在系统临时目录 ENOSPC，使用项目目录 npm pack --pack-destination 与同一 tarball 验证后通过；未清理用户系统数据。LFS pointer 的 sparse 单测模式与实体完整性分开。
+- Chromium/WebKit 大运受控慢纹理读取连续推进；原生 Safari 18.5 在仍剩14分块时出现0–10%多个值，之后继续至46%、场景就绪100%，首帧加载与飞行按钮通过。原生 Safari 三场景加载、4K新图请求和显示通过；Chromium/WebKit延迟图片时 chrome 隐藏、图片就绪显示，404继续场景加载通过。
+- 新封面实际4096×4096，静态WebP q82，361,112字节，可解码且视觉保留原构图。只改变缇宝thumbnail/大小/updatedIn；其他99项对象完全一致。完整staging validate_data.py --check-files通过，10GB级文件使用已验证硬链接，避免复制。
+- 受控本地网络不代表用户真实弱网；无iOS/iPadOS实体设备。未新增全链路请求重试。原生W3C输入限制见MF-139，未改既有相机行为。公开资源仍100项/schema1.2，Editor/Director未改。
+
+证据：项目.codex-work/online-diagnostic-20261010/ 下 fine-browser.json、fine-native-samples-safari.json、fine-native-safari.json、poster-browser.json、最终168单测/类型/lint/格式/构建/包日志和截图。候选及生产发布后追加实际SHA/部署/线上回读/观察。

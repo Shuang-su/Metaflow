@@ -381,6 +381,16 @@
       "gitRef": "b8d1772b0a0f929fcfb09df433048f1c94c63ddd",
       "date": "2026-10-10",
       "summary": "MF-142 source correction: approved 4K encoded WebP replaces unpublished 1024 candidate"
+    },
+    {
+      "gitRef": "58c2c0b6588d1c5e9c26b8e4034583b88d8bf0b1",
+      "date": "2026-10-10",
+      "summary": "MF-142: order loading helper imports; no behavior change"
+    },
+    {
+      "gitRef": "6c48ca882066ae1112f76eccd965270f2958467a",
+      "date": "2026-10-10",
+      "summary": "MF-142: format loading helper import group; no behavior change"
     }
   ],
   "entries": [
