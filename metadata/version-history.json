@@ -1934,7 +1934,7 @@
       "scope": "viewer",
       "date": "2026-10-10",
       "gitRef": "b739c2fa3",
-      "summary": "初始 LOD 进度纳入分块内读取比例；缇宝改用轻量加载图，保留 4K 无损封面",
+      "summary": "初始 LOD 进度纳入分块内读取比例；缇宝改用压缩编码 4K WebP 加载图",
       "resourceChanges": [
         {
           "action": "update",

@@ -650,3 +650,5 @@ The 2026-08-15 Viewer 5.19.2 release-record commit updated package/version/index
 
 - [MF-142](https://github.com/Shuang-su/Metaflow/issues/142)：初始 LOD 从仅分块完成推进，改为本实例分块 progress/load，计入读取量/总量比例；未知总量不伪造读取进度，重试不重复计数，取消不等同完成，99 上限到场景就绪才 100；无新下载或内容缓冲，完成/销毁清理。
 - 缇宝将既有 thumbnail 指向 1024²、66,670 字节 WebP 加载图；原 4096² 无损 11,514,166 字节保留。其他 99 资源、模型/settings/环境/体素/路由、schema、引擎、Editor/Director 不改。透明/百分比标题/分阶段提示保持；定向 4 单测和慢速 Chromium 分块读取推进通过，完整验证和发布另行追加。详见[验证记录](changes/142-loading-progress/verification.md)。
+
+- 用户纠正：撤回上述 1024 候选；正式加载图保持 4096²，采用 q82 WebP 编码降低体积，新文件名避免旧 CDN 缓存；按要求移除正式包旧无损版，历史/source 不改。实际候选验证与大小另行回填。

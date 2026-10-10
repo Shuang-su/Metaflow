@@ -3417,14 +3417,14 @@
         "model": "ACG/SZCAF15/A001C0190_260726_PQWJ/scene.sog",
         "environment": "ACG/SZCAF15/A001C0190_260726_PQWJ/environment.compressed.ply",
         "settings": "ACG/SZCAF15/A001C0190_260726_PQWJ/settings.json",
-        "thumbnail": "ACG/SZCAF15/A001C0190_260726_PQWJ/cover-loading.webp",
+        "thumbnail": "ACG/SZCAF15/A001C0190_260726_PQWJ/cover-4096-q82.webp",
         "voxel": "ACG/SZCAF15/A001C0190_260726_PQWJ/walk.voxel.json"
       },
       "fileSize": {
         "model": 10563265,
         "environment": 896601,
-        "thumbnail": 66670,
-        "total": 14193296,
+        "thumbnail": 361112,
+        "total": 14487738,
         "voxel": 2666760
       },
       "meta": {
