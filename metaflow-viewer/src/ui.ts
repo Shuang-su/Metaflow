@@ -218,12 +218,7 @@ const initUI = (global: Global, viewer: ViewerHandle, getPicker: () => Picker | 
     disposers.push(() => modalObserver.disconnect());
     // Handle loading progress updates
     const updateLoadingProgress = (progress: number) => {
-        dom.loadingText.textContent =
-            progress < 0
-                ? localize('loading.processing')
-                : state.loadingMode === 'streaming-json'
-                  ? `${localize('loading.lod-progress')} ${progress}%`
-                  : `${progress}%`;
+        dom.loadingText.textContent = progress < 0 ? '…' : `${progress}%`;
         const barProgress = Math.max(0, Math.min(100, progress));
         dom.loadingBar.setAttribute('role', 'progressbar');
         dom.loadingBar.setAttribute('aria-label', localize('loading.progress'));
@@ -237,7 +232,6 @@ const initUI = (global: Global, viewer: ViewerHandle, getPicker: () => Picker | 
         }
     };
     on('progress:changed', updateLoadingProgress);
-    on('loadingMode:changed', () => updateLoadingProgress(state.progress));
     updateLoadingProgress(state.progress);
     const showStatus = () => {
         dom.loadingStatus.textContent = state.loadingStatus;
