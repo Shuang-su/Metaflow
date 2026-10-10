@@ -98,5 +98,6 @@
     "loading.issue.busy": "Serviço ocupado",
     "loading.issue.service": "Serviço indisponível",
     "loading.issue.timeout": "Tempo esgotado",
-    "loading.issue.request": "Falha na solicitação"
+    "loading.issue.request": "Falha na solicitação",
+    "loading.poster.unavailable": "Prévia indisponível. O carregamento da cena continua."
 }

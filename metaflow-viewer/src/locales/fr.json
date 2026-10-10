@@ -98,5 +98,6 @@
     "loading.issue.busy": "Service occupé",
     "loading.issue.service": "Service indisponible",
     "loading.issue.timeout": "Délai dépassé",
-    "loading.issue.request": "Échec de la requête"
+    "loading.issue.request": "Échec de la requête",
+    "loading.poster.unavailable": "Aperçu indisponible. Le chargement de la scène continue."
 }

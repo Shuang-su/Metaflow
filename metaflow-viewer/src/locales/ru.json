@@ -98,5 +98,6 @@
     "loading.issue.busy": "Сервис занят",
     "loading.issue.service": "Сервис недоступен",
     "loading.issue.timeout": "Время ожидания истекло",
-    "loading.issue.request": "Ошибка запроса"
+    "loading.issue.request": "Ошибка запроса",
+    "loading.poster.unavailable": "Предпросмотр недоступен. Загрузка сцены продолжается."
 }

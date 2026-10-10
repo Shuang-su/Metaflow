@@ -364,6 +364,10 @@
 
     /* poster */
 
+    &.sse-posterPending .sse-ui > :not(.sse-poster) {
+        visibility: hidden;
+    }
+
     .sse-poster {
         display: none;
         position: absolute;

@@ -4,6 +4,7 @@ import type { EventHandler } from 'playcanvas';
 import { version as appVersion } from '../package.json';
 
 import { initLoadingDetails } from './loading-details';
+import { initPoster } from './poster';
 import type { Picker } from './picker';
 import { Tooltip } from './tooltip';
 import type { Global, ViewerHandle } from './types';
@@ -43,29 +44,6 @@ const TRACKED_UI_ACTIONS: Record<string, string> = {
     xrModalOk: 'xr_reload_webgl',
     xrModalCancel: 'xr_modal_cancel',
     walkHint: 'walk_hint_dismiss'
-};
-
-// show the poster image over the hidden canvas, blurry at first and sharpening as loading
-// progresses, until the first frame renders
-const initPoster = (root: HTMLElement, image: HTMLImageElement, events: EventHandler) => {
-    const poster = root.querySelector<HTMLElement>('.sse-poster');
-
-    poster.style.setProperty('--poster-url', `url(${image.src})`);
-    poster.style.display = 'block';
-    poster.style.filter = 'blur(40px)';
-    // the canvas inherits this from the root
-    root.style.setProperty('--canvas-opacity', '0');
-
-    events.on('loaded:changed', () => {
-        poster.style.display = 'none';
-        root.style.setProperty('--canvas-opacity', '1');
-    });
-
-    const blur = (progress: number) => {
-        poster.style.filter = `blur(${Math.floor((100 - progress) * 0.4)}px)`;
-    };
-
-    events.on('progress:changed', blur);
 };
 
 // the gpu the renderer runs on, as the browser names it: the WebGPU adapter's description,
