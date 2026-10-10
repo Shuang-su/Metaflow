@@ -11,7 +11,7 @@
 | 不兼容 URL/settings/index 契约或要求消费者迁移 | MAJOR | `6.0.0` |
 | 普通文档、MCL/治理、研究、无行为 refactor、测试维护、未公开 staging | 不提升产品版本 | — |
 
-当前集成 Viewer 为 `5.21.5`；实际生产版本、最终构建 SHA、Netlify 指针和观察以 [MF-106 核验](../changes/106-acg-director/verification.md)为准，合并和版本文件本身不表示上线。普通 Viewer 基于 SuperSplat Viewer `1.35.2` / PlayCanvas `2.22.4`；ACG Director 独立复用 SuperSplat `3.4.2` 渲染模块与 splat-transform `3.6.4`，同样使用 PlayCanvas `2.22.4`。历史 `viewer-v5.19.0` 只有 tag、没有成功部署；`5.18a` 及更早字母版本保持不变。
+当前集成 Viewer 为 `5.21.10`；实际生产版本、最终构建 SHA、Netlify 指针和观察以 [MF-139 核验](../changes/139-viewer-safari-loading/verification.md)为准，合并和版本文件本身不表示上线。普通 Viewer 基于 SuperSplat Viewer `1.35.2` / PlayCanvas `2.22.4`；ACG Director 独立复用 SuperSplat `3.4.2` 渲染模块与 splat-transform `3.6.4`，同样使用 PlayCanvas `2.22.4`。历史 `viewer-v5.19.0` 只有 tag、没有成功部署；`5.18a` 及更早字母版本保持不变。
 
 同一发布同时含资源和兼容修复时共用一个 PATCH；若包含新产品能力则按 MINOR。文件数量与体积影响审查路线，不改变 SemVer 含义。
 

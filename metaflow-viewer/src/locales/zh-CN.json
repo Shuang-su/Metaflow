@@ -105,5 +105,21 @@
     "help.section.anim": "动画",
     "help.action.toggle-controls": "切换操作",
     "help.action.release-mouse": "释放鼠标",
-    "help.action.exit-walk": "退出行走"
+    "help.action.exit-walk": "退出行走",
+    "loading.progress": "资源读取进度",
+    "loading.requests": "已完成请求",
+    "loading.active": "处理中资源",
+    "loading.received": "已读取",
+    "loading.rate": "读取速率",
+    "loading.elapsed": "耗时",
+    "loading.retries": "自动重试",
+    "loading.cache": "缓存读取",
+    "loading.last-error": "错误原因",
+    "loading.unavailable": "—",
+    "loading.issue.not-found": "资源暂不可用",
+    "loading.issue.access": "暂时无法访问此资源",
+    "loading.issue.busy": "服务繁忙",
+    "loading.issue.service": "资源服务暂时不可用",
+    "loading.issue.timeout": "请求超时",
+    "loading.issue.request": "资源请求失败"
 }

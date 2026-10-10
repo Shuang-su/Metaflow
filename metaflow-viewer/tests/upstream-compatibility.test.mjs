@@ -26,7 +26,7 @@ test('route and explicit-query precedence remains the Metaflow contract', async 
     assert.match(html, /voxelUrl = voxelUrl \|\| dataUrl\(resource\?\.files\?\.voxel\)/);
     assert.match(html, /collisionUrl = collisionUrl \|\| dataUrl\(resource\?\.files\?\.collision\)/);
     assert.match(html, /environmentUrl = environmentUrl \|\| dataUrl\(resource\?\.files\?\.environment\)/);
-    assert.match(html, /fetch\('\/data\/index\.json', \{\s*cache: 'no-store'\s*\}\)/s);
+    assert.match(html, /fetchWithRetry\('\/data\/index\.json', \{\s*cache: 'no-store'\s*\}\)/s);
 });
 
 test('engine parser identity and public loading modes keep separate first-frame contracts', async () => {

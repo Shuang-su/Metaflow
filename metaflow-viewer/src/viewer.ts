@@ -1210,7 +1210,7 @@ class Viewer {
                             state.loadingMode === 'streaming-json' ? 'stream-loading' : 'legacy-lod-loading';
                         state.loadingStatus =
                             state.loadingMode === 'streaming-json'
-                                ? `流式 LOD 拉取中 (剩余 ${loading} 个分块)`
+                                ? `LOD 加载中（剩余 ${loading} 个分块）`
                                 : `正在加载 LOD 数据 (剩余 ${loading} 个文件)`;
                     }
                 }

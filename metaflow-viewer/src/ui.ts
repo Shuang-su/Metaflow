@@ -3,6 +3,7 @@ import type { EventHandler } from 'playcanvas';
 
 import { version as appVersion } from '../package.json';
 
+import { initLoadingDetails } from './loading-details';
 import type { Picker } from './picker';
 import { Tooltip } from './tooltip';
 import type { Global, ViewerHandle } from './types';
@@ -135,6 +136,7 @@ const initUI = (global: Global, viewer: ViewerHandle, getPicker: () => Picker | 
         'loadingText',
         'loadingBar',
         'loadingStatus',
+        'loadingDetails',
         'showCollisionRow',
         'showCollisionCheck',
         'showCollisionShortcut',
@@ -217,8 +219,14 @@ const initUI = (global: Global, viewer: ViewerHandle, getPicker: () => Picker | 
     // Handle loading progress updates
     const updateLoadingProgress = (progress: number) => {
         dom.loadingText.textContent = progress < 0 ? '…' : `${progress}%`;
+        const barProgress = Math.max(0, Math.min(100, progress));
+        dom.loadingBar.setAttribute('role', 'progressbar');
+        dom.loadingBar.setAttribute('aria-label', localize('loading.progress'));
+        if (progress < 0) dom.loadingBar.removeAttribute('aria-valuenow');
+        else dom.loadingBar.setAttribute('aria-valuenow', String(barProgress));
+        dom.loadingBar.classList.toggle('sse-indeterminate', progress < 0);
         if (progress < 100) {
-            dom.loadingBar.style.backgroundImage = `linear-gradient(90deg, #42d2f6 0%, #42d2f6 ${progress}%, white ${progress}%, white 100%)`;
+            dom.loadingBar.style.backgroundImage = `linear-gradient(90deg, #42d2f6 0%, #42d2f6 ${barProgress}%, white ${barProgress}%, white 100%)`;
         } else {
             dom.loadingBar.style.backgroundImage = 'linear-gradient(90deg, #42d2f6 0%, #42d2f6 100%)';
         }
@@ -232,6 +240,7 @@ const initUI = (global: Global, viewer: ViewerHandle, getPicker: () => Picker | 
     on('loadingStatus:changed', showStatus);
     on('loadingStage:changed', showStatus);
     showStatus();
+    disposers.push(initLoadingDetails(global, dom.loadingDetails));
 
     // Hide loading bar once loaded
     on('loaded:changed', () => {

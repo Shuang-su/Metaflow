@@ -82,5 +82,21 @@
     "help.section.anim": "Animation",
     "help.action.toggle-controls": "Toggle Controls",
     "help.action.release-mouse": "Release Mouse",
-    "help.action.exit-walk": "Exit Walk"
+    "help.action.exit-walk": "Exit Walk",
+    "loading.progress": "Resource read progress",
+    "loading.requests": "Completed requests",
+    "loading.active": "Active assets",
+    "loading.received": "Read",
+    "loading.rate": "Read rate",
+    "loading.elapsed": "Elapsed",
+    "loading.retries": "Retries",
+    "loading.cache": "Cache reads",
+    "loading.last-error": "Error",
+    "loading.unavailable": "—",
+    "loading.issue.not-found": "Resource unavailable",
+    "loading.issue.access": "Access unavailable",
+    "loading.issue.busy": "Service busy",
+    "loading.issue.service": "Resource service unavailable",
+    "loading.issue.timeout": "Request timed out",
+    "loading.issue.request": "Resource request failed"
 }

@@ -37,3 +37,41 @@ test('matches the stable settings-shell visual baseline', async ({ page }) => {
         scale: 'css'
     });
 });
+
+test('embedded loading timing includes its content and environment prefetches', async ({ page }) => {
+    const timings = await page.evaluate(async () => {
+        const { createViewer } = await import('/index.js');
+        const settings = await (await fetch('/data/e2e/settings.json')).json();
+        const container = document.createElement('div');
+        container.style.cssText = 'position:fixed;width:320px;height:240px;left:0;top:0';
+        document.body.appendChild(container);
+        const originalFetch = window.fetch;
+        const requests = [];
+        window.fetch = (...args) => {
+            if (String(args[0]).includes('mf139_sdk')) requests.push(performance.now());
+            return originalFetch(...args);
+        };
+        let viewer;
+        try {
+            viewer = await createViewer({
+                container,
+                contentUrl: '/data/e2e/single-gaussian.ply?mf139_sdk=subject',
+                environmentUrl: '/data/e2e/single-gaussian.ply?mf139_sdk=environment',
+                settings,
+                renderer: 'webgl',
+                noanim: true,
+                noreveal: true
+            });
+            return {
+                started: Number(container.querySelector('.sse-viewer').dataset.loadStarted),
+                requests
+            };
+        } finally {
+            window.fetch = originalFetch;
+            viewer?.destroy();
+            container.remove();
+        }
+    });
+    expect(timings.requests).toHaveLength(2);
+    for (const started of timings.requests) expect(started).toBeGreaterThanOrEqual(timings.started);
+});

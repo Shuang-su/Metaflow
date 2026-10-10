@@ -202,6 +202,12 @@
                             `[Loader] Transient network failure for ${resourceUrl}; retrying attempt ${attempt + 1}/${maxAttempts}`,
                             error
                         );
+                        window.metaflowStartup?.retry({
+                            url: resourceUrl,
+                            attempt: attempt + 1,
+                            maxAttempts,
+                            error: String(error?.message || error)
+                        });
                         await waitForRetry(500 * 2 ** (attempt - 1));
                         continue;
                     }
@@ -219,6 +225,12 @@
                     console.warn(
                         `[Loader] Transient HTTP ${response.status} for ${resourceUrl}; retrying attempt ${attempt + 1}/${maxAttempts}`
                     );
+                    window.metaflowStartup?.retry({
+                        url: resourceUrl,
+                        attempt: attempt + 1,
+                        maxAttempts,
+                        error: `HTTP ${response.status}`
+                    });
                     await releaseFailedResponse(response);
                     await waitForRetry(500 * 2 ** (attempt - 1));
                 }
@@ -262,7 +274,7 @@
                         // The route index changes independently of large scene
                         // assets. Never reuse an immutable cached copy or newly
                         // published aliases/routes will remain unreachable.
-                        const indexResponse = await fetch('/data/index.json', {
+                        const indexResponse = await fetchWithRetry('/data/index.json', {
                             cache: 'no-store'
                         });
                         const indexData = await indexResponse.json();
@@ -303,6 +315,9 @@
                         }
                     } catch (e) {
                         console.warn('Failed to load index.json:', e);
+                        // Preserve the route failure instead of requesting the
+                        // default scene/settings (which may be SPA HTML here).
+                        throw e;
                     }
                 }
 
@@ -422,8 +437,14 @@
                     config: sseConfig,
                     settings: bootstrap.settings ?? loadSettings(settingsUrl)
                 };
+                // Module loading can finish after settings have already failed.
+                // Observe early rejection while keeping it for createViewer.
+                void window.sse.settings?.catch?.(() => {});
                 return window.sse;
             })();
+            // The hosted entry may be retrying its import when routing fails.
+            // Keep the original rejected promise for the startup error UI.
+            void window.sseReady?.catch(() => {});
         </script>
     </head>
     <body>

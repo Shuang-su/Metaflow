@@ -82,5 +82,21 @@
     "help.section.anim": "Animation",
     "help.action.toggle-controls": "Steuerung umschalten",
     "help.action.release-mouse": "Maus freigeben",
-    "help.action.exit-walk": "Gehmodus beenden"
+    "help.action.exit-walk": "Gehmodus beenden",
+    "loading.progress": "Lesefortschritt",
+    "loading.requests": "Abgeschlossene Anfragen",
+    "loading.active": "Aktive Ressourcen",
+    "loading.received": "Gelesen",
+    "loading.rate": "Leserate",
+    "loading.elapsed": "Dauer",
+    "loading.retries": "Wiederholungen",
+    "loading.cache": "Cache-Lesezugriffe",
+    "loading.last-error": "Fehler",
+    "loading.unavailable": "—",
+    "loading.issue.not-found": "Ressource nicht verfügbar",
+    "loading.issue.access": "Kein Zugriff",
+    "loading.issue.busy": "Dienst ausgelastet",
+    "loading.issue.service": "Ressourcendienst nicht verfügbar",
+    "loading.issue.timeout": "Zeitüberschreitung",
+    "loading.issue.request": "Ressourcenanfrage fehlgeschlagen"
 }
