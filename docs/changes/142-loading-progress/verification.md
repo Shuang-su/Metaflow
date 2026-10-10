@@ -43,3 +43,6 @@
 手机链接行为：对照5.19.3原始实现恢复明确 first-tap preventDefault 与实例内展开class。最终WebKit触屏首次点击无新页面，第二次打开原首页URL（拦截首页响应仅避免测试下载无关场景）；Chromium hover／focus／反向收起及连续动画通过。证据branding-final.json。
 
 CI38041561032：Viewer行为167项通过，版本历史覆盖指出f128450格式／镜像记录提交漏登维护来源，已登记实际SHA／Ledger并重跑完整168项；E2E与构建仍通过。未修改验证断言。
+
+
+产品合入：PR144，最终产品 `a9b4f41782c9d96cae0aa1c2c81ea8eee7d3ebe9`；精确候选4df289436／CI38041926779通过，168单测及开发／构建E2E，来源由rc1／rc2保留。自动Cursor／Copilot额度不足未完成审查，代码及规范分别自查，GitHub审查线程回读后正常合并。正式tag、Netlify候选／生产及观察另行追加。

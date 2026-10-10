@@ -692,3 +692,9 @@ The 2026-08-15 Viewer 5.19.2 release-record commit updated package/version/index
 - Chromium／WebKit实际检验SVG原路径与viewBox、多个动画中间帧、首次点击没有新页面、第二次实际打开首页；反向收起、透明／无边框通过。168单测、fmt、构建通过，精确最新CI随后验收。
 
 - 机械格式／镜像记录来源 `f1284501fcfc7454d78f3db9b9eabc6dd829e49a` 补登记为候选维护；CI38041561032指出该格式提交同时触及CSS却缺少来源记录，前向补齐后重新验收，不削弱版本覆盖断言。
+
+
+### `5.21.11` · `a9b4f41782c9d96cae0aa1c2c81ea8eee7d3ebe9` · loading and official branding product
+
+- PR144正常squash合并，实际产品SHA回填全部版本镜像与index.release。精确候选4df289436的CI38041926779通过：Viewer／Director、开发及构建E2E、数据、治理、文档、CodeQL与summary。来源由不可变rc1／rc2保留，无管理员绕过。
+- 初始LOD更细进度、4K q82加载图、图片先于UI、官方完整组合比例与触屏首击展开／二击主页及展开动画已本地验证。100资源／schema1.2、99既有对象及模型／settings／环境／体素／路由、引擎与Editor／Director保持。正式tag/build、完整候选及生产回读／观察随后追加。

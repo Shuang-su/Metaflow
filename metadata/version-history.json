@@ -1,14 +1,14 @@
 {
   "schemaVersion": "1.1",
   "cutoffGitRef": "c613a87",
-  "documentedThrough": "26e9cbd0603267614177098da752ff89e226ff9a",
+  "documentedThrough": "a9b4f41782c9d96cae0aa1c2c81ea8eee7d3ebe9",
   "defaultResourceVersion": "1.0a",
   "current": {
     "displayVersion": "5.21.11",
     "appSemver": "5.21.11",
     "indexSchemaVersion": "1.2",
     "date": "2026-10-10",
-    "gitRef": "26e9cbd0603267614177098da752ff89e226ff9a",
+    "gitRef": "a9b4f41782c9d96cae0aa1c2c81ea8eee7d3ebe9",
     "historyUrl": "/data/version-history.json",
     "upstream": {
       "repository": "playcanvas/supersplat-viewer",
@@ -1973,8 +1973,8 @@
       "type": "fix",
       "scope": "viewer",
       "date": "2026-10-10",
-      "gitRef": "26e9cbd0603267614177098da752ff89e226ff9a",
-      "summary": "初始 LOD 进度纳入分块内读取比例；缇宝保持压缩编码4K WebP，恢复图片就绪后显示UI; restore official Metaflow / 川流 official combined SVG proportions and reveal animation",
+      "gitRef": "a9b4f41782c9d96cae0aa1c2c81ea8eee7d3ebe9",
+      "summary": "初始LOD进度纳入分块内读取比例；缇宝采用4K压缩WebP并恢复图片先于UI；主Logo使用官方组合SVG，保留展开动画与触屏两次点击行为。",
       "resourceChanges": [
         {
           "action": "update",
