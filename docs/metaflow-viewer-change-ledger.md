@@ -644,3 +644,8 @@ The 2026-08-15 Viewer 5.19.2 release-record commit updated package/version/index
 ### `5.21.10` · `92958b569259e9cf1918efe0c006071b4fef2458` · Safari startup recovery product
 
 - [PR #140](https://github.com/Shuang-su/Metaflow/pull/140) 正常 squash 合并；最终产品 SHA 已回填全部版本镜像。精确候选 HEAD `7328de7bdc686532476d02815c398af9da4e479c` 与 [CI38037012781](https://github.com/Shuang-su/Metaflow/actions/runs/38037012781) 通过；SDK 双预取 E2E 在桌面/手机画幅通过。来源由 rc1/rc2/rc3 保留，审查线程已处理，无管理员绕过。正式 tag、生产部署及观察随后追加。
+
+### `5.21.10` · `92958b569259e9cf1918efe0c006071b4fef2458` · production promotion
+
+- tag/build `7188544bc8778784a1a568a28aa5d027da4fd285`（PR141，精确 CI38037281801 通过）；最终完整候选 `6ac9f5892bf0719ac8c32a8b` 的 Safari 三场景、Chromium/WebKit 及 15 文件字节／513 route/reference HEAD 通过，于2026-10-10T08:31:02.201Z原样提升。实际 published pointer、正式版本和产品/构建 SHA 回读一致；CLI 来源/空 commit_ref 不代替上述身份核验。
+- 100资源/schema1.2/模型/settings/环境/体素/封面/Editor/Director不变。正式域名浏览器、分析和15分钟观察随后追加；回退已核验5.21.9 `6ac8a216e683f6d6589d8376`，未触发。

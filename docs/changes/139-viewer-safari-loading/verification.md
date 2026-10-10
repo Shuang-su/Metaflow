@@ -1,6 +1,6 @@
 # MF-139 Safari 启动修复与加载信息发布核验
 
-唯一计划与范围：[Issue #139](https://github.com/Shuang-su/Metaflow/issues/139)。当前阶段：本地实现完成，5.21.10 候选待 PR 与部署。生产基线重新核验为 5.21.9，100 项资源，schema 1.2，Netlify `6ac8a216e683f6d6589d8376`；回退采用该已成功部署。
+唯一计划与范围：[Issue #139](https://github.com/Shuang-su/Metaflow/issues/139)。当前阶段：5.21.10 已发布生产，上线回读与 15 分钟观察进行中。生产基线重新核验为 5.21.9，100 项资源，schema 1.2，Netlify `6ac8a216e683f6d6589d8376`；回退采用该已成功部署。
 
 ## 问题与实际变更
 
@@ -43,3 +43,12 @@ Safari 18.5 原生浏览器在 `/shenzhen/dayun` 请求错误的 `/shenzhen/inde
 ## 最终产品合并
 
 [PR #140](https://github.com/Shuang-su/Metaflow/pull/140) 正常 squash 产品 SHA `92958b569259e9cf1918efe0c006071b4fef2458`；最新精确 HEAD [CI38037012781](https://github.com/Shuang-su/Metaflow/actions/runs/38037012781) 所选检查全通过，包含新增 SDK 桌面/手机双预取 E2E。来源 rc1/rc2/rc3 标签可达，两个审查线程已响应并解决。正式 release record 回填实际产品 SHA，当前生产仍是 5.21.9。
+
+## 正式发布
+
+- 产品 SHA `92958b569259e9cf1918efe0c006071b4fef2458`（PR140）；release-record SHA/tag/build `7188544bc8778784a1a568a28aa5d027da4fd285`（[PR141](https://github.com/Shuang-su/Metaflow/pull/141)，精确 HEAD [CI38037281801](https://github.com/Shuang-su/Metaflow/actions/runs/38037281801) 全通过，受检与合并 tree 相同）。
+- 正式 tag `viewer-v5.21.10`；production-context 构建保留既有公开分析配置。所有 100 项资源对象与 5.21.9 相同，完整 staging 的 --check-files 验证通过，模型与 Editor/Director 使用已验证内容。
+- 最终候选 `6ac9f5892bf0719ac8c32a8b`：15 文件字节与 513 route/reference HEAD、Chromium 三场景及 WebKit 大运通过；真实 macOS Safari 18.5 三场景加载及原生飞行按钮通过。Safari 探针起初在 loaded 后立即点击，读到 anim；等待 loading 隐藏、controls opacity=1 的就绪状态后，三场景通过，旧失败 JSON 保留，不归为已证明的产品回归。
+- 于 2026-10-10T08:31:02.201Z 原样提升候选，重新读取 Netlify published_deploy.id 为 `6ac9f5892bf0719ac8c32a8b`，正式域名 build.json 的版本/产品/构建身份一致。deploy_source=cli、commit_ref=null、原 deploy context=deploy-preview；生产身份由实际 published pointer 与 tag/tree/字节回读证明，不将 context 标签当作生产指针。
+- 使用用户授权的完整 CLI/API 发布路径；现有 Controlled release workflow 仍要求 legacy strict Completion Dossier，本常规兼容修复未复制该旧结构，也未宣称该旧 gate 已通过。
+- 生产浏览器、分析、HTTP 回读及至少 15 分钟观察结果随后追加。回退候选仍 `6ac8a216e683f6d6589d8376`，截至当前未触发回退。
