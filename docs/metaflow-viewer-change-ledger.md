@@ -684,3 +684,9 @@ The 2026-08-15 Viewer 5.19.2 release-record commit updated package/version/index
 
 - 按用户反馈撤回 `c8730ca8c50c495861012008112d1b05c0e7e555` 的独立图标＋字标拼接；折叠状态复用 metaflow_logo.svg，展开使用完整 metaflow.svg，保留官方 viewBox／路径／内部间距与相对比例，按图标同尺度切换。宽度与透明度过渡、桌面 hover、键盘 focus、手机首击展开保留，无新增背景或边框。官方资产未修改。
 - Chromium／WebKit 检查两份官方路径与 viewBox 完全一致、透明背景／0px边框、首页链接、最终组合状态；动画中间帧及生产复查随后追加。先前精确 CI38040908690 全通过；这次图形纠正后重新运行 CI。
+
+
+### `5.21.11` · `26e9cbd0603267614177098da752ff89e226ff9a` · touch branding compatibility
+
+- 对照5.19.3明确恢复 hover:none 下首次点击只展开、第二次点击首页的实例内处理；沿用官方完整组合和200ms动画，桌面hover／焦点逻辑保持。来源 `444ca70d412a4dca33127fc94d14f95cf03f94f9` 的官方布局与动画作为候选维护记录保留。
+- Chromium／WebKit实际检验SVG原路径与viewBox、多个动画中间帧、首次点击没有新页面、第二次实际打开首页；反向收起、透明／无边框通过。168单测、fmt、构建通过，精确最新CI随后验收。
