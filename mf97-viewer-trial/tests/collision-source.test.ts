@@ -206,3 +206,53 @@ test("inline lattice changes cannot reuse the frozen metadata hash", async () =>
     /metadata mismatch/,
   );
 });
+
+for (const transform of ["identity", "flipXY"] as const)
+  test(`overlapping free carve cannot erase native occupied geometry (${transform})`, async () => {
+    const a = tile("solid", 0), b = tile("free", 0);
+    b.bytes = new Uint32Array([0, 0, 0]).buffer;
+    for (const item of [a, b]) {
+      item.entry.dataBounds = rawToWorldBounds(item.entry.meta.gridBounds, transform);
+      item.entry.coreBounds = item.entry.dataBounds;
+    }
+    const manifest = { version: 1 as const, kind: "tiled" as const, sourceHash: "overlap",
+      transform, voxelResolution: 1, bounds: a.entry.dataBounds, tiles: [a.entry, b.entry] };
+    const loader = async (name: string) => {
+      const item = name.startsWith("solid.") ? a : b;
+      return name.endsWith(".json") ? new TextEncoder().encode(JSON.stringify(item.entry.meta)).buffer : item.bytes;
+    };
+    const source = await loadCollisionSource(manifest, loader),
+      reversed = await loadCollisionSource({ ...manifest, tiles: [...manifest.tiles].reverse() }, loader),
+      single = await loadCollisionSource({ ...manifest, kind: "single", tiles: [a.entry] }, loader);
+    const originalQueries = TiledVoxelCollision.fromColliders([
+      decodeCollisionTile(a.entry, a.bytes, transform), decodeCollisionTile(b.entry, b.bytes, transform),
+    ]);
+    try {
+      const point = transform === "identity" ? [1.5, 0.5, 1.5] as const : [-1.5, -0.5, 1.5] as const;
+      // Preserve the original Viewer spawn predicate and actual ray/volume queries.
+      assert.equal(source.space.collision.isFreeAt(...point), true);
+      assert.equal(single.space.collision.isFreeAt(...point), false);
+      assert.equal(source.space.occupiedAt!(...point), true);
+      assert.equal(reversed.space.occupiedAt!(...point), true);
+      const air = transform === "identity" ? [1.5, 2.5, 1.5] as const : [-1.5, -2.5, 1.5] as const;
+      assert.equal(source.space.occupiedAt!(...air), false);
+      assert.equal(source.space.known(20, 2, 20), false);
+      assert.equal(source.space.occupiedAt!(20, 2, 20), false);
+      const pushed = { x: 0, y: 0, z: 0 }, referencePush = { x: 0, y: 0, z: 0 };
+      assert.equal(source.space.collision.queryCapsule(...point, 0.5, 0.2, pushed),
+        originalQueries.queryCapsule(...point, 0.5, 0.2, referencePush));
+      assert.deepEqual(pushed, referencePush);
+      const meshes = [source, reversed, single].map(s => exposedVoxelMesh(s.space,
+        manifest.bounds, manifest.bounds.min, 1, { boundary: "source" }));
+      assert.equal(meshes[0].diagnostics.solids, 16);
+      assert.deepEqual(meshes[0].positions, meshes[2].positions);
+      assert.deepEqual(meshes[0].indices, meshes[2].indices);
+      assert.deepEqual(meshes[1].positions, meshes[0].positions);
+      assert.deepEqual(meshes[1].indices, meshes[0].indices);
+      const origin = transform === "identity" ? { x: 1.5, y: 3, z: 1.5 } : { x: -1.5, y: -3, z: 1.5 };
+      assert.deepEqual(source.space.collision.queryRay(origin.x, origin.y, origin.z,
+        0, transform === "identity" ? -1 : 1, 0, 4),
+      single.space.collision.queryRay(origin.x, origin.y, origin.z, 0, transform === "identity" ? -1 : 1, 0, 4));
+    } finally { source.destroy(); reversed.destroy(); single.destroy(); originalQueries.destroy(); }
+    assert.throws(() => source.space.occupiedAt!(0, 0, 0), /released/);
+  });

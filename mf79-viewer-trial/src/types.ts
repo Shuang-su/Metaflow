@@ -5,4 +5,7 @@ export type Space = {
   collision: Collision;
   bounds: Bounds;
   known: (x: number, y: number, z: number) => boolean;
+  /** Geometry lattice occupancy, independent of the spawn free-space predicate.
+   * Optional for existing single-collider fixtures; unknown samples stay gated by known. */
+  occupiedAt?: (x: number, y: number, z: number) => boolean;
 };

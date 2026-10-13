@@ -24,6 +24,8 @@ export function exposedVoxelMesh(
   const data = new Int8Array(total),
     offset = (x: number, y: number, z: number) =>
       x + dims[0] * (y + dims[1] * z);
+  const occupiedAt = (x: number, y: number, z: number) => space.occupiedAt
+    ? space.occupiedAt(x, y, z) : !space.collision.isFreeAt(x, y, z);
   const minimum = axes.map((k, i) => origin[k] + lo[i] * resolution);
   let solids = 0;
   for (let z = 0; z < dims[2]; z++)
@@ -35,7 +37,7 @@ export function exposedVoxelMesh(
           z: minimum[2] + (z + 0.5) * resolution,
         };
         const known = space.known(p.x, p.y, p.z);
-        const solid = known && !space.collision.isFreeAt(p.x, p.y, p.z);
+        const solid = known && occupiedAt(p.x, p.y, p.z);
         data[offset(x, y, z)] = known ? Number(solid) : -1;
         solids += Number(solid);
       }
@@ -47,7 +49,7 @@ export function exposedVoxelMesh(
               (v, k) => minimum[k] + (v + 0.5) * resolution,
             ) as [number, number, number];
             return space.known(...point)
-              ? Number(!space.collision.isFreeAt(...point))
+              ? Number(occupiedAt(...point))
               : -1;
           })()
         : 0

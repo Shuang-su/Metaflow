@@ -159,6 +159,15 @@ export async function loadCollisionSource(
     known: (x, y, z) =>
       containsPoint(requested, x, y, z) &&
       tiles.some((t) => containsPoint(t.dataBounds, x, y, z)),
+    // Native ray/volume queries see a solid from any loaded source tile. The
+    // Viewer isFreeAt predicate instead accepts free space from any tile for
+    // spawn search. In overlap regions that predicate must not erase another
+    // tile's ground or obstacle when deriving geometry. No source bits change.
+    occupiedAt: (x, y, z) => {
+      if (!colliders.length) throw Error("Collision occupancy source has been released");
+      return containsPoint(requested, x, y, z) && tiles.some((tile, i) =>
+        containsPoint(tile.dataBounds, x, y, z) && !colliders[i].isFreeAt(x, y, z));
+    },
   };
   return {
     space,
