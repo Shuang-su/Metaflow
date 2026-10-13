@@ -87,7 +87,7 @@ const figures = tiles.map(tile => {
     overlay = points ? `<svg viewBox="0 0 ${tile.width} ${tile.height}"><polyline fill="none" stroke="#ff9e3b" stroke-width="3" points="${escape(points)}"/></svg>` : "";
   return `<figure><figcaption>${escape(layer.label)} · Y切片 ${layer.sliceRange.map((v: number) => v.toFixed(3)).join(" 至 ")}m</figcaption><div class="map"><img alt="${escape(layer.label)}" src="${url}tiles/${tile.id}.webp">${overlay}</div></figure>`;
 }).join("") + savedSections.map(section => `<figure><figcaption>${section.axis === "z" ? "X/Y" : "Z/Y"} 高斯剖面（研究）</figcaption><img alt="高斯剖面" src="${section.url}"></figure>`).join("");
-const html = `<!doctype html><html lang="zh-CN"><meta charset="utf-8"><title>大运局部通路研究结果</title>
+const html = `<!doctype html><html lang="zh-CN"><meta charset="utf-8"><link rel="icon" href="data:,"><title>大运局部通路研究结果</title>
 <style>body{margin:28px;background:#101c21;color:#dce9ed;font:16px system-ui}section{display:flex;gap:20px;flex-wrap:wrap}figure{margin:20px 0}img{width:512px;max-width:100%;border:1px solid #405057}p{max-width:1050px;line-height:1.6}.map{position:relative;width:512px;max-width:100%}.map img{display:block;width:100%;box-sizing:border-box}.map svg{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}</style>
 <h1>大运 · 局部通路研究结果</h1><p>${tiles.length} 张局部高斯切片、${savedSections.length} 张剖面已保存。仅展示原始LOD0的已记录范围；建筑楼层名称与楼层归属尚未确认。</p>
 <p>范围 ${job.tileMetres}×${job.tileMetres}m · 选择 ${job.sourceSelection.coverage.selectedSplats} 个高斯 · 原件LOD0 · 世界Y切片 · Rz(180)</p>

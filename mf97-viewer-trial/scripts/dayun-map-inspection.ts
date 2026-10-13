@@ -112,11 +112,11 @@ if (tiles.length !== 2 || view.layers.some((layer: any) =>
 await verifyGaussianJobSource(job, sourceRoot);
 job.sourceSelection.sha256 = resources.writeJsonAtomic(selectedFile, selected.manifest, { replace: false });
 const jobFile = `${directory}/job.json`, jobHash = resources.writeJsonAtomic(jobFile, job, { replace: false });
-const html = `<!doctype html><html lang="zh-CN"><meta charset="utf-8"><title>大运局部上下表面切片</title>
+const html = `<!doctype html><html lang="zh-CN"><meta charset="utf-8"><link rel="icon" href="data:,"><title>大运局部上下表面切片</title>
 <style>body{margin:28px;background:#101c21;color:#dce9ed;font:16px system-ui}button{padding:10px 18px;font:inherit}section{display:flex;gap:20px;flex-wrap:wrap}figure{margin:20px 0}img{width:512px;max-width:100%;border:1px solid #405057}p{max-width:1050px;line-height:1.6}.map{position:relative;width:512px;max-width:100%}.map img{display:block;width:100%;box-sizing:border-box}.map svg{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}[hidden]{display:none}canvas{position:absolute;left:-2000px;width:512px;height:512px}</style>
 <h1>大运 · 局部上下表面</h1><p>仅 ${view.halfExtent * 2}×${view.halfExtent * 2} 米研究切片；上下表面标签不代表已确认建筑楼层或可通行连接。固定原始LOD0，世界Y过滤，Rz(180)。</p>
 <p id="identity">源叶 ${selected.coverage.selectedLeaves} / ${selected.coverage.sourceLeaves}；选择 ${selected.coverage.selectedSplats} 个高斯，${selected.coverage.fileIndices.length} 个SOG文件；整文件解码 ${decodedSplats} 个高斯。</p>
-<button id="render">生成两张局部切片</button><p id="map-generator-status" role="status">待生成</p><p id="errors" role="alert"></p><canvas width="512" height="512"></canvas><section id="images"></section>
+<button id="render" disabled>生成两张局部切片</button><p id="map-generator-status" role="status">待生成</p><p id="errors" role="alert"></p><canvas width="512" height="512"></canvas><section id="images"></section>
 ${nativeRoute ? '<label><input id="route-visible" type="checkbox" checked>显示橙色原生行走轨迹（两图共用同一XZ投影，不能表示楼层归属）</label>' : ''}
 <p>GPU读取结果保存在页面导出区。</p><textarea id="render-results" aria-hidden="true" hidden readonly></textarea>
 <script type="module">
@@ -124,7 +124,7 @@ import { GaussianMapGenerator } from '/src/maps/generator.ts';
 const status=document.querySelector('#map-generator-status'), errors=document.querySelector('#errors'), button=document.querySelector('#render');
 window.addEventListener('error',e=>errors.textContent=String(e.message));
 window.addEventListener('unhandledrejection',e=>errors.textContent=String(e.reason));
-button.onclick=async()=>{button.disabled=true;let generator;
+button.onclick=async()=>{button.disabled=true;errors.textContent='';document.querySelector('#images').replaceChildren();document.querySelector('#render-results').value='';status.textContent='正在核对局部任务';let generator;
 try{const response=await fetch('./job.json',{cache:'no-store'});if(!response.ok)throw Error('Job unavailable');
 const bytes=await response.arrayBuffer();const digest=Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',bytes)),b=>b.toString(16).padStart(2,'0')).join('');
 if(digest!==${JSON.stringify(jobHash)})throw Error('Job identity changed');
@@ -132,11 +132,12 @@ const job=JSON.parse(new TextDecoder().decode(bytes));status.textContent='正在
 const results=[],sections=[];for(const tile of ${JSON.stringify(tiles)}){status.textContent='正在生成 '+tile.id;const result=await generator.render(tile);results.push({tile,result});
 const layer=job.layers.find(l=>l.id===tile.layerId),figure=document.createElement('figure'),caption=document.createElement('figcaption'),img=document.createElement('img');
 caption.textContent=layer.label+' · Y切片 '+layer.sliceRange.map(v=>v.toFixed(3)).join(' 至 ')+'m';img.alt=layer.label;img.src='data:image/webp;base64,'+result.data;const map=document.createElement('div');map.className='map';map.append(img);
-if(job.nativeRoute){const svg=document.createElementNS('http://www.w3.org/2000/svg','svg'),line=document.createElementNS(svg.namespaceURI,'polyline');svg.setAttribute('viewBox','0 0 '+tile.width+' '+tile.height);line.setAttribute('points',job.nativeRoute.points.map(p=>[(p.x-tile.bounds.minX)/(tile.bounds.maxX-tile.bounds.minX)*tile.width,(p.z-tile.bounds.minZ)/(tile.bounds.maxZ-tile.bounds.minZ)*tile.height].join(',')).join(' '));line.setAttribute('fill','none');line.setAttribute('stroke','#ff9e3b');line.setAttribute('stroke-width','3');svg.append(line);map.append(svg);}figure.append(caption,map);document.querySelector('#images').append(figure);}
+if(job.nativeRoute){const svg=document.createElementNS('http://www.w3.org/2000/svg','svg'),line=document.createElementNS(svg.namespaceURI,'polyline');svg.setAttribute('viewBox','0 0 '+tile.width+' '+tile.height);line.setAttribute('points',job.nativeRoute.points.map(p=>[(p.x-tile.bounds.minX)/(tile.bounds.maxX-tile.bounds.minX)*tile.width,(p.z-tile.bounds.minZ)/(tile.bounds.maxZ-tile.bounds.minZ)*tile.height].join(',')).join(' '));line.setAttribute('fill','none');line.setAttribute('stroke','#ff9e3b');line.setAttribute('stroke-width','3');svg.append(line);if(!document.querySelector('#route-visible').checked)svg.style.display='none';map.append(svg);}figure.append(caption,map);document.querySelector('#images').append(figure);}
 for(const request of job.sectionRequests){status.textContent='正在生成 '+request.axis+' 方向剖面';const result=await generator.renderSection(request),canvas=document.createElement('canvas');canvas.width=request.width;canvas.height=request.height;canvas.getContext('2d').putImageData(result.image,0,0);const data=canvas.toDataURL('image/png');
 sections.push({request,data,hasSource:result.hasSource,frames:result.frames,splats:result.splats,ms:result.ms});const figure=document.createElement('figure'),caption=document.createElement('figcaption'),img=document.createElement('img');caption.textContent=(request.axis==='z'?'X/Y':'Z/Y')+' 高斯剖面（研究）';img.alt=caption.textContent;img.src=data;figure.append(caption,img);document.querySelector('#images').append(figure);}
 document.querySelector('#render-results').value=JSON.stringify({jobHash:${JSON.stringify(jobHash)},results,sections});status.textContent='2 / 2 局部切片及 '+sections.length+' 张剖面已完成；建筑楼层名称尚未确认';
 }catch(error){errors.textContent=String(error);status.textContent='生成失败，保留失败原因';}finally{generator?.destroy();button.disabled=false;}};
+button.disabled=false;
 document.querySelector('#route-visible')?.addEventListener('change',event=>{document.querySelectorAll('.map svg').forEach(svg=>svg.style.display=event.target.checked?'':'none');});
 </script></html>`;
 resources.writeFileAtomic(`${directory}/inspection.html`, html, { replace: false });
