@@ -1,10 +1,12 @@
 import { resolveRecordedPath } from "../../scripts/mf97/asset-config.mjs";
 /** Explicit bounded navigation job. Analysis-only jobs cannot be mounted as Viewer navigation. */
 import { readFileSync, existsSync } from "node:fs";
+import { dirname, resolve } from "node:path";
 import {
   init,
   exportNavMesh,
   getNavMeshPositionsAndIndices,
+  Raw,
 } from "../../mf79-viewer-trial/src/recast-runtime";
 import {
   collisionSourceFile,
@@ -30,6 +32,10 @@ const args = process.argv.slice(2),
 if (!args.includes("--job") || !jobFile)
   throw Error("Use --job with an explicit reviewed coverage/start/catalog job");
 const job = JSON.parse(readFileSync(jobFile, "utf8"));
+const limitIndex = args.indexOf("--max-new-tiles");
+const maxNewTiles = limitIndex < 0 ? 20 : Number(args[limitIndex + 1]);
+if (!Number.isSafeInteger(maxNewTiles) || maxNewTiles < 1 || maxNewTiles > 20)
+  throw Error("--max-new-tiles must be an integer from 1 to 20");
 if (
   typeof job.id !== "string" ||
   !/^[a-z0-9][a-z0-9._-]*$/.test(job.id) ||
@@ -159,6 +165,30 @@ const key = {
 const fingerprint = sha(JSON.stringify(key)),
   dir = `dayun/navigation/${job.id}`,
   manifestFile = `${dir}/manifest.json`;
+const reuseIndex = args.indexOf("--reuse-manifest"), reuseFile = reuseIndex < 0 ? undefined : args[reuseIndex + 1];
+if (reuseIndex >= 0 && !reuseFile) throw Error("Missing --reuse-manifest");
+const reuse = reuseFile ? JSON.parse(readFileSync(reuseFile, "utf8")) : undefined;
+const reusable = new Map<string, any>(), auditNames = new Set<string>();
+if (reuse) {
+  if (reuse.status !== "analysis-complete" || !job.analysisOnly ||
+      sha(JSON.stringify(reuse.key)) !== reuse.fingerprint ||
+      sha(readFileSync(resolve(dirname(reuseFile!), "nav.bin"))) !== reuse.navHash)
+    throw Error("Invalid reuse navigation identity");
+  for (const field of ["version", "tileGenerator", "recastVersion", "collisionSource", "collisionManifest", "body", "config", "catalogHash", "controllerHash"] as const)
+    if (JSON.stringify(reuse.key[field]) !== JSON.stringify(key[field])) throw Error(`Reuse differs: ${field}`);
+  // Only orchestration changed: every geometry/runtime implementation must match.
+  for (const [name, hash] of Object.entries(key.implementations))
+    if (name !== "generator" && reuse.key.implementations?.[name] !== hash) throw Error(`Reuse implementation differs: ${name}`);
+  validateDayunResume(reuse, reuse.fingerprint, navigationTiles(reuse.bounds, RECAST_CONFIG.cs, 512));
+  for (const tile of reuse.tiles) {
+    const expected = tiles.find(t => t.x === tile.x && t.z === tile.z);
+    if (!expected || JSON.stringify(expected.bounds) !== JSON.stringify(tile.bounds)) throw Error("Reuse tile bounds differ");
+    reusable.set(tile.name, tile);
+  }
+  for (const x of [Math.min(...reuse.tiles.map((t: any) => t.x)), Math.max(...reuse.tiles.map((t: any) => t.x))])
+    for (const z of [Math.min(...reuse.tiles.map((t: any) => t.z)), Math.max(...reuse.tiles.map((t: any) => t.z))])
+      auditNames.add(`tile-${x}-${z}`);
+}
 const existing = existsSync(resources.resolveOutput(manifestFile))
   ? JSON.parse(readFileSync(resources.resolveOutput(manifestFile), "utf8"))
   : null;
@@ -170,6 +200,18 @@ if (existing) {
 const m: any = existing ?? { key, fingerprint, status: "building", tiles: [] };
 await init();
 const builder = new RecastTileBuilder(job.bounds, RECAST_CONFIG, 512);
+const runId = `${Date.now()}-${process.pid}`, startedWith = m.tiles.length;
+let generated = 0;
+const memory = () => {
+  const module = Raw.Module as any;
+  return { ...process.memoryUsage(), wasmBytes: module.HEAPU8?.buffer.byteLength ?? null,
+    wrapperCacheEntries: Object.fromEntries(["rcCompactCell", "rcCompactSpan", "rcCompactHeightfield"].map(name => {
+      const cache = module[name]?.__cache__;
+      let count = 0;
+      if (cache) for (const key in cache) if (Object.hasOwn(cache, key)) count++;
+      return [name, cache ? count : null];
+    })) };
+};
 try {
   for (const tile of tiles) {
     const name = `tile-${tile.x}-${tile.z}`,
@@ -182,6 +224,16 @@ try {
       }
       continue;
     }
+    const inherited = reusable.get(name);
+    if (inherited && !auditNames.has(name)) {
+      const bytes = inherited.hash ? readFileSync(resolve(dirname(reuseFile!), `${name}.bin`)) : null;
+      if (bytes && sha(bytes) !== inherited.hash) throw Error("Corrupt reuse tile");
+      if (bytes) { resources.writeFileAtomic(`${dir}/${name}.bin`, bytes, { replace: false }); builder.add(bytes); }
+      m.tiles.push({ ...inherited, reuse: { fingerprint: reuse.fingerprint, hash: inherited.hash } });
+      resources.writeJsonAtomic(manifestFile, m);
+      continue;
+    }
+    if (generated >= maxNewTiles) break;
     resources.assertCapacity(64 * MiB, name);
     const bounds = structuredClone(tile.bounds);
     bounds.min.x -= halo;
@@ -207,6 +259,7 @@ try {
           replace: false,
         })
       : null;
+    if (inherited && hash !== inherited.hash) throw Error(`Rebuilt reuse audit differs: ${name}`);
     if (bytes) builder.add(bytes);
     m.tiles.push({
       name,
@@ -216,10 +269,19 @@ try {
       hash,
       geometry: geometry.diagnostics,
       ...builder.lastDiagnostic,
+      ...(inherited ? { rebuiltAudit: { fingerprint: reuse.fingerprint, hash: inherited.hash } } : {}),
     });
+    generated++;
+    m.lastRun = { runId, outcome: "running", startedWith, generated, maxNewTiles, memory: memory() };
     resources.writeJsonAtomic(manifestFile, m);
-    console.log(JSON.stringify(m.tiles.at(-1)));
+    console.log(JSON.stringify({ tile: m.tiles.at(-1), run: m.lastRun }));
   }
+  if (m.tiles.length < tiles.length) {
+    m.lastRun.outcome = "checkpointed";
+    resources.writeJsonAtomic(manifestFile, m);
+    console.log(JSON.stringify({ output: resources.resolveOutput(manifestFile), outcome: "checkpointed",
+      generated, completedTiles: m.tiles.length, totalTiles: tiles.length, runId }));
+  } else {
   const bytes = exportNavMesh(builder.mesh),
     navHash = resources.writeFileAtomic(`${dir}/nav.bin`, bytes, {
       replace: false,
@@ -236,6 +298,7 @@ try {
     ),
   };
   Object.assign(m, {
+    lastRun: { runId, outcome: "complete", startedWith, generated, maxNewTiles, memory: memory() },
     status: job.analysisOnly ? "analysis-complete" : "complete",
     usage: job.analysisOnly
       ? "offline-native-verification-only"
@@ -259,8 +322,15 @@ try {
   });
   resources.writeJsonAtomic(manifestFile, m);
   console.log(
-    JSON.stringify({ output: resources.resolveOutput(manifestFile), navHash }),
+    JSON.stringify({ output: resources.resolveOutput(manifestFile), outcome: "complete", navHash, runId }),
   );
+  }
+} catch (error) {
+  resources.writeJsonAtomic(`${dir}/runs/failed-${runId}.json`, {
+    runId, outcome: "failed", fingerprint, startedWith, generated, maxNewTiles,
+    error: error instanceof Error ? error.stack : String(error), memory: process.memoryUsage(),
+  }, { recovery: true, replace: false });
+  throw error;
 } finally {
   builder.destroy();
   loaded.destroy();

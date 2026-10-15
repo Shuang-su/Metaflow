@@ -16,6 +16,7 @@ export type AssetConfig = {
   configured: boolean;
   projectRoot: string;
   profile: "local" | "mac-studio";
+  resourceLimits?: { maxAddedGiB?: number | null };
   roots: AssetRoots;
   recordedRoots: Partial<AssetRoots & { projectRoot: string }>;
   mounts: { urlPrefix: string; path: string }[];
@@ -38,7 +39,7 @@ export function machineLimits(
   memoryBytes?: number,
 ): {
   reserveGiB: number;
-  maxAddedGiB: number;
+  maxAddedGiB: number | null;
   maxRssGiB: number;
   heapGiB?: number;
   concurrency: number;

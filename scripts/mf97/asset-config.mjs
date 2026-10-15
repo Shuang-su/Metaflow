@@ -38,6 +38,12 @@ export function loadAssetConfig(options = {}) {
     !["local", "mac-studio", undefined].includes(raw.profile)
   )
     throw Error("Unsupported MF97 asset configuration/profile");
+  const resourceLimits = raw.resourceLimits ?? {};
+  if (typeof resourceLimits !== "object" || Array.isArray(resourceLimits) ||
+      Object.keys(resourceLimits).some(key => key !== "maxAddedGiB") ||
+      (Object.hasOwn(resourceLimits, "maxAddedGiB") && resourceLimits.maxAddedGiB !== null &&
+       (!Number.isFinite(resourceLimits.maxAddedGiB) || resourceLimits.maxAddedGiB < 0)))
+    throw Error("Invalid resource limits");
   const roots = {};
   for (const [key, value] of Object.entries({
     ...defaults,
@@ -94,6 +100,7 @@ export function loadAssetConfig(options = {}) {
     configured: existsSync(file),
     projectRoot,
     profile: raw.profile ?? "local",
+    resourceLimits,
     roots,
     recordedRoots,
     mounts: mounts.sort((a, b) => b.urlPrefix.length - a.urlPrefix.length),
@@ -184,7 +191,8 @@ export function machineLimits(
   const maxRssGiB = mac ? Math.min(64, memoryBytes / GiB / 2) : 1.5;
   return {
     reserveGiB: mac ? 20 : 5,
-    maxAddedGiB: 8,
+    maxAddedGiB: Object.hasOwn(config.resourceLimits ?? {}, "maxAddedGiB")
+      ? config.resourceLimits.maxAddedGiB : 8,
     maxRssGiB,
     heapGiB: mac ? Math.min(32, maxRssGiB / 2) : undefined,
     concurrency: 1,

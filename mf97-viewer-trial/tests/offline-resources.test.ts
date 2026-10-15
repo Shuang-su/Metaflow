@@ -18,10 +18,29 @@ function fixture() {
 test('approved resource CLI defaults can only be tightened', () => {
     const defaults = offlineResourceOptions([]);
     const limits = machineLimits();
-    assert.equal(defaults.reserveBytes, limits.reserveGiB * GiB); assert.equal(defaults.maxAddedBytes, limits.maxAddedGiB * GiB); assert.equal(defaults.maxRssBytes, limits.maxRssGiB * GiB);
+    assert.equal(defaults.reserveBytes, limits.reserveGiB * GiB); assert.equal(defaults.maxAddedBytes, limits.maxAddedGiB === null ? null : limits.maxAddedGiB * GiB); assert.equal(defaults.maxRssBytes, limits.maxRssGiB * GiB);
     assert.throws(() => createOfflineResources({ reserveBytes: (limits.reserveGiB - 1) * GiB }), /approved limits/);
     assert.throws(() => offlineResourceOptions(['--cache-root']), /Missing value/);
     assert.throws(() => createOfflineResources({ maxAddedBytes: NaN }), /Invalid/);
+});
+test('unlimited cumulative outputs remain charged and cannot bypass disk, task or RSS limits', () => {
+    const base = mkdtempSync(resolve(temporaryRoot, 'unlimited-'));
+    let free = 10000, rss = 1;
+    const resources = createOfflineResources({ root: resolve(base, 'output'), maxAddedBytes: null,
+        reserveBytes: 100, taskOutputBytes: 2000, recoveryBytes: 20,
+        maxRssBytes: 10, measureFreeBytes: () => free, measureRssBytes: () => rss });
+    try {
+        resources.writeFileAtomic('a', 'x'.repeat(1500));
+        assert.equal(resources.snapshot().maxAddedBytes, null);
+        assert.equal(resources.snapshot().chargedBytes, 1500);
+        assert.equal(resources.snapshot().availableBytes, 9880);
+        assert.throws(() => resources.writeFileAtomic('b', 'x'.repeat(501)), /per-task/);
+        free = 120;
+        assert.throws(() => resources.writeFileAtomic('b', 'x'), /reserve/);
+        assert.equal(existsSync(resolve(resources.root, 'b')), false);
+        free = 10000; rss = 11;
+        assert.throws(() => resources.writeFileAtomic('b', 'x'), /RSS/);
+    } finally { rmSync(base, { recursive: true }); }
 });
 test('reserve, cumulative output, per-task output and RSS fail before writing', () => {
     const f = fixture();

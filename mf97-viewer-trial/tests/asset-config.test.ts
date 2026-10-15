@@ -113,6 +113,16 @@ test("missing scene mount is an explicit configuration error and machine profile
   assert.equal(machineLimits(mac, 32 * GiB).maxRssGiB, 16);
   assert.equal(machineLimits(mac, 32 * GiB).heapGiB, 8);
   assert.equal(machineLimits(mac, 512 * GiB).reserveGiB, 20);
+  assert.equal(machineLimits(mac).maxAddedGiB, 8);
+  assert.equal(machineLimits({ ...mac, resourceLimits: { maxAddedGiB: null } }).maxAddedGiB, null);
+  assert.equal(machineLimits({ ...mac, resourceLimits: { maxAddedGiB: 12 } }).maxAddedGiB, 12);
+  const file = join(root, 'limits.json');
+  for (const resourceLimits of [{ maxAddedGiB: -1 }, { maxAddedGiB: 'unlimited' }, { reserveGiB: 0 }, []]) {
+    writeFileSync(file, JSON.stringify({ version: 1, resourceLimits }));
+    assert.throws(() => loadAssetConfig({ file, projectRoot: root }), /resource limits/);
+  }
+  writeFileSync(file, JSON.stringify({ version: 1, resourceLimits: { maxAddedGiB: null } }));
+  assert.equal(machineLimits(loadAssetConfig({ file, projectRoot: root })).maxAddedGiB, null);
 });
 
 test("trial lockfiles contain registry packages rather than machine-local dependency links", () => {

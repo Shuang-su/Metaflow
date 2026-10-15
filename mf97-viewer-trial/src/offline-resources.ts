@@ -12,7 +12,7 @@ export const GiB = 1024 ** 3;
 export const MiB = 1024 ** 2;
 export const DEFAULT_CACHE_ROOT = loadAssetConfig().roots.continuation;
 export type OfflineResourceOptions = {
-    root?: string; reserveBytes?: number; maxAddedBytes?: number; maxRssBytes?: number;
+    root?: string; reserveBytes?: number; maxAddedBytes?: number | null; maxRssBytes?: number;
     taskOutputBytes?: number; recoveryBytes?: number;
     /** Injectable measurements for small deterministic resource-policy fixtures. */
     measureFreeBytes?: (path: string) => number; measureRssBytes?: () => number;
@@ -25,10 +25,12 @@ export function offlineResourceOptions(args: string[] = process.argv.slice(2)): 
         if (!args[index + 1] || args[index + 1].startsWith('--')) throw Error(`Missing value for ${name}`);
         return args[index + 1];
     };
+    const added = option('--max-added-gib', process.env.MF97_MAX_ADDED_GIB ??
+        (limits.maxAddedGiB === null ? 'unlimited' : String(limits.maxAddedGiB)));
     return {
         root: option('--cache-root', process.env.MF97_CACHE_ROOT ?? DEFAULT_CACHE_ROOT),
         reserveBytes: Number(option('--reserve-gib', process.env.MF97_RESERVE_GIB ?? String(limits.reserveGiB))) * GiB,
-        maxAddedBytes: Number(option('--max-added-gib', process.env.MF97_MAX_ADDED_GIB ?? String(limits.maxAddedGiB))) * GiB,
+        maxAddedBytes: added === 'unlimited' ? null : Number(added) * GiB,
         maxRssBytes: Number(option('--max-rss-gib', process.env.MF97_MAX_RSS_GIB ?? String(limits.maxRssGiB))) * GiB,
         taskOutputBytes: Number(option('--task-output-mib', process.env.MF97_TASK_OUTPUT_MIB ?? '256')) * MiB
     };
@@ -67,14 +69,18 @@ export function createOfflineResources(options: OfflineResourceOptions = {}) {
     const config = loadAssetConfig();
     if ([config.roots.gaussian, config.roots.repositoryData, ...config.mounts.map(m => m.path)].filter((p): p is string => !!p).some(input => overlaps(input, root))) throw Error('Output overlaps a read-only scene root');
     const limits = machineLimits();
-    const reserveBytes = options.reserveBytes ?? limits.reserveGiB * GiB, maxAddedBytes = options.maxAddedBytes ?? limits.maxAddedGiB * GiB;
+    const reserveBytes = options.reserveBytes ?? limits.reserveGiB * GiB;
+    const maxAddedBytes = options.maxAddedBytes !== undefined ? options.maxAddedBytes :
+        limits.maxAddedGiB === null ? null : limits.maxAddedGiB * GiB;
     const maxRssBytes = options.maxRssBytes ?? limits.maxRssGiB * GiB, taskOutputBytes = options.taskOutputBytes ?? 256 * MiB;
     const recoveryBytes = options.recoveryBytes ?? 4 * MiB;
     for (const [name, value] of Object.entries({ reserveBytes, maxAddedBytes, maxRssBytes, taskOutputBytes, recoveryBytes })) {
-        if (!Number.isFinite(value) || value < 0) throw Error(`Invalid ${name}`);
+        if (name === 'maxAddedBytes' && value === null) continue;
+        if (value === null || !Number.isFinite(value) || value < 0) throw Error(`Invalid ${name}`);
     }
     // CLI policy may be tightened, but cannot silently exceed the user's approved limits.
-    if (!options.measureFreeBytes && (reserveBytes < limits.reserveGiB * GiB || maxAddedBytes > limits.maxAddedGiB * GiB || maxRssBytes > limits.maxRssGiB * GiB)) {
+    if (!options.measureFreeBytes && (reserveBytes < limits.reserveGiB * GiB ||
+        (limits.maxAddedGiB !== null && (maxAddedBytes === null || maxAddedBytes > limits.maxAddedGiB * GiB)) || maxRssBytes > limits.maxRssGiB * GiB)) {
         throw Error(`MF97 approved limits: reserve >= ${limits.reserveGiB} GiB, added <= ${limits.maxAddedGiB} GiB, RSS <= ${limits.maxRssGiB} GiB`);
     }
     const free = options.measureFreeBytes ?? ((path: string) => { const disk = statfsSync(path); return disk.bavail * disk.bsize; });
@@ -112,13 +118,14 @@ export function createOfflineResources(options: OfflineResourceOptions = {}) {
     function snapshot() {
         const ledger = readLedger(), freeBytes = free(existingParent(root)), rssBytes = rss();
         return { ...ledger, freeBytes, rssBytes, reserveBytes, maxAddedBytes, maxRssBytes, taskOutputBytes,
-            taskWrittenBytes, recoveryBytes, availableBytes: Math.max(0, Math.min(freeBytes - reserveBytes - recoveryBytes, maxAddedBytes - ledger.chargedBytes - recoveryBytes)) };
+            taskWrittenBytes, recoveryBytes, availableBytes: Math.max(0, Math.min(freeBytes - reserveBytes - recoveryBytes,
+                maxAddedBytes === null ? Infinity : maxAddedBytes - ledger.chargedBytes - recoveryBytes)) };
     }
     function assertCapacity(bytes = 0, label = 'offline task', recovery = false) {
         if (!Number.isSafeInteger(bytes) || bytes < 0) throw Error('Invalid byte estimate');
         const state = snapshot(), cushion = recovery ? 0 : recoveryBytes;
         if (state.freeBytes - bytes < reserveBytes + cushion) throw Error(`${label}: ${reserveBytes / GiB} GiB disk reserve would be violated`);
-        if (state.chargedBytes + bytes + cushion > maxAddedBytes) throw Error(`${label}: cumulative added-byte cap exceeded`);
+        if (maxAddedBytes !== null && state.chargedBytes + bytes + cushion > maxAddedBytes) throw Error(`${label}: cumulative added-byte cap exceeded`);
         if (!recovery && taskWrittenBytes + bytes > taskOutputBytes) throw Error(`${label}: per-task output limit exceeded`);
         if (!recovery && state.rssBytes > maxRssBytes) throw Error(`${label}: RSS limit exceeded`);
         if (recovery && bytes > recoveryBytes) throw Error('Recovery record exceeds reserved allowance');
