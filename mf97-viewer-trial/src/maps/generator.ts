@@ -251,11 +251,15 @@ export class GaussianMapGenerator {
       projection.center.z,
     );
     const position = center.clone();
-    if (axis === "z") position.z = bounds.max.z + 2;
+    if (request.frame) {
+      const distance = Math.hypot(bounds.max.x - bounds.min.x, bounds.max.z - bounds.min.z) + 2;
+      position.x += projection.normal.x * distance;
+      position.z += projection.normal.z * distance;
+    } else if (axis === "z") position.z = bounds.max.z + 2;
     else position.x = bounds.min.x - 2;
     this.camera.setPosition(position);
     this.camera.lookAt(center, new Vec3(0, 1, 0));
-    this.splat.gsplat.setWorkBufferModifier(sectionModifier(bounds));
+    this.splat.gsplat.setWorkBufferModifier(sectionModifier(bounds, request.frame));
     const hasSource = this.sourceBounds.some((b) =>
       (["x", "y", "z"] as const).every(
         (k) => b.max[k] >= bounds.min[k] && b.min[k] <= bounds.max[k],

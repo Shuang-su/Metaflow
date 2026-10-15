@@ -1,5 +1,6 @@
 /** Persist DOM-exported renders through the existing atomic/resumable map
  * pipeline. This command does not launch or control a browser. */
+import { sectionProjection } from "../src/ground/section";
 import { readFileSync } from "node:fs";
 import { dirname } from "node:path";
 import { generateGaussianMap } from "./generate-gaussian-map";
@@ -21,6 +22,7 @@ if (renders.jobHash !== sha(bytes) || !Array.isArray(renders.results) ||
 for (const [name, file] of [
   ["generator", new URL("../src/maps/generator.ts", import.meta.url)],
   ["model", new URL("../src/maps/model.ts", import.meta.url)],
+  ["section", new URL("../src/ground/section.ts", import.meta.url)],
   ["capture", new URL("../../metaflow-viewer/src/capture.ts", import.meta.url)],
   ["dependencyLock", new URL("../package-lock.json", import.meta.url)],
 ] as const)
@@ -86,13 +88,24 @@ const figures = tiles.map(tile => {
       `${(p.x - tile.bounds.minX) / (tile.bounds.maxX - tile.bounds.minX) * tile.width},${(p.z - tile.bounds.minZ) / (tile.bounds.maxZ - tile.bounds.minZ) * tile.height}`).join(" "),
     overlay = points ? `<svg viewBox="0 0 ${tile.width} ${tile.height}"><polyline fill="none" stroke="#ff9e3b" stroke-width="3" points="${escape(points)}"/></svg>` : "";
   return `<figure><figcaption>${escape(layer.label)} · Y切片 ${layer.sliceRange.map((v: number) => v.toFixed(3)).join(" 至 ")}m</figcaption><div class="map"><img alt="${escape(layer.label)}" src="${url}tiles/${tile.id}.webp">${overlay}</div></figure>`;
-}).join("") + savedSections.map(section => `<figure><figcaption>${section.axis === "z" ? "X/Y" : "Z/Y"} 高斯剖面（研究）</figcaption><img alt="高斯剖面" src="${section.url}"></figure>`).join("");
+ }).join("") + savedSections.map(section => {
+  const request = section.request, projection = sectionProjection(request);
+  const overlay = job.nativeRoute ? `<svg viewBox="0 0 ${request.width} ${request.height}">${[false, true].map(support => {
+    const points = job.nativeRoute.points.filter((p: any) => !support || Number.isFinite(p.support)).map((p: any) => {
+      const q = projection.project(support ? { ...p, y: p.support } : p); return `${q.x},${q.y}`;
+    }).join(" ");
+    return `<polyline fill="none" stroke="${support ? '#43c9f0' : '#ff9e3b'}" stroke-width="2" points="${escape(points)}"/>`;
+  }).join('')}</svg>` : '';
+  const label = request.frame ? (section.axis === 'z' ? '沿路线纵剖面' : '横向剖面') : (section.axis === 'z' ? 'X/Y' : 'Z/Y');
+  return `<figure><figcaption>${label} 高斯剖面（研究）</figcaption><div class="map"><img alt="高斯剖面" src="${section.url}">${overlay}</div></figure>`;
+}).join("");
 const html = `<!doctype html><html lang="zh-CN"><meta charset="utf-8"><link rel="icon" href="data:,"><title>大运局部通路研究结果</title>
 <style>body{margin:28px;background:#101c21;color:#dce9ed;font:16px system-ui}section{display:flex;gap:20px;flex-wrap:wrap}figure{margin:20px 0}img{width:512px;max-width:100%;border:1px solid #405057}p{max-width:1050px;line-height:1.6}.map{position:relative;width:512px;max-width:100%}.map img{display:block;width:100%;box-sizing:border-box}.map svg{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}</style>
 <h1>大运 · 局部通路研究结果</h1><p>${tiles.length} 张局部高斯切片、${savedSections.length} 张剖面已保存。仅展示原始LOD0的已记录范围；建筑楼层名称与楼层归属尚未确认。</p>
+${job.nativeRoute ? `<p>${escape(job.nativeRoute.label ?? "原生行走轨迹")}；轨迹投影不表示楼层归属。</p>` : ""}
 <p>范围 ${job.tileMetres}×${job.tileMetres}m · 选择 ${job.sourceSelection.coverage.selectedSplats} 个高斯 · 原件LOD0 · 世界Y切片 · Rz(180)</p>
 <section>${figures}</section>
-${job.nativeRoute ? '<label><input id="route-visible" type="checkbox" checked>显示橙色原生行走轨迹（两图共用同一XZ投影，不能表示楼层归属）</label><script>document.querySelector("#route-visible").onchange=e=>document.querySelectorAll(".map svg").forEach(svg=>svg.style.display=e.target.checked?"":"none");</script>' : ''}
+${job.nativeRoute ? '<label><input id="route-visible" type="checkbox" checked>显示轨迹：'+escape(job.nativeRoute.label ?? '原生行走轨迹')+'；橙色为相机，蓝色为支撑高度</label><script>document.querySelector("#route-visible").onchange=e=>document.querySelectorAll(".map svg").forEach(svg=>svg.style.display=e.target.checked?"":"none");</script>' : ''}
 <p>切片中的空白保留为未显示范围，不能据此断言空域或完整楼层覆盖。</p></html>`;
 resources.writeFileAtomic(`${directory}/review.html`, html, { replace: false });
 console.log(JSON.stringify({ ...result, sections: savedSections.length, review: `${url}review.html`, resources: resources.snapshot() }));

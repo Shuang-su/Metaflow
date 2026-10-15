@@ -37,3 +37,18 @@ test("raw voxel edit address is transformed once, preserving all three dimension
     sectionModifier({ min: { x: NaN, y: 0, z: 0 }, max: { x: 1, y: 1, z: 1 } }),
   );
 });
+test('oblique route sections preserve handedness, world height and slab exclusion', () => {
+  const bounds = { min: { x: -4, y: -2, z: -4 }, max: { x: 4, y: 2, z: 4 } },
+    frame = { origin: { x: 0, y: 0, z: 0 }, along: { x: 1, z: 1 }, halfLength: 2, halfThickness: 0.2 },
+    p = sectionProjection({ bounds, axis: 'z', width: 400, height: 400, frame });
+  assert.deepEqual(p.project({ x: 0, y: 0, z: 0 }), { x: 200, y: 200 });
+  const point = { x: Math.SQRT1_2, y: 1, z: Math.SQRT1_2 };
+  assert.ok(Math.abs(p.project(point).x - 300) < 1e-8);
+  assert.equal(p.project(point).y, 100);
+  assert.equal(p.contains(point), true);
+  assert.equal(p.contains({ x: 1, y: 0, z: -1 }), false);
+  assert.ok(Math.abs(p.right.x * p.normal.x + p.right.z * p.normal.z) < 1e-10);
+  assert.match(sectionModifier(bounds, frame).wgsl, /abs\(/);
+  assert.throws(() => sectionProjection({ bounds, axis: 'z', width: 400, height: 400,
+    frame: { ...frame, along: { x: 0, z: 0 } } }), /frame/);
+});

@@ -7,6 +7,9 @@ import { sha } from "../../mf79-viewer-trial/scripts/source";
 import { BODY } from "../../mf79-viewer-trial/src/native-motion";
 import { RECAST_CONFIG } from "../../mf79-viewer-trial/src/recast-config";
 import { createOfflineResources, offlineResourceOptions } from "../src/offline-resources";
+import { collisionSourceFile } from "../../mf79-viewer-trial/scripts/source";
+import { stand } from "../../mf79-viewer-trial/src/native-motion";
+import { replayNativePolyline } from "../src/dayun-native-proof";
 
 const args = process.argv.slice(2);
 const option = (name: string) => {
@@ -32,6 +35,8 @@ if (proof && (proof.navigationFingerprint !== m.fingerprint || proof.sourceHash 
     new Set(proof.proofs.map((p: any) => p.id)).size !== proof.proofs.length))
   throw Error("Native probes must match this navigation, collision and original body");
 const resources = createOfflineResources(offlineResourceOptions(args));
+const boundarySource = args.includes("--boundary-source") ? option("--boundary-source") : undefined;
+const boundaryEdges: { ref: number; side: string; axis: "x" | "z"; sign: number; a: any; b: any }[] = [];
 const boundaryMargin = (RECAST_CONFIG.walkableRadius + 3) * RECAST_CONFIG.cs;
 await init();
 const nav = importNavMesh(bytes).navMesh,
@@ -75,6 +80,16 @@ try {
         li = link.next();
       }
       nodes.set(ref, { point: precise.closestPoint, links, bounds });
+      if (boundarySource) for (let edge = 0; edge < poly.vertCount(); edge++) {
+        const vertex = (index: number) => {
+          const vi = poly.verts(index % poly.vertCount()) * 3;
+          return { x: tile.verts(vi), y: tile.verts(vi + 1), z: tile.verts(vi + 2) };
+        };
+        const a = vertex(edge), b = vertex(edge + 1);
+        for (const axis of ["x", "z"] as const) for (const side of ["min", "max"] as const)
+          if ([a, b].every(p => Math.abs(p[axis] - m.bounds[side][axis]) < 0.001))
+            boundaryEdges.push({ ref, side: side + axis.toUpperCase(), axis, sign: side === "max" ? 1 : -1, a, b });
+      }
     }
     resources.assertCapacity(0, "Detour tile enumeration");
   }
@@ -157,15 +172,62 @@ try {
         pair[name]?.ok === true && Array.isArray(pair[name].trace) && pair[name].trace.length > 0 &&
         pair[name].trace.every((p: any) => p.grounded && p.collision === "active")) };
   });
+  let frontier: any;
+  if (boundarySource) {
+    const scope = structuredClone(m.bounds);
+    for (const axis of ["x", "z"] as const) { scope.min[axis] -= 2; scope.max[axis] += 2; }
+    const loaded = await collisionSourceFile(boundarySource, scope);
+    try {
+      if (loaded.sourceHash !== m.sourceHash) throw Error("Boundary source differs from navigation");
+      const samples: any[] = [];
+      for (const edge of boundaryEdges) {
+        const count = Math.max(1, Math.ceil(Math.hypot(edge.b.x - edge.a.x, edge.b.z - edge.a.z) / 0.4));
+        for (let i = 0; i < count; i++) {
+          const t = (i + 0.5) / count, p = { x: 0, y: 0, z: 0 };
+          for (const axis of ["x", "y", "z"] as const) p[axis] = edge.a[axis] + t * (edge.b[axis] - edge.a[axis]);
+          const inside = { ...p, [edge.axis]: p[edge.axis] - edge.sign * 0.64 },
+            outside = { ...p, [edge.axis]: p[edge.axis] + edge.sign * 0.64 };
+          const known = [inside, outside].every(q => [-BODY.radius, 0, BODY.radius].every(dx =>
+            [-BODY.radius, 0, BODY.radius].every(dz =>
+              [0, BODY.height + BODY.hover].every(dy => loaded.space.known(q.x + dx, q.y + dy, q.z + dz)))));
+          const a = known ? stand(loaded.space.collision, inside) : null,
+            b = known ? stand(loaded.space.collision, outside) : null;
+          samples.push({ ref: edge.ref, component: membership.get(edge.ref), side: edge.side, point: p,
+            inside, outside, from: a, to: b, status: !known ? "unknown-source" :
+              a && b ? "native-standing-supported" : "native-standing-rejected" });
+        }
+      }
+      const requested = new Set(probes?.flatMap((p: any) => [p.fromGroup?.seed, p.toGroup?.seed]) ?? []), trials: any[] = [];
+      for (const side of ["maxX", "maxZ"]) for (const component of requested) {
+        const candidates = samples.filter(s => s.side === side && s.component === component && s.from && s.to)
+          .sort((a, b) => Math.abs(a.from.y - a.to.y) - Math.abs(b.from.y - b.to.y) || a.ref - b.ref);
+        // One explicitly reported short corridor per component/side; all perimeter samples remain in the report.
+        const sample = candidates[0];
+        if (!sample) continue;
+        const known = (p: any) => loaded.space.known(p.x, p.y, p.z);
+        const forward = replayNativePolyline(loaded.space.collision, [sample.from, sample.to], known),
+          reverse = replayNativePolyline(loaded.space.collision, [sample.to, sample.from], known);
+        trials.push({ ...sample, forward, reverse, allGrounded: [forward, reverse].every(r => r.ok &&
+          r.trace.length > 0 && r.trace.every(t => t.grounded && t.collision === "active")) });
+      }
+      frontier = { scope, loadedTileIds: loaded.loadedTileIds, sampleSpacing: 0.4, inset: 0.64,
+        perimeterEdges: boundaryEdges.length, samples, trials,
+        semantics: "Complete traversable scope-edge inventory, sampled native standing; selected short two-way crossings are not floor connections" };
+      console.log(JSON.stringify({ perimeterEdges: boundaryEdges.length, samples: samples.length,
+        counts: Object.fromEntries(["unknown-source", "native-standing-supported", "native-standing-rejected"].map(status =>
+          [status, samples.filter(s => s.status === status).length])),
+        trials: trials.map(t => ({ side: t.side, component: t.component, allGrounded: t.allGrounded })) }));
+    } finally { loaded.destroy(); }
+  }
   const result = { version: 1, usage: "analysis-only", navigationFingerprint: m.fingerprint,
     sourceHash: m.sourceHash, implementationHash: sha(readFileSync(new URL(import.meta.url))),
     scope: m.bounds, discovery: "Complete Detour tile inventory; reciprocal polygon links",
     floorIdentity: false, minimumRise, boundaryMargin, loadedTiles, totalPolygons,
-    eligiblePolygons: nodes.size, excludedPolygons, oneWayLinks, groups, pairs,
+    eligiblePolygons: nodes.size, excludedPolygons, oneWayLinks, groups, pairs, ...(frontier ? { frontier } : {}),
     ...(proofBytes ? { nativeProbeSource: { file: proofFile, sha256: sha(proofBytes) },
       queryLimits: { maxNodes: 65535, maxPathPolys: 32768 }, probes } : {}) };
   resources.writeJsonAtomic(option("--output"), result, { replace: false });
-  console.log(JSON.stringify({ ...result, probes: probes?.map((p: any) => ({ id: p.id,
+  console.log(JSON.stringify({ ...result, frontier: frontier ? { perimeterEdges: frontier.perimeterEdges, samples: frontier.samples.length } : undefined, probes: probes?.map((p: any) => ({ id: p.id,
     sameReciprocalGroup: p.sameReciprocalGroup, fromGroup: p.fromGroup?.seed, toGroup: p.toGroup?.seed,
     forward: p.forward, reverse: p.reverse, allFourGrounded: p.allFourGrounded })), groups: groups.length, pairs: pairs.length,
     largestRises: groups.map(g => g.rise).sort((a, b) => b - a).slice(0, 10) }));

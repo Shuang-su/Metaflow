@@ -1,5 +1,6 @@
 /** Prepare a bounded, display-only LOD0 inspection. Original leaves and files
  * remain unchanged; the generated page uses the separate map renderer. */
+import { BODY } from "../../mf79-viewer-trial/src/native-motion";
 import { readFileSync } from "node:fs";
 import { dirname, relative } from "node:path";
 import { selectDayunInspectionSource } from "../src/dayun-inspection-source";
@@ -58,22 +59,32 @@ const collisionFile = resources.resolveOutput("dayun/collision-source.json"),
   collisionBytes = readFileSync(collisionFile), collision = JSON.parse(collisionBytes.toString());
 let nativeRoute: {
   file: string; sha256: string; pair: string; navigationFingerprint: string;
-  points: { x: number; y: number; z: number }[];
+  points: { x: number; y: number; z: number; support?: number; grounded?: boolean }[];
+  allFourGrounded: boolean; label: string;
 } | undefined;
-if (view.routeProof) {
-  const file = resources.resolveOutput(view.routeProof.file), bytes = readFileSync(file),
-    proof = JSON.parse(bytes.toString()), pair = proof.proofs?.find((p: any) => p.id === view.routeProof.pair);
+if (view.routeProof || view.diagnosticRoute) {
+  if (view.routeProof && view.diagnosticRoute) throw Error("Choose certified or diagnostic route overlay");
+  const descriptor = view.routeProof ?? view.diagnosticRoute;
+  const file = resources.resolveOutput(descriptor.file), bytes = readFileSync(file),
+    proof = JSON.parse(bytes.toString()), pair = proof.proofs?.find((p: any) => p.id === descriptor.pair);
   if (proof.sourceHash !== collision.sourceHash || proof.nativeParametersUnchanged !== true ||
-      proof.automaticJump !== false || !pair ||
-      ["forward", "reverse", "returnAlongForward", "returnAlongReverse"].some(name =>
-        pair[name]?.ok !== true || !Array.isArray(pair[name].trace) ||
-        !pair[name].trace.length || pair[name].trace.length > 100_000 ||
-        pair[name].trace.some((p: any) => !p.grounded || p.collision !== "active" ||
-          ![p.position?.x, p.position?.y, p.position?.z].every(Number.isFinite))))
-    throw Error("Route overlay requires a same-source, grounded, two-way native proof");
-  nativeRoute = { file, sha256: sha(bytes), pair: pair.id,
-    navigationFingerprint: proof.navigationFingerprint,
-    points: pair.forward.trace.map((p: any) => p.position) };
+      proof.automaticJump !== false || JSON.stringify(proof.body) !== JSON.stringify(BODY) || !pair)
+    throw Error("Route overlay proof identity mismatch");
+  const allFourGrounded = ["forward", "reverse", "returnAlongForward", "returnAlongReverse"].every(name =>
+    pair[name]?.ok === true && Array.isArray(pair[name].trace) && pair[name].trace.length > 0 &&
+    pair[name].trace.every((p: any) => p.grounded && p.collision === "active"));
+  if (view.routeProof && !allFourGrounded) throw Error("Route overlay requires a same-source, grounded, two-way native proof");
+  const direction = descriptor.direction ?? "forward";
+  if (!["forward", "reverse", "returnAlongForward", "returnAlongReverse"].includes(direction)) throw Error("Invalid route direction");
+  const trace = pair[direction]?.trace, range = descriptor.traceRange ?? [0, trace?.length];
+  if (!Array.isArray(trace) || !trace.length || trace.length > 100_000 ||
+      !Array.isArray(range) || range.length !== 2 || !range.every(Number.isSafeInteger) ||
+      range[0] < 0 || range[1] > trace.length || range[0] >= range[1] ||
+      trace.some((p: any) => ![p.position?.x, p.position?.y, p.position?.z].every(Number.isFinite)))
+    throw Error("Invalid diagnostic trace");
+  nativeRoute = { file, sha256: sha(bytes), pair: pair.id, navigationFingerprint: proof.navigationFingerprint,
+    allFourGrounded, label: view.diagnosticRoute ? "异常诊断轨迹，含未通过帧，不构成通行证明" : "四向全程着地轨迹",
+    points: trace.slice(...range).map((p: any) => ({ ...p.position, support: p.support, grounded: p.grounded })) };
 }
 const job = {
   scene: view.id, assetUrl: `${url}source/lod-meta.json`, lod: 0,
@@ -88,6 +99,7 @@ const job = {
   renderImplementations: Object.fromEntries([
     ["generator", new URL("../src/maps/generator.ts", import.meta.url)],
     ["model", new URL("../src/maps/model.ts", import.meta.url)],
+    ["section", new URL("../src/ground/section.ts", import.meta.url)],
     ["capture", new URL("../../metaflow-viewer/src/capture.ts", import.meta.url)],
     ["dependencyLock", new URL("../package-lock.json", import.meta.url)],
   ].map(([name, file]) => [String(name), sha(readFileSync(file))])),
@@ -115,12 +127,14 @@ const jobFile = `${directory}/job.json`, jobHash = resources.writeJsonAtomic(job
 const html = `<!doctype html><html lang="zh-CN"><meta charset="utf-8"><link rel="icon" href="data:,"><title>大运局部上下表面切片</title>
 <style>body{margin:28px;background:#101c21;color:#dce9ed;font:16px system-ui}button{padding:10px 18px;font:inherit}section{display:flex;gap:20px;flex-wrap:wrap}figure{margin:20px 0}img{width:512px;max-width:100%;border:1px solid #405057}p{max-width:1050px;line-height:1.6}.map{position:relative;width:512px;max-width:100%}.map img{display:block;width:100%;box-sizing:border-box}.map svg{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}[hidden]{display:none}canvas{position:absolute;left:-2000px;width:512px;height:512px}</style>
 <h1>大运 · 局部上下表面</h1><p>仅 ${view.halfExtent * 2}×${view.halfExtent * 2} 米研究切片；上下表面标签不代表已确认建筑楼层或可通行连接。固定原始LOD0，世界Y过滤，Rz(180)。</p>
+${nativeRoute ? `<p>${nativeRoute.label}；轨迹投影不表示楼层归属。</p>` : ""}
 <p id="identity">源叶 ${selected.coverage.selectedLeaves} / ${selected.coverage.sourceLeaves}；选择 ${selected.coverage.selectedSplats} 个高斯，${selected.coverage.fileIndices.length} 个SOG文件；整文件解码 ${decodedSplats} 个高斯。</p>
 <button id="render" disabled>生成两张局部切片</button><p id="map-generator-status" role="status">待生成</p><p id="errors" role="alert"></p><canvas width="512" height="512"></canvas><section id="images"></section>
-${nativeRoute ? '<label><input id="route-visible" type="checkbox" checked>显示橙色原生行走轨迹（两图共用同一XZ投影，不能表示楼层归属）</label>' : ''}
+${nativeRoute ? '<label><input id="route-visible" type="checkbox" checked>显示轨迹：'+nativeRoute.label+'；橙色为相机，蓝色为支撑高度</label>' : ''}
 <p>GPU读取结果保存在页面导出区。</p><textarea id="render-results" aria-hidden="true" hidden readonly></textarea>
 <script type="module">
 import { GaussianMapGenerator } from '/src/maps/generator.ts';
+import { sectionProjection } from '/src/ground/section.ts';
 const status=document.querySelector('#map-generator-status'), errors=document.querySelector('#errors'), button=document.querySelector('#render');
 window.addEventListener('error',e=>errors.textContent=String(e.message));
 window.addEventListener('unhandledrejection',e=>errors.textContent=String(e.reason));
@@ -134,7 +148,9 @@ const layer=job.layers.find(l=>l.id===tile.layerId),figure=document.createElemen
 caption.textContent=layer.label+' · Y切片 '+layer.sliceRange.map(v=>v.toFixed(3)).join(' 至 ')+'m';img.alt=layer.label;img.src='data:image/webp;base64,'+result.data;const map=document.createElement('div');map.className='map';map.append(img);
 if(job.nativeRoute){const svg=document.createElementNS('http://www.w3.org/2000/svg','svg'),line=document.createElementNS(svg.namespaceURI,'polyline');svg.setAttribute('viewBox','0 0 '+tile.width+' '+tile.height);line.setAttribute('points',job.nativeRoute.points.map(p=>[(p.x-tile.bounds.minX)/(tile.bounds.maxX-tile.bounds.minX)*tile.width,(p.z-tile.bounds.minZ)/(tile.bounds.maxZ-tile.bounds.minZ)*tile.height].join(',')).join(' '));line.setAttribute('fill','none');line.setAttribute('stroke','#ff9e3b');line.setAttribute('stroke-width','3');svg.append(line);if(!document.querySelector('#route-visible').checked)svg.style.display='none';map.append(svg);}figure.append(caption,map);document.querySelector('#images').append(figure);}
 for(const request of job.sectionRequests){status.textContent='正在生成 '+request.axis+' 方向剖面';const result=await generator.renderSection(request),canvas=document.createElement('canvas');canvas.width=request.width;canvas.height=request.height;canvas.getContext('2d').putImageData(result.image,0,0);const data=canvas.toDataURL('image/png');
-sections.push({request,data,hasSource:result.hasSource,frames:result.frames,splats:result.splats,ms:result.ms});const figure=document.createElement('figure'),caption=document.createElement('figcaption'),img=document.createElement('img');caption.textContent=(request.axis==='z'?'X/Y':'Z/Y')+' 高斯剖面（研究）';img.alt=caption.textContent;img.src=data;figure.append(caption,img);document.querySelector('#images').append(figure);}
+sections.push({request,data,hasSource:result.hasSource,frames:result.frames,splats:result.splats,ms:result.ms});const figure=document.createElement('figure'),caption=document.createElement('figcaption'),img=document.createElement('img');caption.textContent=(request.frame?(request.axis==='z'?'沿路线纵剖面':'横向剖面'):(request.axis==='z'?'X/Y':'Z/Y'))+' 高斯剖面（研究）';img.alt=caption.textContent;img.src=data;const map=document.createElement('div');map.className='map';map.append(img);
+if(job.nativeRoute){const projection=sectionProjection(request),svg=document.createElementNS('http://www.w3.org/2000/svg','svg');svg.setAttribute('viewBox','0 0 '+request.width+' '+request.height);
+for(const support of [false,true]){const line=document.createElementNS(svg.namespaceURI,'polyline');line.setAttribute('points',job.nativeRoute.points.filter(p=>!support||Number.isFinite(p.support)).map(p=>{const q=projection.project(support?{...p,y:p.support}:p);return q.x+','+q.y;}).join(' '));line.setAttribute('fill','none');line.setAttribute('stroke',support?'#43c9f0':'#ff9e3b');line.setAttribute('stroke-width','2');svg.append(line);}if(!document.querySelector('#route-visible').checked)svg.style.display='none';map.append(svg);}figure.append(caption,map);document.querySelector('#images').append(figure);}
 document.querySelector('#render-results').value=JSON.stringify({jobHash:${JSON.stringify(jobHash)},results,sections});status.textContent='2 / 2 局部切片及 '+sections.length+' 张剖面已完成；建筑楼层名称尚未确认';
 }catch(error){errors.textContent=String(error);status.textContent='生成失败，保留失败原因';}finally{generator?.destroy();button.disabled=false;}};
 button.disabled=false;

@@ -44,7 +44,7 @@ if (loaded.sourceHash !== m.sourceHash)
   throw Error("Collision fingerprint mismatch");
 const resources = createOfflineResources({
   ...offlineResourceOptions(args),
-  taskOutputBytes: 64 * MiB,
+  taskOutputBytes: args.includes("--task-output-mib") ? offlineResourceOptions(args).taskOutputBytes : 64 * MiB,
 });
 await init();
 const nav = importNavMesh(bytes).navMesh,
