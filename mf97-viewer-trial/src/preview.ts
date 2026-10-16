@@ -1,4 +1,5 @@
 import { createViewer } from "../../metaflow-viewer/src/index";
+import { parseSettings } from "../../metaflow-viewer/src/parse-settings";
 import "virtual:mf97-viewer-styles";
 import { withNavigationEnabled } from "../../metaflow-viewer/src/navigation/nav-annotation";
 import scenes from "../../mf79-viewer-trial/scene-exhibitions.json";
@@ -12,6 +13,15 @@ const params = new URLSearchParams(location.search),
   id = params.get("scene") ?? "apms-2026",
   dayun = id === "dayun";
 const scene = scenes.scenes.find((s) => s.id === id) ?? scenes.scenes[0];
+// User-supplied getCameraPose() from the published Dayun scene, 2026-10-16.
+// A reproducible trial start, independent of bounded LOD0 inspection views.
+const dayunStart = dayun && params.get("dayunStart") === "muji-20261016"
+  ? {
+      position: [-709.925106, -4.1, -296.440546],
+      target: [-701.679827, -4.316181, -299.277507],
+      fov: 90,
+    }
+  : null;
 // Read-only inspection viewpoints from the unchanged native x10-z20-v4 replay.
 // A/B identify sampled endpoints; they are not building-floor identities.
 const dayunViews = {
@@ -41,7 +51,14 @@ const dayunViewName = params.get("dayunView"),
     dayun && dayunViewName && Object.hasOwn(dayunViews, dayunViewName)
       ? dayunViews[dayunViewName as keyof typeof dayunViews]
       : null;
-const settings = structuredClone(id === "sdi-2026" ? sdi : apms) as any;
+const initialPose = inspection ?? dayunStart;
+const startSettings = dayunStart && !inspection
+  ? await fetch("/repository-data/Shenzhen/250917%20Dayun/settings-rx90-close.json")
+  : null;
+if (startSettings && !startSettings.ok) throw Error("Dayun start settings unavailable");
+const settings = startSettings
+  ? parseSettings(await startSettings.text())
+  : structuredClone(id === "sdi-2026" ? sdi : apms) as any;
 if (id === "apms-2026")
   settings.annotations = structuredClone(studio.experience.annotations);
 settings.annotations = dayun
@@ -55,20 +72,23 @@ if (params.has("mixed") && settings.annotations.length)
   );
 settings.animTracks = [];
 settings.startMode = "default";
+// Keep the supplied reset camera, but suppress synthetic opening animation for
+// this explicit research start. Normal collision readiness still gates walking.
+if (dayunStart && !inspection) settings.hasStartPose = false;
 settings.cameras = [
   {
     initial: {
-      position: inspection
-        ? [...inspection.position]
+      position: initialPose
+        ? [...initialPose.position]
         : dayun
           ? [-694.823644, 166.774502, -0.769584]
           : [scene.start.x, scene.start.y, scene.start.z],
-      target: inspection
-        ? [...inspection.target]
+      target: initialPose
+        ? [...initialPose.target]
         : dayun
           ? [-359.567177, -51.547946, -127.010187]
           : [scene.viewTarget.x, scene.viewTarget.y, scene.viewTarget.z],
-      fov: 75,
+      fov: !inspection && dayunStart ? dayunStart.fov : 75,
     },
   },
 ];
@@ -164,12 +184,12 @@ const viewer = await createViewer({
           `/navigation/${scene.id}/manifest.json`,
         navigationWorkerUrl,
       }),
-  navigationMapUrl: inspection
+  navigationMapUrl: inspection || dayunStart
     ? undefined
     : (trial?.navigationMapUrl ??
       `/mf97-maps/${dayun ? "dayun" : scene.id}/manifest.json`),
   ...(inspection ? { revealEffect: "none" as const } : {}),
-  defaultCameraMode: dayun ? "fly" : "walk",
+  defaultCameraMode: dayunStart && !inspection ? "walk" : dayun ? "fly" : "walk",
   experienceType: "scene",
   ui: true,
   noanim: true,
@@ -274,3 +294,25 @@ viewer.events.on("guidance:diagnostic", (e: any) => {
   if (evidence.length > 256) evidence.shift();
 });
 viewer.events.on("guidance:arrived", (e: any) => evidence.push({ arrival: e }));
+if (dayunStart && !inspection) {
+  // Collision arrives asynchronously. Select the requested mode once through
+  // the existing host state API after readiness, then leave user control alone.
+  let entryScheduled = false;
+  const enterStart = () => {
+    if (!viewer.state.loaded || !viewer.state.walkAllowed) return;
+    if (entryScheduled) return;
+    entryScheduled = true;
+    // Readiness can fire while collision attachment is still in progress.
+    // Let that attachment finish before activating the walk controller.
+    requestAnimationFrame(() => {
+      entryScheduled = false;
+      if (!viewer.state.loaded || !viewer.state.walkAllowed) return;
+      viewer.events.off("loaded:changed", enterStart);
+      viewer.events.off("walkAllowed:changed", enterStart);
+      viewer.state.cameraMode = "walk";
+    });
+  };
+  viewer.events.on("loaded:changed", enterStart);
+  viewer.events.on("walkAllowed:changed", enterStart);
+  enterStart();
+}
