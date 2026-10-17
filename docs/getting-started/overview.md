@@ -1,5 +1,7 @@
 # 项目概览
 
+Metaflow 是一套围绕 3D Gaussian Splatting 的仓库内工作流：在 Editor 中检查、裁剪和配置场景，把模型与 `settings.json` 放入 `data/`，生成路由索引，再由 Viewer 通过稳定 URL 加载和分享。
+
 Metaflow 围绕 3D Gaussian Splatting（3DGS）提供处理、编辑、编排、浏览与成片工具，并包含原生 App 和研究内容产品。先按任务选择工具，再根据它的发布状态和支持范围进入；在线体验与当前状态汇总见 [项目首页](../../README.md#产品全景)。
 
 ## 八条产品线
@@ -37,36 +39,42 @@ flowchart LR
     D --> E["generate_index.py"]
     E --> F["data/index.json"]
     F --> G["Metaflow Viewer 路由"]
-    G --> H["静态发布与分享"]
+    G --> H["Netlify 静态发布与分享"]
 ```
-
-操作步骤见 [从 Editor 到 Viewer](../guides/editor-to-viewer.md)。
 
 ## 三个核心部分
 
-以下保留已落地链路中的源码与生成物边界。
+以下保留已落地链路中的源码与生成物边界；具体操作见 [从 Editor 到 Viewer](../guides/editor-to-viewer.md)。
 
 ### Viewer
 
-`metaflow-viewer/` 是当前 Viewer 源码，按 URL 路由或显式查询参数加载模型、settings、环境与碰撞资源。`metaflow-director/` 承载已发布 ACG 单文件 SOG／PLY 的实验摄影入口，要求 WebGPU 和浮点渲染能力；构建与限制见 [Director 说明](../../metaflow-director/README.md)。
+`metaflow-viewer/` 是当前 Viewer 源码。它读取 URL 路由或显式查询参数，加载模型、settings、环境与碰撞资源。当前版本与上游基线见 [`metadata/version-history.json`](../../metadata/version-history.json)。
+
+`metaflow-director/` 承载已发布 ACG 单文件 SOG／PLY 的实验摄影入口，要求 WebGPU 和浮点渲染能力；构建与限制见 [Director 说明](../../metaflow-director/README.md)。
 
 ### Editor
 
-`supersplat-v2.28.0/` 是当前可重建 Editor 的源码；`metaflow-editor/` 是发布到 `/editor` 的构建产物。版本和依赖由 [`metadata/editor-version-history.json`](../../metadata/editor-version-history.json) 记录。
+`supersplat-v2.28.0/` 是当前可重建 Editor 的源码；`metaflow-editor/` 是发布到 `/editor` 的构建产物。两者不能混为一个可编辑目录。版本和依赖见 [`metadata/editor-version-history.json`](../../metadata/editor-version-history.json)。
 
 Editor 的 `npm run build` 只生成 `supersplat-v2.28.0/dist/`；正式发布前还要显式检查并同步到 tracked `metaflow-editor/` 镜像。Netlify 不会自动读取源码目录里的 dist，步骤见 [部署](../maintenance/deployment.md)。
 
 ### 数据与索引
 
-`data/` 保存发布资源和生成的 `index.json`。Viewer 根据 index 中的 `route`、`aliases` 和 `files` 解析资源。模型、settings 与派生产物的准备和验证见 [添加并发布资源](../guides/add-publish-resource.md)。
+`data/` 保存发布资源和生成的 `index.json`。Viewer 路由不是硬编码页面清单，而是根据 index 中的 `route`、`aliases` 和 `files` 解析资源。
+
+模型、settings 与派生产物的准备和验证见 [添加并发布资源](../guides/add-publish-resource.md)。
 
 ## 选择下一步
 
-- 浏览与分享现有资源：[Viewer 快速开始](viewer.md) → [嵌入与分享](../guides/embed-share.md)。
-- 编辑或导出场景：[Editor 快速开始](editor.md) → [Editor 到 Viewer](../guides/editor-to-viewer.md)。
 - 拍摄现有 ACG 资源：[Director 示例](https://metaflow.shuang-su.com/acg/szcaf15/honkai_star_rail-tribbie/director) → [使用边界与构建](../../metaflow-director/README.md)。
-- 参与研发：[仓库地图](../reference/repository-map.md) → [开发与验证](../maintenance/development.md)。
 - 跟进原型、原生端或其他产品：从上方产品表进入对应仓库与任务。
+- 参与研发：[仓库地图](../reference/repository-map.md) → [开发与验证](../maintenance/development.md)。
+
+- 只想查看现有资源：阅读 [Viewer 快速开始](viewer.md)。
+- 要编辑或导出场景：阅读 [Editor 快速开始](editor.md)。
+- 要完成发布闭环：阅读 [Editor 到 Viewer](../guides/editor-to-viewer.md)。
+- 要理解源码与生成物边界：阅读 [仓库地图](../reference/repository-map.md)。
+- 要核对版本、上游与运行时兼容：阅读 [兼容边界与版本事实源](../reference/compatibility-and-version-sources.md)。
 
 ## 当前版本
 
@@ -77,3 +85,13 @@ Editor 的 `npm run build` 只生成 `supersplat-v2.28.0/dist/`；正式发布�
 - 资源索引：schema `1.2`、100 项资源；见 [`data/index.json`](../../data/index.json)。
 
 版本摘要只用于定位；机器来源、实际发布和各产品验收分别核对，规则见 [兼容边界与版本事实源](../reference/compatibility-and-version-sources.md)。
+
+### 既有版本说明（历史保留）
+
+> 下列原文保留此前的发布阶段与恢复过程；其中 `5.19.2` 等“当前”表述是当时快照，最新发布值见上方摘要。
+
+- Viewer：生产稳定版与 npm package 均为 `5.19.2`，上游 SuperSplat Viewer `1.29.1`、PlayCanvas `2.21.3`；运行时产品 SHA 为 `26e311c`，analytics/release 修复 SHA 为 `92d11b0`。`5.19.0` 在部署前失败且未进入生产；`5.19.1` 已完成不可变 Tag、D2 Prepare、精确 D2 CLI/API 发布、smoke 和 15 分钟观察；`5.19.2` 恢复 production analytics endpoint 并加入发布校验。
+- Editor：Metaflow `1.1`，上游 SuperSplat Editor `2.28.0`。
+- Index：schema `1.2`。
+
+不要从文件夹名、旧 README 或历史审计推断当前版本；使用上述 metadata 与 index 文件。发布语义见 [版本与发布](../maintenance/versioning-and-release.md)。
