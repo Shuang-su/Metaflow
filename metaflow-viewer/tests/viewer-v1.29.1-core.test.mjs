@@ -7,8 +7,10 @@ const readText = (path) => readFile(new URL(path, import.meta.url), 'utf8');
 
 test('loading renders continuously before both legacy and streaming paths switch on demand', async () => {
     const viewer = await readText('../src/viewer.ts');
-    const legacyPath = viewer.slice(viewer.indexOf('const instance = gsplatComponent.instance'), viewer.indexOf('// quality budget'));
-    const streamingPath = viewer.slice(viewer.indexOf('// quality budget'));
+    const legacyStart = viewer.indexOf('const instance = gsplatComponent.instance');
+    const streamingStart = viewer.indexOf('const applyPerfSettings', legacyStart);
+    const legacyPath = viewer.slice(legacyStart, streamingStart);
+    const streamingPath = viewer.slice(streamingStart);
 
     assert.match(viewer, /app\.autoRender = true/);
     assert.match(legacyPath, /app\.once\('frameend',[\s\S]*app\.autoRender = false/);

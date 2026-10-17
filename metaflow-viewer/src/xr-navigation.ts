@@ -49,6 +49,13 @@ class XrVrNavigation extends Script {
 
     cameraEntity: Entity | null = null;
 
+    private manipulating = false;
+
+    setManipulationActive(active: boolean): void {
+        this.manipulating = active;
+        if (active) this.activePointers.clear();
+    }
+
     initialize() {
         if (!this.app.xr) {
             console.error('XrVrNavigation: XR not available');
@@ -78,22 +85,25 @@ class XrVrNavigation extends Script {
             }
         }
 
-        this.app.xr.input.on('add', (inputSource: XrInputSource) => {
+        const onAdd = (inputSource: XrInputSource) => {
+            if (this.inputSources.has(inputSource)) return;
             const handleSelectStart = () => {
                 this.activePointers.set(inputSource, true);
             };
             const handleSelectEnd = () => {
-                this.activePointers.set(inputSource, false);
-                this.tryTeleport(inputSource);
+                const wasActive = this.activePointers.get(inputSource);
+                this.activePointers.delete(inputSource);
+                if (wasActive) this.tryTeleport(inputSource);
             };
 
             inputSource.on('selectstart', handleSelectStart);
             inputSource.on('selectend', handleSelectEnd);
             this.inputHandlers.set(inputSource, { handleSelectStart, handleSelectEnd });
             this.inputSources.add(inputSource);
-        });
+        };
+        this.app.xr.input.on('add', onAdd);
 
-        this.app.xr.input.on('remove', (inputSource: XrInputSource) => {
+        const onRemove = (inputSource: XrInputSource) => {
             const handlers = this.inputHandlers.get(inputSource);
             if (handlers) {
                 inputSource.off('selectstart', handlers.handleSelectStart);
@@ -102,6 +112,13 @@ class XrVrNavigation extends Script {
             }
             this.activePointers.delete(inputSource);
             this.inputSources.delete(inputSource);
+        };
+        this.app.xr.input.on('remove', onRemove);
+        for (const inputSource of this.app.xr.input.inputSources) onAdd(inputSource);
+        this.once('destroy', () => {
+            this.app.xr.input.off('add', onAdd);
+            this.app.xr.input.off('remove', onRemove);
+            for (const inputSource of [...this.inputSources]) onRemove(inputSource);
         });
     }
 
@@ -130,6 +147,7 @@ class XrVrNavigation extends Script {
     }
 
     update(dt: number) {
+        if (this.manipulating) return;
         if (this.enableMove) {
             this.handleLocomotion(dt);
         }
@@ -238,7 +256,7 @@ class XrVrNavigation extends Script {
     }
 
     private tryTeleport(inputSource: XrInputSource) {
-        if (!this.enableTeleport) return;
+        if (!this.enableTeleport || this.manipulating) return;
 
         const origin = inputSource.getOrigin();
         const direction = inputSource.getDirection();

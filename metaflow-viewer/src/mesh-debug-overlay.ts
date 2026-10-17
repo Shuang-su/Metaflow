@@ -166,7 +166,13 @@ class MeshDebugOverlay {
 
     private _enabled = false;
 
-    constructor(app: AppBase, collision: MeshCollision, camera: Entity, cameraFrameEnabled: boolean) {
+    constructor(
+        app: AppBase,
+        collision: MeshCollision,
+        camera: Entity,
+        cameraFrameEnabled: boolean,
+        sceneRoot?: Entity
+    ) {
         this.app = app;
         this.camera = camera;
         this.triangles = collision.triangles;
@@ -282,7 +288,7 @@ class MeshDebugOverlay {
         this.entity.addChild(surfaceEntity);
         this.entity.addChild(wireframeEntity);
         this.entity.enabled = false;
-        app.root.addChild(this.entity);
+        (sceneRoot ?? app.root).addChild(this.entity);
     }
 
     set enabled(value: boolean) {

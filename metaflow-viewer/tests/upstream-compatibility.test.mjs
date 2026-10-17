@@ -57,7 +57,8 @@ test('environment, reveal, loading visibility, and synthetic animation ordering 
         readText('../src/ui.ts')
     ]);
 
-    assert.match(index, /const environmentLoad = config\.environmentUrl \? loadEnvironment\(app, config, \(\) => destroyed\) : null/);
+    assert.match(index, /const environmentLoad = config\.environmentUrl\s*\? loadEnvironment\(app, config, \(\) => destroyed\)\.then/);
+    assert.match(index, /if \(entity && !destroyed\) entity\.reparent\(sceneRoot\)/);
     assert.match(index, /new Viewer\(\s*global,\s*gsplatLoad,\s*environmentLoad,/s);
     assert.match(viewer, /Promise\.all\(\[gsplatLoad, skyboxLoad\]\)/);
     assert.doesNotMatch(viewer, /Promise\.all\(\[gsplatLoad, environmentLoad/);
@@ -170,6 +171,6 @@ test('Metaflow dynamic surfaces already request frames explicitly', async () => 
 test('5.19.2 analytics recovery preserves the upstream and Node contracts', async () => {
     const { readFile } = await import('node:fs/promises');
     const pkg=JSON.parse(await readFile(new URL('../package.json',import.meta.url),'utf8'));const history=JSON.parse(await readFile(new URL('../../metadata/version-history.json',import.meta.url),'utf8'));
-    assert.equal(pkg.version,history.current.appSemver);assert.equal(pkg.devDependencies.playcanvas,'2.22.4');assert.equal((await readFile(new URL('../../.nvmrc',import.meta.url),'utf8')).trim(),'20.19.0');
-    const [index]=await sources('index.ts');assert.match(index,/SuperSplat v1\.35\.2/);
+    assert.equal(pkg.version,history.current.appSemver);assert.equal(pkg.devDependencies.playcanvas,'2.23.0');assert.equal((await readFile(new URL('../../.nvmrc',import.meta.url),'utf8')).trim(),'20.19.0');
+    const [index]=await sources('index.ts');assert.match(index,/SuperSplat v1\.37\.0/);
 });

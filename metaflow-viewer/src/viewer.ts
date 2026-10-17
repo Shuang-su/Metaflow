@@ -18,9 +18,9 @@ import {
     Vec3,
     GSPLAT_DEBUG_LOD,
     GSPLAT_DEBUG_NONE,
-    GSPLAT_LODMODE_DISTANCE,
     GSPLAT_RENDERER_RASTER_CPU_SORT,
     GSPLAT_RENDERER_RASTER_GPU_SORT,
+    LAYERID_SKYBOX,
     platform
 } from 'playcanvas';
 import type { CameraComponent, Entity, GraphicsDevice, GSplatComponent, Layer } from 'playcanvas';
@@ -32,7 +32,7 @@ import type { CaptureResult } from './capture';
 import type { Collision } from './collision';
 import { MeshCollision, TiledVoxelCollision, VoxelCollision } from './collision';
 import { nearlyEquals } from './core/math';
-import type { DebugPanel } from './debug';
+import { DebugPanel } from './debug';
 import { captureCameraState, restoreCameraState } from './debug/camera-state';
 import { handoffIdentity, saveDirectorPosition } from './director-handoff';
 import type { DirectorPosition } from './director-handoff';
@@ -43,11 +43,15 @@ import { InputController } from './input-controller';
 import { MeshDebugOverlay } from './mesh-debug-overlay';
 import { NavCursor } from './nav-cursor';
 import { Picker } from './picker';
+import type { ScenePicker } from './picker';
+import { FrameDepthPicker } from './picker-frame-depth';
+import { StochasticSplatRenderer } from './render/stochastic-splat-renderer';
 import type { ExperienceSettings, PostEffectSettings } from './settings';
 import { observeInitialLodProgress } from './streaming-progress';
+import { createSwitchingPicker } from './switching-picker';
 import type { LoadMode, CaptureOptions, Config, Global, XrMode } from './types';
 import { TiledVoxelDebugOverlay, VoxelDebugOverlay } from './voxel-debug-overlay';
-import { initXr } from './xr';
+import { initXr, standaloneHeadset } from './xr';
 
 function resolveRevealDotProfile(config: Config, loadingMode: LoadMode): RevealDotProfile {
     if (loadingMode === 'legacy-sog' && config.experienceType === 'character') {
@@ -86,6 +90,30 @@ const rendererTable: Record<Config['renderer'], number> = {
     webgl: GSPLAT_RENDERER_RASTER_CPU_SORT,
     webgpu: GSPLAT_RENDERER_RASTER_GPU_SORT
 };
+
+// quality budget, millions of splats
+const budgets = {
+    mobile: {
+        low: 1,
+        high: 2
+    },
+    desktop: {
+        low: 2,
+        high: 4
+    }
+};
+
+// budget while an XR session runs on a standalone headset, millions of splats. On a Quest 3,
+// 1M splats render at about 30 fps (40 at 0.8x resolution), against 10 fps at the 4M desktop
+// budget it otherwise gets
+const standaloneXrBudget = 1;
+
+// how much further away parts of the scene behind the camera count when choosing their detail,
+// which saves a lot of splats while orbiting, and the turn after which detail is chosen again.
+// XR sessions choose detail by distance alone, with no penalty and no turn-triggered choices: a
+// head turning less than 90 degrees brought the coarse detail chosen for behind it into view
+const lodBehindPenalty = 5;
+const lodUpdateAngle = 90;
 
 type GSplatOctreeResourceLike = {
     octree?: {
@@ -268,7 +296,7 @@ class Viewer {
 
     cameraManager: CameraManager;
 
-    picker: Picker;
+    picker: ScenePicker;
 
     voxelOverlay: VoxelDebugOverlay | TiledVoxelDebugOverlay | null = null;
 
@@ -287,6 +315,16 @@ class Viewer {
     sceneBackgroundGradient: NonNullable<ExperienceSettings['background']['gradient']> | null = null;
 
     sceneBackgroundRevealed = false;
+
+    /** The opt-in stochastic renderer (WebGPU only); null when the engine's sorted renderer draws. */
+    splatRenderer: StochasticSplatRenderer | null = null;
+
+    /**
+     * The engine's MiniStats panel once first shown (`?ministats` or the debug panel), else null.
+     * Hiding disables it rather than destroying it.
+     */
+    miniStats: MiniStats | null = null;
+
     /** Set once {@link destroy} has run. Load continuations check it and bail. */
     destroyed = false;
 
@@ -301,6 +339,14 @@ class Viewer {
     // captures are serialised: they share the viewer camera, so concurrent ones would
     // interleave the redirect/restore and could leave it mis-targeted
     private captureQueue: Promise<unknown> = Promise.resolve();
+
+    private captureActive = false;
+
+    private stochasticActive = false;
+
+    private switchingPicker: ReturnType<typeof createSwitchingPicker> | null = null;
+
+    private skyLayerEnabledBeforeAr: boolean | null = null;
 
     // Resolves once the first complete frame has rendered, and rejects if the viewer is
     // destroyed before that — the frame event it waits on is gone by then, so a capture
@@ -372,10 +418,12 @@ class Viewer {
         const glsl = ShaderChunks.get(app.graphicsDevice, 'glsl');
         const wgsl = ShaderChunks.get(app.graphicsDevice, 'wgsl');
         const gradient = this.sceneBackgroundRevealed ? this.sceneBackgroundGradient : null;
-        const glslComposePS = this.origChunks.glsl.composePS || glsl.get('composePS');
-        const wgslComposePS = this.origChunks.wgsl.composePS || wgsl.get('composePS');
-        const glslComposeMainEndPS = this.origChunks.glsl.composeMainEndPS || glsl.get('composeMainEndPS') || '';
-        const wgslComposeMainEndPS = this.origChunks.wgsl.composeMainEndPS || wgsl.get('composeMainEndPS') || '';
+        const glslComposePS = this.origChunks.glsl.composePS ?? glsl.get('composePS');
+        const wgslComposePS = this.origChunks.wgsl.composePS ?? wgsl.get('composePS');
+        // An empty original chunk is a valid snapshot. Falling back to the current patched
+        // chunk would append the gradient again each time XR restores CameraFrame.
+        const glslComposeMainEndPS = this.origChunks.glsl.composeMainEndPS ?? glsl.get('composeMainEndPS') ?? '';
+        const wgslComposeMainEndPS = this.origChunks.wgsl.composeMainEndPS ?? wgsl.get('composeMainEndPS') ?? '';
 
         this.origChunks.glsl.composePS = glslComposePS;
         this.origChunks.wgsl.composePS = wgslComposePS;
@@ -475,43 +523,49 @@ class Viewer {
         // configure the camera
         this.configureCamera(settings);
 
-        // reconfigure camera when entering/exiting XR
-        const configureXrCamera = () => {
-            if (!this.destroyed) this.configureCamera(settings);
-        };
-        const xrStart = app.xr.on('start', configureXrCamera);
-        const xrEnd = app.xr.on('end', configureXrCamera);
-        this.onDestroy(() => {
-            xrStart.off();
-            xrEnd.off();
-        });
-
-        // construct debug ministats
-        if (config.ministats) {
-            const options = MiniStats.getDefaultOptions() as any;
-            options.cpu.enabled = false;
-            options.stats = options.stats.filter((s: any) => s.name !== 'DrawCalls');
-            options.stats.push(
-                {
-                    name: 'VRAM',
-                    stats: ['vram.tex'],
-                    decimalPlaces: 1,
-                    multiplier: 1 / (1024 * 1024),
-                    unitsName: 'MB',
-                    watermark: 1024
-                },
-                {
-                    name: 'Splats',
-                    stats: ['frame.gsplats'],
-                    decimalPlaces: 3,
-                    multiplier: 1 / 1000000,
-                    unitsName: 'M',
-                    watermark: 5
-                }
-            );
-
-            new MiniStats(app, options);
+        // The stochastic renderer, when opted in. Created before the first frame so it can
+        // switch the engine's own splat renderer off as soon as the engine creates it. An
+        // instance without the flag never constructs it, and the sorted path is untouched.
+        if (config.stochastic && renderer === 'webgpu') {
+            const worldLayer = app.scene.layers.getLayerByName('World');
+            // the largest budget this instance can ask for must fit the device's storage binding
+            const budget =
+                (config.budget && config.budget > 0
+                    ? config.budget
+                    : (platform.mobile ? budgets.mobile : budgets.desktop).high) * 1000000;
+            if (!StochasticSplatRenderer.cacheFits(app.graphicsDevice, budget)) {
+                console.warn(
+                    `stochastic renderer: a ${budget / 1000000}M splat budget exceeds this device's storage binding limit; the sorted renderer draws`
+                );
+            } else if (worldLayer) {
+                this.splatRenderer = new StochasticSplatRenderer(app, camera.camera, worldLayer, {
+                    source: config.splatSource,
+                    variant: config.variant
+                });
+                this.stochasticActive = true;
+                // announced on the first frame rather than here: createViewer resolves after this
+                // constructor, so a page can only subscribe once loading is under way
+                events.once('firstFrame', () => events.fire('splatRenderer:ready', this.splatRenderer));
+            }
         }
+
+        // reconfigure camera when entering/exiting XR. The stochastic renderer has no stereo
+        // path yet, so the engine's renderer draws the splats for the session. Follows xrMode
+        // rather than app.xr.active, which still reports the session while its 'end' handlers run
+        const xrModeChanged = events.on('xrMode:changed', () => {
+            if (this.destroyed) return;
+            this.configureCamera(settings);
+            this.updateSplatRenderer();
+            global.root.classList.toggle('sse-arActive', state.xrMode === 'ar');
+        });
+        this.onDestroy(() => xrModeChanged.off());
+
+        // debug ministats, from the flag at start and the debug panel's toggle after
+        this.setMiniStats(config.ministats);
+        this.onDestroy(() => {
+            this.miniStats?.destroy();
+            this.miniStats = null;
+        });
 
         const prevProj = new Mat4();
         const prevWorld = new Mat4();
@@ -524,7 +578,7 @@ class Viewer {
 
             if (!app.renderNextFrame) {
                 if (
-                    config.ministats ||
+                    this.miniStats?.enabled ||
                     !nearlyEquals(world.data, prevWorld.data) ||
                     !nearlyEquals(proj.data, prevProj.data)
                 ) {
@@ -740,9 +794,8 @@ class Viewer {
         // which nodes that first pass pulls in.
 
         // these two allow LOD behind camera to drop, saves lots of splats
-        gsplat.lodUpdateAngle = 90;
-        gsplat.lodBehindPenalty = 5;
-        gsplat.lodMode = GSPLAT_LODMODE_DISTANCE;
+        gsplat.lodUpdateAngle = lodUpdateAngle;
+        gsplat.lodBehindPenalty = lodBehindPenalty;
         gsplat.minContribution = 1;
         gsplat.alphaClip = 1 / 255;
         gsplat.antiAlias = config.aa;
@@ -869,13 +922,27 @@ class Viewer {
             let environmentEntity: Entity | null = null;
             let collision = collisionReady;
 
+            this.xr.setManipulationTarget(global.sceneRoot);
+
             // get scene bounding box
             const gsplatBbox = gsplatComponent.customAabb;
             if (gsplatBbox) {
                 sceneBound.setFromTransformedAabb(gsplatBbox, gsplatEntity.getWorldTransform());
             }
 
-            this.picker = new Picker(app, camera);
+            // the stochastic renderer leaves its frame's depth behind, so no pick pass is needed
+            const sortedPicker = new Picker(app, camera);
+            this.picker = sortedPicker;
+            if (this.splatRenderer) {
+                this.switchingPicker = createSwitchingPicker(
+                    sortedPicker,
+                    new FrameDepthPicker(app, camera, this.splatRenderer),
+                    () => this.stochasticActive
+                );
+                this.picker = this.switchingPicker;
+            }
+            // for development pages (the bench measures pick noise), as splatRenderer:ready
+            events.fire('picker:ready', this.picker);
             this.inputController = new InputController(global, this.picker);
             this.cameraManager = new CameraManager(global, sceneBound, collision);
             applyCamera(this.cameraManager.camera);
@@ -899,7 +966,7 @@ class Viewer {
                 }
                 if (nextCollision instanceof VoxelCollision && renderer !== 'webgl') {
                     setOverlayLoadingStatus('正在准备体素调试叠层...');
-                    const overlay = new VoxelDebugOverlay(app, nextCollision, camera);
+                    const overlay = new VoxelDebugOverlay(app, nextCollision, camera, global.sceneRoot);
                     overlay.mode = config.heatmap ? 'heatmap' : 'overlay';
                     this.voxelOverlay = overlay;
                     state.hasCollisionOverlay = true;
@@ -909,7 +976,7 @@ class Viewer {
                     });
                 } else if (nextCollision instanceof TiledVoxelCollision && renderer !== 'webgl') {
                     setOverlayLoadingStatus('正在准备 tiled voxel 调试叠层...');
-                    const overlay = new TiledVoxelDebugOverlay(app, nextCollision, camera);
+                    const overlay = new TiledVoxelDebugOverlay(app, nextCollision, camera, global.sceneRoot);
                     overlay.mode = config.heatmap ? 'heatmap' : 'overlay';
                     this.voxelOverlay = overlay;
                     state.hasCollisionOverlay = true;
@@ -919,7 +986,13 @@ class Viewer {
                     });
                 } else if (nextCollision instanceof MeshCollision) {
                     setOverlayLoadingStatus('正在准备网格碰撞叠层...');
-                    const overlay = new MeshDebugOverlay(app, nextCollision, camera, !!this.cameraFrame);
+                    const overlay = new MeshDebugOverlay(
+                        app,
+                        nextCollision,
+                        camera,
+                        !!this.cameraFrame,
+                        global.sceneRoot
+                    );
                     this.meshOverlay = overlay;
                     state.hasCollisionOverlay = true;
                     events.on('collisionOverlayEnabled:changed', (value: boolean) => {
@@ -992,6 +1065,13 @@ class Viewer {
 
             // collision may already have landed while the splats were still streaming
             if (collisionReady) attachCollision(collisionReady);
+
+            if (!config.noui) {
+                this.debugPanel = new DebugPanel(global, this.cameraManager, this.picker, this.splatRenderer, {
+                    shown: () => !!this.miniStats?.enabled,
+                    show: (value) => this.setMiniStats(value)
+                });
+            }
 
             const { gsplat } = app.scene;
             const mainSubjectBounds = (gsplatComponent.customAabb ?? sceneBound).clone();
@@ -1110,22 +1190,13 @@ class Viewer {
                 return;
             }
 
-            // quality budget
-            const budgets = {
-                mobile: {
-                    low: 1,
-                    high: 2
-                },
-                desktop: {
-                    low: 2,
-                    high: 4
-                }
-            };
-
             const applyPerfSettings = () => {
                 const budget = () => {
                     if (config.budget !== undefined && Number.isFinite(config.budget) && config.budget > 0) {
                         return config.budget;
+                    }
+                    if (standaloneHeadset && state.xrMode !== null) {
+                        return standaloneXrBudget;
                     }
                     const quality = platform.mobile ? budgets.mobile : budgets.desktop;
                     return state.performanceMode ? quality.low : quality.high;
@@ -1136,6 +1207,8 @@ class Viewer {
                 // threshold avoids the v1.29.0 every-frame SH regression,
                 // while 1° / 0.2° keeps view-dependent color responsive.
                 gsplat.colorUpdateAngle = state.performanceMode ? 1 : 0.2;
+                gsplat.lodBehindPenalty = state.xrMode === null ? lodBehindPenalty : 1;
+                gsplat.lodUpdateAngle = state.xrMode === null ? lodUpdateAngle : 0;
                 gsplatComponent.lodRangeMin = 0;
                 gsplatComponent.lodRangeMax = 1000;
                 // Restore the default cull threshold lowered during the streaming reveal.
@@ -1198,6 +1271,7 @@ class Viewer {
                         }
                         highDetailOpened = true;
                         events.on('performanceMode:changed', applyPerfSettings);
+                        events.on('xrMode:changed', applyPerfSettings);
                         applyPerfSettings();
                     };
 
@@ -1215,7 +1289,12 @@ class Viewer {
                         openHighDetailLod();
                     }
 
-                    gsplat.renderer = rendererTable[renderer];
+                    // the stochastic renderer consumes the engine's world under whatever
+                    // renderer mode the engine resolved; switching modes here would rebuild
+                    // the work buffer for nothing
+                    if (!this.splatRenderer) {
+                        gsplat.renderer = rendererTable[renderer];
+                    }
 
                     // wait for the first valid frame to complete rendering
                     app.once('frameend', () => {
@@ -1273,6 +1352,7 @@ class Viewer {
 
     selectAnnotation(index: number | null): void {
         this.requireLoaded('selectAnnotation');
+        if (this.global.state.xrMode !== null) return;
         const { settings, state, app } = this.global;
         if (index !== null) {
             if (!Number.isInteger(index) || index < 0 || index >= settings.annotations.length) {
@@ -1345,7 +1425,9 @@ class Viewer {
             const savedTime = state.animationTime;
             const savedPaused = state.animationPaused;
             state.animationPaused = true;
+            this.captureActive = true;
             try {
+                this.updateSplatRenderer();
                 const grab = this.capture.grab({
                     time,
                     width,
@@ -1360,28 +1442,35 @@ class Viewer {
                 });
                 return await this.untilDestroyed(grab);
             } finally {
-                if (!this.destroyed) {
-                    const nextFrame = async () => {
-                        let done!: () => void;
-                        const frame = new Promise<void>((resolve) => {
-                            done = resolve;
-                            app.once('frameend', done);
-                        });
-                        app.renderNextFrame = true;
-                        try {
-                            await this.untilDestroyed(frame);
-                        } finally {
-                            app.off('frameend', done);
-                        }
-                    };
-                    if (state.hasAnimation) {
-                        this.global.events.fire('scrubAnim', savedTime, false);
-                        await nextFrame();
-                    }
+                try {
                     if (!this.destroyed) {
-                        restoreCameraState(this.cameraManager, state, savedCameraState);
-                        await nextFrame();
+                        const nextFrame = async () => {
+                            let done!: () => void;
+                            const frame = new Promise<void>((resolve) => {
+                                done = resolve;
+                                app.once('frameend', done);
+                            });
+                            app.renderNextFrame = true;
+                            try {
+                                await this.untilDestroyed(frame);
+                            } finally {
+                                app.off('frameend', done);
+                            }
+                        };
+                        if (state.hasAnimation) {
+                            this.global.events.fire('scrubAnim', savedTime, false);
+                            await nextFrame();
+                        }
+                        if (!this.destroyed) {
+                            restoreCameraState(this.cameraManager, state, savedCameraState);
+                            await nextFrame();
+                        }
+                    }
+                } finally {
+                    this.captureActive = false;
+                    if (!this.destroyed) {
                         state.animationPaused = savedPaused;
+                        this.updateSplatRenderer();
                     }
                 }
             }
@@ -1396,6 +1485,15 @@ class Viewer {
             }
         );
         return result;
+    }
+
+    private updateSplatRenderer(): void {
+        const active = !!this.splatRenderer && !this.captureActive && this.global.state.xrMode === null;
+        if (active === this.stochasticActive) return;
+        this.switchingPicker?.invalidate();
+        this.stochasticActive = active;
+        this.splatRenderer?.setEnabled(active);
+        this.global.app.renderNextFrame = true;
     }
 
     /**
@@ -1428,6 +1526,52 @@ class Viewer {
             return;
         }
         this.disposers.push(fn);
+    }
+
+    /**
+     * Show or hide the engine's MiniStats panel. While shown the viewer renders every frame, so
+     * the graphs keep moving.
+     */
+    setMiniStats(value: boolean) {
+        if (value === !!this.miniStats?.enabled) return;
+        // hidden by disabling rather than destroying: the engine's destroy() leaves its stats
+        // timers reading every frame and its buffers allocated, so a panel per toggle would pile
+        // them up until teardown
+        if (this.miniStats) {
+            this.miniStats.enabled = value;
+            // the panel's transparent div would keep catching clicks over the canvas
+            this.miniStats.div.style.display = value ? '' : 'none';
+            if (value) {
+                // enabling turns every graph on, the text-only size's too: its size puts them back
+                const size = this.miniStats.activeSizeIndex;
+                this.miniStats.activeSizeIndex = size;
+                this.global.app.renderNextFrame = true;
+            }
+            return;
+        }
+        const options = MiniStats.getDefaultOptions() as NonNullable<ConstructorParameters<typeof MiniStats>[1]>;
+        options.cpu.enabled = false;
+        options.stats = options.stats.filter((s) => s.name !== 'DrawCalls');
+        options.stats.push(
+            {
+                name: 'VRAM',
+                stats: ['vram.tex'],
+                decimalPlaces: 1,
+                multiplier: 1 / (1024 * 1024),
+                unitsName: 'MB',
+                watermark: 1024
+            } as (typeof options.stats)[number],
+            {
+                name: 'Splats',
+                stats: ['frame.gsplats'],
+                decimalPlaces: 3,
+                multiplier: 1 / 1000000,
+                unitsName: 'M',
+                watermark: 5
+            } as (typeof options.stats)[number]
+        );
+        this.miniStats = new MiniStats(this.global.app, options);
+        this.global.app.renderNextFrame = true;
     }
 
     /**
@@ -1465,6 +1609,8 @@ class Viewer {
         this.tiledVoxelCollision?.destroy();
         this.gsplatReveal?.destroy();
         this.picker?.release();
+        this.splatRenderer?.destroy();
+        this.splatRenderer = null;
         this.capture?.destroy();
         this.capture = null;
         if (this.cameraFrame) {
@@ -1517,7 +1663,7 @@ class Viewer {
     // configure camera based on application mode and post process settings
     configureCamera(settings: ExperienceSettings) {
         const { global } = this;
-        const { app, config, camera } = global;
+        const { app, config, camera, state } = global;
         const { postEffectSettings } = settings;
         this.applyBackground(settings);
 
@@ -1526,7 +1672,8 @@ class Viewer {
 
         const postFxRequested = !config.nofx && (anyPostEffectEnabled(postEffectSettings) || highPrecisionRendering);
 
-        const enableCameraFrame = !app.xr.active && postFxRequested;
+        // CameraFrame has no XR path, so post effects are off for the session
+        const enableCameraFrame = state.xrMode === null && postFxRequested;
 
         if (enableCameraFrame) {
             // create instance
@@ -1589,9 +1736,18 @@ class Viewer {
             // restore original isColorBufferSrgb behavior
             setBackBufferSrgb(app.graphicsDevice, false);
 
-            if (!app.xr.active) {
-                camera.camera.toneMapping = tonemapTable[settings.tonemapping];
-            }
+            camera.camera.toneMapping = tonemapTable[settings.tonemapping];
+            if (state.xrMode === 'ar') camera.camera.clearColor = new Color(0, 0, 0, 0);
+        }
+
+        // the sky would cover AR's passthrough view entirely, so it is hidden for the session
+        const skyLayer = app.scene.layers.getLayerById(LAYERID_SKYBOX);
+        if (skyLayer && state.xrMode === 'ar') {
+            this.skyLayerEnabledBeforeAr ??= skyLayer.enabled;
+            skyLayer.enabled = false;
+        } else if (skyLayer && this.skyLayerEnabledBeforeAr !== null) {
+            skyLayer.enabled = this.skyLayerEnabledBeforeAr;
+            this.skyLayerEnabledBeforeAr = null;
         }
 
         // Mesh overlay bakes its vertex colors based on the current gamma

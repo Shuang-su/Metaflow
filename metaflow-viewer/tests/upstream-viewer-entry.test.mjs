@@ -34,8 +34,15 @@ describe('the /viewer entry', () => {
             ['playcanvas'],
             'the runtime entry should import nothing but the engine'
         );
-        // Keep the upstream entry budget, including Metaflow analytics and replay dependencies.
-        assert.ok(source.length < 1_500_000, `dist/viewer.js is ${source.length} bytes — is the engine bundled?`);
+        // Inspect the bundled modules directly: optional renderer shaders legitimately add
+        // code, whereas engine source must remain external regardless of the entry's size.
+        const map = JSON.parse(read('../dist/viewer.js.map'));
+        assert.ok(map.sources.length > 0, 'the runtime source map must identify its bundled modules');
+        assert.deepEqual(
+            map.sources.filter((path) => path.replaceAll('\\', '/').includes('/node_modules/playcanvas/')),
+            [],
+            'the runtime entry must not include any PlayCanvas engine or script implementation'
+        );
     });
 
     it('ships every file its package exports name', () => {

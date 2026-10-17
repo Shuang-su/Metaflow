@@ -267,6 +267,13 @@ const createApp = async (canvas: HTMLCanvasElement, config: Config) => {
         keyboard: new Keyboard(window)
     });
 
+    // The stochastic renderer never sorts on the cpu, so the per-splat centres the engine
+    // reads back for its cpu sort (12 bytes each, plus a gpu readback per file) are dead
+    // weight. Read once per file at load, so it has to be set before any asset loads.
+    if (config.stochastic && renderer === 'webgpu') {
+        app.scene.gsplatCentersEnabled = false;
+    }
+
     // enable anonymous CORS for image loading in safari (must be set before any
     // texture asset starts loading, otherwise the <img> is fetched without the
     // crossorigin attribute and WebGL rejects it with SecurityError)
@@ -397,6 +404,9 @@ const resolveConfig = (options: CreateViewerOptions): Config => ({
     colorize: options.colorize ?? false,
     fullload: options.fullload ?? false,
     aa: options.aa ?? false,
+    stochastic: options.stochastic ?? false,
+    splatSource: options.splatSource ?? 'workbuffer',
+    variant: options.variant ?? '',
     budget: options.budget,
     heatmap: options.heatmap ?? false,
     debug: options.debug ?? false,
@@ -610,8 +620,11 @@ const createViewer = async (options: CreateViewerOptions): Promise<ViewerHandle>
         renderer: config.renderer
     });
 
+    const sceneRoot = new Entity('scene root', app);
+    app.root.addChild(sceneRoot);
     const global: Global = {
         app,
+        sceneRoot,
         settings: importedSettings,
         config,
         state,
@@ -736,7 +749,12 @@ const createViewer = async (options: CreateViewerOptions): Promise<ViewerHandle>
     // this before touching the app
     let destroyed = false;
 
-    const environmentLoad = config.environmentUrl ? loadEnvironment(app, config, () => destroyed) : null;
+    const environmentLoad = config.environmentUrl
+        ? loadEnvironment(app, config, () => destroyed).then((entity) => {
+              if (entity && !destroyed) entity.reparent(sceneRoot);
+              return entity;
+          })
+        : null;
     const gsplatLoad = (async () => {
         state.loadingStage = 'detect';
         state.loadingStatus = '正在识别资源结构...';
@@ -764,6 +782,7 @@ const createViewer = async (options: CreateViewerOptions): Promise<ViewerHandle>
                 },
                 () => destroyed
             );
+            if (entity && !destroyed) entity.reparent(sceneRoot);
             state.loadingStage = 'prepare';
             state.loadingStatus = '主体模型已就绪，正在准备首帧...';
             state.progress = -1;
@@ -854,7 +873,14 @@ const createViewer = async (options: CreateViewerOptions): Promise<ViewerHandle>
     };
 
     // The built-in controls use the same handle returned to an embedding host.
-    const disposeUI = config.ui ? initUI(global, handle, () => viewer.picker) : null;
+    const disposeUI = config.ui
+        ? initUI(
+              global,
+              handle,
+              () => viewer.picker,
+              () => viewer.cameraManager?.transitionProgress() ?? 1
+          )
+        : null;
     viewer.onDestroy(() => {
         destroyed = true;
     });
@@ -871,7 +897,7 @@ const createViewer = async (options: CreateViewerOptions): Promise<ViewerHandle>
     return handle;
 };
 
-console.log(`Metaflow Viewer v${appVersion} | SuperSplat v1.35.2 | Engine v${engineVersion} (${engineRevision})`);
+console.log(`Metaflow Viewer v${appVersion} | SuperSplat v1.37.0 | Engine v${engineVersion} (${engineRevision})`);
 
 export type { CaptureResult } from './capture';
 export type { CreateViewerOptions, ViewerAssets, ViewerFlags } from './options';

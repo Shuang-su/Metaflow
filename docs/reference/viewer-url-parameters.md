@@ -76,6 +76,9 @@ JSON 结构用于验证所选入口，不会改选另一个 parser。损坏的 `
 | `noanim` | 禁止默认动画自动播放 |
 | `webgl` | 强制 WebGL；未设置时使用 WebGPU 路线 |
 | `aa` | 启用 Gaussian Splat 抗锯齿 |
+| `stochastic` | 显式启用实验随机渲染，仅 WebGPU；默认关闭，WebGL／XR 使用排序路径，截图暂时切回排序后恢复预览 |
+| `splatSource` | 随机渲染的数据来源：`workbuffer`（默认）、`direct`、`light`；开发实验参数 |
+| `variant` | 随机渲染实验参数，例如 `spp:1,taaMax:256`；不会作为普通设置开关 |
 | `nofx` | 禁用 CameraFrame 后处理 |
 | `noreveal` | 禁用首帧 radial reveal |
 | `hpr` | 空、`1`、`true`、`enable` 表示强制启用；其他显式值表示关闭 |

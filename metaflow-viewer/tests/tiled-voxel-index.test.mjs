@@ -201,7 +201,7 @@ test('global gsplat reveal is shader-based, color-neutral, and skippable by URL'
     assert.match(viewer, /startGsplatReveal = \(revealCallbacks\?:/);
     assert.match(viewer, /onSubjectRevealed: openHighDetailLod/);
     assert.match(viewer, /highDetailOpened/);
-    assert.match(viewer, /events\.on\('performanceMode:changed', applyPerfSettings\);\s+applyPerfSettings\(\);/);
+    assert.match(viewer, /events\.on\('performanceMode:changed', applyPerfSettings\);\s+events\.on\('xrMode:changed', applyPerfSettings\);\s+applyPerfSettings\(\);/);
     assert.match(viewer, /environmentLoad: Promise<Entity \| null> \| null/);
     assert.match(viewer, /Promise\.all\(\[gsplatLoad, skyboxLoad\]\)/);
     assert.doesNotMatch(viewer, /Promise\.all\(\[gsplatLoad, environmentLoad/);

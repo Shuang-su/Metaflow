@@ -7,8 +7,12 @@ import {
     BUFFERUSAGE_COPY_DST,
     Compute,
     CULLFACE_NONE,
+    GraphNode,
     Mat4,
+    Mesh,
+    MeshInstance,
     PIXELFORMAT_RGBA8,
+    PRIMITIVE_TRISTRIP,
     SEMANTIC_POSITION,
     Shader,
     SHADERLANGUAGE_WGSL,
@@ -21,7 +25,8 @@ import {
     UniformFormat,
     UNIFORMTYPE_FLOAT,
     UNIFORMTYPE_MAT4,
-    UNIFORMTYPE_UINT
+    UNIFORMTYPE_UINT,
+    Vec3
 } from 'playcanvas';
 import type { AppBase, Entity } from 'playcanvas';
 
@@ -451,6 +456,8 @@ class VoxelDebugOverlay {
 
     private overlayMaterial: ShaderMaterial;
 
+    private quad: MeshInstance;
+
     private nodesBuffer: StorageBuffer;
 
     private leafDataBuffer: StorageBuffer;
@@ -465,13 +472,22 @@ class VoxelDebugOverlay {
 
     private readonly vpTemp = new Mat4();
 
+    private readonly contentInverse = new Mat4();
+
+    private readonly authoredCameraPosition = new Vec3();
+
     /** Whether the overlay is currently rendering. */
     enabled = false;
 
     /** Display mode: 'overlay' for wireframe debug, 'heatmap' for effort visualization. */
     mode: 'overlay' | 'heatmap' = 'overlay';
 
-    constructor(app: AppBase, collision: VoxelCollision, camera: Entity) {
+    constructor(
+        app: AppBase,
+        collision: VoxelCollision,
+        camera: Entity,
+        private readonly sceneRoot?: Entity
+    ) {
         this.app = app;
         this.camera = camera;
         this.collision = collision;
@@ -587,6 +603,21 @@ class VoxelDebugOverlay {
             attributes: { vertex_position: SEMANTIC_POSITION }
         };
         this.overlayMaterial.update();
+
+        // Fullscreen quad in the default draw layer, shown on frames update() composites.
+        // The node is outside the hierarchy, so its fixed transform is synced here once.
+        const mesh = new Mesh(device);
+        mesh.setPositions([-0.5, -0.5, 0, 0.5, -0.5, 0, -0.5, 0.5, 0, 0.5, 0.5, 0]);
+        mesh.update(PRIMITIVE_TRISTRIP);
+        const node = new GraphNode('VoxelOverlayComposite');
+        node.setLocalScale(2, -2, 1);
+        node.getWorldTransform();
+        this.quad = new MeshInstance(mesh, this.overlayMaterial, node);
+        this.quad.cull = false;
+        this.quad.castShadow = false;
+        this.quad.pick = false;
+        this.quad.visible = false;
+        app.scene.defaultDrawLayer.addMeshInstances([this.quad], true);
     }
 
     private createStorageTexture(width: number, height: number): Texture {
@@ -603,6 +634,7 @@ class VoxelDebugOverlay {
     }
 
     update(): void {
+        this.quad.visible = false;
         if (!this.enabled || this.collision.nodes.length === 0) return;
 
         const { app, camera, compute, collision } = this;
@@ -628,6 +660,12 @@ class VoxelDebugOverlay {
         const cam = camera.camera;
         this.vpTemp.mul2(cam.projectionMatrix, cam.viewMatrix);
         this.invVP.copy(this.vpTemp).invert();
+
+        // Collision stays in authored space while XR transforms the visible scene root.
+        if (this.sceneRoot) {
+            this.contentInverse.copy(this.sceneRoot.getWorldTransform()).invert();
+            this.invVP.mul2(this.contentInverse, this.invVP);
+        }
 
         // For legacy v1.0 data, pre-multiply invVP by R_z180 (negate X/Y rows)
         // to transform rays from PlayCanvas world space into the raw voxel space
@@ -660,7 +698,9 @@ class VoxelDebugOverlay {
         compute.setParameter('displayMode', this.mode === 'heatmap' ? 1 : 0);
         compute.setParameter('nodeStride', collision.nodeStride);
 
-        const camPos = camera.getPosition();
+        const camPos = this.sceneRoot
+            ? this.contentInverse.transformPoint(camera.getPosition(), this.authoredCameraPosition)
+            : camera.getPosition();
         let wx = camPos.x,
             wy = camPos.y;
         const wz = camPos.z;
@@ -685,10 +725,12 @@ class VoxelDebugOverlay {
         device.computeDispatch([compute], 'VoxelDebugOverlay');
 
         // Composite overlay on top of the scene
-        app.drawTexture(0, 0, 2, 2, null, this.overlayMaterial);
+        this.quad.visible = true;
     }
 
     destroy(): void {
+        this.app.scene.defaultDrawLayer.removeMeshInstances([this.quad], true);
+        this.quad.destroy();
         this.compute.destroy();
         this.compute.shader.destroy();
         this.overlayMaterial.destroy();
@@ -708,7 +750,8 @@ class TiledVoxelDebugOverlay {
     constructor(
         private readonly app: AppBase,
         private readonly collision: TiledVoxelCollision,
-        private readonly camera: Entity
+        private readonly camera: Entity,
+        private readonly sceneRoot?: Entity
     ) {}
 
     update(): void {
@@ -722,16 +765,12 @@ class TiledVoxelDebugOverlay {
 
         for (const collision of active) {
             if (!this.overlays.has(collision)) {
-                this.overlays.set(collision, new VoxelDebugOverlay(this.app, collision, this.camera));
+                this.overlays.set(collision, new VoxelDebugOverlay(this.app, collision, this.camera, this.sceneRoot));
             }
         }
 
-        if (!this.enabled) {
-            return;
-        }
-
         for (const overlay of this.overlays.values()) {
-            overlay.enabled = true;
+            overlay.enabled = this.enabled;
             overlay.mode = this.mode;
             overlay.update();
         }

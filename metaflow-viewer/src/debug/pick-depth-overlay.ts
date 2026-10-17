@@ -4,8 +4,12 @@ import {
     BlendState,
     CULLFACE_NONE,
     FILTER_NEAREST,
+    GraphNode,
+    Mesh,
+    MeshInstance,
     PIXELFORMAT_R16F,
     PIXELFORMAT_R32F,
+    PRIMITIVE_TRISTRIP,
     RenderTarget,
     SEMANTIC_POSITION,
     ShaderMaterial,
@@ -16,7 +20,7 @@ import {
 import type { AppBase, Entity, Shader } from 'playcanvas';
 
 import { PICK_TRIALS, SURFACE_OPACITY, SURFACE_RADIUS_PX } from '../picker';
-import type { Picker } from '../picker';
+import type { ScenePicker } from '../picker';
 
 // the pick render's samples in a surface disc, and how many of the nearest the quantile needs
 let discPixels = 0;
@@ -185,11 +189,13 @@ class PickDepthOverlay {
 
     private readonly camera: Entity;
 
-    private readonly picker: Picker;
+    private readonly picker: ScenePicker;
 
     private readonly resolveShader: Shader;
 
     private readonly material = new ShaderMaterial();
+
+    private readonly quad: MeshInstance;
 
     private depthTarget: RenderTarget | null = null;
 
@@ -202,7 +208,7 @@ class PickDepthOverlay {
 
     private _enabled = false;
 
-    constructor(app: AppBase, camera: Entity, picker: Picker) {
+    constructor(app: AppBase, camera: Entity, picker: ScenePicker) {
         this.app = app;
         this.camera = camera;
         this.picker = picker;
@@ -243,6 +249,21 @@ class PickDepthOverlay {
             attributes: { vertex_position: SEMANTIC_POSITION }
         };
         material.update();
+
+        // fullscreen quad in the default draw layer, shown on frames draw() allows; the node is
+        // outside the hierarchy, so its fixed transform is synced here once
+        const mesh = new Mesh(app.graphicsDevice);
+        mesh.setPositions([-0.5, -0.5, 0, 0.5, -0.5, 0, -0.5, 0.5, 0, 0.5, 0.5, 0]);
+        mesh.update(PRIMITIVE_TRISTRIP);
+        const node = new GraphNode('PickDepthColour');
+        node.setLocalScale(2, -2, 1);
+        node.getWorldTransform();
+        this.quad = new MeshInstance(mesh, material, node);
+        this.quad.cull = false;
+        this.quad.castShadow = false;
+        this.quad.pick = false;
+        this.quad.visible = false;
+        app.scene.defaultDrawLayer.addMeshInstances([this.quad], true);
     }
 
     get enabled() {
@@ -259,6 +280,7 @@ class PickDepthOverlay {
             this.app.off('frameend', this.onFrameEnd);
             this.app.off('prerender', this.onPrerender);
             this.resolvedRenders = -1;
+            this.quad.visible = false;
         }
         this.app.renderNextFrame = true;
     }
@@ -307,14 +329,17 @@ class PickDepthOverlay {
     }
 
     private draw() {
+        this.quad.visible = false;
         // nothing resolved yet: the first frame's end resolves, and asks for the next
         if (!this.depthTarget || this.resolvedRenders < 0 || this.camera.camera.renderTarget) return;
         this.material.setParameter('surfaceDepth', this.depthTarget.colorBuffer);
-        this.app.drawTexture(0, 0, 2, 2, null, this.material);
+        this.quad.visible = true;
     }
 
     destroy() {
         this.enabled = false;
+        this.app.scene.defaultDrawLayer.removeMeshInstances([this.quad], true);
+        this.quad.destroy();
         this.material.destroy();
         this.resolveShader.destroy();
         this.depthTarget?.colorBuffer.destroy();
