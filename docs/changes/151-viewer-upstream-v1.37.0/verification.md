@@ -1,6 +1,6 @@
 # MF-151 verification and release record
 
-Status: implementation preparation, not released. [Issue #151](https://github.com/Shuang-su/Metaflow/issues/151), [Spec](spec.md), [approved Plan](plan.md).
+Status: local acceptance complete; final exact-head CI and production release pending. [Issue #151](https://github.com/Shuang-su/Metaflow/issues/151), [Spec](spec.md), [approved Plan](plan.md).
 
 2026-10-18 baseline: remote main `440ec98af66aaed83207e2ce8731a85814703a7b`; primary local main `2c548d14213e096a1f967475a534d3b5d881deda` with 22 local-only commits and the unrelated untracked Swiftgram directory. Reused clean isolated worktree on `codex/mf-151-viewer-1370`; protection branch `codex/protect-main-20261018-v5220` retains local main. No source resource edits.
 
@@ -55,3 +55,5 @@ Storage buffers grow by ~0.11 MiB on single scenes and ~1.85 MiB initially on Da
 - Supplemental XR tests exposed a real gradient shader restoration failure: empty original `composeMainEndPS` was treated as missing, causing repeated gradient declarations after CameraFrame recreation. Preserve empty snapshots with nullish fallback; the actual method now passes four repeated restore/reapply cycles in both shader languages. Browser Dayun XR budget/gradient restoration is rechecked with no shader errors. HPR/postprocessing restoration, direct/light source flags, WebGL stochastic fallback and no monolithic point loss also pass.
 - Initial local dev E2E was 5/6: trace proves the failing document was HTTP 200 with **zero bytes** while Rollup's initial watcher build replaced HTML. The assertion remains unchanged. The dev E2E launcher now waits for the watcher's full initial END before exposing its server, and owns watcher/server teardown. The watch source-mutation probe independently verifies changed TS reaches the bundle, restoration removes it, and all three development pages are emitted.
 - Initial exact-head CI `39066837889` passed at `f9f020106`; the new gradient and dev-start corrections require a fresh exact-head run. Build E2E 6/6, package tarball validation (`publint 0.3.25`) passes; no package was published. Remaining final run results and production facts follow below.
+
+- Corrected local dev E2E: 6/6 pass, unchanged assertions. Final local unit suite: 175/175. Optional renderer/XR browser matrix: 6/6, no console shader errors; all nine locales pass. The complete new stage reuses the verified old payload by hard links, with release JSON copied to new inodes; the old deployment is untouched.

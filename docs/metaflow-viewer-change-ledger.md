@@ -713,3 +713,8 @@ The 2026-08-15 Viewer 5.19.2 release-record commit updated package/version/index
 - [MF-151](https://github.com/Shuang-su/Metaflow/issues/151) / [PR152](https://github.com/Shuang-su/Metaflow/pull/152)：同步稳定 SuperSplat Viewer v1.37.0（`cd0e316e397929ffa87abd4833f73f8a0bd1fd2b`）、PlayCanvas 2.23.0 和必要构建依赖；Node 20.19.0，未导入未合并的上游 #328。主体与环境整体 XR 抓取，进入失败/退出恢复；标注和调试几何跟随。随机 WebGPU 预览默认关闭，captureFrame 始终排序并恢复预览/拾取。
 - 保留 Safari 恢复、字节级 LOD 进度、图片先于 UI、透明加载、官方独立/组合 Logo 及动画、九语言、旧 settings 和现有接口。100 资源对象/文件/路由和 schema 1.2 原值；Editor/Director 依赖与产物不变。
 - 本地构建/类型/lint/格式、单元、Chromium/WebKit/Safari、4K 并发/失败恢复、延迟环境、实例销毁和三轮性能对照已记录；最终 CI、候选、生产回读与15分钟观察在[验证记录](changes/151-viewer-upstream-v1.37.0/verification.md)追加。无实体头显，不宣称硬件验收。
+
+
+### `5.22.0` · `26844330979d30a37615f625cae659bffbcd9508` · XR gradient restoration candidate
+
+- MF-151 / PR152：保留空的原始 compose shader 片段，修复退出 XR 重建 CameraFrame 后重复追加渐变导致的编译错误；重复往返行为单测及 WebGL/WebGPU/HPR 场景恢复验证。开发 E2E 等完整初始 watch build 再开放服务，避免读取正在写入的空 HTML；不放宽原有可见性断言。初始来源 `6b7212de69279943f03347d5815aa67fc7a23e14` 记为未发布候选维护。

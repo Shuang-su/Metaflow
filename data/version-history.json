@@ -1,14 +1,14 @@
 {
   "schemaVersion": "1.1",
   "cutoffGitRef": "c613a87",
-  "documentedThrough": "6b7212de69279943f03347d5815aa67fc7a23e14",
+  "documentedThrough": "26844330979d30a37615f625cae659bffbcd9508",
   "defaultResourceVersion": "1.0a",
   "current": {
     "displayVersion": "5.22.0",
     "appSemver": "5.22.0",
     "indexSchemaVersion": "1.2",
     "date": "2026-10-18",
-    "gitRef": "6b7212de69279943f03347d5815aa67fc7a23e14",
+    "gitRef": "26844330979d30a37615f625cae659bffbcd9508",
     "historyUrl": "/data/version-history.json",
     "upstream": {
       "repository": "playcanvas/supersplat-viewer",
@@ -411,6 +411,11 @@
       "gitRef": "f1284501fcfc7454d78f3db9b9eabc6dd829e49a",
       "date": "2026-10-10",
       "summary": "MF-142: format brand CSS and record candidate animation validation"
+    },
+    {
+      "gitRef": "6b7212de69279943f03347d5815aa67fc7a23e14",
+      "date": "2026-10-18",
+      "summary": "MF-151 initial upstream 1.37.0 integration checkpoint; consolidated with XR gradient restoration into 5.22.0."
     }
   ],
   "entries": [
@@ -1998,7 +2003,7 @@
       "type": "feature",
       "scope": "viewer",
       "date": "2026-10-18",
-      "gitRef": "6b7212de69279943f03347d5815aa67fc7a23e14",
+      "gitRef": "26844330979d30a37615f625cae659bffbcd9508",
       "summary": "feat(viewer): adopt SuperSplat v1.37.0 and PlayCanvas 2.23.0 with whole-scene XR and opt-in stochastic preview",
       "trace": {
         "changeId": "MF-151",
