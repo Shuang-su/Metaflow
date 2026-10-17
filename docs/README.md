@@ -1,12 +1,14 @@
 # Metaflow 文档中心
 
-这里汇总 Metaflow Viewer、Editor、资源索引、发布维护和历史审计资料。根目录 [README](../README.md) 用于快速了解项目；具体操作与当前契约以本目录的现行文档和机器事实源为准。
+这里汇总 Metaflow 的产品概览、Viewer／Editor 操作手册、资源索引、发布维护与历史资料。先从 [八产品全景](../README.md#产品全景) 或 [项目概览](getting-started/overview.md) 选择工具；具体操作与当前契约以本目录的现行文档和机器事实源为准。
+
+Studio、Convert、Manage、App、Daily 的入口与成熟度随各产品分别说明；Director 的线上 ACG 实验见 [使用边界与构建](../metaflow-director/README.md)。Nav 等方向见 [扩展与插件](../README.md#扩展与插件方向)，原型和规划通过对应任务跟进。
 
 ## 按读者进入
 
 ### 产品使用者
 
-完成“理解项目 → 启动产品 → 从 Editor 进入稳定 Viewer route”的主线：
+先了解产品全景，再从已落地的 Editor → Viewer 链路开始：
 
 1. [项目概览](getting-started/overview.md)
 2. [Viewer 快速开始](getting-started/viewer.md) 或 [Editor 快速开始](getting-started/editor.md)
@@ -35,11 +37,11 @@
 
 | 产品 | 当前值 | 上游基线 | 唯一事实来源 |
 |---|---|---|---|
-| Viewer | `5.21.10`；package `5.21.10` | SuperSplat Viewer `1.35.2` / PlayCanvas `2.22.4` | [`metadata/version-history.json`](../metadata/version-history.json) |
+| Viewer | `5.21.11`；package `5.21.11` | SuperSplat Viewer `1.35.2` / PlayCanvas `2.22.4` | [`metadata/version-history.json`](../metadata/version-history.json) |
 | Editor | `1.1`；app `1.1.0` | SuperSplat Editor `2.28.0` | [`metadata/editor-version-history.json`](../metadata/editor-version-history.json) |
-| 资源索引 | schema `1.2` | 不适用 | [`data/index.json`](../data/index.json) |
+| 资源索引 | schema `1.2`，100 项资源 | 不适用 | [`data/index.json`](../data/index.json) |
 
-这些值只是便于定位的当前摘要；5.21.10 发布状态见 [MF-139 核验](changes/139-viewer-safari-loading/verification.md)。Viewer v1.29.1 运行时以产品 SHA `26e311c` 合并；`viewer-v5.19.0` prepare 在部署前失败，production 从未变化。`5.19.1` 以 recovery SHA `534b013` 为产品记录，通过 D2 controlled Prepare 后使用经授权的精确 D2 CLI/API fallback 发布；`5.19.2` 以 analytics/release 修复 SHA `92d11b0` 恢复 production endpoint，并把 endpoint 纳入构建硬失败和 release smoke。`5.18a / 5.18.0` 是保留的最后一个 Viewer 双轨历史状态，`5.18.1` 是首个后续完整 SemVer 发布。发生冲突时，不用 README 或目录名覆盖机器事实源。
+以上为 2026-10-18 核对的发布摘要；Viewer 当前发布证据见 [MF-142 核验](changes/142-loading-progress/verification.md)，产品版本与历史以表中机器来源为准。各产品独立记录版本，Director 实验依赖不能作为 Editor 正式版本。旧发布恢复与阶段审计保留在 [历史资料入口](history/README.md)，不从旧 README 或目录名推断当前状态。
 
 ## 文档状态
 
@@ -55,7 +57,7 @@
 
 | 文档 | 状态 | 解决的问题 |
 |---|---|---|
-| [项目概览](getting-started/overview.md) | 现行 | Viewer、Editor、data 和发布链路如何组成一个产品 |
+| [项目概览](getting-started/overview.md) | 现行 | 八产品如何分工，以及 Editor → data → Viewer 的已落地链路 |
 | [Viewer 快速开始](getting-started/viewer.md) | 现行 | 如何在本地用 SPA fallback 打开稳定 route |
 | [Editor 快速开始](getting-started/editor.md) | 现行 | 当前 Editor 源码在哪里，怎样运行和构建 |
 

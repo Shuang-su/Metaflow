@@ -7,17 +7,19 @@
 
 ## 当前版本
 
-- 当前生产：`5.20.0`，99 项资源、索引 schema `1.2`。
-- MF-85 上游基线：SuperSplat Viewer `v1.35.2`，PlayCanvas `2.22.4`。
-- 产品 SHA：`348f6fd`；发布、验证及已接受的 LOD 内存代价见 [生产完成记录](../docs/changes/85-viewer-upstream-v1.35.2/completion.md)。
+2026-10-18 核对：
 
-Viewer `5.19.2` analytics recovery 已发布到 production。`metadata/version-history.json` 记录 `v1.29.1` 运行时产品 SHA `26e311c` 与 analytics/release 修复 SHA `92d11b0`；`viewer-v5.19.0` prepare 在 deployment 前失败且从未进入生产，`5.19.1` 的线上构建曾漏注入 Supabase analytics endpoint。本次修复让 production/tagged build 在 endpoint 缺失时直接失败，并由 release smoke 校验最终 HTML meta；实际升级路径是 `5.18.1 -> 5.19.1 -> 5.19.2`。
+- 当前发布与 package：`5.21.11`，100 项资源、索引 schema `1.2`；见 [版本真源](../metadata/version-history.json)与[资源索引](../data/index.json)。
+- 上游基线：SuperSplat Viewer `v1.35.2`，PlayCanvas `2.22.4`。
+- 产品 SHA：`a9b4f41782c9d96cae0aa1c2c81ea8eee7d3ebe9`；发布／构建 SHA：`988c8e7cbe5844af3133a38ac4a988af2601092b`。实际发布与验证范围见 [MF-142 发布核验](../docs/changes/142-loading-progress/verification.md)。
 
-`5.19.3` 随后发布芒种与 SZTUCCF260919 的 12 项资源。MF-85 的兼容处理、验证与历史执行记录见 [升级记录](../docs/changes/85-viewer-upstream-v1.35.2/adoption.md)。
+Viewer 与其他产品的关系见 [八产品全景](../README.md#产品全景)。ACG Director 的线上实验由同一发布链路交付，使用范围与独立构建见 [Director 说明](../metaflow-director/README.md)。此前的 analytics 恢复、资源发布和上游兼容工作保留在 [变更总账](../docs/metaflow-viewer-change-ledger.md)与[历史资料](../docs/history/README.md)；MF-85 已接受的 LOD 内存代价见 [上游升级完成记录](../docs/changes/85-viewer-upstream-v1.35.2/completion.md)。
 
-## 嵌入实例（5.20.0）
+<a id="嵌入实例5200"></a>
 
-浏览器入口与样式单独导出，宿主决定容器尺寸。实例默认不写 `window.app` 等全局对象，不启用分析；`ui: false` 可交由宿主提供控件。此轮不额外发布 npm 包。
+## 嵌入实例
+
+浏览器入口与样式单独导出，宿主决定容器尺寸。实例默认不写 `window.app` 等全局对象，不启用分析；`ui: false` 可交由宿主提供控件。此 API 从 `5.20.0` 引入，使用仓库构建产物；不表示另有独立发布的 npm 包。
 
 ```js
 import { createViewer } from 'metaflow-viewer/viewer';
