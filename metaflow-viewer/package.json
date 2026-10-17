@@ -70,7 +70,7 @@
     "publint": "publint --pack npm",
     "serve": "serve public -l 3000",
     "serve:e2e:build": "npm run build && npm run e2e:prepare && serve -s public -l 4174",
-    "serve:e2e:dev": "npm run e2e:prepare && concurrently --kill-others \"rollup -c -w\" \"serve -s public -l 4173\"",
+    "serve:e2e:dev": "npm run e2e:prepare && node e2e/serve-dev.mjs",
     "start": "npm run serve",
     "test": "node --test tests/*.mjs",
     "type:check": "tsc --noEmit",

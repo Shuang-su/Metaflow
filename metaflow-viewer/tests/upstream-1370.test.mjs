@@ -200,3 +200,22 @@ test('engine two-grip solver transforms subject, environment and late children t
     solver.reset(); assert.deepEqual(tuple(root.getLocalScale()), [1, 1, 1]); assert.deepEqual(tuple(subject.getPosition()), [2, 0, 0]);
     solver.fire('destroy'); assert.equal(solver._inputSources.size, 0);
 });
+
+test('gradient compose patch restores an empty original across repeated XR round trips', async () => {
+    const source = await readFile(new URL('../src/viewer.ts', import.meta.url), 'utf8');
+    const parsed = ts.createSourceFile('viewer.ts', source, ts.ScriptTarget.Latest, true);
+    const cls = parsed.statements.find(n => ts.isClassDeclaration(n) && n.name.text === 'Viewer');
+    const method = cls.members.find(n => n.name?.getText(parsed) === 'updateComposeBackgroundPatch');
+    const stores = { glsl: new Map([['composePS', 'gl_FragColor = vec4(result, scene.a);']]), wgsl: new Map([['composePS', 'output.color = vec4f(result, scene.a);']]) };
+    const patch = new Function('ShaderChunks','composeGradientGlsl','composeGradientWgsl','patchChunk', `return function() ${method.body.getText(parsed)}`)(
+        { get: (_device, language) => stores[language] }, () => 'GLSL_GRADIENT', () => 'WGSL_GRADIENT', (source, from, to) => source.replace(from, to));
+    const viewer = { global: { app: { graphicsDevice: {} } }, origChunks: { glsl: {}, wgsl: {} }, sceneBackgroundRevealed: true, sceneBackgroundGradient: {}, cameraFrame: {} };
+    for (let trip = 0; trip < 4; trip++) {
+        patch.call(viewer); patch.call(viewer);
+        assert.equal(stores.glsl.get('composeMainEndPS'), '\nGLSL_GRADIENT');
+        assert.equal(stores.wgsl.get('composeMainEndPS'), '\nWGSL_GRADIENT');
+        viewer.cameraFrame = null; patch.call(viewer);
+        assert.equal(stores.glsl.get('composeMainEndPS'), ''); assert.equal(stores.wgsl.get('composeMainEndPS'), '');
+        viewer.cameraFrame = {};
+    }
+});

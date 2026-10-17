@@ -418,10 +418,12 @@ class Viewer {
         const glsl = ShaderChunks.get(app.graphicsDevice, 'glsl');
         const wgsl = ShaderChunks.get(app.graphicsDevice, 'wgsl');
         const gradient = this.sceneBackgroundRevealed ? this.sceneBackgroundGradient : null;
-        const glslComposePS = this.origChunks.glsl.composePS || glsl.get('composePS');
-        const wgslComposePS = this.origChunks.wgsl.composePS || wgsl.get('composePS');
-        const glslComposeMainEndPS = this.origChunks.glsl.composeMainEndPS || glsl.get('composeMainEndPS') || '';
-        const wgslComposeMainEndPS = this.origChunks.wgsl.composeMainEndPS || wgsl.get('composeMainEndPS') || '';
+        const glslComposePS = this.origChunks.glsl.composePS ?? glsl.get('composePS');
+        const wgslComposePS = this.origChunks.wgsl.composePS ?? wgsl.get('composePS');
+        // An empty original chunk is a valid snapshot. Falling back to the current patched
+        // chunk would append the gradient again each time XR restores CameraFrame.
+        const glslComposeMainEndPS = this.origChunks.glsl.composeMainEndPS ?? glsl.get('composeMainEndPS') ?? '';
+        const wgslComposeMainEndPS = this.origChunks.wgsl.composeMainEndPS ?? wgsl.get('composeMainEndPS') ?? '';
 
         this.origChunks.glsl.composePS = glslComposePS;
         this.origChunks.wgsl.composePS = wgslComposePS;
