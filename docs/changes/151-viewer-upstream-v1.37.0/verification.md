@@ -57,3 +57,11 @@ Storage buffers grow by ~0.11 MiB on single scenes and ~1.85 MiB initially on Da
 - Initial exact-head CI `39066837889` passed at `f9f020106`; the new gradient and dev-start corrections require a fresh exact-head run. Build E2E 6/6, package tarball validation (`publint 0.3.25`) passes; no package was published. Remaining final run results and production facts follow below.
 
 - Corrected local dev E2E: 6/6 pass, unchanged assertions. Final local unit suite: 175/175. Optional renderer/XR browser matrix: 6/6, no console shader errors; all nine locales pass. The complete new stage reuses the verified old payload by hard links, with release JSON copied to new inodes; the old deployment is untouched.
+
+## Product merge
+
+PR152 normally squash-merged at `6fd4195d61ff3002a6fcea2caf7bd4eba3742ed7` after exact-head CI39067604582 passed at `1392c844c1cf8821623943fc91ce8c867e35d7d6`. No independent reviewer or administrator override is claimed. The final candidate also passes real WebGPU Dayun gradient/XR restoration followed by a 4096² sorted capture and resumed stochastic preview. Package Node entry checks use the AST of module declarations, avoiding false matches inside the exported JavaScript string.
+
+Version mirrors and index.release now point to the final product SHA. Tag/build and production identities remain pending; the deployed production is still 5.21.11.
+
+Release-record CI39067985820 caught a provenance requirement after squash: historical candidate commits must remain in main history or have an immutable Viewer tag witness. The runtime tests were 174/175, with the sole failure being that ledger ancestry check. Preserve the already-validated source head `1392c844c1cf8821623943fc91ce8c867e35d7d6` as `viewer-v5.22.0-rc1`; remote tag readback confirms it contains both implementation checkpoints. This is a source archive tag, not a production deployment or npm publication. The assertion is retained; release-record CI is rerun after this correction.

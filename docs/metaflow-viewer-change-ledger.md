@@ -718,3 +718,11 @@ The 2026-08-15 Viewer 5.19.2 release-record commit updated package/version/index
 ### `5.22.0` · `26844330979d30a37615f625cae659bffbcd9508` · XR gradient restoration candidate
 
 - MF-151 / PR152：保留空的原始 compose shader 片段，修复退出 XR 重建 CameraFrame 后重复追加渐变导致的编译错误；重复往返行为单测及 WebGL/WebGPU/HPR 场景恢复验证。开发 E2E 等完整初始 watch build 再开放服务，避免读取正在写入的空 HTML；不放宽原有可见性断言。初始来源 `6b7212de69279943f03347d5815aa67fc7a23e14` 记为未发布候选维护。
+
+
+### `5.22.0` · `6fd4195d61ff3002a6fcea2caf7bd4eba3742ed7` · upstream v1.37.0 product
+
+- PR152 正常 squash 合并，实际产品 SHA 回填全部版本镜像和 index.release。最终源/记录候选 `1392c844c1cf8821623943fc91ce8c867e35d7d6` 的 CI39067604582 全通过：Viewer/Director、开发和构建 E2E、类型/单元、数据、治理、文档和 CodeQL；无管理员绕过。
+- 175 单元、本地 build/dev E2E 各6项、浏览器/原生Safari、4K截图/异常恢复、实际引擎双手算法与模拟XR、三轮配对及加长复测通过；头显实测未完成。100资源及Editor/Director产物保留。tag、候选、生产回读与15分钟观察随后追加。
+
+- 候选来源由不可变 `viewer-v5.22.0-rc1`（`1392c844c1cf8821623943fc91ce8c867e35d7d6`）保留；该标签不是生产部署。发布记录 CI39067985820 的唯一单测失败指出 squash 后候选源码缺少历史见证，补建并回读来源标签后重新验证，不删除或放宽断言。
