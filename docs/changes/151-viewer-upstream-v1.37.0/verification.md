@@ -1,6 +1,6 @@
 # MF-151 verification and release record
 
-Status: local acceptance complete; final exact-head CI and production release pending. [Issue #151](https://github.com/Shuang-su/Metaflow/issues/151), [Spec](spec.md), [approved Plan](plan.md).
+Status: Viewer 5.22.0 production acceptance complete. [Issue #151](https://github.com/Shuang-su/Metaflow/issues/151), [Spec](spec.md), [approved Plan](plan.md).
 
 2026-10-18 baseline: remote main `440ec98af66aaed83207e2ce8731a85814703a7b`; primary local main `2c548d14213e096a1f967475a534d3b5d881deda` with 22 local-only commits and the unrelated untracked Swiftgram directory. Reused clean isolated worktree on `codex/mf-151-viewer-1370`; protection branch `codex/protect-main-20261018-v5220` retains local main. No source resource edits.
 
@@ -65,3 +65,25 @@ PR152 normally squash-merged at `6fd4195d61ff3002a6fcea2caf7bd4eba3742ed7` after
 Version mirrors and index.release now point to the final product SHA. Tag/build and production identities remain pending; the deployed production is still 5.21.11.
 
 Release-record CI39067985820 caught a provenance requirement after squash: historical candidate commits must remain in main history or have an immutable Viewer tag witness. The runtime tests were 174/175, with the sole failure being that ledger ancestry check. Preserve the already-validated source head `1392c844c1cf8821623943fc91ce8c867e35d7d6` as `viewer-v5.22.0-rc1`; remote tag readback confirms it contains both implementation checkpoints. This is a source archive tag, not a production deployment or npm publication. The assertion is retained; release-record CI is rerun after this correction.
+
+## Production promotion and readback
+
+Final source/record checks passed: product CI39067604582 at `1392c844c1cf8821623943fc91ce8c867e35d7d6`; record CI39068306820 at `218f0b4736009d766db68f7589f61a451aeef039`. PR153 normally squash-merged to `7ecf830f895a488b5d06f975c0dc5175b6e26ea9`; its tree matches the checked record head. This is the immutable formal `viewer-v5.22.0` tag/build, distinct from product `6fd4195d61ff3002a6fcea2caf7bd4eba3742ed7`.
+
+A fresh production build from the formal tag carries the existing public analytics configuration; endpoint is present and validated. Final packed tarball passes publint, and Node HTML/settings JavaScript/declarations remain engine-free. No npm publication occurred.
+
+Deployment `6ad3e0b5c31b278f83e88096` was uploaded with all 10,270 files. Exactly nine generated runtime/release outputs changed: HTML/embed, JS/CSS/maps, build identity, index.release and Version History mirror. All resource objects and resource/Editor/Director files remain identical; 10,261 files reuse the frozen verified payload. The old production's generated files were also rechecked after staging to exclude accidental writes through shared inodes.
+
+Candidate acceptance: 17 full file byte matches, 513 route/reference HEADs, four Chromium/WebKit scenarios, two default WebGPU scenarios and three native macOS Safari scenes all passed. Promoted that same deployment at **2026-10-17T21:00:35.328Z**; actual Netlify published pointer was reread. CLI `commit_ref` is null, so identity is established by deployment ID + formal tag/build/product SHAs + live bytes.
+
+Formal-domain readback: the same 17 file byte checks and 513 route/reference responses passed; Chromium/WebKit desktop/mobile, native Safari Dayun/Bijiashan/Tribbie and default WebGPU Dayun/Tribbie passed without script or resource failures. Analytics returned HTTP 200 for 17 unique events, zero rejected; page_viewed and first_frame_ready each occur once. The continuous observation started after promotion; its full-duration result follows below.
+
+Rollback remains the freshly verified 5.21.11 deployment `6aca09261511aa373989bac4`. No rollback has been triggered so far. Physical headset testing remains the explicit unverified item; software/gesture fixtures are not a substitute.
+
+## Observation completion
+
+**2026-10-17T21:01:33.421Z → 2026-10-17T21:16:33.424Z: 16 samples / 900.003 seconds, all passed.** Each sample rereads version/build/product identity, 100-resource index, script bytes, five representative routes and the continuously open Dayun viewer. Browser script errors: 0; failed resource requests: 0. Analytics uniqueness/acceptance was verified separately as above. No rollback was triggered.
+
+The immutable formal tag remains `viewer-v5.22.0` / `7ecf830f895a488b5d06f975c0dc5175b6e26ea9`; product remains `6fd4195d61ff3002a6fcea2caf7bd4eba3742ed7`, actual production deployment `6ad3e0b5c31b278f83e88096`. Evidence is attached to the [GitHub Release](https://github.com/Shuang-su/Metaflow/releases/tag/viewer-v5.22.0), including manifests, paired timings, failed/corrected checks and browser/HTTP/observation readback.
+
+Unverified: physical headset stability/ergonomics and real-device AR passthrough quality; no hardware acceptance is claimed. The package audit remains unchanged from baseline (17 advisories), not a clean security audit. No npm package was published. Primary local research synchronization is performed after this production acceptance and reported in the task/Issue completion.
