@@ -706,3 +706,10 @@ The 2026-08-15 Viewer 5.19.2 release-record commit updated package/version/index
 - 正式15文件／513引用、五组浏览器、官方Logo复查、17唯一分析事件／零拒绝／页面和首帧各一次通过；100资源、其他99对象和模型／settings／环境／体素／路由、schema1.2、引擎、Editor／Director保持。15分钟观察完成后追加；回退已核验5.21.10 `6ac9f5892bf0719ac8c32a8b`。
 
 - 生产观察完成：2026-10-10T09:52:03.470Z 至 2026-10-10T10:07:03.472Z，16轮、900.002秒全部通过；每轮核对版本／产品／构建SHA、100资源索引、脚本字节、五条路线及持续运行的大运浏览器状态。脚本错误0、请求失败0，未触发回退。正式GitHub Release已公开；发布证据与限制见MF-142验证记录。
+
+
+### `5.22.0` · `6b7212de69279943f03347d5815aa67fc7a23e14` · upstream v1.37.0 integration candidate
+
+- [MF-151](https://github.com/Shuang-su/Metaflow/issues/151) / [PR152](https://github.com/Shuang-su/Metaflow/pull/152)：同步稳定 SuperSplat Viewer v1.37.0（`cd0e316e397929ffa87abd4833f73f8a0bd1fd2b`）、PlayCanvas 2.23.0 和必要构建依赖；Node 20.19.0，未导入未合并的上游 #328。主体与环境整体 XR 抓取，进入失败/退出恢复；标注和调试几何跟随。随机 WebGPU 预览默认关闭，captureFrame 始终排序并恢复预览/拾取。
+- 保留 Safari 恢复、字节级 LOD 进度、图片先于 UI、透明加载、官方独立/组合 Logo 及动画、九语言、旧 settings 和现有接口。100 资源对象/文件/路由和 schema 1.2 原值；Editor/Director 依赖与产物不变。
+- 本地构建/类型/lint/格式、单元、Chromium/WebKit/Safari、4K 并发/失败恢复、延迟环境、实例销毁和三轮性能对照已记录；最终 CI、候选、生产回读与15分钟观察在[验证记录](changes/151-viewer-upstream-v1.37.0/verification.md)追加。无实体头显，不宣称硬件验收。

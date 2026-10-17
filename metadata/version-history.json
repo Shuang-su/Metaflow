@@ -1,18 +1,18 @@
 {
   "schemaVersion": "1.1",
   "cutoffGitRef": "c613a87",
-  "documentedThrough": "a9b4f41782c9d96cae0aa1c2c81ea8eee7d3ebe9",
+  "documentedThrough": "6b7212de69279943f03347d5815aa67fc7a23e14",
   "defaultResourceVersion": "1.0a",
   "current": {
-    "displayVersion": "5.21.11",
-    "appSemver": "5.21.11",
+    "displayVersion": "5.22.0",
+    "appSemver": "5.22.0",
     "indexSchemaVersion": "1.2",
-    "date": "2026-10-10",
-    "gitRef": "a9b4f41782c9d96cae0aa1c2c81ea8eee7d3ebe9",
+    "date": "2026-10-18",
+    "gitRef": "6b7212de69279943f03347d5815aa67fc7a23e14",
     "historyUrl": "/data/version-history.json",
     "upstream": {
       "repository": "playcanvas/supersplat-viewer",
-      "version": "1.35.2"
+      "version": "1.37.0"
     }
   },
   "versioning": {
@@ -1990,6 +1990,30 @@
         "evidence": "docs/changes/142-loading-progress/verification.md",
         "releaseTag": "viewer-v5.21.11",
         "pullRequest": "https://github.com/Shuang-su/Metaflow/pull/144"
+      }
+    },
+    {
+      "displayVersion": "5.22.0",
+      "appSemver": "5.22.0",
+      "type": "feature",
+      "scope": "viewer",
+      "date": "2026-10-18",
+      "gitRef": "6b7212de69279943f03347d5815aa67fc7a23e14",
+      "summary": "feat(viewer): adopt SuperSplat v1.37.0 and PlayCanvas 2.23.0 with whole-scene XR and opt-in stochastic preview",
+      "trace": {
+        "changeId": "MF-151",
+        "issue": "https://github.com/Shuang-su/Metaflow/issues/151",
+        "spec": "docs/changes/151-viewer-upstream-v1.37.0/spec.md",
+        "plan": "docs/changes/151-viewer-upstream-v1.37.0/plan.md",
+        "evidence": "docs/changes/151-viewer-upstream-v1.37.0/verification.md",
+        "pullRequest": "https://github.com/Shuang-su/Metaflow/pull/152",
+        "releaseTag": "viewer-v5.22.0",
+        "upstream": {
+          "repository": "playcanvas/supersplat-viewer",
+          "from": "v1.35.2",
+          "to": "v1.37.0",
+          "gitRef": "cd0e316e397929ffa87abd4833f73f8a0bd1fd2b"
+        }
       }
     }
   ]
