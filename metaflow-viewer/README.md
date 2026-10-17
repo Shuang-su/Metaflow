@@ -8,7 +8,7 @@
 ## 当前版本
 
 - 当前发布状态以 [`metadata/version-history.json`](../metadata/version-history.json) 和生产回读为准。
-- MF-151 候选目标：`5.22.0`，100 项资源、索引 schema `1.2`；SuperSplat Viewer `v1.37.0` / `cd0e316e397929ffa87abd4833f73f8a0bd1fd2b`，PlayCanvas `2.23.0`。
+- MF-151 发布基线：`5.22.0`，100 项资源、索引 schema `1.2`；SuperSplat Viewer `v1.37.0` / `cd0e316e397929ffa87abd4833f73f8a0bd1fd2b`，PlayCanvas `2.23.0`。
 - 基线 `5.21.11` 和本轮实现、验证、发布身份见 [MF-151 记录](../docs/changes/151-viewer-upstream-v1.37.0/verification.md)。
 
 Viewer `5.19.2` analytics recovery 已发布到 production。`metadata/version-history.json` 记录 `v1.29.1` 运行时产品 SHA `26e311c` 与 analytics/release 修复 SHA `92d11b0`；`viewer-v5.19.0` prepare 在 deployment 前失败且从未进入生产，`5.19.1` 的线上构建曾漏注入 Supabase analytics endpoint。本次修复让 production/tagged build 在 endpoint 缺失时直接失败，并由 release smoke 校验最终 HTML meta；实际升级路径是 `5.18.1 -> 5.19.1 -> 5.19.2`。
