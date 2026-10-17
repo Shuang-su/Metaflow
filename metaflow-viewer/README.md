@@ -7,9 +7,9 @@
 
 ## 当前版本
 
-- 当前生产：`5.20.0`，99 项资源、索引 schema `1.2`。
-- MF-85 上游基线：SuperSplat Viewer `v1.35.2`，PlayCanvas `2.22.4`。
-- 产品 SHA：`348f6fd`；发布、验证及已接受的 LOD 内存代价见 [生产完成记录](../docs/changes/85-viewer-upstream-v1.35.2/completion.md)。
+- 当前发布状态以 [`metadata/version-history.json`](../metadata/version-history.json) 和生产回读为准。
+- MF-151 候选目标：`5.22.0`，100 项资源、索引 schema `1.2`；SuperSplat Viewer `v1.37.0` / `cd0e316e397929ffa87abd4833f73f8a0bd1fd2b`，PlayCanvas `2.23.0`。
+- 基线 `5.21.11` 和本轮实现、验证、发布身份见 [MF-151 记录](../docs/changes/151-viewer-upstream-v1.37.0/verification.md)。
 
 Viewer `5.19.2` analytics recovery 已发布到 production。`metadata/version-history.json` 记录 `v1.29.1` 运行时产品 SHA `26e311c` 与 analytics/release 修复 SHA `92d11b0`；`viewer-v5.19.0` prepare 在 deployment 前失败且从未进入生产，`5.19.1` 的线上构建曾漏注入 Supabase analytics endpoint。本次修复让 production/tagged build 在 endpoint 缺失时直接失败，并由 release smoke 校验最终 HTML meta；实际升级路径是 `5.18.1 -> 5.19.1 -> 5.19.2`。
 
@@ -55,6 +55,12 @@ const page = renderViewerHtml({
 ```
 
 原有 `html`、`css`、`js` 导出保持可用。settings 迁移不修改调用者输入；创作数值范围只在 `validateSettings(settings, { limits: true })` 时启用，历史资源不自动截断或改写。
+
+## 5.22.0 增量能力
+
+`createViewer` 接受 `stochastic`、`splatSource`、`variant`，独立页面接受同名查询参数。随机渲染默认关闭，只在显式请求且 WebGPU 支持时启用；WebGL 和 XR 仍走排序路径。`captureFrame` 始终使用排序输出，保持 RGBA、尺寸、时间与串行契约，完成或失败后恢复预览并重新累积。它没有新的随机截图质量参数。
+
+XR 双手移动、旋转、缩放同时作用于主体、环境、标注锚点和调试几何；迟到的环境继承相同变换。抓取期间暂停摇杆与传送，退出或进入失败后恢复原相机、场景、裁剪面和渲染状态。碰撞数据仍保留来源坐标，没有新增 XR 体素行走。独立头显的 LOD 预算不抽稀单体 SOG。实体头显验收情况见 MF-151 验证记录。
 
 ## 本地运行
 

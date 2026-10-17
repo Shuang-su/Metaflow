@@ -42,23 +42,23 @@
     "autoprefixer": "10.6.1",
     "concurrently": "9.2.4",
     "eslint": "9.39.5",
-    "globals": "17.12.0",
-    "playcanvas": "2.22.4",
+    "globals": "17.13.0",
+    "playcanvas": "2.23.0",
     "postcss": "8.5.28",
     "prettier": "3.9.9",
-    "publint": "0.3.24",
-    "rollup": "4.63.4",
+    "publint": "0.3.25",
+    "rollup": "4.63.6",
     "rollup-plugin-copy": "3.5.0",
     "rollup-plugin-scss": "4.0.1",
     "rollup-plugin-string": "3.0.0",
-    "sass": "1.105.0",
+    "sass": "1.105.1",
     "serve": "14.2.6",
     "typescript": "5.9.3",
     "rollup-plugin-dts": "6.5.1"
   },
   "scripts": {
     "build": "rollup -c",
-    "develop": "concurrently --kill-others \"npm run watch\" \"npm run serve\"",
+    "develop": "concurrently --kill-others \"npm run watch\" \"tsc --noEmit --watch\" \"npm run serve\"",
     "e2e:build": "E2E_MODE=build playwright test",
     "e2e:dev": "E2E_MODE=dev playwright test",
     "e2e:extended": "E2E_MODE=build E2E_EXTENDED=1 playwright test --grep-invert='visual baseline'",
@@ -81,7 +81,7 @@
   },
   "packageManager": "yarn@1.22.22+sha512.a6b2f7906b721bba3d67d4aff083df04dad64c399707841b7acf00f6b133b7ac24255f2652fa22ae3534329dc6180534e98d17432037ff6fd140556e2bb3137e",
   "peerDependencies": {
-    "playcanvas": "^2.22.1"
+    "playcanvas": "^2.23.0"
   },
   "peerDependenciesMeta": {
     "playcanvas": {

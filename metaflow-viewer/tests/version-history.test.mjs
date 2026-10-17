@@ -198,7 +198,7 @@ test('generated index release matches current version history', async () => {
 });
 
 test('viewer console output is wired to the version history display version', async () => {
-    const [index]=await sources('index.ts');assert.match(index,/versionHistory\.current\.displayVersion/);assert.match(index,/appVersion/);assert.match(index,/engineVersion/);assert.match(index,/SuperSplat v1\.35\.2/);
+    const [index]=await sources('index.ts');assert.match(index,/versionHistory\.current\.displayVersion/);assert.match(index,/appVersion/);assert.match(index,/engineVersion/);assert.match(index,/SuperSplat v1\.37\.0/);
 });
 
 test('change ledger contains every structured version and only main-history commit refs', async () => {
