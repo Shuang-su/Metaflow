@@ -2,6 +2,12 @@
 
 这里汇总 Metaflow Viewer、Editor、资源索引、发布维护和历史审计资料。根目录 [README](../README.md) 用于快速了解项目；具体操作与当前契约以本目录的现行文档和机器事实源为准。
 
+## 产品全景入口
+
+这里汇总 Metaflow 的产品概览、Viewer／Editor 操作手册、资源索引、发布维护与历史资料。先从 [八产品全景](../README.md#产品全景) 或 [项目概览](getting-started/overview.md) 选择工具；具体操作与当前契约以本目录的现行文档和机器事实源为准。
+
+Studio、Convert、Manage、App、Daily 的入口与成熟度随各产品分别说明；Director 的线上 ACG 实验见 [使用边界与构建](../metaflow-director/README.md)。Nav 等方向见 [扩展与插件](../README.md#扩展与插件方向)，原型和规划通过对应任务跟进。
+
 ## 按读者进入
 
 ### 产品使用者
@@ -33,6 +39,24 @@
 
 ## 当前代码与发布基线
 
+**2026-10-19 现行发布：** Viewer `5.22.0`（SuperSplat Viewer `1.37.0` / PlayCanvas `2.23.0`）；Editor `1.1 / 1.1.0`；资源索引 schema `1.2`、100 项。已回读线上与 [版本元数据](../metadata/version-history.json)，发布与验收见 [MF-151 记录](changes/151-viewer-upstream-v1.37.0/verification.md)。
+
+### 2026-10-18 文档快照（历史保留）
+
+> 以下表格及恢复过程按原文保留；其中的“当前”“最新”指相应历史阶段，现行发布以上方 2026-10-19 更新为准。
+
+| 产品 | 当前值 | 上游基线 | 唯一事实来源 |
+|---|---|---|---|
+| Viewer | `5.21.11`；package `5.21.11` | SuperSplat Viewer `1.35.2` / PlayCanvas `2.22.4` | [`metadata/version-history.json`](../metadata/version-history.json) |
+| Editor | `1.1`；app `1.1.0` | SuperSplat Editor `2.28.0` | [`metadata/editor-version-history.json`](../metadata/editor-version-history.json) |
+| 资源索引 | schema `1.2`，100 项资源 | 不适用 | [`data/index.json`](../data/index.json) |
+
+以上为 2026-10-18 核对的发布摘要；Viewer 当前发布证据见 [MF-142 核验](changes/142-loading-progress/verification.md)，产品版本与历史以表中机器来源为准。各产品独立记录版本，Director 实验依赖不能作为 Editor 正式版本。旧发布恢复与阶段审计保留在 [历史资料入口](history/README.md)，不从旧 README 或目录名推断当前状态。
+
+### 既有基线与恢复记录（历史保留）
+
+> 下列原文完整保留此前的版本与恢复过程；当时的“当前”值不代表最新发布，请以上方 2026-10-18 摘要和机器事实源为准。
+
 | 产品 | 当前值 | 上游基线 | 唯一事实来源 |
 |---|---|---|---|
 | Viewer | `5.21.10`；package `5.21.10` | SuperSplat Viewer `1.35.2` / PlayCanvas `2.22.4` | [`metadata/version-history.json`](../metadata/version-history.json) |
@@ -56,6 +80,7 @@
 | 文档 | 状态 | 解决的问题 |
 |---|---|---|
 | [项目概览](getting-started/overview.md) | 现行 | Viewer、Editor、data 和发布链路如何组成一个产品 |
+| [八产品职责与入口](getting-started/overview.md#八条产品线) | 现行 | Viewer、Editor、Convert、Manage、Studio、Director、App、Daily 的分工与成熟度 |
 | [Viewer 快速开始](getting-started/viewer.md) | 现行 | 如何在本地用 SPA fallback 打开稳定 route |
 | [Editor 快速开始](getting-started/editor.md) | 现行 | 当前 Editor 源码在哪里，怎样运行和构建 |
 
