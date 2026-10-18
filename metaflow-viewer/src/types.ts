@@ -244,6 +244,8 @@ type ViewerHandle = {
 
 type Global = {
     app: AppBase;
+    /** Authored scene content, independently transformable from the camera/XR rig. */
+    sceneRoot: Entity;
     settings: ExperienceSettings;
     config: Config;
     state: State;

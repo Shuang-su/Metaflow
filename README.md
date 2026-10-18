@@ -255,6 +255,12 @@ location / {
 
 ## 当前版本
 
+**2026-10-19 更新：** 线上与机器元数据均已确认为 Viewer `5.22.0`，上游 SuperSplat Viewer `1.37.0` / PlayCanvas `2.23.0`；Editor 仍为 `1.1 / 1.1.0`，资源索引仍为 schema `1.2`、100 项。版本来源见 [Viewer Version History](metadata/version-history.json)，正式发布与验收见 [MF-151 记录](docs/changes/151-viewer-upstream-v1.37.0/verification.md)。
+
+### 2026-10-18 文档快照（历史保留）
+
+> 以下旧摘要与后续历史段落保留原文，其中“当前”“最新”均有当时语境；现行版本以上方 2026-10-19 更新为准。
+
 以下为 **2026-10-18 核对的发布摘要**。各产品独立记录版本；线上实验和规划产品不据此获得统一发布版本。
 
 | 对象 | 当前值 | 上游基线 | 事实来源 |

@@ -706,3 +706,31 @@ The 2026-08-15 Viewer 5.19.2 release-record commit updated package/version/index
 - 正式15文件／513引用、五组浏览器、官方Logo复查、17唯一分析事件／零拒绝／页面和首帧各一次通过；100资源、其他99对象和模型／settings／环境／体素／路由、schema1.2、引擎、Editor／Director保持。15分钟观察完成后追加；回退已核验5.21.10 `6ac9f5892bf0719ac8c32a8b`。
 
 - 生产观察完成：2026-10-10T09:52:03.470Z 至 2026-10-10T10:07:03.472Z，16轮、900.002秒全部通过；每轮核对版本／产品／构建SHA、100资源索引、脚本字节、五条路线及持续运行的大运浏览器状态。脚本错误0、请求失败0，未触发回退。正式GitHub Release已公开；发布证据与限制见MF-142验证记录。
+
+
+### `5.22.0` · `6b7212de69279943f03347d5815aa67fc7a23e14` · upstream v1.37.0 integration candidate
+
+- [MF-151](https://github.com/Shuang-su/Metaflow/issues/151) / [PR152](https://github.com/Shuang-su/Metaflow/pull/152)：同步稳定 SuperSplat Viewer v1.37.0（`cd0e316e397929ffa87abd4833f73f8a0bd1fd2b`）、PlayCanvas 2.23.0 和必要构建依赖；Node 20.19.0，未导入未合并的上游 #328。主体与环境整体 XR 抓取，进入失败/退出恢复；标注和调试几何跟随。随机 WebGPU 预览默认关闭，captureFrame 始终排序并恢复预览/拾取。
+- 保留 Safari 恢复、字节级 LOD 进度、图片先于 UI、透明加载、官方独立/组合 Logo 及动画、九语言、旧 settings 和现有接口。100 资源对象/文件/路由和 schema 1.2 原值；Editor/Director 依赖与产物不变。
+- 本地构建/类型/lint/格式、单元、Chromium/WebKit/Safari、4K 并发/失败恢复、延迟环境、实例销毁和三轮性能对照已记录；最终 CI、候选、生产回读与15分钟观察在[验证记录](changes/151-viewer-upstream-v1.37.0/verification.md)追加。无实体头显，不宣称硬件验收。
+
+
+### `5.22.0` · `26844330979d30a37615f625cae659bffbcd9508` · XR gradient restoration candidate
+
+- MF-151 / PR152：保留空的原始 compose shader 片段，修复退出 XR 重建 CameraFrame 后重复追加渐变导致的编译错误；重复往返行为单测及 WebGL/WebGPU/HPR 场景恢复验证。开发 E2E 等完整初始 watch build 再开放服务，避免读取正在写入的空 HTML；不放宽原有可见性断言。初始来源 `6b7212de69279943f03347d5815aa67fc7a23e14` 记为未发布候选维护。
+
+
+### `5.22.0` · `6fd4195d61ff3002a6fcea2caf7bd4eba3742ed7` · upstream v1.37.0 product
+
+- PR152 正常 squash 合并，实际产品 SHA 回填全部版本镜像和 index.release。最终源/记录候选 `1392c844c1cf8821623943fc91ce8c867e35d7d6` 的 CI39067604582 全通过：Viewer/Director、开发和构建 E2E、类型/单元、数据、治理、文档和 CodeQL；无管理员绕过。
+- 175 单元、本地 build/dev E2E 各6项、浏览器/原生Safari、4K截图/异常恢复、实际引擎双手算法与模拟XR、三轮配对及加长复测通过；头显实测未完成。100资源及Editor/Director产物保留。tag、候选、生产回读与15分钟观察随后追加。
+
+- 候选来源由不可变 `viewer-v5.22.0-rc1`（`1392c844c1cf8821623943fc91ce8c867e35d7d6`）保留；该标签不是生产部署。发布记录 CI39067985820 的唯一单测失败指出 squash 后候选源码缺少历史见证，补建并回读来源标签后重新验证，不删除或放宽断言。
+
+
+### `5.22.0` · `6fd4195d61ff3002a6fcea2caf7bd4eba3742ed7` · production promotion
+
+- 正式 tag/build `7ecf830f895a488b5d06f975c0dc5175b6e26ea9`（PR153），产品 PR152；最终产品 CI39067604582、记录 CI39068306820 通过。候选部署 `6ad3e0b5c31b278f83e88096` 的17文件字节/513路由引用、Chromium/WebKit、默认WebGPU与原生Safari验证通过，于2026-10-17T21:00:35.328Z原样提升生产，实际 published pointer 回读一致。
+- 生产17文件字节/513响应、桌面与手机、原生Safari三场景和默认WebGPU复查通过；17唯一分析事件、零拒绝、页面与首帧各一次。100资源、schema1.2、Editor/Director保留，正式包10270文件，旧生产全量复核一致。15分钟观察结果见后续记录；回退为5.21.11 `6aca09261511aa373989bac4`。
+
+- 生产观察完成：2026-10-17T21:01:33.421Z 至 2026-10-17T21:16:33.424Z，16轮、900.003秒全部通过；逐轮核对版本/产品/构建SHA、100资源索引、脚本字节、五条路线及持续大运浏览器。脚本错误0、资源请求失败0，未触发回退；发布证据见正式GitHub Release。

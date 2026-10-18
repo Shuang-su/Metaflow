@@ -78,6 +78,12 @@ Editor 的 `npm run build` 只生成 `supersplat-v2.28.0/dist/`；正式发布�
 
 ## 当前版本
 
+**2026-10-19 更新：** Viewer 已发布 `5.22.0`，上游 SuperSplat Viewer `1.37.0` / PlayCanvas `2.23.0`；Editor 保持 `1.1 / 1.1.0`，资源索引保持 schema `1.2`、100 项。已核对 [版本真源](../../metadata/version-history.json)与线上回读，发布与验收见 [MF-151 记录](../changes/151-viewer-upstream-v1.37.0/verification.md)。
+
+### 2026-10-18 文档快照（历史保留）
+
+> 以下摘要及既有恢复说明按原文保留；其中的“当前”“最新”属于当时记录，现行值以上方 2026-10-19 更新为准。
+
 2026-10-18 核对的发布摘要：
 
 - Viewer：展示与 package 均为 `5.21.11`，上游 SuperSplat Viewer `1.35.2`、PlayCanvas `2.22.4`；见 [版本真源](../../metadata/version-history.json)与[发布核验](../changes/142-loading-progress/verification.md)。

@@ -7,6 +7,16 @@
 
 ## 当前版本
 
+2026-10-19 线上与元数据回读：以下 MF-151 基线为现行发布，产品 SHA 为 `6fd4195d61ff3002a6fcea2caf7bd4eba3742ed7`，构建／tag SHA 为 `7ecf830f895a488b5d06f975c0dc5175b6e26ea9`。
+
+- 当前发布状态以 [`metadata/version-history.json`](../metadata/version-history.json) 和生产回读为准。
+- MF-151 发布基线：`5.22.0`，100 项资源、索引 schema `1.2`；SuperSplat Viewer `v1.37.0` / `cd0e316e397929ffa87abd4833f73f8a0bd1fd2b`，PlayCanvas `2.23.0`。
+- 基线 `5.21.11` 和本轮实现、验证、发布身份见 [MF-151 记录](../docs/changes/151-viewer-upstream-v1.37.0/verification.md)。
+
+### 2026-10-18 文档快照（历史保留）
+
+> 下列旧摘要及其中的“当前”“最新”表述按原文保留；现行发布以上方 2026-10-19 回读与 MF-151 记录为准。
+
 2026-10-18 核对：
 
 - 当前发布与 package：`5.21.11`，100 项资源、索引 schema `1.2`；见 [版本真源](../metadata/version-history.json)与[资源索引](../data/index.json)。
@@ -69,6 +79,12 @@ const page = renderViewerHtml({
 ```
 
 原有 `html`、`css`、`js` 导出保持可用。settings 迁移不修改调用者输入；创作数值范围只在 `validateSettings(settings, { limits: true })` 时启用，历史资源不自动截断或改写。
+
+## 5.22.0 增量能力
+
+`createViewer` 接受 `stochastic`、`splatSource`、`variant`，独立页面接受同名查询参数。随机渲染默认关闭，只在显式请求且 WebGPU 支持时启用；WebGL 和 XR 仍走排序路径。`captureFrame` 始终使用排序输出，保持 RGBA、尺寸、时间与串行契约，完成或失败后恢复预览并重新累积。它没有新的随机截图质量参数。
+
+XR 双手移动、旋转、缩放同时作用于主体、环境、标注锚点和调试几何；迟到的环境继承相同变换。抓取期间暂停摇杆与传送，退出或进入失败后恢复原相机、场景、裁剪面和渲染状态。碰撞数据仍保留来源坐标，没有新增 XR 体素行走。独立头显的 LOD 预算不抽稀单体 SOG。实体头显验收情况见 MF-151 验证记录。
 
 ## 本地运行
 

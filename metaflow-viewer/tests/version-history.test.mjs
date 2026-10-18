@@ -198,7 +198,7 @@ test('generated index release matches current version history', async () => {
 });
 
 test('viewer console output is wired to the version history display version', async () => {
-    const [index]=await sources('index.ts');assert.match(index,/versionHistory\.current\.displayVersion/);assert.match(index,/appVersion/);assert.match(index,/engineVersion/);assert.match(index,/SuperSplat v1\.35\.2/);
+    const [index]=await sources('index.ts');assert.match(index,/versionHistory\.current\.displayVersion/);assert.match(index,/appVersion/);assert.match(index,/engineVersion/);assert.match(index,/SuperSplat v1\.37\.0/);
 });
 
 test('change ledger contains every structured version and only main-history commit refs', async () => {
@@ -403,8 +403,8 @@ test('package and public release versions match the structured current version',
     assert.equal(pkg.version, manifest.current.appSemver);
     assert.equal(lock.version, manifest.current.appSemver);
     assert.equal(lock.packages[''].version, manifest.current.appSemver);
-    assert.equal(manifest.current.displayVersion, '5.21.11');
+    assert.equal(manifest.current.displayVersion, '5.22.0');
     assert.equal(manifest.current.gitRef, manifest.documentedThrough);
     assert.equal(manifest.current.upstream.repository, 'playcanvas/supersplat-viewer');
-    assert.equal(manifest.current.upstream.version, '1.35.2');
+    assert.equal(manifest.current.upstream.version, '1.37.0');
 });
