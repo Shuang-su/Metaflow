@@ -51,6 +51,19 @@
   status = 302
   force = true
 
+# Independent Horizon static site; proxy before the Metaflow SPA fallback.
+[[redirects]]
+  from = "/horizon"
+  to = "https://creative-kitsune-db27b4.netlify.app/horizon/"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/horizon/*"
+  to = "https://creative-kitsune-db27b4.netlify.app/horizon/:splat"
+  status = 200
+  force = true
+
 [[redirects]]
   from = "/*"
   to = "/index.html"
