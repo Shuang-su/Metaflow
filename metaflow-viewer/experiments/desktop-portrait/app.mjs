@@ -109,6 +109,8 @@ function updatePerson() {
   
   if (modelType === 'vrm' && vrmInstance) {
     // Update VRM transform
+    // VRM models are typically 1.5-1.7m tall in their own units
+    // For desktop figurine, scale to match desired physical height
     const fullHeight = modelBounds.halfExtents.y * 2;
     if (!Number.isFinite(fullHeight) || fullHeight < 1e-8) return;
     const scale = values.height / 100 / fullHeight;
@@ -557,27 +559,38 @@ export function diagnostics() {
     }
   }
   
-  return { 
-    ready, 
-    activeLoads, 
-    assetName, 
-    modelType,
-    gaussianCount: model?.gsplat?.resource?.numSplats ?? null, 
-    vrmHumanoid: vrmInstance?.humanoid ? 'present' : null,
-    vrmExpressions: vrmInstance?.expressionManager ? Object.keys(vrmInstance.expressionManager.expressionMap || {}).length : null,
-    vrmExpressionValues: expressionValues,  // Actual current weights
-    vrmAnimController: vrmAnimController ? {
-      breathPhase: vrmAnimController.breathPhase || 0,
-      blinkPhase: vrmAnimController.blinkPhase || 0,
-      mouthOpen: vrmAnimController.mouthOpen || 0
-    } : null,
-    eye: {...viewEye}, 
-    geometry:geometry(), 
-    projection:getProjection({...geometry(),eye:viewEye}), 
-    tilt:values.tilt, 
-    camera, 
-    app 
-  };
+  try {
+    const geom = geometry();
+    return { 
+      ready, 
+      activeLoads, 
+      assetName, 
+      modelType,
+      gaussianCount: model?.gsplat?.resource?.numSplats ?? null, 
+      vrmHumanoid: vrmInstance?.humanoid ? 'present' : null,
+      vrmExpressions: vrmInstance?.expressionManager ? Object.keys(vrmInstance.expressionManager.expressionMap || {}).length : null,
+      vrmExpressionValues: expressionValues,  // Actual current weights
+      vrmAnimController: vrmAnimController ? {
+        breathPhase: vrmAnimController.breathPhase || 0,
+        blinkPhase: vrmAnimController.blinkPhase || 0,
+        mouthOpen: vrmAnimController.mouthOpen || 0
+      } : null,
+      eye: {...viewEye}, 
+      geometry: geom, 
+      projection: getProjection({...geom, eye:viewEye}), 
+      tilt: values.tilt, 
+      camera, 
+      app 
+    };
+  } catch (error) {
+    return {
+      ready,
+      activeLoads,
+      assetName,
+      modelType,
+      error: error.message
+    };
+  }
 }
 
 async function initialize() {
@@ -654,6 +667,13 @@ async function initialize() {
       threeRenderer.state.reset();
       
       threeRenderer.render(threeScene, threeCamera);
+      
+      // Force PlayCanvas to reset its state cache after Three.js render
+      // This prevents Three.js state from corrupting PlayCanvas on next frame
+      app.graphicsDevice.setBlending(false);
+      app.graphicsDevice.setDepthTest(true);
+      app.graphicsDevice.setDepthWrite(true);
+      app.graphicsDevice.setCullMode(pc.CULLFACE_BACK);
     }
   });
   
