@@ -437,6 +437,12 @@
       "gitRef": "eca0cb7d3fba8cec7f6101a5a0fd6eacf6f6792c",
       "date": "2026-11-14",
       "summary": "Unpublished Apple mobile render compatibility candidate; consolidated with recovered production runtime in Viewer 5.23.2."
+    },
+    {
+      "gitRef": "7ba649963b3ac1b802c61abb49da9dc2531eb935",
+      "date": "2026-11-14",
+      "type": "release-support",
+      "summary": "Prepare Viewer 5.23.2 identity and preserve four production-only historical records with immutable snapshot provenance, strict new-release Git checks and public evidence mirrors."
     }
   ],
   "entries": [
