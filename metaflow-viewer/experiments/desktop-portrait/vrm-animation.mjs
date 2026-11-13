@@ -179,7 +179,11 @@ export function createVRMAnimationController(vrm, {
         dispose,
         get hasBlinking() { return hasBlinkExpression; },
         get hasMouth() { return hasMouthExpression; },
-        get hasLookAt() { return !!lookAt; }
+        get hasLookAt() { return !!lookAt; },
+        // Expose internal state for diagnostics
+        get breathPhase() { return (time * breathRate) % (2 * Math.PI); },
+        get blinkPhase() { return blinkPhase; },
+        get mouthOpen() { return currentMouthOpen; }
     };
 }
 

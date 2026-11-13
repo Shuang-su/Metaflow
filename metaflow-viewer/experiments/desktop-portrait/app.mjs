@@ -550,6 +550,13 @@ function resize() {
 }
 
 export function diagnostics() {
+  const expressionValues = {};
+  if (vrmInstance?.expressionManager) {
+    for (const [name, expr] of Object.entries(vrmInstance.expressionManager.expressionMap || {})) {
+      expressionValues[name] = expr.weight;
+    }
+  }
+  
   return { 
     ready, 
     activeLoads, 
@@ -558,6 +565,12 @@ export function diagnostics() {
     gaussianCount: model?.gsplat?.resource?.numSplats ?? null, 
     vrmHumanoid: vrmInstance?.humanoid ? 'present' : null,
     vrmExpressions: vrmInstance?.expressionManager ? Object.keys(vrmInstance.expressionManager.expressionMap || {}).length : null,
+    vrmExpressionValues: expressionValues,  // Actual current weights
+    vrmAnimController: vrmAnimController ? {
+      breathPhase: vrmAnimController.breathPhase || 0,
+      blinkPhase: vrmAnimController.blinkPhase || 0,
+      mouthOpen: vrmAnimController.mouthOpen || 0
+    } : null,
     eye: {...viewEye}, 
     geometry:geometry(), 
     projection:getProjection({...geometry(),eye:viewEye}), 
