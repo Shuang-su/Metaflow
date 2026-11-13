@@ -7,6 +7,8 @@ import { constants as fsConstants, existsSync } from 'node:fs';
 import { basename, dirname, isAbsolute, join, relative, resolve, sep } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 
+import { validateProductionHistoryRecovery } from './production-history-provenance.mjs';
+
 export const REPO_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 
 export const CHANGE_STATES = new Set([
@@ -1364,12 +1366,18 @@ export async function validateVersionHistories(root = REPO_ROOT) {
         assertion(['1.0', '1.1'].includes(document.schemaVersion), `${file}: unsupported schemaVersion`);
         assertion(document.current && typeof document.current === 'object', `${file}: missing current`);
         assertion(Array.isArray(document.entries), `${file}: entries must be an array`);
+        const productionRecovery = file === 'metadata/version-history.json'
+            ? await validateProductionHistoryRecovery(root, document)
+            : null;
         for (const entry of document.entries) {
             const isMclEntry =
                 document.schemaVersion === '1.1' &&
                 typeof entry.date === 'string' &&
                 entry.date >= effectiveDate;
-            if (isMclEntry) {
+            // Imported production statements retain their original fields. Their missing
+            // original trace is represented by the hash-pinned recovery evidence above.
+            if ((isMclEntry || productionRecovery?.newEntryRefs.has(entry.gitRef)) &&
+                !productionRecovery?.importedEntryRefs.has(entry.gitRef)) {
                 assertion(entry.trace && typeof entry.trace === 'object', `${file}: post-MCL entry ${entry.displayVersion ?? entry.appSemver} requires trace`);
             }
             if (!entry.trace) continue;

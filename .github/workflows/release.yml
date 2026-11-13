@@ -45,6 +45,8 @@ jobs:
             analytics
             data/index.json
             data/version-history.json
+            data/production-history-recovery.json
+            data/production-history-recovery/
             data/editor-version-history.json
             data/ACG/BitCity260711
             data/ACG/FireflyFes38/260502 172930 03 崩坏星穹铁道 昔涟/settings-v2.json

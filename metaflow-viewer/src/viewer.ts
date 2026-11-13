@@ -25,6 +25,8 @@ import {
 } from 'playcanvas';
 import type { CameraComponent, Entity, GraphicsDevice, GSplatComponent, Layer } from 'playcanvas';
 
+import { backgroundCss } from './background';
+import { BackgroundRenderer, backgroundGLSL, backgroundWGSL } from './background-renderer';
 import { CameraManager, isWalkAllowed } from './camera-manager';
 import type { Camera } from './cameras/camera';
 import { Capture } from './capture';
@@ -188,7 +190,10 @@ const anyPostEffectEnabled = (settings: PostEffectSettings): boolean => {
 
 const clamp01 = (value: number) => Math.max(0, Math.min(1, value));
 const toCssColor = (color: [number, number, number]) =>
-    `rgb(${color.map((v) => Math.round(clamp01(v) * 255)).join(' ')})`;
+    `rgb(${color
+        .slice(0, 3)
+        .map((v) => Math.round(clamp01(v) * 255))
+        .join(' ')})`;
 const toShaderFloat = (value: number) => clamp01(value).toFixed(8);
 const toShaderVec3 = (color: [number, number, number]) => {
     // Compose runs before gamma output. Convert CSS/sRGB colors to linear so
@@ -310,6 +315,8 @@ class Viewer {
 
     debugPanel: DebugPanel | null = null;
 
+    backgroundRenderer: BackgroundRenderer;
+
     sceneBackgroundCss: string | null = null;
 
     sceneBackgroundGradient: NonNullable<ExperienceSettings['background']['gradient']> | null = null;
@@ -380,8 +387,13 @@ class Viewer {
     applyBackground(settings: ExperienceSettings) {
         const { app, camera } = this.global;
         const { background } = settings;
-        this.sceneBackgroundCss = background.gradient ? gradientCss(background.gradient) : toCssColor(background.color);
+        this.sceneBackgroundCss = background.gradient?.type
+            ? backgroundCss(background)
+            : background.gradient
+              ? gradientCss(background.gradient)
+              : toCssColor(background.color);
         this.sceneBackgroundGradient = background.gradient ?? null;
+        this.backgroundRenderer.setBackground(background.gradient?.type ? background : { color: background.color });
 
         if (background.gradient) {
             // Metaflow gradients are composited behind transparent splats. Keep
@@ -435,12 +447,18 @@ class Viewer {
         }
 
         if (this.cameraFrame && gradient) {
-            glsl.set('composeMainEndPS', `${glslComposeMainEndPS}\n${composeGradientGlsl(gradient)}`);
-            wgsl.set('composeMainEndPS', `${wgslComposeMainEndPS}\n${composeGradientWgsl(gradient)}`);
+            glsl.set(
+                'composeMainEndPS',
+                `${glslComposeMainEndPS}\n${gradient.type ? 'result = mix(pow(mfBackgroundColor(vec2(uv.x, 1. - uv.y)), vec3(2.2)), result, scene.a);' : composeGradientGlsl(gradient)}`
+            );
+            wgsl.set(
+                'composeMainEndPS',
+                `${wgslComposeMainEndPS}\n${gradient.type ? 'result = mix(pow(mfBackgroundColor(uv), vec3f(2.2)), result, scene.a);' : composeGradientWgsl(gradient)}`
+            );
             glsl.set(
                 'composePS',
                 patchChunk(
-                    glslComposePS,
+                    (gradient.type ? backgroundGLSL : '') + glslComposePS,
                     'gl_FragColor = vec4(result, scene.a);',
                     'gl_FragColor = vec4(result, 1.0);',
                     'glsl composePS Metaflow gradient alpha'
@@ -449,7 +467,7 @@ class Viewer {
             wgsl.set(
                 'composePS',
                 patchChunk(
-                    wgslComposePS,
+                    (gradient.type ? backgroundWGSL : '') + wgslComposePS,
                     'output.color = vec4f(result, scene.a);',
                     'output.color = vec4f(result, 1.0);',
                     'wgsl composePS Metaflow gradient alpha'
@@ -473,6 +491,7 @@ class Viewer {
         deferredCollisionLoad?: () => Promise<Collision | null>
     ) {
         this.global = global;
+        this.backgroundRenderer = new BackgroundRenderer(global.app.graphicsDevice);
 
         const { app, settings, config, events, state, camera, renderer } = global;
         const { graphicsDevice } = app;
@@ -647,6 +666,11 @@ class Viewer {
         // Render voxel debug overlay
         app.on('prerender', () => {
             this.voxelOverlay?.update();
+            const target = camera.camera.renderTarget;
+            this.backgroundRenderer.bind(
+                target?.width ?? graphicsDevice.width,
+                target?.height ?? graphicsDevice.height
+            );
         });
 
         let revealPlaybackQueued = false;
@@ -1419,7 +1443,12 @@ class Viewer {
             }
             const { app, camera, state } = this.global;
             if (!this.capture) {
-                this.capture = new Capture(app, camera.camera, () => this.cameraFrame ?? null);
+                this.capture = new Capture(
+                    app,
+                    camera.camera,
+                    () => this.cameraFrame ?? null,
+                    (target) => this.backgroundRenderer.compose(target)
+                );
             }
             const savedCameraState = captureCameraState(this.cameraManager, state);
             const savedTime = state.animationTime;
@@ -1612,6 +1641,7 @@ class Viewer {
         this.splatRenderer?.destroy();
         this.splatRenderer = null;
         this.capture?.destroy();
+        this.backgroundRenderer.destroy();
         this.capture = null;
         if (this.cameraFrame) {
             this.cameraFrame.destroy();

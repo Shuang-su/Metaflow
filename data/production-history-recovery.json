@@ -1,0 +1,81 @@
+{
+  "schemaVersion": 1,
+  "kind": "observed-production-history",
+  "observedAt": "2026-11-13T18:13:03Z",
+  "source": {
+    "productionUrl": "https://metaflow.shuang-su.com/data/version-history.json",
+    "deployId": "6af6e65d93d318c79774c315",
+    "immutableDeployUrl": "https://6af6e65d93d318c79774c315--charming-salamander-fc1af0.netlify.app"
+  },
+  "snapshot": {
+    "url": "/data/production-history-recovery/production-5.23.1-20261114.json",
+    "sha256": "b117d8873380470c966050c929c5e1b907fdb932b729337456929ef0f920c08b",
+    "bytes": 66460,
+    "entries": 135,
+    "maintenanceCommits": 76
+  },
+  "repositoryBaseline": {
+    "commit": "a76f2708232d9d6acba8a370ecbe7808a2a7052d",
+    "path": "metadata/version-history.json",
+    "sha256": "9d19d051b8793829e6b4253966346e228c3771ff6e4211222fb60bd009f08c95",
+    "entries": 133,
+    "maintenanceCommits": 74
+  },
+  "recovery": {
+    "productCommit": "47a8d9a155492285a61875594360e503f9e99956",
+    "pullRequest": "https://github.com/Shuang-su/Metaflow/pull/167",
+    "evidence": "docs/guides/production-runtime-recovery.md"
+  },
+  "runtimeEvidence": {
+    "index.js": {
+      "bytes": 4424108,
+      "sha256": "48441c86c649ae4f110effbdbed064fda8ab8d60736589b0934e4300a09a970a"
+    },
+    "index.css": {
+      "bytes": 38572,
+      "sha256": "547476e1a1f04e7b672e1817726e6eeb80578e49402d239d3f5c6b90151d03a6"
+    },
+    "index.html": {
+      "bytes": 29831,
+      "sha256": "6f3b08bbfbb4474066d741437f93365b6126775b6da5256906e0398a474fa2bb"
+    },
+    "index.js.map": {
+      "bytes": 9498460,
+      "sha256": "06aca005964364749daaa6b4681ec9628d2649b2b0c3a9e2ad13bd8c02455c59"
+    }
+  },
+  "imports": [
+    {
+      "collection": "entries",
+      "index": 133,
+      "gitRef": "1074d34f9db25729e9d6abf14d1fb13f084d1b22",
+      "gitObjectStatus": "unavailable",
+      "displayVersion": "5.23.0"
+    },
+    {
+      "collection": "entries",
+      "index": 134,
+      "gitRef": "3c95767645a506dbe311d3ecce59380c011fe780",
+      "gitObjectStatus": "unavailable",
+      "displayVersion": "5.23.1"
+    },
+    {
+      "collection": "maintenanceCommits",
+      "index": 74,
+      "gitRef": "3aa6ed6",
+      "gitObjectStatus": "unavailable"
+    },
+    {
+      "collection": "maintenanceCommits",
+      "index": 75,
+      "gitRef": "f4520e159c38cc7b775e329d66929bc6f8723f92",
+      "gitObjectStatus": "unavailable"
+    }
+  ],
+  "limits": [
+    "The four imported records preserve published production statements, not recovered Git objects.",
+    "Original Git objects and original issue or pull-request traces remain unavailable; no substitute SHA or fabricated trace is assigned.",
+    "Byte-identical reconstruction covers the observed hosted JavaScript, CSS and HTML, not every original SDK, settings, Editor or deployment artifact.",
+    "New releases, current version identity and new maintenance records still require real Git commits with ancestry or release-tag witnesses."
+  ]
+}

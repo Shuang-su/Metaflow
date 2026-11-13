@@ -5,6 +5,7 @@ import { execFileSync } from 'node:child_process';
 import { readFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import { classifyPaths, loadComponentRegistry } from '../../scripts/mcl.mjs';
+import { validateProductionHistoryRecovery } from '../../scripts/production-history-provenance.mjs';
 
 const repoRoot = fileURLToPath(new URL('../..', import.meta.url));
 const LEGACY_DISPLAY_CUTOFF = '5.18a';
@@ -201,9 +202,10 @@ test('viewer console output is wired to the version history display version', as
     const [index]=await sources('index.ts');assert.match(index,/versionHistory\.current\.displayVersion/);assert.match(index,/appVersion/);assert.match(index,/engineVersion/);assert.match(index,/SuperSplat v1\.37\.0/);
 });
 
-test('change ledger contains every structured version and only main-history commit refs', async () => {
+test('change ledger preserves every version with Git or bounded production-history provenance', async () => {
     const manifest = await readJson(new URL('../../metadata/version-history.json', import.meta.url));
     const ledger = await readFile(new URL('../../docs/metaflow-viewer-change-ledger.md', import.meta.url), 'utf8');
+    const productionRecovery = await validateProductionHistoryRecovery(repoRoot, manifest);
 
     for (const entry of manifest.entries) {
         assert.match(
@@ -226,6 +228,9 @@ test('change ledger contains every structured version and only main-history comm
         ...Array.from(ledger.matchAll(/`([0-9a-f]{7})`/g), (match) => match[1])
     ]);
     for (const ref of ledgerRefs) {
+        // Only the four exact records from the independently hash-checked snapshot
+        // use observed-production provenance. All other refs keep the original checks.
+        if (productionRecovery?.importedRefs.has(ref)) continue;
         execFileSync('git', ['cat-file', '-e', `${ref}^{commit}`], {
             cwd: repoRoot,
             stdio: 'ignore'
@@ -403,7 +408,7 @@ test('package and public release versions match the structured current version',
     assert.equal(pkg.version, manifest.current.appSemver);
     assert.equal(lock.version, manifest.current.appSemver);
     assert.equal(lock.packages[''].version, manifest.current.appSemver);
-    assert.equal(manifest.current.displayVersion, '5.22.0');
+    assert.equal(manifest.current.displayVersion, '5.23.2');
     assert.equal(manifest.current.gitRef, manifest.documentedThrough);
     assert.equal(manifest.current.upstream.repository, 'playcanvas/supersplat-viewer');
     assert.equal(manifest.current.upstream.version, '1.37.0');

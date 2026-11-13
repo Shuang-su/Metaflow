@@ -614,9 +614,40 @@ class GsplatRevealRadial {
         this.app.renderNextFrame = true;
     }
 
-    private updateUniforms() {
-        const values: [string, number | number[]][] = [
-            ['uRevealTime', this.time],
+    // Compatibility Editor 2.x applies the same sampled clock to its materials.
+    setCaptureTime(seconds: number): boolean {
+        this.getCaptureParameters(seconds); // validate before touching realtime state
+        this.app.off('update', this.updateHandler);
+        if (seconds >= this.duration) {
+            this.destroy();
+            return false;
+        }
+        this.arm();
+        this.playing = true;
+        this.time = seconds;
+        this.updateUniforms();
+        this.setWorkBufferAlwaysUpdate(true);
+        this.app.renderNextFrame = true;
+        return true;
+    }
+
+    // Offline consumers sample this clock without subscribing to the realtime loop.
+    get captureTiming() {
+        return {
+            duration: this.duration,
+            subjectTime: this.subjectRevealTime,
+            center: [...this.center],
+            radius: this.radius,
+            dotProfile: this.dotProfile
+        };
+    }
+
+    getCaptureParameters(seconds: number, active = seconds < this.duration): [string, number | number[]][] {
+        if (!Number.isFinite(seconds) || seconds < 0) {
+            throw new RangeError('Reveal capture time must be finite and non-negative');
+        }
+        return [
+            ['uRevealTime', seconds],
             ['uRevealCenter', this.center],
             ['uRevealRadius', this.radius],
             ['uRevealSpeed', this.speed],
@@ -624,8 +655,12 @@ class GsplatRevealRadial {
             ['uRevealDelay', this.delay],
             ['uRevealOscillation', Math.min(Math.max(this.radius * 0.002, 0.025), 0.16)],
             ['uRevealDotSize', calcRevealDotSize(this.dotProfile, this.radius)],
-            ['uRevealActive', this.playing ? 1 : 0]
+            ['uRevealActive', active ? 1 : 0]
         ];
+    }
+
+    private updateUniforms() {
+        const values = this.getCaptureParameters(this.time, this.playing);
 
         if (this.workBufferModifierComponents.size > 0) {
             for (const gsplat of this.workBufferModifierComponents) {

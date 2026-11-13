@@ -142,6 +142,8 @@ jobs:
             analytics
             data/index.json
             data/version-history.json
+            data/production-history-recovery.json
+            data/production-history-recovery/
             data/editor-version-history.json
             docs
             metadata
@@ -216,6 +218,8 @@ jobs:
             metadata
             data/index.json
             data/version-history.json
+            data/production-history-recovery.json
+            data/production-history-recovery/
             data/editor-version-history.json
             data/ACG/**/*.json
             data/ACG/BitCity260711
@@ -380,6 +384,8 @@ jobs:
           sparse-checkout: |
             data/index.json
             data/version-history.json
+            data/production-history-recovery.json
+            data/production-history-recovery/
             data/editor-version-history.json
             metadata/version-history.json
             metadata/editor-version-history.json

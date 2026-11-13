@@ -255,6 +255,10 @@ location / {
 
 ## 当前版本
 
+**2026-11-14 发布候选：** Viewer `5.23.2` 保留线上 `5.23.1` 背景与捕获行为，为 Apple 移动 WebKit 默认选择 WebGL 2 并增加图片解码保护。上游仍为 SuperSplat Viewer `1.37.0` / PlayCanvas `2.23.0`，100 项资源及索引 schema `1.2` 保持。生产交付使用完整现有部署快照叠加 Viewer 文件，保留 Editor、Director 与 Horizon；最终发布身份和回读见 [恢复与发布记录](docs/guides/production-runtime-recovery.md)。
+
+### 2026-10-19 文档快照（历史保留）
+
 **2026-10-19 更新：** 线上与机器元数据均已确认为 Viewer `5.22.0`，上游 SuperSplat Viewer `1.37.0` / PlayCanvas `2.23.0`；Editor 仍为 `1.1 / 1.1.0`，资源索引仍为 schema `1.2`、100 项。版本来源见 [Viewer Version History](metadata/version-history.json)，正式发布与验收见 [MF-151 记录](docs/changes/151-viewer-upstream-v1.37.0/verification.md)。
 
 ### 2026-10-18 文档快照（历史保留）

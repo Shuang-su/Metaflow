@@ -39,6 +39,10 @@ Studio、Convert、Manage、App、Daily 的入口与成熟度随各产品分别�
 
 ## 当前代码与发布基线
 
+**2026-11-14 发布候选：** Viewer `5.23.2`（SuperSplat Viewer `1.37.0` / PlayCanvas `2.23.0`），保留生产 `5.23.1` 运行时并修复 Apple 移动 WebKit 默认兼容路径；资源索引 schema `1.2`、100 项。生产快照覆盖范围、历史来源恢复及发布回读见 [恢复与发布记录](guides/production-runtime-recovery.md)。
+
+### 2026-10-19 文档快照（历史保留）
+
 **2026-10-19 现行发布：** Viewer `5.22.0`（SuperSplat Viewer `1.37.0` / PlayCanvas `2.23.0`）；Editor `1.1 / 1.1.0`；资源索引 schema `1.2`、100 项。已回读线上与 [版本元数据](../metadata/version-history.json)，发布与验收见 [MF-151 记录](changes/151-viewer-upstream-v1.37.0/verification.md)。
 
 ### 2026-10-18 文档快照（历史保留）

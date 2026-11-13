@@ -1,14 +1,14 @@
 {
   "schemaVersion": "1.1",
   "cutoffGitRef": "c613a87",
-  "documentedThrough": "6fd4195d61ff3002a6fcea2caf7bd4eba3742ed7",
+  "documentedThrough": "47a8d9a155492285a61875594360e503f9e99956",
   "defaultResourceVersion": "1.0a",
   "current": {
-    "displayVersion": "5.22.0",
-    "appSemver": "5.22.0",
+    "displayVersion": "5.23.2",
+    "appSemver": "5.23.2",
     "indexSchemaVersion": "1.2",
-    "date": "2026-10-18",
-    "gitRef": "6fd4195d61ff3002a6fcea2caf7bd4eba3742ed7",
+    "date": "2026-11-14",
+    "gitRef": "47a8d9a155492285a61875594360e503f9e99956",
     "historyUrl": "/data/version-history.json",
     "upstream": {
       "repository": "playcanvas/supersplat-viewer",
@@ -421,6 +421,28 @@
       "gitRef": "26844330979d30a37615f625cae659bffbcd9508",
       "date": "2026-10-18",
       "summary": "MF-151 final candidate source with XR gradient restoration and deterministic dev E2E startup; product is PR #152 squash."
+    },
+    {
+      "gitRef": "3aa6ed6",
+      "date": "2026-10-21",
+      "type": "editor-support",
+      "summary": "MF-148 exposes side-effect-free capture timing/parameters on the shared radial reveal for both Editor adapters. Existing Viewer realtime delta clamp is preserved; this is Editor support source, not a new Viewer release or deployed Viewer bundle."
+    },
+    {
+      "gitRef": "f4520e159c38cc7b775e329d66929bc6f8723f92",
+      "date": "2026-10-22",
+      "summary": "Format gradient integration with existing Viewer rules; behavior unchanged"
+    },
+    {
+      "gitRef": "eca0cb7d3fba8cec7f6101a5a0fd6eacf6f6792c",
+      "date": "2026-11-14",
+      "summary": "Unpublished Apple mobile render compatibility candidate; consolidated with recovered production runtime in Viewer 5.23.2."
+    },
+    {
+      "gitRef": "7ba649963b3ac1b802c61abb49da9dc2531eb935",
+      "date": "2026-11-14",
+      "type": "release-support",
+      "summary": "Prepare Viewer 5.23.2 identity and preserve four production-only historical records with immutable snapshot provenance, strict new-release Git checks and public evidence mirrors."
     }
   ],
   "entries": [
@@ -2025,6 +2047,64 @@
           "gitRef": "cd0e316e397929ffa87abd4833f73f8a0bd1fd2b"
         }
       }
+    },
+    {
+      "displayVersion": "5.23.0",
+      "appSemver": "5.23.0",
+      "type": "feature",
+      "scope": "viewer",
+      "date": "2026-10-22",
+      "gitRef": "1074d34f9db25729e9d6abf14d1fb13f084d1b22",
+      "summary": "Shared multi-stop linear and radial background rendering with offline Editor exports",
+      "changes": [
+        {
+          "area": "background",
+          "summary": "Extend version-2 background.gradient with optional type, stops, angle and radial geometry; preserve legacy three-colour scenes."
+        },
+        {
+          "area": "render",
+          "summary": "Share sRGB/alpha sampling between WebGL and WebGPU; compose capture before row flipping and retain CameraFrame/XR restoration."
+        },
+        {
+          "area": "export",
+          "summary": "Add a platform-independent renderViewerHtml entry with inline HTML or five-file packages and no analytics/runtime network dependency."
+        }
+      ]
+    },
+    {
+      "displayVersion": "5.23.1",
+      "appSemver": "5.23.1",
+      "gitRef": "3c95767645a506dbe311d3ecce59380c011fe780",
+      "date": "2026-10-22",
+      "type": "fix",
+      "scope": "viewer",
+      "summary": "Normalize legacy RGBA background tuples before shared RGB sampling; recover gradient release",
+      "changes": [
+        {
+          "area": "compatibility",
+          "summary": "Preserve four-component legacy background settings on the wire; write exactly RGB plus alpha to the gradient texture and retain ordinary RGB behavior."
+        },
+        {
+          "area": "validation",
+          "summary": "Add LUT overflow regression and WebGL/WebGPU old RGBA-scene coverage after rolling back the initial gradient deployment."
+        }
+      ]
+    },
+    {
+      "displayVersion": "5.23.2",
+      "appSemver": "5.23.2",
+      "type": "fix",
+      "scope": "viewer",
+      "date": "2026-11-14",
+      "gitRef": "47a8d9a155492285a61875594360e503f9e99956",
+      "summary": "Preserve production runtime and restore Apple mobile WebKit rendering through WebGL 2 with guarded image decoding",
+      "trace": {
+        "changeId": "MF-T0-20261114-webgpu-compat",
+        "pullRequest": "https://github.com/Shuang-su/Metaflow/pull/167",
+        "evidence": "docs/guides/production-runtime-recovery.md",
+        "releaseTag": "viewer-v5.23.2"
+      }
     }
-  ]
+  ],
+  "productionHistoryRecovery": "/data/production-history-recovery.json"
 }
