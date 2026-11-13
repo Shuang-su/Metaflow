@@ -126,7 +126,12 @@ class Capture {
 
     private destroyed = false;
 
-    constructor(app: AppBase, camera: CameraComponent, getCameraFrame: () => CaptureFrame | null) {
+    constructor(
+        app: AppBase,
+        camera: CameraComponent,
+        getCameraFrame: () => CaptureFrame | null,
+        private composeBackground: (target: RenderTarget) => RenderTarget = (target) => target
+    ) {
         this.app = app;
         this.device = app.graphicsDevice;
         this.camera = camera;
@@ -228,7 +233,9 @@ class Capture {
 
             const dstRT = this.ensure('dstRT', outW, outH, false);
             const { scope } = this.device;
-            scope.resolve('source').setValue(srcRT.colorBuffer);
+            // Composite in native render-target orientation, before readback row flipping.
+            const composed = this.composeBackground(srcRT);
+            scope.resolve('source').setValue(composed.colorBuffer);
             scope.resolve('uSrcSize').setValue([srcW, srcH]);
             scope.resolve('uRatio').setValue(ss);
             scope.resolve('uFlipY').setValue(srcRT.flipY ? 0 : 1);

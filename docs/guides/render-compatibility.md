@@ -10,7 +10,7 @@
 - [截图对应资源](https://metaflow.shuang-su.com/acg/sztuccf260919/lolita-burgundy_lace) 的 [scene.sog](https://metaflow.shuang-su.com/data/ACG/SZTUCCF260919/A003C0025_700101_RH8603/scene.sog) 是 SOG v2，由 splat-transform 3.6.4 生成，550,360 点，已有 `quats.webp`。完整文件 9,887,653 bytes，SHA-256 `8c5285f6ee0a0b14530760013e7fc8a2202b70871f7d43ec6774926c7ae287f7`。
 - 主体 `means_l`、`means_u`、`scales` 的有效像素 alpha 全 255；`quats` alpha 为 252–255。它不属于早期 SOG v3 的 alpha 旋转布局。`sh0` alpha 为 1–254，不能据此排除其他 WebKit 解码误差。
 - [独立场景环境](https://metaflow.shuang-su.com/data/ACG/SZTUCCF260919/A003C0025_700101_RH8603/environment.compressed.ply) 是 5,652 点 compressed PLY，来自 splat-transform 3.6.4，未经过 SOG WebP 解码。它构成远景壳，不作为错误离群点删除。
-- 当前远端 main `a76f2708232d9d6acba8a370ecbe7808a2a7052d` 仍记录 5.22.0。线上记录的 `3c95767645a506dbe311d3ecce59380c011fe780` 在本轮 GitHub 查询中不存在。发布前必须找回/同步实际生产源码，不能把当前 main 整包覆盖到 5.23.1。
+- 当前远端 main `a76f2708232d9d6acba8a370ecbe7808a2a7052d` 仍记录 5.22.0。线上记录的 `3c95767645a506dbe311d3ecce59380c011fe780` 在本轮 GitHub 查询中不存在。后续已通过生产 source map 恢复本次涉及的 Viewer 运行时，并在隔离基线重建出与线上逐字节一致的脚本、样式和入口 HTML；见[恢复依据](production-runtime-recovery.md)。原始提交与正式发布记录仍未对齐，不能把当前 main 整包覆盖到 5.23.1。
 
 ## 用户确认的 WebGL 对照（2026-11-14，北京时间）
 
@@ -20,7 +20,7 @@
 
 截图机位更远、人物占比更小，截图分辨率和播放状态也不同；没有程序采集的图形设备诊断。因此它属于用户端后端入口对照，不作为同机位像素对照、持续交互、性能或候选补丁的完整验收。
 
-复查线上版本记录仍为 5.23.1，PR #167 仍为 Draft、未合并。当前线上 `?webgl` 入口不含本候选新增的嵌入式 WebKit 解码保护，不能把改善归因于本补丁或宣称 WebGPU 根因已修复。后续将补丁对齐实际生产源码，再复核近景与旋转缩放；不再把入口参数是否为 `?webgl` 列为待确认事项。
+确认用户反馈时，线上版本记录仍为 5.23.1，PR #167 为 Draft、未合并。当前线上 `?webgl` 入口不含本候选新增的嵌入式 WebKit 解码保护，不能把改善归因于本补丁或宣称 WebGPU 根因已修复。后续已将补丁接到经字节比对核实的生产运行时源码上，候选近景与旋转缩放仍待验证；不再把入口参数是否为 `?webgl` 列为待确认事项。
 
 ## 格式与引擎矩阵
 
@@ -70,4 +70,11 @@ Engine 2.23.0 的 WebGL ImageBitmap 保护依赖 Safari UA token；一些 WKWebV
 
 已执行：三份定向测试 30/30、TypeScript、改动源码 ESLint/Prettier、完整 Viewer 构建和 `git diff --check` 通过。非实现者独立审查与重复定向测试通过；从实际线上 bundle 提取真实 `ImgParser`、替换 I/O 的分流检查 3/3，验证 WebGL Apple / WebGPU Apple / WebGL 非 Apple 三种路径，未验证解码像素。首次类型检查发现稀疏检出缺少 tracking plan 及 GraphicsDevice 基类没有声明运行时字段；补齐检出、修正 helper 类型后通过，未降低检查标准。
 
-发布前完成两项具体缺口：恢复 5.23.1 对应源码并在其上移植/构建；在目标 iPhone 上验证候选补丁的近景和交互。现有线上 WebGL 入口画面改善已获用户确认，但不替代候选验收。候选只在独立分支，未提升生产版本、未覆盖模型、未部署或回滚。部署后另追加对应 Ledger/Version History 和观察结果。
+生产 Viewer 运行时基线已恢复并经逐字节比对核实，兼容候选保留其背景与捕获行为。发布前仍需对齐正式版本记录及发布包，并在目标 iPhone 上验证候选补丁的近景和交互。现有线上 WebGL 入口画面改善已获用户确认，但不替代候选验收。候选只在独立分支，未提升生产版本、未覆盖模型、未部署或回滚。发布前补齐正式版本及 Ledger/Version History 发布记录；部署后追加观察结果。
+
+
+### 生产运行时恢复后的候选验证
+
+五份生产运行时差异及最小 schema 类型已并入兼容候选，保留线上背景/捕获行为；reveal 采样对象仅机械格式化。移植后 30 项启动/兼容测试、3 项版本一致性定向检查、TypeScript、相关源码 ESLint/Prettier、完整 Viewer 构建、git diff --check 通过。独立代码与文档复核通过；候选构建的目标设备像素/性能验证仍未完成。
+
+隔离恢复基线与生产的逐字节对照见[恢复记录](production-runtime-recovery.md)。本 PR 仍沿用仓库原有 5.22.0 身份字段；正式版本及发布记录未安排完成，因此不作为可直接覆盖生产的发布包。

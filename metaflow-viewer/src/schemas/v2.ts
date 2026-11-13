@@ -99,6 +99,11 @@ type ExperienceSettings = {
             bottomColor: [number, number, number];
             horizonStop?: number;
             bottomStop?: number;
+            type?: 'linear' | 'radial';
+            stops?: { position: number; color: [number, number, number]; opacity?: number }[];
+            angle?: number;
+            center?: [number, number];
+            radius?: [number, number];
         };
     };
     postEffectSettings: PostEffectSettings;
