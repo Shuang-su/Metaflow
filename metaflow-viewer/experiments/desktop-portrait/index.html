@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#181819">
+  <title>桌面人像 · MetaFlow 实验</title>
+  <style>
+    :root { color-scheme: dark; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; color: #f5f3ef; background: #181819; }
+    * { box-sizing: border-box; }
+    body { margin: 0; overflow: hidden; }
+    #canvas { position: fixed; inset: 0; width: 100%; height: 100%; display: block; touch-action: none; }
+    header { position: fixed; top: max(24px, env(safe-area-inset-top)); left: 28px; pointer-events: none; text-shadow: 0 2px 12px #000; }
+    header .brand { font-size: 13px; letter-spacing: .12em; opacity: .8; }
+    h1 { font-size: clamp(23px, 3vw, 36px); font-weight: 550; margin: 10px 0 6px; letter-spacing: -.04em; }
+    header p { font-size: 13px; color: #ddd6cc; max-width: 410px; line-height: 1.7; margin: 0; }
+    aside { position: fixed; right: 20px; top: 20px; bottom: 20px; width: 320px; overflow: auto; padding: 20px; border: 1px solid #ffffff20; border-radius: 22px; background: #1b1b20ec; box-shadow: 0 10px 60px #0005; scrollbar-width: thin; }
+    h2 { margin: 0 0 12px; font-size: 17px; font-weight: 600; }
+    h3 { font-size: 13px; font-weight: 600; color: #e8e2f5; margin: 20px 0 12px; }
+    .subtitle { color: #aaa6af; font-size: 12px; line-height: 1.65; margin: 8px 0 12px; }
+    .row { display: flex; gap: 8px; align-items: center; }
+    button, .file-button, select, input[type=url] { font: inherit; font-size: 12px; border: 1px solid #ffffff25; border-radius: 10px; background: #ffffff0b; color: inherit; padding: 10px 12px; }
+    button, .file-button { cursor: pointer; text-align: center; }
+    button:hover, .file-button:hover { background: #ffffff1b; }
+    button:focus-visible, input:focus-visible, select:focus-visible, .file-button:focus-within { outline: 2px solid #b9a0ff; outline-offset: 3px; }
+    button:disabled { opacity: .5; cursor: wait; }
+    .primary { background: #d5c7f5; border-color: #d5c7f5; color: #1d172c; font-weight: 600; }
+    .primary:hover { background: #e3d8fc; }
+    .wide { width: 100%; display: block; }
+    #file { position: absolute; width: 1px; height: 1px; opacity: 0; }
+    details { margin-top: 10px; }
+    summary { font-size: 12px; cursor: pointer; color: #bdb6cc; padding: 6px 0; }
+    #url { width: 100%; margin: 8px 0; }
+    .control { margin: 13px 0; }
+    .label { display: flex; align-items: center; justify-content: space-between; font-size: 12px; color: #d4d0d9; }
+    output { font-variant-numeric: tabular-nums; color: #c3afea; font-size: 12px; }
+    input[type=range] { width: 100%; margin: 8px 0 0; accent-color: #c4acef; }
+    input[type=color] { width: 42px; height: 30px; border: 0; background: transparent; cursor: pointer; }
+    select { width: 100%; margin-top: 8px; }
+    .check { display: flex; gap: 8px; align-items: center; font-size: 12px; color: #c7c1ce; margin: 12px 0; }
+    .check input { accent-color: #c4acef; }
+    #status { position: fixed; bottom: 24px; left: 28px; max-width: min(560px, calc(100vw - 400px)); padding: 12px 16px; border-radius: 12px; background: #151518de; border: 1px solid #ffffff1a; color: #cfc9d7; font-size: 12px; line-height: 1.65; }
+    #status[data-error=true] { border-color: #d6a688; color: #ffd0b9; }
+    #assetName { display: block; font-weight: 600; color: #f3edf9; overflow-wrap: anywhere; margin-bottom: 2px; }
+    #trackingStatus { min-height: 32px; }
+    #restore { display: none; position: fixed; right: max(20px, env(safe-area-inset-right)); top: max(20px, env(safe-area-inset-top)); background: #151518cc; }
+    .presentation header, .presentation aside, .presentation #status { display: none; }
+    .presentation #restore { display: block; }
+    .separator { border-top: 1px solid #ffffff13; margin-top: 18px; padding-top: 18px; }
+    #fps { font-size: 11px; color: #938c9d; margin-left: auto; font-variant-numeric: tabular-nums; }
+    @media (max-width: 760px) {
+      header { top: max(18px, env(safe-area-inset-top)); left: 18px; right: 18px; }
+      header p { max-width: 300px; }
+      aside { top: auto; bottom: max(10px, env(safe-area-inset-bottom)); left: 10px; right: 10px; width: auto; max-height: 43vh; padding: 18px; border-radius: 18px; }
+      #status { left: 18px; right: 18px; bottom: calc(43vh + 22px); max-width: none; padding: 9px 12px; font-size: 11px; }
+    }
+    @media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto !important; } }
+  </style>
+</head>
+<body>
+  <canvas id="canvas" aria-label="高斯人像桌面视错觉展示"></canvas>
+  <header><div class="brand">METAFLOW / EXPERIMENT 165</div><h1>桌面人像</h1><p>把平板放上支架，让人像与桌面连在一起。<br>先校准，再进入全屏展示。</p></header>
+  <aside id="controls" aria-label="桌面人像校准">
+    <div class="row"><h2>开始展示</h2><span id="fps"></span></div>
+    <label class="file-button primary wide">打开本地人像 · PLY / SOG<input id="file" type="file" accept=".ply,.sog"></label>
+    <p class="subtitle">文件只在当前设备读取。初始画面是合成高斯校准样本，请换成你的人像。</p>
+    <details><summary>使用已有资源链接</summary><input id="url" type="url" aria-label="高斯资源 HTTPS 链接" placeholder="https://…/portrait.sog"><button id="loadUrl" class="wide">加载链接</button></details>
+    <h3>01 / 屏幕与观看位置</h3>
+    <p class="subtitle">宽度指当前可见画布的实际厘米数。建议全屏后测量；眼位以屏幕中心为原点。</p>
+    <div class="control"><label class="label" for="width">可见画布宽度<output id="widthValue"></output></label><input id="width" type="range" min="8" max="80" step="0.1" value="26"></div>
+    <div class="control"><label class="label" for="tilt">屏幕相对桌面倾角<output id="tiltValue"></output></label><input id="tilt" type="range" min="0" max="90" step="1" value="65"></div>
+    <button id="senseTilt" class="wide">读取一次设备倾角</button>
+    <div class="control"><label class="label" for="eyeX">眼位左右<output id="eyeXValue"></output></label><input id="eyeX" type="range" min="-30" max="30" step="0.5" value="0"></div>
+    <div class="control"><label class="label" for="eyeY">眼位高于屏幕中心<output id="eyeYValue"></output></label><input id="eyeY" type="range" min="-40" max="40" step="0.5" value="15"></div>
+    <div class="control"><label class="label" for="eyeZ">眼位到屏幕平面的距离<output id="eyeZValue"></output></label><input id="eyeZ" type="range" min="20" max="150" step="1" value="55"></div>
+    <label class="check"><input id="markers" type="checkbox">显示屏幕平面校准标记</label>
+    <h3>02 / 人像与桌面</h3>
+    <div class="control"><label class="label" for="height">人像展示高度<output id="heightValue"></output></label><input id="height" type="range" min="4" max="45" step="0.5" value="18"></div>
+    <div class="control"><label class="label" for="depth">脚点距屏幕下沿向后<output id="depthValue"></output></label><input id="depth" type="range" min="0" max="40" step="0.5" value="10"></div>
+    <div class="control"><label class="label" for="heading">人像朝向<output id="headingValue"></output></label><input id="heading" type="range" min="-180" max="180" step="1" value="0"></div>
+    <div class="control"><label class="label" for="foot">脚底位置微调<output id="footValue"></output></label><input id="foot" type="range" min="-50" max="50" step="1" value="0"></div>
+    <label class="label" for="sourceAxis">源模型坐标</label><select id="sourceAxis"><option value="z180">MetaFlow 人像（Z 翻转 180°）</option><option value="none" selected>Y 向上（无需翻转）</option><option value="x180">X 翻转 180°</option><option value="x90">Z 向上（X 旋转 -90°）</option></select>
+    <label class="label" for="floorStyle" style="margin-top:14px">桌面样式</label><select id="floorStyle"><option value="wood">木纹</option><option value="plain">纯色</option><option value="grid">校准网格</option></select>
+    <label class="label" for="floorColor" style="margin-top:12px">桌面颜色<input id="floorColor" type="color" value="#a77e55"></label>
+    <label class="check"><input id="shadow" type="checkbox" checked>脚底软接触阴影</label>
+    <h3>03 / 跟随观看位置</h3>
+    <div class="row"><button id="tracking" style="flex:1">开启前摄追踪</button><button id="recenter">重新居中</button></div>
+    <p id="trackingStatus" class="subtitle" aria-live="polite">可选。面部画面只在本机处理。首次开启需要下载追踪模型。</p>
+    <p class="subtitle">先调好手动眼位，再保持正面开始追踪。适合单人小范围移动；单目距离是校准后的估计值。</p>
+    <div class="row separator"><button id="reset">重置校准</button><button id="present" class="primary" style="flex:1">进入展示</button></div>
+    <p class="subtitle">实验预览 · 物理 iPad 效果仍需实机校准。普通屏幕呈现单观察点错觉。</p>
+  </aside>
+  <div id="status" role="status" aria-live="polite"><span id="assetName">正在初始化</span><span id="message">准备高斯渲染器…</span></div>
+  <button id="restore">退出展示 · 调整</button>
+  <script type="module" src="./app.mjs"></script>
+</body>
+</html>

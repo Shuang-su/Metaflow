@@ -1,0 +1,14 @@
+{
+  "name": "@metaflow/desktop-portrait-experiment",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "serve": "node serve.mjs",
+    "test": "node --test *.test.mjs"
+  },
+  "dependencies": {
+    "@mediapipe/tasks-vision": "0.10.32",
+    "playcanvas": "2.23.0"
+  }
+}
