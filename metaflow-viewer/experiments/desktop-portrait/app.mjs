@@ -645,4 +645,9 @@ async function initialize() {
     await openPortrait({url,filename:'calibration.ply',revoke:true,synthetic:true});
   }
 }
-initialize().catch(error=>{message(`无法启动三维展示：${error.message}。请使用支持 WebGL2 的浏览器。`,true);$('tracking').disabled=true;});
+initialize().catch(error=>{
+  console.error('Initialize failed:', error);
+  message(`无法启动三维展示：${error.message}。请使用支持 WebGL2 的浏览器。`,true);
+  $('tracking').disabled=true;
+  throw error;  // Re-throw for visibility
+});
