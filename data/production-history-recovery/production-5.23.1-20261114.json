@@ -1,0 +1,2083 @@
+{
+  "schemaVersion": "1.1",
+  "cutoffGitRef": "c613a87",
+  "documentedThrough": "3c95767645a506dbe311d3ecce59380c011fe780",
+  "defaultResourceVersion": "1.0a",
+  "current": {
+    "displayVersion": "5.23.1",
+    "appSemver": "5.23.1",
+    "indexSchemaVersion": "1.2",
+    "date": "2026-10-22",
+    "gitRef": "3c95767645a506dbe311d3ecce59380c011fe780",
+    "historyUrl": "/data/version-history.json",
+    "upstream": {
+      "repository": "playcanvas/supersplat-viewer",
+      "version": "1.37.0"
+    }
+  },
+  "versioning": {
+    "mode": "semver-forward",
+    "packageVersion": "semver",
+    "displayVersion": "legacy major.minor plus optional resource suffix through 5.18a; full semver thereafter",
+    "rules": [
+      "Published display versions through 5.18a are immutable legacy history.",
+      "Viewer 5.18.1 is the first release after the 5.18a legacy cutoff; later releases use full SemVer and displayVersion equals appSemver.",
+      "Patch releases cover resources, thumbnails, settings, compatible routes, bug fixes, and other backwards-compatible corrections.",
+      "Minor releases add backwards-compatible product, interaction, loader, data, or architecture capabilities.",
+      "Major releases change public contracts incompatibly or require consumer migration.",
+      "Documentation, governance, research, behavior-neutral refactors, test maintenance, and unpublished staging do not create Viewer versions."
+    ],
+    "majorLines": [
+      {
+        "major": 1,
+        "name": "Initial viewer, sharing, loading UX, and baseline routing"
+      },
+      {
+        "major": 2,
+        "name": "LOD migration, streaming detection, loading stages, and conflict reporting"
+      },
+      {
+        "major": 3,
+        "name": "Walk mode, voxel collision, mobile controls, and first-person controls"
+      },
+      {
+        "major": 4,
+        "name": "Animation policy, synthetic figure-eight, and ACG resource publishing"
+      },
+      {
+        "major": 5,
+        "name": "SuperSplat v1.26.2–v1.29.1 architecture, tiled collision, on-demand rendering, capture, localization, debugging, and Metaflow compatibility"
+      }
+    ]
+  },
+  "maintenanceCommits": [
+    {
+      "gitRef": "ad641f4",
+      "date": "2026-06-10",
+      "summary": "docs: restore README and audit viewer history"
+    },
+    {
+      "gitRef": "cce4059",
+      "date": "2026-06-10",
+      "summary": "chore(release): document Metaflow Viewer 5.4"
+    },
+    {
+      "gitRef": "f624ce0",
+      "date": "2026-06-10",
+      "summary": "chore(release): document Metaflow Viewer 5.5"
+    },
+    {
+      "gitRef": "a3ce142",
+      "date": "2026-06-10",
+      "summary": "chore(release): document Metaflow Viewer 5.6"
+    },
+    {
+      "gitRef": "e91b05a",
+      "date": "2026-06-10",
+      "summary": "chore(release): document Metaflow Viewer 5.7"
+    },
+    {
+      "gitRef": "1ef4308",
+      "date": "2026-06-11",
+      "summary": "chore(release): document Metaflow Viewer 5.8"
+    },
+    {
+      "gitRef": "01ecdcb",
+      "date": "2026-06-11",
+      "summary": "chore(release): document Metaflow Viewer 5.9"
+    },
+    {
+      "gitRef": "e01b004",
+      "date": "2026-06-16",
+      "summary": "chore(release): document Metaflow Viewer 5.10"
+    },
+    {
+      "gitRef": "532c6ba",
+      "date": "2026-06-16",
+      "summary": "chore(release): document Metaflow Viewer 5.11"
+    },
+    {
+      "gitRef": "8b6898b",
+      "date": "2026-06-17",
+      "summary": "chore(release): document Metaflow Viewer 5.12"
+    },
+    {
+      "gitRef": "3697ff8",
+      "date": "2026-06-22",
+      "summary": "chore(release): document Metaflow Viewer 5.14"
+    },
+    {
+      "gitRef": "56da387",
+      "date": "2026-06-22",
+      "summary": "chore(release): document Metaflow Viewer 5.15"
+    },
+    {
+      "gitRef": "28e8f02",
+      "date": "2026-06-22",
+      "summary": "chore(dashboard): add bilingual Metabase entry shell"
+    },
+    {
+      "gitRef": "c89aebf",
+      "date": "2026-06-22",
+      "summary": "fix(dashboard): allow Metabase iframe in shell"
+    },
+    {
+      "gitRef": "daacd13",
+      "date": "2026-06-22",
+      "summary": "chore(release): document Metaflow Viewer 5.16"
+    },
+    {
+      "gitRef": "000c93b",
+      "date": "2026-06-25",
+      "summary": "chore(release): document Metaflow Viewer 5.17"
+    },
+    {
+      "gitRef": "a1676ef",
+      "date": "2026-06-26",
+      "summary": "chore(release): document Metaflow Viewer 5.18"
+    },
+    {
+      "gitRef": "f7e3883",
+      "date": "2026-06-26",
+      "summary": "feat(data): stage Shenzhen Bijiashan dynamic voxel scene before final 5.18a alignment"
+    },
+    {
+      "gitRef": "bdf46c9",
+      "date": "2026-06-26",
+      "summary": "chore(release): document Bijiashan data release"
+    },
+    {
+      "gitRef": "65a5fb6",
+      "date": "2026-06-27",
+      "summary": "Document Bijiashan 5.18a release"
+    },
+    {
+      "gitRef": "8f4ffc2",
+      "date": "2026-08-11",
+      "summary": "chore(release): align Viewer 5.18.1 merge record"
+    },
+    {
+      "gitRef": "18a164d",
+      "date": "2026-08-14",
+      "summary": "chore(release): align Viewer 5.19.0 merge record"
+    },
+    {
+      "gitRef": "f198609",
+      "date": "2026-08-14",
+      "summary": "chore(release): prepare Viewer 5.19.0 production"
+    },
+    {
+      "gitRef": "f0fb740",
+      "date": "2026-08-14",
+      "summary": "chore(release): align Viewer 5.19.1 recovery record"
+    },
+    {
+      "gitRef": "d5c1faf",
+      "date": "2026-08-14",
+      "summary": "chore(release): prepare Viewer 5.19.1 production"
+    },
+    {
+      "gitRef": "2f5b8c3",
+      "date": "2026-08-15",
+      "summary": "chore(release): publish Viewer 5.19.2 analytics recovery; record the existing release metadata commit"
+    },
+    {
+      "gitRef": "9771f006",
+      "date": "2026-10-05",
+      "summary": "MF-106 unpublished 5.21.0 release preparation and license whitespace correction"
+    },
+    {
+      "gitRef": "725527788",
+      "date": "2026-10-05",
+      "summary": "MF-106 unpublished keyboard lens undo correction and forward-version regression fixtures"
+    },
+    {
+      "gitRef": "103afad3",
+      "date": "2026-10-05",
+      "summary": "MF-106 pre-squash implementation preserved by viewer-v5.21.0-rc1; released through PR107 product commit"
+    },
+    {
+      "gitRef": "4e1332c31",
+      "date": "2026-10-05",
+      "summary": "MF-106 unpublished 5.21.1 foreground-recovery fix and race regression; final product is recorded after PR110 merge"
+    },
+    {
+      "gitRef": "40821a3a1",
+      "date": "2026-10-05",
+      "summary": "MF-106 unpublished 5.21.1 intermediate product from PR109; foreground recovery completed in final PR110 product"
+    },
+    {
+      "gitRef": "64572c37d",
+      "date": "2026-10-05",
+      "summary": "MF-106 viewport/playhead implementation checkpoint preserved by viewer-v5.21.2-rc1; final product is PR112 squash"
+    },
+    {
+      "gitRef": "b958ec1b6",
+      "date": "2026-10-05",
+      "summary": "Unpublished MF-106 short-window source checkpoint preserved by viewer-v5.21.3-rc1; final product is PR #114 squash."
+    },
+    {
+      "gitRef": "0fcef7032",
+      "date": "2026-10-05",
+      "summary": "Unpublished MF-106 restoration checkpoint; candidate CameraBar, Operator, timeline and tutorial are carried by the 5.21.4 product release."
+    },
+    {
+      "gitRef": "3ab7dcfba",
+      "date": "2026-10-05",
+      "summary": "Unpublished MF-106 feedback and optical guide checkpoint; included by the final 5.21.4 source."
+    },
+    {
+      "gitRef": "40713877e",
+      "date": "2026-10-05",
+      "summary": "Unpublished MF-106 review fix source checkpoint preserved by viewer-v5.21.4-rc1; final product is PR #117 squash."
+    },
+    {
+      "gitRef": "1d52e6a92",
+      "date": "2026-10-05",
+      "summary": "MF-106 interface product PR #117 was merged but not deployed; 5.21.4 also includes interest re-entry readiness repair."
+    },
+    {
+      "gitRef": "792e20dae",
+      "date": "2026-10-05",
+      "summary": "Unpublished MF-106 interest re-entry source preserved by viewer-v5.21.4-rc2; final product is PR #118 squash."
+    },
+    {
+      "gitRef": "c13a34baf",
+      "date": "2026-10-08",
+      "type": "maintenance",
+      "summary": "Unpublished MF-106 responsive/focus feedback checkpoint; included by the final 5.21.4 product source."
+    },
+    {
+      "gitRef": "1fac1be31",
+      "date": "2026-10-08",
+      "summary": "MF-106 unshipped Director detail source: centered focus reticle, XYZ and mode hover, Operator padding/restoration and cancellation of exiting sliders; included by 5.21.4."
+    },
+    {
+      "gitRef": "6969f80af",
+      "date": "2026-10-05",
+      "summary": "MF-106 product PR #118 was merged but not deployed; 5.21.4 also includes final responsive/focus feedback correction."
+    },
+    {
+      "gitRef": "c85b6859d",
+      "date": "2026-10-08",
+      "summary": "MF-106 unpublished optical-feedback and VIDEO source checkpoint; included by 5.21.5."
+    },
+    {
+      "gitRef": "19860f1da",
+      "date": "2026-10-08",
+      "summary": "MF-106 Easing placement source; superseded within the unpublished 5.21.5 candidate by final shutter geometry."
+    },
+    {
+      "gitRef": "eef25bfe1",
+      "date": "2026-10-08",
+      "summary": "MF-106 final shutter source preserved; unpublished 5.21.5 also includes short-clip hit-area correction."
+    },
+    {
+      "gitRef": "c64f21097",
+      "date": "2026-10-08",
+      "summary": "MF-106 short-clip source checkpoint included in PR #123; immutable viewer-v5.21.5-rc1 preserves the source chain."
+    },
+    {
+      "gitRef": "188840eae",
+      "date": "2026-10-09",
+      "summary": "MF-106 Fast feedback and interaction source preserved by viewer-v5.21.6-rc1; product is PR #126 squash."
+    },
+    {
+      "gitRef": "32275d3a1",
+      "date": "2026-10-09",
+      "summary": "MF-106 5.21.6 candidate release mirrors and evidence, preserved by viewer-v5.21.6-rc1."
+    },
+    {
+      "gitRef": "9147392fc56e356ad5a09e05232367fc35096bb6",
+      "date": "2026-10-09",
+      "summary": "MF-106 5.21.7 candidate release mirrors, diagnostic URL correction and evidence; source preserved by viewer-v5.21.7-rc1."
+    },
+    {
+      "gitRef": "2ed2ae21280d4115a78dedce2d316994b847379f",
+      "date": "2026-10-09",
+      "summary": "MF-106 5.21.7 original optical and interaction source checkpoint, preserved by viewer-v5.21.7-rc1; final product is PR 131 squash."
+    },
+    {
+      "gitRef": "b6250e41720009b92f9a530508da543af01a069a",
+      "date": "2026-10-09",
+      "summary": "MF-106 5.21.8 candidate version mirrors and 5.21.7 production evidence; original behavior source 25eea922c."
+    },
+    {
+      "gitRef": "00d3e56285bb1f3816853ebb532e76af2688dd7c",
+      "date": "2026-10-09",
+      "summary": "MF-106 bootstrap isolation assertion adapts to bounded importer, preserving routing semantics; browser fault and failed CI evidence."
+    },
+    {
+      "gitRef": "25eea922cead3e38006780d55859f76c5f050010",
+      "date": "2026-10-09",
+      "summary": "MF-106 original bounded-import recovery source, preserved by viewer-v5.21.8-rc1; final product is PR 133 squash."
+    },
+    {
+      "gitRef": "f54794bb53385f58a11a98448c9d1c31521f7d07",
+      "date": "2026-10-09",
+      "summary": "MF-106 5.21.9 candidate version mirrors and adapter-selection source; preserved by viewer-v5.21.9-rc1."
+    },
+    {
+      "gitRef": "62d593659d1a4167aa37f1cc1c1e18c788184d7b",
+      "date": "2026-10-09",
+      "summary": "MF-106 original browser-default adapter source, preserved by viewer-v5.21.9-rc1; completed candidate additionally handles slow startup and device-loss restoration."
+    },
+    {
+      "gitRef": "f75646559d6fcabfa9c355e4dee2eafde146af05",
+      "date": "2026-10-09",
+      "summary": "MF-106 initial 5.21.9 candidate trace and exact-head CI; preserved by viewer-v5.21.9-rc1."
+    },
+    {
+      "gitRef": "ecfdc1749eeb8366afe1ca9fe96d36e0b3f21d01",
+      "date": "2026-10-09",
+      "summary": "MF-106 slow-device candidate provenance and ledger records, preserved by viewer-v5.21.9-rc2."
+    },
+    {
+      "gitRef": "b708555e71a1cea8e87225e6b30105e24ba84802",
+      "date": "2026-10-09",
+      "summary": "MF-106 slow-device lifecycle and GPU recovery source, preserved by viewer-v5.21.9-rc2; final candidate also ends stale slow status after failure."
+    },
+    {
+      "gitRef": "150c307ab8ff53b12c04889671e51264f4b34cbb",
+      "date": "2026-10-09",
+      "summary": "MF-106 rc2 product-reference mirrors; subsequent CI identified documentedThrough and canonical Ledger mismatches, corrected without relaxing checks."
+    },
+    {
+      "gitRef": "3aecaba6b0a7242570c0b03c38fad6a331672b86",
+      "date": "2026-10-09",
+      "summary": "MF-106 complete slow-device source and final failure-status correction; preserved by viewer-v5.21.9-rc3, final product is PR 136 squash."
+    },
+    {
+      "gitRef": "43a2adc6b0b36406e4a738108651b359d2e31947",
+      "date": "2026-10-09",
+      "summary": "MF-106 complete rc3 trace and exact-head successful CI; preserved by immutable viewer-v5.21.9-rc3."
+    },
+    {
+      "gitRef": "a86119f27b5214b16b23a5a73dbfcc7bcaacd1b7",
+      "date": "2026-10-10",
+      "summary": "MF-139 startup recovery and loading-detail implementation source; included in 5.21.10"
+    },
+    {
+      "gitRef": "c4d66bb5648e15d47135fc8dafdc58cd0900c58d",
+      "date": "2026-10-10",
+      "summary": "MF-139 Director bootstrap test compatibility; no Director runtime changes"
+    },
+    {
+      "gitRef": "8defe00c06a489379fc83ad1c0a524320566b361",
+      "date": "2026-10-10",
+      "summary": "MF-139 Director bootstrap test compatibility; no Director runtime changes"
+    },
+    {
+      "gitRef": "fcc73c7833d741cd8c46acd924def11cc7f53561",
+      "date": "2026-10-10",
+      "summary": "MF-139 SDK loading timeline starts before config prefetches"
+    },
+    {
+      "gitRef": "b739c2fa3",
+      "date": "2026-10-10",
+      "summary": "MF-142 implementation source: in-flight LOD progress; superseded 1024 poster candidate"
+    },
+    {
+      "gitRef": "b8d1772b0a0f929fcfb09df433048f1c94c63ddd",
+      "date": "2026-10-10",
+      "summary": "MF-142 source correction: approved 4K encoded WebP replaces unpublished 1024 candidate"
+    },
+    {
+      "gitRef": "58c2c0b6588d1c5e9c26b8e4034583b88d8bf0b1",
+      "date": "2026-10-10",
+      "summary": "MF-142: order loading helper imports; no behavior change"
+    },
+    {
+      "gitRef": "6c48ca882066ae1112f76eccd965270f2958467a",
+      "date": "2026-10-10",
+      "summary": "MF-142: format loading helper import group; no behavior change"
+    },
+    {
+      "gitRef": "2d0b04010",
+      "date": "2026-10-10",
+      "summary": "Viewer 5.21.11 poster readiness implementation candidate"
+    },
+    {
+      "gitRef": "c8730ca8c50c495861012008112d1b05c0e7e555",
+      "date": "2026-10-10",
+      "summary": "MF-142: superseded separate wordmark candidate; official combined SVG correction follows"
+    },
+    {
+      "gitRef": "444ca70d412a4dca33127fc94d14f95cf03f94f9",
+      "date": "2026-10-10",
+      "summary": "MF-142: canonical lockup and animation implementation; touch compatibility follows"
+    },
+    {
+      "gitRef": "f1284501fcfc7454d78f3db9b9eabc6dd829e49a",
+      "date": "2026-10-10",
+      "summary": "MF-142: format brand CSS and record candidate animation validation"
+    },
+    {
+      "gitRef": "6b7212de69279943f03347d5815aa67fc7a23e14",
+      "date": "2026-10-18",
+      "summary": "MF-151 initial upstream 1.37.0 integration checkpoint; consolidated with XR gradient restoration into 5.22.0."
+    },
+    {
+      "gitRef": "26844330979d30a37615f625cae659bffbcd9508",
+      "date": "2026-10-18",
+      "summary": "MF-151 final candidate source with XR gradient restoration and deterministic dev E2E startup; product is PR #152 squash."
+    },
+    {
+      "gitRef": "3aa6ed6",
+      "date": "2026-10-21",
+      "type": "editor-support",
+      "summary": "MF-148 exposes side-effect-free capture timing/parameters on the shared radial reveal for both Editor adapters. Existing Viewer realtime delta clamp is preserved; this is Editor support source, not a new Viewer release or deployed Viewer bundle."
+    },
+    {
+      "gitRef": "f4520e159c38cc7b775e329d66929bc6f8723f92",
+      "date": "2026-10-22",
+      "summary": "Format gradient integration with existing Viewer rules; behavior unchanged"
+    }
+  ],
+  "entries": [
+    {
+      "displayVersion": "1.0",
+      "appSemver": "1.0.0",
+      "type": "feature",
+      "scope": "viewer",
+      "date": "2026-02-01",
+      "gitRef": "c4fedac",
+      "summary": "Initial commit: metaflow-viewer with PlayCanvas gsplat viewer"
+    },
+    {
+      "displayVersion": "1.1",
+      "appSemver": "1.1.0",
+      "type": "chore",
+      "scope": "repo",
+      "date": "2026-02-01",
+      "gitRef": "4529e5f",
+      "summary": "Update .gitignore: exclude public/data"
+    },
+    {
+      "displayVersion": "1.1a",
+      "appSemver": "1.1.0",
+      "type": "resource",
+      "scope": "data",
+      "date": "2026-02-01",
+      "gitRef": "5699b22",
+      "summary": "Add data folder with gsplat resources (exclude large files >100MB)"
+    },
+    {
+      "displayVersion": "1.2",
+      "appSemver": "1.2.0",
+      "type": "chore",
+      "scope": "data",
+      "date": "2026-02-01",
+      "gitRef": "fc13d2c",
+      "summary": "Add Git LFS for large files (.sog, .ply)"
+    },
+    {
+      "displayVersion": "1.3",
+      "appSemver": "1.3.0",
+      "type": "chore",
+      "scope": "deploy",
+      "date": "2026-02-01",
+      "gitRef": "d84739f",
+      "summary": "Add Netlify deployment config"
+    },
+    {
+      "displayVersion": "1.4",
+      "appSemver": "1.4.0",
+      "type": "fix",
+      "scope": "ui",
+      "date": "2026-02-01",
+      "gitRef": "7a7cce9",
+      "summary": "Fix logo shadow clipping"
+    },
+    {
+      "displayVersion": "1.5",
+      "appSemver": "1.5.0",
+      "type": "fix",
+      "scope": "ui",
+      "date": "2026-02-02",
+      "gitRef": "bedd346",
+      "summary": "Fix: use thumbnail field for poster image, fix mobile logo tap"
+    },
+    {
+      "displayVersion": "1.5a",
+      "appSemver": "1.5.0",
+      "type": "resource",
+      "scope": "data",
+      "date": "2026-02-02",
+      "gitRef": "9f66efb",
+      "summary": "Add: SZTU B1-sdi 206 resource, Update: all thumbnail paths in index.json",
+      "resourceChanges": [
+        {
+          "action": "add",
+          "routes": [
+            "/sztu/b1-sdi-206"
+          ]
+        }
+      ]
+    },
+    {
+      "displayVersion": "1.6",
+      "appSemver": "1.6.0",
+      "type": "fix",
+      "scope": "loading",
+      "date": "2026-02-02",
+      "gitRef": "beb640c",
+      "summary": "Fix: wait for poster image to load before displaying, improve loading UX"
+    },
+    {
+      "displayVersion": "1.7",
+      "appSemver": "1.7.0",
+      "type": "feature",
+      "scope": "sharing",
+      "date": "2026-02-02",
+      "gitRef": "4da3b00",
+      "summary": "Add: website favicon, OG meta tags for WeChat sharing; Fix: mobile logo tap interaction"
+    },
+    {
+      "displayVersion": "1.8",
+      "appSemver": "1.8.0",
+      "type": "chore",
+      "scope": "sharing",
+      "date": "2026-02-02",
+      "gitRef": "40862c3",
+      "summary": "Update: tags for WeChat sharing"
+    },
+    {
+      "displayVersion": "1.9",
+      "appSemver": "1.9.0",
+      "type": "feature",
+      "scope": "routing",
+      "date": "2026-02-02",
+      "gitRef": "891061f",
+      "summary": "Add: 深圳技术大学.com domain redirect to /sztu/c2-lib"
+    },
+    {
+      "displayVersion": "1.10",
+      "appSemver": "1.10.0",
+      "type": "fix",
+      "scope": "routing",
+      "date": "2026-02-02",
+      "gitRef": "e7e152c",
+      "summary": "Fix: correct Punycode for 深圳技术大学.com domain"
+    },
+    {
+      "displayVersion": "1.11",
+      "appSemver": "1.11.0",
+      "type": "feature",
+      "scope": "routing",
+      "date": "2026-02-02",
+      "gitRef": "96a4966",
+      "summary": "Add: client-side domain redirect for 深圳技术大学.com"
+    },
+    {
+      "displayVersion": "1.12",
+      "appSemver": "1.12.0",
+      "type": "chore",
+      "scope": "ui",
+      "date": "2026-02-02",
+      "gitRef": "0582969",
+      "summary": "Update: Color"
+    },
+    {
+      "displayVersion": "1.12a",
+      "appSemver": "1.12.0",
+      "type": "resource",
+      "scope": "data",
+      "date": "2026-02-02",
+      "gitRef": "4903104",
+      "summary": "Fix: correct animation duration for B1-sdi-206",
+      "resourceChanges": [
+        {
+          "action": "update",
+          "routes": [
+            "/sztu/b1-sdi-206"
+          ]
+        }
+      ]
+    },
+    {
+      "displayVersion": "1.12b",
+      "appSemver": "1.12.0",
+      "type": "resource",
+      "scope": "data",
+      "date": "2026-02-02",
+      "gitRef": "ff487e3",
+      "summary": "update: sztu/b1-sdi-206",
+      "resourceChanges": [
+        {
+          "action": "update",
+          "routes": [
+            "/sztu/b1-sdi-206"
+          ]
+        }
+      ]
+    },
+    {
+      "displayVersion": "1.12c",
+      "appSemver": "1.12.0",
+      "type": "resource",
+      "scope": "data",
+      "date": "2026-02-02",
+      "gitRef": "9a15c99",
+      "summary": "Add: SZTU C2-Lib tonemapping neutral",
+      "resourceChanges": [
+        {
+          "action": "update",
+          "routes": [
+            "/sztu/c2-lib"
+          ]
+        }
+      ]
+    },
+    {
+      "displayVersion": "1.13",
+      "appSemver": "1.13.0",
+      "type": "fix",
+      "scope": "rendering",
+      "date": "2026-02-03",
+      "gitRef": "2e002e8",
+      "summary": "Fix: tonemapping; update loadingBar color"
+    },
+    {
+      "displayVersion": "1.14",
+      "appSemver": "1.14.0",
+      "type": "fix",
+      "scope": "loading",
+      "date": "2026-02-03",
+      "gitRef": "27d8f21",
+      "summary": "Fix load hang when sorter does not update"
+    },
+    {
+      "displayVersion": "1.14a",
+      "appSemver": "1.14.0",
+      "type": "resource",
+      "scope": "data",
+      "date": "2026-02-05",
+      "gitRef": "eccf894",
+      "summary": "Update: Wanderer:json",
+      "resourceChanges": [
+        {
+          "action": "update",
+          "routes": [
+            "/acg/j04/wanderer"
+          ]
+        }
+      ]
+    },
+    {
+      "displayVersion": "1.15",
+      "appSemver": "1.15.0",
+      "type": "fix",
+      "scope": "loading",
+      "date": "2026-02-05",
+      "gitRef": "8248c72",
+      "summary": "Fix loading stuck at 100% for LOD files with timeout fallback"
+    },
+    {
+      "displayVersion": "1.16",
+      "appSemver": "1.16.0",
+      "type": "fix",
+      "scope": "loading",
+      "date": "2026-02-05",
+      "gitRef": "7c8c7b0",
+      "summary": "Fix misleading 100% progress and add loading status text"
+    },
+    {
+      "displayVersion": "1.17",
+      "appSemver": "1.17.0",
+      "type": "fix",
+      "scope": "loading",
+      "date": "2026-02-05",
+      "gitRef": "91c0dbe",
+      "summary": "Fix loading status timing and responsive progress bar width"
+    },
+    {
+      "displayVersion": "1.18",
+      "appSemver": "1.18.0",
+      "type": "fix",
+      "scope": "loading",
+      "date": "2026-02-05",
+      "gitRef": "131f6fe",
+      "summary": "fix: ensure first load and refresh experience stay consistent"
+    },
+    {
+      "displayVersion": "1.19",
+      "appSemver": "1.19.0",
+      "type": "feature",
+      "scope": "routing",
+      "date": "2026-02-05",
+      "gitRef": "42d3cc9",
+      "summary": "feat: support short route aliases"
+    },
+    {
+      "displayVersion": "1.20",
+      "appSemver": "1.20.0",
+      "type": "fix",
+      "scope": "rendering",
+      "date": "2026-02-05",
+      "gitRef": "23c8590",
+      "summary": "Fix: apply tonemapping correctly on Chrome WebGPU/WGSL"
+    },
+    {
+      "displayVersion": "1.21",
+      "appSemver": "1.21.0",
+      "type": "fix",
+      "scope": "routing",
+      "date": "2026-02-05",
+      "gitRef": "7704288",
+      "summary": "Fix: attempt short route repair"
+    },
+    {
+      "displayVersion": "1.22",
+      "appSemver": "1.22.0",
+      "type": "debug",
+      "scope": "routing",
+      "date": "2026-02-05",
+      "gitRef": "bdc0b0d",
+      "summary": "debug: add route matching debug logs"
+    },
+    {
+      "displayVersion": "1.23",
+      "appSemver": "1.23.0",
+      "type": "debug",
+      "scope": "loading",
+      "date": "2026-02-05",
+      "gitRef": "8818648",
+      "summary": "debug: add loading flow debug logs"
+    },
+    {
+      "displayVersion": "1.24",
+      "appSemver": "1.24.0",
+      "type": "fix",
+      "scope": "loading",
+      "date": "2026-02-06",
+      "gitRef": "6fb5e21",
+      "summary": "fix: cached progress no longer jumps directly to 99%"
+    },
+    {
+      "displayVersion": "1.25",
+      "appSemver": "1.25.0",
+      "type": "feature",
+      "scope": "loading",
+      "date": "2026-02-06",
+      "gitRef": "0ebfa6e",
+      "summary": "Improve loading experience with full-stage status and indeterminate progress"
+    },
+    {
+      "displayVersion": "1.26",
+      "appSemver": "1.26.0",
+      "type": "fix",
+      "scope": "performance",
+      "date": "2026-02-06",
+      "gitRef": "ed33854",
+      "summary": "fix: bugs, memory leaks, performance, cleanup"
+    },
+    {
+      "displayVersion": "1.27",
+      "appSemver": "1.27.0",
+      "type": "feature",
+      "scope": "loading",
+      "date": "2026-02-06",
+      "gitRef": "7ff7cf7",
+      "summary": "feat: show detailed loading stats (file size, splat count, LOD files)"
+    },
+    {
+      "displayVersion": "1.28",
+      "appSemver": "1.28.0",
+      "type": "feature",
+      "scope": "loading",
+      "date": "2026-02-06",
+      "gitRef": "cdbe7b1",
+      "summary": "feat: improve cached loading UX with byte counter, PLY milestone, and elapsed timer"
+    },
+    {
+      "displayVersion": "1.29",
+      "appSemver": "1.29.0",
+      "type": "feature",
+      "scope": "editor",
+      "date": "2026-02-06",
+      "gitRef": "f7dc54c",
+      "summary": "feat: add Metaflow Editor at /editor route"
+    },
+    {
+      "displayVersion": "1.30",
+      "appSemver": "1.30.0",
+      "type": "chore",
+      "scope": "editor",
+      "date": "2026-02-07",
+      "gitRef": "c7bb69e",
+      "summary": "Update totalFrames max from 10000 to 100000"
+    },
+    {
+      "displayVersion": "1.31",
+      "appSemver": "1.31.0",
+      "type": "feature",
+      "scope": "xr",
+      "date": "2026-03-02",
+      "gitRef": "26597f6",
+      "summary": "feat: enhance WebXR support for PICO 4 VR/AR headsets"
+    },
+    {
+      "displayVersion": "1.32",
+      "appSemver": "1.32.0",
+      "type": "feature",
+      "scope": "xr",
+      "date": "2026-03-11",
+      "gitRef": "74c8532",
+      "summary": "feat: auto-switch to LOD model on PICO VR devices"
+    },
+    {
+      "displayVersion": "1.33",
+      "appSemver": "1.33.0",
+      "type": "fix",
+      "scope": "xr",
+      "date": "2026-03-11",
+      "gitRef": "85f1f6b",
+      "summary": "fix: add timeout to PICO LOD HEAD request to prevent hang"
+    },
+    {
+      "displayVersion": "1.34",
+      "appSemver": "1.34.0",
+      "type": "revert",
+      "scope": "xr",
+      "date": "2026-03-12",
+      "gitRef": "1f369dd",
+      "summary": "Revert fix: add timeout to PICO LOD HEAD request to prevent hang"
+    },
+    {
+      "displayVersion": "1.35",
+      "appSemver": "1.35.0",
+      "type": "revert",
+      "scope": "xr",
+      "date": "2026-03-12",
+      "gitRef": "5bdd61c",
+      "summary": "Revert feat: auto-switch to LOD model on PICO VR devices"
+    },
+    {
+      "displayVersion": "1.36",
+      "appSemver": "1.36.0",
+      "type": "feature",
+      "scope": "xr",
+      "date": "2026-03-12",
+      "gitRef": "58e836b",
+      "summary": "feat(xr): smooth rotation, deadzone curve, single/dual stick support"
+    },
+    {
+      "displayVersion": "1.36a",
+      "appSemver": "1.36.0",
+      "type": "resource",
+      "scope": "data",
+      "date": "2026-03-16",
+      "gitRef": "9dcb514",
+      "summary": "feat(data): onboard SZTU C4-HangPai and D1-UTL-107 resources",
+      "resourceChanges": [
+        {
+          "action": "add",
+          "routes": [
+            "/sztu/c4-hangpai",
+            "/sztu/d1-utl-107"
+          ]
+        }
+      ]
+    },
+    {
+      "displayVersion": "1.36b",
+      "appSemver": "1.36.0",
+      "type": "resource",
+      "scope": "data",
+      "date": "2026-03-16",
+      "gitRef": "75f65d8",
+      "summary": "chore(data): commit current local changes"
+    },
+    {
+      "displayVersion": "2.0",
+      "appSemver": "2.0.0",
+      "type": "docs",
+      "scope": "migration",
+      "date": "2026-03-20",
+      "gitRef": "608423e",
+      "summary": "batch-2: directory restructuring and version marking"
+    },
+    {
+      "displayVersion": "2.1",
+      "appSemver": "2.1.0",
+      "type": "feature",
+      "scope": "loading",
+      "date": "2026-03-20",
+      "gitRef": "b94f4a2",
+      "summary": "batch-3: structured loading stages and dual-path status linkage"
+    },
+    {
+      "displayVersion": "2.2",
+      "appSemver": "2.2.0",
+      "type": "feature",
+      "scope": "loading",
+      "date": "2026-03-20",
+      "gitRef": "9267e27",
+      "summary": "batch-4: structure-first detection and immediate conflict reporting"
+    },
+    {
+      "displayVersion": "2.3",
+      "appSemver": "2.3.0",
+      "type": "feature",
+      "scope": "loading",
+      "date": "2026-03-20",
+      "gitRef": "670afd3",
+      "summary": "batch-5: stateful detection conflict with visible UI prefix"
+    },
+    {
+      "displayVersion": "2.4",
+      "appSemver": "2.4.0",
+      "type": "docs",
+      "scope": "migration",
+      "date": "2026-03-20",
+      "gitRef": "429261e",
+      "summary": "batch-6: migration validation matrix and conflict confirmation process"
+    },
+    {
+      "displayVersion": "2.5",
+      "appSemver": "2.5.0",
+      "type": "fix",
+      "scope": "loading",
+      "date": "2026-03-20",
+      "gitRef": "aaea6ac",
+      "summary": "fix-1: structure-first detection takes effect; filename is fallback only"
+    },
+    {
+      "displayVersion": "2.6",
+      "appSemver": "2.6.0",
+      "type": "fix",
+      "scope": "performance",
+      "date": "2026-03-20",
+      "gitRef": "617c475",
+      "summary": "fix-2: align v1.18.2 idle throttling after 4 seconds without activity"
+    },
+    {
+      "displayVersion": "2.7",
+      "appSemver": "2.7.0",
+      "type": "fix",
+      "scope": "input",
+      "date": "2026-03-20",
+      "gitRef": "868270d",
+      "summary": "fix-3: inputMode defaults to touch or desktop by platform"
+    },
+    {
+      "displayVersion": "2.8",
+      "appSemver": "2.8.0",
+      "type": "fix",
+      "scope": "loading",
+      "date": "2026-03-20",
+      "gitRef": "301c1d2",
+      "summary": "fix-4: tighten streaming structure detection to reduce false positives"
+    },
+    {
+      "displayVersion": "2.9",
+      "appSemver": "2.9.0",
+      "type": "fix",
+      "scope": "xr",
+      "date": "2026-03-20",
+      "gitRef": "b04c7c7",
+      "summary": "fix-5: skip retina pixel ratio updates while XR is active"
+    },
+    {
+      "displayVersion": "2.10",
+      "appSemver": "2.10.0",
+      "type": "chore",
+      "scope": "migration",
+      "date": "2026-03-23",
+      "gitRef": "fb8ce1f",
+      "summary": "chore(metaflow): finalize viewer and supersplat updates"
+    },
+    {
+      "displayVersion": "2.10a",
+      "appSemver": "2.10.0",
+      "type": "resource",
+      "scope": "data",
+      "date": "2026-03-23",
+      "gitRef": "91b617f",
+      "summary": "feat(data): add J05 dataset update",
+      "resourceChanges": [
+        {
+          "action": "add",
+          "routePatterns": [
+            "/acg/j05/*"
+          ]
+        }
+      ]
+    },
+    {
+      "displayVersion": "2.10b",
+      "appSemver": "2.10.0",
+      "type": "resource",
+      "scope": "data",
+      "date": "2026-03-23",
+      "gitRef": "107341a",
+      "summary": "chore(data): simplify J05 routes to beryl/ciel/navia",
+      "resourceChanges": [
+        {
+          "action": "update",
+          "routePatterns": [
+            "/acg/j05/*"
+          ]
+        }
+      ]
+    },
+    {
+      "displayVersion": "2.11",
+      "appSemver": "2.11.0",
+      "type": "feature",
+      "scope": "animation",
+      "date": "2026-03-23",
+      "gitRef": "87161a2",
+      "summary": "feat(viewer): first anim exit to orbit for acg character routes"
+    },
+    {
+      "displayVersion": "3.0",
+      "appSemver": "3.0.0",
+      "type": "feature",
+      "scope": "walk",
+      "date": "2026-03-23",
+      "gitRef": "6f23d8e",
+      "summary": "feat(viewer): integrate walk mode with voxel collision"
+    },
+    {
+      "displayVersion": "3.0a",
+      "appSemver": "3.0.0",
+      "type": "resource",
+      "scope": "data",
+      "date": "2026-03-23",
+      "gitRef": "88a8d3b",
+      "summary": "feat(data): add J05 xunyangpai lod and voxel package",
+      "resourceChanges": [
+        {
+          "action": "update",
+          "routes": [
+            "/acg/j05/寻洋派"
+          ]
+        }
+      ]
+    },
+    {
+      "displayVersion": "3.1",
+      "appSemver": "3.1.0",
+      "type": "fix",
+      "scope": "loading",
+      "date": "2026-03-23",
+      "gitRef": "1885474",
+      "summary": "Fix streaming LOD detection and align walk controls"
+    },
+    {
+      "displayVersion": "3.2",
+      "appSemver": "3.2.0",
+      "type": "feature",
+      "scope": "ui",
+      "date": "2026-03-23",
+      "gitRef": "3679f37",
+      "summary": "Align Metaflow viewer UI and walk controls"
+    },
+    {
+      "displayVersion": "3.3",
+      "appSemver": "3.3.0",
+      "type": "refactor",
+      "scope": "ui",
+      "date": "2026-03-23",
+      "gitRef": "350667f",
+      "summary": "Refine mobile walk UI and voxel loading states"
+    },
+    {
+      "displayVersion": "3.4",
+      "appSemver": "3.4.0",
+      "type": "feature",
+      "scope": "ui",
+      "date": "2026-03-23",
+      "gitRef": "c82394e",
+      "summary": "feat: restore viewer ui and attach J05 environments",
+      "resourceChanges": [
+        {
+          "action": "update",
+          "routePatterns": [
+            "/acg/j05/*"
+          ]
+        }
+      ]
+    },
+    {
+      "displayVersion": "3.5",
+      "appSemver": "3.5.0",
+      "type": "fix",
+      "scope": "voxel",
+      "date": "2026-03-23",
+      "gitRef": "3f7d17d",
+      "summary": "fix: reduce voxel collider memory overhead"
+    },
+    {
+      "displayVersion": "3.6",
+      "appSemver": "3.6.0",
+      "type": "feature",
+      "scope": "voxel",
+      "date": "2026-03-23",
+      "gitRef": "6f59563",
+      "summary": "feat: defer voxel loading for streaming scenes"
+    },
+    {
+      "displayVersion": "3.7",
+      "appSemver": "3.7.0",
+      "type": "fix",
+      "scope": "walk",
+      "date": "2026-03-23",
+      "gitRef": "119872c",
+      "summary": "fix(viewer): show walk toggle before collision is ready"
+    },
+    {
+      "displayVersion": "3.8",
+      "appSemver": "3.8.0",
+      "type": "fix",
+      "scope": "ui",
+      "date": "2026-03-23",
+      "gitRef": "0a391a9",
+      "summary": "fix(viewer): constrain help modal on mobile"
+    },
+    {
+      "displayVersion": "3.9",
+      "appSemver": "3.9.0",
+      "type": "feature",
+      "scope": "ui",
+      "date": "2026-03-23",
+      "gitRef": "1a1a6be",
+      "summary": "feat(viewer): unify camera mode hints"
+    },
+    {
+      "displayVersion": "3.10",
+      "appSemver": "3.10.0",
+      "type": "feature",
+      "scope": "input",
+      "date": "2026-03-23",
+      "gitRef": "1a80674",
+      "summary": "feat(viewer): align first-person submodes with v1.18"
+    },
+    {
+      "displayVersion": "3.11",
+      "appSemver": "3.11.0",
+      "type": "refactor",
+      "scope": "ui",
+      "date": "2026-03-23",
+      "gitRef": "68bd423",
+      "summary": "refactor(viewer): refine first-person mode capsules"
+    },
+    {
+      "displayVersion": "3.12",
+      "appSemver": "3.12.0",
+      "type": "refactor",
+      "scope": "ui",
+      "date": "2026-03-23",
+      "gitRef": "d8b3826",
+      "summary": "refactor(viewer): refine mobile mode strip and joystick"
+    },
+    {
+      "displayVersion": "3.13",
+      "appSemver": "3.13.0",
+      "type": "refactor",
+      "scope": "ui",
+      "date": "2026-03-23",
+      "gitRef": "a100b06",
+      "summary": "refactor(viewer): polish mobile touch controls"
+    },
+    {
+      "displayVersion": "3.14",
+      "appSemver": "3.14.0",
+      "type": "fix",
+      "scope": "ui",
+      "date": "2026-03-23",
+      "gitRef": "de6be6b",
+      "summary": "fix(viewer): restore anim start and align desktop mode strip"
+    },
+    {
+      "displayVersion": "3.14a",
+      "appSemver": "3.14.0",
+      "type": "resource",
+      "scope": "data",
+      "date": "2026-03-24",
+      "gitRef": "8ee82ad",
+      "summary": "feat(data): add Dayun streaming scene via LFS",
+      "resourceChanges": [
+        {
+          "action": "add",
+          "routes": [
+            "/shenzhen/dayun"
+          ]
+        }
+      ]
+    },
+    {
+      "displayVersion": "3.15",
+      "appSemver": "3.15.0",
+      "type": "fix",
+      "scope": "viewer",
+      "date": "2026-03-24",
+      "gitRef": "9625034",
+      "summary": "fix(viewer): harden mobile touch controls and index scan"
+    },
+    {
+      "displayVersion": "3.16",
+      "appSemver": "3.16.0",
+      "type": "fix",
+      "scope": "touch",
+      "date": "2026-03-24",
+      "gitRef": "f90e762",
+      "summary": "fix(viewer): stabilize mobile touch controls"
+    },
+    {
+      "displayVersion": "3.17",
+      "appSemver": "3.17.0",
+      "type": "chore",
+      "scope": "deploy",
+      "date": "2026-03-24",
+      "gitRef": "8bdb377",
+      "summary": "chore(deploy): include Dayun in Netlify build and narrow LFS rules"
+    },
+    {
+      "displayVersion": "3.18",
+      "appSemver": "3.18.0",
+      "type": "fix",
+      "scope": "settings",
+      "date": "2026-03-24",
+      "gitRef": "cf212b3",
+      "summary": "fix(viewer): support JSONC settings files"
+    },
+    {
+      "displayVersion": "3.19",
+      "appSemver": "3.19.0",
+      "type": "feature",
+      "scope": "background",
+      "date": "2026-03-24",
+      "gitRef": "01c9a62",
+      "summary": "feat(viewer): support gradient backgrounds"
+    },
+    {
+      "displayVersion": "3.20",
+      "appSemver": "3.20.0",
+      "type": "fix",
+      "scope": "background",
+      "date": "2026-03-24",
+      "gitRef": "11b58ff",
+      "summary": "fix(viewer): reduce splat fringes over gradients"
+    },
+    {
+      "displayVersion": "3.20a",
+      "appSemver": "3.20.0",
+      "type": "resource",
+      "scope": "data",
+      "date": "2026-04-15",
+      "gitRef": "4fe0e0f",
+      "summary": "chore: restore Dayun to LFS while keeping Phoenix rollout",
+      "resourceChanges": [
+        {
+          "action": "add",
+          "routePatterns": [
+            "/acg/phoenixfes26/*"
+          ]
+        },
+        {
+          "action": "update",
+          "routes": [
+            "/shenzhen/dayun"
+          ]
+        }
+      ]
+    },
+    {
+      "displayVersion": "4.0",
+      "appSemver": "4.0.0",
+      "type": "chore",
+      "scope": "animation",
+      "date": "2026-04-17",
+      "gitRef": "fac8405",
+      "summary": "chore(viewer): add animation policy helpers"
+    },
+    {
+      "displayVersion": "4.0a",
+      "appSemver": "4.0.0",
+      "type": "resource",
+      "scope": "data",
+      "date": "2026-04-23",
+      "gitRef": "e67801c",
+      "summary": "feat(data): add SZTU C1 and FES scenes",
+      "resourceChanges": [
+        {
+          "action": "add",
+          "routes": [
+            "/sztu/c1-bdi-206"
+          ],
+          "routePatterns": [
+            "/sztu/fes/*"
+          ]
+        }
+      ]
+    },
+    {
+      "displayVersion": "4.1",
+      "appSemver": "4.1.0",
+      "type": "feature",
+      "scope": "animation",
+      "date": "2026-04-23",
+      "gitRef": "e3eab5b",
+      "summary": "feat(viewer): enable synthetic figure-eight animation"
+    },
+    {
+      "displayVersion": "4.2",
+      "appSemver": "4.2.0",
+      "type": "feature",
+      "scope": "data",
+      "date": "2026-06-01",
+      "gitRef": "5df187a",
+      "summary": "feat(data): add FireflyFes38 ACG resources",
+      "resourceChanges": [
+        {
+          "action": "add",
+          "routePatterns": [
+            "/acg/fireflyfes38/*"
+          ]
+        }
+      ]
+    },
+    {
+      "displayVersion": "4.2a",
+      "appSemver": "4.2.0",
+      "type": "resource",
+      "scope": "data",
+      "date": "2026-06-03",
+      "gitRef": "f1d95ff",
+      "summary": "fix(data): use merged settings for Firefly Azur Lane",
+      "resourceChanges": [
+        {
+          "action": "update",
+          "routes": [
+            "/acg/fireflyfes38/azur-lane"
+          ]
+        }
+      ]
+    },
+    {
+      "displayVersion": "4.2b",
+      "appSemver": "4.2.0",
+      "type": "resource",
+      "scope": "data",
+      "date": "2026-06-06",
+      "gitRef": "66e4311",
+      "summary": "feat(data): add ACG 2568 route and Firefly thumbnails",
+      "resourceChanges": [
+        {
+          "action": "add",
+          "routePatterns": [
+            "/acg/2568/*"
+          ]
+        },
+        {
+          "action": "update",
+          "routePatterns": [
+            "/acg/fireflyfes38/*"
+          ]
+        }
+      ]
+    },
+    {
+      "displayVersion": "4.3",
+      "appSemver": "4.3.0",
+      "type": "chore",
+      "scope": "repo",
+      "date": "2026-06-08",
+      "gitRef": "8bc11d5",
+      "summary": "chore: add Firefly settings and package manager"
+    },
+    {
+      "displayVersion": "4.4",
+      "appSemver": "4.4.0",
+      "type": "feature",
+      "scope": "data",
+      "date": "2026-06-09",
+      "gitRef": "e47067b",
+      "summary": "feat(data): publish Dayun tiled voxel assets",
+      "resourceChanges": [
+        {
+          "action": "update",
+          "routes": [
+            "/shenzhen/dayun"
+          ]
+        }
+      ]
+    },
+    {
+      "displayVersion": "5.0",
+      "appSemver": "5.0.0",
+      "type": "feature",
+      "scope": "viewer",
+      "date": "2026-06-09",
+      "gitRef": "f41f6de",
+      "summary": "feat(viewer): sync Supersplat and restore Metaflow controls"
+    },
+    {
+      "displayVersion": "5.1",
+      "appSemver": "5.1.0",
+      "type": "fix",
+      "scope": "loading",
+      "date": "2026-06-09",
+      "gitRef": "6558254",
+      "summary": "fix(viewer): restore legacy scene first frames"
+    },
+    {
+      "displayVersion": "5.2",
+      "appSemver": "5.2.0",
+      "type": "fix",
+      "scope": "routing",
+      "date": "2026-06-09",
+      "gitRef": "99ffe6c",
+      "summary": "fix(viewer): revalidate route index"
+    },
+    {
+      "displayVersion": "5.3",
+      "appSemver": "5.3.0",
+      "type": "fix",
+      "scope": "deploy",
+      "date": "2026-06-09",
+      "gitRef": "7672825",
+      "summary": "fix(deploy): sync publish assets in place"
+    },
+    {
+      "displayVersion": "5.3a",
+      "appSemver": "5.3.0",
+      "type": "resource",
+      "scope": "data",
+      "date": "2026-06-09",
+      "gitRef": "74c04c0",
+      "summary": "feat(data): update Cyrene framing and thumbnail",
+      "resourceChanges": [
+        {
+          "action": "update",
+          "routes": [
+            "/acg/fireflyfes38/cyrene"
+          ]
+        }
+      ]
+    },
+    {
+      "displayVersion": "5.4",
+      "appSemver": "5.4.0",
+      "type": "feature",
+      "scope": "viewer",
+      "date": "2026-06-10",
+      "gitRef": "23fb3ab",
+      "summary": "feat(viewer): restore deferred collision and animation exits"
+    },
+    {
+      "displayVersion": "5.5",
+      "appSemver": "5.5.0",
+      "type": "feature",
+      "scope": "viewer",
+      "date": "2026-06-10",
+      "gitRef": "f4c4621",
+      "summary": "feat(viewer): add color-neutral gsplat reveal effect"
+    },
+    {
+      "displayVersion": "5.6",
+      "appSemver": "5.6.0",
+      "type": "fix",
+      "scope": "viewer",
+      "date": "2026-06-10",
+      "gitRef": "1a536f1",
+      "summary": "fix(viewer): restore official gsplat reveal motion timing"
+    },
+    {
+      "displayVersion": "5.7",
+      "appSemver": "5.7.0",
+      "type": "fix",
+      "scope": "viewer",
+      "date": "2026-06-10",
+      "gitRef": "4114e8f",
+      "summary": "fix(viewer): simplify gsplat reveal oscillation"
+    },
+    {
+      "displayVersion": "5.8",
+      "appSemver": "5.8.0",
+      "type": "feature",
+      "scope": "viewer",
+      "date": "2026-06-11",
+      "gitRef": "4e848ac",
+      "summary": "feat(viewer): tier gsplat reveal dots and fix streaming LOD waves"
+    },
+    {
+      "displayVersion": "5.9",
+      "appSemver": "5.9.0",
+      "type": "feature",
+      "scope": "viewer",
+      "date": "2026-06-11",
+      "gitRef": "1d9ab2b",
+      "summary": "feat(viewer): tune reveal pacing and early streaming subject LOD"
+    },
+    {
+      "displayVersion": "5.10",
+      "appSemver": "5.10.0",
+      "type": "feature",
+      "scope": "analytics",
+      "date": "2026-06-16",
+      "gitRef": "8b37760",
+      "summary": "feat(analytics): add Supabase behavior telemetry pipeline"
+    },
+    {
+      "displayVersion": "5.11",
+      "appSemver": "5.11.0",
+      "type": "feature",
+      "scope": "analytics",
+      "date": "2026-06-16",
+      "gitRef": "b06b13c",
+      "summary": "feat(analytics): enrich device acquisition and performance telemetry"
+    },
+    {
+      "displayVersion": "5.12",
+      "appSemver": "5.12.0",
+      "type": "fix",
+      "scope": "analytics",
+      "date": "2026-06-16",
+      "gitRef": "de75ce5",
+      "summary": "fix(analytics): allow beacon credentialed CORS"
+    },
+    {
+      "displayVersion": "5.13",
+      "appSemver": "5.13.0",
+      "type": "feature",
+      "scope": "dashboard",
+      "date": "2026-06-17",
+      "gitRef": "4031c46",
+      "summary": "chore(dashboard): add analytics dashboard redirect"
+    },
+    {
+      "displayVersion": "5.14",
+      "appSemver": "5.14.0",
+      "type": "fix",
+      "scope": "routing",
+      "date": "2026-06-22",
+      "gitRef": "7c52315",
+      "summary": "fix(routing): restore SZTU domain redirect"
+    },
+    {
+      "displayVersion": "5.15",
+      "appSemver": "5.15.0",
+      "type": "fix",
+      "scope": "routing",
+      "date": "2026-06-22",
+      "gitRef": "46b4ec2",
+      "summary": "fix(routing): add SZTU short route aliases"
+    },
+    {
+      "displayVersion": "5.16",
+      "appSemver": "5.16.0",
+      "type": "feature",
+      "scope": "dashboard",
+      "date": "2026-06-22",
+      "gitRef": "e68d52b",
+      "summary": "feat(dashboard): add analytics visualization rollups"
+    },
+    {
+      "displayVersion": "5.17",
+      "appSemver": "5.17.0",
+      "type": "feature",
+      "scope": "analytics",
+      "date": "2026-06-22",
+      "gitRef": "f371f48",
+      "summary": "feat(analytics): add dashboard controls and device goal rollups"
+    },
+    {
+      "displayVersion": "5.18",
+      "appSemver": "5.18.0",
+      "type": "feature",
+      "scope": "mobile-controls",
+      "date": "2026-06-26",
+      "gitRef": "7ce294a",
+      "summary": "feat(mobile): refine touch gaming controls"
+    },
+    {
+      "displayVersion": "5.18a",
+      "appSemver": "5.18.0",
+      "type": "resource",
+      "scope": "data",
+      "date": "2026-06-27",
+      "gitRef": "c613a87",
+      "summary": "feat(data): add and align Shenzhen Bijiashan dynamic voxel scene",
+      "resourceChanges": [
+        {
+          "action": "add",
+          "routes": [
+            "/shenzhen/bijiashan"
+          ]
+        }
+      ]
+    },
+    {
+      "displayVersion": "5.18.1",
+      "appSemver": "5.18.1",
+      "type": "resource",
+      "scope": "data",
+      "date": "2026-08-11",
+      "gitRef": "578272c",
+      "summary": "feat(data): publish BitCity 260711 and SZCAF15 character resources",
+      "trace": {
+        "changeId": "MF-34",
+        "issue": "https://github.com/Shuang-su/Metaflow/issues/34",
+        "plan": "https://github.com/Shuang-su/Metaflow/issues/34",
+        "pullRequest": "https://github.com/Shuang-su/Metaflow/pull/35",
+        "evidence": "https://github.com/Shuang-su/Metaflow/pull/35#validation",
+        "completionManifest": "https://github.com/Shuang-su/Metaflow/pull/35#completion-manifest",
+        "completionDossier": "https://github.com/Shuang-su/Metaflow/pull/35#completion-dossier",
+        "releaseTag": "viewer-v5.18.1"
+      },
+      "resourceChanges": [
+        {
+          "action": "add",
+          "routePatterns": [
+            "/acg/bitcity260711/*",
+            "/acg/szcaf15/*"
+          ]
+        }
+      ]
+    },
+    {
+      "displayVersion": "5.19.0",
+      "appSemver": "5.19.0",
+      "type": "feature",
+      "scope": "viewer",
+      "date": "2026-08-14",
+      "gitRef": "26e311c",
+      "summary": "feat(viewer): upgrade active source to SuperSplat Viewer v1.29.1",
+      "trace": {
+        "changeId": "MF-30",
+        "issue": "https://github.com/Shuang-su/Metaflow/issues/30",
+        "proposal": "docs/changes/30-viewer-upstream-v1.29.1/proposal.md",
+        "spec": "docs/changes/30-viewer-upstream-v1.29.1/spec.md",
+        "plan": "docs/changes/30-viewer-upstream-v1.29.1/plan.md",
+        "pullRequest": "https://github.com/Shuang-su/Metaflow/pull/41",
+        "evidence": "docs/changes/30-viewer-upstream-v1.29.1/evidence.md",
+        "completionManifest": "docs/changes/30-viewer-upstream-v1.29.1/completion/manifest.json",
+        "completionDossier": "docs/changes/30-viewer-upstream-v1.29.1/completion/dossier.md",
+        "releaseTag": "viewer-v5.19.0",
+        "upstream": {
+          "repository": "playcanvas/supersplat-viewer",
+          "from": "v1.26.2",
+          "to": "v1.29.1"
+        }
+      }
+    },
+    {
+      "displayVersion": "5.19.1",
+      "appSemver": "5.19.1",
+      "type": "fix",
+      "scope": "viewer",
+      "date": "2026-08-14",
+      "gitRef": "534b013",
+      "summary": "fix(release): recover controlled Viewer validation and production gating",
+      "trace": {
+        "changeId": "MF-30",
+        "issue": "https://github.com/Shuang-su/Metaflow/issues/30",
+        "proposal": "docs/changes/30-viewer-upstream-v1.29.1/proposal.md",
+        "spec": "docs/changes/30-viewer-upstream-v1.29.1/spec.md",
+        "plan": "docs/changes/30-viewer-upstream-v1.29.1/plan.md",
+        "pullRequest": "https://github.com/Shuang-su/Metaflow/pull/45",
+        "evidence": "docs/changes/30-viewer-upstream-v1.29.1/evidence.md",
+        "completionManifest": "docs/changes/30-viewer-upstream-v1.29.1/completion/manifest.json",
+        "completionDossier": "docs/changes/30-viewer-upstream-v1.29.1/completion/dossier.md",
+        "releaseTag": "viewer-v5.19.1"
+      }
+    },
+    {
+      "displayVersion": "5.19.2",
+      "appSemver": "5.19.2",
+      "type": "fix",
+      "scope": "analytics",
+      "date": "2026-08-15",
+      "gitRef": "92d11b0",
+      "summary": "fix(analytics): restore production telemetry endpoint and release smoke guard",
+      "trace": {
+        "changeId": "MF-T0-20260815-analytics-5192",
+        "pullRequest": "direct-commit:92d11b0d",
+        "completionManifest": "docs/changes/20260815-viewer-analytics-5192/manifest.json",
+        "completionDossier": "docs/changes/20260815-viewer-analytics-5192/completion.md",
+        "releaseTag": "viewer-v5.19.2"
+      }
+    },
+    {
+      "displayVersion": "5.19.3",
+      "appSemver": "5.19.3",
+      "type": "resource",
+      "scope": "data",
+      "date": "2026-09-27",
+      "gitRef": "f999471",
+      "summary": "feat(data): publish three Mangzhong captures and nine SZTUCCF260919 scenes with source-camera 4K WebP covers",
+      "trace": {
+        "changeId": "MF-81",
+        "issue": "https://github.com/Shuang-su/Metaflow/issues/81",
+        "spec": "docs/changes/81-publish-mangzhong-sztuccf/spec.md",
+        "plan": "docs/changes/81-publish-mangzhong-sztuccf/plan.md",
+        "releaseTag": "viewer-v5.19.3",
+        "pullRequest": "https://github.com/Shuang-su/Metaflow/pull/82"
+      },
+      "resourceChanges": [
+        {
+          "action": "add",
+          "routePatterns": [
+            "/acg/sztuccf260919/*",
+            "/animals/cats/mangzhong/*"
+          ]
+        }
+      ]
+    },
+    {
+      "displayVersion": "5.20.0",
+      "appSemver": "5.20.0",
+      "type": "feature",
+      "scope": "viewer",
+      "date": "2026-09-28",
+      "gitRef": "348f6fd",
+      "summary": "feat(viewer): adopt SuperSplat v1.35.2 instance runtime, controls and annotations with Metaflow compatibility",
+      "trace": {
+        "changeId": "MF-85",
+        "issue": "https://github.com/Shuang-su/Metaflow/issues/85",
+        "spec": "docs/changes/85-viewer-upstream-v1.35.2/spec.md",
+        "plan": "docs/changes/85-viewer-upstream-v1.35.2/plan.md",
+        "evidence": "docs/changes/85-viewer-upstream-v1.35.2/adoption.md",
+        "pullRequest": "https://github.com/Shuang-su/Metaflow/pull/86",
+        "releaseTag": "viewer-v5.20.0",
+        "upstream": {
+          "repository": "playcanvas/supersplat-viewer",
+          "from": "v1.29.1",
+          "to": "v1.35.2",
+          "gitRef": "c52f5258df424635323f26aaeebe51361dc0f8e6"
+        }
+      }
+    },
+    {
+      "displayVersion": "5.20.1",
+      "appSemver": "5.20.1",
+      "type": "resource",
+      "scope": "data",
+      "date": "2026-09-30",
+      "gitRef": "ff201e5",
+      "summary": "feat(data): publish omitted SZCAF15 Tribbie / Tribios resource with approved camera and native 4K WebP",
+      "resourceChanges": [
+        {
+          "action": "add",
+          "routes": [
+            "/acg/szcaf15/honkai_star_rail-tribbie"
+          ]
+        }
+      ],
+      "trace": {
+        "changeId": "MF-93",
+        "issue": "https://github.com/Shuang-su/Metaflow/issues/93",
+        "evidence": "docs/changes/93-szcaf15-a001c0190/review.md",
+        "releaseTag": "viewer-v5.20.1",
+        "pullRequest": "https://github.com/Shuang-su/Metaflow/pull/94"
+      }
+    },
+    {
+      "displayVersion": "5.20.2",
+      "appSemver": "5.20.2",
+      "type": "fix",
+      "scope": "viewer",
+      "date": "2026-10-03",
+      "gitRef": "0c82e43",
+      "summary": "fix(viewer): restore transparent Metaflow logo after upstream layout sync",
+      "trace": {
+        "changeId": "MF-103",
+        "issue": "https://github.com/Shuang-su/Metaflow/issues/103",
+        "releaseTag": "viewer-v5.20.2",
+        "pullRequest": "https://github.com/Shuang-su/Metaflow/pull/104"
+      }
+    },
+    {
+      "displayVersion": "5.21.0",
+      "appSemver": "5.21.0",
+      "type": "feature",
+      "scope": "viewer",
+      "date": "2026-10-05",
+      "gitRef": "3f8ad1a3",
+      "summary": "feat(director): add resource-scoped ACG photography with camera handoff and full-aperture photo/video output",
+      "trace": {
+        "changeId": "MF-106",
+        "issue": "https://github.com/Shuang-su/Metaflow/issues/106",
+        "spec": "docs/changes/106-acg-director/spec.md",
+        "plan": "docs/changes/106-acg-director/plan.md",
+        "evidence": "docs/changes/106-acg-director/verification.md",
+        "pullRequest": "https://github.com/Shuang-su/Metaflow/pull/107",
+        "releaseTag": "viewer-v5.21.0"
+      }
+    },
+    {
+      "displayVersion": "5.21.1",
+      "appSemver": "5.21.1",
+      "type": "fix",
+      "scope": "viewer",
+      "date": "2026-10-05",
+      "gitRef": "da9c8b685",
+      "summary": "修复 Director 缩略图与导出共享渲染缓冲的竞争、前台恢复和时间轴播放重排边界",
+      "trace": {
+        "changeId": "MF-106",
+        "issue": "https://github.com/Shuang-su/Metaflow/issues/106",
+        "spec": "docs/changes/106-acg-director/spec.md",
+        "plan": "docs/changes/106-acg-director/plan.md",
+        "evidence": "docs/changes/106-acg-director/verification.md",
+        "releaseTag": "viewer-v5.21.1",
+        "pullRequest": "https://github.com/Shuang-su/Metaflow/pull/110"
+      }
+    },
+    {
+      "displayVersion": "5.21.2",
+      "appSemver": "5.21.2",
+      "type": "fix",
+      "scope": "viewer",
+      "date": "2026-10-05",
+      "gitRef": "f8683e2a1",
+      "summary": "修复 Director 摄影条聚焦导致顶部截断，以及缩短镜头后的播放头范围",
+      "trace": {
+        "changeId": "MF-106",
+        "issue": "https://github.com/Shuang-su/Metaflow/issues/106",
+        "spec": "docs/changes/106-acg-director/spec.md",
+        "plan": "docs/changes/106-acg-director/plan.md",
+        "evidence": "docs/changes/106-acg-director/verification.md",
+        "releaseTag": "viewer-v5.21.2",
+        "pullRequest": "https://github.com/Shuang-su/Metaflow/pull/112"
+      }
+    },
+    {
+      "displayVersion": "5.21.3",
+      "appSemver": "5.21.3",
+      "type": "fix",
+      "scope": "viewer",
+      "date": "2026-10-05",
+      "gitRef": "a62e7531d",
+      "summary": "修复低于480px窗口中摄影控制条无法滚动到达的问题",
+      "trace": {
+        "changeId": "MF-106",
+        "issue": "https://github.com/Shuang-su/Metaflow/issues/106",
+        "spec": "docs/changes/106-acg-director/spec.md",
+        "plan": "docs/changes/106-acg-director/plan.md",
+        "evidence": "docs/changes/106-acg-director/verification.md",
+        "releaseTag": "viewer-v5.21.3",
+        "pullRequest": "https://github.com/Shuang-su/Metaflow/pull/114"
+      }
+    },
+    {
+      "displayVersion": "5.21.4",
+      "appSemver": "5.21.4",
+      "type": "fix",
+      "scope": "viewer",
+      "date": "2026-10-08",
+      "gitRef": "9b1c51e23",
+      "summary": "恢复Director已验证界面、红色参考与完整帧复用；修正构图、画外提示、窄屏恢复及摄影条按压/hover/字体、中心对焦框、XYZ刻度与Operator padding",
+      "trace": {
+        "changeId": "MF-106",
+        "issue": "https://github.com/Shuang-su/Metaflow/issues/106",
+        "spec": "docs/changes/106-acg-director/spec.md",
+        "plan": "docs/changes/106-acg-director/plan.md",
+        "evidence": "docs/changes/106-acg-director/verification.md",
+        "releaseTag": "viewer-v5.21.4",
+        "pullRequest": "https://github.com/Shuang-su/Metaflow/pull/121"
+      }
+    },
+    {
+      "displayVersion": "5.21.5",
+      "appSemver": "5.21.5",
+      "type": "fix",
+      "scope": "viewer",
+      "date": "2026-10-08",
+      "gitRef": "35862e440",
+      "summary": "修复光圈辅助帧闪动、手动焦距红色参考、双行快门裁切与亮色边框；完善视频播放/刻度/窄屏布局及Easing入口和退场输入及最短胶片机位命中",
+      "trace": {
+        "changeId": "MF-106",
+        "issue": "https://github.com/Shuang-su/Metaflow/issues/106",
+        "spec": "docs/changes/106-acg-director/spec.md",
+        "plan": "docs/changes/106-acg-director/plan.md",
+        "evidence": "docs/changes/106-acg-director/verification.md",
+        "releaseTag": "viewer-v5.21.5",
+        "pullRequest": "https://github.com/Shuang-su/Metaflow/pull/123"
+      }
+    },
+    {
+      "displayVersion": "5.21.6",
+      "appSemver": "5.21.6",
+      "type": "fix",
+      "scope": "viewer",
+      "date": "2026-10-09",
+      "gitRef": "31babb2cf12ebc034d4f8c60ff905e2fd26dff7a",
+      "summary": "恢复光圈/手动焦距/相机调整Fast反馈并隔离辅助画布；修复采样下调、视频工作机位、兴趣区域恢复、胶片刻度/缩略图及取消/焦点/声音输入",
+      "trace": {
+        "changeId": "MF-106",
+        "issue": "https://github.com/Shuang-su/Metaflow/issues/106",
+        "spec": "docs/changes/106-acg-director/spec.md",
+        "plan": "docs/changes/106-acg-director/plan.md",
+        "evidence": "docs/changes/106-acg-director/verification.md",
+        "releaseTag": "viewer-v5.21.6",
+        "pullRequest": "https://github.com/Shuang-su/Metaflow/pull/126"
+      }
+    },
+    {
+      "displayVersion": "5.21.7",
+      "appSemver": "5.21.7",
+      "type": "fix",
+      "scope": "viewer",
+      "date": "2026-10-09",
+      "gitRef": "f7459408edecc7ef0b744dd9c5aaa3620a4ebd51",
+      "summary": "校准Fast焦外尺度并修复宽深度范围的透明排序；对齐Operator、对焦生命周期、内联控件及胶片编辑，保留同光学状态缓存",
+      "trace": {
+        "changeId": "MF-106",
+        "issue": "https://github.com/Shuang-su/Metaflow/issues/106",
+        "spec": "docs/changes/106-acg-director/spec.md",
+        "plan": "docs/changes/106-acg-director/plan.md",
+        "evidence": "docs/changes/106-acg-director/verification.md",
+        "releaseTag": "viewer-v5.21.7",
+        "pullRequest": "https://github.com/Shuang-su/Metaflow/pull/131"
+      }
+    },
+    {
+      "displayVersion": "5.21.8",
+      "appSemver": "5.21.8",
+      "type": "fix",
+      "scope": "viewer",
+      "date": "2026-10-09",
+      "gitRef": "066ab435f5f4a11282053e0f087205fa8dc0369e",
+      "summary": "摄影入口临时获取失败自动有限重试，耗尽后提供重试与原资源Viewer返回入口；不改变摄影成像或普通Viewer",
+      "trace": {
+        "changeId": "MF-106",
+        "issue": "https://github.com/Shuang-su/Metaflow/issues/106",
+        "spec": "docs/changes/106-acg-director/spec.md",
+        "plan": "docs/changes/106-acg-director/plan.md",
+        "evidence": "docs/changes/106-acg-director/verification.md",
+        "releaseTag": "viewer-v5.21.8",
+        "pullRequest": "https://github.com/Shuang-su/Metaflow/pull/133"
+      }
+    },
+    {
+      "displayVersion": "5.21.9",
+      "appSemver": "5.21.9",
+      "type": "fix",
+      "scope": "viewer",
+      "date": "2026-10-09",
+      "gitRef": "70961255c1b03a37be91079de4316fb9cf2b3a09",
+      "summary": "摄影采用浏览器默认WebGPU设备策略；慢启动继续等待，取消释放迟到设备，设备丢失后保留取景与视频编辑重建；完整RGBA32F孔径成片不变",
+      "trace": {
+        "changeId": "MF-106",
+        "issue": "https://github.com/Shuang-su/Metaflow/issues/106",
+        "spec": "docs/changes/106-acg-director/spec.md",
+        "plan": "docs/changes/106-acg-director/plan.md",
+        "evidence": "docs/changes/106-acg-director/verification.md",
+        "releaseTag": "viewer-v5.21.9",
+        "pullRequest": "https://github.com/Shuang-su/Metaflow/pull/136"
+      }
+    },
+    {
+      "displayVersion": "5.21.10",
+      "appSemver": "5.21.10",
+      "type": "fix",
+      "scope": "viewer",
+      "date": "2026-10-10",
+      "gitRef": "92958b569259e9cf1918efe0c006071b4fef2458",
+      "summary": "修复 Safari 深层路由入口解析；启动模块与资源索引有限重试，加载详情常显、百分比与阶段分离，保持透明样式",
+      "trace": {
+        "changeId": "MF-139",
+        "issue": "https://github.com/Shuang-su/Metaflow/issues/139",
+        "plan": "https://github.com/Shuang-su/Metaflow/issues/139",
+        "evidence": "docs/changes/139-viewer-safari-loading/verification.md",
+        "releaseTag": "viewer-v5.21.10",
+        "pullRequest": "https://github.com/Shuang-su/Metaflow/pull/140"
+      }
+    },
+    {
+      "displayVersion": "5.21.11",
+      "appSemver": "5.21.11",
+      "type": "fix",
+      "scope": "viewer",
+      "date": "2026-10-10",
+      "gitRef": "a9b4f41782c9d96cae0aa1c2c81ea8eee7d3ebe9",
+      "summary": "初始LOD进度纳入分块内读取比例；缇宝采用4K压缩WebP并恢复图片先于UI；主Logo使用官方组合SVG，保留展开动画与触屏两次点击行为。",
+      "resourceChanges": [
+        {
+          "action": "update",
+          "routes": [
+            "/acg/szcaf15/honkai_star_rail-tribbie"
+          ]
+        }
+      ],
+      "trace": {
+        "changeId": "MF-142",
+        "issue": "https://github.com/Shuang-su/Metaflow/issues/142",
+        "plan": "https://github.com/Shuang-su/Metaflow/issues/142",
+        "evidence": "docs/changes/142-loading-progress/verification.md",
+        "releaseTag": "viewer-v5.21.11",
+        "pullRequest": "https://github.com/Shuang-su/Metaflow/pull/144"
+      }
+    },
+    {
+      "displayVersion": "5.22.0",
+      "appSemver": "5.22.0",
+      "type": "feature",
+      "scope": "viewer",
+      "date": "2026-10-18",
+      "gitRef": "6fd4195d61ff3002a6fcea2caf7bd4eba3742ed7",
+      "summary": "feat(viewer): adopt SuperSplat v1.37.0 and PlayCanvas 2.23.0 with whole-scene XR and opt-in stochastic preview",
+      "trace": {
+        "changeId": "MF-151",
+        "issue": "https://github.com/Shuang-su/Metaflow/issues/151",
+        "spec": "docs/changes/151-viewer-upstream-v1.37.0/spec.md",
+        "plan": "docs/changes/151-viewer-upstream-v1.37.0/plan.md",
+        "evidence": "docs/changes/151-viewer-upstream-v1.37.0/verification.md",
+        "pullRequest": "https://github.com/Shuang-su/Metaflow/pull/152",
+        "releaseTag": "viewer-v5.22.0",
+        "upstream": {
+          "repository": "playcanvas/supersplat-viewer",
+          "from": "v1.35.2",
+          "to": "v1.37.0",
+          "gitRef": "cd0e316e397929ffa87abd4833f73f8a0bd1fd2b"
+        }
+      }
+    },
+    {
+      "displayVersion": "5.23.0",
+      "appSemver": "5.23.0",
+      "type": "feature",
+      "scope": "viewer",
+      "date": "2026-10-22",
+      "gitRef": "1074d34f9db25729e9d6abf14d1fb13f084d1b22",
+      "summary": "Shared multi-stop linear and radial background rendering with offline Editor exports",
+      "changes": [
+        {
+          "area": "background",
+          "summary": "Extend version-2 background.gradient with optional type, stops, angle and radial geometry; preserve legacy three-colour scenes."
+        },
+        {
+          "area": "render",
+          "summary": "Share sRGB/alpha sampling between WebGL and WebGPU; compose capture before row flipping and retain CameraFrame/XR restoration."
+        },
+        {
+          "area": "export",
+          "summary": "Add a platform-independent renderViewerHtml entry with inline HTML or five-file packages and no analytics/runtime network dependency."
+        }
+      ]
+    },
+    {
+      "displayVersion": "5.23.1",
+      "appSemver": "5.23.1",
+      "gitRef": "3c95767645a506dbe311d3ecce59380c011fe780",
+      "date": "2026-10-22",
+      "type": "fix",
+      "scope": "viewer",
+      "summary": "Normalize legacy RGBA background tuples before shared RGB sampling; recover gradient release",
+      "changes": [
+        {
+          "area": "compatibility",
+          "summary": "Preserve four-component legacy background settings on the wire; write exactly RGB plus alpha to the gradient texture and retain ordinary RGB behavior."
+        },
+        {
+          "area": "validation",
+          "summary": "Add LUT overflow regression and WebGL/WebGPU old RGBA-scene coverage after rolling back the initial gradient deployment."
+        }
+      ]
+    }
+  ]
+}

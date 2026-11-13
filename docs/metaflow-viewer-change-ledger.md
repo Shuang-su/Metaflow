@@ -10,6 +10,26 @@
 
 结构化版本号的权威来源仍是 [`metadata/version-history.json`](../metadata/version-history.json)。本文档是面向维护者的行为审计层。
 
+## 2026-11-14 生产历史恢复与兼容发布
+
+### 已公开记录的有界导入
+
+- `5.23.0` · `1074d34f9db25729e9d6abf14d1fb13f084d1b22`：生产历史已记录共享线性／径向渐变与离线导出；本次逐字保留原记录，不将其视为找回原始 Git 对象。
+- `5.23.1` · `3c95767645a506dbe311d3ecce59380c011fe780`：生产历史已记录 legacy RGBA 渐变恢复；本次逐字保留原记录。实际托管运行时由下述真实恢复提交重建并完成 JS/CSS/HTML 字节复现。
+- `3aa6ed6`：生产历史中的 Editor capture 支撑维护记录，按原文导入。
+- `f4520e159c38cc7b775e329d66929bc6f8723f92`：生产历史中的渐变格式维护记录，按原文导入。
+
+上述四个 Git 对象在当前可访问仓库中不存在。固定生产快照、原始记录摘要、不可变部署 URL 与公开镜像构成生产发布事实见证，不替代 Git 对象见证，也不补造原始 trace。来源契约只覆盖这四条旧记录；仓库原有记录与本次及未来版本仍检查真实 Git 对象和祖先／发布标签。篡改快照、旧记录、来源清单，扩大导入范围，或将 current 指向这些缺失对象均必须失败。详见 [恢复证据](guides/production-runtime-recovery.md)。
+
+### `5.23.2` · `47a8d9a155492285a61875594360e503f9e99956`
+
+- 动机：用户 iPhone 内嵌浏览器出现深色斑驳，已确认现有同场景 `?webgl` 对照恢复。场景为 SOG v2，不能据此归因于早期 SOG v3 布局，也无需等待全量模型重转。
+- 改动：托管入口对 Apple 移动 WebKit 默认请求 WebGL 2；`?webgl` 优先，显式 WebGPU／stochastic／heatmap 保留。图形设备建立后、纹理加载前，仅对实际 WebGL 2 的 Apple 移动 WebKit 关闭 ImageBitmap 解码。
+- 来源：兼容候选 `eca0cb7d3fba8cec7f6101a5a0fd6eacf6f6792c` 与从生产 source map 恢复的五份运行时差异合并，保留背景、capture 与 reveal 行为。SDK／embed 默认后端和独立 Director 选择不变；部署仅覆盖已核验的托管 Viewer 文件。
+- 验证：恢复基线的生产 JS/CSS/HTML 逐字节一致；30 项兼容／启动测试、类型、相关 lint／格式和完整构建通过。发布支持另验证最终版本镜像、历史来源与反例；候选自动分流和新 guard 的目标 iPhone 像素／性能仍未实测，用户已确认的是旧线上显式 WebGL 路径。
+- 交付：正式版本为 5.23.2，以现有生产 `6af6e65d93d318c79774c315` 全量文件清单叠加 Viewer 产物，未修改路径保留原 SHA；保留 Editor、Director、Horizon、全部模型与设置。最终 deploy 与回读追加到恢复记录。
+- 回退：保留上述生产部署为可恢复基线；源码撤回仅撤销后端策略与解码保护，不删除已恢复的生产背景／capture 行为。版本与总账继续只追加。
+
 当前操作入口见 [Metaflow 文档](README.md)，版本与上游关系见 [版本、上游与本地改动](concepts/version-upstream-local.md)。总账中的旧版本值是历史事实，不应被批量替换成当前版本。
 
 ## 审计规则

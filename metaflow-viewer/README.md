@@ -7,6 +7,10 @@
 
 ## 当前版本
 
+2026-11-14 发布候选：`5.23.2`；产品来源 `47a8d9a155492285a61875594360e503f9e99956`，SuperSplat Viewer `1.37.0` / PlayCanvas `2.23.0`，100 项资源、索引 schema `1.2`。Apple 移动 WebKit 托管入口默认 WebGL 2，保留显式后端参数；[兼容策略](../docs/guides/render-compatibility.md)与[恢复／发布证据](../docs/guides/production-runtime-recovery.md)区分已验证内容和目标设备验证边界。
+
+### 2026-10-19 文档快照（历史保留）
+
 2026-10-19 线上与元数据回读：以下 MF-151 基线为现行发布，产品 SHA 为 `6fd4195d61ff3002a6fcea2caf7bd4eba3742ed7`，构建／tag SHA 为 `7ecf830f895a488b5d06f975c0dc5175b6e26ea9`。
 
 - 当前发布状态以 [`metadata/version-history.json`](../metadata/version-history.json) 和生产回读为准。
