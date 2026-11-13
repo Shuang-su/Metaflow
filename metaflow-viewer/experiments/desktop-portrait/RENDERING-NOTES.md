@@ -54,9 +54,11 @@ app.on('frameend', () => {
 - PlayCanvas 渲染的高斯 splat 已写入深度缓冲
 - 如果不清除，VRM 可能被高斯错误遮挡（深度测试失败）
 - 清除深度后，VRM 总是渲染在高斯"之上"（视觉层叠，非空间混合）
+- Three.js renderer state is reset (`threeRenderer.state.reset()`) before rendering to prevent WebGL state cache conflicts
 
 **限制** ⚠️:
-1. **不支持真实空间遮挡**: VRM 不能被高斯遮挡，也不能遮挡高斯
+1. **不支持真实空间遮挡**: VRM 不能被高斯遮挡，也不能遮挡高斯  
+   **IMPORTANT**: Because depth is cleared, **mixed occlusion is not supported**. VRM always draws on top. This is an architectural tradeoff for using two separate rendering engines - there is no unified depth buffer.
 2. **渲染顺序固定**: 高斯永远在后，VRM 永远在前
 3. **混合场景问题**: 如果 VRM 角色应该站在高斯物体"后面"，当前实现无法正确表达
 4. **透明度排序**: VRM 的透明部分与高斯之间没有正确的深度关系
@@ -156,33 +158,37 @@ threeCamera.far = cam.farClip;                // 远裁剪面
 threeCamera.updateProjectionMatrix();
 ```
 
-### 离轴投影支持
+### 离轴投影支持 ✅ **已实现**
 
-PlayCanvas 支持 `camera.projectionOffset` (x, y)，Three.js 的 `PerspectiveCamera` 没有直接等效。
+PlayCanvas 支持 `camera.projectionOffset` (x, y) 以实现校准的离轴投影。Three.js 的 `PerspectiveCamera` 没有直接等效 API。
 
-**当前状态**:
-- PlayCanvas 相机使用离轴投影（校准眼位）
-- Three.js 相机复制 FOV/aspect/near/far，但 **不复制离轴偏移**
-- VRM 渲染使用标准投影（中心视锥）
-
-**影响**:
-- 如果眼位偏离屏幕中心较远，VRM 的透视可能与高斯/桌面不完全一致
-- 当前场景中 VRM 站在桌面上，影响较小
-- 如果 VRM 与高斯深度混合，透视差异会更明显
-
-**正确方案**（未实现）:
+**当前实现** (app.mjs ~line 520):
 ```javascript
-// 手动构造 Three.js 的投影矩阵，匹配 PlayCanvas 的离轴投影
-const projMatrix = new THREE.Matrix4();
-projMatrix.fromArray(cam.camera.projectionMatrix.data);
-threeCamera.projectionMatrix.copy(projMatrix);
-threeCamera.projectionMatrixInverse.copy(projMatrix).invert();
+// CRITICAL: Copy full projection matrix including off-axis offset
+const pcMatrix = cam.projectionMatrix;
+if (pcMatrix && pcMatrix.data) {
+  // PlayCanvas uses column-major 4x4 matrix
+  const m = pcMatrix.data;
+  threeCamera.projectionMatrix.set(
+    m[0], m[4], m[8],  m[12],
+    m[1], m[5], m[9],  m[13],
+    m[2], m[6], m[10], m[14],
+    m[3], m[7], m[11], m[15]
+  );
+  threeCamera.projectionMatrixInverse.copy(threeCamera.projectionMatrix).invert();
+}
 ```
 
-**不实现的原因**:
-- 首轮验证动画和加载，不优化极端视角
-- 标准投影在合理眼位（-30~30 cm）下视觉差异很小
-- 简化调试，避免矩阵同步错误
+**正确性**:
+- ✅ Three.js 相机使用与 PlayCanvas 完全相同的投影矩阵
+- ✅ 包含离轴偏移（calibrated eyepoint）
+- ✅ VRM 透视与高斯/桌面完全一致
+- ✅ 支持任意眼位，不局限于屏幕中心
+
+**测试验证**:
+- 改变 eye X/Y/Z 和 tilt 值
+- VRM 脚部与桌面的对齐应保持正确
+- VRM 头部 lookAt 应正确朝向相机位置
 
 ## 坐标系对齐
 

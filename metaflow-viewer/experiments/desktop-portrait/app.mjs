@@ -603,11 +603,28 @@ async function initialize() {
       threeCamera.quaternion.set(rot.x, rot.y, rot.z, rot.w);
       
       const cam = camera.camera;
-      threeCamera.fov = cam.fov;
-      threeCamera.aspect = cam.aspectRatio;
-      threeCamera.near = cam.nearClip;
-      threeCamera.far = cam.farClip;
-      threeCamera.updateProjectionMatrix();
+      
+      // CRITICAL: Copy full projection matrix including off-axis offset
+      // This ensures VRM perspective matches calibrated eyepoint
+      const pcMatrix = cam.projectionMatrix;
+      if (pcMatrix && pcMatrix.data) {
+        // PlayCanvas uses column-major 4x4 matrix
+        const m = pcMatrix.data;
+        threeCamera.projectionMatrix.set(
+          m[0], m[4], m[8],  m[12],
+          m[1], m[5], m[9],  m[13],
+          m[2], m[6], m[10], m[14],
+          m[3], m[7], m[11], m[15]
+        );
+        threeCamera.projectionMatrixInverse.copy(threeCamera.projectionMatrix).invert();
+      } else {
+        // Fallback to standard projection (should not happen)
+        threeCamera.fov = cam.fov;
+        threeCamera.aspect = cam.aspectRatio;
+        threeCamera.near = cam.nearClip;
+        threeCamera.far = cam.farClip;
+        threeCamera.updateProjectionMatrix();
+      }
       
       // Update look-at target (camera position)
       if (vrmAnimController) {
@@ -616,8 +633,13 @@ async function initialize() {
       }
       
       // Clear depth but not color, then render VRM on top
+      // VRM always draws on top; no mixed depth/occlusion support
       const gl = app.graphicsDevice.gl;
       gl.clear(gl.DEPTH_BUFFER_BIT);
+      
+      // Reset Three.js state cache to avoid conflicts with PlayCanvas
+      threeRenderer.state.reset();
+      
       threeRenderer.render(threeScene, threeCamera);
     }
   });
