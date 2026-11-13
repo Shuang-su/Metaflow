@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VRM Desktop Portrait</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: #1a1a1a;
+            color: #e0e0e0;
+            overflow: hidden;
+        }
+        #canvas-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+        canvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+        }
+        #controls {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.85);
+            padding: 20px;
+            border-radius: 8px;
+            min-width: 280px;
+            max-height: 90vh;
+            overflow-y: auto;
+            font-size: 13px;
+            backdrop-filter: blur(10px);
+        }
+        h3 {
+            margin: 0 0 12px 0;
+            font-size: 14px;
+            color: #60a5fa;
+            border-bottom: 1px solid #374151;
+            padding-bottom: 8px;
+        }
+        .control-group {
+            margin-bottom: 16px;
+        }
+        label {
+            display: block;
+            margin-bottom: 4px;
+            color: #9ca3af;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        input[type="range"] {
+            width: 100%;
+            margin: 4px 0;
+        }
+        .value-display {
+            text-align: right;
+            color: #60a5fa;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+        }
+        button {
+            width: 100%;
+            padding: 10px;
+            margin: 6px 0;
+            background: #3b82f6;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: background 0.2s;
+        }
+        button:hover {
+            background: #2563eb;
+        }
+        button:active {
+            background: #1d4ed8;
+        }
+        #status {
+            padding: 8px 12px;
+            background: rgba(59, 130, 246, 0.15);
+            border-left: 3px solid #3b82f6;
+            border-radius: 4px;
+            margin-bottom: 16px;
+            font-size: 11px;
+            line-height: 1.4;
+        }
+        #status.error {
+            background: rgba(239, 68, 68, 0.15);
+            border-left-color: #ef4444;
+        }
+        #status.success {
+            background: rgba(34, 197, 94, 0.15);
+            border-left-color: #22c55e;
+        }
+        input[type="file"] {
+            width: 100%;
+            padding: 8px;
+            background: #374151;
+            border: 1px solid #4b5563;
+            border-radius: 4px;
+            color: #e0e0e0;
+            font-size: 11px;
+            cursor: pointer;
+        }
+        input[type="file"]::file-selector-button {
+            background: #4b5563;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 3px;
+            cursor: pointer;
+            margin-right: 8px;
+        }
+        input[type="file"]::file-selector-button:hover {
+            background: #6b7280;
+        }
+    </style>
+</head>
+<body>
+    <div id="canvas-container">
+        <canvas id="main-canvas"></canvas>
+    </div>
+    
+    <div id="controls">
+        <div id="status">正在初始化...</div>
+        
+        <div class="control-group">
+            <h3>屏幕参数</h3>
+            <label>屏幕宽度 (m)</label>
+            <input type="range" id="screenWidth" min="0.08" max="0.8" step="0.01" value="0.34">
+            <div class="value-display" id="screenWidthValue">0.34 m</div>
+            
+            <label>屏幕高度 (m)</label>
+            <input type="range" id="screenHeight" min="0.04" max="1.0" step="0.01" value="0.21">
+            <div class="value-display" id="screenHeightValue">0.21 m</div>
+            
+            <label>支架倾角 (度)</label>
+            <input type="range" id="tiltDegrees" min="0" max="90" step="1" value="20">
+            <div class="value-display" id="tiltDegreesValue">20°</div>
+        </div>
+        
+        <div class="control-group">
+            <h3>眼睛位置 (m)</h3>
+            <label>水平 X (左←→右)</label>
+            <input type="range" id="eyeX" min="-0.3" max="0.3" step="0.01" value="0">
+            <div class="value-display" id="eyeXValue">0.00 m</div>
+            
+            <label>垂直 Y (下←→上)</label>
+            <input type="range" id="eyeY" min="-0.4" max="0.4" step="0.01" value="0.1">
+            <div class="value-display" id="eyeYValue">0.10 m</div>
+            
+            <label>深度 Z (屏幕←→眼睛)</label>
+            <input type="range" id="eyeZ" min="0.2" max="1.5" step="0.01" value="0.5">
+            <div class="value-display" id="eyeZValue">0.50 m</div>
+        </div>
+        
+        <div class="control-group">
+            <h3>模型</h3>
+            <input type="file" id="vrmFile" accept=".vrm">
+            <button id="loadDefaultModel">加载默认模型</button>
+        </div>
+        
+        <div class="control-group">
+            <h3>测试</h3>
+            <button id="playTestAudio">播放测试音频 (3秒)</button>
+        </div>
+    </div>
+
+    <script type="importmap">
+    {
+        "imports": {
+            "three": "./vendor/three.module.js",
+            "three/addons/": "./vendor/addons/",
+            "@pixiv/three-vrm": "./vendor/three-vrm.module.js"
+        }
+    }
+    </script>
+    <script type="module" src="./app.mjs"></script>
+</body>
+</html>

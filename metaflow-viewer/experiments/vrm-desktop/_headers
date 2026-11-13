@@ -1,0 +1,16 @@
+/*
+  X-Content-Type-Options: nosniff
+  X-Frame-Options: SAMEORIGIN
+  Referrer-Policy: strict-origin-when-cross-origin
+
+/vendor/*.js
+  Content-Type: text/javascript; charset=utf-8
+
+/vendor/addons/**/*.js
+  Content-Type: text/javascript; charset=utf-8
+
+/*.mjs
+  Content-Type: text/javascript; charset=utf-8
+
+/models/*.vrm
+  Content-Type: model/gltf-binary

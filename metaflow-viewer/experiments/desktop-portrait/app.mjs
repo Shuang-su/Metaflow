@@ -110,16 +110,21 @@ function updatePerson() {
   if (modelType === 'vrm' && vrmInstance) {
     // Update VRM transform
     // VRM models are typically 1.5-1.7m tall in their own units
-    // For desktop figurine, scale to match desired physical height
+    // Scale to physical desktop height, ensuring full character visible
     const fullHeight = modelBounds.halfExtents.y * 2;
     if (!Number.isFinite(fullHeight) || fullHeight < 1e-8) return;
-    const scale = values.height / 100 / fullHeight;
+    
+    // Use larger default height for VRM to ensure face is visible
+    // VRM height is physical height on desk (default 25cm gives good framing)
+    const targetHeight = modelType === 'vrm' ? Math.max(values.height, 25) / 100 : values.height / 100;
+    const scale = targetHeight / fullHeight;
     
     // Get personRoot world transform
     const pos = personRoot.getPosition();
     const rot = personRoot.getRotation();
     
-    // Apply to VRM scene
+    // Position VRM feet at desk surface
+    // Anchor at bottom of bounding box (center.y - halfExtents.y = bottom)
     vrmInstance.scene.position.set(
       pos.x - modelBounds.center.x * scale,
       pos.y - (modelBounds.center.y - modelBounds.halfExtents.y) * scale + values.foot / 1000,
@@ -190,7 +195,8 @@ function createScene() {
   desk = new pc.Entity('Level desk'); app.root.addChild(desk);
   const floorMaterial = new pc.StandardMaterial();
   floorMaterial.useLighting = false;
-  floorMaterial.diffuse.set(0,0,0);
+  // Use light base color instead of black for fallback
+  floorMaterial.diffuse.set(0.4, 0.35, 0.3); // Tan/wood color as fallback
   floorMaterial.emissiveTint = true;
   floorMaterial.emissiveMapTiling.set(4,4);
   floorMaterial.update();
