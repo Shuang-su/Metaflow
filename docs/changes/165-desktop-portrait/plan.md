@@ -12,3 +12,15 @@
 预计路径：`metaflow-viewer/experiments/desktop-portrait/{index.html,app.mjs,projection.mjs,projection.test.mjs,tracking.mjs,README.md}`，必要的独立实验依赖/开发脚本同目录。
 
 检查选型：`node --test` 验证纯几何与生命周期；语法检查；本地服务器 + Playwright Chromium 验证实际 WebGL2、导入、错误、响应布局与控制。生产入口未改，不扩展为全仓/发布测试。相机实机、真实 iPad、WebGPU、LOD 和正式产品交接作为明确未完成项。
+
+## 后续扩展：LAPLACE 花店数字人（尚未实施）
+
+依据 Spec 的新增扩展节，按可独立验收的阶段推进：
+
+1. 用自有或相应授权的 VRM 1.0 资产验证当前引擎适配范围：骨骼、morph、MToon、注视、弹簧骨骼与约束。Milky Green 的具体来源、署名和示例资产限制已记录；不自动随产品分发。
+2. 将当前高斯加载与角色加载抽象为能力明确的适配器，保留 `entity / calibrationBounds / update / dispose` 等职责。角色分支需要实际 ArrayBuffer；当前 GSplat 的 `Promise<Response>` contents 不能原样交给 GLB 解析器。取消/超时/晚到清理继续覆盖各格式。
+3. 添加校准包装节点、固定脚底基准和角色控制器，先验证待机、眨眼、注视与一段本地测试语音。对照 VRM 原始外观检查材质，验收动画不扰动人物的展示尺度与落地位置。
+4. 在三维展示通过后，以独立对话适配器接入 Eidolon 类服务，连接倾听/思考/说话状态、回复音频与口型。先核实时间戳能力，再决定音素口型或明确标注的音量近似；默认关闭麦克风及远端对话。
+5. 完成目标 iPad 的眼位追踪、角色动画、音频并发和持续展示验证，再评估高斯场景与角色混合、正式 Viewer 集成。每阶段单独报告新增验证，现有 40 项测试仅代表首轮原型。
+
+本次追加仅记录结合方案与实施边界，没有新增 VRM 运行代码、语音调用或模型分发。Persona 桌面 SDK 的控制桥接与网页原生角色渲染属于不同接入路径。
