@@ -12,6 +12,14 @@
 - [独立场景环境](https://metaflow.shuang-su.com/data/ACG/SZTUCCF260919/A003C0025_700101_RH8603/environment.compressed.ply) 是 5,652 点 compressed PLY，来自 splat-transform 3.6.4，未经过 SOG WebP 解码。它构成远景壳，不作为错误离群点删除。
 - 当前远端 main `a76f2708232d9d6acba8a370ecbe7808a2a7052d` 仍记录 5.22.0。线上记录的 `3c95767645a506dbe311d3ecce59380c011fe780` 在本轮 GitHub 查询中不存在。发布前必须找回/同步实际生产源码，不能把当前 main 整包覆盖到 5.23.1。
 
+## 用户截图补充（2026-11-14，北京时间）
+
+用户在收到现有线上 `?webgl` 对照链接后补充同场景截图，未附文字。当前显示尺度下，人物脸部和腿部的大面积深色斑驳已不明显，墙面与地面也比首图更均匀、明亮。本次只记录视觉观察，不上传用户截图。
+
+截图只显示域名，未显示完整 URL 或实际图形后端；机位更远、人物占比更小，截图分辨率和播放状态也不同。因此将其记为**正向视觉反馈，后端待确认**，不作为同机位像素对照、持续交互、性能或候选补丁的完整验收。
+
+本次复查线上版本记录仍为 5.23.1，PR #167 仍为 Draft、未合并。不能把改善归因于本候选补丁，也不能仅凭这张图认定 WebGPU 根因已修复。后续先确认是否使用所给 `?webgl` 入口，再在同一设备上复核近景与旋转缩放；格式与生产源码的发布边界保持不变。
+
 ## 格式与引擎矩阵
 
 以下是格式判断规则和采用方案，不是本补丁已经实现的运行时自动探测。
@@ -56,7 +64,7 @@ Engine 2.23.0 的 WebGL ImageBitmap 保护依赖 Safari UA token；一些 WKWebV
 
 检查首帧、静止连续帧、旋转缩放、LOD 切换与恢复。截图中的人物和场景均有斑驳；只凭现象不能区分排序键精度、equal-key 次序、解码或其他混合问题。[#9548](https://github.com/playcanvas/engine/issues/9548) 和 [#9899](https://github.com/playcanvas/engine/pull/9899) 是不同问题；后者同时改进 CPU/GPU 排序键，切 CPU sort 不等于解决全部精度问题。
 
-分支定向检查覆盖生成后 HTML 的真实 bootstrap、平台识别、显式参数优先级、Director 分流、embed 默认、实际后端的解码保护；它们不验证 GPU 像素结果。本轮云 Chrome 无 WebGPU adapter 且无 WebGL；本地 Chromium 启动受 `socket(): Operation not permitted` 限制。未获得新的可渲染截图、目标 iPhone 视觉结论或性能结论。
+分支定向检查覆盖生成后 HTML 的真实 bootstrap、平台识别、显式参数优先级、Director 分流、embed 默认、实际后端的解码保护；它们不验证 GPU 像素结果。本轮云 Chrome 无 WebGPU adapter 且无 WebGL；本地 Chromium 启动受 `socket(): Operation not permitted` 限制。云端与本地检查未生成新的可渲染截图，未取得候选补丁的目标 iPhone 视觉或性能结论；用户随后提供的截图单独记录于上文，不替代候选验收。
 
 已执行：三份定向测试 30/30、TypeScript、改动源码 ESLint/Prettier、完整 Viewer 构建和 `git diff --check` 通过。非实现者独立审查与重复定向测试通过；从实际线上 bundle 提取真实 `ImgParser`、替换 I/O 的分流检查 3/3，验证 WebGL Apple / WebGPU Apple / WebGL 非 Apple 三种路径，未验证解码像素。首次类型检查发现稀疏检出缺少 tracking plan 及 GraphicsDevice 基类没有声明运行时字段；补齐检出、修正 helper 类型后通过，未降低检查标准。
 
