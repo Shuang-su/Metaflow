@@ -10,6 +10,7 @@
   "dependencies": {
     "@mediapipe/tasks-vision": "0.10.32",
     "@pixiv/three-vrm": "3.1.4",
+    "canvas": "^3.2.3",
     "playcanvas": "2.23.0",
     "three": "0.170.0"
   },
