@@ -10,6 +10,9 @@ import { getProjection, tablePose } from './projection.mjs';
 import { VRMAnimator } from './vrm-animator.mjs';
 import { generateTestAudio } from './test-audio.mjs';
 
+// Expose THREE to window for diagnostics
+window.THREE = THREE;
+
 class DesktopPortraitApp {
     constructor() {
         this.canvas = document.getElementById('main-canvas');
@@ -32,17 +35,18 @@ class DesktopPortraitApp {
         
         // Camera (will be updated with off-axis projection)
         this.camera = new THREE.PerspectiveCamera(50, 1, 0.01, 10);
-        this.camera.position.set(0, 0.05, 0.6); // Moved back and slightly up to frame character
+        // Position set by updateProjection based on eye parameter
         
         // Lighting
         this.setupLighting();
         
         // Screen parameters (initialize before desk)
+        // Calibrated for desktop/tablet viewing with controls on right
         this.params = {
-            width: 0.34,
-            height: 0.21,
-            tiltDegrees: 20,
-            eye: { x: 0, y: 0.1, z: 0.5 }
+            width: 0.30,      // 30cm screen width
+            height: 0.20,     // 20cm screen height  
+            tiltDegrees: 15,  // Slight tilt
+            eye: { x: -0.05, y: 0.08, z: 0.45 }  // Eye slightly left and closer for better framing
         };
         
         // Desk plane
@@ -137,16 +141,14 @@ class DesktopPortraitApp {
     updateProjection() {
         const proj = getProjection(this.params);
         
+        // Set camera position from eye parameters
+        this.camera.position.set(proj.eye.x, proj.eye.y, proj.eye.z);
+        
         // Update camera FOV and aspect
         this.camera.fov = proj.fov;
         this.camera.aspect = proj.aspect;
         
-        // TEMPORARY: Use standard projection for debugging
-        // TODO: Re-enable off-axis projection after verifying scene renders
-        this.camera.updateProjectionMatrix();
-        
-        /* OFF-AXIS PROJECTION (disabled for debugging)
-        // Build off-axis projection matrix manually
+        // Build off-axis projection matrix
         const near = this.camera.near;
         const far = this.camera.far;
         const fov = proj.fov * Math.PI / 180;
@@ -155,7 +157,7 @@ class DesktopPortraitApp {
         const right = top * proj.aspect;
         const left = -right;
         
-        // Apply offset
+        // Apply offset (shift frustum based on eye position relative to screen center)
         const offsetX = proj.offset.x * (right - left) / 2;
         const offsetY = proj.offset.y * (top - bottom) / 2;
         
@@ -175,7 +177,6 @@ class DesktopPortraitApp {
         );
         
         this.camera.projectionMatrixInverse.copy(this.camera.projectionMatrix).invert();
-        */
         
         // Update desk pose
         this.updateDeskPose();
@@ -251,32 +252,44 @@ class DesktopPortraitApp {
         console.log('[Normalize] Original size:', size.toArray());
         console.log('[Normalize] Original center:', center.toArray());
         
-        // Normalize to fit full character in view with desk visible
-        const targetHeight = 0.25; // 25cm ensures full body + head visible
+        // Target: fit character within screen height with desk visible at bottom
+        // Leave ~3cm for desk visibility, use remaining height for character
+        const availableHeight = this.params.height * 0.85; // 85% of screen for character
+        const targetHeight = availableHeight;
         const scale = targetHeight / size.y;
         scene.scale.setScalar(scale);
         
-        console.log('[Normalize] Scale factor:', scale);
+        console.log('[Normalize] Scale factor:', scale, 'target height:', targetHeight);
         
         // Recompute after scaling
         box.setFromObject(scene);
         size.copy(box.getSize(new THREE.Vector3()));
         center.copy(box.getCenter(new THREE.Vector3()));
         const bottom = box.min.y;
+        const top = box.max.y;
+        const characterHeight = top - bottom;
         
         console.log('[Normalize] Scaled size:', size.toArray());
-        console.log('[Normalize] Scaled bottom:', bottom);
+        console.log('[Normalize] Character height:', characterHeight, 'bottom:', bottom, 'top:', top);
         
-        // Anchor feet to desk plane (y = 0 in desk local space)
-        // Center horizontally and depth-wise
+        // Anchor lowest point (feet) to y=0 in person root local space
         scene.position.set(-center.x, -bottom, -center.z);
         
-        // Position person root to place character in view
-        // Place at screen center height (y=0), desk will be below
-        this.personRoot.position.y = 0;
+        // Recompute box after positioning
+        box.setFromObject(scene);
+        const newBottom = box.min.y;
+        const newTop = box.max.y;
+        console.log('[Normalize] After scene reposition - bottom:', newBottom, 'top:', newTop);
+        
+        // Position person root so feet are on desk surface
+        // Desk is at bottom of screen (-height/2)
+        // Feet should be slightly above desk surface
+        const deskY = -this.params.height / 2;
+        this.personRoot.position.y = deskY + 0.002; // 2mm above desk
         
         console.log('[Normalize] VRM scene position:', scene.position.toArray());
         console.log('[Normalize] Person root position:', this.personRoot.position.toArray());
+        console.log('[Normalize] Expected world feet Y:', this.personRoot.position.y + newBottom);
     }
     
     async loadDefaultModel() {

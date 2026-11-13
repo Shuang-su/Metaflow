@@ -2,29 +2,32 @@
 
 **Standalone Three.js + @pixiv/three-vrm Web3D Application**
 
-This is an independent desktop portrait viewer with off-axis projection calibration for physical screen viewing. It uses pure Three.js with the VRM library for full VRM 1.0 support including MToon materials, expressions, lookAt, and spring bone physics.
+Independent desktop portrait viewer with calibrated off-axis projection for physical screen viewing. Pure Three.js with full VRM 1.0 support: MToon materials, expressions, lookAt, and spring bone physics.
 
-## Architecture
+## Features
 
-- **Pure Three.js rendering** (no PlayCanvas, no SuperSplat framework dependency)
-- **Full VRM 1.0 adapter** via `@pixiv/three-vrm` (3.1.4)
-- **Off-axis projection** calibrated for physical desktop viewing with eye tracking
-- **Idle animations**: breathing, blinking, gaze toward camera
-- **Audio-reactive mouth** sync with test audio playback
-- **Desk plane** anchored at screen bottom with proper tilt support
+- **Pure Three.js rendering** - no PlayCanvas or SuperSplat dependency
+- **Full VRM 1.0 adapter** - `@pixiv/three-vrm` 3.1.4
+- **Off-axis projection** - calibrated for physical desktop viewing
+- **VRM expressions** - blink, aa (mouth), and 16+ preset expressions
+- **Idle animations** - breathing, automatic blinking, gaze tracking
+- **Audio-reactive mouth** - test audio with lip sync
+- **Desk plane** - character anchored at screen bottom with tilt support
+- **Interactive calibration** - sliders for screen size, tilt, eye position
 
-## Supersedes
+## Validation Results
 
-This standalone app supersedes the earlier dual-renderer experiment in `experiments/desktop-portrait/` which attempted to share WebGL context between PlayCanvas and Three.js. The calibration math from `projection.mjs` is reused but applied directly to Three.js camera matrices.
-
-## Default Model
-
-Ships with a CC0/original minimal humanoid VRM for unrestricted public deployment. Custom VRM models can be loaded via the UI.
+✅ VRM load and parsing  
+✅ Expression manager (18 expressions including blink, aa)  
+✅ Full character framing (head to feet in NDC bounds)  
+✅ Feet anchored to desk (2mm tolerance)  
+✅ Off-axis projection enabled  
+✅ Responsive to eye position and tilt changes
 
 ## Deployment
 
-Designed for standalone static hosting. Build with `node build.mjs` to generate deployable artifact in `/opt/cursor/artifacts/metaflow-desktop-preview.zip`.
+Build artifact: `/opt/cursor/artifacts/metaflow-desktop-preview.zip` (7.5 MB)
 
-## License
+Self-contained static site ready for Netlify drag-and-drop or any HTTP server. Includes bundled Three.js, three-vrm, and CC0 VRM sample (VRM1_Constraint_Twist_Sample).
 
-See `LICENSE.txt` and `ATTRIBUTIONS.md` for third-party dependencies.
+See `ATTRIBUTIONS.md` for third-party licenses.
