@@ -9,6 +9,7 @@ import { createVRMAnimationController, createAudioMouthController } from './vrm-
 import { createTestAudioUrl } from './test-audio.mjs';
 
 const $ = id => document.getElementById(id);
+const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
 const canvas = $('canvas');
 const defaults = { width: 26, tilt: 65, eyeX: 0, eyeY: 15, eyeZ: 55, height: 18, depth: 10, heading: 0, foot: 0 };
 const values = { ...defaults };
@@ -629,7 +630,19 @@ async function initialize() {
     }
   });
   resizeObserver.observe(canvas);
-  const url=URL.createObjectURL(new Blob([createCalibrationPly()],{type:'application/octet-stream'}));
-  await openPortrait({url,filename:'calibration.ply',revoke:true,synthetic:true});
+  
+  // Check URL parameter for auto-loading VRM
+  const params = new URLSearchParams(window.location.search);
+  const autoLoadVrm = params.get('vrm');
+  
+  if (autoLoadVrm) {
+    // Auto-load VRM from relative path (e.g. ?vrm=Seed-san.vrm)
+    message('正在自动载入 VRM...');
+    await sleep(500);
+    await openPortrait({url: autoLoadVrm, filename: autoLoadVrm.split('/').pop()});
+  } else {
+    const url=URL.createObjectURL(new Blob([createCalibrationPly()],{type:'application/octet-stream'}));
+    await openPortrait({url,filename:'calibration.ply',revoke:true,synthetic:true});
+  }
 }
 initialize().catch(error=>{message(`无法启动三维展示：${error.message}。请使用支持 WebGL2 的浏览器。`,true);$('tracking').disabled=true;});
