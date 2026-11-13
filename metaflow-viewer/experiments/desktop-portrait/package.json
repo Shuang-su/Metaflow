@@ -12,5 +12,8 @@
     "@pixiv/three-vrm": "3.1.4",
     "playcanvas": "2.23.0",
     "three": "0.170.0"
+  },
+  "devDependencies": {
+    "puppeteer": "^25.17.0"
   }
 }

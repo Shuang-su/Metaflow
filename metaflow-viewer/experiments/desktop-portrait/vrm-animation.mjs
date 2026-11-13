@@ -30,7 +30,9 @@ export function createVRMAnimationController(vrm, {
     let time = 0;
     let nextBlinkTime = Math.random() * blinkInterval;
     let blinkPhase = 0; // 0 = not blinking, 0-1 = blink progress
-    let targetLookAt = new THREE.Vector3(0, 0, 1); // Forward by default
+    // LookAt target must be an Object3D, not a Vector3
+    const lookAtTarget = new THREE.Object3D();
+    lookAtTarget.position.set(0, 0, 1); // Forward by default
     let currentMouthOpen = 0;
     let targetMouthOpen = 0;
     
@@ -120,8 +122,8 @@ export function createVRMAnimationController(vrm, {
         
         // Look-at animation
         if (lookAt) {
-            // VRM lookAt expects target in world space
-            lookAt.target = targetLookAt;
+            // VRM lookAt expects an Object3D target
+            lookAt.target = lookAtTarget;
         }
         
         // Update VRM internal systems
@@ -134,7 +136,7 @@ export function createVRMAnimationController(vrm, {
      */
     function setLookAtTarget(position) {
         if (disposed) return;
-        targetLookAt.copy(position);
+        lookAtTarget.position.copy(position);
     }
     
     /**
@@ -181,7 +183,7 @@ export function createVRMAnimationController(vrm, {
         get hasMouth() { return hasMouthExpression; },
         get hasLookAt() { return !!lookAt; },
         // Expose internal state for diagnostics
-        get breathPhase() { return (time * breathRate) % (2 * Math.PI); },
+        get breathPhase() { return (time * breathingRate * 2 * Math.PI) % (2 * Math.PI); },
         get blinkPhase() { return blinkPhase; },
         get mouthOpen() { return currentMouthOpen; }
     };

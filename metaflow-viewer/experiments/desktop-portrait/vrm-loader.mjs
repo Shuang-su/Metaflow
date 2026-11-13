@@ -157,7 +157,8 @@ export function createVRMLoader({
                 throw new Error('VRM 缺少必需的 humanoid 骨骼定义');
             }
             
-            // Store metadata
+            // Store metadata (ensure userData exists)
+            if (!vrm.userData) vrm.userData = {};
             vrm.userData.filename = filename;
             vrm.userData.loadSerial = ++loadSerial;
             

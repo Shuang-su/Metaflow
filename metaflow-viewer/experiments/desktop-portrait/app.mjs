@@ -1,5 +1,6 @@
 import * as pc from './node_modules/playcanvas/build/playcanvas.mjs';
 import * as THREE from 'three';
+import { VRMUtils } from '@pixiv/three-vrm';
 import { getProjection, tablePose, clampEye } from './projection.mjs';
 import { createHeadTracker } from './tracking.mjs';
 import { createCalibrationPly } from './sample.mjs';
@@ -113,9 +114,8 @@ function updatePerson() {
     const scale = values.height / 100 / fullHeight;
     
     // Get personRoot world transform
-    const worldTransform = personRoot.getWorldTransform();
-    const pos = worldTransform.getTranslation();
-    const rot = worldTransform.getRotation();
+    const pos = personRoot.getPosition();
+    const rot = personRoot.getRotation();
     
     // Apply to VRM scene
     vrmInstance.scene.position.set(
@@ -227,7 +227,7 @@ async function openPortrait({ url, filename, revoke = false, synthetic = false }
       // Load VRM character
       const vrm = await vrmLoader.load({ url, filename }); next=vrm;
       if (disposed || sequence !== loadSequence) { 
-        if (vrm?.scene) THREE.VRMUtils.deepDispose(vrm.scene);
+        if (vrm?.scene) VRMUtils.deepDispose(vrm.scene);
         return; 
       }
       
@@ -326,7 +326,7 @@ async function openPortrait({ url, filename, revoke = false, synthetic = false }
     }
   } catch(error) {
     if (next) {
-      if (isVRM && next?.scene) THREE.VRMUtils.deepDispose(next.scene);
+      if (isVRM && next?.scene) VRMUtils.deepDispose(next.scene);
       else if (!isVRM && next !== modelAsset) { next.unload(); app.assets.remove(next); }
     }
     if(sequence===loadSequence && !disposed) message(`载入失败：${error.message}`,true);
@@ -349,7 +349,7 @@ function disposeCurrentModel() {
     }
     if (vrmInstance.scene) {
       threeScene?.remove(vrmInstance.scene);
-      THREE.VRMUtils.deepDispose(vrmInstance.scene);
+      VRMUtils.deepDispose(vrmInstance.scene);
     }
     vrmInstance = null;
   }
@@ -680,6 +680,9 @@ async function initialize() {
     await openPortrait({url,filename:'calibration.ply',revoke:true,synthetic:true});
   }
 }
+// Expose diagnostics for testing
+window.diagnostics = diagnostics;
+
 initialize().catch(error=>{
   console.error('Initialize failed:', error);
   message(`无法启动三维展示：${error.message}。请使用支持 WebGL2 的浏览器。`,true);
