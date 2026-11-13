@@ -1,0 +1,63 @@
+# SOG 格式与渲染环境兼容
+
+状态：兼容修复候选，未发布。检查窗口：北京时间 2026-11-13 晚至 11-14 凌晨。
+
+本记录把模型格式兼容与渲染环境兼容分开。选择顺序是：确认资产的实际格式与布局 → 选择支持该布局的引擎 → 选择设备和浏览器上已验证的 WebGPU/WebGL 路径。能够创建 GPU 设备只证明 API 可用，不证明纹理解码、排序、混合及最终画质正确。
+
+## 线上证据
+
+- [线上版本记录](https://metaflow.shuang-su.com/data/version-history.json) 为 Viewer 5.23.1；[实际 bundle](https://metaflow.shuang-su.com/index.js) 报告 SuperSplat Viewer 1.37.0 / PlayCanvas 2.23.0 (`cfef43d`)。
+- [截图对应资源](https://metaflow.shuang-su.com/acg/sztuccf260919/lolita-burgundy_lace) 的 [scene.sog](https://metaflow.shuang-su.com/data/ACG/SZTUCCF260919/A003C0025_700101_RH8603/scene.sog) 是 SOG v2，由 splat-transform 3.6.4 生成，550,360 点，已有 `quats.webp`。完整文件 9,887,653 bytes，SHA-256 `8c5285f6ee0a0b14530760013e7fc8a2202b70871f7d43ec6774926c7ae287f7`。
+- 主体 `means_l`、`means_u`、`scales` 的有效像素 alpha 全 255；`quats` alpha 为 252–255。它不属于早期 SOG v3 的 alpha 旋转布局。`sh0` alpha 为 1–254，不能据此排除其他 WebKit 解码误差。
+- [独立场景环境](https://metaflow.shuang-su.com/data/ACG/SZTUCCF260919/A003C0025_700101_RH8603/environment.compressed.ply) 是 5,652 点 compressed PLY，来自 splat-transform 3.6.4，未经过 SOG WebP 解码。它构成远景壳，不作为错误离群点删除。
+- 当前远端 main `a76f2708232d9d6acba8a370ecbe7808a2a7052d` 仍记录 5.22.0。线上记录的 `3c95767645a506dbe311d3ecce59380c011fe780` 在本轮 GitHub 查询中不存在。发布前必须找回/同步实际生产源码，不能把当前 main 整包覆盖到 5.23.1。
+
+## 格式与引擎矩阵
+
+以下是格式判断规则和采用方案，不是本补丁已经实现的运行时自动探测。
+
+| 实际资产 | 判断依据 | 采用规则 |
+|---|---|---|
+| SOG v2 | `meta.version === 2`，存在 `meta.quats` | 本轮线上 2.23.0 可读取；2.24.1 也保留 v2 路径。无需为了 v3 修复重转 |
+| 早期 SOG v3 | `version === 3`，缺少 `quats`，旋转放在其他纹理 alpha | 与修订版布局不同。2.24.1 reader 不兼容；从原始场景重转，或使用经过验证的旧运行时与资产成套回退。不能仅切 WebGL 就让不支持该布局的 reader 正常工作 |
+| 修订版 SOG v3 | `version === 3`，独立 `quats.webp` 存储旋转 | 使用已核对的 Engine 2.24.1 / Viewer 1.43.2 / SplatTransform 3.11.2 组合，再做设备验收；这些版本不是本轮已经采用的依赖 |
+| PLY / compressed PLY | 文件 header 和 parser | 与 SOG 布局分别判断，仍需验证绘制、排序与资源预算 |
+| Streamed LOD | `lod-meta.json` 及其引用的各级资源 | 顶层 manifest 不是 SOG 版本证据。每一级/子块须与所选 reader 配套，发布时一起更新 |
+
+新引擎可继续读取 v2，因此长期不必为每个 SOG 版本都维护一个完整 Viewer。仅在新运行时仍有目标设备回归时，保留一套经过验证的旧运行时作为临时回退。新旧资产采用不同 URL 或内容哈希，禁止把同一路径下的模型静默换成 reader 不支持的布局。
+
+依据：[Engine #10007](https://github.com/playcanvas/engine/pull/10007)、[Viewer #365](https://github.com/playcanvas/supersplat-viewer/pull/365)、[SplatTransform #379](https://github.com/playcanvas/splat-transform/pull/379)。#10007 的 Chromium 测试不替代 Safari/iPhone 验收。
+
+## 本候选实现的浏览器与设备策略
+
+| 环境 / 显式选择 | 托管入口请求 | 解码与验证边界 |
+|---|---|---|
+| iPhone / iPad 的 Apple WebKit，包括嵌入式浏览器及桌面 UA iPad | 默认 WebGL 2 | 在实际 WebGL 设备上关闭 ImageBitmap 图片解码（含 SOG 数据纹理）；目标 iPhone 画面仍待验 |
+| macOS Safari、Windows/Android Chromium、未知平台 | 保留 WebGPU 默认 | 保持现有行为，不把这些组合标记为已通过所有资产验收 |
+| `?webgpu` | WebGPU | 明确的对照入口，仍可由引擎在设备不可用时 fallback |
+| `?stochastic` / `?heatmap` | WebGPU | 保留已显式请求的 WebGPU 实验/调试能力 |
+| `?webgl`，即使同时存在上述参数 | WebGL 2 | 优先级最高，兼容原有 XR reload 链路 |
+
+移动 WebKit 判定检查 AppleWebKit UA 与 iPhone/iPad/iPod 标识，或 `MacIntel + maxTouchPoints > 1`。这是客户端特征匹配，不是 GPU 品牌认证，也不能保证未来所有设备身份都能准确识别。没有按 RTX、Apple GPU、Adreno 品牌一刀切放行或禁用。
+
+实现位于 `src/render-compatibility.js`，`siteHtml()` 只将后端选择应用到托管 `index.html`。SDK 的默认 `renderer`、未经转换的 `embed.html`、离线导出和独立 Director 后端选择不变。实际设备创建后再应用 WebGL 解码保护，覆盖请求 WebGPU 后自动退到 WebGL 的情况。
+
+Engine 2.23.0 的 WebGL ImageBitmap 保护依赖 Safari UA token；一些 WKWebView 不带此 token。本补丁使这些 Apple 移动 WebKit 设备与 Safari 的现有保护一致，在 WebGL 下改用 HTMLImageElement；目标画面仍待真机验证。该开关不应用到 WebGPU，因为 WebGPU 的 HTMLImageElement 上传不是等价修复。
+
+依据：[Engine #10002](https://github.com/playcanvas/engine/issues/10002)。精确 WebP 软件解码候选 [#10003](https://github.com/playcanvas/engine/pull/10003) 仍 Open，本轮未合入；新版 v3 的布局修复也不代表所有 `sh0` 低 alpha 颜色误差已消失。
+
+## 验收和后续定位
+
+保持同一原始资产、相机、后处理、分辨率和 LOD 预算，比较：
+
+1. 当前 WebGPU + GPU sort。
+2. WebGPU + CPU sort，仅在隔离诊断构建中调整，以区分排序与纹理解码。
+3. WebGL 2 + HTML image decode。
+
+检查首帧、静止连续帧、旋转缩放、LOD 切换与恢复。截图中的人物和场景均有斑驳；只凭现象不能区分排序键精度、equal-key 次序、解码或其他混合问题。[#9548](https://github.com/playcanvas/engine/issues/9548) 和 [#9899](https://github.com/playcanvas/engine/pull/9899) 是不同问题；后者同时改进 CPU/GPU 排序键，切 CPU sort 不等于解决全部精度问题。
+
+分支定向检查覆盖生成后 HTML 的真实 bootstrap、平台识别、显式参数优先级、Director 分流、embed 默认、实际后端的解码保护；它们不验证 GPU 像素结果。本轮云 Chrome 无 WebGPU adapter 且无 WebGL；本地 Chromium 启动受 `socket(): Operation not permitted` 限制。未获得新的可渲染截图、目标 iPhone 视觉结论或性能结论。
+
+已执行：三份定向测试 30/30、TypeScript、改动源码 ESLint/Prettier、完整 Viewer 构建和 `git diff --check` 通过。非实现者独立审查与重复定向测试通过；从实际线上 bundle 提取真实 `ImgParser`、替换 I/O 的分流检查 3/3，验证 WebGL Apple / WebGPU Apple / WebGL 非 Apple 三种路径，未验证解码像素。首次类型检查发现稀疏检出缺少 tracking plan 及 GraphicsDevice 基类没有声明运行时字段；补齐检出、修正 helper 类型后通过，未降低检查标准。
+
+发布前完成两项具体缺口：恢复 5.23.1 对应源码并在其上移植/构建；在目标 iPhone 上确认兼容路径确实恢复画面且交互可用。候选只在独立分支，未提升生产版本、未覆盖模型、未部署或回滚。部署后另追加对应 Ledger/Version History 和观察结果。

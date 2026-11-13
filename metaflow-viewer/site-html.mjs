@@ -1,3 +1,5 @@
+import { isAppleMobileWebKit, selectHostedRenderer } from './src/render-compatibility.js';
+
 /** Only the hosted site dispatches resource /director routes. SDK exports keep their standalone bootstrap. */
 export async function loadViewerEntry(
     baseUrl = document.baseURI,
@@ -85,6 +87,11 @@ export function siteHtml(template) {
         if (!template.includes(from)) throw Error(`Site bootstrap seam missing: ${from}`);
         template = template.replace(from, to);
     };
+    replace(
+        "const renderer = url.searchParams.has('webgl') ? 'webgl' : 'webgpu';",
+        `const renderer = (${selectHostedRenderer.toString()})(url.searchParams,
+                    (${isAppleMobileWebKit.toString()})(navigator));`
+    );
     replace(
         'window.sseReady = (async () => {',
         `

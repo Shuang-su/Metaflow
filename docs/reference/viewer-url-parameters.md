@@ -1,6 +1,6 @@
 # Viewer URL 参数参考
 
-当前解析实现以 [`metaflow-viewer/src/index.html`](../../metaflow-viewer/src/index.html) 为准；页面把 `?lang=` 写入 `Config.lang`，再由 [`src/localization.ts`](../../metaflow-viewer/src/localization.ts) 完成 locale 选择。嵌入式入口也可在初始化前设置 `window.sse.config.lang`。本页记录实际参数和优先级，不把理想行为写成已经实现的契约。
+基础解析实现以 [`metaflow-viewer/src/index.html`](../../metaflow-viewer/src/index.html) 为准；托管入口额外经过 [`site-html.mjs`](../../metaflow-viewer/site-html.mjs) 的兼容策略。页面把 `?lang=` 写入 `Config.lang`，再由 [`src/localization.ts`](../../metaflow-viewer/src/localization.ts) 完成 locale 选择。嵌入式入口也可在初始化前设置 `window.sse.config.lang`。本页记录分支代码的实际参数和优先级；[渲染兼容记录](../guides/render-compatibility.md) 单独标明生产与待验状态。
 
 ## 两种入口
 
@@ -74,7 +74,8 @@ JSON 结构用于验证所选入口，不会改选另一个 parser。损坏的 `
 |---|---|
 | `noui` | 隐藏 Viewer UI |
 | `noanim` | 禁止默认动画自动播放 |
-| `webgl` | 强制 WebGL；未设置时使用 WebGPU 路线 |
+| `webgl` | 强制 WebGL 2，优先于其他后端与实验参数 |
+| `webgpu` | 托管入口显式请求 WebGPU，覆盖移动端兼容默认；设备创建失败仍使用引擎原有 fallback |
 | `aa` | 启用 Gaussian Splat 抗锯齿 |
 | `stochastic` | 显式启用实验随机渲染，仅 WebGPU；默认关闭，WebGL／XR 使用排序路径，截图暂时切回排序后恢复预览 |
 | `splatSource` | 随机渲染的数据来源：`workbuffer`（默认）、`direct`、`light`；开发实验参数 |
@@ -92,6 +93,8 @@ JSON 结构用于验证所选入口，不会改选另一个 parser。损坏的 `
 | `lang` | UI 语言，例如 `zh-CN`、`en` |
 
 布尔 flag 以“参数是否存在”判断，例如 `?noui`；`hpr` 是例外，会读取值。未知参数会被 Viewer 忽略。
+
+托管页面在 Apple 移动 WebKit（含桌面 UA 的 iPad）默认请求 WebGL 2；其他平台保留 WebGPU 默认。显式 `webgpu`、`stochastic` 或 `heatmap` 请求 WebGPU，`webgl` 始终优先。SDK 与未经 `siteHtml()` 转换的 embed/export 模板保留既有默认；Director 的独立入口不参与此选择。该策略只处理渲染环境，不会把旧引擎变成 SOG v3 reader，也不表示目标设备的画质已经通过验证。
 
 语言的最终优先级是 `Config.lang`（自带 HTML 入口默认来自 `?lang=`）→ `navigator.languages` / `navigator.language` → English。大小写和 base-language 匹配继续生效；localization 模块不再重复读取 URL，也没有第二套语言参数。
 

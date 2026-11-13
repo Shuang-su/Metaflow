@@ -25,6 +25,7 @@ import { initLocalization } from './localization';
 import type { CreateViewerOptions } from './options';
 import { parseSettings } from './parse-settings';
 import { persistPreferences, readPreferences } from './preferences';
+import { configureWebglImageDecoding, isAppleMobileWebKit } from './render-compatibility.js';
 import { importSettings } from './settings';
 import { initPoster, initUI } from './ui';
 import uiHtml from './ui.html';
@@ -250,6 +251,9 @@ const createApp = async (canvas: HTMLCanvasElement, config: Config) => {
     });
 
     console.log(`Renderer: ${device.deviceType}`);
+
+    // Use the actual backend: WebGPU requests may have fallen back to WebGL2.
+    configureWebglImageDecoding(device, isAppleMobileWebKit(navigator));
 
     // The engine may have fallen back from WebGPU to WebGL2; downstream code
     // (voxel overlay, XR, gsplat renderer selection) needs the *actual* renderer.
