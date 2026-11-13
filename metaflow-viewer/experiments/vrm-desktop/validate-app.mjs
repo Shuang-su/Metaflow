@@ -167,9 +167,9 @@ async function validateApp() {
                 minNdcY = Math.min(minNdcY, ndc.y);
                 maxNdcY = Math.max(maxNdcY, ndc.y);
                 
-                // NDC range is [-1, 1], but allow some margin
-                if (Math.abs(ndc.x) > 1.2 || Math.abs(ndc.y) > 1.2) {
-                    console.warn(`  ⚠ ${corner.name} outside view: NDC (${ndc.x.toFixed(2)}, ${ndc.y.toFixed(2)})`);
+                // NDC range is [-1, 1], require margin for visibility
+                if (Math.abs(ndc.x) > 0.85 || Math.abs(ndc.y) > 0.85) {
+                    console.warn(`  ⚠ ${corner.name} outside comfortable view: NDC (${ndc.x.toFixed(2)}, ${ndc.y.toFixed(2)})`);
                     allInView = false;
                 }
             } catch (error) {

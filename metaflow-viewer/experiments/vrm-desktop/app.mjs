@@ -41,12 +41,12 @@ class DesktopPortraitApp {
         this.setupLighting();
         
         // Screen parameters (initialize before desk)
-        // Calibrated for desktop/tablet viewing with controls on right
+        // Calibrated for viewport excluding control panel (~280px / 1000px = 72% width)
         this.params = {
-            width: 0.30,      // 30cm screen width
+            width: 0.22,      // Effective viewing width (excluding controls)
             height: 0.20,     // 20cm screen height  
             tiltDegrees: 15,  // Slight tilt
-            eye: { x: -0.05, y: 0.08, z: 0.45 }  // Eye slightly left and closer for better framing
+            eye: { x: -0.04, y: 0.03, z: 0.65 }  // Further back and lower for full framing with margin
         };
         
         // Desk plane
@@ -219,6 +219,9 @@ class DesktopPortraitApp {
             console.log('[VRM] Setting up animator...');
             this.animator = new VRMAnimator(this.vrm, this.camera);
             
+            // Set resting pose (arms down instead of T-pose)
+            this.setRestingPose();
+            
             console.log('[VRM] Load complete!');
             this.setStatus(`VRM 加载成功: ${this.vrm.meta?.name || 'Unknown'}`, 'success');
             
@@ -239,6 +242,41 @@ class DesktopPortraitApp {
         }
     }
     
+    setRestingPose() {
+        if (!this.vrm?.humanoid) return;
+        
+        console.log('[Pose] Setting resting pose...');
+        
+        // Rotate arms down from T-pose to resting position at sides
+        const leftUpperArm = this.vrm.humanoid.getNormalizedBoneNode('leftUpperArm');
+        const rightUpperArm = this.vrm.humanoid.getNormalizedBoneNode('rightUpperArm');
+        
+        if (leftUpperArm) {
+            // Rotate around X axis to bring arm down
+            leftUpperArm.rotation.x = 0;
+            leftUpperArm.rotation.y = 0;
+            leftUpperArm.rotation.z = Math.PI / 2; // 90 degrees down to side
+            console.log('[Pose] Left arm rotated');
+        }
+        if (rightUpperArm) {
+            rightUpperArm.rotation.x = 0;
+            rightUpperArm.rotation.y = 0;
+            rightUpperArm.rotation.z = -Math.PI / 2; // 90 degrees down to side
+            console.log('[Pose] Right arm rotated');
+        }
+        
+        // Update spring bones to settle after pose change
+        if (this.vrm.springBoneManager) {
+            console.log('[Pose] Settling spring bones...');
+            // Run many updates with larger time steps to let hair/spring bones fully settle
+            for (let i = 0; i < 120; i++) {
+                this.vrm.springBoneManager.update(0.033); // 30fps timestep
+            }
+        }
+        
+        console.log('[Pose] Resting pose complete');
+    }
+    
     normalizeAndAnchor() {
         if (!this.vrm) return;
         
@@ -252,9 +290,9 @@ class DesktopPortraitApp {
         console.log('[Normalize] Original size:', size.toArray());
         console.log('[Normalize] Original center:', center.toArray());
         
-        // Target: fit character within screen height with desk visible at bottom
-        // Leave ~3cm for desk visibility, use remaining height for character
-        const availableHeight = this.params.height * 0.85; // 85% of screen for character
+        // Target: fit character comfortably within view with margins
+        // Reduce height to ensure all corners within [-0.85, 0.85] NDC with margin
+        const availableHeight = this.params.height * 0.55; // 55% of screen for character with margin
         const targetHeight = availableHeight;
         const scale = targetHeight / size.y;
         scene.scale.setScalar(scale);
@@ -281,11 +319,11 @@ class DesktopPortraitApp {
         const newTop = box.max.y;
         console.log('[Normalize] After scene reposition - bottom:', newBottom, 'top:', newTop);
         
-        // Position person root so feet are on desk surface
+        // Position person root to keep feet visible with margin
         // Desk is at bottom of screen (-height/2)
-        // Feet should be slightly above desk surface
+        // Lift character to ensure feet stay within NDC bounds with small gap acceptable
         const deskY = -this.params.height / 2;
-        this.personRoot.position.y = deskY + 0.002; // 2mm above desk
+        this.personRoot.position.y = deskY + 0.018; // 18mm above desk for NDC margin
         
         console.log('[Normalize] VRM scene position:', scene.position.toArray());
         console.log('[Normalize] Person root position:', this.personRoot.position.toArray());
