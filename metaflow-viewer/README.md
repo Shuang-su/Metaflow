@@ -7,7 +7,7 @@
 
 ## 当前版本
 
-2026-11-14 发布候选：`5.23.2`；产品来源 `47a8d9a155492285a61875594360e503f9e99956`，SuperSplat Viewer `1.37.0` / PlayCanvas `2.23.0`，100 项资源、索引 schema `1.2`。Apple 移动 WebKit 托管入口默认 WebGL 2，保留显式后端参数；[兼容策略](../docs/guides/render-compatibility.md)与[恢复／发布证据](../docs/guides/production-runtime-recovery.md)区分已验证内容和目标设备验证边界。
+2026-11-14 发布候选：`5.23.2`；正式集成产品来源 `7cbe28cd2f552dcd850c7a5724365244d523bb65`，SuperSplat Viewer `1.37.0` / PlayCanvas `2.23.0`，100 项资源、索引 schema `1.2`。Apple 移动 WebKit 托管入口默认 WebGL 2，保留显式后端参数；[兼容策略](../docs/guides/render-compatibility.md)与[恢复／发布证据](../docs/guides/production-runtime-recovery.md)区分已验证内容和目标设备验证边界。
 
 ### 2026-10-19 文档快照（历史保留）
 

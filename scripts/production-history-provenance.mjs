@@ -11,7 +11,7 @@ export const PRODUCTION_HISTORY_SNAPSHOT_PATH =
 
 // A single, reviewed production observation, not a general missing-commit exemption.
 // Changing this evidence requires an explicit new provenance review.
-const MANIFEST_SHA256 = '8a4b463d3f0a111e66c92326a12b799a746aca70b04db11d99a2326719c2aa5d';
+const MANIFEST_SHA256 = 'cc3e4e0c48d0183eaae31123f70534976aa005275d63c0387fe1dea7fd4d81a6';
 const RECOVERY_RELEASE = '5.23.2';
 const IMPORTED_REFS = new Set([
     '1074d34f9db25729e9d6abf14d1fb13f084d1b22',

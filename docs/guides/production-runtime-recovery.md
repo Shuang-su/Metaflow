@@ -60,9 +60,9 @@ PR #167 最初保留仓库原有 5.22.0 身份字段，随后根据用户生产�
 
 ## 5.23.2 发布身份与历史来源
 
-- 真实产品提交：`47a8d9a155492285a61875594360e503f9e99956`；兼容候选来源：`eca0cb7d3fba8cec7f6101a5a0fd6eacf6f6792c`。PR 合并保留这些真实祖先，不将恢复提交冒充旧发布提交。
+- 正式产品提交：`7cbe28cd2f552dcd850c7a5724365244d523bb65`，为 PR #167 的实际 squash 结果；合并前源码恢复来源为 `47a8d9a155492285a61875594360e503f9e99956`，兼容候选为 `eca0cb7d3fba8cec7f6101a5a0fd6eacf6f6792c`。仓库不允许普通合并提交，按既定流程在 squash 后回填尚未发布的 5.23.2 身份，普通 Git 检查和合并策略都未放宽。
 - 原生产部署：[`6af6e65d93d318c79774c315`](https://app.netlify.com/projects/charming-salamander-fc1af0/deploys/6af6e65d93d318c79774c315)，不可变产物入口为 https://6af6e65d93d318c79774c315--charming-salamander-fc1af0.netlify.app 。它已保留 Editor 1.3.2 与 Horizon 路由，不能以仓库旧全量产物覆盖。
-- 原 production history 有 135 条版本、76 条维护记录。5.23.2 完整保留该前缀，只追加新版本和兼容候选维护记录；资源索引仅修改 release，100 项资源内容不变。
+- 原 production history 有 135 条版本、76 条维护记录。5.23.2 完整保留该前缀，只追加正式版本及其发布支撑记录；未独立发布的候选工作归并到真实 squash 产品提交，原 SHA 仅作为 PR 过程证据保留。资源索引仅修改 release，100 项资源内容不变。
 - [`metadata/production-history-recovery.json`](../../metadata/production-history-recovery.json) 固定原始生产 JSON 的 SHA-256、字节数、观察时间、部署 URL、四条导入记录与已有仓库基线。原始 JSON 和来源清单均提供 data 镜像。
 - `scripts/production-history-provenance.mjs` 被 MCL 与版本测试共同使用：四条旧记录必须与固定快照完全一致；已有仓库历史仍要求 Git 见证，本次及未来发布继续要求真实提交与 trace。关闭来源字段、删改历史、扩大例外、使用错误恢复提交或回填日期均应失败。
 - 记录原始 5.23.0／5.23.1 生产事实不等于恢复其 Git 对象。其原 trace 缺失不由当前 PR 冒名补写，统一以公开的恢复来源说明。
@@ -77,6 +77,6 @@ PR #167 最初保留仓库原有 5.22.0 身份字段，随后根据用户生产�
 
 2026-11-14 已完成最终记录的完整版本历史检查 **8/8**、历史来源及 trace 检查 **25/25**、MCL check-all、Viewer 5.23.2 release contract 与带正式 analytics endpoint 的完整 build。版本历史检查补齐真实 Git 历史、旧 release tags 和必要历史索引 blob 后通过，未跳过普通记录的 Git 检查。独立审查提出的来源链接整体删除、错误首发提交和日期绕过三项反例均已修复并重新验证。
 
-当前正式构建的 `index.js` SHA-256 为 `a6476ba0e096f64d4527a8f2b0d7b3183bd11f66700afd4dff1f126a0497d971`，`index.html` 为 `b73c98dad2251d692907b72e7c0efd515e278e611562630196ec4dbbbb463dae`；CSS 与原生产完全一致。最终发布仍需记录实际打包 commit 与候选 deploy，不能把本节的构建成功称为上线。
+合并前完整候选 `2ba782b688c529bec2639ae4169c56acc9d31a53` 已通过 66 项定向测试与完整构建；当时 `index.js` SHA-256 为 `a6476ba0e096f64d4527a8f2b0d7b3183bd11f66700afd4dff1f126a0497d971`，`index.html` 为 `b73c98dad2251d692907b72e7c0efd515e278e611562630196ec4dbbbb463dae`，CSS 与原生产完全一致。最终记录回填后应重新构建并以其实际打包 commit 为准；不能把候选构建成功称为上线。
 
 发布 API 的完整文件清单请求返回 401。账号已有 Netlify CLI 授权记录，但本环境 CLI 未登录；尝试正常恢复 CLI 登录时，自动审批拒绝了会赋予跨团队创建／管理项目持久权限的 OAuth 授权。该拒绝未被绕过，未取得新凭据、未创建生产候选、未切换生产。用户已授权发布 MetaFlow，完成此工具授权仍需明确确认其额外权限范围。

@@ -22,7 +22,7 @@
     "maintenanceCommits": 74
   },
   "recovery": {
-    "productCommit": "47a8d9a155492285a61875594360e503f9e99956",
+    "productCommit": "7cbe28cd2f552dcd850c7a5724365244d523bb65",
     "pullRequest": "https://github.com/Shuang-su/Metaflow/pull/167",
     "evidence": "docs/guides/production-runtime-recovery.md"
   },

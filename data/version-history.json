@@ -1,14 +1,14 @@
 {
   "schemaVersion": "1.1",
   "cutoffGitRef": "c613a87",
-  "documentedThrough": "47a8d9a155492285a61875594360e503f9e99956",
+  "documentedThrough": "7cbe28cd2f552dcd850c7a5724365244d523bb65",
   "defaultResourceVersion": "1.0a",
   "current": {
     "displayVersion": "5.23.2",
     "appSemver": "5.23.2",
     "indexSchemaVersion": "1.2",
     "date": "2026-11-14",
-    "gitRef": "47a8d9a155492285a61875594360e503f9e99956",
+    "gitRef": "7cbe28cd2f552dcd850c7a5724365244d523bb65",
     "historyUrl": "/data/version-history.json",
     "upstream": {
       "repository": "playcanvas/supersplat-viewer",
@@ -432,17 +432,6 @@
       "gitRef": "f4520e159c38cc7b775e329d66929bc6f8723f92",
       "date": "2026-10-22",
       "summary": "Format gradient integration with existing Viewer rules; behavior unchanged"
-    },
-    {
-      "gitRef": "eca0cb7d3fba8cec7f6101a5a0fd6eacf6f6792c",
-      "date": "2026-11-14",
-      "summary": "Unpublished Apple mobile render compatibility candidate; consolidated with recovered production runtime in Viewer 5.23.2."
-    },
-    {
-      "gitRef": "7ba649963b3ac1b802c61abb49da9dc2531eb935",
-      "date": "2026-11-14",
-      "type": "release-support",
-      "summary": "Prepare Viewer 5.23.2 identity and preserve four production-only historical records with immutable snapshot provenance, strict new-release Git checks and public evidence mirrors."
     }
   ],
   "entries": [
@@ -2096,7 +2085,7 @@
       "type": "fix",
       "scope": "viewer",
       "date": "2026-11-14",
-      "gitRef": "47a8d9a155492285a61875594360e503f9e99956",
+      "gitRef": "7cbe28cd2f552dcd850c7a5724365244d523bb65",
       "summary": "Preserve production runtime and restore Apple mobile WebKit rendering through WebGL 2 with guarded image decoding",
       "trace": {
         "changeId": "MF-T0-20261114-webgpu-compat",

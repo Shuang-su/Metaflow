@@ -16,8 +16,8 @@ import {
 const repoRoot = fileURLToPath(new URL('../..', import.meta.url));
 const manifestBytes = await readFile(join(repoRoot, PRODUCTION_HISTORY_RECOVERY_PATH));
 const snapshotBytes = await readFile(join(repoRoot, PRODUCTION_HISTORY_SNAPSHOT_PATH));
-const productRef = '47a8d9a155492285a61875594360e503f9e99956';
-const candidateRef = 'eca0cb7d3fba8cec7f6101a5a0fd6eacf6f6792c';
+const productRef = '7cbe28cd2f552dcd850c7a5724365244d523bb65';
+const earlierFixtureRef = 'a76f2708232d9d6acba8a370ecbe7808a2a7052d';
 const publicSnapshot = 'data/production-history-recovery/production-5.23.1-20261114.json';
 
 function releaseHistory() {
@@ -45,9 +45,9 @@ function releaseHistory() {
         }
     });
     history.maintenanceCommits.push({
-        gitRef: candidateRef,
+        gitRef: earlierFixtureRef,
         date: '2026-11-13',
-        summary: 'Unpublished compatibility candidate incorporated into 5.23.2'
+        summary: 'Test fixture: an earlier main ancestor used only for provenance validation'
     });
     return history;
 }
@@ -78,7 +78,7 @@ test('bounded recovery preserves all production records and returns only the fou
     assert.equal(result.importedRefs.size, 4);
     assert.equal(result.importedEntryRefs.size, 2);
     assert.ok(!result.importedRefs.has(productRef));
-    assert.ok(!result.importedRefs.has(candidateRef));
+    assert.ok(!result.importedRefs.has(earlierFixtureRef));
 });
 
 test('ordinary repository history does not acquire a production exemption', async () => {
@@ -113,10 +113,10 @@ const invalidHistories = [
         history.current.gitRef = history.entries[134].gitRef;
         history.documentedThrough = history.current.gitRef;
     }, /current release cannot use an observed-only Git ref/],
-    ['an earlier candidate substituted for the first recovery product', (history) => {
-        history.current.gitRef = candidateRef;
-        history.documentedThrough = candidateRef;
-        history.entries.at(-1).gitRef = candidateRef;
+    ['an earlier fixture commit substituted for the first recovery product', (history) => {
+        history.current.gitRef = earlierFixtureRef;
+        history.documentedThrough = earlierFixtureRef;
+        history.entries.at(-1).gitRef = earlierFixtureRef;
         history.maintenanceCommits.pop();
     }, /first recovery release must retain the verified recovery product commit/],
     ['missing new release date', (history) => delete history.entries.at(-1).date, /valid ISO calendar date/],
@@ -143,7 +143,7 @@ const invalidHistories = [
 
 test('later releases can reference another real commit while retaining the first recovery release', async (context) => {
     const { root, history } = await fixture(context);
-    const rollbackRef = 'b1d15b1e5272557230d789c58e68e145d5367edb';
+    const rollbackRef = '32deff73956991e6d92c42a236b003048e7b4253';
     const later = {
         ...history.entries.at(-1),
         displayVersion: '5.23.3',
