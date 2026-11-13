@@ -1,8 +1,12 @@
 import * as pc from './node_modules/playcanvas/build/playcanvas.mjs';
+import * as THREE from 'three';
 import { getProjection, tablePose, clampEye } from './projection.mjs';
 import { createHeadTracker } from './tracking.mjs';
 import { createCalibrationPly } from './sample.mjs';
 import { createAssetLoader } from './asset-loader.mjs';
+import { createVRMLoader, getVRMBounds } from './vrm-loader.mjs';
+import { createVRMAnimationController, createAudioMouthController } from './vrm-animation.mjs';
+import { createTestAudioUrl } from './test-audio.mjs';
 
 const $ = id => document.getElementById(id);
 const canvas = $('canvas');
@@ -14,13 +18,23 @@ let viewport = { width: window.innerWidth, height: window.innerHeight };
 let sourceRotation = 'none';
 let loadSequence = 0;
 let activeLoads = 0;
-let portraitLoader;
+let portraitLoader, vrmLoader;
 let disposed = false;
 let floorTexture, shadowTexture, wakeLock, resizeObserver, tiltCancel;
 let presentationGeneration = 0;
 let tiltGeneration = 0;
 let ready = false;
 let assetName = '合成高斯校准样本';
+let modelType = 'gaussian'; // 'gaussian' or 'vrm'
+let vrmInstance = null;
+let vrmAnimController = null;
+let audioMouthController = null;
+let threeRenderer = null;
+let threeScene = null;
+let threeCamera = null;
+let threeLights = [];
+let testAudioElement = null;
+let testAudioUrl = null;
 const offsetVector = new pc.Vec2();
 
 function baseline() { return { x: values.eyeX / 100, y: values.eyeY / 100, z: values.eyeZ / 100 }; }
@@ -88,19 +102,43 @@ function updatePerson() {
   const spread = values.height / 100 * .55;
   shadow.setLocalScale(spread, 1, spread * .62);
   shadow.enabled = $('shadow').checked;
-  if (!model || !modelBounds) return;
-  const angles = { none: [0,0,0], z180: [0,0,180], x180: [180,0,0], x90: [-90,0,0] }[sourceRotation];
-  const rotation = new pc.Quat().setFromEulerAngles(...angles);
-  const transform = new pc.Mat4().setTRS(new pc.Vec3(), rotation, pc.Vec3.ONE);
-  const bounds = new pc.BoundingBox();
-  bounds.setFromTransformedAabb(modelBounds, transform);
-  const fullHeight = bounds.halfExtents.y * 2;
-  if (!Number.isFinite(fullHeight) || fullHeight < 1e-8) return;
-  const scale = values.height / 100 / fullHeight;
-  model.setLocalRotation(rotation);
-  model.setLocalScale(scale, scale, scale);
-  const footY = bounds.center.y - bounds.halfExtents.y;
-  model.setLocalPosition(-bounds.center.x * scale, -footY * scale + values.foot / 1000, -bounds.center.z * scale);
+  
+  if (!modelBounds) return;
+  
+  if (modelType === 'vrm' && vrmInstance) {
+    // Update VRM transform
+    const fullHeight = modelBounds.halfExtents.y * 2;
+    if (!Number.isFinite(fullHeight) || fullHeight < 1e-8) return;
+    const scale = values.height / 100 / fullHeight;
+    
+    // Get personRoot world transform
+    const worldTransform = personRoot.getWorldTransform();
+    const pos = worldTransform.getTranslation();
+    const rot = worldTransform.getRotation();
+    
+    // Apply to VRM scene
+    vrmInstance.scene.position.set(
+      pos.x - modelBounds.center.x * scale,
+      pos.y - (modelBounds.center.y - modelBounds.halfExtents.y) * scale + values.foot / 1000,
+      pos.z - modelBounds.center.z * scale
+    );
+    vrmInstance.scene.quaternion.set(rot.x, rot.y, rot.z, rot.w);
+    vrmInstance.scene.scale.set(scale, scale, scale);
+  } else if (model) {
+    // Update Gaussian splat (existing code)
+    const angles = { none: [0,0,0], z180: [0,0,180], x180: [180,0,0], x90: [-90,0,0] }[sourceRotation];
+    const rotation = new pc.Quat().setFromEulerAngles(...angles);
+    const transform = new pc.Mat4().setTRS(new pc.Vec3(), rotation, pc.Vec3.ONE);
+    const bounds = new pc.BoundingBox();
+    bounds.setFromTransformedAabb(modelBounds, transform);
+    const fullHeight = bounds.halfExtents.y * 2;
+    if (!Number.isFinite(fullHeight) || fullHeight < 1e-8) return;
+    const scale = values.height / 100 / fullHeight;
+    model.setLocalRotation(rotation);
+    model.setLocalScale(scale, scale, scale);
+    const footY = bounds.center.y - bounds.halfExtents.y;
+    model.setLocalPosition(-bounds.center.x * scale, -footY * scale + values.foot / 1000, -bounds.center.z * scale);
+  }
 }
 
 function textureFromCanvas(source) {
@@ -180,29 +218,116 @@ function createScene() {
 async function openPortrait({ url, filename, revoke = false, synthetic = false }) {
   const sequence = ++loadSequence;
   activeLoads++;
+  const isVRM = /\.vrm$/i.test(filename);
   message(`正在载入 ${filename}…`);
   let next;
   try {
-    const asset = await portraitLoader.load({ url, filename }); next=asset;
-    if (disposed || sequence !== loadSequence) { asset.unload(); app.assets.remove(asset); return; }
-    const entity = new pc.Entity('Gaussian portrait');
-    entity.addComponent('gsplat', { asset, unified: true });
-    const bounds = entity.gsplat.customAabb;
-    if (!bounds) { entity.destroy(); throw new Error('无法获得人像范围'); }
-    const extent = bounds.halfExtents;
-    if (![...bounds.center.toArray(), ...extent.toArray()].every(Number.isFinite) || Math.max(extent.x,extent.y,extent.z) < 1e-8) {
-      entity.destroy(); throw new Error('人像范围无效');
+    if (isVRM) {
+      // Load VRM character
+      const vrm = await vrmLoader.load({ url, filename }); next=vrm;
+      if (disposed || sequence !== loadSequence) { 
+        if (vrm?.scene) THREE.VRMUtils.deepDispose(vrm.scene);
+        return; 
+      }
+      
+      // Dispose previous model
+      disposeCurrentModel();
+      
+      // Calculate bounds
+      const bounds = getVRMBounds(vrm);
+      modelBounds = new pc.BoundingBox(
+        new pc.Vec3(bounds.center.x, bounds.center.y, bounds.center.z),
+        new pc.Vec3(bounds.halfExtents.x, bounds.halfExtents.y, bounds.halfExtents.z)
+      );
+      
+      // Set up Three.js rendering for VRM
+      if (!threeScene) {
+        threeScene = new THREE.Scene();
+        threeCamera = new THREE.PerspectiveCamera(50, 1, 0.1, 100);
+        
+        // Create renderer sharing PlayCanvas context
+        threeRenderer = new THREE.WebGLRenderer({
+          canvas: canvas,
+          context: app.graphicsDevice.gl,
+          alpha: true,
+          premultipliedAlpha: true,
+          antialias: false
+        });
+        threeRenderer.autoClear = false;
+        threeRenderer.setSize(canvas.width, canvas.height);
+        
+        // Add lights
+        const dirLight = new THREE.DirectionalLight(0xffffff, 1.2);
+        dirLight.position.set(1, 1.5, 1);
+        threeScene.add(dirLight);
+        threeLights.push(dirLight);
+        
+        const ambLight = new THREE.AmbientLight(0xffffff, 0.6);
+        threeScene.add(ambLight);
+        threeLights.push(ambLight);
+      }
+      
+      threeScene.add(vrm.scene);
+      vrmInstance = vrm;
+      vrmAnimController = createVRMAnimationController(vrm);
+      
+      // Set up audio mouth controller
+      if (audioMouthController) audioMouthController.dispose();
+      audioMouthController = createAudioMouthController({
+        onMouthUpdate: (amount) => {
+          if (vrmAnimController) vrmAnimController.setMouthOpen(amount);
+        }
+      });
+      
+      modelType = 'vrm';
+      model = null; // VRM doesn't use PlayCanvas entity
+      sourceRotation = 'none';
+      $('sourceAxis').value = 'none';
+      $('sourceAxis').disabled = true;
+      assetName = filename;
+      
+      // Show audio controls for VRM
+      $('audioSection').style.display = 'block';
+      $('audioControls').style.display = 'block';
+      
+      updatePerson();
+      ready = true;
+      message(`已载入 VRM 角色。角色将呈现待机动画、眨眼和注视。可播放测试音频查看口型。`);
+    } else {
+      // Load Gaussian splat (existing code)
+      const asset = await portraitLoader.load({ url, filename }); next=asset;
+      if (disposed || sequence !== loadSequence) { asset.unload(); app.assets.remove(asset); return; }
+      
+      disposeCurrentModel();
+      
+      const entity = new pc.Entity('Gaussian portrait');
+      entity.addComponent('gsplat', { asset, unified: true });
+      const bounds = entity.gsplat.customAabb;
+      if (!bounds) { entity.destroy(); throw new Error('无法获得人像范围'); }
+      const extent = bounds.halfExtents;
+      if (![...bounds.center.toArray(), ...extent.toArray()].every(Number.isFinite) || Math.max(extent.x,extent.y,extent.z) < 1e-8) {
+        entity.destroy(); throw new Error('人像范围无效');
+      }
+      model=entity; modelAsset=asset; modelBounds=bounds.clone();
+      personRoot.addChild(entity);
+      sourceRotation=synthetic?'none':$('sourceAxis').value;
+      if(synthetic) $('sourceAxis').value='none';
+      $('sourceAxis').disabled = false;
+      modelType = 'gaussian';
+      assetName=synthetic?'合成高斯校准样本 · 7,600 点':filename;
+      
+      // Hide audio controls for Gaussian
+      $('audioSection').style.display = 'none';
+      $('audioControls').style.display = 'none';
+      
+      updatePerson(); ready=true;
+      message(synthetic?'这是几何校准用的高斯样本。打开你的 PLY / SOG 人像，调整源坐标与脚底位置。':'已载入真实高斯资产。请检查人物上下方向、脚底与观看位置。');
     }
-    model?.destroy(); if(modelAsset) { modelAsset.unload(); app.assets.remove(modelAsset); }
-    model=entity; modelAsset=asset; modelBounds=bounds.clone();
-    personRoot.addChild(entity);
-    sourceRotation=synthetic?'none':$('sourceAxis').value;
-    if(synthetic) $('sourceAxis').value='none';
-    assetName=synthetic?'合成高斯校准样本 · 7,600 点':filename;
-    updatePerson(); ready=true;
-    message(synthetic?'这是几何校准用的高斯样本。打开你的 PLY / SOG 人像，调整源坐标与脚底位置。':'已载入真实高斯资产。请检查人物上下方向、脚底与观看位置。');
   } catch(error) {
-    if (next && next !== modelAsset) { next.unload(); app.assets.remove(next); }
+    if (next) {
+      if (isVRM && next?.scene) THREE.VRMUtils.deepDispose(next.scene);
+      else if (!isVRM && next !== modelAsset) { next.unload(); app.assets.remove(next); }
+    }
     if(sequence===loadSequence && !disposed) message(`载入失败：${error.message}`,true);
   } finally {
     activeLoads--;
@@ -210,10 +335,44 @@ async function openPortrait({ url, filename, revoke = false, synthetic = false }
   }
 }
 
+function disposeCurrentModel() {
+  // Dispose VRM resources
+  if (vrmInstance) {
+    if (vrmAnimController) {
+      vrmAnimController.dispose();
+      vrmAnimController = null;
+    }
+    if (audioMouthController) {
+      audioMouthController.dispose();
+      audioMouthController = null;
+    }
+    if (vrmInstance.scene) {
+      threeScene?.remove(vrmInstance.scene);
+      THREE.VRMUtils.deepDispose(vrmInstance.scene);
+    }
+    vrmInstance = null;
+  }
+  
+  // Dispose Gaussian resources
+  model?.destroy();
+  if(modelAsset) { 
+    modelAsset.unload(); 
+    app.assets.remove(modelAsset);
+    modelAsset = null;
+  }
+  model = null;
+}
+
 async function importFile(file) {
   if (!app || !file) return;
-  if (!/\.(ply|sog)$/i.test(file.name)) { message('请打开单文件 PLY 或 SOG 人像。',true); return; }
-  if (file.size > 150 * 1024 * 1024) { message('原型限制单文件 150 MiB，请先导出较小的人像。',true); return; }
+  if (!/\.(ply|sog|vrm)$/i.test(file.name)) { 
+    message('请打开 PLY、SOG 或 VRM 文件。',true); 
+    return; 
+  }
+  if (file.size > 150 * 1024 * 1024) { 
+    message('原型限制单文件 150 MiB，请先导出较小的资产。',true); 
+    return; 
+  }
   await openPortrait({url:URL.createObjectURL(file),filename:file.name,revoke:true});
 }
 
@@ -265,7 +424,7 @@ $('loadUrl').addEventListener('click',()=>{
     const url=new URL($('url').value);
     if(url.protocol!=='https:') throw new Error('请使用 HTTPS 资源链接');
     const filename=decodeURIComponent(url.pathname.split('/').pop());
-    if(!/\.(ply|sog)$/i.test(filename)) throw new Error('需要以 .ply 或 .sog 结尾的单文件链接');
+    if(!/\.(ply|sog|vrm)$/i.test(filename)) throw new Error('需要以 .ply、.sog 或 .vrm 结尾的链接');
     void openPortrait({url:url.href,filename});
   } catch(error) { message(error.message,true); }
 });
@@ -275,6 +434,60 @@ $('tracking').addEventListener('click',async()=>{
 $('recenter').addEventListener('click',()=>tracker.recenter());
 $('senseTilt').addEventListener('click',readTilt);
 $('reset').addEventListener('click',()=>{tracker.stop();Object.assign(values,defaults);constrainCanvasWidth();viewEye=baseline();syncLabels();updateProjection();updatePerson();message('校准已重置。请按可见画布的实际尺寸调整。');});
+
+// Audio controls for VRM
+$('playTestAudio').addEventListener('click', async () => {
+  if (!audioMouthController || modelType !== 'vrm') return;
+  try {
+    $('playTestAudio').disabled = true;
+    message('正在生成测试音频…');
+    
+    // Generate and play test audio
+    if (!testAudioUrl) {
+      testAudioUrl = createTestAudioUrl(3);
+    }
+    
+    if (!testAudioElement) {
+      testAudioElement = new Audio();
+      testAudioElement.crossOrigin = 'anonymous';
+    }
+    
+    testAudioElement.src = testAudioUrl;
+    await testAudioElement.play();
+    
+    // Attach mouth controller
+    audioMouthController.attachAudio(testAudioElement);
+    
+    testAudioElement.onended = () => {
+      $('playTestAudio').disabled = false;
+      $('playTestAudio').textContent = '播放测试音频';
+      audioMouthController.detach();
+      if (vrmAnimController) vrmAnimController.setMouthOpen(0);
+    };
+    
+    $('playTestAudio').textContent = '播放中…';
+    message('测试音频播放中。观察角色口型动作。');
+  } catch (error) {
+    message(`音频播放失败：${error.message}`, true);
+    $('playTestAudio').disabled = false;
+  }
+});
+
+$('stopAudio').addEventListener('click', () => {
+  if (testAudioElement) {
+    testAudioElement.pause();
+    testAudioElement.currentTime = 0;
+  }
+  if (audioMouthController) {
+    audioMouthController.detach();
+  }
+  if (vrmAnimController) {
+    vrmAnimController.setMouthOpen(0);
+  }
+  $('playTestAudio').disabled = false;
+  $('playTestAudio').textContent = '播放测试音频';
+  message(modelType === 'vrm' ? '音频已停止。' : '');
+});
 
 async function releaseWakeLock() { if(wakeLock) { const lock=wakeLock;wakeLock=null;try{await lock.release();}catch{} } }
 $('present').addEventListener('click',async()=>{
@@ -301,7 +514,28 @@ document.addEventListener('visibilitychange',()=>{
   if(document.hidden) {presentationGeneration++;tiltGeneration++;tracker.stop();tiltCancel?.();void releaseWakeLock();if(app){app.autoRender=false;app.renderNextFrame=false;}}
   else if(!disposed) {if(app){app.autoRender=true;app.renderNextFrame=true;}viewEye=baseline();updateProjection();}
 });
-window.addEventListener('pagehide',()=>{presentationGeneration++;tiltGeneration++;tracker.stop();tiltCancel?.();portraitLoader?.cancel();void releaseWakeLock();if(app){app.autoRender=false;app.renderNextFrame=false;}});
+window.addEventListener('pagehide',()=>{
+  presentationGeneration++;
+  tiltGeneration++;
+  tracker.stop();
+  tiltCancel?.();
+  portraitLoader?.cancel();
+  vrmLoader?.cancel();
+  if (testAudioElement) {
+    testAudioElement.pause();
+    testAudioElement = null;
+  }
+  if (testAudioUrl) {
+    URL.revokeObjectURL(testAudioUrl);
+    testAudioUrl = null;
+  }
+  if (audioMouthController) {
+    audioMouthController.dispose();
+    audioMouthController = null;
+  }
+  void releaseWakeLock();
+  if(app){app.autoRender=false;app.renderNextFrame=false;}
+});
 window.addEventListener('pageshow',()=>{if(!disposed && app && !document.hidden){app.autoRender=true;app.renderNextFrame=true;}});
 
 function resize() {
@@ -315,7 +549,21 @@ function resize() {
 }
 
 export function diagnostics() {
-  return { ready, activeLoads, assetName, gaussianCount: model?.gsplat?.resource?.numSplats ?? null, eye: {...viewEye}, geometry:geometry(), projection:getProjection({...geometry(),eye:viewEye}), tilt:values.tilt, camera, app };
+  return { 
+    ready, 
+    activeLoads, 
+    assetName, 
+    modelType,
+    gaussianCount: model?.gsplat?.resource?.numSplats ?? null, 
+    vrmHumanoid: vrmInstance?.humanoid ? 'present' : null,
+    vrmExpressions: vrmInstance?.expressionManager ? Object.keys(vrmInstance.expressionManager.expressionMap || {}).length : null,
+    eye: {...viewEye}, 
+    geometry:geometry(), 
+    projection:getProjection({...geometry(),eye:viewEye}), 
+    tilt:values.tilt, 
+    camera, 
+    app 
+  };
 }
 
 async function initialize() {
@@ -325,6 +573,7 @@ async function initialize() {
   device.maxPixelRatio=Math.min(window.devicePixelRatio || 1,1.5);
   app=new pc.Application(canvas,{graphicsDevice:device});
   portraitLoader=createAssetLoader({app,Asset:pc.Asset});
+  vrmLoader=createVRMLoader();
   app.setCanvasResolution(pc.RESOLUTION_AUTO);
   app.graphicsDevice.resizeCanvas(viewport.width,viewport.height);
   app.scene.toneMapping=pc.TONEMAP_NONE;
@@ -332,9 +581,54 @@ async function initialize() {
   app.scene.gsplat.radialSorting=true;
   createScene();
   let elapsed=0,frames=0;
-  app.on('update',dt=>{elapsed+=dt;frames++;if(elapsed>=1){$('fps').textContent=`${Math.round(frames/elapsed)} fps`;elapsed=0;frames=0;}});
+  let lastTime = performance.now();
+  app.on('update',dt=>{
+    elapsed+=dt;frames++;
+    if(elapsed>=1){$('fps').textContent=`${Math.round(frames/elapsed)} fps`;elapsed=0;frames=0;}
+    
+    // Update VRM animation
+    if (vrmAnimController && modelType === 'vrm') {
+      vrmAnimController.update(dt);
+    }
+  });
+  
+  // Hook into render pipeline to draw VRM after PlayCanvas
+  app.on('frameend', () => {
+    if (modelType === 'vrm' && vrmInstance && threeRenderer && threeCamera) {
+      // Sync Three.js camera with PlayCanvas camera
+      const pos = camera.getPosition();
+      const rot = camera.getRotation();
+      threeCamera.position.set(pos.x, pos.y, pos.z);
+      threeCamera.quaternion.set(rot.x, rot.y, rot.z, rot.w);
+      
+      const cam = camera.camera;
+      threeCamera.fov = cam.fov;
+      threeCamera.aspect = cam.aspectRatio;
+      threeCamera.near = cam.nearClip;
+      threeCamera.far = cam.farClip;
+      threeCamera.updateProjectionMatrix();
+      
+      // Update look-at target (camera position)
+      if (vrmAnimController) {
+        const cameraPos = new THREE.Vector3(pos.x, pos.y, pos.z);
+        vrmAnimController.setLookAtTarget(cameraPos);
+      }
+      
+      // Clear depth but not color, then render VRM on top
+      const gl = app.graphicsDevice.gl;
+      gl.clear(gl.DEPTH_BUFFER_BIT);
+      threeRenderer.render(threeScene, threeCamera);
+    }
+  });
+  
   app.start();
-  resizeObserver=new ResizeObserver(resize);resizeObserver.observe(canvas);
+  resizeObserver=new ResizeObserver(() => {
+    resize();
+    if (threeRenderer) {
+      threeRenderer.setSize(canvas.width, canvas.height, false);
+    }
+  });
+  resizeObserver.observe(canvas);
   const url=URL.createObjectURL(new Blob([createCalibrationPly()],{type:'application/octet-stream'}));
   await openPortrait({url,filename:'calibration.ply',revoke:true,synthetic:true});
 }

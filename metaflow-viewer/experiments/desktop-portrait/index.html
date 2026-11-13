@@ -62,9 +62,14 @@
   <header><div class="brand">METAFLOW / EXPERIMENT 165</div><h1>桌面人像</h1><p>把平板放上支架，让人像与桌面连在一起。<br>先校准，再进入全屏展示。</p></header>
   <aside id="controls" aria-label="桌面人像校准">
     <div class="row"><h2>开始展示</h2><span id="fps"></span></div>
-    <label class="file-button primary wide">打开本地人像 · PLY / SOG<input id="file" type="file" accept=".ply,.sog"></label>
-    <p class="subtitle">文件只在当前设备读取。初始画面是合成高斯校准样本，请换成你的人像。</p>
-    <details><summary>使用已有资源链接</summary><input id="url" type="url" aria-label="高斯资源 HTTPS 链接" placeholder="https://…/portrait.sog"><button id="loadUrl" class="wide">加载链接</button></details>
+    <label class="file-button primary wide">打开本地人像 · PLY / SOG / VRM<input id="file" type="file" accept=".ply,.sog,.vrm"></label>
+    <p class="subtitle">文件只在当前设备读取。初始画面是合成高斯校准样本，可换成你的高斯人像或 VRM 角色。</p>
+    <details><summary>使用已有资源链接</summary><input id="url" type="url" aria-label="资源 HTTPS 链接" placeholder="https://…/portrait.sog"><button id="loadUrl" class="wide">加载链接</button></details>
+    <h3 id="audioSection" style="display:none">VRM 测试音频</h3>
+    <div id="audioControls" style="display:none">
+      <div class="row"><button id="playTestAudio" style="flex:1">播放测试音频</button><button id="stopAudio">停止</button></div>
+      <p class="subtitle">播放合成语音测试音频，观察角色口型。这是音量近似，不是音素对齐。</p>
+    </div>
     <h3>01 / 屏幕与观看位置</h3>
     <p class="subtitle">宽度指当前可见画布的实际厘米数。建议全屏后测量；眼位以屏幕中心为原点。</p>
     <div class="control"><label class="label" for="width">可见画布宽度<output id="widthValue"></output></label><input id="width" type="range" min="8" max="80" step="0.1" value="26"></div>
