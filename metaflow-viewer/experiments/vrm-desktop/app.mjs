@@ -41,12 +41,12 @@ class DesktopPortraitApp {
         this.setupLighting();
         
         // Screen parameters (initialize before desk)
-        // Calibrated for viewport excluding control panel (~280px / 1000px = 72% width)
+        // Width will be updated by setupResize based on actual canvas aspect
         this.params = {
-            width: 0.22,      // Effective viewing width (excluding controls)
+            width: 0.15,      // Initial, will be recalculated from canvas aspect
             height: 0.20,     // 20cm screen height  
             tiltDegrees: 15,  // Slight tilt
-            eye: { x: -0.04, y: 0.03, z: 0.65 }  // Further back and lower for full framing with margin
+            eye: { x: -0.04, y: 0.03, z: 0.65 }  // Match HTML slider defaults
         };
         
         // Desk plane
@@ -247,30 +247,36 @@ class DesktopPortraitApp {
         
         console.log('[Pose] Setting resting pose...');
         
-        // Rotate arms down from T-pose to resting position at sides
-        const leftUpperArm = this.vrm.humanoid.getNormalizedBoneNode('leftUpperArm');
-        const rightUpperArm = this.vrm.humanoid.getNormalizedBoneNode('rightUpperArm');
+        // Get raw bone nodes (not normalized)
+        const leftUpperArm = this.vrm.humanoid.getRawBoneNode('leftUpperArm');
+        const rightUpperArm = this.vrm.humanoid.getRawBoneNode('rightUpperArm');
         
         if (leftUpperArm) {
-            // Rotate around X axis to bring arm down
-            leftUpperArm.rotation.x = 0;
-            leftUpperArm.rotation.y = 0;
-            leftUpperArm.rotation.z = Math.PI / 2; // 90 degrees down to side
-            console.log('[Pose] Left arm rotated');
+            // Apply quaternion rotation: down and slightly forward
+            const quat = new THREE.Quaternion();
+            quat.setFromEuler(new THREE.Euler(0.8, 0, -1.2, 'XYZ')); // Rotate down
+            leftUpperArm.quaternion.copy(quat);
+            console.log('[Pose] Left arm down, rotation:', leftUpperArm.rotation.toArray());
         }
         if (rightUpperArm) {
-            rightUpperArm.rotation.x = 0;
-            rightUpperArm.rotation.y = 0;
-            rightUpperArm.rotation.z = -Math.PI / 2; // 90 degrees down to side
-            console.log('[Pose] Right arm rotated');
+            const quat = new THREE.Quaternion();
+            quat.setFromEuler(new THREE.Euler(0.8, 0, 1.2, 'XYZ')); // Rotate down
+            rightUpperArm.quaternion.copy(quat);
+            console.log('[Pose] Right arm down, rotation:', rightUpperArm.rotation.toArray());
         }
+        
+        // Save pose to restore after animator updates
+        this.restPoseSet = true;
+        this.leftArmQuat = leftUpperArm ? leftUpperArm.quaternion.clone() : null;
+        this.rightArmQuat = rightUpperArm ? rightUpperArm.quaternion.clone() : null;
+        this.leftArmNode = leftUpperArm;
+        this.rightArmNode = rightUpperArm;
         
         // Update spring bones to settle after pose change
         if (this.vrm.springBoneManager) {
             console.log('[Pose] Settling spring bones...');
-            // Run many updates with larger time steps to let hair/spring bones fully settle
             for (let i = 0; i < 120; i++) {
-                this.vrm.springBoneManager.update(0.033); // 30fps timestep
+                this.vrm.springBoneManager.update(0.033);
             }
         }
         
@@ -438,9 +444,24 @@ class DesktopPortraitApp {
             const width = this.canvas.clientWidth;
             const height = this.canvas.clientHeight;
             this.renderer.setSize(width, height, false);
+            
+            // Update physical screen dimensions to match canvas aspect ratio
+            // Assume ~30cm viewing width at typical desktop distance
+            const aspectRatio = width / height;
+            this.params.height = 0.20; // Fixed 20cm height
+            this.params.width = this.params.height * aspectRatio;
+            
             this.updateProjection();
         });
         resizeObserver.observe(this.canvas);
+        
+        // Initial resize
+        const width = this.canvas.clientWidth;
+        const height = this.canvas.clientHeight;
+        if (width > 0 && height > 0) {
+            const aspectRatio = width / height;
+            this.params.width = this.params.height * aspectRatio;
+        }
     }
     
     setStatus(message, type = 'loading') {
@@ -461,6 +482,12 @@ class DesktopPortraitApp {
         // Update animations
         if (this.animator) {
             this.animator.update(delta);
+        }
+        
+        // Reapply resting pose after animator (which may modify arm bones for breathing)
+        if (this.restPoseSet && this.leftArmNode && this.rightArmNode) {
+            this.leftArmNode.quaternion.copy(this.leftArmQuat);
+            this.rightArmNode.quaternion.copy(this.rightArmQuat);
         }
         
         // Render

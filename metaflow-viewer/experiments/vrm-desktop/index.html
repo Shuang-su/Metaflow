@@ -15,13 +15,14 @@
             background: #1a1a1a;
             color: #e0e0e0;
             overflow: hidden;
+            display: flex;
+            height: 100vh;
+            width: 100vw;
         }
         #canvas-container {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
+            flex: 1;
+            position: relative;
+            min-width: 0;
         }
         canvas {
             display: block;
@@ -29,17 +30,29 @@
             height: 100%;
         }
         #controls {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            background: rgba(0, 0, 0, 0.85);
+            width: 300px;
+            background: rgba(0, 0, 0, 0.95);
             padding: 20px;
-            border-radius: 8px;
-            min-width: 280px;
-            max-height: 90vh;
             overflow-y: auto;
             font-size: 13px;
-            backdrop-filter: blur(10px);
+            border-left: 1px solid #374151;
+            flex-shrink: 0;
+        }
+        
+        @media (max-width: 768px) {
+            body {
+                flex-direction: column;
+            }
+            #canvas-container {
+                flex: 1;
+                min-height: 0;
+            }
+            #controls {
+                width: 100%;
+                max-height: 40vh;
+                border-left: none;
+                border-top: 1px solid #374151;
+            }
         }
         h3 {
             margin: 0 0 12px 0;
@@ -154,16 +167,16 @@
         <div class="control-group">
             <h3>眼睛位置 (m)</h3>
             <label>水平 X (左←→右)</label>
-            <input type="range" id="eyeX" min="-0.3" max="0.3" step="0.01" value="0">
-            <div class="value-display" id="eyeXValue">0.00 m</div>
+            <input type="range" id="eyeX" min="-0.3" max="0.3" step="0.01" value="-0.04">
+            <div class="value-display" id="eyeXValue">-0.04 m</div>
             
             <label>垂直 Y (下←→上)</label>
-            <input type="range" id="eyeY" min="-0.4" max="0.4" step="0.01" value="0.1">
-            <div class="value-display" id="eyeYValue">0.10 m</div>
+            <input type="range" id="eyeY" min="-0.4" max="0.4" step="0.01" value="0.03">
+            <div class="value-display" id="eyeYValue">0.03 m</div>
             
             <label>深度 Z (屏幕←→眼睛)</label>
-            <input type="range" id="eyeZ" min="0.2" max="1.5" step="0.01" value="0.5">
-            <div class="value-display" id="eyeZValue">0.50 m</div>
+            <input type="range" id="eyeZ" min="0.2" max="1.5" step="0.01" value="0.65">
+            <div class="value-display" id="eyeZValue">0.65 m</div>
         </div>
         
         <div class="control-group">
