@@ -432,6 +432,12 @@
       "gitRef": "f4520e159c38cc7b775e329d66929bc6f8723f92",
       "date": "2026-10-22",
       "summary": "Format gradient integration with existing Viewer rules; behavior unchanged"
+    },
+    {
+      "gitRef": "fbaa45efa00e4e625b60934b8c8bd7f3abd36bc7",
+      "date": "2026-11-14",
+      "type": "release-support",
+      "summary": "Finalize Viewer 5.23.2 against the real PR #167 squash product; preserve all published history and bind recovery evidence and fixtures to main-history commits."
     }
   ],
   "entries": [
