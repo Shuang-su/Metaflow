@@ -1,0 +1,8 @@
+# Select THIS directory as the Netlify Base directory. No changes to the main site.
+[build]
+  command = "python3 restore-assets.py"
+  publish = "dist"
+
+[build.environment]
+  NODE_VERSION = "22"
+  PYTHON_VERSION = "3.12"

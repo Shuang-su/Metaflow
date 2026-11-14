@@ -3,7 +3,7 @@ export function createCompanionControls({getRenderer,isReady,notify,openSettings
   const doc=environment.document,abort=new AbortController();
   const $=id=>doc.getElementById(id);
   const listen=(node,event,fn)=>node?.addEventListener(event,fn,{signal:abort.signal});
-  const section=doc.createElement('section');section.className='companion-extras';section.id='companion-extras';
+  const section=doc.createElement('section');section.className='companion-extras';section.id='companion-extras';section.tabIndex=-1;
   section.innerHTML=`<h3>动作与声音</h3>
     <p class="extra-help">动作不改变观看相机；静止时会平滑回到待机。</p>
     <div class="extra-actions" role="group" aria-label="角色动作">
@@ -56,7 +56,8 @@ export function createCompanionControls({getRenderer,isReady,notify,openSettings
     for(const v of voices){const o=doc.createElement('option');o.value=v.voiceURI;o.textContent=`${v.name} · ${v.lang}${v.localService?' · 本机':''}`;select.append(o);}
     if([...select.options].some(o=>o.value===value))select.value=value;
   }
-  listen(shortcut,'click',()=>{openSettings();section.scrollIntoView({block:'start'});$('speech-text').focus({preventScroll:true});});
+  // Opening the actions section must not summon the phone keyboard.
+  listen(shortcut,'click',()=>{openSettings();section.scrollIntoView({block:'start'});section.focus({preventScroll:true});});
   for(const button of section.querySelectorAll('[data-gesture]'))listen(button,'click',()=>{if(available())getRenderer()?.playGesture(button.dataset.gesture);});
   listen($('stop-gesture'),'click',()=>getRenderer()?.stopGesture());
   listen($('speech-play'),'click',readText);

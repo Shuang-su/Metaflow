@@ -1,0 +1,17 @@
+{
+  "checkedAt": "2026-11-14",
+  "catalogueUrl": "https://marketplace.laplace.live/api/items",
+  "itemId": "MilkyGreen",
+  "catalogueVersion": "1.1.0",
+  "archiveUrl": "https://downloads.vrp.moe/persona-marketplace/MilkyGreen/81c4921a9fae/MilkyGreen.zip",
+  "archiveSha256": "81c4921a9fae3a0987a77e4212cf7baa1528c9eb238825b9cd4c862f352b1261",
+  "archiveBytes": 9265848,
+  "member": "MilkyGreen_VRM1.vrm",
+  "modelBytes": 18507380,
+  "modelSha256": "e4e277ebba12f3b07dde4bfcbe5664147e69a787ee2e40c14f6facae9d588ac8",
+  "existingFile": "assets/milky-green-reconstruction.vrm",
+  "comparison": "identical-bytes",
+  "sourceValidationRun": "https://github.com/Shuang-su/Metaflow/actions/runs/43558652473",
+  "decision": "Keep existing reconstruction and Wenjing. Do not create a duplicate selector and claim another model. The different video/flower-shop model has not been independently located.",
+  "userPermission": "User explicitly stated they have rights to use the VRM. This record is a provenance check, not a request to re-confirm permission."
+}

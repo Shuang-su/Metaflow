@@ -6,7 +6,7 @@ on:
       - metaflow-viewer/experiments/desktop-companion/**
       - .github/workflows/desktop-companion-mobile.yml
 permissions:
-  contents: write
+  contents: read
 concurrency:
   group: desktop-companion-mobile-${{ github.ref }}
   cancel-in-progress: true
@@ -21,15 +21,14 @@ jobs:
         with:
           fetch-depth: 1
           filter: blob:none
+          persist-credentials: false
           sparse-checkout: |
             metaflow-viewer/experiments/desktop-companion
-            docs/changes/165-desktop-portrait
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - name: Apply guarded baseline migration and syntax checks
+      - name: Check committed source syntax
         run: |
-          python3 "$APP/apply-upgrade.py"
           for f in "$APP"/*.mjs "$APP"/*.js; do node --check "$f"; done
           git diff --check
       - name: Test mobile, motion and voice lifecycle
@@ -47,19 +46,6 @@ jobs:
         run: |
           python3 -m http.server 4173 --bind 127.0.0.1 --directory "$APP/dist" > "$RUNNER_TEMP/companion-http.log" 2>&1 &
           node "$APP/mobile-voice.e2e.mjs"
-      - name: Commit tested source migration to the isolated branch only
-        if: github.ref == 'refs/heads/codex/mf-165-mobile-voice'
-        run: |
-          git config user.name 'github-actions[bot]'
-          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add "$APP/app.js" "$APP/renderer.js" "$APP/styles.css" "$APP/index.html"
-          if ! git diff --cached --quiet; then
-            current=$(git ls-remote origin refs/heads/codex/mf-165-mobile-voice | cut -f1)
-            test "$current" = "$GITHUB_SHA" || { echo 'Branch advanced; preserving tested changes as artifact instead of overwriting'; exit 1; }
-            git commit -m 'feat(MF-165): integrate verified mobile display gestures and voice controls'
-            git push origin HEAD:refs/heads/codex/mf-165-mobile-voice
-          fi
-          echo "TESTED_SOURCE_COMMIT=$(git rev-parse HEAD)"
       - name: Archive screenshots and report
         if: always()
         uses: actions/upload-artifact@v4
