@@ -1,0 +1,85 @@
+name: Publish approved desktop companion
+on:
+  push:
+    branches: [main]
+    paths: [.github/workflows/desktop-companion-publish.yml]
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+concurrency:
+  group: approved-desktop-companion-publication
+  cancel-in-progress: false
+jobs:
+  publish:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    environment: production
+    env:
+      EXPECTED_SOURCE_REF: ff5204c8dff1e43d7c426575425231b9621657f7
+      VALIDATED_RUN_ID: '43570201947'
+      VALIDATED_HEAD: d6cdee92689333acce85028ba98a484db2d4b4f1
+      ARTIFACT_ID: '14103948353'
+      ARTIFACT_SHA256: 365f47691a1f5c5eb59090c12bff92dfefb9b1b153ef41f8d0cfd42df184ec04
+      SITE_DIR: site
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          sparse-checkout: |
+            metaflow-viewer/experiments/desktop-companion
+            scripts/publish-desktop-companion.py
+          sparse-checkout-cone-mode: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify approved successful CI and immutable artifact identity
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          python3 - <<'PY'
+          import os,json,urllib.request
+          base='https://api.github.com/repos/Shuang-su/Metaflow/'
+          def get(path):
+            req=urllib.request.Request(base+path,headers={'Authorization':'Bearer '+os.environ['GH_TOKEN'],'Accept':'application/vnd.github+json'})
+            with urllib.request.urlopen(req,timeout=30) as r:return json.load(r)
+          run=get('actions/runs/'+os.environ['VALIDATED_RUN_ID'])
+          assert run['conclusion']=='success' and run['head_sha']==os.environ['VALIDATED_HEAD'] and run['head_branch']=='codex/mf-165-mobile-voice'
+          artifact=get('actions/artifacts/'+os.environ['ARTIFACT_ID'])
+          assert not artifact['expired'] and artifact['name']=='desktop-companion-mobile-netlify'
+          assert artifact['workflow_run']['id']==int(os.environ['VALIDATED_RUN_ID'])
+          assert artifact['digest']=='sha256:'+os.environ['ARTIFACT_SHA256']
+          print('APPROVED_ARTIFACT_VERIFIED',artifact['id'])
+          PY
+      - uses: actions/download-artifact@v4
+        with:
+          artifact-ids: '14103948353'
+          run-id: '43570201947'
+          github-token: ${{ github.token }}
+          path: site
+          merge-multiple: true
+      - name: Verify source equivalence and repeat focused unit checks
+        run: |
+          python3 -m py_compile scripts/publish-desktop-companion.py
+          python3 - <<'PY'
+          import pathlib,json,os,hashlib
+          root=pathlib.Path('metaflow-viewer/experiments/desktop-companion');site=pathlib.Path('site')
+          assert json.loads((site/'release.json').read_text())['gitRef']==os.environ['EXPECTED_SOURCE_REF']
+          for p in root.iterdir():
+            if p.suffix not in ['.js','.mjs','.css','.html'] or '.test.' in p.name or 'e2e' in p.name:continue
+            assert (site/p.name).read_bytes()==p.read_bytes(),p.name
+          print('ARTIFACT_MATCHES_MAIN_RUNTIME_SOURCE')
+          PY
+          node --test metaflow-viewer/experiments/desktop-companion/mobile-voice.test.mjs metaflow-viewer/experiments/desktop-companion/tracking-refinement.test.mjs
+      - name: Publish exact existing companion target and verify production bytes
+        env:
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+        run: python3 scripts/publish-desktop-companion.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: desktop-companion-publication-result
+          path: publication-result.json
+          if-no-files-found: warn
+          retention-days: 30
