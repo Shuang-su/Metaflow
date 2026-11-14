@@ -1,0 +1,72 @@
+{
+  "origin": "https://polite-semolina-b478fc.netlify.app/",
+  "capturedAt": "2026-11-14",
+  "files": {
+    "index.html": {
+      "url": "https://polite-semolina-b478fc.netlify.app/",
+      "sha256": "4efe13cadc000f2dc9bfd76923f9a9ab68dc4727a41e0aee036458dd57f27d5f",
+      "bytes": 17359
+    },
+    "styles.css": {
+      "url": "https://polite-semolina-b478fc.netlify.app/styles.css",
+      "sha256": "6a137475700abc2cbe0049d4fd31ffafea453591939017af77f78adf98b3fd3a",
+      "bytes": 19566
+    },
+    "app.js": {
+      "url": "https://polite-semolina-b478fc.netlify.app/app.js",
+      "sha256": "2b88b15cc555f5082c482e9d56e1ab65474a5dbe5a691ed9d933dfbc0b05b79d",
+      "bytes": 38209
+    },
+    "renderer.js": {
+      "url": "https://polite-semolina-b478fc.netlify.app/renderer.js",
+      "sha256": "e9dcc9f9209acec87d94d8f3c38b3eda0ea7d44bbaa599afae91727ef8f52668",
+      "bytes": 39739
+    },
+    "display-calibration.mjs": {
+      "url": "https://polite-semolina-b478fc.netlify.app/display-calibration.mjs",
+      "sha256": "09ac98dfd50c9d89e50c7803bca32348ca1627d666f7e57a13971192d5604d3b",
+      "bytes": 3621
+    },
+    "orientation.mjs": {
+      "url": "https://polite-semolina-b478fc.netlify.app/orientation.mjs",
+      "sha256": "b62f844ad44d834456f90e670a40113bc40000761b8efb98165017c0c358f3e0",
+      "bytes": 2743
+    },
+    "tracking.mjs": {
+      "url": "https://polite-semolina-b478fc.netlify.app/tracking.mjs",
+      "sha256": "fa7fe901934a239645a0486e7838e4d1c28e7ce85910283221d459e052d7e5d6",
+      "bytes": 34049
+    },
+    "geometry.mjs": {
+      "url": "https://polite-semolina-b478fc.netlify.app/geometry.mjs",
+      "sha256": "f6bf89dfacf6a3f933dcb0d52cfdc959004de9281e706784b8a44da1588a7938",
+      "bytes": 1553
+    },
+    "model-source.mjs": {
+      "url": "https://polite-semolina-b478fc.netlify.app/model-source.mjs",
+      "sha256": "341e09951a65b1acf5391eacaa9cce0b74d4eacc9cd98ad9e0b1da1dfc5663af",
+      "bytes": 10846
+    },
+    "about.html": {
+      "url": "https://polite-semolina-b478fc.netlify.app/about",
+      "sha256": "36dfb64cf885faad5b808847f8a52369e77b44f630eafc9f314984242d1dbc33",
+      "bytes": 9988
+    },
+    "assets/milky-green.license.json": {
+      "url": "https://polite-semolina-b478fc.netlify.app/assets/milky-green.license.json",
+      "sha256": "233c71975f88617a59edb5957e713f933ac344f88fc1ceeaf605bf725748ebd3",
+      "bytes": 10776
+    },
+    "assets/wenjing.license.json": {
+      "url": "https://polite-semolina-b478fc.netlify.app/assets/wenjing.license.json",
+      "sha256": "d0bb63dfb24e2ff8320e3a295e205168f35f50cce4c8ba4accf6ab6cca7db63d",
+      "bytes": 11623
+    },
+    "assets/THIRD_PARTY.md": {
+      "url": "https://polite-semolina-b478fc.netlify.app/assets/THIRD_PARTY.md",
+      "sha256": "f0d5fa92be7af273b761e3f613ce7a290f41d5fa0c7ba2b45bbfd372f5a678f1",
+      "bytes": 12574
+    }
+  },
+  "note": "Public source snapshot. Model and vendor binary assets are not copied into Git. No deployment performed."
+}

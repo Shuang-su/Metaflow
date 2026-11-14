@@ -1,0 +1,172 @@
+{
+  "catalog_url": "https://marketplace.laplace.live/api/items",
+  "catalog_item": {
+    "id": "MilkyGreen",
+    "kind": "vrm",
+    "name": "Milky Green",
+    "version": "1.1.0",
+    "author": "LAPLACE Live! and Milky Green aka. 明前奶绿",
+    "thumbnailUrl": "https://downloads.vrp.moe/persona-marketplace/MilkyGreen/52c58a753c51/thumbnail.avif",
+    "download": {
+      "url": "https://downloads.vrp.moe/persona-marketplace/MilkyGreen/81c4921a9fae/MilkyGreen.zip",
+      "size": 9265848,
+      "sha256": "81c4921a9fae3a0987a77e4212cf7baa1528c9eb238825b9cd4c862f352b1261"
+    }
+  },
+  "archive_sha256_verified": true,
+  "archive_member": "MilkyGreen_VRM1.vrm",
+  "model_bytes": 18507380,
+  "model_sha256": "e4e277ebba12f3b07dde4bfcbe5664147e69a787ee2e40c14f6facae9d588ac8",
+  "vrm_spec_version": "1.0",
+  "model_meta": {
+    "allowAntisocialOrHateUsage": false,
+    "allowExcessivelySexualUsage": false,
+    "allowExcessivelyViolentUsage": false,
+    "allowPoliticalOrReligiousUsage": false,
+    "allowRedistribution": false,
+    "authors": [
+      "LAPLACE Live! and Milky Green aka. 明前奶绿"
+    ],
+    "avatarPermission": "onlySeparatelyLicensedPerson",
+    "commercialUsage": "personalNonProfit",
+    "copyrightInformation": "Character design belongs to its original rights holder. Generated reconstruction for the requesting user's use. No public license grant.",
+    "creditNotation": "required",
+    "licenseUrl": "https://vrm.dev/licenses/1.0/",
+    "modification": "allowModification",
+    "name": "明前奶绿 · V1 Perfect Sync",
+    "thirdPartyLicenses": "Original front and back reference artwork supplied by the user; rights remain with their original owner. Geometry and texture reconstruction generated for this project.",
+    "thumbnailImage": 20,
+    "version": "1.1.0"
+  },
+  "external_resources": [],
+  "modifications": "Original VRM bytes unchanged. The active hosting filename is milky-green-reconstruction.vrm to distinguish the reconstruction; the prior temporary archival step is retained in the source history.",
+  "required_attribution": "LAPLACE Live! and Milky Green aka. 明前奶绿",
+  "authorization_context": "The user explicitly confirmed authorization to use Milky Green in this requested website.",
+  "retrieval_method": "Ordinary browser download from the URL in the public Persona catalog maintained by LAPLACE. No login or verification was required at retrieval. This records the download channel, not original-character authenticity.",
+  "archive_files": [
+    {
+      "path": "MilkyGreen_VRM1.persona.json",
+      "bytes": 660,
+      "sha256": "9d963cef7cecd9b78a7625b6212f7338af34e30fd1ebdc00c698d190226be3fd"
+    },
+    {
+      "path": "MilkyGreen_VRM1.vrm",
+      "bytes": 18507380,
+      "sha256": "e4e277ebba12f3b07dde4bfcbe5664147e69a787ee2e40c14f6facae9d588ac8"
+    }
+  ],
+  "source_documentation": "https://laplace.live/persona/vrm",
+  "record_status": "active-explicitly-labelled-reconstruction-with-corrected-provenance",
+  "site_usage": {
+    "default_avatar": false,
+    "public_model_served": true,
+    "display_label": "明前奶绿 · 重建版",
+    "public_model_path": "dist/assets/milky-green-reconstruction.vrm",
+    "former_public_path": "dist/assets/milky-green.vrm",
+    "temporary_historical_archive_path": "archived-assets/milky-green-reconstruction.vrm",
+    "public_record_role": "Current reconstruction source, original metadata, hash history, authenticity correction, and user retention instruction.",
+    "replacement_original_obtained": false,
+    "current_avatar_source": "The clearly labelled reconstruction remains selectable by the user retention request. Wenjing from the credited author catalog is the default; local VRM import remains available.",
+    "retention_authority": {
+      "source": "Explicit user instruction in this conversation",
+      "instruction": "Retain the current model even though the user noted that it differs from the supplied video references.",
+      "scope": "Use as a clearly labelled reconstruction, without claiming original-model authenticity or a match to those videos."
+    },
+    "replacement_original_scope": "No verified original Milky Green model has been obtained. The default Wenjing is a separately identified character sample, not an original Milky Green replacement.",
+    "optional_avatar": true,
+    "default_selection_history": "Previously used as the default reconstruction demonstration; retained as a selectable alternative after the default changed to Wenjing in response to the reference-model correction."
+  },
+  "authenticity_review": {
+    "status": "reconstruction-declared-original-identity-not-established",
+    "previous_authenticity_inference_corrected": true,
+    "correction": "The prior inference that a catalog/hash match established an authentic original Milky Green model was unsupported and is withdrawn. The match established correspondence with the catalog download only.",
+    "original_identity_verified": false,
+    "embedded_evidence": {
+      "copyrightInformation": "Character design belongs to its original rights holder. Generated reconstruction for the requesting user's use. No public license grant.",
+      "thirdPartyLicenses": "Original front and back reference artwork supplied by the user; rights remain with their original owner. Geometry and texture reconstruction generated for this project."
+    },
+    "publisher_context": {
+      "source": "https://laplace.live/about?locale=en",
+      "finding": "LAPLACE describes itself as a fan project unaffiliated with Milky Green or related projects or companies."
+    },
+    "source_scope": "LAPLACE Persona sample catalog; not evidence of a release by the character rights holder.",
+    "metadata_preservation": "Original model_meta, catalog_item, archive records, hashes, and attribution are retained unchanged. This review is separate from the embedded metadata.",
+    "next_asset_requirement": "No verified original Milky Green VRM has been obtained. The source-linked Wenjing sample corresponds by name and author to the first reference credit, without an exact file or visual match claim. The reconstruction remains available by explicit user instruction."
+  },
+  "user_reference_videos": [
+    {
+      "url": "https://www.bilibili.com/video/av117518123472460/",
+      "role": "User-supplied model and scene reference",
+      "title": "妈妈哄我 - LAPLACE Persona MCP场景测试",
+      "author": "ハイルラプラス",
+      "metadata_source": "Observed ordinary public Bilibili page content in the cloud browser; exact supplied AV URL, without substituting adjacent identifiers.",
+      "description_credits": {
+        "model": "Wenjing / 文镜",
+        "model_author": "LAPLACE Live! × 彩茫",
+        "scene_creation": "LAPLACE Persona MCP + Claude",
+        "stage": "Japanese Apartment — SbbUtutuya",
+        "motion": "Baby’s View / あかちゃん視点, Baby_01, VARK SHORTS Premium, adapted"
+      },
+      "prior_public_metadata_api_result": "Standard request returned HTTP 412 with no video metadata; later ordinary public browser content supplied the title and description.",
+      "visual_status": "The English redirect subsequently displayed Video missing. No playable frame was accepted for visual comparison.",
+      "source_linked_catalog_model_obtained": true,
+      "catalog_item_id": "Wenjing-VRM",
+      "exact_video_model_identity_verified": false,
+      "milky_green_identification": false
+    },
+    {
+      "url": "https://www.bilibili.com/video/av117349244016515/",
+      "role": "User-supplied Live2D rendering-effects reference",
+      "title": "如何实现类似VTS、Shoost的直播间特效 - LAPLACE Persona",
+      "author": "ハイルラプラス",
+      "metadata_source": "Observed ordinary public Bilibili page content in the cloud browser; exact supplied AV URL, without substituting adjacent identifiers.",
+      "description_summary": "Demonstrates bloom, chromatic aberration, and rim-light effects within Persona.",
+      "observed_tags": [
+        "文静",
+        "Live2D"
+      ],
+      "prior_public_metadata_api_result": "Standard request returned HTTP 412 with no video metadata; later ordinary public browser content supplied metadata.",
+      "visual_status": "The ordinary browser publicly played this video. No exact VRM-file identity is inferred from this Live2D workflow.",
+      "corresponding_live2d_model_obtained": false,
+      "exact_video_model_identity_verified": false,
+      "milky_green_identification": false
+    },
+    {
+      "url": "https://www.bilibili.com/video/av117302687176424/",
+      "role": "User-supplied Live2D layered-attachment reference",
+      "title": "如何绑定Live2D分层挂件 - LAPLACE Persona",
+      "author": "ハイルラプラス",
+      "metadata_source": "Observed ordinary public Bilibili page content in the cloud browser; exact supplied AV URL, without substituting adjacent identifiers.",
+      "observed_tags": [
+        "文静",
+        "Live2D"
+      ],
+      "observed_frame": {
+        "time_seconds": 30.49,
+        "appearance": "Front-facing flat anime portrait, brown hair with green streak/clover.",
+        "attachment_target_text": "文镜",
+        "interface": "ArtMesh list visible."
+      },
+      "visual_status": "Observed frame supports the Live2D attachment workflow. The label alone does not identify the Wenjing VRM file.",
+      "corresponding_live2d_model_obtained": false,
+      "exact_video_model_identity_verified": false,
+      "milky_green_identification": false
+    }
+  ],
+  "runtime_renderer_note": {
+    "scope": "Separate from model provenance; no VRM file bytes or embedded metadata are rewritten.",
+    "correction": "Spring-bone hit/collider radii, stiffness, and gravity strength now follow the avatar display scale, with gravity aligned to the desk frame and spring state reset when geometry changes.",
+    "validation_limit": "This code correction is not a claim of real GPU rendering, Mac Safari, or physical-device visual acceptance."
+  },
+  "alternate_model_investigation": {
+    "display_label": "文镜 · 作者目录版",
+    "catalog_item_id": "Wenjing-VRM",
+    "catalog_version": "1.0.0",
+    "author": "LAPLACE Live! × 彩茫",
+    "status": "Source-linked sample obtained from the observed author-catalog URL and selected as the default. First video name/author credit correspondence is verified; exact video-file and visual identity are not verified.",
+    "metadata_record": "./wenjing.license.json",
+    "license": "CC BY-NC-SA 4.0",
+    "license_scope": "Noncommercial evaluation sample; required author attribution and ShareAlike terms retained.",
+    "distinct_from": "The separately selectable Milky Green reconstruction and the separate Live2D reference assets."
+  }
+}

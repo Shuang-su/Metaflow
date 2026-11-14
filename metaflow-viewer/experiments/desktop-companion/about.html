@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#edf1e7"><title>Mac / iPad 使用与校准 · MetaFlow</title>
+  <link rel="stylesheet" href="./styles.css">
+  <style>
+    .guide{max-width:780px;margin:0 auto;padding:35px 25px 70px;font-size:15px;line-height:1.85;color:#293e32}.guide nav{margin-bottom:36px}.guide h1{font-size:30px;letter-spacing:-1px;margin:10px 0 18px}.guide h2{font-size:18px;margin:32px 0 12px}.guide p{margin:10px 0}.guide a{text-decoration:underline;text-underline-offset:3px}.guide li{margin:9px 0}.guide .lead{font-size:18px;color:#576a5c}.guide .note{padding:16px 20px;border:1px solid #dfe6df;border-radius:14px;background:#edf2eb}.guide footer{margin-top:35px;padding-top:20px;border-top:1px solid #dfe6df;font-size:12px;color:#758078}.guide code,.guide kbd{font-size:13px;padding:2px 5px;background:#e8eee6;border-radius:4px}.guide details{margin-top:18px}.guide summary{cursor:pointer;min-height:44px;padding:10px 0;font-size:13px;color:#657a5a}.guide .small{font-size:13px;color:#657660}
+  </style>
+</head>
+<body>
+  <main class="guide">
+    <nav><a href="./">← 返回桌面窗口</a></nav>
+    <p class="eyebrow">MAC / IPAD · VRM</p>
+    <h1>先确认人物，再让她来到桌面</h1>
+    <p class="lead">先体验文镜，也可切换保留的重建版或导入自己的 VRM；检查外观后，再按真实屏幕尺寸校准三维窗口。</p>
+    <div class="note">当前默认演示为<strong>“文镜 · 作者目录版”</strong>，用于非商用体验。文镜的名字和署名对应第一条参考视频的模型说明，但尚未确认与该视频使用的具体文件完全相同。<strong>“明前奶绿 · 重建版”</strong>按你的意见保留为可选角色；它自带“生成重建”说明，不标称原版或参考视频同款。</div>
+
+    <h2>1 · 检查人物，或导入其他模型</h2>
+    <p>文镜默认载入。“调整 → 选择角色”可切换到“明前奶绿 · 重建版”；需要使用自己的文件时，点击<strong>“导入其他 VRM”</strong>。支持内嵌贴图与数据的 VRM 0.x / 1.0，以及包含 VRM 人形信息的 <code>.glb</code>，文件上限 50 MiB。导入文件只在当前页面读取，不上传、不持久保存；刷新或重新打开页面后需要重新选择。</p>
+    <p>在“调整”中选择<strong>“模型检查”</strong>。这里用普通透视单独查看人物，便于区分模型或导入外观问题与桌面视角的变形。先点击场景，再拖动或按方向键调整，按 <kbd>R</kbd> 复位；滚轮或触控板可缩放。确认后切回“桌面窗口”。</p>
+    <p>另一个已确认的问题在渲染逻辑：角色缩小后，头发和衣摆等弹簧骨骼的碰撞范围与受力参数没有同步缩小。代码已修正这部分比例，并让重力方向跟随桌面；这是独立于模型来源的修复，实际视觉效果仍待实机确认。</p>
+    <p>文镜的手臂与视线方向也已做兼容修复；眨眼和口型会连接到模型已有的对应表情形状。这些调整只在运行时生效，原模型文件不变。几何与表情变化已通过计算检查，实际贴图、光照和设备画面仍需实机验收。</p>
+
+    <h2>2 · 量准 Mac / iPad 画布</h2>
+    <ol>
+      <li><strong>先定窗口。</strong>需要全屏时，打开“调整 → 进入全屏校准”；浏览器支持时会保留调整面板。MacBook、外接显示器和 iPad 预设都只是近似起点，仍要用尺测量。</li>
+      <li><strong>量可见三维画布。</strong>填写“可见画布宽度”，或打开“显示屏幕校准尺”，把画面上的标尺调到与实体尺标示长度一致。一般显示 5 cm；画布窄于 12 cm 时显示 2 cm。</li>
+      <li><strong>量摆放与镜头。</strong>设置屏幕与桌面夹角、屏幕下边距桌面。Mac 使用手动倾角；iPad 可按设备支持选择倾角感应。<strong>Mac 窗口模式必须选“自定义镜头位置”</strong>，量取镜头相对可见画布中心的左右、上下偏移。观看距离填眼睛到屏幕平面的垂直距离。</li>
+      <li><strong>确认两项测量。</strong>画布与镜头都量准后，点<strong>“确认画布与镜头位置”</strong>。确认前可以授权相机、查看真实取景，但眼位追踪暂不移动场景。</li>
+      <li><strong>相机开启后居中。</strong>选好相机并允许访问，一人正对镜头保持片刻，等待稳定校准；改变坐姿或设备位置后重新居中。</li>
+    </ol>
+    <p>在同一显示器和缩放状态下，调整窗口大小会沿用已经实测的像素比例，更新画布厘米宽，但需要重新校准眼位。切换显示器、改变浏览器／系统缩放或显示比例后，要重新用尺测量。移动窗口后也请重新核对镜头偏移。</p>
+
+    <h2>3 · 选择真正朝向你的相机</h2>
+    <p>“调整”中的相机选择一直可用，尚未开启或启动失败时也可切换并刷新列表；授权后才可能显示完整设备名称。可选择内置、USB 外接或 iPhone 连续互通相机，固定在当前屏幕附近并朝向自己。</p>
+    <p>校准前关闭<strong>“人物居中 / Center Stage”</strong>和自动构图，保持相机缩放固定；这些变化会影响眼位估计。操作位置可参考 <a href="https://support.apple.com/zh-cn/111102" target="_blank" rel="noreferrer">Apple 的人物居中说明</a>。网页不会假定 Mac 有方向传感器，也不会自动识别精确的 Mac 型号或屏幕物理尺寸。</p>
+    <p>“手动观察”可拖动或用方向键预览眼位；“演示视差”自动移动虚拟观察位置。关闭相机、切换到非相机观察方式、隐藏或离开页面会停止摄像头。</p>
+
+    <h2>纯净展示与返回调整</h2>
+    <p><strong>“纯净展示”</strong>收起界面；<strong>“显示控制”</strong>恢复按钮并保留已进入的浏览器全屏。设置抽屉与取景卡只覆盖画面，不会挤窄画布。需要退出系统全屏时，使用“调整 → <strong>退出浏览器全屏</strong>”，之后重新核对尺度和眼位。</p>
+
+    <h2>本次更新：静默头部追踪与 iPhone Air</h2><p>“调整 → 使用设备”新增 iPhone Air 独立近似尺寸。摄像头须点击授权后才启动，默认不展示取景；诊断取景只在本次手动开启时显示。系统摄像头指示始终由浏览器保留。跟踪使用整脸几何与头部姿态估计观看位置，允许自然侧坐姿；短暂丢失保留最后位置，稳定单人返回后自动恢复。多人、背脸或严重遮挡时暂停。不是 TrueDepth 或身份识别。</p><p>招手使用模型实际手指骨骼定义掌面，朝向屏幕前方；修改不写回模型。当前验收仅为自动化与软件 WebGL，真实 iPhone Air/Safari、侧脸成功率及温升仍需实机检查。</p><h2>当前状态与数据</h2>
+    <p>Mac 功能已加入，但实机尚未验收。现有云端环境没有实体摄像头，也无法创建 WebGL2 画面；尚未完成 Mac Safari、GPU 实际渲染、相机精度及真实桌面效果的实机验收。普通相机估计的是单人眼位，不能等同于原生 ARKit / TrueDepth 测量。</p>
+    <p>你导入的模型文件、相机视频帧和追踪眼位都在浏览器处理，不上传；导入文件和追踪数据不持久保存，视频不录制。手动校准选项可以保存在当前浏览器。“动作 / 语音”支持系统朗读与本地音频。系统朗读为演示口型；本地音频为音量近似口型。未接入 AI 对话或原角色声音。</p>
+    <p class="small">本页是 Three.js / three-vrm 的独立 VRM 验证版，尚未接入 SuperSplat Viewer 或 PLY / SOG 高斯人像。</p>
+    <details>
+      <summary>重建版的来源、更正与署名</summary>
+      <p class="small">当前重建版来自 LAPLACE Persona 公开目录的 MilkyGreen 1.1.0 样例。<a href="https://laplace.live/about?locale=en" target="_blank" rel="noreferrer">LAPLACE 自述为粉丝项目</a>；目录记录和哈希只能确认下载一致，不能确认人物原版身份。这份模型按用户的保留意见继续提供并明确标注“重建版”，原始内嵌元数据、来源和哈希保留在<a href="./assets/milky-green.license.json">完整来源记录</a>。</p>
+      <p class="small">署名：LAPLACE Live! and Milky Green aka. 明前奶绿。原始元数据与使用授权记录保留，后续保留指示另行记录；保留使用不会改变模型的重建来源。</p>
+      <p class="small">目前没有可确认的明前奶绿原版文件。保留的重建版与下述文镜样例分别记录来源，不因切换模型而改变各自署名或身份。</p>
+    </details>
+    <details>
+      <summary>文镜样例与三条视频参考</summary>
+      <p class="small">“文镜 · 作者目录版”来自 <a href="https://laplace.live/persona/models?locale=en" target="_blank" rel="noreferrer">LAPLACE Persona 作者目录</a>的 Wenjing VRM 1.0.0，署名<strong>LAPLACE Live! × 彩茫</strong>。这是遵循 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank" rel="noreferrer">CC BY-NC-SA 4.0</a> 的非商用体验样例；完整来源、原始许可元数据与文件哈希见<a href="./assets/wenjing.license.json">文镜来源记录</a>。模型内容未改动。</p>
+      <p class="small">三条视频作者均显示为<strong>ハイルラプラス</strong>。<a href="https://www.bilibili.com/video/av117518123472460/" target="_blank" rel="noreferrer">《妈妈哄我 - LAPLACE Persona MCP场景测试》</a>的介绍明确署名“Wenjing / 文镜 — LAPLACE Live! × 彩茫”；随后视频重定向显示缺失，因此这里只确认介绍中的署名，没有完成这一条的画面对照。</p>
+      <p class="small"><a href="https://www.bilibili.com/video/av117349244016515/" target="_blank" rel="noreferrer">《如何实现类似VTS、Shoost的直播间特效 - LAPLACE Persona》</a>展示的是泛光、色差与边缘光流程；<a href="https://www.bilibili.com/video/av117302687176424/" target="_blank" rel="noreferrer">《如何绑定Live2D分层挂件 - LAPLACE Persona》</a>中可见“文镜”挂件目标与 ArtMesh 列表。后二者带有 Live2D 标记，不据此认定为当前 VRM 文件，也不将三条统称为明前奶绿模型。</p>
+    </details>
+    <footer><a href="./assets/THIRD_PARTY.md">依赖与历史来源声明</a> · <a href="https://www.doui-lab.com/en/apps/parapeek-clock/" target="_blank" rel="noreferrer">空间展示参考</a> · <a href="./">返回展示</a></footer>
+  </main>
+</body>
+</html>
