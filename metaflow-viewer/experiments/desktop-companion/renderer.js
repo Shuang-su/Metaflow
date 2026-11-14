@@ -1,3 +1,6 @@
+// MF165_MOBILE_VOICE_V1
+import {createGesturePlayer} from './motion.mjs';
+import {recommendedPixelRatio} from './mobile.mjs';
 import * as THREE from 'three';
 import { GLTFLoader } from './vendor/GLTFLoader.js';
 import { VRMLoaderPlugin, VRMUtils, VRMExpressionMorphTargetBind } from '@pixiv/three-vrm';
@@ -205,7 +208,7 @@ export function createTabletopRenderer({ canvas, getSettings, onLoad = () => {},
   if (!canvas || typeof getSettings !== 'function') throw new TypeError('A canvas and getSettings() are required.');
   // Let a genuine WebGL construction failure reach the app's visible fallback.
   const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: false, powerPreference: 'high-performance' });
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.75));
+  renderer.setPixelRatio(recommendedPixelRatio(navigator,window.devicePixelRatio||1));
   renderer.outputColorSpace = THREE.SRGBColorSpace;
   renderer.toneMapping = THREE.ACESFilmicToneMapping; renderer.toneMappingExposure = 1;
   renderer.shadowMap.enabled = true; renderer.shadowMap.type = THREE.PCFSoftShadowMap;
@@ -216,12 +219,13 @@ export function createTabletopRenderer({ canvas, getSettings, onLoad = () => {},
   const avatarMount = new THREE.Group(); avatarMount.name = 'Anchored avatar'; desk.add(avatarMount);
   const gazeTarget = new THREE.Object3D(); scene.add(gazeTarget);
   const eventAbort = new AbortController();
+  const gestures=createGesturePlayer();
   const state = {
     disposed: false, paused: false, graphicsLost: false, raf: 0, lastTime: performance.now(), time: 0,
     width: .262, height: .1965, pixels: { width: 1, height: 1 }, eye: { x: 0, y: .025, z: .55 },
     mode: 'manual', inspect: false, settings: null, layoutKey: '', fitKey: '',
     vrm: null, gltf: null, calibration: null, bounds: null, springProfile: null, springKey: '', expressionRepairs: [], avatarHeight: .16, name: '', credit: '',
-    loadGeneration: 0, loadAbort: null, loading: false, waveUntil: 0, speaking: false,
+    loadGeneration: 0, loadAbort: null, loading: false, waveUntil: 0, speaking: false, mouthLevel: null,
     blinkStart: -1, nextBlink: 2.8, metricsTime: 0, metricsFrames: 0, fps: 0, roomDepth: .24,
   };
   const emit = (callback, data) => { try { callback(data); } catch (error) { console.error('Tabletop callback failed', error); } };
@@ -442,19 +446,21 @@ export function createTabletopRenderer({ canvas, getSettings, onLoad = () => {},
   const bone = (name) => state.vrm?.humanoid?.getNormalizedBoneNode(name);
   function animateAvatar(dt, current) {
     const vrm = state.vrm; if (!vrm) return;
-    const active = current.animate, waving = state.waveUntil > state.time;
+    const active = current.animate;
     const axis = vrm.meta?.metaVersion === '0' ? -1 : 1;
+    const gesture=gestures.sample(state.time,axis), waving=gesture.wave>0;
+    if (bone('spine')) bone('spine').rotation.x=THREE.MathUtils.damp(bone('spine').rotation.x,gesture.spine,8,dt);
     if (bone('spine')) bone('spine').rotation.z = active ? Math.sin(state.time * 1.2) * .009 * axis : 0;
     if (bone('chest')) bone('chest').rotation.x = active ? Math.sin(state.time * 1.8) * .006 * axis : 0;
     const arm = bone('leftUpperArm'), forearm = bone('leftLowerArm'), hand = bone('leftHand');
-    if (arm) { arm.rotation.z = THREE.MathUtils.damp(arm.rotation.z, (waving ? .7 : -REST_ARM) * axis, 10, dt); arm.rotation.x = THREE.MathUtils.damp(arm.rotation.x, waving ? -.25 * axis : 0, 10, dt); }
-    if (forearm) { forearm.rotation.z = THREE.MathUtils.damp(forearm.rotation.z, waving ? 1.15 * axis : 0, 10, dt); forearm.rotation.y = waving ? Math.sin(state.time * 10) * .23 : -.12; }
-    if (hand) hand.rotation.x = waving ? Math.sin(state.time * 12) * .35 * axis : 0;
+    if (arm) { arm.rotation.z = THREE.MathUtils.damp(arm.rotation.z, (-REST_ARM+(REST_ARM+.7)*gesture.wave) * axis, 10, dt); arm.rotation.x = THREE.MathUtils.damp(arm.rotation.x, -.25 * axis * gesture.wave, 10, dt); }
+    if (forearm) { forearm.rotation.z = THREE.MathUtils.damp(forearm.rotation.z, 1.15 * axis * gesture.wave, 10, dt); forearm.rotation.y = -.12+(Math.sin(gesture.phase)*.23+.12)*gesture.wave; }
+    if (hand) hand.rotation.x = Math.sin(gesture.phase*1.2)*.35*axis*gesture.wave;
     if (active && state.time > state.nextBlink) { state.blinkStart = state.time; state.nextBlink = state.time + 2.8 + Math.random() * 3; }
     const blink = (state.time - state.blinkStart) / .16;
     vrm.expressionManager?.setValue('blink', active && state.blinkStart >= 0 && blink >= 0 && blink < 1 ? Math.sin(blink * Math.PI) : 0);
-    vrm.expressionManager?.setValue('aa', state.speaking ? Math.max(0, Math.sin(state.time * 18) * .45 + Math.sin(state.time * 6) * .15 + .17) : 0);
-    vrm.expressionManager?.setValue('happy', waving ? .12 : 0);
+    vrm.expressionManager?.setValue('aa', state.speaking ? (state.mouthLevel??Math.max(0,Math.sin(state.time*18)*.45+Math.sin(state.time*6)*.15+.17)) : 0);
+    vrm.expressionManager?.setValue('happy',gesture.smile);
     scene.updateMatrixWorld(true);
     const head = bone('head');
     if (head) {
@@ -462,7 +468,7 @@ export function createTabletopRenderer({ canvas, getSettings, onLoad = () => {},
       localEye.x *= axis; localEye.z *= axis;
       const yaw = current.gaze ? clamp(Math.atan2(localEye.x, localEye.z), -.4, .4) * .55 : 0;
       const pitch = current.gaze ? clamp(-Math.atan2(localEye.y, Math.hypot(localEye.x, localEye.z)), -.2, .2) * .35 * axis : 0;
-      head.rotation.y = THREE.MathUtils.damp(head.rotation.y, yaw, 5, dt); head.rotation.x = THREE.MathUtils.damp(head.rotation.x, pitch, 5, dt);
+      head.rotation.y = THREE.MathUtils.damp(head.rotation.y, yaw+gesture.yaw, 8, dt); head.rotation.x = THREE.MathUtils.damp(head.rotation.x, pitch+gesture.pitch, 8, dt);
     }
     if (vrm.lookAt) { vrm.lookAt.autoUpdate = current.gaze; if (!current.gaze) { vrm.lookAt.yaw = 0; vrm.lookAt.pitch = 0; } }
     vrm.update(Math.min(dt, .05));
@@ -482,6 +488,7 @@ export function createTabletopRenderer({ canvas, getSettings, onLoad = () => {},
   }
 
   function releaseCurrent() {
+    gestures.stop();state.mouthLevel=null;
     state.calibration?.removeFromParent();
     if (state.gltf) disposeGltf(state.gltf);
     else if (state.vrm) disposeSceneResources([state.vrm.scene], [state.vrm.meta?.thumbnailImage, state.vrm.meta?.texture]);
@@ -600,7 +607,7 @@ export function createTabletopRenderer({ canvas, getSettings, onLoad = () => {},
 
   function dispose() {
     if (state.disposed) return;
-    state.disposed = true; ++state.loadGeneration; state.loadAbort?.abort(); state.speaking = false;
+    state.disposed = true; ++state.loadGeneration; state.loadAbort?.abort(); state.speaking = false; gestures.stop();
     cancelAnimationFrame(state.raf); observer?.disconnect(); eventAbort.abort();
     releaseCurrent(); disposeSceneResources([scene], [woods.oak, woods.walnut]);
     key.shadow.dispose(); renderer.dispose();
@@ -617,6 +624,7 @@ export function createTabletopRenderer({ canvas, getSettings, onLoad = () => {},
       expressions: state.vrm?.expressionManager?.expressions?.map((expression) => expression.expressionName) || [],
       runtimeExpressionBindings: state.expressionRepairs.map((repair) => ({ ...repair })),
       fps: state.fps, triangles: renderer.info.render.triangles, calls: renderer.info.render.calls,
+      gesture:gestures.active,mouthLevel:state.mouthLevel,headPose:bone('head')?.rotation.toArray().slice(0,3)||null,
       loading: state.loading, modelCount: avatarMount.children.length, speaking: state.speaking,
       paused: state.paused, graphicsLost: state.graphicsLost, disposed: state.disposed,
     };
@@ -625,7 +633,10 @@ export function createTabletopRenderer({ canvas, getSettings, onLoad = () => {},
   resize(); updateClock(); state.raf = requestAnimationFrame(frameLoop);
   return {
     loadAvatar, clearAvatar,
-    wave() { if (!state.vrm || state.disposed || state.graphicsLost) return false; state.waveUntil = state.time + 2.8; return true; },
+    wave() {if(!state.vrm||state.disposed||state.graphicsLost)return false;return gestures.play('wave',state.time);},
+    playGesture(name){if(!state.vrm||state.disposed||state.graphicsLost)return false;return gestures.play(name,state.time);},
+    stopGesture(){gestures.stop();},
+    setMouthLevel(level){state.mouthLevel=level===null?null:Number.isFinite(level)?clamp(level,0,1):0;},
     setSpeaking(value) { state.speaking = !!value && !state.disposed && !state.graphicsLost; if (!state.speaking) for (const expression of ['aa', 'ih', 'ou', 'ee', 'oh']) state.vrm?.expressionManager?.setValue(expression, 0); },
     resize, pause, dispose, diagnostics,
   };

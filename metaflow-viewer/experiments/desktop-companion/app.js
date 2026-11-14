@@ -1,3 +1,6 @@
+// MF165_MOBILE_VOICE_V1
+import {deviceFamily,installMobileOptions,mobileProfileValues,landscapeOrientation,rotatedMeasuredWidth,pinchZoom} from './mobile.mjs';
+import {createCompanionControls} from './companion-controls.mjs';
 import { createTabletopRenderer } from './renderer.js';
 import { createHeadTracker } from './tracking.mjs';
 import { createTiltSensor } from './orientation.mjs';
@@ -17,7 +20,10 @@ const builtinModels = {
 const defaultModelChoice='wenjing';
 const isMac = detectDesktopMac({userAgent:navigator.userAgent,platform:navigator.platform,maxTouchPoints:navigator.maxTouchPoints||0});
 const state = { mode: 'manual', eye: {x:0,y:.025,z:.55}, ready:false, disposed:false, generation:0, speaking:false, utterance:null, speechTimer:0, video:null, sample:null, cameraPhase:'idle', permission:'prompt', displayGeneration:0, wakeLock:null, wakePending:null, wakeGeneration:0, calibratedRect:null, resizeTimer:0, graphicsError:false, fullscreenWanted:false, view:'tabletop', inspectYaw:0, inspectPitch:.06, inspectZoom:1, modelPhase:'empty', sourceFile:null, modelName:'', displayCalibration:null, displayConfirmed:false, lastViewport:null, cameraOrigin:null, cameraListGeneration:0 };
-let renderer = null;
+let renderer = null, extras = null, mobileMeasurement = null;
+const family=deviceFamily(navigator);
+installMobileOptions(document);
+function mobileMetrics(){const m=viewportMetrics();return {...m,canvasWidth:m.width,landscape:landscapeOrientation({angle:screen.orientation?.angle??window.orientation,type:screen.orientation?.type,screenWidth:m.screenWidth,screenHeight:m.screenHeight})};}
 state.modelChoice=defaultModelChoice;state.activeModelChoice=null;state.loadingModelChoice=null;state.lastWindowPosition=windowPosition();
 
 function notice(message, error = false) {
@@ -38,6 +44,7 @@ function cameraCalibration() {
   const {width,height} = screenGeometry();
   let cameraX = n('camera-x')/100, cameraY = n('camera-y')/100;
   const placement = $('camera-placement').value;
+  if (placement === 'bottom') { cameraX=0;cameraY=-height/2-.007; }
   if (placement === 'top') { cameraX=0;cameraY=height/2+.007; }
   if (placement === 'left') { cameraX=-width/2-.007;cameraY=0; }
   if (placement === 'right') { cameraX=width/2+.007;cameraY=0; }
@@ -63,9 +70,13 @@ function loadPreferences() {
       else if(element.tagName==='SELECT'&&[...element.options].some(o=>o.value===value))element.value=value;
     }
   } catch {}
+  if(!stored&&family==='phone'){$('device-preset').value='iphone-standard';applyProfileValues('iphone-standard');}
+  if(!stored&&family==='tablet'&&Math.min(screen.width,screen.height)<800){$('device-preset').value='ipad-mini';applyProfileValues('ipad-mini');}
   if(!stored&&isMac){$('device-preset').value='macbook';applyProfileValues('macbook');}
 }
 function applyProfileValues(value){
+  const mobile=mobileProfileValues(value,mobileMetrics());
+  if(mobile){for(const [id,v] of Object.entries(mobile))$(id).value=String(v);$('camera-placement').value='top';return;}
   // These are starting values, never an automatic measurement or model lookup.
   const profiles={macbook:{width:30,tilt:80,'floor-offset':1.5,'avatar-depth':6,'room-depth':28},'mac-desktop':{width:50,tilt:90,'floor-offset':10,'avatar-depth':30,'room-depth':45},'ipad-12.9-landscape':{width:26.2,tilt:65,'floor-offset':.8,'avatar-depth':4,'room-depth':24},'ipad-11-landscape':{width:22.9,tilt:65,'floor-offset':.8,'avatar-depth':4,'room-depth':24}};
   for(const [id,settingValue] of Object.entries(profiles[value]||{}))$(id).value=String(settingValue);
@@ -287,24 +298,10 @@ try {
   console.error('Graphics initialization failed',error);
 }
 
-function stopSpeech(){
-  clearTimeout(state.speechTimer);state.speechTimer=0;state.speaking=false;renderer?.setSpeaking(false);
-  if(state.utterance){state.utterance.onstart=state.utterance.onend=state.utterance.onerror=null;window.speechSynthesis?.cancel();state.utterance=null;}
-  $('caption').hidden=true;$('speak').textContent='说一句';
-}
-function speak(){
-  if(state.speaking){stopSpeech();return;}
-  if(!window.speechSynthesis||!window.SpeechSynthesisUtterance){notice('这个浏览器没有可用的系统朗读。',true);return;}
-  const text='你好，现在可以换个角度看看我。让我在你的桌上站稳，然后慢慢移动一下视线吧。';
-  const utterance=new SpeechSynthesisUtterance(text);utterance.lang='zh-CN';utterance.rate=.94;
-  utterance.voice=speechSynthesis.getVoices().find(v=>/^zh[-_]CN/i.test(v.lang))||speechSynthesis.getVoices().find(v=>/^zh/i.test(v.lang))||null;
-  state.speaking=true;state.utterance=utterance;$('caption').textContent=text;$('caption').hidden=false;$('speak').textContent='停止朗读';
-  utterance.onstart=()=>{if(state.utterance===utterance)renderer?.setSpeaking(true);};
-  utterance.onend=()=>{if(state.utterance===utterance)stopSpeech();};
-  utterance.onerror=()=>{if(state.utterance===utterance){stopSpeech();notice('系统语音未能播放。仍可使用招手和注视。',true);}};
-  speechSynthesis.speak(utterance);
-  state.speechTimer=setTimeout(()=>{stopSpeech();notice('系统朗读已结束或超时。');},30000);
-}
+extras=createCompanionControls({getRenderer:()=>renderer,isReady:()=>state.ready&&!state.graphicsError,
+  notify:notice,openSettings:()=>showSettings(true),onSpeaking:value=>{state.speaking=value;}});
+function stopSpeech(){extras?.stop();renderer?.stopGesture();state.speaking=false;}
+function speak(){extras?.toggleSpeech();}
 
 listen($('camera-start'),'click',beginCamera);
 listen($('camera-stop'),'click',()=>setMode('manual'));
@@ -358,6 +355,7 @@ listen($('confirm-calibration'),'click',()=>{
     $('camera-placement').focus();return;
   }
   try{state.displayCalibration=createDisplayCalibration(n('width'),viewportMetrics());}catch{notice('画布尚未就绪，请稍后测量。',true);return;}
+  mobileMeasurement=state.displayCalibration;
   state.displayConfirmed=true;state.lastViewport=viewportMetrics();state.lastWindowPosition=windowPosition();
   $('display-calibration-status').textContent=`已确认 ${n('width').toFixed(1)} cm。窗口或显示器变化后，请重新核对镜头位置。`;
   $('show-ruler').checked=false;updateRuler();savePreferences();
@@ -368,7 +366,7 @@ listen($('confirm-calibration'),'click',()=>{
 for(const id of ranges){
   listen($(id),'input',()=>{
     if(id==='tilt')tiltSensor.stop();
-    if(id==='width'){state.displayCalibration=null;invalidatePhysicalCalibration('调整校准尺后，请点击“确认画布与镜头位置”。');}
+    if(id==='width'){mobileMeasurement=null;state.displayCalibration=null;invalidatePhysicalCalibration('调整校准尺后，请点击“确认画布与镜头位置”。');}
     if(['camera-x','camera-y'].includes(id))invalidatePhysicalCalibration('镜头位置已调整，请重新确认画布与镜头位置。');
     if(['eye-x','eye-y','distance'].includes(id)&&state.mode!=='camera')state.eye=baseline();
     updateLabels();
@@ -385,7 +383,7 @@ listen($('camera-placement'),'change',()=>{
   updateLabels();savePreferences();if(state.mode==='camera')tracker.recenter();
 });
 listen($('device-preset'),'change',()=>{
-  const value=$('device-preset').value;
+  const value=$('device-preset').value;mobileMeasurement=null;
   if(state.mode==='camera')setMode('manual');tiltSensor.stop();applyProfileValues(value);
   state.displayCalibration=null;invalidatePhysicalCalibration('设备配置已切换，请重新测量当前画布。');
   paintDevice();updateLabels();paintMode();savePreferences();renderer?.resize();
@@ -393,14 +391,20 @@ listen($('device-preset'),'change',()=>{
   notice('这些是初始值；请用实体尺校准画布宽，并填写真实桌面高度与镜头位置。');
 });
 
-let dragging=false,lastPointer=null;
+let dragging=false,lastPointer=null,pinch=null;
+const pointers=new Map();
+const pointerDistance=()=>{const [a,b]=[...pointers.values()];return a&&b?Math.hypot(a.x-b.x,a.y-b.y):0;};
 listen($('scene'),'pointerdown',(event)=>{
   if(state.mode==='camera')return;
+  pointers.set(event.pointerId,{x:event.clientX,y:event.clientY});
+  if(pointers.size>1){pinch={distance:pointerDistance(),zoom:state.inspectZoom};$('scene').setPointerCapture(event.pointerId);return;}
   dragging=true;lastPointer={x:event.clientX,y:event.clientY};$('scene').focus({preventScroll:true});$('scene').setPointerCapture(event.pointerId);if(state.mode==='auto')setMode('manual');
   if(state.view!=='inspect')movePointer(event);
 });
 function movePointer(event){
   if(!dragging||state.mode==='camera')return;
+  if(pointers.has(event.pointerId))pointers.set(event.pointerId,{x:event.clientX,y:event.clientY});
+  if(pointers.size>1){if(state.view==='inspect'&&pinch)state.inspectZoom=pinchZoom(pinch.zoom,pinch.distance,pointerDistance());return;}
   if(state.view==='inspect'){
     state.inspectYaw=((state.inspectYaw-(event.clientX-lastPointer.x)*.008+Math.PI*3)%(Math.PI*2))-Math.PI;
     state.inspectPitch=clamp(state.inspectPitch+(event.clientY-lastPointer.y)*.005,0,.65);
@@ -409,8 +413,9 @@ function movePointer(event){
   const rect=$('scene').getBoundingClientRect(),base=baseline();
   state.eye={x:base.x+((event.clientX-rect.left)/rect.width-.5)*.20,y:base.y+(.5-(event.clientY-rect.top)/rect.height)*.12,z:base.z};
 }
-listen($('scene'),'pointermove',movePointer);listen($('scene'),'pointerup',()=>{dragging=false;});listen($('scene'),'pointercancel',()=>{dragging=false;});
-listen($('scene'),'lostpointercapture',()=>{dragging=false;});
+function releasePointer(event){pointers.delete(event.pointerId);pinch=null;lastPointer=[...pointers.values()][0]||null;dragging=!!lastPointer;}
+listen($('scene'),'pointermove',movePointer);
+for(const event of ['pointerup','pointercancel','lostpointercapture'])listen($('scene'),event,releasePointer);
 listen($('scene'),'wheel',(event)=>{
   if(state.view!=='inspect')return;
   event.preventDefault();const delta=event.deltaY*(event.deltaMode===1?16:event.deltaMode===2?window.innerHeight:1);
@@ -568,10 +573,23 @@ listen(document,'visibilitychange',()=>{
 });
 function dispose(){
   if(state.disposed)return;state.disposed=true;++state.generation;++state.displayGeneration;
-  stopSpeech();tracker.stop();tiltSensor.stop();renderer?.dispose();resizeObserver.disconnect();clearTimeout(state.resizeTimer);clearInterval(displayWatcher);abort.abort();releaseWakeLock();
+  stopSpeech();extras?.dispose();tracker.stop();tiltSensor.stop();renderer?.dispose();resizeObserver.disconnect();clearTimeout(state.resizeTimer);clearInterval(displayWatcher);abort.abort();releaseWakeLock();
 }
 listen(window,'pagehide',(event)=>{if(event.persisted){renderer?.pause(true);stopSpeech();setMode('manual');tiltSensor.stop();releaseWakeLock();}else dispose();});
 listen(window,'pageshow',()=>{renderer?.pause(document.hidden);if(!document.hidden)acquireWakeLock();});
+
+let mobileLandscape=mobileMetrics().landscape;
+function reorientMobile(){
+  const m=mobileMetrics();if(m.landscape===mobileLandscape)return;mobileLandscape=m.landscape;
+  const profile=mobileProfileValues($('device-preset').value,m);if(!profile)return;
+  if(state.mode==='camera')setMode('manual');tiltSensor.stop();
+  $('width').value=String(rotatedMeasuredWidth(mobileMeasurement,m)??profile.width);
+  state.displayCalibration=null;
+  invalidatePhysicalCalibration('屏幕方向已改变。请核对校准尺，并选择转动后的镜头所在边，再确认。');
+  $('show-ruler').checked=true;updateLabels();paintMode();renderer?.resize();savePreferences();
+  notice('横竖屏已切换，请重新确认画布宽与镜头位置；角色不会自动跟随旋转。');
+}
+listen(screen.orientation,'change',reorientMobile);listen(window,'orientationchange',reorientMobile);
 
 if(window.matchMedia('(prefers-reduced-motion: reduce)').matches)$('animate').checked=false;
 paintMode();
@@ -582,4 +600,4 @@ $('tracking-quality').textContent='等待相机授权';
 if(window.top!==window.self)notice('请在独立网页中打开本网站，以便浏览器请求摄像头和传感器权限。');
 
 // Non-sensitive validation output. No frames, landmarks, device IDs or audio.
-window.__companionDiagnostics=()=>({model:$('scene-name').textContent,ready:state.ready,mode:state.mode,view:state.view,profile:$('device-preset').value,physicalWidthCm:n('width'),displayConfirmed:state.displayConfirmed,cameraPhase:state.cameraPhase,cameraActive:!!state.video,permission:state.permission,eye:{...state.eye},graphics:!state.graphicsError,renderer:renderer?.diagnostics()||null});
+window.__companionDiagnostics=()=>({model:$('scene-name').textContent,ready:state.ready,mode:state.mode,view:state.view,profile:$('device-preset').value,physicalWidthCm:n('width'),displayConfirmed:state.displayConfirmed,cameraPhase:state.cameraPhase,cameraActive:!!state.video,permission:state.permission,eye:{...state.eye},graphics:!state.graphicsError,voice:extras?.diagnostics()||null,renderer:renderer?.diagnostics()||null});
