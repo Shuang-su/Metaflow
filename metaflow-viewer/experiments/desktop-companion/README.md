@@ -1,6 +1,6 @@
 # MetaFlow 桌面数字人：独立 Three.js 站点
 
-本目录是从现有 Netlify 站点 `https://polite-semolina-b478fc.netlify.app/` 的公开源码恢复、带 SHA-256 记录的独立应用，不是 SuperSplat Viewer，也不是同仓库的早期 `vrm-desktop` 或 PlayCanvas 实验。唯一行为规格与计划见 [MF-165 Spec](../../../..//docs/changes/165-desktop-portrait/spec.md) 和 [Plan](../../../..//docs/changes/165-desktop-portrait/plan.md)。
+本目录是从现有 Netlify 站点 `https://polite-semolina-b478fc.netlify.app/` 的公开源码恢复、带 SHA-256 记录的独立应用，不是 SuperSplat Viewer，也不是同仓库的早期 `vrm-desktop` 或 PlayCanvas 实验。唯一行为规格与计划见 [MF-165 Spec](../../../docs/changes/165-desktop-portrait/spec.md) 和 [Plan](../../../docs/changes/165-desktop-portrait/plan.md)。
 
 ## 本轮功能
 
