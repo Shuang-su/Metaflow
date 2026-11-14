@@ -4,8 +4,8 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#edf1e7">
-  <meta name="description" content="Mac 与 iPad 的三维桌面窗口。保留明前奶绿重建版，也可导入 VRM；校准屏幕与镜头，使用真实摄像头跟随观看位置。">
-  <title>桌面人像 · iPhone / iPad mini / Mac · MetaFlow</title>
+  <meta name="description" content="iPhone Air、iPhone、iPad 与 Mac 的三维桌面窗口。保留明前奶绿重建版，也可导入 VRM；校准屏幕与镜头，使用真实摄像头跟随观看位置。">
+  <title>桌面人像 · iPhone / iPhone Air / iPad mini / Mac · MetaFlow</title>
   <link rel="stylesheet" href="./styles.css">
   <script type="importmap">{"imports":{"three":"./vendor/three.module.js","@pixiv/three-vrm":"./vendor/three-vrm.module.min.js"}}</script>
 </head>
@@ -79,6 +79,8 @@
           <svg aria-hidden="true" viewBox="0 0 24 24"><rect x="3" y="6" width="13" height="12" rx="3"/><path d="m16 10 5-3v10l-5-3"/></svg>
           <span>开启前摄追踪</span>
         </button>
+        <span id="quiet-tracking-status" class="quiet-tracking-status" role="status" aria-live="polite" hidden>追踪未开启</span>
+        <button id="quiet-camera-stop" class="button quiet" type="button" hidden>停止追踪</button>
         <span class="command-divider" aria-hidden="true"></span>
         <button id="wave" class="button quiet" type="button" disabled>打个招呼</button>
         <button id="speak" class="button quiet" type="button" disabled>说一句</button>
@@ -121,7 +123,7 @@
           <p class="micro">量三维画布，不是整个显示器。也可调节此项，让下方校准尺与实体尺的标示长度相等。</p>
           <label class="toggle"><span>显示屏幕校准尺</span><input id="show-ruler" type="checkbox"></label>
           <button id="confirm-calibration" class="button full-width" type="button">确认画布与镜头位置</button>
-          <p id="display-calibration-status" class="micro" role="status">先量准画布，在下一节填写镜头位置，再点击确认。确认前可取景，但画面不跟随眼位。</p>
+          <p id="display-calibration-status" class="micro" role="status">先量准画布，在下一节填写镜头位置，再点击确认。确认前可静默识别，但场景不跟随；诊断取景需手动开启。</p>
           <label class="slider-label" for="tilt"><span>屏幕与桌面夹角</span><output id="tilt-value" for="tilt">65°</output></label>
           <input id="tilt" type="range" min="25" max="90" step="0.1" value="65">
           <button id="motion-start" class="button full-width" type="button">读取设备倾角</button>
@@ -129,7 +131,7 @@
         </section>
 
         <section class="settings-section">
-          <div class="section-heading"><span class="section-number">02</span><h2>摄像头与眼位</h2></div>
+          <div class="section-heading"><span class="section-number">02</span><h2>面部 / 头部追踪</h2></div>
           <label class="field-label" for="camera-device">选择摄像头</label>
           <select id="camera-device"><option value="">自动选择摄像头</option></select>
           <button id="camera-refresh" class="button full-width quiet" type="button">刷新摄像头列表</button>
@@ -148,7 +150,7 @@
           </select>
           <label class="slider-label" for="distance"><span>眼睛到屏幕法向距离</span><output id="distance-value" for="distance">55 cm</output></label>
           <input id="distance" type="range" min="25" max="120" step="1" value="55">
-          <p class="micro">沿垂直于屏幕的方向测量距离。</p>
+          <p class="micro">沿垂直于屏幕的方向测量距离。设备侧放时按自然坐姿校准，不必持续看镜头。单目头部位置是近似估计；完全背脸或被遮挡时会暂停。</p>
           <details id="camera-offset-fields" class="advanced-fields">
             <summary>精确调整镜头与眼位</summary>
             <p class="micro">以可见三维画布中心为原点，向右、向上为正。窗口移动或切换显示器后重新测量。</p>
@@ -163,7 +165,7 @@
             <label class="slider-label" for="eye-y"><span>手动眼位上下</span><output id="eye-y-value" for="eye-y">2.5 cm</output></label>
             <input id="eye-y" type="range" min="-30" max="30" step="0.1" value="2.5">
           </details>
-          <label class="toggle"><span>显示真实相机取景</span><input id="show-preview" type="checkbox" checked></label>
+          <label class="toggle"><span>显示真实相机取景</span><input id="show-preview" type="checkbox"></label>
         </section>
 
         <section class="settings-section">

@@ -1,12 +1,14 @@
+// MF165_HEAD_PALM_AIR_V1
+import {measureHead as measureEyes,meanMeasurement,calibrationIsStable,estimateHeadEye,boundedHeadEye} from './head-estimator.mjs';
 // Camera frames stay in this page. This is a calibrated monocular estimate,
 // not a biometric identity system or a measurement of the viewer's true IPD.
 export const FACE_MODEL_URL =
     new URL('./vendor/mediapipe/face_landmarker.task', import.meta.url).href;
 
 const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
-const CALIBRATION_FRAMES = 15;
+const CALIBRATION_FRAMES = 9;
 const INFERENCE_INTERVAL = 1000 / 24;
-const FILTER_MS = 55;
+const FILTER_MS = 45;
 const radiansToDegrees = 180 / Math.PI;
 
 function baselineEye(value) {
@@ -119,87 +121,14 @@ function browserEnvironment() {
                 // MediaPipe's single-face temporal smoothing is disabled at 2;
                 // the only tracking filter is FILTER_MS below.
                 numFaces: 2,
-                minFaceDetectionConfidence: 0.6,
-                minFacePresenceConfidence: 0.6,
-                minTrackingConfidence: 0.6,
+                minFaceDetectionConfidence: 0.45,
+                minFacePresenceConfidence: 0.5,
+                minTrackingConfidence: 0.5,
                 outputFaceBlendshapes: false,
                 outputFacialTransformationMatrixes: true
             });
         }
     };
-}
-
-function facePose(matrix) {
-    const data = matrix?.data;
-    if (matrix?.rows !== 4 || matrix?.columns !== 4 || data?.length !== 16 ||
-        !Array.from(data).every(Number.isFinite)) return null;
-    // MediaPipe packs its canonical-to-observed transform in column-major order.
-    // Validate the affine row and the scaled orthogonal axes before using it.
-    // The translation is deliberately NOT treated as a measured eye distance.
-    if (Math.abs(data[3]) + Math.abs(data[7]) + Math.abs(data[11]) > 0.001 ||
-        Math.abs(data[15] - 1) > 0.001) return null;
-    const columns = [0, 4, 8].map((index) => Array.from(data).slice(index, index + 3));
-    const lengths = columns.map((axis) => Math.hypot(...axis));
-    if (lengths.some((length) => length < 0.001) || Math.max(...lengths) / Math.min(...lengths) > 1.1) return null;
-    const axes = columns.map((axis, i) => axis.map((value) => value / lengths[i]));
-    const dot = (a, b) => a.reduce((sum, value, index) => sum + value * b[index], 0);
-    if (Math.abs(dot(axes[0], axes[1])) > 0.08 || Math.abs(dot(axes[0], axes[2])) > 0.08 ||
-        Math.abs(dot(axes[1], axes[2])) > 0.08 || axes[2][2] < 0.4) return null;
-    const horizontalProjection = Math.hypot(axes[0][0], axes[0][1]);
-    return {
-        horizontalProjection,
-        yaw: Math.asin(clamp(Math.abs(axes[0][2]), 0, 1)) * radiansToDegrees,
-        pitch: Math.asin(clamp(Math.abs(axes[1][2]), 0, 1)) * radiansToDegrees,
-        roll: Math.atan2(axes[0][1], axes[0][0]) * radiansToDegrees
-    };
-}
-
-function measureEyes(result, video) {
-    const points = result?.faceLandmarks?.[0];
-    if (!points || !video.videoWidth || !video.videoHeight) return null;
-    const valid = (point) => point && Number.isFinite(point.x) && Number.isFinite(point.y) &&
-        point.x >= 0 && point.x <= 1 && point.y >= 0 && point.y <= 1;
-    const corners = [33, 133, 362, 263].map((index) => points[index]);
-    if (!corners.every(valid)) return null;
-    let left = { x: (corners[0].x + corners[1].x) / 2, y: (corners[0].y + corners[1].y) / 2 };
-    let right = { x: (corners[2].x + corners[3].x) / 2, y: (corners[2].y + corners[3].y) / 2 };
-    const cornerSpan = Math.hypot((right.x - left.x) * video.videoWidth, (right.y - left.y) * video.videoHeight);
-    // Refined Face Landmarker results include the two iris centres. They match
-    // an entered IPD more closely than an eyelid width does. Reject malformed
-    // iris points instead of allowing them to collapse the distance estimate.
-    if (valid(points[468]) && valid(points[473])) {
-        const distance = (a, b) => Math.hypot((a.x - b.x) * video.videoWidth, (a.y - b.y) * video.videoHeight);
-        if (distance(points[468], left) < cornerSpan * 0.2 && distance(points[473], right) < cornerSpan * 0.2) {
-            left = { x: points[468].x, y: points[468].y };
-            right = { x: points[473].x, y: points[473].y };
-        }
-    }
-    const width = video.videoWidth;
-    const height = video.videoHeight;
-    const midpoint = { x: (left.x + right.x) / 2, y: (left.y + right.y) / 2 };
-    const span = Math.hypot((right.x - left.x) * width, (right.y - left.y) * height);
-    if (span < 12) return null;
-    const pose = facePose(result.facialTransformationMatrixes?.[0]);
-    return {
-        x: midpoint.x * width, y: midpoint.y * height, span, width, height,
-        correctedSpan: pose ? span / Math.max(0.1, pose.horizontalProjection) : null,
-        pose,
-        // These are raw, unmirrored VIDEO coordinates, not anatomical labels.
-        eyes: { left, right, midpoint }
-    };
-}
-
-function meanMeasurement(samples) {
-    const mean = (key) => samples.reduce((sum, item) => sum + item[key], 0) / samples.length;
-    return { ...samples.at(-1), x: mean('x'), y: mean('y'), correctedSpan: mean('correctedSpan') };
-}
-
-function calibrationIsStable(samples) {
-    const span = samples.reduce((sum, item) => sum + item.correctedSpan, 0) / samples.length;
-    const range = (read) => Math.max(...samples.map(read)) - Math.min(...samples.map(read));
-    return range((item) => item.x) <= span * 0.1 && range((item) => item.y) <= span * 0.1 &&
-        range((item) => item.correctedSpan) <= span * 0.06 &&
-        range((item) => item.pose.yaw) <= 6 && range((item) => item.pose.pitch) <= 8;
 }
 
 function startupFailure(error, stage) {
@@ -250,7 +179,7 @@ function startupFailure(error, stage) {
  * quality is good/hold-still/turned/multiple/lost/unavailable, NOT a probability.
  *
  * CPU inference is capped at 24 Hz (usually 20 Hz on a 60 Hz animation loop).
- * fps reports observed inference frequency. The sole output filter has a 55 ms
+ * fps reports observed inference frequency. The sole output filter has a 45 ms
  * time constant. This does not promise a measured frame rate on a particular iPad.
  * environment is an injectable test seam, never a camera replacement in the UI.
  */
@@ -359,90 +288,71 @@ export function createHeadTracker({
         session.baseline = { ...manualBaseline };
         session.reference = null;
         session.samples = [];
-        session.needsRecenter = false;
+        session.needsRecenter = false;session.recoverySamples=[];session.recoveryReason=null;session.recoveryBlocked=false;
         session.target = { ...manualBaseline };
         session.filtered = { ...manualBaseline };
         session.previousRaw = null;
         session.lastSeen = null;
         session.measurement = null;
         session.faceCount = 0;
-        status(session, 'calibrating', '请一人正对镜头、保持约一秒；正在采集至少 15 帧稳定眼位。', 'hold-still');
+        status(session, 'calibrating', '保持自然坐姿片刻；正在用整张脸标定头部位置，无需盯住镜头。', 'hold-still');
         sample(session);
     }
 
-    function requireRecenter(session, message, quality = 'lost') {
-        session.needsRecenter = true;
-        session.samples = [];
-        session.target = { ...session.baseline };
-        status(session, quality === 'multiple' ? 'multiple' : 'lost', message, quality);
+    function requireRecenter(session,message,quality='lost',reason='lost') {
+        if(!session.needsRecenter){session.recoverySamples=[];session.recoveryReason=reason;}
+        session.needsRecenter=true;
+        session.samples=[];
+        // A stationary ornament should freeze, not jump back to the old centre.
+        session.target={...(session.filtered||session.baseline)};
+        status(session,quality==='multiple'?'multiple':'lost',message,quality);
     }
 
-    function acceptMeasurement(session, measurement, time) {
-        session.lastSeen = time;
-        if (session.needsRecenter) return;
-        if (session.reference && (measurement.width !== session.reference.width || measurement.height !== session.reference.height)) {
-            requireRecenter(session, '摄像头画面尺寸已变化，请重新校准观看位置。');
-            return;
+    function acceptMeasurement(session,measurement,time) {
+        const pose=measurement.pose;
+        if(!pose||!measurement.headAnchor)return;
+        if(session.reference&&(measurement.width!==session.reference.width||measurement.height!==session.reference.height)){
+            session.recoveryBlocked=true;
+            requireRecenter(session,'相机画面尺寸已改变，请重新确认屏幕与镜头位置并校准。','lost','geometry');return;
         }
-        const pose = measurement.pose;
-        if (!pose || !Number.isFinite(measurement.correctedSpan)) {
-            session.samples = [];
-            status(session, session.reference ? 'lost' : 'calibrating', '暂未获得可靠的面部方向，请正对镜头；暂停眼位更新。', 'unavailable');
-            return;
+        if(session.recoveryBlocked)return;
+        session.lastSeen=time;
+        if(session.needsRecenter){
+            const samples=session.recoverySamples||(session.recoverySamples=[]),last=samples.at(-1);
+            if(last&&time-last.time>250)samples.length=0;
+            samples.push({...measurement,time});if(samples.length>7)samples.shift();
+            if(!calibrationIsStable(samples))session.recoverySamples=[{...measurement,time}];
+            if(session.recoverySamples.length<7||time-session.recoverySamples[0].time<200)return;
+            // Preserve the original geometric reference for ordinary short loss.
+            // A stable jump/multi-face recovery re-anchors to the held position,
+            // so switching observers never teleports the room. No identity test.
+            if(session.recoveryReason==='jump'||session.recoveryReason==='multiple'){
+                session.reference=meanMeasurement(session.recoverySamples);
+                session.baseline={...session.filtered};
+            }
+            session.needsRecenter=false;session.previousRaw=null;session.recoverySamples=[];
         }
-        const calibrating = !session.reference;
-        if (pose.yaw > (calibrating ? 15 : 35) || pose.pitch > (calibrating ? 25 : 35) || Math.abs(pose.roll) > 35) {
-            session.samples = [];
-            status(session, calibrating ? 'calibrating' : 'lost', '头部转动较大，请重新正对镜头；暂停眼位更新。', 'turned');
-            return;
-        }
-        if (calibrating) {
-            const last = session.samples.at(-1);
-            if (last && (time - last.time > 200 || last.width !== measurement.width || last.height !== measurement.height)) session.samples = [];
-            session.samples.push({ ...measurement, time });
-            if (session.samples.length > CALIBRATION_FRAMES) session.samples.shift();
-            if (!calibrationIsStable(session.samples)) session.samples = [{ ...measurement, time }];
-            status(session, 'calibrating', '请一人正对镜头、保持约一秒；正在采集至少 15 帧稳定眼位。', 'hold-still');
-            if (session.samples.length < CALIBRATION_FRAMES || time - session.samples[0].time < 550) return;
-            const reference = meanMeasurement(session.samples);
-            session.reference = reference;
-            session.samples = [];
-            if (session.calibration.estimateOrigin) {
-                const scale = session.calibration.ipd / reference.correctedSpan;
-                session.baseline = baselineEye({
-                    x: session.calibration.cameraX - (reference.x - reference.width / 2) * scale,
-                    y: session.calibration.cameraY - (reference.y - reference.height / 2) * scale,
-                    z: session.manualBaseline.z
-                });
+        if(!session.reference){
+            const last=session.samples.at(-1);
+            if(last&&(time-last.time>250||last.width!==measurement.width||last.height!==measurement.height))session.samples=[];
+            session.samples.push({...measurement,time});if(session.samples.length>CALIBRATION_FRAMES)session.samples.shift();
+            if(!calibrationIsStable(session.samples))session.samples=[{...measurement,time}];
+            status(session,'calibrating','保持自然坐姿片刻；允许侧向坐姿，不需要盯住镜头。','hold-still');
+            if(session.samples.length<CALIBRATION_FRAMES||time-session.samples[0].time<280)return;
+            const reference=meanMeasurement(session.samples);session.reference=reference;session.samples=[];
+            if(session.calibration.estimateOrigin){
+                const scale=session.calibration.ipd/reference.correctedSpan;
+                session.baseline=baselineEye({x:session.calibration.cameraX-(reference.x-reference.width/2)*scale,
+                    y:session.calibration.cameraY-(reference.y-reference.height/2)*scale,z:session.manualBaseline.z});
             }
         }
-        const reference = session.reference;
-        // getUserMedia supplies unmirrored image pixels. A viewer moving to
-        // screen-right appears further image-left; upward appears image-up.
-        // Correct only rotation's projected horizontal axis, not pose translation
-        // or landmark z. Relative span then estimates depth from the measured z.
-        const scale = session.calibration.ipd / measurement.correctedSpan;
-        const referenceScale = session.calibration.ipd / reference.correctedSpan;
-        const xChange = (measurement.x - measurement.width / 2) * scale -
-            (reference.x - reference.width / 2) * referenceScale;
-        const yChange = (measurement.y - measurement.height / 2) * scale -
-            (reference.y - reference.height / 2) * referenceScale;
-        const raw = {
-            x: session.baseline.x - xChange,
-            y: session.baseline.y - yChange,
-            z: session.baseline.z * reference.correctedSpan / measurement.correctedSpan
-        };
-        if (session.previousRaw && (
-            Math.abs(raw.x - session.previousRaw.x) > 0.14 ||
-            Math.abs(raw.y - session.previousRaw.y) > 0.14 ||
-            Math.abs(raw.z - session.previousRaw.z) > 0.3
-        )) {
-            requireRecenter(session, '眼位变化过大，请保持一人入镜并重新校准。');
-            return;
+        const raw=boundedHeadEye(estimateHeadEye(session.reference,measurement,session.baseline),session.baseline);
+        if(!raw)return;
+        if(session.previousRaw&&(Math.abs(raw.x-session.previousRaw.x)>.18||Math.abs(raw.y-session.previousRaw.y)>.18||Math.abs(raw.z-session.previousRaw.z)>.35)){
+            requireRecenter(session,'检测变化较大，暂时保位；稳定单人入镜后自动恢复。','lost','jump');return;
         }
-        session.previousRaw = raw;
-        session.target = baselineEye({ ...raw, z: clamp(raw.z, session.baseline.z * 0.65, session.baseline.z * 1.5) });
-        status(session, 'tracking', '正在跟随真实摄像头眼位 · 单人小范围移动', 'good');
+        session.previousRaw=raw;session.target=baselineEye(raw);
+        status(session,'tracking',measurement.eyes?'整脸与头部姿态追踪 · 不依赖瞳孔方向':'头部姿态追踪 · 双眼不可见时的近似位置','good');
     }
 
     function tick(session, time) {
@@ -463,13 +373,13 @@ export function createHeadTracker({
                 session.measurement = session.faceCount === 1 ? measureEyes(result, video) : null;
                 if (session.faceCount > 1) {
                     session.samples = [];
-                    if (session.reference) requireRecenter(session, '检测到多人，已暂停跟随；请只保留一人入镜后重新校准。', 'multiple');
+                    if (session.reference) requireRecenter(session,'检测到多人，已暂停；稳定单人入镜后自动恢复。','multiple','multiple');
                     else status(session, 'multiple', '检测到多人，请只保留一人入镜后开始校准。', 'multiple');
                 } else if (session.measurement) {
                     acceptMeasurement(session, session.measurement, time);
                 } else if (!session.needsRecenter) {
                     session.samples = [];
-                    status(session, session.reference ? 'lost' : 'calibrating', '请让一张完整人脸进入取景框，保持眼睛清晰可见。', 'lost');
+                    status(session, session.reference ? 'lost' : 'calibrating', '暂时没有可靠面部位置；画面保持不动，重新进入镜头后自动恢复。', 'lost');
                 }
             } catch {
                 session.errors += 1;
@@ -483,8 +393,8 @@ export function createHeadTracker({
                 status(session, 'lost', '本帧眼位检测失败，正在重试。', 'unavailable');
             }
         }
-        if (session.reference && !session.needsRecenter && time - session.lastSeen > 850) {
-            requireRecenter(session, '眼位丢失较久，已回到校准位置；请重新校准后继续。');
+        if (session.reference && !session.needsRecenter && time - session.lastSeen > 1200) {
+            requireRecenter(session, '暂时保留最后观看位置；稳定单人入镜后自动恢复。');
             session.measurement = null;
             session.faceCount = 0;
             newSample = true;
@@ -513,7 +423,7 @@ export function createHeadTracker({
                 audio: false,
                 video: {
                     ...(session.deviceId ? { deviceId: { exact: session.deviceId } } : { facingMode: { ideal: 'user' } }),
-                    width: { ideal: 640 }, height: { ideal: 480 }, frameRate: { ideal: 30, max: 30 }
+                    width: { ideal: 1280 }, height: { ideal: 720 }, frameRate: { ideal: 30, max: 30 }
                 }
             });
         } catch (error) {

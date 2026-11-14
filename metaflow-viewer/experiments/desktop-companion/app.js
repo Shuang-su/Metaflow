@@ -1,3 +1,5 @@
+// MF165_HEAD_PALM_AIR_V1
+import {placeTrackingVideo} from './tracking-preview.mjs';
 // MF165_MOBILE_VOICE_V1
 import {deviceFamily,installMobileOptions,mobileProfileValues,landscapeOrientation,rotatedMeasuredWidth,pinchZoom} from './mobile.mjs';
 import {createCompanionControls} from './companion-controls.mjs';
@@ -11,7 +13,7 @@ const abort = new AbortController();
 const listen = (node, event, fn, options = {}) => node?.addEventListener(event, fn, {...options, signal: abort.signal});
 const clamp = (n, lo, hi) => Math.max(lo, Math.min(hi, n));
 const ranges = ['width','tilt','height','distance','eye-x','eye-y','floor-offset','avatar-depth','room-depth','light','camera-x','camera-y','ipd'];
-const preferences = [...ranges,'camera-placement','device-preset','wood','gaze','animate','show-preview','auto-height'];
+const preferences = [...ranges,'camera-placement','device-preset','wood','gaze','animate','auto-height'];
 const storageKey = 'metaflow-tabletop-calibration-v3';
 const builtinModels = {
   reconstruction:{source:'./assets/milky-green-reconstruction.vrm',name:'明前奶绿 · 重建版',credit:'LAPLACE Live! / Milky Green · 重建样例，非已核实的视频同款'},
@@ -23,6 +25,7 @@ const state = { mode: 'manual', eye: {x:0,y:.025,z:.55}, ready:false, disposed:f
 let renderer = null, extras = null, mobileMeasurement = null;
 const family=deviceFamily(navigator);
 installMobileOptions(document);
+$('show-preview').checked=false;
 function mobileMetrics(){const m=viewportMetrics();return {...m,canvasWidth:m.width,landscape:landscapeOrientation({angle:screen.orientation?.angle??window.orientation,type:screen.orientation?.type,screenWidth:m.screenWidth,screenHeight:m.screenHeight})};}
 state.modelChoice=defaultModelChoice;state.activeModelChoice=null;state.loadingModelChoice=null;state.lastWindowPosition=windowPosition();
 
@@ -116,9 +119,10 @@ function paintDevice(){
   else $('motion-status').textContent='可手动填写，或请求设备倾角。';
 }
 function paintActivity() {
-  $('activity').textContent=state.graphicsError?'图形环境不可用':['fetching','parsing'].includes(state.modelPhase)?'正在读取角色':!state.ready?'等待选择角色':state.view==='inspect'?'普通透视 · 模型检查':state.mode==='camera'&&state.cameraPhase==='tracking'?(state.displayConfirmed?'摄像头跟随':'取景已开启 · 待物理校准'):state.mode==='auto'?'演示视差':'固定观察位置';
+  $('activity').textContent=state.graphicsError?'图形环境不可用':['fetching','parsing'].includes(state.modelPhase)?'正在读取角色':!state.ready?'等待选择角色':state.view==='inspect'?'普通透视 · 模型检查':state.mode==='camera'&&state.cameraPhase==='tracking'?(state.displayConfirmed?'头部追踪 · 本机':'追踪已开启 · 待物理校准'):state.mode==='auto'?'演示视差':'固定观察位置';
 }
 function paintMode() {
+  const active=state.mode==='camera';$('quiet-camera-stop').hidden=!active;$('quiet-tracking-status').hidden=!active;
   for(const b of document.querySelectorAll('[data-mode]'))b.setAttribute('aria-pressed',String(b.dataset.mode===state.mode));
   for(const b of document.querySelectorAll('[data-view]'))b.setAttribute('aria-pressed',String(b.dataset.view===state.view));
   $('view-label').textContent=state.view==='inspect'?'拖动旋转 · 滚动缩放':state.mode==='camera'?'相机眼位':state.mode==='auto'?'演示镜头 · 非真实追踪':'拖动 / 方向键 · R 复位';
@@ -133,8 +137,9 @@ function showSettings(open) {
   if(open)$('close-settings').focus();else $('settings-toggle').focus();
   if(open)enumerateCameras();
 }
-function showCameraCard() { $('camera-card').hidden=!state.video||!$('show-preview').checked; }
+function showCameraCard(){placeTrackingVideo(state.video,$('show-preview').checked&&!$('app').classList.contains('immersive'),document);}
 function overlay(sample) {
+  if(!$('show-preview').checked)return;
   const canvas=$('camera-overlay'), video=state.video;
   if(!video||!canvas)return;
   const width=video.videoWidth||sample.video?.width||640,height=video.videoHeight||sample.video?.height||480;
@@ -180,27 +185,23 @@ const tracker=createHeadTracker({
   onEye(eye){if(state.mode==='camera'&&state.displayConfirmed)state.eye={...eye};},
   onVideo(video){
     state.video=video;
-    if(video){
-      const host=$('camera-preview');
-      // The overlay is an existing child. Move only the actual live video here.
-      for(const old of host.querySelectorAll('video'))old.remove();
-      video.className='camera-video';video.style.cssText='width:100%;height:100%;object-fit:contain;display:block;';
-      host.prepend(video);state.permission='granted';enumerateCameras();
-    }else{for(const old of $('camera-preview').querySelectorAll('video'))old.remove();$('camera-overlay').getContext('2d').clearRect(0,0,$('camera-overlay').width,$('camera-overlay').height);}
+    if(video){state.permission='granted';enumerateCameras();}
+    else $('camera-overlay').getContext('2d').clearRect(0,0,$('camera-overlay').width,$('camera-overlay').height);
     showCameraCard();
   },
   onSample(sample){
     state.sample=sample;
     $('tracking-meter').value=sample.phase==='tracking'?1:clamp(sample.progress||0,0,1);
     $('camera-card').dataset.quality=sample.quality||'unavailable';
-    const labels={good:'眼位已校准','hold-still':'保持正对镜头',turned:'请转回正面',multiple:'请保留一人入镜',lost:'未找到双眼',unavailable:'等待摄像头'};
+    const labels={good:'整脸 / 头部追踪','hold-still':'保持自然坐姿片刻',turned:'侧转过大，暂时保位',multiple:'多人入镜，已暂停',lost:'暂时保位，等待重捕获',unavailable:'等待摄像头'};
     const distance=sample.eye?.z?` · ${(sample.eye.z*100).toFixed(0)} cm`:'';
     const fps=sample.fps>0?` · ${sample.fps.toFixed(0)} 次/秒`:'';
-    $('tracking-quality').textContent=(!state.displayConfirmed&&sample.phase==='tracking'?'取景正常 · 待画布校准':labels[sample.quality]||'校准中')+distance+fps;
+    $('tracking-quality').textContent=(!state.displayConfirmed&&sample.phase==='tracking'?'追踪正常 · 待画布校准':labels[sample.quality]||'校准中')+distance+fps;
     overlay(sample);
   },
   onStatus(result){
     state.cameraPhase=result.state;
+    const quiet=$('quiet-tracking-status');quiet.textContent=({permission:'等待相机授权',loading:'准备本机追踪',calibrating:'自然坐姿校准',tracking:'头部追踪中',lost:'暂时保位 · 自动恢复',multiple:'多人入镜 · 已暂停',error:'追踪未启动',idle:'追踪已关闭'})[result.state]||'追踪准备中';
     $('tracking-status').textContent=result.message;
     const step=$('camera-step');if(step)step.textContent=result.message;
     if(result.state==='error'||result.state==='idle'){
@@ -212,7 +213,7 @@ const tracker=createHeadTracker({
       }
     }
     if(result.state==='tracking'){
-      notice(state.displayConfirmed?'正在本机估计眼位。小范围移动头部，检查脚点和地面是否稳定。':'真实取景已开启。请在“调整”中确认画布尺寸与镜头位置，确认后画面才跟随眼位。');
+      notice(state.displayConfirmed?'正在本机跟随头部。无需盯住镜头；短暂丢失会保位并自动恢复。':'静默追踪已开启。请在“调整”中确认画布尺寸与镜头位置；诊断取景默认关闭。');
     }
     paintMode();
   }
@@ -305,6 +306,7 @@ function speak(){extras?.toggleSpeech();}
 
 listen($('camera-start'),'click',beginCamera);
 listen($('camera-stop'),'click',()=>setMode('manual'));
+listen($('quiet-camera-stop'),'click',()=>setMode('manual'));
 listen($('recenter'),'click',()=>tracker.recenter());
 listen($('camera-device'),'change',()=>{
   invalidatePhysicalCalibration('摄像头已切换，请核对新镜头相对画布中心的位置并重新确认。');
@@ -523,14 +525,14 @@ async function enterFullscreen(hideControls){
     if(!state.fullscreenWanted&&document.fullscreenElement)await document.exitFullscreen().catch(()=>{});
     return;
   }
-  $('app').classList.toggle('immersive',hideControls);$('leave-display').hidden=!hideControls;
+  $('app').classList.toggle('immersive',hideControls);$('leave-display').hidden=!hideControls;showCameraCard();
   if(hideControls){$('settings-panel').hidden=true;$('settings-toggle').setAttribute('aria-expanded','false');}else showSettings(true);
   if(!document.fullscreenElement)notice('浏览器未进入系统全屏。请按当前可见画布测量；相机位置可用自定义厘米值校准。');
   await acquireWakeLock();renderer?.resize();scheduleCalibration();
 }
 function leaveDisplay(){
   ++state.displayGeneration;
-  $('app').classList.remove('immersive');$('leave-display').hidden=true;
+  $('app').classList.remove('immersive');$('leave-display').hidden=true;showCameraCard();
   // Keep the fullscreen viewport unchanged while its controls are visible.
   // Exiting fullscreen here would invalidate the physical calibration again.
 }
@@ -589,7 +591,18 @@ function reorientMobile(){
   $('show-ruler').checked=true;updateLabels();paintMode();renderer?.resize();savePreferences();
   notice('横竖屏已切换，请重新确认画布宽与镜头位置；角色不会自动跟随旋转。');
 }
-listen(screen.orientation,'change',reorientMobile);listen(window,'orientationchange',reorientMobile);
+// MF165_ORIENTATION_SETTLED
+// orientationchange can precede the new CSS viewport. Coalesce both events,
+// then measure after layout; keyboard-only resize never changes orientation.
+let orientationTimer=0;
+function scheduleMobileOrientation(){
+  clearTimeout(orientationTimer);
+  orientationTimer=setTimeout(()=>{if(!state.disposed)reorientMobile();},180);
+}
+listen(screen.orientation,'change',scheduleMobileOrientation);
+listen(window,'orientationchange',scheduleMobileOrientation);
+listen(window,'resize',scheduleMobileOrientation);
+listen(window,'pagehide',()=>clearTimeout(orientationTimer));
 
 if(window.matchMedia('(prefers-reduced-motion: reduce)').matches)$('animate').checked=false;
 paintMode();

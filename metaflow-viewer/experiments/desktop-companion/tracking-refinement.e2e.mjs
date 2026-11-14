@@ -3,10 +3,10 @@ import assert from 'node:assert/strict';
 import {mkdir,writeFile} from 'node:fs/promises';
 const out=process.env.EVIDENCE_DIR||'/tmp/companion-evidence';await mkdir(out,{recursive:true});
 const browser=await chromium.launch({headless:true,args:['--use-angle=swiftshader','--enable-unsafe-swiftshader','--no-sandbox','--use-fake-device-for-media-stream','--use-fake-ui-for-media-stream']});
-const report={engine:'Chromium/software WebGL, synthetic camera stream, not physical iPhone Air/Safari',checks:[],errors:[]};
+const report={engine:'Chromium/software WebGL, synthetic camera stream, not physical iPhone Air/Safari',checks:[],errors:[],upstreamInfo:[]};
 const context=await browser.newContext({viewport:{width:420,height:912},screen:{width:420,height:912},deviceScaleFactor:3,isMobile:true,hasTouch:true,userAgent:'Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15 Mobile/15E148 Safari/604.1',permissions:['camera']});
 const page=await context.newPage();page.on('pageerror',e=>report.errors.push(e.message));
-page.on('console',m=>{if(m.type()==='error'&&!m.text().includes('favicon.ico'))report.errors.push(m.text());});
+page.on('console',m=>{if(m.type()!=='error')return;const text=m.text();if(text==='INFO: Created TensorFlow Lite XNNPACK delegate for CPU.'){report.upstreamInfo.push(text);return;}if(!text.includes('favicon.ico'))report.errors.push(text);});
 await page.addInitScript(()=>localStorage.setItem('metaflow-tabletop-calibration-v3',JSON.stringify({'show-preview':true})));
 try{
   await page.goto('http://127.0.0.1:4173/',{waitUntil:'domcontentloaded'});
@@ -51,5 +51,5 @@ try{
   }
   assert.equal(report.errors.length,0,report.errors.join('\n'));
   report.pass=true;console.log('REFINEMENT_BROWSER_PASS',JSON.stringify(report));
-}catch(e){report.pass=false;report.failure=e.message;await page.screenshot({path:`${out}/refinement-failed.png`}).catch(()=>{});console.log('REFINEMENT_BROWSER_FAIL',JSON.stringify(report));process.exitCode=1;}
+}catch(e){report.pass=false;report.failure=e.message;report.state=await page.evaluate(()=>({diagnostics:window.__companionDiagnostics?.(),angle:screen.orientation?.angle,type:screen.orientation?.type,width:innerWidth,height:innerHeight,screenWidth:screen.width,screenHeight:screen.height})).catch(()=>null);await page.screenshot({path:`${out}/refinement-failed.png`}).catch(()=>{});console.log('REFINEMENT_BROWSER_FAIL',JSON.stringify(report));process.exitCode=1;}
 finally{await writeFile(`${out}/refinement-report.json`,JSON.stringify(report,null,2));await browser.close();}

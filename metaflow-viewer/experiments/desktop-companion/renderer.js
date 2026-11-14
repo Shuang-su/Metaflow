@@ -1,3 +1,5 @@
+// MF165_HEAD_PALM_AIR_V1
+import {createPalmFacing} from './palm-facing.mjs';
 // MF165_MOBILE_VOICE_V1
 import {createGesturePlayer} from './motion.mjs';
 import {recommendedPixelRatio} from './mobile.mjs';
@@ -220,6 +222,7 @@ export function createTabletopRenderer({ canvas, getSettings, onLoad = () => {},
   const gazeTarget = new THREE.Object3D(); scene.add(gazeTarget);
   const eventAbort = new AbortController();
   const gestures=createGesturePlayer();
+  let palmFacing=null;
   const state = {
     disposed: false, paused: false, graphicsLost: false, raf: 0, lastTime: performance.now(), time: 0,
     width: .262, height: .1965, pixels: { width: 1, height: 1 }, eye: { x: 0, y: .025, z: .55 },
@@ -453,15 +456,16 @@ export function createTabletopRenderer({ canvas, getSettings, onLoad = () => {},
     if (bone('spine')) bone('spine').rotation.z = active ? Math.sin(state.time * 1.2) * .009 * axis : 0;
     if (bone('chest')) bone('chest').rotation.x = active ? Math.sin(state.time * 1.8) * .006 * axis : 0;
     const arm = bone('leftUpperArm'), forearm = bone('leftLowerArm'), hand = bone('leftHand');
-    if (arm) { arm.rotation.z = THREE.MathUtils.damp(arm.rotation.z, (-REST_ARM+(REST_ARM+.7)*gesture.wave) * axis, 10, dt); arm.rotation.x = THREE.MathUtils.damp(arm.rotation.x, -.25 * axis * gesture.wave, 10, dt); }
-    if (forearm) { forearm.rotation.z = THREE.MathUtils.damp(forearm.rotation.z, 1.15 * axis * gesture.wave, 10, dt); forearm.rotation.y = -.12+(Math.sin(gesture.phase)*.23+.12)*gesture.wave; }
-    if (hand) hand.rotation.x = Math.sin(gesture.phase*1.2)*.35*axis*gesture.wave;
+    if (arm) { arm.rotation.z = THREE.MathUtils.damp(arm.rotation.z, (-REST_ARM+(REST_ARM-.25)*gesture.wave) * axis, 10, dt); arm.rotation.x = THREE.MathUtils.damp(arm.rotation.x, -.12 * axis * gesture.wave, 10, dt); }
+    if (forearm) { forearm.rotation.z = THREE.MathUtils.damp(forearm.rotation.z, 1.6 * axis * gesture.wave, 10, dt); forearm.rotation.y = -.12*(1-gesture.wave); }
+    if(hand)hand.quaternion.identity();
     if (active && state.time > state.nextBlink) { state.blinkStart = state.time; state.nextBlink = state.time + 2.8 + Math.random() * 3; }
     const blink = (state.time - state.blinkStart) / .16;
     vrm.expressionManager?.setValue('blink', active && state.blinkStart >= 0 && blink >= 0 && blink < 1 ? Math.sin(blink * Math.PI) : 0);
     vrm.expressionManager?.setValue('aa', state.speaking ? (state.mouthLevel??Math.max(0,Math.sin(state.time*18)*.45+Math.sin(state.time*6)*.15+.17)) : 0);
     vrm.expressionManager?.setValue('happy',gesture.smile);
     scene.updateMatrixWorld(true);
+    palmFacing?.apply(gesture.wave,gesture.phase);
     const head = bone('head');
     if (head) {
       head.parent.worldToLocal(localEye.copy(camera.position)); localEye.sub(head.position);
@@ -488,7 +492,7 @@ export function createTabletopRenderer({ canvas, getSettings, onLoad = () => {},
   }
 
   function releaseCurrent() {
-    gestures.stop();state.mouthLevel=null;
+    gestures.stop();state.mouthLevel=null;palmFacing=null;
     state.calibration?.removeFromParent();
     if (state.gltf) disposeGltf(state.gltf);
     else if (state.vrm) disposeSceneResources([state.vrm.scene], [state.vrm.meta?.thumbnailImage, state.vrm.meta?.texture]);
@@ -541,7 +545,7 @@ export function createTabletopRenderer({ canvas, getSettings, onLoad = () => {},
       const bounds = new THREE.Box3().setFromObject(vrm.scene, true), size = bounds.getSize(new THREE.Vector3());
       if (![size.x, size.y, size.z].every(Number.isFinite) || size.y < .01 || size.y > 100 || size.x <= 0) throw new Error('模型尺寸异常，无法进行桌面校准。');
       releaseCurrent(); state.speaking = false;
-      state.vrm = vrm; state.gltf = gltf; pendingGltf = null; state.bounds = bounds;
+      state.vrm = vrm;palmFacing=createPalmFacing(vrm); state.gltf = gltf; pendingGltf = null; state.bounds = bounds;
       state.expressionRepairs = expressionRepairs;
       state.springProfile = captureSpringDimensions(vrm);
       state.calibration = new THREE.Group(); state.calibration.add(vrm.scene); avatarMount.add(state.calibration);
@@ -624,7 +628,7 @@ export function createTabletopRenderer({ canvas, getSettings, onLoad = () => {},
       expressions: state.vrm?.expressionManager?.expressions?.map((expression) => expression.expressionName) || [],
       runtimeExpressionBindings: state.expressionRepairs.map((repair) => ({ ...repair })),
       fps: state.fps, triangles: renderer.info.render.triangles, calls: renderer.info.render.calls,
-      gesture:gestures.active,mouthLevel:state.mouthLevel,headPose:bone('head')?.rotation.toArray().slice(0,3)||null,
+      palm:palmFacing?.diagnostics()||null,gesture:gestures.active,mouthLevel:state.mouthLevel,headPose:bone('head')?.rotation.toArray().slice(0,3)||null,
       loading: state.loading, modelCount: avatarMount.children.length, speaking: state.speaking,
       paused: state.paused, graphicsLost: state.graphicsLost, disposed: state.disposed,
     };

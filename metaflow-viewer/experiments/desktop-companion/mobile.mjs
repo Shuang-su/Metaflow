@@ -6,6 +6,7 @@ const cm = (pixels, ppi) => pixels / ppi * 2.54;
 export const MOBILE_PROFILES = Object.freeze({
   'iphone-compact': Object.freeze({label:'iPhone 小屏 / mini · 近似起点', short:5.76, long:12.49, distance:35}),
   'iphone-standard': Object.freeze({label:'iPhone 6.1 英寸参考 · 请用尺校准', short:cm(1170,460), long:cm(2532,460), distance:40}),
+  'iphone-air': Object.freeze({label:'iPhone Air · 6.5 英寸参考', short:cm(1260,460), long:cm(2736,460), distance:40}),
   'iphone-large': Object.freeze({label:'iPhone Plus / Max · 近似起点', short:7.12, long:15.42, distance:45}),
   'ipad-mini': Object.freeze({label:'iPad mini 8.3 英寸 · 6 / A17 Pro', short:cm(1488,326), long:cm(2266,326), distance:45}),
   'tablet-small': Object.freeze({label:'其他小平板 / 旧款 mini · 请用尺校准', short:12, long:16, distance:45})
