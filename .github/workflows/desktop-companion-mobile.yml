@@ -7,6 +7,7 @@ on:
       - .github/workflows/desktop-companion-mobile.yml
 permissions:
   contents: write
+  checks: read
 concurrency:
   group: desktop-companion-mobile-${{ github.ref }}
   cancel-in-progress: true
@@ -27,9 +28,23 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
+      - name: Read failed publish-preflight annotation without changing protection
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          python3 - <<'PY'
+          import urllib.request,json,os
+          url='https://api.github.com/repos/Shuang-su/Metaflow/check-runs/132368537417/annotations'
+          try:
+            req=urllib.request.Request(url,headers={'Authorization':'Bearer '+os.environ['GH_TOKEN'],'Accept':'application/vnd.github+json'})
+            with urllib.request.urlopen(req,timeout=20) as r: data=json.load(r)
+            for item in data:print('PUBLISH_PREFLIGHT_ANNOTATION',item.get('message',''))
+          except Exception as e:print('Could not read preflight annotation:',type(e).__name__)
+          PY
       - name: Apply guarded refinement and check syntax
         run: |
           python3 "$APP/apply-refinement.py"
+          python3 "$APP/finalize-refinement.py"
           for f in "$APP"/*.mjs "$APP"/*.js; do node --check "$f"; done
           git diff --check
       - name: Test mobile motion audio head geometry and tracking lifecycle
@@ -50,7 +65,7 @@ jobs:
           node "$APP/tracking-refinement.e2e.mjs"
       - name: Preserve verified source migration on this branch only
         run: |
-          git add "$APP/app.js" "$APP/renderer.js" "$APP/tracking.mjs" "$APP/index.html" "$APP/styles.css" "$APP/mobile.mjs" "$APP/about.html" docs/changes/165-desktop-portrait/spec.md
+          git add "$APP/app.js" "$APP/renderer.js" "$APP/tracking.mjs" "$APP/index.html" "$APP/styles.css" "$APP/mobile.mjs" "$APP/about.html" "$APP/tracking-refinement.e2e.mjs" docs/changes/165-desktop-portrait/spec.md
           if ! git diff --cached --quiet; then
             current=$(git ls-remote origin refs/heads/codex/mf-165-mobile-voice | cut -f1)
             test "$current" = "$GITHUB_SHA" || { echo 'Branch advanced; no overwrite'; exit 1; }
