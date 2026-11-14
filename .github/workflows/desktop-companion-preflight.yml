@@ -1,0 +1,35 @@
+name: Companion approved-publish preflight
+on:
+  push:
+    branches: [codex/mf-165-mobile-voice]
+    paths: [.github/workflows/desktop-companion-preflight.yml]
+permissions:
+  contents: read
+jobs:
+  target:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 3
+    environment: production
+    steps:
+      - name: Verify exact existing companion target without publishing
+        env:
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+        run: |
+          python3 - <<'PY'
+          import os,json,urllib.request,urllib.parse,urllib.error
+          token=os.environ.get('NETLIFY_AUTH_TOKEN','')
+          target='polite-semolina-b478fc.netlify.app'
+          if not token:
+            print('PUBLISH_BLOCKED: existing NETLIFY_AUTH_TOKEN is not available in production environment. No deployment attempted.')
+            raise SystemExit(0)
+          url='https://api.netlify.com/api/v1/sites?'+urllib.parse.urlencode({'name':'polite-semolina-b478fc','per_page':100})
+          try:
+            req=urllib.request.Request(url,headers={'Authorization':'Bearer '+token,'User-Agent':'MetaFlow-companion-preflight/1.0'})
+            with urllib.request.urlopen(req,timeout=30) as r: sites=json.load(r)
+            matches=[s for s in sites if s.get('name')=='polite-semolina-b478fc' and any(urllib.parse.urlparse(s.get(k,'') or '').hostname==target for k in ['url','ssl_url'])]
+            if len(matches)!=1:
+              print('PUBLISH_BLOCKED: exact existing companion target not uniquely available. Main site untouched.');raise SystemExit(0)
+            s=matches[0]
+            print('PUBLISH_TARGET_VERIFIED',json.dumps({'id':s['id'],'name':s['name'],'url':s.get('ssl_url') or s.get('url'),'publishedDeployId':(s.get('published_deploy') or {}).get('id'),'deploysLocked':s.get('build_settings',{}).get('stop_builds',False)}))
+          except urllib.error.HTTPError as e:print('PUBLISH_BLOCKED: Netlify API HTTP',e.code,'; no response body or credential logged.')
+          PY
