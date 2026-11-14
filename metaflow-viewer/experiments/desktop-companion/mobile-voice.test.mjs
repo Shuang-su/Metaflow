@@ -36,7 +36,8 @@ test('invalid metrics do not produce NaN calibration',()=>{
   assert.equal(mobileProfileValues('manual'),null);
 });
 test('mini reference uses panel pixels/ppi, not chassis dimensions',()=>{
-  assert.ok(Math.abs(mobileProfileValues('ipad-mini',{canvasWidth:744,screenWidth:744,screenHeight:1133}).width-11.593865)<.00001);
+  // Independently calculated: 1488 pixels / 326 ppi * 2.54 cm/inch.
+  assert.ok(Math.abs(mobileProfileValues('ipad-mini',{canvasWidth:744,screenWidth:744,screenHeight:1133}).width-11.593619631901841)<1e-9);
 });
 test('rotation preserves measured CSS density but rejects display/zoom changes',()=>{
   const c={cmPerPixel:.02,reference:{dpr:2,scale:1,screenWidth:744,screenHeight:1133}};
@@ -50,7 +51,8 @@ test('touch zoom and render density are bounded',()=>{
 for(const name of Object.keys(GESTURES))test(`${name}: bounded movement, neutral boundaries and VRM axes`,()=>{
   assert.equal(gesturePose(name,-1).done,true);assert.equal(gesturePose(name,GESTURES[name]).done,true);
   for(let t=0;t<GESTURES[name];t+=.01){const p=gesturePose(name,t);assert.ok(Math.abs(p.pitch)<=.2&&Math.abs(p.yaw)<=.25&&Math.abs(p.spine)<=.23);assert.ok(p.wave>=0&&p.wave<=1);}
-  assert.equal(gesturePose(name,.6,-1).pitch,-gesturePose(name,.6,1).pitch);
+  // +0 and -0 have identical physical meaning; compare numeric axis symmetry.
+  assert.ok(Math.abs(gesturePose(name,.6,-1).pitch+gesturePose(name,.6,1).pitch)<1e-12);
 });
 test('gestures replace, stop and expire without timers',()=>{
   const p=createGesturePlayer();assert.equal(p.play('unknown',0),false);p.play('wave',10);p.play('nod',11);assert.equal(p.active,'nod');p.sample(20);assert.equal(p.active,null);p.play('bow',21);p.stop();assert.equal(p.active,null);
