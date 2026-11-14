@@ -1,0 +1,36 @@
+{
+  "status": "published-and-http-verified",
+  "publishedAtUtc": "2026-11-14T07:29:01Z",
+  "publishedAtBeijing": "2026-11-14T15:29:01+08:00",
+  "release": "companion-2026-11-14.2",
+  "url": "https://polite-semolina-b478fc.netlify.app/",
+  "preview": "https://6af80db23fad34d338846a09--polite-semolina-b478fc.netlify.app/",
+  "deployId": "6af80db23fad34d338846a09",
+  "previousDeployId": "6af750654bfc1472f4a0d8dd",
+  "sourceRef": "ff5204c8dff1e43d7c426575425231b9621657f7",
+  "mainMergeCommit": "1a4b600e2d6f71821af1189a4463f77167868968",
+  "pullRequest": "https://github.com/Shuang-su/Metaflow/pull/169",
+  "publicationRun": "https://github.com/Shuang-su/Metaflow/actions/runs/43571264296",
+  "publicationJob": 132375985584,
+  "publicationResultArtifact": 14103779871,
+  "validatedRun": "https://github.com/Shuang-su/Metaflow/actions/runs/43570201947",
+  "runtimeArtifact": 14103948353,
+  "runtimeArtifactSha256": "365f47691a1f5c5eb59090c12bff92dfefb9b1b153ef41f8d0cfd42df184ec04",
+  "staticFiles": 43,
+  "productionVerification": {
+    "method": "HTTP fetch and byte-for-byte SHA-256 comparison against the tested artifact, first on the unique draft and then on the exact production hostname",
+    "verifiedFiles": ["release.json", "index.html", "app.js", "renderer.js", "head-estimator.mjs", "palm-facing.mjs", "tracking.mjs", "tracking-preview.mjs", "mobile.mjs"],
+    "result": "passed",
+    "rollbackPerformed": false
+  },
+  "validation": {
+    "unitAndLifecycleTestsPassed": 41,
+    "browser": "Chromium/software WebGL with viewport emulation and synthetic camera stream",
+    "scenarios": ["iPhone", "iPad mini", "Mac", "iPhone Air orientation and quiet video", "Wenjing and reconstruction screen-facing palm"],
+    "physicalAppleDeviceTested": false,
+    "realSideFaceDetectionAccuracyMeasured": false
+  },
+  "features": ["iPhone Air manual calibration preset", "default-hidden opt-in camera preview", "whole-face/head-assisted observer tracking", "hold-last-view and stable-single-face automatic reacquisition", "screen-facing palm and reduced forearm twisting", "retained mobile gestures and local speech/audio"],
+  "isolation": "Only the existing standalone companion site was published. Main Viewer/Editor/Director deployment targets and production protection rules were not modified.",
+  "notes": "This completed publication supersedes the earlier not-yet-published status in companion-release.md. Real iPhone Air/Safari, side-face recognition success rate, physical calibration accuracy and sustained thermals remain unverified. No original-character voice, cloud AI dialogue or TrueDepth integration is claimed."
+}
