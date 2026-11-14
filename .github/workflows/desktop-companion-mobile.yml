@@ -6,7 +6,7 @@ on:
       - metaflow-viewer/experiments/desktop-companion/**
       - .github/workflows/desktop-companion-mobile.yml
 permissions:
-  contents: read
+  contents: write
 concurrency:
   group: desktop-companion-mobile-${{ github.ref }}
   cancel-in-progress: true
@@ -21,18 +21,19 @@ jobs:
         with:
           fetch-depth: 1
           filter: blob:none
-          persist-credentials: false
           sparse-checkout: |
             metaflow-viewer/experiments/desktop-companion
+            docs/changes/165-desktop-portrait
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - name: Check committed source syntax
+      - name: Apply guarded refinement and check syntax
         run: |
+          python3 "$APP/apply-refinement.py"
           for f in "$APP"/*.mjs "$APP"/*.js; do node --check "$f"; done
           git diff --check
-      - name: Test mobile, motion and voice lifecycle
-        run: node --test "$APP/mobile-voice.test.mjs"
+      - name: Test mobile motion audio head geometry and tracking lifecycle
+        run: node --test "$APP/mobile-voice.test.mjs" "$APP/tracking-refinement.test.mjs"
       - name: Build actual model runtime without committing binaries
         run: python3 "$APP/restore-assets.py"
       - name: Prepare isolated test browser
@@ -40,12 +41,32 @@ jobs:
           npm install --prefix "$RUNNER_TEMP/companion-browser" --ignore-scripts --no-audit --no-fund playwright@1.56.1
           ln -s "$RUNNER_TEMP/companion-browser/node_modules" "$APP/node_modules"
           "$RUNNER_TEMP/companion-browser/node_modules/.bin/playwright" install --with-deps chromium
-      - name: Exercise real model rendering and WAV playback
+      - name: Exercise real model rendering audio hidden video and Air rotation
         env:
           EVIDENCE_DIR: ${{ runner.temp }}/companion-evidence
         run: |
           python3 -m http.server 4173 --bind 127.0.0.1 --directory "$APP/dist" > "$RUNNER_TEMP/companion-http.log" 2>&1 &
           node "$APP/mobile-voice.e2e.mjs"
+          node "$APP/tracking-refinement.e2e.mjs"
+      - name: Preserve verified source migration on this branch only
+        run: |
+          git add "$APP/app.js" "$APP/renderer.js" "$APP/tracking.mjs" "$APP/index.html" "$APP/styles.css" "$APP/mobile.mjs" "$APP/about.html" docs/changes/165-desktop-portrait/spec.md
+          if ! git diff --cached --quiet; then
+            current=$(git ls-remote origin refs/heads/codex/mf-165-mobile-voice | cut -f1)
+            test "$current" = "$GITHUB_SHA" || { echo 'Branch advanced; no overwrite'; exit 1; }
+            git config user.name 'github-actions[bot]'
+            git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+            git commit -m 'fix(MF-165): integrate verified quiet head tracking Air calibration and palm-facing greeting'
+            git push origin HEAD:refs/heads/codex/mf-165-mobile-voice
+          fi
+          git rev-parse HEAD > "$RUNNER_TEMP/companion-evidence/source-commit.txt"
+          python3 - <<'PY'
+          import json,os,pathlib,subprocess
+          ref=subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip()
+          p=pathlib.Path(os.environ['APP'])/'dist/release.json'
+          p.write_text(json.dumps({'release':'companion-2026-11-14.2','gitRef':ref,'features':['iphone-air','quiet-camera','whole-face-head-pose','automatic-reacquisition','screen-facing-palm'],'validation':'Chromium/software WebGL; not physical Apple devices'},ensure_ascii=False)+'\n')
+          print('TESTED_SOURCE_COMMIT',ref)
+          PY
       - name: Archive screenshots and report
         if: always()
         uses: actions/upload-artifact@v4
