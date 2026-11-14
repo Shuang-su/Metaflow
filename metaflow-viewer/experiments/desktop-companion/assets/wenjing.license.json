@@ -1,0 +1,265 @@
+{
+  "catalog_url": "https://marketplace.laplace.live/api/items",
+  "catalog_item": {
+    "id": "Wenjing-VRM",
+    "kind": "vrm",
+    "name": "Wenjing VRM",
+    "version": "1.0.0",
+    "author": "LAPLACE Live! × 彩茫",
+    "thumbnailUrl": "https://downloads.vrp.moe/persona-marketplace/Wenjing-VRM/36cc9fa1182b/thumbnail.avif",
+    "download": {
+      "url": "https://downloads.vrp.moe/persona-marketplace/Wenjing-VRM/3920112d9727/Wenjing-VRM.zip",
+      "size": 17966649,
+      "sha256": "3920112d9727b33378971fe1a23c245a94733106b3cc9878a4830b22a6f0281a"
+    }
+  },
+  "archive_sha256_verified": true,
+  "archive_member": "Wenjing.vrm",
+  "archive_files": [
+    {
+      "path": "Wenjing.vrm",
+      "bytes": 32201048,
+      "sha256": "a2fcc39bb93b57519aa718b10873a9d39f53f24b70e03c17ba9c6291e01a8add"
+    }
+  ],
+  "model_bytes": 32201048,
+  "model_sha256": "a2fcc39bb93b57519aa718b10873a9d39f53f24b70e03c17ba9c6291e01a8add",
+  "vrm_extension": "VRM",
+  "vrm_spec_version": "0.0",
+  "model_meta": {
+    "allowedUserName": "Everyone",
+    "author": "LAPLACE Live! × 彩茫",
+    "commercialUssageName": "Disallow",
+    "contactInformation": "https://laplace.live/persona",
+    "licenseName": "CC_BY_NC_SA",
+    "otherLicenseUrl": "",
+    "otherPermissionUrl": "https://laplace.live/persona/license",
+    "reference": "https://laplace.live/persona",
+    "sexualUssageName": "Disallow",
+    "texture": 28,
+    "title": "Wenjing",
+    "version": "1.0",
+    "violentUssageName": "Disallow"
+  },
+  "external_resources": [],
+  "source_documentation": [
+    "https://laplace.live/persona/vrm?locale=en",
+    "https://laplace.live/persona/models?locale=en"
+  ],
+  "retrieval_method": "Ordinary browser download from the exact URL observed in the public LAPLACE Persona catalog. The original archive hash was verified before safe extraction.",
+  "required_attribution": "LAPLACE Live! × 彩茫",
+  "license": {
+    "name": "CC BY-NC-SA 4.0",
+    "url": "https://creativecommons.org/licenses/by-nc-sa/4.0/",
+    "declared_by": "LAPLACE Persona model documentation; embedded meta licenseName=CC_BY_NC_SA, commercialUssageName=Disallow.",
+    "scope": "Noncommercial evaluation sample. Keep author attribution; adaptations are subject to the stated ShareAlike license. No commercial grant is claimed."
+  },
+  "modifications": "Original VRM geometry, texture, metadata, and animation bytes remain unchanged. Current transport is deterministic lossless gzip (level 9, mtime 0, no filename header), which decompresses byte-for-byte to the source archive member. The earlier two-part raw transport trial is retained in history. Runtime-only adaptation corrects VRM0 arm-pose and gaze axes and binds 13 empty expression slots only to exact existing Fcl_* morph names; existing bindings and the VRM1 control pose are preserved. These in-memory changes are not saved into the model or gzip transport.",
+  "hosting": {
+    "display_label": "文镜 · 作者目录版",
+    "default_avatar": true,
+    "optional_avatar": false,
+    "format": "Deterministic lossless gzip; not image compression or model conversion.",
+    "selectable_avatar": true,
+    "default_selection_context": "Default selected following the user reference-model correction. The previous Milky Green reconstruction remains separately selectable as requested; local VRM import remains available.",
+    "transport_history": [
+      {
+        "format": "Ordered raw byte parts",
+        "status": "Superseded by lossless gzip; former files removed from dist.",
+        "parts": [
+          {
+            "path": "wenjing-01.vrmpart",
+            "bytes": 16777216,
+            "sha256": "94c6cbddc4481d6f6c5abdcbf259b499b4b8236a8be4817f5693d13958d2c080"
+          },
+          {
+            "path": "wenjing-02.vrmpart",
+            "bytes": 15423832,
+            "sha256": "8ee9edfc8b5a0fd3f2d89f18ba12dd2d50e1746bc10d10e949de4a759ce8e54a"
+          }
+        ],
+        "recombined_bytes": 32201048,
+        "recombined_sha256": "a2fcc39bb93b57519aa718b10873a9d39f53f24b70e03c17ba9c6291e01a8add"
+      }
+    ],
+    "path": "dist/assets/wenjing.vrm.gz",
+    "sha256": "4e417a506cfe61b8c3fed49668b60c81a4b097ef4351830f774aa74992fcc67c",
+    "descriptor": {
+      "url": "./assets/wenjing.vrm.gz",
+      "bytes": 17958450,
+      "decodedBytes": 32201048,
+      "compression": "gzip"
+    },
+    "decoded_sha256": "a2fcc39bb93b57519aa718b10873a9d39f53f24b70e03c17ba9c6291e01a8add",
+    "gzip_parameters": {
+      "level": 9,
+      "mtime": 0,
+      "filename_header": false
+    },
+    "gzip_binary_reduction_bytes": 14242598,
+    "decompression": "Native DecompressionStream preferred; fixed official fflate 0.8.2 streaming Gunzip compatibility fallback, served locally."
+  },
+  "reference_video": {
+    "url": "https://www.bilibili.com/video/av117518123472460/",
+    "model": "Wenjing / 文镜",
+    "author": "LAPLACE Live! × 彩茫",
+    "scope": "Name and credit match public page description and Persona catalog. The first video did not provide a playable frame during the observed redirect, so pixel/appearance identity is not asserted.",
+    "visual_match_verified": false
+  },
+  "identity_scope": "A source-linked Wenjing sample from the credited author catalog. Its embedded name and author match the first reference video description; this does not assert that its file bytes or rendered appearance are identical to the particular video model, and does not identify the separate Live2D references as this VRM.",
+  "validation_limit": "Archive and transport integrity, source metadata, CPU geometry/expression compatibility, production gzip reading through native and fflate paths, and real cloud-browser texture decoding are verified within their stated scopes. No GPU rendering, physical camera, Mac Safari, or video-frame appearance acceptance is claimed.",
+  "runtime_adapter": {
+    "source_file_changed": false,
+    "scope": "In-memory renderer compatibility for VRM0 axis conventions and empty expression slots. Source VRM bytes remain unchanged through the lossless gzip transport.",
+    "axis_corrections": [
+      "VRM0 arm-pose axes",
+      "VRM0 gaze axes"
+    ],
+    "expression_binding_rule": "Only empty expressions with exact known Fcl_* morph target names in the loaded model are repaired; existing expression bindings are preserved.",
+    "expression_repairs": [
+      {
+        "expression": "neutral",
+        "target": "Fcl_ALL_Neutral",
+        "primitives": 6
+      },
+      {
+        "expression": "happy",
+        "target": "Fcl_ALL_Joy",
+        "primitives": 6
+      },
+      {
+        "expression": "angry",
+        "target": "Fcl_ALL_Angry",
+        "primitives": 6
+      },
+      {
+        "expression": "sad",
+        "target": "Fcl_ALL_Sorrow",
+        "primitives": 6
+      },
+      {
+        "expression": "relaxed",
+        "target": "Fcl_ALL_Fun",
+        "primitives": 6
+      },
+      {
+        "expression": "blink",
+        "target": "Fcl_EYE_Close",
+        "primitives": 6
+      },
+      {
+        "expression": "blinkLeft",
+        "target": "Fcl_EYE_Close_L",
+        "primitives": 6
+      },
+      {
+        "expression": "blinkRight",
+        "target": "Fcl_EYE_Close_R",
+        "primitives": 6
+      },
+      {
+        "expression": "aa",
+        "target": "Fcl_MTH_A",
+        "primitives": 6
+      },
+      {
+        "expression": "ih",
+        "target": "Fcl_MTH_I",
+        "primitives": 6
+      },
+      {
+        "expression": "ou",
+        "target": "Fcl_MTH_U",
+        "primitives": 6
+      },
+      {
+        "expression": "ee",
+        "target": "Fcl_MTH_E",
+        "primitives": 6
+      },
+      {
+        "expression": "oh",
+        "target": "Fcl_MTH_O",
+        "primitives": 6
+      }
+    ],
+    "cpu_validation": {
+      "passed": true,
+      "implementation": "Real vendored GLTF/VRM parsers, actual renderer pose/look/expression/scale helpers, CPU skin and morph vertices.",
+      "texture_decoding": "Explicit 1x1 mock; no texture/shader appearance validation.",
+      "blink_max_vertex_delta_source_metres": 0.02490220110874945,
+      "aa_max_vertex_delta_source_metres": 0.012623811466476864,
+      "vrm1_control": "Existing bindings and pose preserved; no expression repairs required.",
+      "limits": "No GPU, shader/texture pixels, actual browser view, performance or video-frame appearance identity verified. Empty VRM0 expression repair is limited to exact known Fcl_* names."
+    }
+  },
+  "catalog_thumbnail_observation": {
+    "url": "https://downloads.vrp.moe/persona-marketplace/Wenjing-VRM/36cc9fa1182b/thumbnail.avif",
+    "observation_method": "Ordinary public browser observation of the external catalog thumbnail.",
+    "features": [
+      "brown hair with side braid",
+      "green fringe",
+      "clover motif"
+    ],
+    "scope": "Consistent with observed Live2D design features. This is not a GPU-rendered model or pixel-level video comparison. The embedded image named Thumbnail is a facial texture image."
+  },
+  "browser_decode_validation": {
+    "passed": true,
+    "environment": "Cloud Chrome on Linux",
+    "transport": "Both parts returned HTTP 200 with exact sizes; concatenated whole-model SHA-256 verified.",
+    "loader": "Actual vendored GLTFLoader and VRMLoaderPlugin with native ImageBitmapLoader.",
+    "real_nonzero_image_bitmaps": 29,
+    "raw_humanoid_bones": 54,
+    "normalized_humanoid_bones": 54,
+    "skinned_meshes": 22,
+    "unique_morph_names": 109,
+    "elapsed_milliseconds": 2144,
+    "cleanup": "Completed without errors.",
+    "limits": "No WebGLRenderer or GPU rendering was used; no physical camera, Mac Safari, performance acceptance, or video-frame identity is implied.",
+    "transport_status": "Historical validation of the earlier raw-parts transport; model decoding evidence is retained. This is not a claim that the subsequent gzip reader was exercised in that run."
+  },
+  "gzip_packaging_validation": {
+    "bytes": 17958450,
+    "sha256": "4e417a506cfe61b8c3fed49668b60c81a4b097ef4351830f774aa74992fcc67c",
+    "decoded_bytes": 32201048,
+    "decoded_sha256": "a2fcc39bb93b57519aa718b10873a9d39f53f24b70e03c17ba9c6291e01a8add",
+    "decompressed_byte_identical_to_source": true,
+    "gzip_mtime": 0,
+    "filename_header_absent": true,
+    "scope": "Lossless packaging integrity; separate from GPU, camera, and physical-device acceptance."
+  },
+  "gzip_browser_decode_validation": {
+    "passed": true,
+    "environment": "Cloud Chrome on Linux",
+    "method": "Ordinary browser activation of the native and fflate test buttons, both using the production model-source.mjs readModel implementation followed by actual vendored GLTFLoader/VRMLoaderPlugin and native ImageBitmapLoader.",
+    "paths": {
+      "native": {
+        "passed": true,
+        "elapsed_milliseconds": 4146
+      },
+      "fflate": {
+        "passed": true,
+        "elapsed_milliseconds": 3255
+      }
+    },
+    "compressed_bytes": 17958450,
+    "decoded_bytes": 32201048,
+    "decoded_sha256": "a2fcc39bb93b57519aa718b10873a9d39f53f24b70e03c17ba9c6291e01a8add",
+    "real_nonzero_image_bitmaps": 29,
+    "runtime_textures": 94,
+    "raw_humanoid_bones": 54,
+    "normalized_humanoid_bones": 54,
+    "skinned_meshes": 22,
+    "unique_morph_names": 109,
+    "progress_monotonic": true,
+    "cleanup": {
+      "geometries": 22,
+      "materials": 37,
+      "skeletons": 17,
+      "textures": 94,
+      "image_bitmaps": 29,
+      "errors": 0
+    },
+    "limits": "No WebGL renderer or GPU rendering was used. These checks do not establish Mac Safari, physical camera operation, physical-device appearance, video-frame identity, or a performance benchmark."
+  }
+}

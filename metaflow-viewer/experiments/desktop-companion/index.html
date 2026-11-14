@@ -1,0 +1,229 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#edf1e7">
+  <meta name="description" content="Mac 与 iPad 的三维桌面窗口。保留明前奶绿重建版，也可导入 VRM；校准屏幕与镜头，使用真实摄像头跟随观看位置。">
+  <title>桌面人像 · Mac / iPad · MetaFlow</title>
+  <link rel="stylesheet" href="./styles.css">
+  <script type="importmap">{"imports":{"three":"./vendor/three.module.js","@pixiv/three-vrm":"./vendor/three-vrm.module.min.js"}}</script>
+</head>
+<body>
+  <div class="app" id="app">
+    <main id="stage" class="stage" aria-label="全屏三维桌面窗口">
+      <canvas id="scene" tabindex="0" aria-label="三维桌面；拖动或使用方向键改变观看位置，R 键复位"></canvas>
+      <section id="model-empty" class="model-empty glass" hidden aria-labelledby="model-empty-title">
+        <span class="eyebrow">MAC / IPAD · VRM</span>
+        <h2 id="model-empty-title">选择桌面上的角色</h2>
+        <p>可选择作者目录中的文镜、保留的明前奶绿重建版，或导入自己的 VRM。先在模型检查视图确认外观，再放进桌面窗口。</p>
+        <button id="load-default-model" class="button primary" type="button">载入文镜 · 作者目录版</button>
+        <button id="import-start" class="button" type="button">导入其他 VRM</button>
+        <span class="micro">文件仅在当前浏览器读取，不上传。</span>
+      </section>
+      <div id="caption" class="caption" hidden aria-live="polite"></div>
+      <div id="loading" class="loading" hidden role="status" aria-live="polite">
+        <div class="loading-inner">
+          <span class="loading-mark" aria-hidden="true">m</span>
+          <span class="eyebrow">一个小小的三维世界</span>
+          <strong id="load-message">正在准备角色</strong>
+          <progress id="load-progress" max="100" aria-label="角色加载进度"></progress>
+        </div>
+      </div>
+      <div id="render-error" class="render-error" hidden role="alert">三维画面暂未打开，请稍后重试。</div>
+    </main>
+
+    <header class="scene-header hud">
+      <div class="scene-identity glass">
+        <span class="brand-mark" aria-hidden="true">m</span>
+        <div class="identity-copy">
+          <div class="identity-title"><strong id="scene-name">桌面人像</strong><span class="brand-name">MetaFlow</span></div>
+          <div class="scene-state"><span class="status-dot" aria-hidden="true"></span><span id="activity">准备中</span><span class="state-divider" aria-hidden="true">·</span><span id="view-label">手动观察</span></div>
+        </div>
+      </div>
+      <div class="header-actions">
+        <button id="display" class="button glass" type="button">
+          <svg aria-hidden="true" viewBox="0 0 24 24"><path d="M8 3H4a1 1 0 0 0-1 1v4m13-5h4a1 1 0 0 1 1 1v4M3 16v4a1 1 0 0 0 1 1h4m8 0h4a1 1 0 0 0 1-1v-4"/></svg>
+          <span>纯净展示</span>
+        </button>
+        <button id="settings-toggle" class="button glass" type="button" aria-controls="settings-panel" aria-expanded="false">
+          <svg aria-hidden="true" viewBox="0 0 24 24"><path d="M4 7h9m4 0h3M4 17h3m4 0h9"/><circle cx="15" cy="7" r="2"/><circle cx="9" cy="17" r="2"/></svg>
+          <span>调整</span>
+        </button>
+      </div>
+    </header>
+
+    <section id="camera-card" class="camera-card glass hud" hidden aria-label="真实摄像头取景">
+      <div class="camera-card-heading"><span class="camera-live-dot" aria-hidden="true"></span><strong>摄像头取景</strong><span>实时</span></div>
+      <div class="camera-viewport">
+        <div id="camera-preview" class="camera-preview" aria-label="摄像头实时画面"></div>
+        <canvas id="camera-overlay" aria-label="实时面部追踪标记"></canvas>
+        <div class="camera-frame-guide" aria-hidden="true"></div>
+      </div>
+      <div class="camera-card-body">
+        <p id="tracking-status" class="tracking-status" aria-live="polite">前摄尚未开启</p>
+        <div class="quality-line"><label for="tracking-meter">校准进度</label><output id="tracking-quality">等待追踪</output></div>
+        <progress id="tracking-meter" max="1" value="0" aria-label="稳定眼位校准进度"></progress>
+        <div class="camera-actions">
+          <button id="recenter" class="button small" type="button">重新居中</button>
+          <button id="camera-stop" class="button small quiet" type="button">关闭相机</button>
+        </div>
+      </div>
+    </section>
+    <div id="screen-ruler" class="screen-ruler glass hud" hidden aria-label="五厘米屏幕校准尺"><span id="ruler-label">用实体尺核对：5 cm</span><div id="ruler-line" class="ruler-line"></div></div>
+
+    <div class="scene-dock hud">
+      <p id="notice" class="notice glass" role="status" aria-live="polite">先在「调整」中量准屏幕，再开启前摄追踪。</p>
+      <div class="command-bar glass" aria-label="场景操作">
+        <button id="camera-start" class="button primary" type="button">
+          <svg aria-hidden="true" viewBox="0 0 24 24"><rect x="3" y="6" width="13" height="12" rx="3"/><path d="m16 10 5-3v10l-5-3"/></svg>
+          <span>开启前摄追踪</span>
+        </button>
+        <span class="command-divider" aria-hidden="true"></span>
+        <button id="wave" class="button quiet" type="button" disabled>打个招呼</button>
+        <button id="speak" class="button quiet" type="button" disabled>说一句</button>
+      </div>
+    </div>
+
+    <button id="leave-display" class="button glass display-exit" type="button" hidden>
+      <svg aria-hidden="true" viewBox="0 0 24 24"><path d="M9 3v5a1 1 0 0 1-1 1H3m12-6v5a1 1 0 0 0 1 1h5M3 15h5a1 1 0 0 1 1 1v5m12-6h-5a1 1 0 0 0-1 1v5"/></svg>
+      <span>显示控制</span>
+    </button>
+
+    <aside id="settings-panel" class="settings-panel glass" hidden aria-labelledby="settings-title">
+      <div class="settings-heading">
+        <div><span class="eyebrow">让屏幕成为一扇窗</span><h1 id="settings-title">屏幕与视角</h1></div>
+        <button id="close-settings" class="button icon-button quiet" type="button" aria-label="收起调整面板">
+          <svg aria-hidden="true" viewBox="0 0 24 24"><path d="m6 6 12 12M18 6 6 18"/></svg>
+        </button>
+      </div>
+      <div class="settings-scroll">
+        <section class="setup-guide" aria-label="前摄设置流程">
+          <button id="fullscreen-calibrate" class="button full-width" type="button">进入全屏校准</button>
+          <button id="exit-fullscreen" class="button full-width quiet" type="button" hidden>退出浏览器全屏</button>
+          <ol class="setup-steps"><li>量画布宽</li><li>选镜头位置</li><li>开启前摄</li><li>坐好居中</li></ol>
+          <p id="camera-step" class="setup-status" role="status" aria-live="polite">1 / 4 · 先量一下可见画布的实际宽度。</p>
+        </section>
+
+        <section class="settings-section">
+          <div class="section-heading"><span class="section-number">01</span><h2>屏幕</h2></div>
+          <label class="field-label" for="device-preset">使用设备</label>
+          <select id="device-preset">
+            <option value="macbook">MacBook · 内置屏幕</option>
+            <option value="mac-desktop">Mac · 外接显示器 / iMac</option>
+            <option value="ipad-12.9-landscape" selected>iPad 12.9 英寸 · 横屏</option>
+            <option value="ipad-11-landscape">iPad 11 英寸 · 横屏</option>
+            <option value="manual">手动测量</option>
+          </select>
+          <p id="device-help" class="micro"></p>
+          <label class="slider-label" for="width"><span>可见画布宽度</span><output id="width-value" for="width">26.2 cm</output></label>
+          <input id="width" type="range" min="5" max="120" step="0.01" value="26.2">
+          <p class="micro">量三维画布，不是整个显示器。也可调节此项，让下方校准尺与实体尺的标示长度相等。</p>
+          <label class="toggle"><span>显示屏幕校准尺</span><input id="show-ruler" type="checkbox"></label>
+          <button id="confirm-calibration" class="button full-width" type="button">确认画布与镜头位置</button>
+          <p id="display-calibration-status" class="micro" role="status">先量准画布，在下一节填写镜头位置，再点击确认。确认前可取景，但画面不跟随眼位。</p>
+          <label class="slider-label" for="tilt"><span>屏幕与桌面夹角</span><output id="tilt-value" for="tilt">65°</output></label>
+          <input id="tilt" type="range" min="25" max="90" step="0.1" value="65">
+          <button id="motion-start" class="button full-width" type="button">读取设备倾角</button>
+          <p id="motion-status" class="micro" role="status">未读取设备倾角</p>
+        </section>
+
+        <section class="settings-section">
+          <div class="section-heading"><span class="section-number">02</span><h2>摄像头与眼位</h2></div>
+          <label class="field-label" for="camera-device">选择摄像头</label>
+          <select id="camera-device"><option value="">自动选择摄像头</option></select>
+          <button id="camera-refresh" class="button full-width quiet" type="button">刷新摄像头列表</button>
+          <p id="camera-device-status" class="micro" role="status">允许相机后，浏览器才可能显示完整设备名称。</p>
+          <div id="mac-camera-help" class="device-note" hidden>
+            <strong>Mac 校准前</strong>
+            <p>关闭“人物居中 / Center Stage”和自动构图，固定相机缩放。使用朝向自己、靠近当前屏幕的摄像头；窗口模式下请选“自定义镜头位置”，相对可见画布中心量取镜头偏移。</p>
+            <p>权限被拒时，检查 Safari 的“设置 → 网站 → 摄像头”，以及 macOS“系统设置 → 隐私与安全性 → 摄像头”。</p>
+          </div>
+          <label class="field-label spaced-label" for="camera-placement">镜头所在边</label>
+          <select id="camera-placement">
+            <option value="top" selected>屏幕上边</option>
+            <option value="left">屏幕左边</option>
+            <option value="right">屏幕右边</option>
+            <option value="custom">自定义镜头位置</option>
+          </select>
+          <label class="slider-label" for="distance"><span>眼睛到屏幕法向距离</span><output id="distance-value" for="distance">55 cm</output></label>
+          <input id="distance" type="range" min="25" max="120" step="1" value="55">
+          <p class="micro">沿垂直于屏幕的方向测量距离。</p>
+          <details id="camera-offset-fields" class="advanced-fields">
+            <summary>精确调整镜头与眼位</summary>
+            <p class="micro">以可见三维画布中心为原点，向右、向上为正。窗口移动或切换显示器后重新测量。</p>
+            <label class="slider-label" for="camera-x"><span>镜头左右位置</span><output id="camera-x-value" for="camera-x">0 cm</output></label>
+            <input id="camera-x" type="range" min="-40" max="40" step="0.1" value="0">
+            <label class="slider-label" for="camera-y"><span>镜头上下位置</span><output id="camera-y-value" for="camera-y">10 cm</output></label>
+            <input id="camera-y" type="range" min="-40" max="40" step="0.1" value="10">
+            <label class="slider-label" for="ipd"><span>瞳距</span><output id="ipd-value" for="ipd">6.3 cm</output></label>
+            <input id="ipd" type="range" min="5" max="7.5" step="0.1" value="6.3">
+            <label class="slider-label" for="eye-x"><span>手动眼位左右</span><output id="eye-x-value" for="eye-x">0 cm</output></label>
+            <input id="eye-x" type="range" min="-30" max="30" step="0.1" value="0">
+            <label class="slider-label" for="eye-y"><span>手动眼位上下</span><output id="eye-y-value" for="eye-y">2.5 cm</output></label>
+            <input id="eye-y" type="range" min="-30" max="30" step="0.1" value="2.5">
+          </details>
+          <label class="toggle"><span>显示真实相机取景</span><input id="show-preview" type="checkbox" checked></label>
+        </section>
+
+        <section class="settings-section">
+          <div class="section-heading"><span class="section-number">03</span><h2>观察方式</h2></div>
+          <div class="segmented two" aria-label="视图">
+            <button type="button" data-view="tabletop" aria-pressed="true">桌面窗口</button>
+            <button type="button" data-view="inspect" aria-pressed="false">模型检查</button>
+          </div>
+          <p id="view-help" class="micro">桌面窗口随眼位改变透视；模型检查使用普通透视，方便核对人物外观。</p>
+          <div class="segmented" aria-label="观察方式">
+            <button type="button" data-mode="camera" aria-pressed="false">相机追踪</button>
+            <button type="button" data-mode="manual" aria-pressed="true">手动观察</button>
+            <button type="button" data-mode="auto" aria-pressed="false">演示视差</button>
+          </div>
+          <p class="micro">先点击画面。拖动 / 方向键调整；R 复位。模型检查中可用滚轮或触控板缩放。</p>
+          <label class="toggle"><span>角色看向我</span><input id="gaze" type="checkbox" checked></label>
+          <label class="toggle"><span>呼吸与眨眼</span><input id="animate" type="checkbox" checked></label>
+        </section>
+
+        <section class="settings-section">
+          <div class="section-heading"><span class="section-number">04</span><h2>角色与空间</h2></div>
+          <label class="field-label" for="model-choice">选择角色</label>
+          <select id="model-choice">
+            <option value="empty" disabled>请选择角色</option>
+            <option value="wenjing" selected>文镜 · 作者目录版（非商用演示）</option>
+            <option value="reconstruction">明前奶绿 · 重建版</option>
+            <option id="local-model-option" value="local" disabled>本地导入的 VRM</option>
+          </select>
+          <p id="model-label" class="model-label">文镜 · 作者目录版</p>
+          <button id="import" class="button full-width" type="button">导入其他 VRM</button>
+          <button id="retry-model" class="button full-width quiet" type="button" hidden>重新载入所选角色</button>
+          <button id="clear-model" class="button full-width quiet" type="button" disabled>移除当前角色</button>
+          <input id="file" type="file" accept=".vrm,.glb" hidden>
+          <p id="model-credit" class="micro">LAPLACE Live! × 彩茫 · CC BY-NC-SA 4.0 · 非商用演示。明前奶绿重建版仍可切换使用；来源与许可见使用说明。</p>
+          <label class="toggle"><span>自动匹配角色高度</span><input id="auto-height" type="checkbox" checked></label>
+          <label class="slider-label" for="height"><span>角色高度</span><output id="height-value" for="height">17 cm</output></label>
+          <input id="height" type="range" min="6" max="45" step="0.1" value="17">
+          <details class="advanced-fields">
+            <summary>桌面衔接与空间深度</summary>
+            <label class="slider-label" for="floor-offset"><span>屏幕下边距桌面</span><output id="floor-offset-value" for="floor-offset">0.8 cm</output></label>
+            <input id="floor-offset" type="range" min="0" max="40" step="0.1" value="0.8">
+            <label class="slider-label" for="avatar-depth"><span>角色距屏幕深度</span><output id="avatar-depth-value" for="avatar-depth">4 cm</output></label>
+            <input id="avatar-depth" type="range" min="-4" max="60" step="0.1" value="4">
+            <p class="micro">正值在屏幕后方，负值靠近观看者。架高的显示器可增加此深度，让脚点进入可见窗口。</p>
+            <label class="slider-label" for="room-depth"><span>空间深度</span><output id="room-depth-value" for="room-depth">24 cm</output></label>
+            <input id="room-depth" type="range" min="10" max="100" step="0.1" value="24">
+          </details>
+          <label class="slider-label" for="light"><span>光线亮度</span><output id="light-value" for="light">1.00</output></label>
+          <input id="light" type="range" min="0.4" max="2" step="0.05" value="1">
+          <label class="field-label spaced-label" for="wood">桌面材质</label>
+          <select id="wood"><option value="oak" selected>浅橡木</option><option value="walnut">深胡桃木</option></select>
+          <label class="toggle"><span>显示校准网格</span><input id="grid" type="checkbox"></label>
+        </section>
+        <footer class="credits">
+          <a href='/about'>模型与使用说明<span aria-hidden="true">↗</span></a>
+          <a href="https://laplace.live/persona/vrm" target="_blank" rel="noreferrer">Persona VRM 使用文档<span aria-hidden="true">↗</span></a>
+        </footer>
+      </div>
+    </aside>
+  </div>
+  <script type="module" src="./app.js"></script>
+</body>
+</html>
