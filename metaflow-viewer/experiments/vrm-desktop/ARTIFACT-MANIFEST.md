@@ -4,7 +4,7 @@
 
 | Field | Value |
 | --- | --- |
-| Tip commit | *(see branch tip after push)* |
+| Tip commit | `c64f78feeb59cbc5d169e880c7f37ef6a1fa6682` |
 | ZIP | `/opt/cursor/artifacts/metaflow-desktop-preview.zip` |
 | ZIP SHA256 | `842df070bb700ab07aecdad675d9a4da492cb6aa638141ac5c4b80f1247a4887` |
 | Prior failed candidate | `72723d976031517db768833a7a33ab5173e159e4f968498c7f330b751c7f0d37` — **NOT approved** (hands/skirt + static look) |
