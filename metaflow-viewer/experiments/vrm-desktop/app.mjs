@@ -76,17 +76,21 @@ class DesktopPortraitApp {
         this.loadBar = document.getElementById('loadBar');
         this.retryBtn = document.getElementById('retryLoad');
         this.fsModeBanner = document.getElementById('fsModeBanner');
+        this.bootErrorEl = document.getElementById('bootError');
+        this._bootWatchdog = null;
+        this._ready = false;
+        this.loadError = null;
+        this.lastModelUrl = './models/wenjing.vrm';
+
+        this.setStatus('正在初始化场景…', 'loading');
+        window.__bootPhase = 'scene';
 
         this.scene = new THREE.Scene();
         this.scene.background = this.createGradientBackground();
         this.scene.fog = new THREE.Fog(0x1a222c, 1.4, 3.8);
 
-        this.renderer = new THREE.WebGLRenderer({
-            canvas: this.canvas,
-            antialias: true,
-            alpha: false,
-            powerPreference: 'high-performance'
-        });
+        window.__bootPhase = 'webgl';
+        this.renderer = this.createRenderer();
         this.renderer.setPixelRatio(1);
         this.renderer.outputColorSpace = THREE.SRGBColorSpace;
         this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
@@ -96,6 +100,7 @@ class DesktopPortraitApp {
 
         this.camera = new THREE.PerspectiveCamera(50, 1, 0.01, 10);
 
+        window.__bootPhase = 'settings';
         this.settings = loadSettings();
         this.params = {
             width: this.settings.widthM,
@@ -138,8 +143,6 @@ class DesktopPortraitApp {
         this.springsActive = true;
         this.springsFallbackNote = '';
         this.lastFrameTime = 0;
-        this.loadError = null;
-        this.lastModelUrl = './models/wenjing.vrm';
 
         this.displayPresets = listDisplayPresets();
         this.pendingDisplaySuggest = null;
@@ -147,6 +150,8 @@ class DesktopPortraitApp {
         this._unsubScreens = null;
         this.activeScreenKey = loadActiveScreenKey() || screenProfileKey(readBrowserDisplayLayers());
 
+        window.__bootPhase = 'controls';
+        // Wire UI before model I/O so clicks never look dead during a long VRM fetch
         this.setupControls();
         this.setupPanels();
         this.setupDevicePanel();
@@ -159,7 +164,68 @@ class DesktopPortraitApp {
         this.updateProjection();
         this.updateProjectionModeBanner();
         this.animate();
+        this.armBootWatchdog();
+        window.__bootPhase = 'loading-model';
+        this.setStatus('正在加载文镜模型…', 'loading');
         this.loadDefaultModel();
+    }
+
+    createRenderer() {
+        const attempts = [
+            { antialias: true, powerPreference: 'high-performance' },
+            { antialias: true, powerPreference: 'default' },
+            { antialias: false, powerPreference: 'default' },
+            { antialias: false, powerPreference: 'low-power' }
+        ];
+        let lastErr = null;
+        for (const opts of attempts) {
+            try {
+                const renderer = new THREE.WebGLRenderer({
+                    canvas: this.canvas,
+                    alpha: false,
+                    ...opts
+                });
+                const gl = renderer.getContext();
+                if (!gl) throw new Error('WebGL context is null');
+                this.webglOpts = opts;
+                return renderer;
+            } catch (err) {
+                lastErr = err;
+                console.warn('[boot] WebGLRenderer attempt failed', opts, err);
+            }
+        }
+        throw new Error(
+            '无法创建 WebGL 渲染器（浏览器可能禁用了硬件加速或 WebGL）。' +
+            (lastErr ? ` 详情: ${lastErr.message || lastErr}` : '')
+        );
+    }
+
+    armBootWatchdog() {
+        if (this._bootWatchdog) clearTimeout(this._bootWatchdog);
+        this._bootWatchdog = setTimeout(() => {
+            if (this._ready || this.loadError) return;
+            const phase = window.__bootPhase || 'unknown';
+            this.setStatus(
+                `启动较慢或可能卡住（阶段: ${phase}）。可点「重试加载」或检查网络/WebGL。`,
+                'error'
+            );
+            if (this.retryBtn) this.retryBtn.hidden = false;
+            window.diagnostics = {
+                ...(window.diagnostics || {}),
+                ready: false,
+                loading: true,
+                stalled: true,
+                phase,
+                bootMs: Date.now() - (window.__bootStartedAt || Date.now())
+            };
+        }, 20000);
+    }
+
+    clearBootWatchdog() {
+        if (this._bootWatchdog) {
+            clearTimeout(this._bootWatchdog);
+            this._bootWatchdog = null;
+        }
     }
 
     createGradientBackground() {
@@ -363,15 +429,24 @@ class DesktopPortraitApp {
         if (label) this.setStatus(label, 'loading');
     }
 
-    async loadVRM(url) {
+    async loadVRM(url, { retries = 2 } = {}) {
         this.lastModelUrl = url;
         this.loadError = null;
+        this._ready = false;
         this._loadGeneration = (this._loadGeneration || 0) + 1;
         const gen = this._loadGeneration;
         if (this.retryBtn) this.retryBtn.hidden = true;
+        this.armBootWatchdog();
         window.diagnostics = { ready: false, loading: true, url, generation: gen };
 
-        try {
+        let lastError = null;
+        for (let attempt = 0; attempt <= retries; attempt++) {
+          try {
+            if (attempt > 0) {
+                this.setLoadProgress(3, `加载中断，正在重试（${attempt}/${retries}）…`);
+                await new Promise((r) => setTimeout(r, 350 * attempt));
+                if (gen !== this._loadGeneration) return;
+            }
             this.setLoadProgress(5, '正在加载 VRM 模型…');
             const loader = new GLTFLoader();
             loader.register((parser) => new VRMLoaderPlugin(parser));
@@ -386,103 +461,145 @@ class DesktopPortraitApp {
                 }
             );
             if (gen !== this._loadGeneration) return;
-            this.setLoadProgress(80, '解析 VRM…');
-
-            if (!gltf.userData.vrm) {
-                throw new Error('不是有效的 VRM 文件');
+            // Continue with parse below (break out of retry loop via fallthrough)
+            lastError = null;
+            await this._finishVRMLoad(gltf, gen);
+            return;
+          } catch (error) {
+            lastError = error;
+            const msg = String(error?.message || error);
+            const retryable = /abort|network|fetch|failed to load|ERR_/i.test(msg);
+            console.warn(`[loadVRM] attempt ${attempt + 1}/${retries + 1} failed:`, msg);
+            if (!(retryable && attempt < retries && gen === this._loadGeneration)) {
+                break;
             }
-
-            if (this.vrm) {
-                this.personRoot.remove(this.vrm.scene);
-                VRMUtils.deepDispose(this.vrm.scene);
-                if (this.animator) {
-                    this.animator.dispose();
-                    this.animator = null;
-                }
-            }
-
-            this.vrm = gltf.userData.vrm;
-            this.restPoseSet = false;
-            this.metaVersion = vrmMetaVersion(this.vrm);
-
-            VRMUtils.rotateVRM0(this.vrm);
-            this.rotatedVRM0 = this.metaVersion === '0';
-
-            this.vrm.scene.traverse((obj) => {
-                if (obj.isMesh || obj.isSkinnedMesh) {
-                    obj.castShadow = true;
-                    obj.receiveShadow = true;
-                }
-            });
-
-            this.personRoot.add(this.vrm.scene);
-            this.setLoadProgress(88, '应用休息姿势并稳定弹簧…');
-
-            // Scale/place with bone anchors BEFORE spring settle (world matrices matter)
-            this.normalizeAndAnchor();
-
-            const name = vrmDisplayName(this.vrm);
-            const policy = springsPolicyForModel(name, this.metaVersion);
-            // Restore user preference, then apply per-model honest default when needed
-            this.springsEnabled = this.settings.springsEnabled !== false;
-            if (policy.defaultEnabled === false) {
-                this.springsEnabled = false;
-            }
-            const springToggle = document.getElementById('springsEnabled');
-            if (springToggle) springToggle.checked = this.springsEnabled;
-            this.springsActive = this.profile.springs && this.springsEnabled;
-            this.springsFallbackNote = !this.springsActive
-                ? (policy.reason || '弹簧骨骼已关闭')
-                : (policy.reason || '');
-
-            const poseResult = applyRestPoseAndSettle(this.vrm, this.metaVersion, {
-                settleFrames: 150,
-                updateSprings: this.springsActive
-            });
-            this.restPoseSet = poseResult.applied;
-            console.log('[Pose]', poseResult, policy);
-
-            this.normalizeAndAnchor();
-            this.animator = new VRMAnimator(this.vrm, this.camera, {
-                reducedMotion: this.caps.reducedMotion
-            });
-
-            this.setLoadProgress(100, '');
-            const springShort = this.springsActive ? '弹簧开' : '弹簧关';
-            this.setStatus(`VRM 加载成功: ${name}${this.metaVersion ? ` (VRM${this.metaVersion})` : ''} · ${springShort}`, 'success');
-            const policyEl = document.getElementById('springsPolicyNote');
-            if (policyEl) {
-                policyEl.textContent = this.springsFallbackNote || '';
-            }
-
-            window.diagnostics = {
-                ready: true,
-                loading: false,
-                generation: gen,
-                modelType: 'vrm',
-                modelName: name,
-                metaVersion: this.metaVersion,
-                rotatedVRM0: this.rotatedVRM0,
-                restPose: this.restPoseSet,
-                leftUpperArmQuat: poseResult.leftUpperArmQuat,
-                springsActive: this.springsActive,
-                springsFallbackNote: this.springsFallbackNote,
-                springsPolicy: policy,
-                quality: this.profile.id,
-                vrmMeta: this.vrm.meta,
-                hasExpressions: !!this.vrm.expressionManager,
-                hasLookAt: !!this.vrm.lookAt,
-                hasSpringBone: !!this.vrm.springBoneManager,
-                sceneRotationY: this.vrm.scene.rotation.y
-            };
-        } catch (error) {
-            console.error('VRM load error:', error);
-            this.loadError = error;
-            this.setLoadProgress(0, '');
-            this.setStatus(`加载失败: ${error.message}`, 'error');
-            if (this.retryBtn) this.retryBtn.hidden = false;
-            window.diagnostics = { ready: false, loading: false, error: String(error.message || error), generation: gen };
+          }
         }
+
+        if (gen !== this._loadGeneration) return;
+        const error = lastError || new Error('VRM load failed');
+        console.error('VRM load error:', error);
+        this.loadError = error;
+        this._ready = false;
+        this.clearBootWatchdog();
+        this.setLoadProgress(0, '');
+        this.setStatus(`加载失败: ${error.message}`, 'error');
+        if (this.retryBtn) this.retryBtn.hidden = false;
+        if (this.bootErrorEl) {
+            this.bootErrorEl.hidden = false;
+            this.bootErrorEl.textContent = String(error?.stack || error);
+        }
+        window.diagnostics = {
+            ready: false,
+            loading: false,
+            error: String(error.message || error),
+            generation: gen,
+            phase: window.__bootPhase || 'load-error',
+            bootMs: Date.now() - (window.__bootStartedAt || Date.now())
+        };
+    }
+
+    async _finishVRMLoad(gltf, gen) {
+        if (gen !== this._loadGeneration) return;
+        this.setLoadProgress(80, '解析 VRM…');
+
+        if (!gltf.userData.vrm) {
+            throw new Error('不是有效的 VRM 文件');
+        }
+
+        if (this.vrm) {
+            this.personRoot.remove(this.vrm.scene);
+            VRMUtils.deepDispose(this.vrm.scene);
+            if (this.animator) {
+                this.animator.dispose();
+                this.animator = null;
+            }
+        }
+
+        this.vrm = gltf.userData.vrm;
+        this.restPoseSet = false;
+        this.metaVersion = vrmMetaVersion(this.vrm);
+
+        VRMUtils.rotateVRM0(this.vrm);
+        this.rotatedVRM0 = this.metaVersion === '0';
+
+        this.vrm.scene.traverse((obj) => {
+            if (obj.isMesh || obj.isSkinnedMesh) {
+                obj.castShadow = true;
+                obj.receiveShadow = true;
+            }
+        });
+
+        this.personRoot.add(this.vrm.scene);
+        this.setLoadProgress(88, '应用休息姿势并稳定弹簧…');
+
+        // Scale/place with bone anchors BEFORE spring settle (world matrices matter)
+        this.normalizeAndAnchor();
+
+        const name = vrmDisplayName(this.vrm);
+        const policy = springsPolicyForModel(name, this.metaVersion);
+        // Restore user preference, then apply per-model honest default when needed
+        this.springsEnabled = this.settings.springsEnabled !== false;
+        if (policy.defaultEnabled === false) {
+            this.springsEnabled = false;
+        }
+        const springToggle = document.getElementById('springsEnabled');
+        if (springToggle) springToggle.checked = this.springsEnabled;
+        this.springsActive = this.profile.springs && this.springsEnabled;
+        this.springsFallbackNote = !this.springsActive
+            ? (policy.reason || '弹簧骨骼已关闭')
+            : (policy.reason || '');
+
+        const poseResult = applyRestPoseAndSettle(this.vrm, this.metaVersion, {
+            settleFrames: 150,
+            updateSprings: this.springsActive
+        });
+        this.restPoseSet = poseResult.applied;
+        console.log('[Pose]', poseResult, policy);
+
+        this.normalizeAndAnchor();
+        this.animator = new VRMAnimator(this.vrm, this.camera, {
+            reducedMotion: this.caps.reducedMotion
+        });
+
+        this.setLoadProgress(100, '');
+        const springShort = this.springsActive ? '弹簧开' : '弹簧关';
+        this.setStatus(`VRM 加载成功: ${name}${this.metaVersion ? ` (VRM${this.metaVersion})` : ''} · ${springShort}`, 'success');
+        const policyEl = document.getElementById('springsPolicyNote');
+        if (policyEl) {
+            policyEl.textContent = this.springsFallbackNote || '';
+        }
+
+        this._ready = true;
+        this.clearBootWatchdog();
+        window.__bootPhase = 'ready';
+        if (this.bootErrorEl) {
+            this.bootErrorEl.hidden = true;
+            this.bootErrorEl.textContent = '';
+        }
+
+        window.diagnostics = {
+            ready: true,
+            loading: false,
+            generation: gen,
+            modelType: 'vrm',
+            modelName: name,
+            metaVersion: this.metaVersion,
+            rotatedVRM0: this.rotatedVRM0,
+            restPose: this.restPoseSet,
+            leftUpperArmQuat: poseResult.leftUpperArmQuat,
+            springsActive: this.springsActive,
+            springsFallbackNote: this.springsFallbackNote,
+            springsPolicy: policy,
+            quality: this.profile.id,
+            webglOpts: this.webglOpts || null,
+            vrmMeta: this.vrm.meta,
+            hasExpressions: !!this.vrm.expressionManager,
+            hasLookAt: !!this.vrm.lookAt,
+            hasSpringBone: !!this.vrm.springBoneManager,
+            sceneRotationY: this.vrm.scene.rotation.y,
+            bootMs: Date.now() - (window.__bootStartedAt || Date.now())
+        };
     }
 
     /**
@@ -1569,14 +1686,36 @@ class DesktopPortraitApp {
 }
 
 let app;
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', () => {
+
+/**
+ * Entry used by index.html dynamic import so module/network/syntax failures
+ * surface in #status / #bootError instead of a silent blank canvas.
+ */
+export function bootDesktopPortraitApp() {
+    if (app) return app;
+    try {
+        window.__bootPhase = 'constructing';
         app = new DesktopPortraitApp();
         window.app = app;
-    });
-} else {
-    app = new DesktopPortraitApp();
-    window.app = app;
+        return app;
+    } catch (err) {
+        if (typeof window.showBootError === 'function') {
+            window.showBootError(err);
+        } else {
+            console.error('[boot]', err);
+            const el = document.getElementById('status');
+            if (el) {
+                el.textContent = `启动失败: ${err.message || err}`;
+                el.className = 'error';
+            }
+        }
+        window.diagnostics = {
+            ready: false,
+            error: String(err?.stack || err?.message || err),
+            phase: window.__bootPhase || 'construct'
+        };
+        throw err;
+    }
 }
 
 export { DesktopPortraitApp };

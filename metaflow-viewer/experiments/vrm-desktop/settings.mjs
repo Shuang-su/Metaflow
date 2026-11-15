@@ -4,6 +4,10 @@
  */
 
 const STORAGE_KEY = 'metaflow.vrm-desktop.settings.v3';
+const LEGACY_STORAGE_KEYS = [
+    'metaflow.vrm-desktop.settings.v2',
+    'metaflow.vrm-desktop.settings.v1'
+];
 
 export const DEFAULT_SETTINGS = {
     // Canvas projection size (metres) — derived from screenPhysical when calibrated.
@@ -29,12 +33,23 @@ export const DEFAULT_SETTINGS = {
 
 export function loadSettings() {
     try {
-        const raw = localStorage.getItem(STORAGE_KEY);
+        let raw = localStorage.getItem(STORAGE_KEY);
+        let fromLegacy = false;
+        if (!raw) {
+            for (const key of LEGACY_STORAGE_KEYS) {
+                const legacy = localStorage.getItem(key);
+                if (legacy) {
+                    raw = legacy;
+                    fromLegacy = true;
+                    break;
+                }
+            }
+        }
         if (!raw) {
             return cloneDefaults();
         }
         const parsed = JSON.parse(raw);
-        return {
+        const merged = {
             ...DEFAULT_SETTINGS,
             ...parsed,
             panelCollapsed: {
@@ -42,6 +57,15 @@ export function loadSettings() {
                 ...(parsed.panelCollapsed || {})
             }
         };
+        // One-shot migrate so prior schema does not strand users on preview defaults forever
+        if (fromLegacy) {
+            try {
+                saveSettings(merged);
+            } catch {
+                /* ignore quota */
+            }
+        }
+        return merged;
     } catch {
         return cloneDefaults();
     }
