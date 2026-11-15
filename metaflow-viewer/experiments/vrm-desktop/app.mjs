@@ -612,8 +612,8 @@ class DesktopPortraitApp {
         this.vrm.scene.updateMatrixWorld(true);
         const names = [
             'hips', 'spine', 'chest', 'neck', 'head',
-            'leftUpperLeg', 'leftLowerLeg', 'leftFoot',
-            'rightUpperLeg', 'rightLowerLeg', 'rightFoot',
+            'leftUpperLeg', 'leftLowerLeg', 'leftFoot', 'leftToes',
+            'rightUpperLeg', 'rightLowerLeg', 'rightFoot', 'rightToes',
             'leftUpperArm', 'leftLowerArm', 'leftHand',
             'rightUpperArm', 'rightLowerArm', 'rightHand'
         ];
@@ -631,18 +631,23 @@ class DesktopPortraitApp {
 
         const leftFoot = h.getNormalizedBoneNode('leftFoot') || h.getRawBoneNode('leftFoot');
         const rightFoot = h.getNormalizedBoneNode('rightFoot') || h.getRawBoneNode('rightFoot');
+        const leftToes = h.getNormalizedBoneNode('leftToes') || h.getRawBoneNode('leftToes');
+        const rightToes = h.getNormalizedBoneNode('rightToes') || h.getRawBoneNode('rightToes');
         const head = h.getNormalizedBoneNode('head') || h.getRawBoneNode('head');
         const footY = (() => {
             let y = Infinity;
-            for (const f of [leftFoot, rightFoot]) {
+            for (const f of [leftFoot, rightFoot, leftToes, rightToes]) {
                 if (!f) continue;
                 f.getWorldPosition(p);
                 y = Math.min(y, p.y);
             }
             return Number.isFinite(y) ? y : box.min.y;
         })();
-        const headY = head ? head.getWorldPosition(p).y : box.max.y;
-        return { box, footY, headY, height: Math.max(1e-6, headY - footY) };
+        // Head bone is below hair/braid crown — pad so framing keeps full head silhouette
+        const headBoneY = head ? head.getWorldPosition(p).y : box.max.y;
+        const boneSpan = Math.max(1e-6, headBoneY - footY);
+        const headY = headBoneY + boneSpan * 0.16;
+        return { box, footY, headY, headBoneY, height: Math.max(1e-6, headY - footY) };
     }
 
     normalizeAndAnchor() {
@@ -667,8 +672,8 @@ class DesktopPortraitApp {
             };
         }
 
-        // Portrait figurine: fill most of physical screen height
-        const targetHeight = Math.min(0.168, this.params.height * 0.92);
+        // Portrait figurine: leave vertical margin so hair crown + toes stay in frustum
+        const targetHeight = Math.min(0.148, this.params.height * 0.78);
         const scale = targetHeight / extents.height;
         scene.scale.setScalar(scale);
         scene.updateMatrixWorld(true);

@@ -2,27 +2,22 @@
 
 Filled by build/report scripts. Do not treat as a release tag.
 
-## P0 boot fix (this branch)
+## Current candidate (framing fix)
 
 | Field | Value |
 | --- | --- |
-| Intent | Fix QA blank「正在初始化…」+ dead buttons; visible boot errors; clean ZIP HTTP proof |
-| Commit | 09c6b63ca44dd6c3e14a83e2004680df2416540c |
+| Intent | Hair/toes framing margin; keep boot diagnostics; QA exact Netlify draft |
+| Tip commit | *(fill after push)* |
 | ZIP | `/opt/cursor/artifacts/metaflow-desktop-preview.zip` |
-| ZIP SHA256 | `148351525fa07b2e328455a67e83d9ab6fd365cce1e414e1ab258b61a365d12d` |
-| Verify | `node verify-p0-boot.mjs` → `/opt/cursor/artifacts/p0-boot-verify.json` |
-| Evidence | `p0-empty-storage-wenjing-ready.png`, `p0-empty-storage-wizard-open.png`, `p0-legacy-v2-storage-wenjing-ready.png` |
-| Production | **NOT promoted** — remains prior deploy; do not merge/deploy from this note |
+| ZIP SHA256 | `ea5c589c6ff8ad8be26859ee72d25e0da6bf7aed496fc48da73c4c027f7e6e77` |
+| Deployed draft tested | `https://6af9c51602b9bd7fc82107f0--vrm-desktop-portrait-20261114.netlify.app/` (ZIP `14835152…` / tip `51ddc23c`) |
+| Production | **NOT promoted** — remains `6af9bbe46caab4bd5afd9e02` |
 
-### Boot hardening
+### Evidence
 
-- Dynamic `import('./app.mjs')` with UI `#bootError` / `#status` on module failure
-- WebGLRenderer multi-attempt fallback
-- UI controls wired before VRM fetch; 20s stall watchdog
-- VRM load abort/network retry (2×)
-- Legacy settings.v1/v2 → v3 migrate
+- Deployed (WebGL OK here; hair AABB clips): `/opt/cursor/artifacts/qa-deployed-wenjing.png`, `deployed-candidate/deploy-qa-report.json`
+- Fixed ZIP HTTP: `qa-fixed-wenjing-fullbody.png`, `qa-fixed-wizard-saved.png`, `qa-fixed-pixiv.png`, `qa-fixed-mobile.png`, `qa-fixed-idle.png`
 
-### P0 verify result (clean HTTP from ZIP)
+### Box Chrome note
 
-- empty localStorage: Wenjing ready ~1s, fullscreen wizard opens, pixiv sample loads
-- legacy v2 localStorage: Wenjing ready, wizard opens, prior width/height/tilt applied
+Box Chrome WebGL2 disabled/unavailable blanks **both** old production and candidates — not a code regression. Boot `#bootError` still useful when WebGL missing.
