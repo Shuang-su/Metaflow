@@ -4,7 +4,7 @@
 
 | Field | Value |
 | --- | --- |
-| Tip commit | _(see git tip after docs commit)_ |
+| Tip commit | `d2aa78733b54c899123afe659702e60524e664c3` |
 | ZIP | `/opt/cursor/artifacts/metaflow-desktop-preview.zip` |
 | ZIP SHA256 | `72723d976031517db768833a7a33ab5173e159e4f968498c7f330b751c7f0d37` |
 | Production / live draft | **Preserve** `6af9df4cf8b7ab03f7970227` / ZIP `b1246a48…` as rollback |
