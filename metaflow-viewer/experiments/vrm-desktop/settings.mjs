@@ -3,10 +3,10 @@
  * Browser cannot know exact physical mm size or device model — never pretend.
  */
 
-const STORAGE_KEY = 'metaflow.vrm-desktop.settings.v2';
+const STORAGE_KEY = 'metaflow.vrm-desktop.settings.v3';
 
 export const DEFAULT_SETTINGS = {
-    // Physical calibration (metres). Eye Y slightly above screen centre for figurine mid-torso.
+    // Canvas projection size (metres) — derived from screenPhysical when calibrated.
     widthM: 0.24,
     heightM: 0.18,
     tiltDeg: 12,
@@ -15,6 +15,9 @@ export const DEFAULT_SETTINGS = {
     eyeZ: 0.36,
     quality: 'balanced', // battery | balanced | quality
     springsEnabled: true, // may be overridden per-model on load
+    // Full-screen physical size of the display (metres). Null = preview-only defaults.
+    screenPhysical: null, // { widthM, heightM, source, labeled }
+    projectionMode: 'preview', // preview | calibrated
     panelCollapsed: {
         basic: false,
         viewpoint: false,
@@ -45,6 +48,7 @@ export function loadSettings() {
 }
 
 export function saveSettings(settings) {
+    const sp = settings.screenPhysical;
     const payload = {
         widthM: clamp(settings.widthM, 0.08, 0.8),
         heightM: clamp(settings.heightM, 0.04, 1),
@@ -56,6 +60,15 @@ export function saveSettings(settings) {
             ? settings.quality
             : 'balanced',
         springsEnabled: settings.springsEnabled !== false,
+        screenPhysical: sp && sp.widthM > 0 && sp.heightM > 0
+            ? {
+                widthM: clamp(sp.widthM, 0.15, 2.5),
+                heightM: clamp(sp.heightM, 0.1, 1.5),
+                source: String(sp.source || '').slice(0, 160),
+                labeled: String(sp.labeled || '').slice(0, 200)
+            }
+            : null,
+        projectionMode: settings.projectionMode === 'calibrated' && sp ? 'calibrated' : 'preview',
         panelCollapsed: settings.panelCollapsed || DEFAULT_SETTINGS.panelCollapsed
     };
     localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));

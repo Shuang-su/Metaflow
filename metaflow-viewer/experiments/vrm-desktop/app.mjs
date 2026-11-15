@@ -44,6 +44,17 @@ import {
     capabilitiesVsLimitations,
     CREDIT_CARD_MM
 } from './display-calibration.mjs';
+import {
+    featureDetectFullscreen,
+    enterSceneFullscreen,
+    exitSceneFullscreen,
+    onFullscreenChange,
+    isElementFullscreen,
+    mapCanvasPhysicalFromScreen,
+    readCanvasCssBounds,
+    readMappingScreenCss,
+    FS_WIZARD_STEPS
+} from './fullscreen-calibration.mjs';
 
 window.THREE = THREE;
 
@@ -60,9 +71,11 @@ function vrmMetaVersion(vrm) {
 class DesktopPortraitApp {
     constructor() {
         this.canvas = document.getElementById('main-canvas');
+        this.sceneContainer = document.getElementById('canvas-container');
         this.statusEl = document.getElementById('status');
         this.loadBar = document.getElementById('loadBar');
         this.retryBtn = document.getElementById('retryLoad');
+        this.fsModeBanner = document.getElementById('fsModeBanner');
 
         this.scene = new THREE.Scene();
         this.scene.background = this.createGradientBackground();
@@ -97,6 +110,10 @@ class DesktopPortraitApp {
         this.quality = this.settings.quality || 'balanced';
         this.springsEnabled = this.settings.springsEnabled !== false;
         this.userLockedWidth = false;
+        this.screenPhysical = this.settings.screenPhysical || null;
+        this.projectionMode = this.screenPhysical ? (this.settings.projectionMode || 'calibrated') : 'preview';
+        this.fsWizardStep = 0;
+        this.fsWizardOpen = false;
         this.caps = detectCapabilities();
         this.profile = qualityProfile(this.quality, window.devicePixelRatio || 1, this.caps.reducedMotion);
 
@@ -135,10 +152,12 @@ class DesktopPortraitApp {
         this.setupDevicePanel();
         this.setupCalibration();
         this.setupDisplayCalibration();
+        this.setupFullscreenWizard();
         this.applyQuality(true);
         this.syncSlidersFromParams();
         this.setupResize();
         this.updateProjection();
+        this.updateProjectionModeBanner();
         this.animate();
         this.loadDefaultModel();
     }
@@ -703,7 +722,15 @@ class DesktopPortraitApp {
         const labelInput = document.getElementById('screenProfileLabel');
         if (labelInput) labelInput.value = profile?.userLabel || '';
         // Offer saved calibration as suggestion — do not auto-overwrite live params
-        if (profile?.calibration?.widthM && profile?.calibration?.heightM) {
+        if (profile?.calibration?.screenPhysical) {
+            this.pendingScreenPhysical = profile.calibration.screenPhysical;
+            this.pendingDisplaySuggest = {
+                widthM: profile.calibration.widthM,
+                heightM: profile.calibration.heightM,
+                labeled: `来自已保存全屏档案「${profile.userLabel || key}」——点「写入」或打开全屏校准第②步应用`
+            };
+            this.showPendingSuggest();
+        } else if (profile?.calibration?.widthM && profile?.calibration?.heightM) {
             this.pendingDisplaySuggest = {
                 widthM: profile.calibration.widthM,
                 heightM: profile.calibration.heightM,
@@ -797,11 +824,14 @@ class DesktopPortraitApp {
             eyeX: this.params.eye.x,
             eyeY: this.params.eye.y,
             eyeZ: this.params.eye.z,
-            quality: this.quality
+            quality: this.quality,
+            screenPhysical: this.screenPhysical,
+            projectionMode: this.projectionMode
         });
         if (label) renameScreenProfile(key, label);
         upsertScreenProfile(key, {
-            layers: readBrowserDisplayLayers()
+            layers: readBrowserDisplayLayers(),
+            fullscreenCalibrated: this.projectionMode === 'calibrated'
         }, { overwriteCalibration: false });
     }
 
@@ -966,8 +996,377 @@ class DesktopPortraitApp {
             eyeZ: this.params.eye.z,
             quality: this.quality,
             springsEnabled: this.springsEnabled,
+            screenPhysical: this.screenPhysical,
+            projectionMode: this.projectionMode,
             panelCollapsed: this.settings.panelCollapsed
         };
+    }
+
+    setupFullscreenWizard() {
+        const feat = featureDetectFullscreen(this.sceneContainer);
+        const sideHint = document.getElementById('fsSidebarHint');
+        if (sideHint) {
+            sideHint.textContent = feat.supported
+                ? '主流程：场景全屏校准（设置栏不进入全屏）。全屏≠知道物理厘米。外接屏请先拖到目标显示器。'
+                : feat.explanation;
+        }
+
+        const open = () => this.openFullscreenWizard();
+        document.getElementById('startFullscreenCalib')?.addEventListener('click', open);
+        document.getElementById('fsCalibrateOpen')?.addEventListener('click', open);
+        document.getElementById('fsWizardPrev')?.addEventListener('click', () => this.fsWizardNavigate(-1));
+        document.getElementById('fsWizardNext')?.addEventListener('click', () => this.fsWizardNavigate(1));
+        document.getElementById('fsWizardCollapse')?.addEventListener('click', () => this.collapseFullscreenWizard());
+        document.getElementById('fsWizardExitFs')?.addEventListener('click', async () => {
+            await exitSceneFullscreen();
+            this.updateProjectionModeBanner();
+        });
+
+        this._unsubFs = onFullscreenChange(() => {
+            const fs = isElementFullscreen(this.sceneContainer);
+            if (!fs) {
+                // Leaving fullscreen → preview mode messaging (keep physical map if saved)
+                if (this.projectionMode === 'calibrated' && this.screenPhysical) {
+                    this.setStatus('已退出全屏：预览模式（按画布 CSS 映射物理比例，非整屏）', 'loading');
+                } else {
+                    this.setStatus('已退出全屏：预览模式 · 尚未完成全屏物理校准', 'loading');
+                }
+                this.applyPhysicalMappingToParams();
+            } else {
+                this.setStatus('场景全屏中：请完成物理尺寸确认（像素≠厘米）', 'success');
+                this.applyPhysicalMappingToParams();
+            }
+            this.updateProjectionModeBanner();
+            // Force layout sync after FS transition
+            requestAnimationFrame(() => this.syncRendererToCanvas());
+        });
+    }
+
+    openFullscreenWizard() {
+        this.fsWizardOpen = true;
+        this.fsWizardStep = 0;
+        const wiz = document.getElementById('fsWizard');
+        if (wiz) wiz.hidden = false;
+        this.renderFsWizardStep();
+        this.setStatus('已打开全屏校准向导（需你点击进入全屏）', 'loading');
+    }
+
+    collapseFullscreenWizard() {
+        this.fsWizardOpen = false;
+        const wiz = document.getElementById('fsWizard');
+        if (wiz) wiz.hidden = true;
+        const fab = document.getElementById('fsCalibrateOpen');
+        if (fab) fab.hidden = false;
+    }
+
+    async fsWizardNavigate(delta) {
+        const step = FS_WIZARD_STEPS[this.fsWizardStep];
+        if (delta > 0) {
+            const ok = await this.fsWizardAdvanceGate(step);
+            if (!ok) return;
+        }
+        this.fsWizardStep = Math.max(0, Math.min(FS_WIZARD_STEPS.length - 1, this.fsWizardStep + delta));
+        if (delta > 0 && step.id === 'save') {
+            this.finishFullscreenCalibration();
+            return;
+        }
+        this.renderFsWizardStep();
+    }
+
+    async fsWizardAdvanceGate(step) {
+        if (step.id === 'fullscreen') {
+            if (!isElementFullscreen(this.sceneContainer)) {
+                const res = await enterSceneFullscreen(this.sceneContainer);
+                this.setStatus(res.message || (res.ok ? '已全屏' : '全屏失败'), res.ok ? 'success' : 'error');
+                if (!res.ok) {
+                    // Allow continuing in large-window fallback with clear warning
+                    const warn = document.getElementById('fsWizardWarn');
+                    if (warn) {
+                        warn.textContent =
+                            '未能进入全屏。可继续在当前窗口校准，但存在边框/窗口尺寸歧义；外接屏请先拖到目标显示器。';
+                    }
+                    return true; // still allow wizard with fallback messaging
+                }
+                await new Promise((r) => setTimeout(r, 100));
+                this.syncRendererToCanvas();
+            }
+            return true;
+        }
+        if (step.id === 'display') {
+            const applied = this.applyFsWizardPhysicalFromFields();
+            if (!applied) {
+                this.setStatus('请选择预设、填写物理尺寸或使用比例尺', 'error');
+                return false;
+            }
+            return true;
+        }
+        if (step.id === 'tilt' || step.id === 'eye') {
+            this.readFsWizardViewParams();
+            return true;
+        }
+        return true;
+    }
+
+    renderFsWizardStep() {
+        const step = FS_WIZARD_STEPS[this.fsWizardStep];
+        const title = document.getElementById('fsWizardTitle');
+        const body = document.getElementById('fsWizardBody');
+        const fields = document.getElementById('fsWizardFields');
+        const next = document.getElementById('fsWizardNext');
+        const prev = document.getElementById('fsWizardPrev');
+        if (title) title.textContent = step.title;
+        if (body) body.textContent = step.body;
+        if (prev) prev.disabled = this.fsWizardStep === 0;
+        if (next) next.textContent = step.id === 'save' ? '保存并完成' : '下一步';
+
+        if (!fields) return;
+        if (step.id === 'fullscreen') {
+            const feat = featureDetectFullscreen(this.sceneContainer);
+            fields.innerHTML = `
+                <button type="button" id="fsEnterBtn">进入场景全屏</button>
+                <p class="warn">${feat.explanation}</p>
+                <p class="hint">外接显示器：先把浏览器窗口拖到目标屏，再点全屏，然后在下一步选择/保存该屏档案。</p>`;
+            document.getElementById('fsEnterBtn')?.addEventListener('click', async () => {
+                const res = await enterSceneFullscreen(this.sceneContainer);
+                this.setStatus(res.message || '', res.ok ? 'success' : 'error');
+                this.syncRendererToCanvas();
+                this.updateProjectionModeBanner();
+            });
+        } else if (step.id === 'display') {
+            const opts = this.displayPresets.map((p) =>
+                `<option value="${p.id}">${p.label}</option>`
+            ).join('');
+            fields.innerHTML = `
+                <label>显示预设</label>
+                <select id="fsPreset">${opts}</select>
+                <p class="hint" id="fsPresetHint"></p>
+                <div id="fsCustomBox" class="custom-fields">
+                    <label>对角英寸</label>
+                    <input type="number" id="fsDiag" step="0.1" min="10" max="50">
+                    <label>宽 cm</label>
+                    <input type="number" id="fsWcm" step="0.1">
+                    <label>高 cm</label>
+                    <input type="number" id="fsHcm" step="0.1">
+                </div>
+                <div class="fs-mini-ruler">
+                    <p class="hint">信用卡宽 85.6 mm — 调至与实体卡同宽（CSS px，不乘 DPR）</p>
+                    <div class="ruler-card" id="fsRulerCard">卡</div>
+                    <input type="range" id="fsRulerPx" min="40" max="320" value="120">
+                    <div class="value-display" id="fsRulerPxVal">120 px</div>
+                    <button type="button" class="secondary" id="fsUseRuler">用比例尺推算整屏</button>
+                </div>
+                <p class="hint" id="fsPhysNote"></p>`;
+            const syncPreset = () => {
+                const id = document.getElementById('fsPreset')?.value;
+                const p = this.displayPresets.find((x) => x.id === id);
+                const hint = document.getElementById('fsPresetHint');
+                if (hint && p) hint.textContent = `${p.physicalLabel} · ${p.source}`;
+                document.getElementById('fsCustomBox')?.classList.toggle('visible', id === 'ext-custom');
+            };
+            document.getElementById('fsPreset')?.addEventListener('change', syncPreset);
+            syncPreset();
+            const ruler = document.getElementById('fsRulerPx');
+            const card = document.getElementById('fsRulerCard');
+            const val = document.getElementById('fsRulerPxVal');
+            const syncR = () => {
+                const px = Number(ruler?.value || 120);
+                if (val) val.textContent = `${px} px`;
+                if (card) card.style.width = `${px}px`;
+            };
+            ruler?.addEventListener('input', syncR);
+            syncR();
+            document.getElementById('fsUseRuler')?.addEventListener('click', () => {
+                const px = Number(document.getElementById('fsRulerPx')?.value || 0);
+                const screenCss = readMappingScreenCss(this.sceneContainer);
+                const result = calibrateFromRuler(px, CREDIT_CARD_MM.width, {
+                    viewportCssPx: readCanvasCssBounds(this.canvas),
+                    screenLogicalPx: screenCss,
+                    devicePixelRatio: window.devicePixelRatio || 1,
+                    backingApproxPx: { w: 0, h: 0 },
+                    screenAvailLogicalPx: screenCss
+                });
+                if (!result) return;
+                this.pendingScreenPhysical = {
+                    widthM: result.screenWidthM,
+                    heightM: result.screenHeightM,
+                    source: 'credit-card-ruler-css-px',
+                    labeled: result.labeled
+                };
+                const note = document.getElementById('fsPhysNote');
+                if (note) {
+                    note.textContent =
+                        `整屏约 ${result.widthCm.toFixed(1)}×${result.heightCm.toFixed(1)} cm（由 CSS px 推算，未乘 DPR）`;
+                }
+            });
+        } else if (step.id === 'tilt') {
+            fields.innerHTML = `
+                <label>支架倾角（相对竖直）</label>
+                <input type="range" id="fsTilt" min="0" max="90" step="1" value="${this.params.tiltDegrees}">
+                <div class="value-display" id="fsTiltVal">${degLabel(this.params.tiltDegrees)}</div>`;
+            const el = document.getElementById('fsTilt');
+            const val = document.getElementById('fsTiltVal');
+            el?.addEventListener('input', () => {
+                const n = Number(el.value);
+                if (val) val.textContent = degLabel(n);
+                this.params.tiltDegrees = n;
+                this.updateProjection();
+            });
+        } else if (step.id === 'eye') {
+            fields.innerHTML = `
+                <label>眼睛 X</label>
+                <input type="range" id="fsEyeX" min="-0.3" max="0.3" step="0.01" value="${this.params.eye.x}">
+                <div class="value-display" id="fsEyeXVal">${mToCm(this.params.eye.x)}</div>
+                <label>眼睛 Y</label>
+                <input type="range" id="fsEyeY" min="-0.4" max="0.4" step="0.01" value="${this.params.eye.y}">
+                <div class="value-display" id="fsEyeYVal">${mToCm(this.params.eye.y)}</div>
+                <label>眼睛 Z</label>
+                <input type="range" id="fsEyeZ" min="0.2" max="1.5" step="0.01" value="${this.params.eye.z}">
+                <div class="value-display" id="fsEyeZVal">${mToCm(this.params.eye.z)}</div>`;
+            const bind = (id, valId, apply, fmt) => {
+                const el = document.getElementById(id);
+                const val = document.getElementById(valId);
+                el?.addEventListener('input', () => {
+                    const n = Number(el.value);
+                    if (val) val.textContent = fmt(n);
+                    apply(n);
+                    this.updateProjection();
+                });
+            };
+            bind('fsEyeX', 'fsEyeXVal', (n) => { this.params.eye.x = n; }, mToCm);
+            bind('fsEyeY', 'fsEyeYVal', (n) => { this.params.eye.y = n; }, mToCm);
+            bind('fsEyeZ', 'fsEyeZVal', (n) => { this.params.eye.z = n; }, mToCm);
+        } else if (step.id === 'save') {
+            fields.innerHTML = `
+                <p>将保存：整屏物理尺寸 + 倾角/视点到本屏档案。退出全屏后为预览映射。</p>
+                <label>档案显示名</label>
+                <input type="text" id="fsSaveLabel" maxlength="64" placeholder="例如：MacBook / 书房外接"
+                    value="${document.getElementById('screenProfileLabel')?.value || ''}">`;
+        }
+    }
+
+    applyFsWizardPhysicalFromFields() {
+        if (this.pendingScreenPhysical?.widthM) {
+            this.screenPhysical = { ...this.pendingScreenPhysical };
+            this.applyPhysicalMappingToParams();
+            return true;
+        }
+        const id = document.getElementById('fsPreset')?.value;
+        const preset = this.displayPresets.find((p) => p.id === id);
+        if (!preset) return false;
+        let widthM;
+        let heightM;
+        let source;
+        let labeled;
+        if (id === 'ext-custom') {
+            const custom = applyCustomExternal({
+                diagonalIn: Number(document.getElementById('fsDiag')?.value),
+                widthCm: Number(document.getElementById('fsWcm')?.value),
+                heightCm: Number(document.getElementById('fsHcm')?.value),
+                aspect: 16 / 9
+            });
+            if (!custom) return false;
+            widthM = custom.widthM;
+            heightM = custom.heightM;
+            source = custom.source;
+            labeled = '自定义外接物理尺寸';
+        } else if (preset.physical) {
+            widthM = preset.physical.widthM;
+            heightM = preset.physical.heightM;
+            source = preset.source;
+            labeled = preset.physicalLabel;
+        } else {
+            return false;
+        }
+        this.screenPhysical = { widthM, heightM, source, labeled };
+        this.pendingScreenPhysical = this.screenPhysical;
+        this.applyPhysicalMappingToParams();
+        const note = document.getElementById('fsPhysNote');
+        if (note) note.textContent = `整屏物理：${mToCm(widthM)} × ${mToCm(heightM)}（${labeled}）`;
+        return true;
+    }
+
+    readFsWizardViewParams() {
+        const tilt = document.getElementById('fsTilt');
+        if (tilt) this.params.tiltDegrees = Number(tilt.value);
+        const x = document.getElementById('fsEyeX');
+        const y = document.getElementById('fsEyeY');
+        const z = document.getElementById('fsEyeZ');
+        if (x) this.params.eye.x = Number(x.value);
+        if (y) this.params.eye.y = Number(y.value);
+        if (z) this.params.eye.z = Number(z.value);
+        this.syncSlidersFromParams();
+        this.updateProjection();
+    }
+
+    finishFullscreenCalibration() {
+        this.readFsWizardViewParams();
+        if (!this.screenPhysical) this.applyFsWizardPhysicalFromFields();
+        if (!this.screenPhysical) {
+            this.setStatus('缺少整屏物理尺寸，无法完成校准', 'error');
+            return;
+        }
+        this.projectionMode = 'calibrated';
+        this.userLockedWidth = true;
+        this.applyPhysicalMappingToParams();
+        const label = document.getElementById('fsSaveLabel')?.value || '';
+        if (label) {
+            const input = document.getElementById('screenProfileLabel');
+            if (input) input.value = label;
+        }
+        this.persistCurrentScreenCalibration();
+        this.settings = saveSettings(this.snapshotSettings());
+        this.collapseFullscreenWizard();
+        this.updateProjectionModeBanner();
+        this.setStatus('全屏校准已保存。可退出全屏进入预览映射，或保持全屏观看。', 'success');
+    }
+
+    applyPhysicalMappingToParams() {
+        if (!this.screenPhysical) return;
+        const canvasCss = readCanvasCssBounds(this.canvas);
+        const screenCss = readMappingScreenCss(this.sceneContainer);
+        const mapped = mapCanvasPhysicalFromScreen(this.screenPhysical, canvasCss, screenCss);
+        if (!mapped) return;
+        this.params.width = mapped.widthM;
+        this.params.height = mapped.heightM;
+        this.userLockedWidth = true;
+        this.syncSlidersFromParams();
+        this.updateProjection();
+        if (this.vrm) this.normalizeAndAnchor();
+    }
+
+    updateProjectionModeBanner() {
+        const el = this.fsModeBanner;
+        if (!el) return;
+        const fs = isElementFullscreen(this.sceneContainer);
+        if (fs && this.projectionMode === 'calibrated' && this.screenPhysical) {
+            el.className = 'fs-banner calibrated';
+            el.textContent =
+                `全屏校准投影 · 整屏约 ${mToCm(this.screenPhysical.widthM)}×${mToCm(this.screenPhysical.heightM)}（用户确认，非 OS 实测）`;
+        } else if (this.projectionMode === 'calibrated' && this.screenPhysical) {
+            el.className = 'fs-banner';
+            el.textContent =
+                '预览模式 · 已保存全屏物理档案；当前按画布 CSS 比例映射（非整屏）。像素≠物理厘米。';
+        } else {
+            el.className = 'fs-banner';
+            el.textContent = '预览模式 · 尚未完成全屏物理校准（像素≠物理厘米）';
+        }
+    }
+
+    syncRendererToCanvas() {
+        const width = this.canvas.clientWidth;
+        const height = this.canvas.clientHeight;
+        if (width <= 0 || height <= 0) return;
+        this.renderer.setSize(width, height, false);
+        if (this.screenPhysical) {
+            this.applyPhysicalMappingToParams();
+        } else if (!this.userLockedWidth) {
+            this.params.width = this.params.height * (width / height);
+            this.syncSlidersFromParams();
+            this.updateProjection();
+        } else {
+            this.updateProjection();
+        }
+        if (this.vrm) this.normalizeAndAnchor();
     }
 
     syncSlidersFromParams() {
@@ -1059,13 +1458,16 @@ class DesktopPortraitApp {
             };
             this.quality = this.settings.quality;
             this.springsEnabled = this.settings.springsEnabled !== false;
+            this.screenPhysical = null;
+            this.projectionMode = 'preview';
             this.userLockedWidth = false;
             this.applyQuality();
             this.syncSlidersFromParams();
             this.setupPanels();
             this.updateProjection();
+            this.updateProjectionModeBanner();
             if (this.vrm) this.normalizeAndAnchor();
-            this.setStatus('已重置为默认设置', 'success');
+            this.setStatus('已重置为默认设置（预览模式）', 'success');
         });
 
         document.getElementById('vrmFile')?.addEventListener('change', async (e) => {
@@ -1114,19 +1516,14 @@ class DesktopPortraitApp {
     }
 
     setupResize() {
-        const applySize = () => {
-            const width = this.canvas.clientWidth;
-            const height = this.canvas.clientHeight;
-            if (width <= 0 || height <= 0) return;
-            this.renderer.setSize(width, height, false);
-            if (!this.userLockedWidth) {
-                this.params.width = this.params.height * (width / height);
-            }
-            this.syncSlidersFromParams();
-            this.updateProjection();
-            if (this.vrm) this.normalizeAndAnchor();
-        };
+        const applySize = () => this.syncRendererToCanvas();
         new ResizeObserver(applySize).observe(this.canvas);
+        if (this.sceneContainer) {
+            new ResizeObserver(applySize).observe(this.sceneContainer);
+        }
+        window.addEventListener('orientationchange', () => {
+            setTimeout(applySize, 200);
+        });
         applySize();
     }
 

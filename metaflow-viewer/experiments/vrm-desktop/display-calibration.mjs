@@ -478,20 +478,23 @@ export function capabilitiesVsLimitations() {
     const feat = featureDetectWindowManagement();
     return {
         can: [
+            '场景容器全屏校准（设置栏不进入全屏；仅用户手势）',
             '手动选择 MacBook Air/Pro 内建屏预设（对角来自 Apple 规格，厘米为推算）',
             '手动选择外接 16:9 / 16:10 / 超宽 或自定义对角/宽高',
-            '区分 CSS 视口、screen 逻辑像素、DPR/背板近似像素',
+            '区分 CSS 视口、screen 逻辑像素、DPR/背板近似像素（物理映射不乘 DPR）',
             '信用卡比例尺推算 px/cm（可选）',
             '本地按屏保存校准档案（粗粒度 key + 可选自定义名称）',
+            '退出全屏后标明预览模式并按画布 CSS 映射',
             feat.supported
                 ? '在用户点击后使用 getScreenDetails 列出显示器并监听切换'
                 : '在无 Window Management 时仍可用手动流程（不阻断）'
         ],
         cannot: [
+            '全屏本身不能测出物理厘米',
             '不能仅凭分辨率断言具体 Mac 机型或英寸对角',
             'Safari 等无 API 时不能「识别」外接显示器',
             '不能读取真实物理 DPI / 毫米（除非用户用比例尺或厂商规格）',
-            '不会在后台请求屏幕权限或收集指纹'
+            '不会在后台请求全屏/屏幕权限或收集指纹'
         ]
     };
 }

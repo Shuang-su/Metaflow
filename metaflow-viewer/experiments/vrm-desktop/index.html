@@ -23,7 +23,105 @@
             min-height: 0;
             background: linear-gradient(180deg, #1a222c 0%, #2a3340 45%, #c4a882 100%);
         }
+        #canvas-container:fullscreen,
+        #canvas-container:-webkit-full-screen {
+            width: 100vw;
+            height: 100vh;
+            background: linear-gradient(180deg, #1a222c 0%, #2a3340 45%, #c4a882 100%);
+        }
+        body:has(#canvas-container:fullscreen) #controls,
+        body:has(#canvas-container:-webkit-full-screen) #controls {
+            display: none !important;
+        }
         canvas { display: block; width: 100%; height: 100%; }
+        .fs-banner {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            z-index: 5;
+            max-width: min(420px, calc(100% - 80px));
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            line-height: 1.4;
+            background: rgba(12, 15, 20, 0.82);
+            border-left: 3px solid #f59e0b;
+            color: #fde68a;
+            pointer-events: none;
+        }
+        .fs-banner.calibrated {
+            border-left-color: #22c55e;
+            color: #bbf7d0;
+        }
+        .fs-banner.hidden { display: none; }
+        .fs-fab {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            z-index: 6;
+            width: auto !important;
+            min-width: 96px;
+            padding: 8px 12px !important;
+            margin: 0 !important;
+            font-size: 12px !important;
+        }
+        .fs-wizard {
+            position: absolute;
+            inset: 0;
+            z-index: 8;
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            padding: 16px;
+            background: linear-gradient(to top, rgba(8,10,14,0.72) 0%, rgba(8,10,14,0.15) 55%, transparent 100%);
+            pointer-events: none;
+        }
+        .fs-wizard[hidden] { display: none !important; }
+        .fs-wizard-card {
+            pointer-events: auto;
+            width: min(520px, 100%);
+            max-height: min(70vh, 560px);
+            overflow-y: auto;
+            background: #0c0f14ee;
+            border: 1px solid #243040;
+            border-radius: 10px;
+            padding: 14px;
+            color: #e8e4de;
+            font-size: 13px;
+        }
+        .fs-wizard-card h3 { font-size: 14px; color: #93c5fd; margin-bottom: 6px; }
+        .fs-wizard-card p { color: #c4bbb0; font-size: 12px; line-height: 1.45; margin-bottom: 8px; }
+        .fs-wizard-card .warn { color: #fde68a; font-size: 11px; line-height: 1.4; margin-bottom: 8px; }
+        .fs-wizard-card label { color: #8b95a5; font-size: 11px; display: block; margin-top: 6px; }
+        .fs-wizard-card input[type="range"] { width: 100%; }
+        .fs-wizard-card select,
+        .fs-wizard-card input[type="number"] {
+            width: 100%;
+            padding: 7px 8px;
+            margin-top: 3px;
+            background: #161c26;
+            border: 1px solid #243040;
+            border-radius: 6px;
+            color: #e8e4de;
+            font-size: 12px;
+        }
+        .fs-mini-ruler {
+            margin-top: 8px;
+            padding: 8px;
+            border: 1px dashed #3a4658;
+            border-radius: 6px;
+        }
+        .fs-mini-ruler .ruler-card {
+            height: 28px;
+            background: linear-gradient(180deg, #f3efe8, #d8d0c4);
+            border: 1px solid #9a9288;
+            border-radius: 3px;
+            color: #2a241c;
+            font-size: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
         .load-track {
             position: absolute;
             left: 12px;
@@ -258,6 +356,24 @@
 <body>
     <div id="canvas-container">
         <canvas id="main-canvas"></canvas>
+        <div class="fs-banner" id="fsModeBanner">预览模式 · 非整屏校准投影（像素≠物理厘米）</div>
+        <button type="button" class="fs-fab" id="fsCalibrateOpen">全屏校准</button>
+        <div class="fs-wizard" id="fsWizard" hidden>
+            <div class="fs-wizard-card">
+                <h3 id="fsWizardTitle">全屏校准</h3>
+                <p id="fsWizardBody"></p>
+                <p class="warn" id="fsWizardWarn">全屏不能测出屏幕物理厘米；请用预设 / 比例尺 / 手动输入确认。</p>
+                <div id="fsWizardFields"></div>
+                <div class="btn-row" style="margin-top:10px">
+                    <button type="button" class="secondary" id="fsWizardPrev">上一步</button>
+                    <button type="button" id="fsWizardNext">下一步</button>
+                </div>
+                <div class="btn-row">
+                    <button type="button" class="secondary" id="fsWizardExitFs">退出全屏</button>
+                    <button type="button" class="secondary" id="fsWizardCollapse">收起向导</button>
+                </div>
+            </div>
+        </div>
         <div class="load-track" id="loadTrack"><div id="loadBar"></div></div>
         <button id="retryLoad" class="secondary" hidden>重试加载</button>
     </div>
@@ -266,6 +382,8 @@
         <div class="app-title">桌面肖像实验</div>
         <div class="app-sub">独立 Three.js + VRM（非 SuperSplat）。网页画布不能变成系统透明桌宠窗口。</div>
         <div id="status">正在初始化…</div>
+        <button type="button" id="startFullscreenCalib">全屏校准（推荐）</button>
+        <p class="hint" id="fsSidebarHint">以场景全屏为校准基准：进入全屏 → 确认物理尺寸 → 倾角/视点 → 保存。退出全屏后为预览映射。</p>
 
         <details class="panel" id="panel-basic" open>
             <summary>基础</summary>
@@ -311,8 +429,9 @@
         </details>
 
         <details class="panel" id="panel-calibrate">
-            <summary>简短校准</summary>
+            <summary>显示预设 / 比例尺（辅助）</summary>
             <div class="panel-body">
+                <p class="hint">主流程请用「全屏校准」。下列预设与比例尺可在向导第②步使用，也可在此预览建议（不会静默覆盖已保存全屏档案）。</p>
                 <div id="calibrateSteps"></div>
                 <div class="btn-row">
                     <button id="calibratePrev" class="secondary" type="button">上一步</button>

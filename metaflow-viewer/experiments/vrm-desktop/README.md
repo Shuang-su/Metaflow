@@ -10,8 +10,10 @@ Standalone Three.js + `@pixiv/three-vrm` desktop portrait experiment (not SuperS
 - Off-axis calibrated projection + bone-based desk foot anchor
 - Quality tiers that change DPR / lights / shadows / springs
 - Short calibration wizard + honest device capability hints
+- **Fullscreen-first calibration** on the scene container (settings stay out of FS)
 - Mac / external display presets (manual), optional Window Management recognition, credit-card ruler
-- Per-screen local calibration profiles (privacy-conscious keys)
+- Per-screen local calibration profiles; preview mode after leaving fullscreen
+- Physical mapping uses CSS/logical px only (never × DPR)
 - Recoverable loading (progress bar + retry)
 - Default model: **文镜 Wenjing** (CC BY-NC-SA 4.0, LAPLACE Live! × 彩茫)
 - Optional pixiv VRM1 sample (`minimal-avatar.vrm`)
@@ -38,4 +40,5 @@ See `ATTRIBUTIONS.md` for licenses. Do not bundle restricted models (no Milky Gr
 ```bash
 node verify-baseline.mjs
 node verify-display.mjs
+node verify-fullscreen.mjs
 ```
