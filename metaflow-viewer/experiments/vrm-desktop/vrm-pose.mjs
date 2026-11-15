@@ -10,6 +10,9 @@
  *
  * Order: setNormalizedPose → humanoid.update → updateMatrixWorld →
  *        setInitState → reset → settle updates.
+ *
+ * Natural idle (not A/T-pose): upper arms hang near torso (~80°+ from T-pose),
+ * slight elbow bend, relaxed wrists, hands clear of skirt volume.
  */
 
 export function quatFromEulerXYZ(x, y, z) {
@@ -27,17 +30,42 @@ export function quatFromEulerXYZ(x, y, z) {
     ];
 }
 
+/** Natural hang fold from T-pose (radians). ~1.52 ≈ 87° — arms by torso, not A-pose. */
+export const NATURAL_ARM_FOLD = 1.52;
+export const NATURAL_ELBOW = 0.72;
+export const NATURAL_WRIST = 0.22;
+
+/**
+ * Build a natural standing rest pose (relaxed hang, slight elbow, soft wrists).
+ * VRM0 and VRM1 flip upper-arm Z sign in normalized space.
+ */
 export function buildRestPose(metaVersion) {
     const isVrm0 = metaVersion === '0';
-    const fold = 1.05; // ~60° toward torso — clearer rest than shallow A-pose
-    const lower = 0.35;
+    const fold = NATURAL_ARM_FOLD;
+    const elbow = NATURAL_ELBOW;
+    const wrist = NATURAL_WRIST;
+    // Inward + slight forward so elbows read beside torso (not flat A-pose silhouette)
+    const inY = isVrm0 ? 0.18 : -0.18;
+    const fwd = 0.18;
     const armZLeft = isVrm0 ? fold : -fold;
     const armZRight = isVrm0 ? -fold : fold;
+    // Soft shoulder drop
+    const shoulderDrop = 0.12;
     return {
-        leftUpperArm: { rotation: quatFromEulerXYZ(0, 0, armZLeft) },
-        rightUpperArm: { rotation: quatFromEulerXYZ(0, 0, armZRight) },
-        leftLowerArm: { rotation: quatFromEulerXYZ(lower, 0, 0) },
-        rightLowerArm: { rotation: quatFromEulerXYZ(lower, 0, 0) }
+        leftShoulder: { rotation: quatFromEulerXYZ(0, 0, isVrm0 ? shoulderDrop : -shoulderDrop) },
+        rightShoulder: { rotation: quatFromEulerXYZ(0, 0, isVrm0 ? -shoulderDrop : shoulderDrop) },
+        leftUpperArm: { rotation: quatFromEulerXYZ(fwd, inY, armZLeft) },
+        rightUpperArm: { rotation: quatFromEulerXYZ(fwd, -inY, armZRight) },
+        leftLowerArm: { rotation: quatFromEulerXYZ(elbow, 0.06, isVrm0 ? 0.12 : -0.12) },
+        rightLowerArm: { rotation: quatFromEulerXYZ(elbow, -0.06, isVrm0 ? -0.12 : 0.12) },
+        leftHand: { rotation: quatFromEulerXYZ(0.05, 0, isVrm0 ? -wrist : wrist) },
+        rightHand: { rotation: quatFromEulerXYZ(0.05, 0, isVrm0 ? wrist : -wrist) },
+        // Soft neutral spine — weight shift layered in animator, not baked hard here
+        spine: { rotation: quatFromEulerXYZ(0.02, 0, 0) },
+        chest: { rotation: quatFromEulerXYZ(0.015, 0, 0) },
+        hips: { rotation: quatFromEulerXYZ(0, 0.02, 0) },
+        neck: { rotation: quatFromEulerXYZ(-0.02, 0, 0) },
+        head: { rotation: quatFromEulerXYZ(0.03, -0.04, 0) }
     };
 }
 
@@ -47,16 +75,21 @@ function rebindSpringsToCurrentPose(vrm) {
 
     vrm.scene.updateMatrixWorld(true);
 
-    // Re-capture initial local rotations / tails from the posed skeleton
     if (typeof mgr.setInitState === 'function') {
         mgr.setInitState();
     }
-    // Clear velocities to the new init
     if (typeof mgr.reset === 'function') {
         mgr.reset();
     }
     return { rebound: true, setInitState: typeof mgr.setInitState === 'function' };
 }
+
+const ARM_BONE_NAMES = [
+    'leftShoulder', 'rightShoulder',
+    'leftUpperArm', 'rightUpperArm',
+    'leftLowerArm', 'rightLowerArm',
+    'leftHand', 'rightHand'
+];
 
 /**
  * Apply rest pose, sync humanoid → raw, rebind springs.
@@ -92,7 +125,6 @@ export function applyRestPoseAndSettle(vrm, metaVersion, settleFramesOrOpts = 12
             vrm.humanoid.update();
             vrm.update(dt);
         }
-        // Rebind after gravity settle so rest matches hanging cloth
         rebindSpringsToCurrentPose(vrm);
         for (let i = 0; i < 30; i++) {
             reapplyArmRestPose(vrm, metaVersion);
@@ -100,7 +132,6 @@ export function applyRestPoseAndSettle(vrm, metaVersion, settleFramesOrOpts = 12
             vrm.update(dt);
         }
     } else {
-        // Still tick humanoid/expressions without spring integration
         for (let i = 0; i < 8; i++) {
             reapplyArmRestPose(vrm, metaVersion);
             vrm.humanoid.update();
@@ -113,7 +144,8 @@ export function applyRestPoseAndSettle(vrm, metaVersion, settleFramesOrOpts = 12
         settleFrames: opts.updateSprings ? opts.settleFrames : 0,
         springsRebound: spring.rebound,
         springsUpdated: !!opts.updateSprings,
-        armFoldRad: 1.05,
+        armFoldRad: NATURAL_ARM_FOLD,
+        poseStyle: 'natural-relaxed',
         leftUpperArmQuat: sample
     };
 }
@@ -130,16 +162,12 @@ export function softResetSprings(vrm, settleFrames = 45) {
     return { reset: true, settleFrames, rebound: true };
 }
 
+/** Re-apply arm/shoulder/hand rest every frame so idle/lookAt cannot lift arms into A-pose. */
 export function reapplyArmRestPose(vrm, metaVersion) {
     if (!vrm?.humanoid) return;
     const pose = buildRestPose(metaVersion);
-    const bones = [
-        ['leftUpperArm', pose.leftUpperArm],
-        ['rightUpperArm', pose.rightUpperArm],
-        ['leftLowerArm', pose.leftLowerArm],
-        ['rightLowerArm', pose.rightLowerArm]
-    ];
-    for (const [name, state] of bones) {
+    for (const name of ARM_BONE_NAMES) {
+        const state = pose[name];
         const node = vrm.humanoid.getNormalizedBoneNode(name);
         if (node && state?.rotation) {
             node.quaternion.fromArray(state.rotation);
@@ -148,7 +176,7 @@ export function reapplyArmRestPose(vrm, metaVersion) {
 }
 
 /**
- * Per-model spring policy. Hair spikes on some VRM1 samples are honest-disabled.
+ * Per-model spring policy. Hair spikes / skirt flare → honest-disabled default.
  */
 export function springsPolicyForModel(modelName, metaVersion) {
     const n = (modelName || '').toLowerCase();
@@ -159,11 +187,9 @@ export function springsPolicyForModel(modelName, metaVersion) {
         };
     }
     if (metaVersion === '0' && n.includes('wenjing')) {
-        // Skirt springs still flare after A-pose + setInitState on this model;
-        // honest conservative default — user can enable and resettle.
         return {
             defaultEnabled: false,
-            reason: '文镜：A-pose 后裙摆弹簧仍易外翻；默认关闭弹簧以保持可读站姿（可手动开启）'
+            reason: '文镜：自然站姿下裙摆弹簧仍易外翻；默认关闭弹簧以保持可读站姿（可手动开启）'
         };
     }
     return { defaultEnabled: true, reason: '' };

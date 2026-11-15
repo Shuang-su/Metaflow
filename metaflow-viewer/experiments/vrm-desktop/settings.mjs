@@ -19,6 +19,8 @@ export const DEFAULT_SETTINGS = {
     eyeZ: 0.36,
     quality: 'balanced', // battery | balanced | quality
     springsEnabled: true, // may be overridden per-model on load
+    sceneMode: 'room', // room | minimal
+    idlePaused: false,
     // Full-screen physical size of the display (metres). Null = preview-only defaults.
     screenPhysical: null, // { widthM, heightM, source, labeled }
     projectionMode: 'preview', // preview | calibrated
@@ -84,6 +86,8 @@ export function saveSettings(settings) {
             ? settings.quality
             : 'balanced',
         springsEnabled: settings.springsEnabled !== false,
+        sceneMode: settings.sceneMode === 'minimal' ? 'minimal' : 'room',
+        idlePaused: !!settings.idlePaused,
         screenPhysical: sp && sp.widthM > 0 && sp.heightM > 0
             ? {
                 widthM: clamp(sp.widthM, 0.15, 2.5),

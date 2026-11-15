@@ -128,6 +128,7 @@ async function createArtifactZip() {
         archive.file(path.join(__dirname, 'test-audio.mjs'), { name: 'test-audio.mjs' });
         archive.file(path.join(__dirname, 'settings.mjs'), { name: 'settings.mjs' });
         archive.file(path.join(__dirname, 'vrm-pose.mjs'), { name: 'vrm-pose.mjs' });
+        archive.file(path.join(__dirname, 'environment.mjs'), { name: 'environment.mjs' });
         archive.file(path.join(__dirname, 'display-calibration.mjs'), { name: 'display-calibration.mjs' });
         archive.file(path.join(__dirname, 'fullscreen-calibration.mjs'), { name: 'fullscreen-calibration.mjs' });
         archive.file(path.join(__dirname, 'README.md'), { name: 'README.md' });

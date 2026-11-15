@@ -389,12 +389,19 @@
         <details class="panel" id="panel-basic" open>
             <summary>基础</summary>
             <div class="panel-body">
+                <label>场景</label>
+                <select id="sceneMode">
+                    <option value="room" selected>室内小景（推荐）</option>
+                    <option value="minimal">极简地板</option>
+                </select>
+                <p class="hint">室内小景为程序化小房间（地板/墙/窗光/家具点缀），非 Persona 场景复刻。</p>
                 <label>模型</label>
                 <input type="file" id="vrmFile" accept=".vrm">
                 <button id="loadDefaultModel">重新加载文镜（VRM0）</button>
                 <button id="loadSampleModel" class="secondary">加载 pixiv 示例（VRM1）</button>
                 <button id="resettleSprings" class="secondary">重新稳定姿势 / 弹簧</button>
                 <button id="playTestAudio" class="secondary">播放测试音频（口型）</button>
+                <label class="row-check"><input type="checkbox" id="idlePaused"> 暂停 idle（呼吸/眨眼/重心）</label>
                 <p class="model-credit">默认：文镜（Wenjing）。作者：LAPLACE Live! × 彩茫。许可：<a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank" rel="noopener noreferrer">CC BY-NC-SA 4.0</a>。示例：VRM1_Constraint_Twist_Sample（pixiv Inc.，<a href="https://vrm.dev/licenses/1.0/" target="_blank" rel="noopener noreferrer">VRM License 1.0</a>）。不含 Milky Green。</p>
             </div>
         </details>

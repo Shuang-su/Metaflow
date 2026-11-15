@@ -32,5 +32,9 @@
 - **Permissions**: allowRedistribution true; commercialUsage corporation; modification allowModificationRedistribution
 - **Bundled file**: `models/minimal-avatar.vrm`
 
+## Scene environment
+- **Room / Minimal dioramas**: original procedural Three.js geometry + canvas textures authored in `environment.mjs` (no remote scene packs, no Persona branding clone).
+- Reference videos (BV15TxE6rE7H / BV1DzaL6CESP) informed intent only; assets are not copied.
+
 ## Not included
 - Milky Green / 明前奶绿 and other restricted models are intentionally excluded.

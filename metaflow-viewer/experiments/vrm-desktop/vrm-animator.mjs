@@ -1,6 +1,7 @@
 /**
  * VRM Animation Controller
- * Handles idle breathing, blinking, lookAt gaze, and audio-reactive mouth
+ * Natural idle: breathing, blink, lookAt, subtle weight shift / head sway.
+ * Arms are owned by vrm-pose reapply — this module must not lift them.
  */
 
 import * as THREE from 'three';
@@ -10,14 +11,21 @@ export class VRMAnimator {
         this.vrm = vrm;
         this.camera = camera;
         this.reducedMotion = !!options.reducedMotion;
+        this.paused = !!options.paused;
 
-        // Animation state
-        this.breathingPhase = 0;
-        this.breathingRate = this.reducedMotion ? 0.12 : 0.3;
-        this.breathingAmplitude = this.reducedMotion ? 0.02 : 0.05;
+        this.breathingPhase = Math.random() * Math.PI * 2;
+        this.breathingRate = this.reducedMotion ? 0.1 : 0.28;
+        this.breathingAmplitude = this.reducedMotion ? 0.015 : 0.04;
+
+        this.weightPhase = Math.random() * Math.PI * 2;
+        this.weightRate = this.reducedMotion ? 0.05 : 0.11;
+        this.weightAmplitude = this.reducedMotion ? 0.004 : 0.012;
+
+        this.headPhase = Math.random() * Math.PI * 2;
+        this.headRate = this.reducedMotion ? 0.04 : 0.09;
 
         this.blinkTimer = 0;
-        this.blinkInterval = this.reducedMotion ? 5.0 : 3.0;
+        this.blinkInterval = this.reducedMotion ? 5.5 : 2.8 + Math.random() * 1.5;
         this.blinkDuration = 0.15;
         this.isBlinking = false;
         this.blinkPhase = 0;
@@ -26,6 +34,10 @@ export class VRMAnimator {
         this.mouthAnimationActive = false;
         this.mouthPhase = 0;
 
+        // Rest bases for bones we modulate (set after pose apply)
+        this._bases = {};
+        this.captureRestBases();
+
         if (this.vrm.lookAt) {
             this.lookAtTarget = new THREE.Object3D();
             this.lookAtTarget.position.copy(camera.position);
@@ -33,10 +45,40 @@ export class VRMAnimator {
         }
     }
 
+    setPaused(paused) {
+        this.paused = !!paused;
+        if (this.paused && this.vrm?.expressionManager) {
+            this.vrm.expressionManager.setValue('blink', 0);
+        }
+    }
+
+    captureRestBases() {
+        if (!this.vrm?.humanoid) return;
+        this._bases = {};
+        for (const name of ['hips', 'spine', 'chest', 'neck', 'head']) {
+            const node = this.vrm.humanoid.getNormalizedBoneNode(name);
+            if (node) {
+                this._bases[name] = {
+                    x: node.rotation.x,
+                    y: node.rotation.y,
+                    z: node.rotation.z
+                };
+            }
+        }
+    }
+
     update(deltaTime) {
         if (!this.vrm) return;
+        if (this.paused || this.reducedMotion) {
+            // Still allow lookAt when reduced (static gaze), skip motion loops
+            if (!this.paused) this.updateLookAt();
+            if (this.mouthAnimationActive) this.updateMouth(deltaTime);
+            return;
+        }
 
         this.updateBreathing(deltaTime);
+        this.updateWeightShift(deltaTime);
+        this.updateHeadSway(deltaTime);
         this.updateBlinking(deltaTime);
         this.updateLookAt();
 
@@ -44,93 +86,108 @@ export class VRMAnimator {
             this.updateMouth(deltaTime);
         }
     }
-    
+
     updateBreathing(deltaTime) {
         this.breathingPhase += deltaTime * this.breathingRate * Math.PI * 2;
-        
-        // Subtle chest rise via rotation only — never scale bones (breaks skirts/cloth)
         const breathAmount = Math.sin(this.breathingPhase) * this.breathingAmplitude;
-        if (this.vrm.humanoid) {
-            const chest = this.vrm.humanoid.getNormalizedBoneNode('chest');
-            if (chest) {
-                chest.rotation.x = breathAmount * 0.15;
-            }
+        const chest = this.vrm.humanoid?.getNormalizedBoneNode('chest');
+        const base = this._bases.chest || { x: 0, y: 0, z: 0 };
+        if (chest) {
+            chest.rotation.x = base.x + breathAmount * 0.55;
+        }
+        const spine = this.vrm.humanoid?.getNormalizedBoneNode('spine');
+        const spineBase = this._bases.spine || { x: 0, y: 0, z: 0 };
+        if (spine) {
+            spine.rotation.x = spineBase.x + breathAmount * 0.2;
         }
     }
-    
+
+    updateWeightShift(deltaTime) {
+        this.weightPhase += deltaTime * this.weightRate * Math.PI * 2;
+        const sway = Math.sin(this.weightPhase) * this.weightAmplitude;
+        const hips = this.vrm.humanoid?.getNormalizedBoneNode('hips');
+        const base = this._bases.hips || { x: 0, y: 0, z: 0 };
+        if (hips) {
+            hips.rotation.z = base.z + sway;
+            hips.rotation.y = base.y + sway * 0.35;
+        }
+    }
+
+    updateHeadSway(deltaTime) {
+        this.headPhase += deltaTime * this.headRate * Math.PI * 2;
+        const head = this.vrm.humanoid?.getNormalizedBoneNode('head');
+        const neck = this.vrm.humanoid?.getNormalizedBoneNode('neck');
+        const hb = this._bases.head || { x: 0, y: 0, z: 0 };
+        const nb = this._bases.neck || { x: 0, y: 0, z: 0 };
+        if (head) {
+            head.rotation.y = hb.y + Math.sin(this.headPhase) * 0.035;
+            head.rotation.x = hb.x + Math.sin(this.headPhase * 0.7) * 0.015;
+        }
+        if (neck) {
+            neck.rotation.y = nb.y + Math.sin(this.headPhase) * 0.012;
+        }
+    }
+
     updateBlinking(deltaTime) {
         this.blinkTimer += deltaTime;
-        
+
         if (!this.isBlinking) {
-            // Random trigger when timer exceeds interval
             if (this.blinkTimer >= this.blinkInterval) {
                 this.isBlinking = true;
                 this.blinkPhase = 0;
                 this.blinkTimer = 0;
-                // Randomize next interval (2-5 seconds)
-                this.blinkInterval = 2 + Math.random() * 3;
+                this.blinkInterval = 2.2 + Math.random() * 3.2;
             }
         } else {
-            // Animate blink
             this.blinkPhase += deltaTime / this.blinkDuration;
-            
+
             if (this.blinkPhase >= 1) {
                 this.isBlinking = false;
                 this.blinkPhase = 0;
             }
-            
-            // Smooth blink curve (ease in-out)
+
             const t = this.blinkPhase;
-            const curve = t < 0.5 
-                ? 2 * t * t 
+            const curve = t < 0.5
+                ? 2 * t * t
                 : 1 - Math.pow(-2 * t + 2, 2) / 2;
-            
-            // Apply to blink expression
+
             if (this.vrm.expressionManager) {
                 const blinkValue = Math.sin(curve * Math.PI);
                 this.vrm.expressionManager.setValue('blink', blinkValue);
             }
         }
     }
-    
+
     updateLookAt() {
         if (this.vrm.lookAt && this.lookAtTarget) {
-            // Point target at camera position
             this.lookAtTarget.position.copy(this.camera.position);
         }
     }
-    
+
     updateMouth(deltaTime) {
         if (!this.vrm.expressionManager) return;
-        
-        // Oscillate mouth during speech (simple placeholder)
-        this.mouthPhase += deltaTime * 8; // 8 Hz oscillation
-        const mouthValue = (Math.sin(this.mouthPhase) + 1) * 0.3; // 0 to 0.6
-        
+        this.mouthPhase += deltaTime * 8;
+        const mouthValue = (Math.sin(this.mouthPhase) + 1) * 0.3;
         this.vrm.expressionManager.setValue('aa', mouthValue);
     }
-    
+
     async playAudioWithMouth(audioBuffer) {
         if (!this.audioContext) {
             this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
         }
-        
-        // Decode if needed
+
         let buffer = audioBuffer;
         if (audioBuffer instanceof ArrayBuffer) {
             buffer = await this.audioContext.decodeAudioData(audioBuffer);
         }
-        
-        // Play audio
+
         const source = this.audioContext.createBufferSource();
         source.buffer = buffer;
         source.connect(this.audioContext.destination);
-        
-        // Start mouth animation
+
         this.mouthAnimationActive = true;
         this.mouthPhase = 0;
-        
-        // Stop mouth animation when audio ends
+
         return new Promise((resolve) => {
             source.onended = () => {
                 this.mouthAnimationActive = false;
@@ -139,11 +196,10 @@ export class VRMAnimator {
                 }
                 resolve();
             };
-            
             source.start(0);
         });
     }
-    
+
     dispose() {
         if (this.audioContext) {
             this.audioContext.close();

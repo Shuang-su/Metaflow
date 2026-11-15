@@ -45,6 +45,11 @@ import {
     CREDIT_CARD_MM
 } from './display-calibration.mjs';
 import {
+    buildEnvironment,
+    sceneAtmosphere,
+    SCENE_MODES
+} from './environment.mjs';
+import {
     featureDetectFullscreen,
     enterSceneFullscreen,
     exitSceneFullscreen,
@@ -83,11 +88,16 @@ class DesktopPortraitApp {
         this.lastModelUrl = './models/wenjing.vrm';
 
         this.setStatus('正在初始化场景…', 'loading');
-        window.__bootPhase = 'scene';
+        window.__bootPhase = 'settings';
+        this.settings = loadSettings();
+        this.sceneMode = this.settings.sceneMode === 'minimal' ? 'minimal' : 'room';
+        this.idlePaused = !!this.settings.idlePaused;
+        this._gradientBackground = null;
 
+        window.__bootPhase = 'scene';
         this.scene = new THREE.Scene();
-        this.scene.background = this.createGradientBackground();
-        this.scene.fog = new THREE.Fog(0x1a222c, 1.4, 3.8);
+        this._gradientBackground = this.createGradientBackground();
+        this.applySceneAtmosphere();
 
         window.__bootPhase = 'webgl';
         this.renderer = this.createRenderer();
@@ -100,8 +110,6 @@ class DesktopPortraitApp {
 
         this.camera = new THREE.PerspectiveCamera(50, 1, 0.01, 10);
 
-        window.__bootPhase = 'settings';
-        this.settings = loadSettings();
         this.params = {
             width: this.settings.widthM,
             height: this.settings.heightM,
@@ -246,31 +254,56 @@ class DesktopPortraitApp {
         return tex;
     }
 
+    applySceneAtmosphere() {
+        const atm = sceneAtmosphere(this.sceneMode || 'room');
+        if (atm.background == null) {
+            this.scene.background = this._gradientBackground || this.createGradientBackground();
+        } else {
+            this.scene.background = new THREE.Color(atm.background);
+        }
+        this.scene.fog = new THREE.Fog(atm.fogColor, atm.fogNear, atm.fogFar);
+        this._atmosphere = atm;
+        if (this.lights?.ambient) {
+            this.lights.ambient.color.setHex(atm.ambient);
+            this.lights.ambient.intensity = atm.ambientIntensity;
+        }
+        if (this.lights?.hemi) {
+            this.lights.hemi.color.setHex(atm.hemiSky);
+            this.lights.hemi.groundColor.setHex(atm.hemiGround);
+        }
+    }
+
     setupLighting() {
-        this.lights.ambient = new THREE.AmbientLight(0xfff4ea, 0.45);
+        const atm = this._atmosphere || sceneAtmosphere(this.sceneMode || 'room');
+        this.lights.ambient = new THREE.AmbientLight(atm.ambient, atm.ambientIntensity);
         this.scene.add(this.lights.ambient);
 
+        // Window-side key for room; frontal key for minimal
         this.lights.key = new THREE.DirectionalLight(0xfff0e0, 0.95);
-        this.lights.key.position.set(0.35, 1.4, 1.8);
+        this.lights.key.position.set(
+            this.sceneMode === 'room' ? -0.55 : 0.35,
+            1.15,
+            this.sceneMode === 'room' ? 0.35 : 1.8
+        );
         this.lights.key.castShadow = true;
         this.lights.key.shadow.mapSize.set(512, 512);
-        this.lights.key.shadow.camera.near = 0.1;
-        this.lights.key.shadow.camera.far = 4;
-        this.lights.key.shadow.camera.left = -0.4;
-        this.lights.key.shadow.camera.right = 0.4;
-        this.lights.key.shadow.camera.top = 0.4;
-        this.lights.key.shadow.camera.bottom = -0.4;
+        this.lights.key.shadow.camera.near = 0.05;
+        this.lights.key.shadow.camera.far = 3.5;
+        this.lights.key.shadow.camera.left = -0.45;
+        this.lights.key.shadow.camera.right = 0.45;
+        this.lights.key.shadow.camera.top = 0.5;
+        this.lights.key.shadow.camera.bottom = -0.2;
         this.scene.add(this.lights.key);
 
         this.lights.fill = new THREE.DirectionalLight(0xb8c8e8, 0.32);
-        this.lights.fill.position.set(-1.4, 0.7, 1.0);
+        this.lights.fill.position.set(1.1, 0.7, 0.9);
         this.scene.add(this.lights.fill);
 
         this.lights.rim = new THREE.DirectionalLight(0xffd8b8, 0.22);
-        this.lights.rim.position.set(0.2, 1.0, -1.5);
+        this.lights.rim.position.set(0.15, 0.9, -1.2);
         this.scene.add(this.lights.rim);
 
-        this.lights.hemi = new THREE.HemisphereLight(0xdde7ff, 0x8a6a45, 0.25);
+        this.lights.hemi = new THREE.HemisphereLight(atm.hemiSky, atm.hemiGround, 0.28);
         this.scene.add(this.lights.hemi);
     }
 
@@ -299,6 +332,27 @@ class DesktopPortraitApp {
         this.lights.key.castShadow = this.profile.shadows;
         if (this.desk) this.desk.receiveShadow = this.profile.shadows;
         if (this.contactShadow) this.contactShadow.visible = this.profile.shadows;
+        if (this.envRoot) {
+            this.envRoot.traverse((o) => {
+                if (o.isMesh) {
+                    o.castShadow = this.profile.shadows && o.name !== 'EnvFloor';
+                    o.receiveShadow = this.profile.shadows || o.name === 'EnvFloor';
+                }
+            });
+            const win = this.envRoot.userData?.windowLight;
+            if (win) {
+                win.visible = !minimal;
+                win.intensity = full ? 0.6 : 0.35;
+            }
+        }
+        // Re-aim key for scene mode
+        if (this.lights?.key) {
+            this.lights.key.position.set(
+                this.sceneMode === 'room' ? -0.55 : 0.35,
+                1.15,
+                this.sceneMode === 'room' ? 0.35 : 1.8
+            );
+        }
 
         // Springs: quality may force off; user toggle can also disable
         const wantSprings = this.profile.springs && this.springsEnabled;
@@ -325,56 +379,29 @@ class DesktopPortraitApp {
     }
 
     createDesk() {
-        const geometry = new THREE.PlaneGeometry(0.42, 0.32, 1, 1);
-        // Subtle wood-ish tone variation (still a simple plane — not a photo texture)
-        const deskCanvas = document.createElement('canvas');
-        deskCanvas.width = 256;
-        deskCanvas.height = 256;
-        const dctx = deskCanvas.getContext('2d');
-        const dg = dctx.createLinearGradient(0, 0, 256, 256);
-        dg.addColorStop(0, '#c4a06e');
-        dg.addColorStop(0.5, '#a67c52');
-        dg.addColorStop(1, '#8b6914');
-        dctx.fillStyle = dg;
-        dctx.fillRect(0, 0, 256, 256);
-        for (let i = 0; i < 40; i++) {
-            dctx.strokeStyle = `rgba(60,40,20,${0.03 + (i % 5) * 0.01})`;
-            dctx.beginPath();
-            dctx.moveTo(0, i * 6 + 2);
-            dctx.lineTo(256, i * 6 - 8);
-            dctx.stroke();
-        }
-        const deskMap = new THREE.CanvasTexture(deskCanvas);
-        deskMap.colorSpace = THREE.SRGBColorSpace;
-        const material = new THREE.MeshStandardMaterial({
-            map: deskMap,
-            color: 0xffffff,
-            roughness: 0.86,
-            metalness: 0.03,
-            side: THREE.DoubleSide
-        });
-        this.desk = new THREE.Mesh(geometry, material);
-        this.desk.name = 'Desk';
-        this.desk.receiveShadow = true;
-        this.desk.rotation.x = -Math.PI / 2;
-        this.desk.position.set(0, 0, -0.08);
-        this.deskRoot.add(this.desk);
-
-        // Soft elliptical contact shadow (cheap, not a second light map)
-        const shadowGeo = new THREE.CircleGeometry(0.06, 24);
-        const shadowMat = new THREE.MeshBasicMaterial({
-            color: 0x000000,
-            transparent: true,
-            opacity: 0.34,
-            depthWrite: false
-        });
-        this.contactShadow = new THREE.Mesh(shadowGeo, shadowMat);
-        this.contactShadow.rotation.x = -Math.PI / 2;
-        this.contactShadow.position.set(0, 0.001, -0.04);
-        this.contactShadow.visible = false;
-        this.deskRoot.add(this.contactShadow);
-
+        this.rebuildEnvironment();
         this.updateDeskPose();
+    }
+
+    rebuildEnvironment() {
+        const detail = this.profile?.lights === 'full'
+            ? 'full'
+            : (this.profile?.lights === 'minimal' ? 'minimal' : 'standard');
+        this.envRoot = buildEnvironment(this.deskRoot, this.sceneMode || 'room', { detail });
+        this.desk = this.envRoot?.userData?.floor || this.envRoot?.getObjectByName('EnvFloor') || null;
+        this.contactShadow = this.envRoot?.userData?.contactShadow || null;
+        this.applySceneAtmosphere();
+        if (this.profile) this.applyQuality(true);
+    }
+
+    setSceneMode(mode) {
+        const next = mode === 'minimal' ? 'minimal' : 'room';
+        if (next === this.sceneMode && this.envRoot) return;
+        this.sceneMode = next;
+        this.settings.sceneMode = next;
+        this.rebuildEnvironment();
+        if (this.vrm) this.normalizeAndAnchor();
+        this.setStatus(next === 'room' ? '场景：室内小景' : '场景：极简地板', 'success');
     }
 
     updateDeskPose() {
@@ -557,14 +584,20 @@ class DesktopPortraitApp {
         this.restPoseSet = poseResult.applied;
         console.log('[Pose]', poseResult, policy);
 
-        this.normalizeAndAnchor();
-        this.animator = new VRMAnimator(this.vrm, this.camera, {
-            reducedMotion: this.caps.reducedMotion
-        });
+            this.normalizeAndAnchor();
+            this.animator = new VRMAnimator(this.vrm, this.camera, {
+                reducedMotion: this.caps.reducedMotion,
+                paused: this.idlePaused
+            });
+            this.animator.captureRestBases();
 
-        this.setLoadProgress(100, '');
-        const springShort = this.springsActive ? '弹簧开' : '弹簧关';
-        this.setStatus(`VRM 加载成功: ${name}${this.metaVersion ? ` (VRM${this.metaVersion})` : ''} · ${springShort}`, 'success');
+            this.setLoadProgress(100, '');
+            const springShort = this.springsActive ? '弹簧开' : '弹簧关';
+            const poseShort = '自然站姿';
+            this.setStatus(
+                `VRM 加载成功: ${name}${this.metaVersion ? ` (VRM${this.metaVersion})` : ''} · ${poseShort} · ${springShort}`,
+                'success'
+            );
         const policyEl = document.getElementById('springsPolicyNote');
         if (policyEl) {
             policyEl.textContent = this.springsFallbackNote || '';
@@ -578,21 +611,25 @@ class DesktopPortraitApp {
             this.bootErrorEl.textContent = '';
         }
 
-        window.diagnostics = {
-            ready: true,
-            loading: false,
-            generation: gen,
-            modelType: 'vrm',
-            modelName: name,
-            metaVersion: this.metaVersion,
-            rotatedVRM0: this.rotatedVRM0,
-            restPose: this.restPoseSet,
-            leftUpperArmQuat: poseResult.leftUpperArmQuat,
-            springsActive: this.springsActive,
-            springsFallbackNote: this.springsFallbackNote,
-            springsPolicy: policy,
-            quality: this.profile.id,
-            webglOpts: this.webglOpts || null,
+            window.diagnostics = {
+                ready: true,
+                loading: false,
+                generation: gen,
+                modelType: 'vrm',
+                modelName: name,
+                metaVersion: this.metaVersion,
+                rotatedVRM0: this.rotatedVRM0,
+                restPose: this.restPoseSet,
+                poseStyle: poseResult.poseStyle || 'natural-relaxed',
+                armFoldRad: poseResult.armFoldRad,
+                leftUpperArmQuat: poseResult.leftUpperArmQuat,
+                springsActive: this.springsActive,
+                springsFallbackNote: this.springsFallbackNote,
+                springsPolicy: policy,
+                quality: this.profile.id,
+                sceneMode: this.sceneMode,
+                idlePaused: this.idlePaused,
+                webglOpts: this.webglOpts || null,
             vrmMeta: this.vrm.meta,
             hasExpressions: !!this.vrm.expressionManager,
             hasLookAt: !!this.vrm.lookAt,
@@ -672,8 +709,10 @@ class DesktopPortraitApp {
             };
         }
 
-        // Portrait figurine: leave vertical margin so hair crown + toes stay in frustum
-        const targetHeight = Math.min(0.148, this.params.height * 0.78);
+        // Portrait figurine: leave hair/toes margin; room mode slightly smaller so walls/props read
+        const fill = this.sceneMode === 'room' ? 0.66 : 0.78;
+        const cap = this.sceneMode === 'room' ? 0.128 : 0.148;
+        const targetHeight = Math.min(cap, this.params.height * fill);
         const scale = targetHeight / extents.height;
         scene.scale.setScalar(scale);
         scene.updateMatrixWorld(true);
@@ -682,7 +721,11 @@ class DesktopPortraitApp {
         const center = extents.box.getCenter(new THREE.Vector3());
 
         this.deskRoot.updateMatrixWorld(true);
-        const contact = new THREE.Vector3(0, 0, -0.04);
+        const contactLocal = this.contactShadow
+            ? this.contactShadow.position.clone()
+            : new THREE.Vector3(0, 0, this.sceneMode === 'room' ? -0.03 : -0.04);
+        contactLocal.y = 0;
+        const contact = contactLocal.clone();
         this.deskRoot.localToWorld(contact);
 
         this.personRoot.position.set(
@@ -693,7 +736,8 @@ class DesktopPortraitApp {
         this.personRoot.rotation.set(0, 0, 0);
 
         if (this.contactShadow) {
-            this.contactShadow.position.set(0, 0.0015, -0.04);
+            const cz = this.contactShadow.position.z;
+            this.contactShadow.position.set(0, 0.0015, cz);
             const width = extents.box.max.x - extents.box.min.x;
             const footprint = Math.max(0.035, Math.min(0.09, width * 0.5));
             this.contactShadow.scale.setScalar(footprint / 0.06);
@@ -1121,6 +1165,8 @@ class DesktopPortraitApp {
             eyeZ: this.params.eye.z,
             quality: this.quality,
             springsEnabled: this.springsEnabled,
+            sceneMode: this.sceneMode === 'minimal' ? 'minimal' : 'room',
+            idlePaused: !!this.idlePaused,
             screenPhysical: this.screenPhysical,
             projectionMode: this.projectionMode,
             panelCollapsed: this.settings.panelCollapsed
@@ -1511,6 +1557,10 @@ class DesktopPortraitApp {
         if (q) q.value = this.quality;
         const springToggle = document.getElementById('springsEnabled');
         if (springToggle) springToggle.checked = this.springsEnabled;
+        const sceneSel = document.getElementById('sceneMode');
+        if (sceneSel) sceneSel.value = this.sceneMode === 'minimal' ? 'minimal' : 'room';
+        const idlePause = document.getElementById('idlePaused');
+        if (idlePause) idlePause.checked = !!this.idlePaused;
     }
 
     setupControls() {
@@ -1555,14 +1605,27 @@ class DesktopPortraitApp {
         document.getElementById('qualityPreset')?.addEventListener('change', (e) => {
             this.quality = e.target.value;
             this.applyQuality();
+            // Quality tiers change env detail
+            this.rebuildEnvironment();
+            if (this.vrm) this.normalizeAndAnchor();
             this.setStatus(`画质已切换：${this.profile.id}`, 'success');
+        });
+
+        document.getElementById('sceneMode')?.addEventListener('change', (e) => {
+            this.setSceneMode(e.target.value);
+        });
+
+        document.getElementById('idlePaused')?.addEventListener('change', (e) => {
+            this.idlePaused = !!e.target.checked;
+            this.animator?.setPaused(this.idlePaused);
+            this.setStatus(this.idlePaused ? '已暂停 idle 动画' : '已恢复 idle 动画', 'success');
         });
 
         document.getElementById('springsEnabled')?.addEventListener('change', (e) => {
             this.springsEnabled = !!e.target.checked;
             this.applyQuality();
-            if (this.vrm?.springBoneManager?.reset && this.springsActive) {
-                this.vrm.springBoneManager.reset();
+            if (this.vrm?.springBoneManager && this.springsActive) {
+                softResetSprings(this.vrm, 40);
             }
             this.setStatus(this.springsActive ? '弹簧骨骼已开启并重置' : '弹簧骨骼已关闭', 'success');
         });
@@ -1583,8 +1646,12 @@ class DesktopPortraitApp {
             };
             this.quality = this.settings.quality;
             this.springsEnabled = this.settings.springsEnabled !== false;
+            this.sceneMode = this.settings.sceneMode === 'minimal' ? 'minimal' : 'room';
+            this.idlePaused = !!this.settings.idlePaused;
             this.screenPhysical = null;
             this.projectionMode = 'preview';
+            this.rebuildEnvironment();
+            this.animator?.setPaused(this.idlePaused);
             this.userLockedWidth = false;
             this.applyQuality();
             this.syncSlidersFromParams();
