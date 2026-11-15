@@ -126,6 +126,7 @@ async function createArtifactZip() {
         archive.file(path.join(__dirname, 'projection.mjs'), { name: 'projection.mjs' });
         archive.file(path.join(__dirname, 'vrm-animator.mjs'), { name: 'vrm-animator.mjs' });
         archive.file(path.join(__dirname, 'test-audio.mjs'), { name: 'test-audio.mjs' });
+        archive.file(path.join(__dirname, 'settings.mjs'), { name: 'settings.mjs' });
         archive.file(path.join(__dirname, 'README.md'), { name: 'README.md' });
         archive.file(path.join(__dirname, 'ATTRIBUTIONS.md'), { name: 'ATTRIBUTIONS.md' });
         archive.file(path.join(__dirname, '_headers'), { name: '_headers' });

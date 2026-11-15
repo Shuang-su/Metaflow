@@ -9,6 +9,15 @@ import { VRMLoaderPlugin, VRMUtils } from '@pixiv/three-vrm';
 import { getProjection, tablePose } from './projection.mjs';
 import { VRMAnimator } from './vrm-animator.mjs';
 import { generateTestAudio } from './test-audio.mjs';
+import {
+    loadSettings,
+    saveSettings,
+    resetSettings,
+    mToCm,
+    degLabel,
+    detectCapabilities,
+    qualityToPixelRatio
+} from './settings.mjs';
 
 window.THREE = THREE;
 
@@ -36,7 +45,7 @@ class DesktopPortraitApp {
             antialias: true,
             alpha: false
         });
-        this.renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+        this.renderer.setPixelRatio(1);
         this.renderer.outputColorSpace = THREE.SRGBColorSpace;
         this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
         this.renderer.toneMappingExposure = 1.05;
@@ -45,14 +54,21 @@ class DesktopPortraitApp {
 
         this.setupLighting();
 
-        // Physical screen params; width recalculated from canvas aspect on resize
-        // tiltDegrees = stand lean from vertical (0=upright screen). Converted for tablePose.
+        this.settings = loadSettings();
+        // Physical screen params; width may follow canvas aspect unless user locks via slider
+        // tiltDegrees = stand lean from vertical (0=upright). Converted for tablePose.
         this.params = {
-            width: 0.15,
-            height: 0.20,
-            tiltDegrees: 15,
-            eye: { x: -0.03, y: 0.0, z: 0.48 }
+            width: this.settings.widthM,
+            height: this.settings.heightM,
+            tiltDegrees: this.settings.tiltDeg,
+            eye: {
+                x: this.settings.eyeX,
+                y: this.settings.eyeY,
+                z: this.settings.eyeZ
+            }
         };
+        this.quality = this.settings.quality || 'balanced';
+        this.userLockedWidth = false;
 
         // Desk visual (tilted with stand). Character stays world-upright as sibling.
         this.deskRoot = new THREE.Group();
@@ -71,10 +87,95 @@ class DesktopPortraitApp {
         this.rotatedVRM0 = false;
 
         this.setupControls();
+        this.setupPanels();
+        this.setupDevicePanel();
+        this.applyQuality();
+        this.syncSlidersFromParams();
         this.setupResize();
         this.updateProjection();
         this.animate();
         this.loadDefaultModel();
+    }
+
+    applyQuality() {
+        const dpr = qualityToPixelRatio(this.quality, window.devicePixelRatio || 1);
+        this.renderer.setPixelRatio(dpr);
+        const hint = document.getElementById('qualityHint');
+        if (hint) {
+            hint.textContent = `当前像素比 ${dpr.toFixed(2)}（设备 DPR ${Number(window.devicePixelRatio || 1).toFixed(2)}）。网页无法变成系统透明桌宠。`;
+        }
+    }
+
+    setupPanels() {
+        const map = {
+            basic: 'panel-basic',
+            viewpoint: 'panel-viewpoint',
+            advanced: 'panel-advanced',
+            device: 'panel-device'
+        };
+        for (const [key, id] of Object.entries(map)) {
+            const el = document.getElementById(id);
+            if (!el) continue;
+            el.open = !this.settings.panelCollapsed?.[key];
+            el.addEventListener('toggle', () => {
+                this.settings.panelCollapsed = {
+                    ...this.settings.panelCollapsed,
+                    [key]: !el.open
+                };
+                saveSettings({ ...this.settings, ...this.snapshotSettings() });
+            });
+        }
+    }
+
+    setupDevicePanel() {
+        const caps = detectCapabilities();
+        const grid = document.getElementById('deviceGrid');
+        const disc = document.getElementById('deviceDisclaimer');
+        if (disc) disc.textContent = caps.disclaimer;
+        if (!grid) return;
+        const rows = [
+            ['形态提示', caps.formFactor],
+            ['浏览器', caps.uaSummary],
+            ['平台', caps.platform],
+            ['屏幕 CSS px', caps.screenCssPx],
+            ['DPR', String(caps.devicePixelRatio)],
+            ['WebGL2', caps.webgl2 ? '是' : '否'],
+            ['逻辑核心', caps.cores ?? '未知'],
+            ['内存提示', caps.deviceMemoryGiB != null ? `${caps.deviceMemoryGiB} GiB` : '未知'],
+            ['减少动态', caps.reducedMotion ? '是' : '否'],
+            ['建议画质', caps.suggestedQuality]
+        ];
+        grid.innerHTML = rows.map(([k, v]) => `<span>${k}</span><span>${v}</span>`).join('');
+    }
+
+    snapshotSettings() {
+        return {
+            widthM: this.params.width,
+            heightM: this.params.height,
+            tiltDeg: this.params.tiltDegrees,
+            eyeX: this.params.eye.x,
+            eyeY: this.params.eye.y,
+            eyeZ: this.params.eye.z,
+            quality: this.quality,
+            panelCollapsed: this.settings.panelCollapsed
+        };
+    }
+
+    syncSlidersFromParams() {
+        const set = (id, valueId, value, format) => {
+            const el = document.getElementById(id);
+            const val = document.getElementById(valueId);
+            if (el) el.value = String(value);
+            if (val) val.textContent = format(value);
+        };
+        set('screenWidth', 'screenWidthValue', this.params.width, mToCm);
+        set('screenHeight', 'screenHeightValue', this.params.height, mToCm);
+        set('tiltDegrees', 'tiltDegreesValue', this.params.tiltDegrees, degLabel);
+        set('eyeX', 'eyeXValue', this.params.eye.x, mToCm);
+        set('eyeY', 'eyeYValue', this.params.eye.y, mToCm);
+        set('eyeZ', 'eyeZValue', this.params.eye.z, mToCm);
+        const q = document.getElementById('qualityPreset');
+        if (q) q.value = this.quality;
     }
 
     setupLighting() {
@@ -354,35 +455,68 @@ class DesktopPortraitApp {
             if (!el) return;
             el.addEventListener('input', (e) => {
                 const n = parseFloat(e.target.value);
-                val.textContent = format(n);
+                if (val) val.textContent = format(n);
                 apply(n);
             });
         };
 
-        bindSlider('screenWidth', 'screenWidthValue', (n) => `${n.toFixed(2)} m`, (n) => {
+        bindSlider('screenWidth', 'screenWidthValue', mToCm, (n) => {
+            this.userLockedWidth = true;
             this.params.width = n;
             this.updateProjection();
         });
-        bindSlider('screenHeight', 'screenHeightValue', (n) => `${n.toFixed(2)} m`, (n) => {
+        bindSlider('screenHeight', 'screenHeightValue', mToCm, (n) => {
             this.params.height = n;
             this.updateProjection();
             if (this.vrm) this.normalizeAndAnchor();
         });
-        bindSlider('tiltDegrees', 'tiltDegreesValue', (n) => `${n.toFixed(0)}°`, (n) => {
+        bindSlider('tiltDegrees', 'tiltDegreesValue', degLabel, (n) => {
             this.params.tiltDegrees = n;
             this.updateProjection();
         });
-        bindSlider('eyeX', 'eyeXValue', (n) => `${n.toFixed(2)} m`, (n) => {
+        bindSlider('eyeX', 'eyeXValue', mToCm, (n) => {
             this.params.eye.x = n;
             this.updateProjection();
         });
-        bindSlider('eyeY', 'eyeYValue', (n) => `${n.toFixed(2)} m`, (n) => {
+        bindSlider('eyeY', 'eyeYValue', mToCm, (n) => {
             this.params.eye.y = n;
             this.updateProjection();
         });
-        bindSlider('eyeZ', 'eyeZValue', (n) => `${n.toFixed(2)} m`, (n) => {
+        bindSlider('eyeZ', 'eyeZValue', mToCm, (n) => {
             this.params.eye.z = n;
             this.updateProjection();
+        });
+
+        document.getElementById('qualityPreset')?.addEventListener('change', (e) => {
+            this.quality = e.target.value;
+            this.applyQuality();
+            const w = this.canvas.clientWidth;
+            const h = this.canvas.clientHeight;
+            if (w > 0 && h > 0) this.renderer.setSize(w, h, false);
+        });
+
+        document.getElementById('saveSettings')?.addEventListener('click', () => {
+            this.settings = saveSettings(this.snapshotSettings());
+            this.setStatus('本地设置已保存', 'success');
+        });
+        document.getElementById('resetSettings')?.addEventListener('click', () => {
+            this.settings = resetSettings();
+            this.params.width = this.settings.widthM;
+            this.params.height = this.settings.heightM;
+            this.params.tiltDegrees = this.settings.tiltDeg;
+            this.params.eye = {
+                x: this.settings.eyeX,
+                y: this.settings.eyeY,
+                z: this.settings.eyeZ
+            };
+            this.quality = this.settings.quality;
+            this.userLockedWidth = false;
+            this.applyQuality();
+            this.syncSlidersFromParams();
+            this.setupPanels();
+            this.updateProjection();
+            if (this.vrm) this.normalizeAndAnchor();
+            this.setStatus('已重置为默认设置', 'success');
         });
 
         document.getElementById('vrmFile')?.addEventListener('change', async (e) => {
@@ -426,16 +560,11 @@ class DesktopPortraitApp {
             const height = this.canvas.clientHeight;
             if (width <= 0 || height <= 0) return;
             this.renderer.setSize(width, height, false);
-            const aspectRatio = width / height;
-            this.params.height = 0.20;
-            this.params.width = this.params.height * aspectRatio;
-            // Keep UI slider displays in sync when present
-            const wEl = document.getElementById('screenWidth');
-            const wVal = document.getElementById('screenWidthValue');
-            if (wEl && wVal) {
-                wEl.value = String(this.params.width.toFixed(2));
-                wVal.textContent = `${this.params.width.toFixed(2)} m`;
+            if (!this.userLockedWidth) {
+                const aspectRatio = width / height;
+                this.params.width = this.params.height * aspectRatio;
             }
+            this.syncSlidersFromParams();
             this.updateProjection();
             if (this.vrm) this.normalizeAndAnchor();
         };
