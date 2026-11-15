@@ -8,6 +8,7 @@ import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { VRMLoaderPlugin, VRMUtils } from '@pixiv/three-vrm';
 import { getProjection, tablePose } from './projection.mjs';
 import { VRMAnimator } from './vrm-animator.mjs';
+import { VRMAnimationPlayer, loadAnimationCatalog } from './vrm-animation-player.mjs';
 import { generateTestAudio } from './test-audio.mjs';
 import {
     applyRestPoseAndSettle,
@@ -93,6 +94,9 @@ class DesktopPortraitApp {
         this.settings = loadSettings();
         this.sceneMode = this.settings.sceneMode === 'minimal' ? 'minimal' : 'room';
         this.idlePaused = !!this.settings.idlePaused;
+        this.animClipId = this.settings.animClipId || 'chatvrm-idle';
+        this.animPlayer = new VRMAnimationPlayer();
+        this.animCatalog = null;
         this._gradientBackground = null;
 
         window.__bootPhase = 'scene';
@@ -176,7 +180,68 @@ class DesktopPortraitApp {
         this.armBootWatchdog();
         window.__bootPhase = 'loading-model';
         this.setStatus('正在加载文镜模型…', 'loading');
+        this._animCatalogReady = loadAnimationCatalog()
+            .then((cat) => {
+                this.animCatalog = cat;
+                this.animPlayer.init(cat);
+                this.populateAnimSelect();
+                return cat;
+            })
+            .catch((e) => {
+                console.warn('[anim catalog]', e);
+                this.animCatalog = null;
+            });
         this.loadDefaultModel();
+    }
+
+    populateAnimSelect() {
+        const sel = document.getElementById('animClip');
+        if (!sel || !this.animCatalog) return;
+        const playableIds = new Set(
+            (this.animPlayer?.listPlayable?.() || this.animCatalog.clips).map((c) => c.id)
+        );
+        // Before bind, all file clips are candidates; after bind, filter to loaded
+        const entries = this.animCatalog.clips.filter(
+            (c) => !c.file || playableIds.has(c.id) || !this.animPlayer?.clips?.size
+        );
+        sel.innerHTML = '';
+        for (const c of entries) {
+            const opt = document.createElement('option');
+            opt.value = c.id;
+            opt.textContent = c.labelZh || c.label || c.id;
+            sel.appendChild(opt);
+        }
+        if (![...sel.options].some((o) => o.value === this.animClipId)) {
+            this.animClipId = this.animCatalog.defaultId || 'chatvrm-idle';
+        }
+        sel.value = this.animClipId;
+    }
+
+    async applyAnimClip(id, { persist = true } = {}) {
+        this.animClipId = id || 'chatvrm-idle';
+        if (persist) {
+            this.settings.animClipId = this.animClipId;
+            this.settings = saveSettings(this.snapshotSettings());
+        }
+        if (!this.vrm || !this.animPlayer) return;
+        const result = this.animPlayer.play(this.animClipId);
+        if (this.animator) {
+            this.animator.setBodyDrive(result.mode === 'authored' ? 'authored' : 'procedural');
+            if (result.mode === 'procedural') {
+                this.animator.captureRestBases();
+            }
+        }
+        if (window.diagnostics) {
+            window.diagnostics.animClipId = result.id;
+            window.diagnostics.animMode = result.mode;
+            window.diagnostics.animPlayer = this.animPlayer.diagnostics();
+        }
+        const label =
+            this.animCatalog?.clips?.find((c) => c.id === result.id)?.labelZh || result.id;
+        this.setStatus(
+            result.mode === 'authored' ? `已播放授权动作: ${label}` : `程序化 idle: ${label}`,
+            'success'
+        );
     }
 
     createRenderer() {
@@ -591,6 +656,18 @@ class DesktopPortraitApp {
                 paused: this.idlePaused
             });
             this.animator.captureRestBases();
+            // Bind authored VRMA clips (Waiting substitutes) — does not override until play()
+            try {
+                await this._animCatalogReady;
+                await this.animPlayer.bindVrm(this.vrm);
+                this.populateAnimSelect();
+                await this.applyAnimClip(this.animClipId || this.animCatalog?.defaultId || 'chatvrm-idle', {
+                    persist: false
+                });
+            } catch (e) {
+                console.warn('[VRMA bind]', e);
+                this.animator.setBodyDrive('procedural');
+            }
             // Re-measure after figurine scale so silhouette metrics match on-screen
             const silhouette = measureArmSilhouette(this.vrm);
 
@@ -633,6 +710,9 @@ class DesktopPortraitApp {
                 quality: this.profile.id,
                 sceneMode: this.sceneMode,
                 idlePaused: this.idlePaused,
+                animClipId: this.animClipId,
+                animMode: this.animPlayer?.active ? 'authored' : 'procedural',
+                animPlayer: this.animPlayer?.diagnostics?.() || null,
                 reducedMotion: this.caps.reducedMotion,
                 webglOpts: this.webglOpts || null,
                 envProps: this.envRoot?.userData?.propMarkers || null,
@@ -1173,6 +1253,7 @@ class DesktopPortraitApp {
             springsEnabled: this.springsEnabled,
             sceneMode: this.sceneMode === 'minimal' ? 'minimal' : 'room',
             idlePaused: !!this.idlePaused,
+            animClipId: this.animClipId || 'chatvrm-idle',
             screenPhysical: this.screenPhysical,
             projectionMode: this.projectionMode,
             panelCollapsed: this.settings.panelCollapsed
@@ -1567,6 +1648,8 @@ class DesktopPortraitApp {
         if (sceneSel) sceneSel.value = this.sceneMode === 'minimal' ? 'minimal' : 'room';
         const idlePause = document.getElementById('idlePaused');
         if (idlePause) idlePause.checked = !!this.idlePaused;
+        const animSel = document.getElementById('animClip');
+        if (animSel && this.animClipId) animSel.value = this.animClipId;
     }
 
     setupControls() {
@@ -1624,7 +1707,50 @@ class DesktopPortraitApp {
         document.getElementById('idlePaused')?.addEventListener('change', (e) => {
             this.idlePaused = !!e.target.checked;
             this.animator?.setPaused(this.idlePaused);
+            if (this.idlePaused) this.animPlayer?.stopAuthored(0.2);
+            else this.applyAnimClip(this.animClipId, { persist: false });
             this.setStatus(this.idlePaused ? '已暂停 idle 动画' : '已恢复 idle 动画', 'success');
+        });
+        document.getElementById('animClip')?.addEventListener('change', (e) => {
+            this.applyAnimClip(e.target.value);
+        });
+        document.getElementById('vrmaFile')?.addEventListener('change', async (e) => {
+            const file = e.target.files?.[0];
+            if (!file || !this.vrm) return;
+            try {
+                const url = URL.createObjectURL(file);
+                const gltf = await this.animPlayer.loader.loadAsync(url);
+                URL.revokeObjectURL(url);
+                const vrmAnims = gltf.userData.vrmAnimations;
+                if (!vrmAnims?.length) throw new Error('文件中无 VRMA 动画');
+                const { createVRMAnimationClip } = await import('@pixiv/three-vrm-animation');
+                let clip = createVRMAnimationClip(vrmAnims[0], this.vrm);
+                // reuse root lock via play path: stash under local id
+                const id = 'local-user-vrma';
+                // strip hip XZ
+                for (const track of clip.tracks) {
+                    if (/\.position$/i.test(track.name) && /hips/i.test(track.name)) {
+                        for (let i = 0; i < track.values.length; i += 3) {
+                            track.values[i] = 0;
+                            track.values[i + 2] = 0;
+                        }
+                    }
+                }
+                clip.name = id;
+                this.animPlayer.clips.set(id, clip);
+                this.animPlayer.actions.delete(id);
+                const sel = document.getElementById('animClip');
+                if (sel && ![...sel.options].some((o) => o.value === id)) {
+                    const opt = document.createElement('option');
+                    opt.value = id;
+                    opt.textContent = `本地 VRMA: ${file.name}`;
+                    sel.appendChild(opt);
+                }
+                if (sel) sel.value = id;
+                await this.applyAnimClip(id);
+            } catch (err) {
+                this.setStatus(`本地 VRMA 加载失败: ${err.message}`, 'error');
+            }
         });
 
         document.getElementById('springsEnabled')?.addEventListener('change', (e) => {
@@ -1654,6 +1780,7 @@ class DesktopPortraitApp {
             this.springsEnabled = this.settings.springsEnabled !== false;
             this.sceneMode = this.settings.sceneMode === 'minimal' ? 'minimal' : 'room';
             this.idlePaused = !!this.settings.idlePaused;
+            this.animClipId = this.settings.animClipId || 'chatvrm-idle';
             this.screenPhysical = null;
             this.projectionMode = 'preview';
             this.rebuildEnvironment();
@@ -1738,10 +1865,12 @@ class DesktopPortraitApp {
         let delta = this.clock.getDelta();
         delta = Math.min(delta, 0.05);
 
-        // Arms BEFORE vrm.update so humanoid.update copies normalized → raw for skinning
-        if (this.restPoseSet && this.vrm) {
+        const authored = !!(this.animPlayer?.active && !this.idlePaused);
+        // Arms BEFORE vrm.update only in procedural mode — never fight authored VRMA
+        if (!authored && this.restPoseSet && this.vrm) {
             reapplyArmRestPose(this.vrm, this.metaVersion);
         }
+        if (authored) this.animPlayer.update(delta);
         if (this.animator) this.animator.update(delta);
 
         if (this.vrm) {

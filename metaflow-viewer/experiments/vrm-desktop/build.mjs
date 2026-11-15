@@ -5,8 +5,8 @@
 
 import fs from 'fs';
 import path from 'path';
+import { spawnSync } from 'child_process';
 import { fileURLToPath } from 'url';
-import archiver from 'archiver';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ARTIFACT_DIR = '/opt/cursor/artifacts';
@@ -52,6 +52,15 @@ async function copyVendorLibraries() {
     const vrmDest = path.join(vendorDir, 'three-vrm.module.js');
     fs.copyFileSync(vrmSrc, vrmDest);
     console.log('  ✓ three-vrm.module.js');
+
+    const vrmAnimModules = path.resolve(__dirname, '../../node_modules/@pixiv/three-vrm-animation');
+    if (!fs.existsSync(vrmAnimModules)) {
+        throw new Error('@pixiv/three-vrm-animation not found. Run: npm install @pixiv/three-vrm-animation@3.1.4');
+    }
+    const vrmAnimSrc = path.join(vrmAnimModules, 'lib/three-vrm-animation.module.js');
+    const vrmAnimDest = path.join(vendorDir, 'three-vrm-animation.module.js');
+    fs.copyFileSync(vrmAnimSrc, vrmAnimDest);
+    console.log('  ✓ three-vrm-animation.module.js');
 }
 
 function verifyModels() {
@@ -94,55 +103,61 @@ function createNetlifyHeaders() {
 
 /models/*.vrm
   Content-Type: model/gltf-binary
+
+/animations/*.vrma
+  Content-Type: model/gltf-binary
+
+/animations/*.json
+  Content-Type: application/json; charset=utf-8
 `;
     
     fs.writeFileSync(path.join(__dirname, '_headers'), headers);
     console.log('  ✓ Created _headers');
 }
 
-async function createArtifactZip() {
+function createArtifactZip() {
     console.log('Creating deployment artifact...');
-    
+
     if (!fs.existsSync(ARTIFACT_DIR)) {
         fs.mkdirSync(ARTIFACT_DIR, { recursive: true });
     }
-    
-    const output = fs.createWriteStream(path.join(ARTIFACT_DIR, ARTIFACT_NAME));
-    const archive = archiver('zip', { zlib: { level: 9 } });
-    
-    return new Promise((resolve, reject) => {
-        output.on('close', () => {
-            const sizeMB = (archive.pointer() / 1024 / 1024).toFixed(2);
-            console.log(`  ✓ ${ARTIFACT_NAME} (${sizeMB} MB)`);
-            resolve();
-        });
-        
-        archive.on('error', reject);
-        archive.pipe(output);
-        
-        // Add all files
-        archive.file(path.join(__dirname, 'index.html'), { name: 'index.html' });
-        archive.file(path.join(__dirname, 'app.mjs'), { name: 'app.mjs' });
-        archive.file(path.join(__dirname, 'projection.mjs'), { name: 'projection.mjs' });
-        archive.file(path.join(__dirname, 'vrm-animator.mjs'), { name: 'vrm-animator.mjs' });
-        archive.file(path.join(__dirname, 'test-audio.mjs'), { name: 'test-audio.mjs' });
-        archive.file(path.join(__dirname, 'settings.mjs'), { name: 'settings.mjs' });
-        archive.file(path.join(__dirname, 'vrm-pose.mjs'), { name: 'vrm-pose.mjs' });
-        archive.file(path.join(__dirname, 'environment.mjs'), { name: 'environment.mjs' });
-        archive.file(path.join(__dirname, 'display-calibration.mjs'), { name: 'display-calibration.mjs' });
-        archive.file(path.join(__dirname, 'fullscreen-calibration.mjs'), { name: 'fullscreen-calibration.mjs' });
-        archive.file(path.join(__dirname, 'README.md'), { name: 'README.md' });
-        archive.file(path.join(__dirname, 'ATTRIBUTIONS.md'), { name: 'ATTRIBUTIONS.md' });
-        archive.file(path.join(__dirname, '_headers'), { name: '_headers' });
-        
-        // Add vendor directory
-        archive.directory(path.join(__dirname, 'vendor'), 'vendor');
-        
-        // Add models directory
-        archive.directory(path.join(__dirname, 'models'), 'models');
-        
-        archive.finalize();
-    });
+
+    const staging = path.join('/tmp', 'vrm-desktop-zip-stage');
+    fs.rmSync(staging, { recursive: true, force: true });
+    fs.mkdirSync(staging, { recursive: true });
+
+    const files = [
+        'index.html',
+        'app.mjs',
+        'projection.mjs',
+        'vrm-animator.mjs',
+        'vrm-animation-player.mjs',
+        'test-audio.mjs',
+        'settings.mjs',
+        'vrm-pose.mjs',
+        'environment.mjs',
+        'display-calibration.mjs',
+        'fullscreen-calibration.mjs',
+        'README.md',
+        'ATTRIBUTIONS.md',
+        '_headers'
+    ];
+    for (const f of files) {
+        fs.copyFileSync(path.join(__dirname, f), path.join(staging, f));
+    }
+    const cpDir = (name) => {
+        fs.cpSync(path.join(__dirname, name), path.join(staging, name), { recursive: true });
+    };
+    cpDir('vendor');
+    cpDir('models');
+    cpDir('animations');
+
+    const outPath = path.join(ARTIFACT_DIR, ARTIFACT_NAME);
+    fs.rmSync(outPath, { force: true });
+    const z = spawnSync('zip', ['-qr', outPath, '.'], { cwd: staging, stdio: 'inherit' });
+    if (z.status !== 0) throw new Error(`zip failed: ${z.status}`);
+    const sizeMB = (fs.statSync(outPath).size / 1024 / 1024).toFixed(2);
+    console.log(`  ✓ ${ARTIFACT_NAME} (${sizeMB} MB)`);
 }
 
 async function main() {
@@ -152,7 +167,7 @@ async function main() {
         await copyVendorLibraries();
         verifyModels();
         createNetlifyHeaders();
-        await createArtifactZip();
+        createArtifactZip();
         
         console.log('\n✅ Build complete!');
         console.log(`\nDeployment artifact: ${path.join(ARTIFACT_DIR, ARTIFACT_NAME)}`);

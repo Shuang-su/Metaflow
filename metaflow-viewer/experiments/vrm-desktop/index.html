@@ -401,8 +401,15 @@
                 <button id="loadSampleModel" class="secondary">加载 pixiv 示例（VRM1）</button>
                 <button id="resettleSprings" class="secondary">重新稳定姿势 / 弹簧</button>
                 <button id="playTestAudio" class="secondary">播放测试音频（口型）</button>
+                <label>动作（授权 VRMA）</label>
+                <select id="animClip">
+                    <option value="chatvrm-idle">等待/放松 idle（ChatVRM）</option>
+                </select>
+                <p class="hint">默认使用公开可再分发的授权 idle（ChatVRM MIT / ACCAD CC BY），<strong>不是</strong> Persona 私有库或 BOOTH 禁止二次分发的 VRMA。可另选 ACCAD Wait/Sway，或加载本地 BOOTH Model Pose。</p>
+                <label>本地 VRMA（可选）</label>
+                <input type="file" id="vrmaFile" accept=".vrma">
                 <label class="row-check"><input type="checkbox" id="idlePaused"> 暂停 idle（呼吸/眨眼/重心）</label>
-                <p class="model-credit">默认：文镜（Wenjing）。作者：LAPLACE Live! × 彩茫。许可：<a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank" rel="noopener noreferrer">CC BY-NC-SA 4.0</a>。示例：VRM1_Constraint_Twist_Sample（pixiv Inc.，<a href="https://vrm.dev/licenses/1.0/" target="_blank" rel="noopener noreferrer">VRM License 1.0</a>）。不含 Milky Green。</p>
+                <p class="model-credit">默认：文镜（Wenjing）。作者：LAPLACE Live! × 彩茫。许可：<a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank" rel="noopener noreferrer">CC BY-NC-SA 4.0</a>。示例：VRM1_Constraint_Twist_Sample（pixiv Inc.，<a href="https://vrm.dev/licenses/1.0/" target="_blank" rel="noopener noreferrer">VRM License 1.0</a>）。不含 Milky Green。动作出处见 <a href="./ATTRIBUTIONS.md" target="_blank" rel="noopener noreferrer">ATTRIBUTIONS.md</a>。</p>
             </div>
         </details>
 
@@ -546,7 +553,8 @@
         "imports": {
             "three": "./vendor/three.module.js",
             "three/addons/": "./vendor/addons/",
-            "@pixiv/three-vrm": "./vendor/three-vrm.module.js"
+            "@pixiv/three-vrm": "./vendor/three-vrm.module.js",
+            "@pixiv/three-vrm-animation": "./vendor/three-vrm-animation.module.js"
         }
     }
     </script>

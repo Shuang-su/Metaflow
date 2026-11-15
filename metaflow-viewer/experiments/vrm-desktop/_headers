@@ -14,3 +14,9 @@
 
 /models/*.vrm
   Content-Type: model/gltf-binary
+
+/animations/*.vrma
+  Content-Type: model/gltf-binary
+
+/animations/*.json
+  Content-Type: application/json; charset=utf-8

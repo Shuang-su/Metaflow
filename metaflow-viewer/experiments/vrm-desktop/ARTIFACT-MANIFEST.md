@@ -1,27 +1,27 @@
 # vrm-desktop artifact manifest
 
-## Composition fix (visible arms + corner room + idle) — QA PASS
+## Authored VRMA idle (t34u) — QA PASS
 
 | Field | Value |
 | --- | --- |
-| Tip commit | `43218f7e64a65a33af2a52fe4302867056f6ca8c` |
+| Tip commit | _(see git tip after docs commit)_ |
 | ZIP | `/opt/cursor/artifacts/metaflow-desktop-preview.zip` |
-| ZIP SHA256 | `b1246a48e14b59c7476c5364527e25e34e0733951273b73a9e8a3f156b2fe038` |
-| Production | **NOT promoted** — coordinator draft/promote only |
-| Supersedes | `56b554d6…` (buried arms, blank wall/giant cabinet, static idle — motion review FAIL) |
+| ZIP SHA256 | `72723d976031517db768833a7a33ab5173e159e4f968498c7f330b751c7f0d37` |
+| Production / live draft | **Preserve** `6af9df4cf8b7ab03f7970227` / ZIP `b1246a48…` as rollback |
+| This candidate | **NOT promoted** — no merge/deploy from agent |
 
 ### Delivered
 
-- Natural hang beside hips (`armFoldRad=1.26`, OUT `0.28`, FWD `0.14`); hands clear skirt silhouette
-- Shallow **corner** room: window + small cabinet + shelf + plant in default full-body frustum
-- Idle perceptible over 20s: breathAmp `0.085`, weight `0.028`, blink ~2.2s (forced unpaused in QA)
-- Wenjing springs default OFF; feet planted; no spring explosion
-- Evidence: `qa-natural-room-full.png`, `qa-natural-arms-side.png`, `qa-natural-idle-motion.mp4` (20s), `qa-natural-comp-report.json`, `qa-idle-diff-0-05.png`
+- Default idle = **authored VRMA** (`chatvrm_idle_loop.vrma`, MIT from pixiv/ChatVRM) — not procedural bone sway relabeled
+- Selector: ChatVRM idle · ACCAD Wait · ACCAD Sway · procedural fallback · local `.vrma` picker
+- Hip XZ root-lock; blink/lookAt only layered on authored body; springs OFF policy retained
+- Room/minimal, FS/profile/migration, model switch retained
 
-### QA gates (`verify-composition.mjs`)
+### Evidence
 
-`armsVisible` · `propsInView` · `idleAlive` · visual screenshot+motion PASS
+- `qa-authored-idle.png`, `qa-authored-accad-wait.png`, `qa-authored-idle-motion.mp4` (12s)
+- `qa-authored-motion-report.json` — authoredActive, motionNotStatic, armsVisible, fullBody, noFootSkating
 
-### Box Chrome note
+### Licensing honesty
 
-WebGL2 unavailable blanks production and candidates alike — not a code regression.
+See `ATTRIBUTIONS.md` + `animations/CATALOG.json`. Persona Waiting / VRoid Model Pose extractable redistrib / Quaternius Hands Behind Back & Hand on Hip (not in free Standard) are **not** bundled.

@@ -1,7 +1,9 @@
 /**
  * VRM Animation Controller
- * Subtle-but-perceptible idle: breath, blink, weight shift, head sway.
- * Arms owned by vrm-pose reapply — do not lift them.
+ * Procedural idle: breath, blink, weight shift, head sway.
+ * When authored VRMA drives the body (`bodyDrive === 'authored'`), only
+ * blink / lookAt / mouth run — do not override authored bone tracks.
+ * Arms owned by vrm-pose reapply in procedural mode only.
  */
 
 import * as THREE from 'three';
@@ -12,6 +14,8 @@ export class VRMAnimator {
         this.camera = camera;
         this.reducedMotion = !!options.reducedMotion;
         this.paused = !!options.paused;
+        /** 'procedural' | 'authored' — authored = VRMA mixer owns body bones */
+        this.bodyDrive = options.bodyDrive === 'authored' ? 'authored' : 'procedural';
 
         // Amplitudes tuned so a 15–30s capture shows clear but natural motion
         this.breathingPhase = 0;
@@ -26,7 +30,7 @@ export class VRMAnimator {
         this.headRate = this.reducedMotion ? 0.05 : 0.14;
 
         this.blinkTimer = 0;
-        this.blinkInterval = this.reducedMotion ? 5.0 : 2.2;
+        this.blinkInterval = this.reducedMotion ? 5.0 : 3.5;
         this.blinkDuration = 0.16;
         this.isBlinking = false;
         this.blinkPhase = 0;
@@ -53,6 +57,10 @@ export class VRMAnimator {
         }
     }
 
+    setBodyDrive(mode) {
+        this.bodyDrive = mode === 'authored' ? 'authored' : 'procedural';
+    }
+
     captureRestBases() {
         if (!this.vrm?.humanoid) return;
         this._bases = {};
@@ -77,6 +85,7 @@ export class VRMAnimator {
         return {
             paused: this.paused,
             reducedMotion: this.reducedMotion,
+            bodyDrive: this.bodyDrive,
             blinkCount: this.blinkCount,
             isBlinking: this.isBlinking,
             chestDelta: chest ? chest.rotation.x - baseC.x : 0,
@@ -89,6 +98,13 @@ export class VRMAnimator {
     update(deltaTime) {
         if (!this.vrm) return;
         if (this.paused) {
+            if (this.mouthAnimationActive) this.updateMouth(deltaTime);
+            return;
+        }
+        // Authored VRMA owns body — only facial layers
+        if (this.bodyDrive === 'authored') {
+            this.updateBlinking(deltaTime);
+            this.updateLookAt();
             if (this.mouthAnimationActive) this.updateMouth(deltaTime);
             return;
         }
@@ -152,7 +168,8 @@ export class VRMAnimator {
                 this.isBlinking = true;
                 this.blinkPhase = 0;
                 this.blinkTimer = 0;
-                this.blinkInterval = 1.8 + Math.random() * 2.4;
+                // Natural ~3–6s random interval (not sub-2s twitch)
+                this.blinkInterval = 3.0 + Math.random() * 3.0;
                 this.blinkCount += 1;
             }
         } else {

@@ -1,0 +1,76 @@
+{
+  "defaultId": "chatvrm-idle",
+  "clips": [
+    {
+      "id": "chatvrm-idle",
+      "label": "Waiting / relaxed idle (ChatVRM)",
+      "labelZh": "等待/放松 idle（ChatVRM）",
+      "file": "chatvrm_idle_loop.vrma",
+      "loop": true,
+      "role": "waiting-substitute",
+      "upstream": "https://github.com/pixiv/ChatVRM/blob/main/public/idle_loop.vrma",
+      "license": "MIT",
+      "licenseUrl": "https://github.com/pixiv/ChatVRM/blob/main/LICENSE",
+      "copyright": "Copyright (c) 2023 pixiv Inc.",
+      "credit": "idle_loop.vrma from pixiv/ChatVRM (MIT)",
+      "notes": "Documented licensed substitute for Persona/VRoid Hub 'Waiting' — that Waiting clip is NOT in the free VRoid BOOTH 7-pack and must not be copied from private Persona app assets."
+    },
+    {
+      "id": "accad-wait",
+      "label": "Wait (ACCAD Female1)",
+      "labelZh": "等待（ACCAD Female1）",
+      "file": "accad_female1_wait.vrma",
+      "loop": true,
+      "role": "waiting-mocap",
+      "upstream": "https://accad.osu.edu/research/motion-lab/mocap-system-and-data",
+      "sourceArchive": "https://accad.osu.edu/sites/accad.osu.edu/files/Female1_bvh.zip",
+      "convertedVia": "https://github.com/vrm-c/bvh2vrma (MIT); conversion published in Sunwood-ai-labs/GeminiVRM motions README",
+      "license": "CC BY 3.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/3.0/",
+      "credit": "Motion data © ACCAD / The Ohio State University — CC BY 3.0",
+      "notes": "Genuine Wait mocap; hip XZ root-locked at playback for figurine framing."
+    },
+    {
+      "id": "accad-sway",
+      "label": "Sway (ACCAD Female1)",
+      "labelZh": "轻晃（ACCAD Female1）",
+      "file": "accad_female1_sway.vrma",
+      "loop": true,
+      "role": "optional-idle",
+      "upstream": "https://accad.osu.edu/research/motion-lab/mocap-system-and-data",
+      "license": "CC BY 3.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/3.0/",
+      "credit": "Motion data © ACCAD / The Ohio State University — CC BY 3.0",
+      "notes": "Optional second licensed loop."
+    },
+    {
+      "id": "procedural",
+      "label": "Procedural fallback (no VRMA)",
+      "labelZh": "程序化后备（无 VRMA）",
+      "file": null,
+      "loop": true,
+      "role": "fallback",
+      "license": "original",
+      "notes": "Bone breath/weight/blink only — not claimed as authored library motion."
+    }
+  ],
+  "unavailableFromScreenshot": [
+    {
+      "name": "Waiting — pixiv Inc.'s VRoid Project",
+      "reason": "Not included in the free BOOTH VRM Animation 7-pack (Show full body / Greeting / Peace / Shoot / Spin / Model pose / Squat). Persona animation-library listing is not a redistribution grant. Substitute: ChatVRM idle_loop.vrma (MIT) + ACCAD Wait (CC BY 3.0)."
+    },
+    {
+      "name": "Model Pose — pixiv Inc.'s VRoid Project",
+      "reason": "Present on BOOTH item 5512385 as VRMA_06, but terms prohibit redistributing motions in an extractable/re-riggable form without permission. Public independent preview ZIP cannot bundle that .vrma. Users may load their own BOOTH download via the local VRMA file picker.",
+      "booth": "https://booth.pm/ja/items/5512385"
+    },
+    {
+      "name": "Hands Behind Back — Quaternius",
+      "reason": "Not present in Quaternius Universal Animation Library [Standard] free pack (verified clip list includes Idle_Loop etc., not HandsBehindBack). Pro/Source tier not purchased for this experiment — no invented rights."
+    },
+    {
+      "name": "Hand on Hip — Quaternius",
+      "reason": "Same as above — not in free Standard pack inventory used here."
+    }
+  ]
+}
