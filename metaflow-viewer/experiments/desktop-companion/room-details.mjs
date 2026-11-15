@@ -1,3 +1,4 @@
+import {wallDetailLayout} from './room-layout.mjs';
 // MF165_VISUAL_POLISH
 import * as THREE from 'three';
 import {GLTFLoader} from './vendor/GLTFLoader.js';
@@ -83,11 +84,11 @@ export function createRoomDetails(desk){
   function update({w,h,d,front,room,inspect}){
     last={w,h,d,front,room};root.visible=!inspect&&room.scene!=='minimal';studio.visible=room.scene==='studio';terrace.visible=room.scene==='terrace';
     if(!root.visible)return;
-    const p=Math.min(w*.12,h*.12,.035),rear=-d+.001;
-    baseboard.scale.set(w,.005,.0025);baseboard.position.set(0,.0025,rear);
-    cornice.scale.set(w,.004,.004);cornice.position.set(0,h-.004,rear);
-    for(const [i,o] of [leftTrim,rightTrim].entries()){o.scale.set(.002,h,.003);o.position.set((i?1:-1)*(w/2-.001),h/2,rear);}
-    for(const [i,o] of panels.entries()){o.scale.set(w/5-.001,h*.24,.001);o.position.set((i-2)*w/5,h*.16,rear+.001);}
+    const p=Math.min(w*.12,h*.12,.035),rear=-d+.001,detail=wallDetailLayout(w);
+    baseboard.scale.set(detail.wallSpan,.005,.0025);baseboard.position.set(0,.0025,rear);
+    cornice.scale.set(detail.wallSpan,.004,.004);cornice.position.set(0,h-.004,rear);
+    for(const [i,o] of [leftTrim,rightTrim].entries()){o.scale.set(detail.trimThickness,h,.003);o.position.set((i?1:-1)*detail.trimX,h/2,rear);}
+    for(const [i,o] of panels.entries()){o.scale.set(detail.panelWidth,h*.24,.001);o.position.set(detail.panelCenters[i],h*.16,rear+.001);}
     if(studio.visible){
       const ww=w*.64,wh=h*.49;windowRoot.position.set(-w*.09,h*.64,rear+.003);glass.scale.set(ww,wh,1);glass.material.map=skies[room.lighting];
       const positions=[[-ww/2,0,.002],[ww/2,0,.002],[0,-wh/2,.002],[0,wh/2,.002],[0,0,.003],[0,wh*.18,.003],[0,-wh*.18,.003]];
@@ -102,10 +103,10 @@ export function createRoomDetails(desk){
       for(const o of books)o.visible=room.decor;lamp.visible=room.decor;picture.visible=room.decor;
     }
     if(terrace.visible){
-      glassMat.map=skies[room.lighting];outdoor.scale.set(w,h,1);outdoor.position.set(0,h/2,rear+.001);
+      glassMat.map=skies[room.lighting];outdoor.scale.set(detail.wallSpan,h,1);outdoor.position.set(0,h/2,rear+.001);
       const rz=-d*.83;railing.scale.set(w*.94,.0025,.0025);railing.position.set(0,h*.28,rz);
       railPosts.forEach((o,i)=>{o.scale.set(.0014,h*.28,.0014);o.position.set((i-3)*w*.145,h*.14,rz);});
-      terraceBack.scale.set(w,h*.30,.001);terraceBack.position.set(0,h*.15,rear+.002);
+      terraceBack.scale.set(detail.wallSpan,h*.30,.001);terraceBack.position.set(0,h*.15,rear+.002);
       if(kit){kit.visible=room.decor;placeKit();}else if(room.decor&&status==='idle')loadKit();
     }
   }

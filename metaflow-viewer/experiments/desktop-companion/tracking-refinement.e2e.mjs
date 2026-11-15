@@ -40,14 +40,15 @@ try{
     await page.waitForFunction(label=>{const d=window.__companionDiagnostics();return d.ready&&!d.renderer.loading&&d.model.includes(label);},label,{timeout:90000});
     await page.locator('#close-settings').click();
     const before=await page.evaluate(()=>window.__companionDiagnostics().renderer.cameraPosition);
-    await page.locator('#wave').click();
+    const gestureStartedAt=Date.now();await page.locator('#wave').click();
     await page.waitForFunction(()=>{const d=window.__companionDiagnostics().renderer;return d.gesture==='wave'&&d.palm?.screenFacingDot>.95&&d.palm?.screenUpDot>.8;},{},{timeout:30000});
     const current=await page.evaluate(()=>window.__companionDiagnostics().renderer);
     assert.deepEqual(current.cameraPosition,before);
     assert.ok(current.palm.screenFacingDot>.95&&current.palm.screenUpDot>.8);
     await page.screenshot({path:`${out}/${choice}-palm-facing.png`});
     report.checks.push({model:choice,palm:current.palm,cameraUnchanged:true});
-    await page.waitForFunction(()=>window.__companionDiagnostics().renderer.gesture===null,{},{timeout:30000});
+    await page.waitForFunction(()=>window.__companionDiagnostics().renderer.gesture===null,{},{timeout:15000});
+    report.checks.push({model:choice,gestureFinished:true,wallMilliseconds:Date.now()-gestureStartedAt});
   }
   assert.equal(report.errors.length,0,report.errors.join('\n'));
   report.pass=true;console.log('REFINEMENT_BROWSER_PASS',JSON.stringify(report));

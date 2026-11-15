@@ -64,7 +64,7 @@ try{
       }
       await page.keyboard.press('Escape');assert.equal(await page.locator('#settings-panel').isVisible(),false);
       assert.deepEqual(errors,[]);
-      report.scenarios.push({name,pass:true,profile,checks:['meaningful VRM render','no horizontal overflow or duplicate IDs','four categories','guided calibration','no automatic camera access','quality changes actual renderer','undo restores prior settings','keyboard category navigation','visible controls'],errors});
+      report.scenarios.push({name,pass:true,profile,checks:['meaningful VRM render','no horizontal overflow or duplicate IDs','four categories','guided calibration','no automatic camera access','quality changes actual renderer','undo restores prior settings','preview return preserves undo','explicit physical confirmation','incomplete desktop setup recovery','keyboard category navigation','visible controls'],errors});
       console.log('USABILITY_BROWSER_PASS',name);
     }catch(error){await page.screenshot({path:`${out}/${name}-usability-failed.png`}).catch(()=>{});const state=await page.evaluate(()=>window.__companionDiagnostics?.()).catch(()=>null);report.scenarios.push({name,pass:false,failure:error.stack,errors,state});console.log('USABILITY_BROWSER_FAIL',name,error.stack,JSON.stringify(state),JSON.stringify(errors));}
     await context.close();

@@ -1,3 +1,4 @@
+import {frameDelta} from './animation-timing.mjs';
 // MF165_USABILITY_SCENES_V1
 import {createRoomDetails} from './room-details.mjs';
 import {sanitizeRoom} from './device-detection.mjs';
@@ -599,10 +600,10 @@ export function createTabletopRenderer({ canvas, getSettings, onLoad = () => {},
   function frameLoop(ms) {
     if (state.disposed || state.paused || state.graphicsLost) return;
     state.raf = requestAnimationFrame(frameLoop);
-    const elapsed = Math.max((ms - state.lastTime) / 1000, 0);
-    const dt = Math.min(elapsed, .05); state.lastTime = ms; state.time += dt;
+    const {elapsed,simulationDelta:dt} = frameDelta(ms,state.lastTime);
+    state.lastTime = ms; state.time += elapsed;
     const current = settings(); state.settings = current;
-    layout(current); updateProjection(current, dt); animateAvatar(dt, current); updateClock();
+    layout(current); updateProjection(current, dt); animateAvatar(elapsed, current); updateClock();
     renderer.render(scene, camera);
     state.metricsTime += elapsed; state.metricsFrames++;
     if (state.metricsTime >= 1) {
