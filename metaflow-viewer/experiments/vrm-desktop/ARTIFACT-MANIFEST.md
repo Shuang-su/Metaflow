@@ -7,7 +7,7 @@ Filled by build/report scripts. Do not treat as a release tag.
 | Field | Value |
 | --- | --- |
 | Intent | Hair/toes framing margin; keep boot diagnostics; QA exact Netlify draft |
-| Tip commit | *(fill after push)* |
+| Tip commit | 4d32870cbf05e164dc5a10c5ee943db9d0f0e50d |
 | ZIP | `/opt/cursor/artifacts/metaflow-desktop-preview.zip` |
 | ZIP SHA256 | `ea5c589c6ff8ad8be26859ee72d25e0da6bf7aed496fc48da73c4c027f7e6e77` |
 | Deployed draft tested | `https://6af9c51602b9bd7fc82107f0--vrm-desktop-portrait-20261114.netlify.app/` (ZIP `14835152…` / tip `51ddc23c`) |
