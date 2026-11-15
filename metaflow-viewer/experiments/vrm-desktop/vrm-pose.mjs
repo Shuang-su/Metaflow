@@ -29,8 +29,8 @@ export function quatFromEulerXYZ(x, y, z) {
 
 export function buildRestPose(metaVersion) {
     const isVrm0 = metaVersion === '0';
-    const fold = 0.85;
-    const lower = 0.28;
+    const fold = 1.05; // ~60° toward torso — clearer rest than shallow A-pose
+    const lower = 0.35;
     const armZLeft = isVrm0 ? fold : -fold;
     const armZRight = isVrm0 ? -fold : fold;
     return {
@@ -113,7 +113,7 @@ export function applyRestPoseAndSettle(vrm, metaVersion, settleFramesOrOpts = 12
         settleFrames: opts.updateSprings ? opts.settleFrames : 0,
         springsRebound: spring.rebound,
         springsUpdated: !!opts.updateSprings,
-        armFoldRad: 0.85,
+        armFoldRad: 1.05,
         leftUpperArmQuat: sample
     };
 }

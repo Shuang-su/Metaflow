@@ -222,10 +222,13 @@ class DesktopPortraitApp {
 
         const full = this.profile.lights === 'full';
         const minimal = this.profile.lights === 'minimal';
-        this.lights.ambient.intensity = minimal ? 0.7 : 0.45;
+        this.lights.ambient.intensity = minimal ? 0.7 : 0.42;
         this.lights.key.intensity = minimal ? 0.55 : full ? 1.05 : 0.95;
         this.lights.fill.visible = !minimal;
-        this.lights.rim.visible = full;
+        this.lights.fill.intensity = minimal ? 0 : full ? 0.38 : 0.34;
+        // Soft rim on balanced too — composition depth without waiting for "quality"
+        this.lights.rim.visible = !minimal;
+        this.lights.rim.intensity = full ? 0.28 : 0.16;
         this.lights.hemi.visible = !minimal;
         this.lights.key.castShadow = this.profile.shadows;
         if (this.desk) this.desk.receiveShadow = this.profile.shadows;
@@ -296,7 +299,7 @@ class DesktopPortraitApp {
         const shadowMat = new THREE.MeshBasicMaterial({
             color: 0x000000,
             transparent: true,
-            opacity: 0.28,
+            opacity: 0.34,
             depthWrite: false
         });
         this.contactShadow = new THREE.Mesh(shadowGeo, shadowMat);
