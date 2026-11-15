@@ -6,47 +6,40 @@
 import * as THREE from 'three';
 
 export class VRMAnimator {
-    constructor(vrm, camera) {
+    constructor(vrm, camera, options = {}) {
         this.vrm = vrm;
         this.camera = camera;
-        
+        this.reducedMotion = !!options.reducedMotion;
+
         // Animation state
         this.breathingPhase = 0;
-        this.breathingRate = 0.3; // Hz
-        this.breathingAmplitude = 0.05; // Subtle chest expansion
-        
+        this.breathingRate = this.reducedMotion ? 0.12 : 0.3;
+        this.breathingAmplitude = this.reducedMotion ? 0.02 : 0.05;
+
         this.blinkTimer = 0;
-        this.blinkInterval = 3.0; // Average seconds between blinks
-        this.blinkDuration = 0.15; // Seconds
+        this.blinkInterval = this.reducedMotion ? 5.0 : 3.0;
+        this.blinkDuration = 0.15;
         this.isBlinking = false;
         this.blinkPhase = 0;
-        
-        // Audio playback
+
         this.audioContext = null;
         this.mouthAnimationActive = false;
         this.mouthPhase = 0;
-        
-        // Setup lookAt target
+
         if (this.vrm.lookAt) {
             this.lookAtTarget = new THREE.Object3D();
             this.lookAtTarget.position.copy(camera.position);
             this.vrm.lookAt.target = this.lookAtTarget;
         }
     }
-    
+
     update(deltaTime) {
         if (!this.vrm) return;
-        
-        // Update breathing
+
         this.updateBreathing(deltaTime);
-        
-        // Update blinking
         this.updateBlinking(deltaTime);
-        
-        // Update lookAt to camera
         this.updateLookAt();
-        
-        // Update mouth animation (if audio playing)
+
         if (this.mouthAnimationActive) {
             this.updateMouth(deltaTime);
         }

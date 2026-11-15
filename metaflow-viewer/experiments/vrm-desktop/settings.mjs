@@ -3,19 +3,22 @@
  * Browser cannot know exact physical mm size or device model — never pretend.
  */
 
-const STORAGE_KEY = 'metaflow.vrm-desktop.settings.v1';
+const STORAGE_KEY = 'metaflow.vrm-desktop.settings.v2';
 
 export const DEFAULT_SETTINGS = {
-    widthM: 0.25,
-    heightM: 0.20,
-    tiltDeg: 15,
-    eyeX: -0.03,
-    eyeY: 0,
-    eyeZ: 0.48,
+    // Physical calibration (metres). Eye Y slightly above screen centre for figurine mid-torso.
+    widthM: 0.24,
+    heightM: 0.18,
+    tiltDeg: 12,
+    eyeX: -0.02,
+    eyeY: 0.02,
+    eyeZ: 0.36,
     quality: 'balanced', // battery | balanced | quality
+    springsEnabled: true, // may be overridden per-model on load
     panelCollapsed: {
         basic: false,
         viewpoint: false,
+        calibrate: true,
         advanced: true,
         device: true
     }
@@ -24,7 +27,9 @@ export const DEFAULT_SETTINGS = {
 export function loadSettings() {
     try {
         const raw = localStorage.getItem(STORAGE_KEY);
-        if (!raw) return { ...DEFAULT_SETTINGS, panelCollapsed: { ...DEFAULT_SETTINGS.panelCollapsed } };
+        if (!raw) {
+            return cloneDefaults();
+        }
         const parsed = JSON.parse(raw);
         return {
             ...DEFAULT_SETTINGS,
@@ -35,7 +40,7 @@ export function loadSettings() {
             }
         };
     } catch {
-        return { ...DEFAULT_SETTINGS, panelCollapsed: { ...DEFAULT_SETTINGS.panelCollapsed } };
+        return cloneDefaults();
     }
 }
 
@@ -50,6 +55,7 @@ export function saveSettings(settings) {
         quality: ['battery', 'balanced', 'quality'].includes(settings.quality)
             ? settings.quality
             : 'balanced',
+        springsEnabled: settings.springsEnabled !== false,
         panelCollapsed: settings.panelCollapsed || DEFAULT_SETTINGS.panelCollapsed
     };
     localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
@@ -58,7 +64,14 @@ export function saveSettings(settings) {
 
 export function resetSettings() {
     localStorage.removeItem(STORAGE_KEY);
-    return { ...DEFAULT_SETTINGS, panelCollapsed: { ...DEFAULT_SETTINGS.panelCollapsed } };
+    return cloneDefaults();
+}
+
+function cloneDefaults() {
+    return {
+        ...DEFAULT_SETTINGS,
+        panelCollapsed: { ...DEFAULT_SETTINGS.panelCollapsed }
+    };
 }
 
 function clamp(n, min, max) {
@@ -67,7 +80,6 @@ function clamp(n, min, max) {
     return Math.max(min, Math.min(max, v));
 }
 
-/** Friendly display helpers */
 export function mToCm(m) {
     return `${(m * 100).toFixed(1)} cm`;
 }
@@ -76,9 +88,6 @@ export function degLabel(d) {
     return `${Number(d).toFixed(0)}°`;
 }
 
-/**
- * Honest capability snapshot. Suggested profile is a hint only.
- */
 export function detectCapabilities() {
     const ua = navigator.userAgent || '';
     const platform = navigator.platform || 'unknown';
@@ -87,7 +96,7 @@ export function detectCapabilities() {
     const w = window.screen?.width || 0;
     const h = window.screen?.height || 0;
     const cores = navigator.hardwareConcurrency || null;
-    const mem = navigator.deviceMemory || null; // Chrome-only GiB hint
+    const mem = navigator.deviceMemory || null;
     const reducedMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches ?? false;
     const saveData = navigator.connection?.saveData ?? false;
     const webgl2 = (() => {
@@ -132,9 +141,44 @@ function summarizeUA(ua) {
     return '未知浏览器';
 }
 
-export function qualityToPixelRatio(quality, deviceDpr) {
+/** Full quality profile that actually drives the renderer. */
+export function qualityProfile(quality, deviceDpr, reducedMotion = false) {
     const dpr = deviceDpr || 1;
-    if (quality === 'battery') return Math.min(1, dpr);
-    if (quality === 'quality') return Math.min(2, dpr);
-    return Math.min(1.5, dpr);
+    if (quality === 'battery' || reducedMotion) {
+        return {
+            id: 'battery',
+            pixelRatio: Math.min(1, dpr),
+            antialias: false,
+            shadows: false,
+            lights: 'minimal',
+            springs: false,
+            toneExposure: 1.0,
+            maxFps: 30,
+            label: '省电：低 DPR、无阴影、弹簧骨骼关闭'
+        };
+    }
+    if (quality === 'quality') {
+        return {
+            id: 'quality',
+            pixelRatio: Math.min(2, dpr),
+            antialias: true,
+            shadows: true,
+            lights: 'full',
+            springs: true,
+            toneExposure: 1.08,
+            maxFps: 60,
+            label: '高画质：高 DPR、接触阴影、完整灯光与弹簧'
+        };
+    }
+    return {
+        id: 'balanced',
+        pixelRatio: Math.min(1.5, dpr),
+        antialias: true,
+        shadows: true,
+        lights: 'standard',
+        springs: true,
+        toneExposure: 1.05,
+        maxFps: 60,
+        label: '均衡：中等 DPR、接触阴影、弹簧开启'
+    };
 }

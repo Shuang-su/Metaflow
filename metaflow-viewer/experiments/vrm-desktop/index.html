@@ -2,50 +2,90 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>桌面肖像 · VRM Desktop Portrait</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
+        html, body { height: 100%; }
         body {
             font-family: "PingFang SC", "Noto Sans SC", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-            background: #141210;
+            background: #10141a;
             color: #e8e4de;
             overflow: hidden;
             display: flex;
-            height: 100vh;
+            height: 100dvh;
             width: 100vw;
         }
-        #canvas-container { flex: 1; position: relative; min-width: 0; background: #1c1814; }
+        #canvas-container {
+            flex: 1;
+            position: relative;
+            min-width: 0;
+            min-height: 0;
+            background: linear-gradient(180deg, #1a222c 0%, #2a3340 45%, #c4a882 100%);
+        }
         canvas { display: block; width: 100%; height: 100%; }
+        .load-track {
+            position: absolute;
+            left: 12px;
+            right: 12px;
+            bottom: 12px;
+            height: 3px;
+            background: rgba(0,0,0,0.35);
+            border-radius: 2px;
+            overflow: hidden;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.2s;
+            z-index: 2;
+        }
+        .load-track.visible { opacity: 1; }
+        #loadBar {
+            height: 100%;
+            width: 0%;
+            background: #60a5fa;
+            transition: width 0.15s linear;
+        }
+        #retryLoad {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 3;
+            width: auto;
+            min-width: 140px;
+            padding: 10px 16px;
+        }
         #controls {
-            width: 320px;
-            background: #0f0e0d;
-            padding: 14px 14px 24px;
+            width: min(340px, 38vw);
+            background: #0c0f14;
+            padding: 12px 12px 20px;
             overflow-y: auto;
+            overflow-x: hidden;
             font-size: 13px;
-            border-left: 1px solid #2a2622;
+            border-left: 1px solid #243040;
             flex-shrink: 0;
+            max-height: 100dvh;
         }
         @media (max-width: 768px) {
             body { flex-direction: column; }
-            #canvas-container { flex: 1; min-height: 0; }
+            #canvas-container { flex: 1 1 58%; min-height: 42dvh; }
             #controls {
                 width: 100%;
-                max-height: 42vh;
+                max-height: 42dvh;
                 border-left: none;
-                border-top: 1px solid #2a2622;
+                border-top: 1px solid #243040;
             }
         }
         .app-title {
             font-size: 15px;
             font-weight: 600;
             color: #f3efe8;
-            margin-bottom: 4px;
+            margin-bottom: 2px;
         }
         .app-sub {
             font-size: 11px;
-            color: #9a9288;
-            margin-bottom: 12px;
+            color: #8b95a5;
+            margin-bottom: 10px;
             line-height: 1.45;
         }
         #status {
@@ -53,22 +93,24 @@
             background: rgba(96, 165, 250, 0.12);
             border-left: 3px solid #60a5fa;
             border-radius: 4px;
-            margin-bottom: 12px;
+            margin-bottom: 10px;
             font-size: 12px;
             line-height: 1.4;
+            word-break: break-word;
         }
         #status.error { background: rgba(239, 68, 68, 0.12); border-left-color: #ef4444; }
         #status.success { background: rgba(34, 197, 94, 0.12); border-left-color: #22c55e; }
+        #status.loading { background: rgba(96, 165, 250, 0.12); border-left-color: #60a5fa; }
         details.panel {
-            border: 1px solid #2a2622;
+            border: 1px solid #243040;
             border-radius: 8px;
-            margin-bottom: 10px;
-            background: #161412;
+            margin-bottom: 8px;
+            background: #121820;
         }
         details.panel > summary {
             list-style: none;
             cursor: pointer;
-            padding: 10px 12px;
+            padding: 9px 11px;
             color: #93c5fd;
             font-size: 13px;
             font-weight: 600;
@@ -81,13 +123,22 @@
             color: #6b7280;
         }
         details.panel[open] > summary::after { content: "▾"; }
-        .panel-body { padding: 0 12px 12px; }
+        .panel-body { padding: 0 11px 11px; }
         label {
             display: block;
             margin: 8px 0 2px;
-            color: #9a9288;
+            color: #8b95a5;
             font-size: 11px;
         }
+        .row-check {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 10px;
+            color: #c4bbb0;
+            font-size: 12px;
+        }
+        .row-check input { width: auto; }
         input[type="range"] { width: 100%; }
         .value-display {
             text-align: right;
@@ -98,7 +149,7 @@
         button {
             width: 100%;
             padding: 9px;
-            margin: 6px 0;
+            margin: 5px 0;
             background: #3b82f6;
             color: white;
             border: none;
@@ -107,15 +158,17 @@
             font-size: 12px;
         }
         button:hover { background: #2563eb; }
-        button.secondary { background: #3f3a35; }
-        button.secondary:hover { background: #524c45; }
+        button.secondary { background: #2a3545; }
+        button.secondary:hover { background: #3a4658; }
         button.danger { background: #7f1d1d; }
         button.danger:hover { background: #991b1b; }
+        .btn-row { display: flex; gap: 6px; }
+        .btn-row button { flex: 1; }
         input[type="file"] {
             width: 100%;
             padding: 8px;
-            background: #1c1814;
-            border: 1px solid #2a2622;
+            background: #161c26;
+            border: 1px solid #243040;
             border-radius: 6px;
             color: #e8e4de;
             font-size: 11px;
@@ -140,34 +193,38 @@
         select {
             width: 100%;
             padding: 8px;
-            background: #1c1814;
+            background: #161c26;
             color: #e8e4de;
-            border: 1px solid #2a2622;
+            border: 1px solid #243040;
             border-radius: 6px;
             margin-top: 4px;
         }
         .hint { color: #6b7280; font-size: 11px; margin-top: 4px; line-height: 1.4; }
+        #calibrateSteps p { margin-top: 6px; color: #c4bbb0; font-size: 12px; line-height: 1.45; }
     </style>
 </head>
 <body>
     <div id="canvas-container">
         <canvas id="main-canvas"></canvas>
+        <div class="load-track" id="loadTrack"><div id="loadBar"></div></div>
+        <button id="retryLoad" class="secondary" hidden>重试加载</button>
     </div>
 
     <aside id="controls">
         <div class="app-title">桌面肖像实验</div>
-        <div class="app-sub">独立 Three.js + VRM 查看器（非 SuperSplat）。网页画布不能变成系统透明桌宠窗口。</div>
-        <div id="status">正在初始化...</div>
+        <div class="app-sub">独立 Three.js + VRM（非 SuperSplat）。网页画布不能变成系统透明桌宠窗口。</div>
+        <div id="status">正在初始化…</div>
 
         <details class="panel" id="panel-basic" open>
             <summary>基础</summary>
             <div class="panel-body">
                 <label>模型</label>
                 <input type="file" id="vrmFile" accept=".vrm">
-                <button id="loadDefaultModel">重新加载文镜</button>
-                <button id="loadSampleModel" class="secondary">加载 pixiv 示例模型</button>
+                <button id="loadDefaultModel">重新加载文镜（VRM0）</button>
+                <button id="loadSampleModel" class="secondary">加载 pixiv 示例（VRM1）</button>
+                <button id="resettleSprings" class="secondary">重新稳定姿势 / 弹簧</button>
                 <button id="playTestAudio" class="secondary">播放测试音频（口型）</button>
-                <p class="model-credit">默认模型：文镜（Wenjing）。作者：LAPLACE Live! × 彩茫。许可：<a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank" rel="noopener noreferrer">CC BY-NC-SA 4.0</a>（非商业、署名、相同方式共享）。可选示例 VRM1_Constraint_Twist_Sample 由 pixiv Inc. 提供，见 <a href="https://vrm.dev/licenses/1.0/" target="_blank" rel="noopener noreferrer">VRM License 1.0</a>。</p>
+                <p class="model-credit">默认：文镜（Wenjing）。作者：LAPLACE Live! × 彩茫。许可：<a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank" rel="noopener noreferrer">CC BY-NC-SA 4.0</a>。示例：VRM1_Constraint_Twist_Sample（pixiv Inc.，<a href="https://vrm.dev/licenses/1.0/" target="_blank" rel="noopener noreferrer">VRM License 1.0</a>）。不含 Milky Green。</p>
             </div>
         </details>
 
@@ -175,42 +232,55 @@
             <summary>视点与支架</summary>
             <div class="panel-body">
                 <label>屏幕宽度</label>
-                <input type="range" id="screenWidth" min="0.08" max="0.8" step="0.01" value="0.25">
-                <div class="value-display" id="screenWidthValue">25.0 cm</div>
+                <input type="range" id="screenWidth" min="0.08" max="0.8" step="0.01" value="0.24">
+                <div class="value-display" id="screenWidthValue">24.0 cm</div>
 
                 <label>屏幕高度</label>
-                <input type="range" id="screenHeight" min="0.04" max="1.0" step="0.01" value="0.20">
-                <div class="value-display" id="screenHeightValue">20.0 cm</div>
+                <input type="range" id="screenHeight" min="0.04" max="1.0" step="0.01" value="0.18">
+                <div class="value-display" id="screenHeightValue">18.0 cm</div>
 
                 <label>支架倾角（相对竖直）</label>
-                <input type="range" id="tiltDegrees" min="0" max="90" step="1" value="15">
-                <div class="value-display" id="tiltDegreesValue">15°</div>
+                <input type="range" id="tiltDegrees" min="0" max="90" step="1" value="12">
+                <div class="value-display" id="tiltDegreesValue">12°</div>
 
                 <label>眼睛 X（左←→右）</label>
-                <input type="range" id="eyeX" min="-0.3" max="0.3" step="0.01" value="-0.03">
-                <div class="value-display" id="eyeXValue">-3.0 cm</div>
+                <input type="range" id="eyeX" min="-0.3" max="0.3" step="0.01" value="-0.02">
+                <div class="value-display" id="eyeXValue">-2.0 cm</div>
 
                 <label>眼睛 Y（下←→上）</label>
-                <input type="range" id="eyeY" min="-0.4" max="0.4" step="0.01" value="0">
-                <div class="value-display" id="eyeYValue">0.0 cm</div>
+                <input type="range" id="eyeY" min="-0.4" max="0.4" step="0.01" value="0.02">
+                <div class="value-display" id="eyeYValue">2.0 cm</div>
 
                 <label>眼睛 Z（屏幕←→眼睛）</label>
-                <input type="range" id="eyeZ" min="0.2" max="1.5" step="0.01" value="0.48">
-                <div class="value-display" id="eyeZValue">48.0 cm</div>
-                <p class="hint">数值为相对屏幕中心的校准量，不是绝对机型参数。</p>
+                <input type="range" id="eyeZ" min="0.2" max="1.5" step="0.01" value="0.36">
+                <div class="value-display" id="eyeZValue">36.0 cm</div>
+                <p class="hint">相对屏幕中心的校准量，不是绝对机型参数。</p>
+            </div>
+        </details>
+
+        <details class="panel" id="panel-calibrate">
+            <summary>简短校准</summary>
+            <div class="panel-body">
+                <div id="calibrateSteps"></div>
+                <div class="btn-row">
+                    <button id="calibratePrev" class="secondary" type="button">上一步</button>
+                    <button id="calibrateNext" type="button">下一步</button>
+                </div>
             </div>
         </details>
 
         <details class="panel" id="panel-advanced">
             <summary>高级 / 画质</summary>
             <div class="panel-body">
-                <label>画质预设</label>
+                <label>画质预设（实际影响 DPR / 阴影 / 灯光 / 弹簧）</label>
                 <select id="qualityPreset">
                     <option value="battery">省电</option>
                     <option value="balanced" selected>均衡</option>
                     <option value="quality">高画质</option>
                 </select>
-                <p class="hint" id="qualityHint">限制像素比与移动端负载；可随时手动覆盖。</p>
+                <p class="hint" id="qualityHint">切换后立即作用于渲染器。</p>
+                <label class="row-check"><input type="checkbox" id="springsEnabled" checked> 启用弹簧骨骼（毛发/裙摆）</label>
+                <p class="hint" id="springsPolicyNote">部分模型默认关闭弹簧（裙摆/毛发尖刺）；可手动开启后点「重新稳定」。省电档强制关闭。</p>
                 <button id="saveSettings" class="secondary">保存本地设置</button>
                 <button id="resetSettings" class="danger">重置为默认</button>
             </div>
@@ -221,6 +291,7 @@
             <div class="panel-body">
                 <div class="device-grid" id="deviceGrid"></div>
                 <p class="device-note" id="deviceDisclaimer"></p>
+                <button id="applySuggestedQuality" class="secondary">应用建议画质</button>
             </div>
         </details>
     </aside>
