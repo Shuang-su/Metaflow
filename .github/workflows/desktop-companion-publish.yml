@@ -14,14 +14,14 @@ jobs:
   publish:
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-24.04
-    timeout-minutes: 10
+    timeout-minutes: 18
     environment: production
     env:
-      EXPECTED_SOURCE_REF: ff5204c8dff1e43d7c426575425231b9621657f7
-      VALIDATED_RUN_ID: '43570201947'
-      VALIDATED_HEAD: d6cdee92689333acce85028ba98a484db2d4b4f1
-      ARTIFACT_ID: '14103948353'
-      ARTIFACT_SHA256: 365f47691a1f5c5eb59090c12bff92dfefb9b1b153ef41f8d0cfd42df184ec04
+      EXPECTED_SOURCE_REF: d5785c9b87079f6c4b9a2c16978e0d5cdd2f418a
+      VALIDATED_RUN_ID: '43721807528'
+      VALIDATED_HEAD: ce82b25e378ad5b66c38fa1a1f5475bba7d7fe94
+      ARTIFACT_ID: '14164194255'
+      ARTIFACT_SHA256: b2e554c27c3d17910f0c3dfc3826c6a359fe2e34dbfeceaba518f24a21e9e0c1
       SITE_DIR: site
     steps:
       - uses: actions/checkout@v4
@@ -30,6 +30,7 @@ jobs:
           sparse-checkout: |
             metaflow-viewer/experiments/desktop-companion
             scripts/publish-desktop-companion.py
+            scripts/verify-desktop-companion.mjs
           sparse-checkout-cone-mode: false
       - uses: actions/setup-node@v4
         with:
@@ -45,34 +46,49 @@ jobs:
             req=urllib.request.Request(base+path,headers={'Authorization':'Bearer '+os.environ['GH_TOKEN'],'Accept':'application/vnd.github+json'})
             with urllib.request.urlopen(req,timeout=30) as r:return json.load(r)
           run=get('actions/runs/'+os.environ['VALIDATED_RUN_ID'])
-          assert run['conclusion']=='success' and run['head_sha']==os.environ['VALIDATED_HEAD'] and run['head_branch']=='codex/mf-165-mobile-voice'
+          assert run['conclusion']=='success' and run['head_sha']==os.environ['VALIDATED_HEAD'] and run['head_branch']=='codex/mf-165-usability-scenes'
           artifact=get('actions/artifacts/'+os.environ['ARTIFACT_ID'])
-          assert not artifact['expired'] and artifact['name']=='desktop-companion-mobile-netlify'
+          assert not artifact['expired'] and artifact['name']=='companion-usability-netlify'
           assert artifact['workflow_run']['id']==int(os.environ['VALIDATED_RUN_ID'])
           assert artifact['digest']=='sha256:'+os.environ['ARTIFACT_SHA256']
-          print('APPROVED_ARTIFACT_VERIFIED',artifact['id'])
+          source=get('git/commits/'+os.environ['EXPECTED_SOURCE_REF'])
+          assert len(source['parents'])==1 and source['parents'][0]['sha']==os.environ['VALIDATED_HEAD']
+          print('APPROVED_ARTIFACT_VERIFIED',artifact['id'],source['sha'])
           PY
       - uses: actions/download-artifact@v4
         with:
-          artifact-ids: '14103948353'
-          run-id: '43570201947'
+          artifact-ids: ${{ env.ARTIFACT_ID }}
+          run-id: ${{ env.VALIDATED_RUN_ID }}
           github-token: ${{ github.token }}
           path: site
           merge-multiple: true
       - name: Verify source equivalence and repeat focused unit checks
         run: |
           python3 -m py_compile scripts/publish-desktop-companion.py
+          node --check scripts/verify-desktop-companion.mjs
           python3 - <<'PY'
           import pathlib,json,os,hashlib
           root=pathlib.Path('metaflow-viewer/experiments/desktop-companion');site=pathlib.Path('site')
-          assert json.loads((site/'release.json').read_text())['gitRef']==os.environ['EXPECTED_SOURCE_REF']
+          release=json.loads((site/'release.json').read_text())
+          assert release['gitRef']==os.environ['EXPECTED_SOURCE_REF'] and release['release']=='companion-2026-11-15.1'
+          count=0
           for p in root.iterdir():
             if p.suffix not in ['.js','.mjs','.css','.html'] or '.test.' in p.name or 'e2e' in p.name:continue
             assert (site/p.name).read_bytes()==p.read_bytes(),p.name
-          print('ARTIFACT_MATCHES_MAIN_RUNTIME_SOURCE')
+            count+=1
+          manifest=json.loads((site/'assets/terrace-provenance.json').read_text())
+          assert hashlib.sha256((site/'assets/terrace-kit.glb').read_bytes()).hexdigest()==manifest['derivedSha256']
+          assert manifest['sourceSha256']=='9c4551b99e20b02a8c0a29f2115f2c83bbf28ae18c5628228263d6cd8b12435d'
+          print('ARTIFACT_MATCHES_MAIN_RUNTIME_SOURCE',count)
           PY
-          node --test metaflow-viewer/experiments/desktop-companion/mobile-voice.test.mjs metaflow-viewer/experiments/desktop-companion/tracking-refinement.test.mjs
-      - name: Publish exact existing companion target and verify production bytes
+          node --test metaflow-viewer/experiments/desktop-companion/mobile-voice.test.mjs metaflow-viewer/experiments/desktop-companion/tracking-refinement.test.mjs metaflow-viewer/experiments/desktop-companion/usability.test.mjs
+      - name: Prepare isolated remote browser validation without deployment credentials
+        run: |
+          npm install --prefix "$RUNNER_TEMP/companion-publish-browser" --ignore-scripts --no-audit --no-fund playwright@1.56.1
+          "$RUNNER_TEMP/companion-publish-browser/node_modules/.bin/playwright" install --with-deps chromium
+          echo "BROWSER_MODULE_DIR=$RUNNER_TEMP/companion-publish-browser" >> "$GITHUB_ENV"
+          echo "EVIDENCE_DIR=$RUNNER_TEMP/companion-publication-evidence" >> "$GITHUB_ENV"
+      - name: Publish exact existing companion target with draft and production browser gates
         env:
           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
         run: python3 scripts/publish-desktop-companion.py
@@ -81,5 +97,12 @@ jobs:
         with:
           name: desktop-companion-publication-result
           path: publication-result.json
+          if-no-files-found: warn
+          retention-days: 30
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: desktop-companion-publication-evidence
+          path: ${{ runner.temp }}/companion-publication-evidence/
           if-no-files-found: warn
           retention-days: 30
