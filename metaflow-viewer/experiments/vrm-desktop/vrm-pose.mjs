@@ -1,18 +1,11 @@
 /**
  * Safe rest-pose helpers for VRM0/VRM1.
  *
- * three-vrm setNormalizedPose expects rotation as QUATERNION [x,y,z,w]
- * relative to T-pose rest — NOT Euler triples.
+ * Natural idle: arms hang beside hips with visible elbow/wrist/hand clearance
+ * outside the skirt silhouette — not A/T-pose, not buried behind torso.
  *
- * After a large pose change, springBoneManager.setInitState() must re-capture
- * rest tails from the new pose. reset() alone restores the OLD (T-pose) init
- * and leaves skirt/hair exploding.
- *
- * Order: setNormalizedPose → humanoid.update → updateMatrixWorld →
- *        setInitState → reset → settle updates.
- *
- * Natural idle (not A/T-pose): upper arms hang near torso (~80°+ from T-pose),
- * slight elbow bend, relaxed wrists, hands clear of skirt volume.
+ * three-vrm setNormalizedPose expects QUATERNION [x,y,z,w] relative to T-pose.
+ * After pose change: setInitState → reset before spring settle.
  */
 
 export function quatFromEulerXYZ(x, y, z) {
@@ -30,57 +23,53 @@ export function quatFromEulerXYZ(x, y, z) {
     ];
 }
 
-/** Natural hang fold from T-pose (radians). ~1.52 ≈ 87° — arms by torso, not A-pose. */
-export const NATURAL_ARM_FOLD = 1.52;
-export const NATURAL_ELBOW = 0.72;
-export const NATURAL_WRIST = 0.22;
-
 /**
- * Build a natural standing rest pose (relaxed hang, slight elbow, soft wrists).
- * VRM0 and VRM1 flip upper-arm Z sign in normalized space.
+ * Fold from T-pose (~72°). Leaves A-pose, short of vertical glue so hands
+ * sit beside hips with a readable outer silhouette gap.
  */
+export const NATURAL_ARM_FOLD = 1.26;
+export const NATURAL_ELBOW = 0.58;
+export const NATURAL_WRIST = 0.2;
+/** Lateral open (away from midline) so hands clear skirt volume. */
+export const NATURAL_ARM_OUT = 0.28;
+/** Slight forward so elbows/wrists aren't behind the torso plane. */
+export const NATURAL_ARM_FWD = 0.14;
+
 export function buildRestPose(metaVersion) {
     const isVrm0 = metaVersion === '0';
     const fold = NATURAL_ARM_FOLD;
     const elbow = NATURAL_ELBOW;
     const wrist = NATURAL_WRIST;
-    // Inward + slight forward so elbows read beside torso (not flat A-pose silhouette)
-    const inY = isVrm0 ? 0.18 : -0.18;
-    const fwd = 0.18;
+    const out = NATURAL_ARM_OUT;
+    const fwd = NATURAL_ARM_FWD;
+    const outYLeft = isVrm0 ? -out : out;
+    const outYRight = isVrm0 ? out : -out;
     const armZLeft = isVrm0 ? fold : -fold;
     const armZRight = isVrm0 ? -fold : fold;
-    // Soft shoulder drop
-    const shoulderDrop = 0.12;
+    const shoulderDrop = 0.1;
     return {
         leftShoulder: { rotation: quatFromEulerXYZ(0, 0, isVrm0 ? shoulderDrop : -shoulderDrop) },
         rightShoulder: { rotation: quatFromEulerXYZ(0, 0, isVrm0 ? -shoulderDrop : shoulderDrop) },
-        leftUpperArm: { rotation: quatFromEulerXYZ(fwd, inY, armZLeft) },
-        rightUpperArm: { rotation: quatFromEulerXYZ(fwd, -inY, armZRight) },
-        leftLowerArm: { rotation: quatFromEulerXYZ(elbow, 0.06, isVrm0 ? 0.12 : -0.12) },
-        rightLowerArm: { rotation: quatFromEulerXYZ(elbow, -0.06, isVrm0 ? -0.12 : 0.12) },
-        leftHand: { rotation: quatFromEulerXYZ(0.05, 0, isVrm0 ? -wrist : wrist) },
-        rightHand: { rotation: quatFromEulerXYZ(0.05, 0, isVrm0 ? wrist : -wrist) },
-        // Soft neutral spine — weight shift layered in animator, not baked hard here
+        leftUpperArm: { rotation: quatFromEulerXYZ(fwd, outYLeft, armZLeft) },
+        rightUpperArm: { rotation: quatFromEulerXYZ(fwd, outYRight, armZRight) },
+        leftLowerArm: { rotation: quatFromEulerXYZ(elbow, outYLeft * 0.25, isVrm0 ? 0.1 : -0.1) },
+        rightLowerArm: { rotation: quatFromEulerXYZ(elbow, outYRight * 0.25, isVrm0 ? -0.1 : 0.1) },
+        leftHand: { rotation: quatFromEulerXYZ(0.08, 0, isVrm0 ? -wrist : wrist) },
+        rightHand: { rotation: quatFromEulerXYZ(0.08, 0, isVrm0 ? wrist : -wrist) },
         spine: { rotation: quatFromEulerXYZ(0.02, 0, 0) },
         chest: { rotation: quatFromEulerXYZ(0.015, 0, 0) },
-        hips: { rotation: quatFromEulerXYZ(0, 0.02, 0) },
+        hips: { rotation: quatFromEulerXYZ(0, 0.015, 0) },
         neck: { rotation: quatFromEulerXYZ(-0.02, 0, 0) },
-        head: { rotation: quatFromEulerXYZ(0.03, -0.04, 0) }
+        head: { rotation: quatFromEulerXYZ(0.03, -0.03, 0) }
     };
 }
 
 function rebindSpringsToCurrentPose(vrm) {
     const mgr = vrm?.springBoneManager;
     if (!mgr) return { rebound: false };
-
     vrm.scene.updateMatrixWorld(true);
-
-    if (typeof mgr.setInitState === 'function') {
-        mgr.setInitState();
-    }
-    if (typeof mgr.reset === 'function') {
-        mgr.reset();
-    }
+    if (typeof mgr.setInitState === 'function') mgr.setInitState();
+    if (typeof mgr.reset === 'function') mgr.reset();
     return { rebound: true, setInitState: typeof mgr.setInitState === 'function' };
 }
 
@@ -91,12 +80,43 @@ const ARM_BONE_NAMES = [
     'leftHand', 'rightHand'
 ];
 
-/**
- * Apply rest pose, sync humanoid → raw, rebind springs.
- * @param {{ settleFrames?: number, updateSprings?: boolean }} options
- *   updateSprings=false: rebind only (freeze cloth/hair at posed rest) — use when
- *   springs will stay disabled so settle loops cannot spike hair/skirt.
- */
+/** World-space hand/hip metrics (figurine metres). Needs globalThis.THREE. */
+export function measureArmSilhouette(vrm) {
+    if (!vrm?.humanoid) return null;
+    vrm.scene.updateMatrixWorld(true);
+    const THREE = globalThis.THREE;
+    const tmp = THREE?.Vector3 ? new THREE.Vector3() : null;
+    const wp = (name) => {
+        const n = vrm.humanoid.getNormalizedBoneNode(name) || vrm.humanoid.getRawBoneNode(name);
+        if (!n) return null;
+        if (tmp) {
+            n.getWorldPosition(tmp);
+            return { x: tmp.x, y: tmp.y, z: tmp.z };
+        }
+        n.updateWorldMatrix?.(true, false);
+        const e = n.matrixWorld?.elements;
+        return e ? { x: e[12], y: e[13], z: e[14] } : null;
+    };
+    const leftHand = wp('leftHand');
+    const rightHand = wp('rightHand');
+    const leftLower = wp('leftLowerArm');
+    const rightLower = wp('rightLowerArm');
+    const hips = wp('hips');
+    if (!leftHand || !rightHand || !hips) return null;
+    const leftLat = Math.abs(leftHand.x - hips.x);
+    const rightLat = Math.abs(rightHand.x - hips.x);
+    return {
+        leftHand,
+        rightHand,
+        leftLower,
+        rightLower,
+        hips,
+        leftLat,
+        rightLat,
+        handsBesideHips: leftLat > 0.012 && rightLat > 0.012
+    };
+}
+
 export function applyRestPoseAndSettle(vrm, metaVersion, settleFramesOrOpts = 120) {
     if (!vrm?.humanoid) {
         return { applied: false, reason: 'no-humanoid' };
@@ -119,8 +139,7 @@ export function applyRestPoseAndSettle(vrm, metaVersion, settleFramesOrOpts = 12
 
     if (opts.updateSprings && vrm.springBoneManager) {
         const dt = 1 / 60;
-        const frames = opts.settleFrames;
-        for (let i = 0; i < frames; i++) {
+        for (let i = 0; i < opts.settleFrames; i++) {
             reapplyArmRestPose(vrm, metaVersion);
             vrm.humanoid.update();
             vrm.update(dt);
@@ -145,24 +164,20 @@ export function applyRestPoseAndSettle(vrm, metaVersion, settleFramesOrOpts = 12
         springsRebound: spring.rebound,
         springsUpdated: !!opts.updateSprings,
         armFoldRad: NATURAL_ARM_FOLD,
-        poseStyle: 'natural-relaxed',
-        leftUpperArmQuat: sample
+        poseStyle: 'natural-relaxed-beside',
+        leftUpperArmQuat: sample,
+        silhouette: measureArmSilhouette(vrm)
     };
 }
 
 export function softResetSprings(vrm, settleFrames = 45) {
-    if (!vrm?.springBoneManager) {
-        return { reset: false };
-    }
+    if (!vrm?.springBoneManager) return { reset: false };
     rebindSpringsToCurrentPose(vrm);
     const dt = 1 / 60;
-    for (let i = 0; i < settleFrames; i++) {
-        vrm.update(dt);
-    }
+    for (let i = 0; i < settleFrames; i++) vrm.update(dt);
     return { reset: true, settleFrames, rebound: true };
 }
 
-/** Re-apply arm/shoulder/hand rest every frame so idle/lookAt cannot lift arms into A-pose. */
 export function reapplyArmRestPose(vrm, metaVersion) {
     if (!vrm?.humanoid) return;
     const pose = buildRestPose(metaVersion);
@@ -175,9 +190,6 @@ export function reapplyArmRestPose(vrm, metaVersion) {
     }
 }
 
-/**
- * Per-model spring policy. Hair spikes / skirt flare → honest-disabled default.
- */
 export function springsPolicyForModel(modelName, metaVersion) {
     const n = (modelName || '').toLowerCase();
     if (n.includes('constraint_twist') || n.includes('vrm1_constraint')) {

@@ -1,12 +1,11 @@
 /**
- * Procedural diorama environments for the desktop figurine.
- * All geometry is authored here — no remote assets / Persona branding.
+ * Procedural diorama environments sized to the off-axis figurine framing.
  *
- * Modes:
- *   room    — compact indoor studio (walls, window light, shelf, plant, cabinet)
- *   minimal — floor + soft backdrop only
+ * Room mode is a shallow CORNER set behind the character so window / shelf /
+ * plant read in the default full-body camera — not a huge empty wall with an
+ * off-screen prop cube.
  *
- * Parent under deskRoot so tilt/projection stays consistent with calibration.
+ * Units are metres in the same world as the ~0.12m-tall figurine.
  */
 
 import * as THREE from 'three';
@@ -44,7 +43,6 @@ function woodFloorTexture() {
             ctx.lineTo(s, i * 10 - 12);
             ctx.stroke();
         }
-        // Plank seams
         ctx.strokeStyle = 'rgba(50,30,15,0.12)';
         for (let x = 0; x < s; x += 42) {
             ctx.beginPath();
@@ -76,11 +74,6 @@ function boxMesh(w, h, d, material, x, y, z) {
     return m;
 }
 
-/**
- * @param {THREE.Group} parent deskRoot
- * @param {'room'|'minimal'} mode
- * @param {{ detail?: 'full'|'standard'|'minimal' }} opts
- */
 export function buildEnvironment(parent, mode = 'room', opts = {}) {
     clearEnvironment(parent);
     const root = new THREE.Group();
@@ -91,11 +84,8 @@ export function buildEnvironment(parent, mode = 'room', opts = {}) {
     const rich = detail === 'full';
     const sparse = detail === 'minimal';
 
-    if (mode === 'minimal') {
-        buildMinimal(root);
-    } else {
-        buildRoom(root, { rich, sparse });
-    }
+    if (mode === 'minimal') buildMinimal(root);
+    else buildRoomCorner(root, { rich, sparse });
     return root;
 }
 
@@ -105,7 +95,7 @@ export function clearEnvironment(parent) {
     existing.traverse((o) => {
         if (o.geometry) o.geometry.dispose?.();
         if (o.material) {
-            if (Array.isArray(o.material)) o.material.forEach((m) => disposeMat(m));
+            if (Array.isArray(o.material)) o.material.forEach(disposeMat);
             else disposeMat(o.material);
         }
     });
@@ -121,7 +111,7 @@ function buildMinimal(root) {
     const floorMap = woodFloorTexture();
     floorMap.repeat.set(2, 2);
     const floor = new THREE.Mesh(
-        new THREE.PlaneGeometry(0.5, 0.4),
+        new THREE.PlaneGeometry(0.42, 0.34),
         new THREE.MeshStandardMaterial({
             map: floorMap,
             roughness: 0.88,
@@ -131,20 +121,15 @@ function buildMinimal(root) {
     );
     floor.name = 'EnvFloor';
     floor.rotation.x = -Math.PI / 2;
-    floor.position.set(0, 0, -0.06);
+    floor.position.set(0, 0, -0.05);
     floor.receiveShadow = true;
     root.add(floor);
 
     const backdrop = new THREE.Mesh(
-        new THREE.PlaneGeometry(0.7, 0.45),
-        new THREE.MeshStandardMaterial({
-            color: 0x3a4554,
-            roughness: 0.95,
-            metalness: 0,
-            side: THREE.DoubleSide
-        })
+        new THREE.PlaneGeometry(0.55, 0.38),
+        new THREE.MeshStandardMaterial({ color: 0x3a4554, roughness: 0.95, metalness: 0, side: THREE.DoubleSide })
     );
-    backdrop.position.set(0, 0.2, -0.28);
+    backdrop.position.set(0, 0.18, -0.24);
     backdrop.receiveShadow = true;
     root.add(backdrop);
 
@@ -155,14 +140,15 @@ function buildMinimal(root) {
     root.userData.floor = floor;
 }
 
-function buildRoom(root, { rich, sparse }) {
+/**
+ * Shallow room corner sized to ~0.12m figurine full-body framing.
+ * Character stands near origin; back wall + left wall meet in a readable corner
+ * behind/left of subject; window on BACK wall (face-on); shelf+plant on right rear.
+ */
+function buildRoomCorner(root, { rich, sparse }) {
     const floorMap = woodFloorTexture();
-    floorMap.repeat.set(2.4, 2);
-    const floorMat = new THREE.MeshStandardMaterial({
-        map: floorMap,
-        roughness: 0.86,
-        metalness: 0.03
-    });
+    floorMap.repeat.set(2, 1.6);
+    const floorMat = new THREE.MeshStandardMaterial({ map: floorMap, roughness: 0.86, metalness: 0.03 });
     const wallMat = new THREE.MeshStandardMaterial({
         map: plasterTexture('#efe8dc', '#d9d0c2'),
         roughness: 0.92,
@@ -173,172 +159,148 @@ function buildRoom(root, { rich, sparse }) {
         roughness: 0.9,
         metalness: 0
     });
-    const trimMat = new THREE.MeshStandardMaterial({
-        color: 0x8b7355,
-        roughness: 0.7,
-        metalness: 0.05
-    });
-    const woodDark = new THREE.MeshStandardMaterial({
-        color: 0x5c4030,
-        roughness: 0.75,
-        metalness: 0.04
-    });
-    const leafMat = new THREE.MeshStandardMaterial({
-        color: 0x4a7c59,
-        roughness: 0.7,
-        metalness: 0
-    });
-    const potMat = new THREE.MeshStandardMaterial({
-        color: 0xc4a484,
-        roughness: 0.65,
-        metalness: 0.08
-    });
+    const trimMat = new THREE.MeshStandardMaterial({ color: 0x8b7355, roughness: 0.7, metalness: 0.05 });
+    const woodDark = new THREE.MeshStandardMaterial({ color: 0x5c4030, roughness: 0.75, metalness: 0.04 });
+    const leafMat = new THREE.MeshStandardMaterial({ color: 0x4a7c59, roughness: 0.7, metalness: 0 });
+    const potMat = new THREE.MeshStandardMaterial({ color: 0xc4a484, roughness: 0.65, metalness: 0.08 });
 
-    // Sized so walls/props stay in the figurine camera frustum
-    const W = 0.5;
-    const D = 0.4;
-    const H = 0.32;
-    const floorY = 0;
-    const zCenter = -0.04;
+    // Compact footprint — props stay inside typical off-axis portrait frustum
+    const W = 0.34;
+    const D = 0.28;
+    const H = 0.22;
+    const zBack = -0.16;
+    const zFront = zBack + D;
+    const zMid = (zBack + zFront) / 2;
 
     const floor = new THREE.Mesh(new THREE.PlaneGeometry(W, D), floorMat);
     floor.name = 'EnvFloor';
     floor.rotation.x = -Math.PI / 2;
-    floor.position.set(0, floorY, zCenter);
+    floor.position.set(0, 0, zMid);
     floor.receiveShadow = true;
     root.add(floor);
 
-    // Back wall
+    // Back wall (face-on to camera) — primary readable surface
     const back = new THREE.Mesh(new THREE.PlaneGeometry(W, H), wallMat);
-    back.position.set(0, H / 2, zCenter - D / 2);
+    back.position.set(0, H / 2, zBack);
     back.receiveShadow = true;
     root.add(back);
 
-    // Side walls
+    // Left wall — creates corner line with back wall
     const left = new THREE.Mesh(new THREE.PlaneGeometry(D, H), wallCool);
     left.rotation.y = Math.PI / 2;
-    left.position.set(-W / 2, H / 2, zCenter);
+    left.position.set(-W / 2, H / 2, zMid);
     left.receiveShadow = true;
     root.add(left);
 
-    const right = new THREE.Mesh(new THREE.PlaneGeometry(D, H), wallCool);
+    // Short right return (not full wall) so camera isn't boxed by blank plane
+    const right = new THREE.Mesh(new THREE.PlaneGeometry(D * 0.55, H), wallCool);
     right.rotation.y = -Math.PI / 2;
-    right.position.set(W / 2, H / 2, zCenter);
+    right.position.set(W / 2, H / 2, zBack + D * 0.28);
     right.receiveShadow = true;
     root.add(right);
 
-    // Ceiling strip (shallow) for enclosure cue
-    if (!sparse) {
-        const ceil = new THREE.Mesh(
-            new THREE.PlaneGeometry(W, D * 0.85),
-            new THREE.MeshStandardMaterial({ color: 0xf2ebe2, roughness: 0.95, side: THREE.DoubleSide })
-        );
-        ceil.rotation.x = Math.PI / 2;
-        ceil.position.set(0, H - 0.01, zCenter + 0.02);
-        root.add(ceil);
-    }
+    // Baseboards (corner readable)
+    const baseH = 0.012;
+    root.add(boxMesh(W - 0.004, baseH, 0.006, trimMat, 0, baseH / 2, zBack + 0.004));
+    root.add(boxMesh(0.006, baseH, D - 0.01, trimMat, -W / 2 + 0.004, baseH / 2, zMid));
 
-    // Baseboard trim
-    const baseH = 0.018;
-    root.add(boxMesh(W - 0.01, baseH, 0.01, trimMat, 0, baseH / 2, zCenter - D / 2 + 0.006));
-    root.add(boxMesh(0.01, baseH, D - 0.02, trimMat, -W / 2 + 0.006, baseH / 2, zCenter));
-    root.add(boxMesh(0.01, baseH, D - 0.02, trimMat, W / 2 - 0.006, baseH / 2, zCenter));
-
-    // Window on left wall — emissive pane as keylight cue
-    const winW = 0.14;
-    const winH = 0.16;
-    const winFrame = boxMesh(0.01, winH + 0.02, winW + 0.02, trimMat, -W / 2 + 0.012, 0.2, zCenter - 0.02);
-    root.add(winFrame);
+    // WINDOW on BACK wall (face-on) — left of center so not hidden by character
+    const winW = 0.07;
+    const winH = 0.08;
+    const winX = -0.09;
+    const winY = 0.145;
+    root.add(boxMesh(winW + 0.012, winH + 0.012, 0.006, trimMat, winX, winY, zBack + 0.004));
     const pane = new THREE.Mesh(
         new THREE.PlaneGeometry(winW, winH),
         new THREE.MeshStandardMaterial({
             color: 0xfff6e8,
             emissive: 0xffe2b8,
-            emissiveIntensity: rich ? 0.85 : 0.55,
-            roughness: 0.35,
+            emissiveIntensity: rich ? 0.7 : 0.45,
+            roughness: 0.4,
             metalness: 0,
             side: THREE.DoubleSide
         })
     );
-    pane.rotation.y = Math.PI / 2;
-    pane.position.set(-W / 2 + 0.014, 0.2, zCenter - 0.02);
+    pane.name = 'EnvWindowPane';
+    pane.position.set(winX, winY, zBack + 0.008);
     root.add(pane);
 
-    // Window light (local to environment)
-    const windowLight = new THREE.PointLight(0xffe6c8, rich ? 0.55 : 0.35, 1.2, 2);
-    windowLight.position.set(-W / 2 + 0.08, 0.22, zCenter - 0.02);
+    // Soft mullion
+    root.add(boxMesh(0.004, winH, 0.004, trimMat, winX, winY, zBack + 0.009));
+    root.add(boxMesh(winW, 0.004, 0.004, trimMat, winX, winY, zBack + 0.009));
+
+    const windowLight = new THREE.PointLight(0xffe6c8, rich ? 0.4 : 0.28, 0.9, 2);
+    windowLight.position.set(winX, winY, zBack + 0.04);
     windowLight.name = 'EnvWindowLight';
     root.add(windowLight);
 
     if (!sparse) {
-        // Shelf on right — pulled into view
-        const shelf = boxMesh(0.11, 0.012, 0.055, woodDark, 0.16, 0.2, zCenter - 0.06);
-        root.add(shelf);
-        root.add(boxMesh(0.032, 0.038, 0.024, potMat, 0.13, 0.226, zCenter - 0.055));
-        root.add(boxMesh(0.026, 0.048, 0.02, woodDark, 0.18, 0.231, zCenter - 0.05));
+        // Small shelf on back wall — RIGHT of character (readable)
+        const shelfX = 0.1;
+        const shelfY = 0.13;
+        root.add(boxMesh(0.07, 0.008, 0.028, woodDark, shelfX, shelfY, zBack + 0.02));
+        root.add(boxMesh(0.018, 0.022, 0.014, potMat, shelfX - 0.018, shelfY + 0.015, zBack + 0.022));
+        root.add(boxMesh(0.014, 0.028, 0.012, woodDark, shelfX + 0.02, shelfY + 0.018, zBack + 0.02));
 
-        // Low cabinet left-rear (readable mass)
-        root.add(boxMesh(0.11, 0.08, 0.07, woodDark, -0.15, 0.04, zCenter - 0.1));
+        // Compact cabinet LEFT rear corner (small — not a giant cut-off cube)
+        root.add(boxMesh(0.055, 0.045, 0.04, woodDark, -0.11, 0.022, zBack + 0.04));
 
-        // Plant right-front (clear of silhouette)
-        const pot = new THREE.Mesh(new THREE.CylinderGeometry(0.02, 0.024, 0.03, 12), potMat);
-        pot.position.set(0.14, 0.015, zCenter + 0.1);
+        // Plant RIGHT rear, behind/beside character hip — visible leaf mass
+        const plantX = 0.095;
+        const plantZ = zBack + 0.07;
+        const pot = new THREE.Mesh(new THREE.CylinderGeometry(0.012, 0.014, 0.018, 10), potMat);
+        pot.position.set(plantX, 0.009, plantZ);
         pot.castShadow = true;
+        pot.name = 'EnvPlantPot';
         root.add(pot);
         const stem = new THREE.Mesh(
-            new THREE.CylinderGeometry(0.004, 0.005, 0.07, 8),
+            new THREE.CylinderGeometry(0.0025, 0.003, 0.04, 6),
             new THREE.MeshStandardMaterial({ color: 0x3d5c3a, roughness: 0.8 })
         );
-        stem.position.set(0.14, 0.06, zCenter + 0.1);
+        stem.position.set(plantX, 0.035, plantZ);
         root.add(stem);
-        for (const [dx, dy, zOff, r] of [
-            [0.14, 0.1, 0.1, 0.03],
-            [0.12, 0.11, 0.11, 0.024],
-            [0.16, 0.105, 0.09, 0.022]
+        for (const [dx, dy, dz, r] of [
+            [0, 0.055, 0, 0.018],
+            [-0.012, 0.062, 0.006, 0.014],
+            [0.012, 0.06, -0.005, 0.013]
         ]) {
-            const leaf = new THREE.Mesh(new THREE.SphereGeometry(r, 10, 8), leafMat);
-            leaf.position.set(dx, dy, zCenter + zOff);
+            const leaf = new THREE.Mesh(new THREE.SphereGeometry(r, 8, 6), leafMat);
+            leaf.position.set(plantX + dx, dy, plantZ + dz);
             leaf.castShadow = true;
+            leaf.name = 'EnvPlantLeaf';
             root.add(leaf);
         }
     }
 
     if (rich) {
-        // Picture frame on back wall
-        const frame = boxMesh(0.08, 0.06, 0.008, trimMat, -0.06, 0.24, zCenter - D / 2 + 0.006);
-        root.add(frame);
         const art = new THREE.Mesh(
-            new THREE.PlaneGeometry(0.065, 0.045),
+            new THREE.PlaneGeometry(0.04, 0.03),
             new THREE.MeshStandardMaterial({ color: 0x7a9eb8, roughness: 0.85 })
         );
-        art.position.set(-0.06, 0.24, zCenter - D / 2 + 0.011);
+        art.position.set(0.02, 0.175, zBack + 0.006);
         root.add(art);
-
-        // Rug under character zone
-        const rug = new THREE.Mesh(
-            new THREE.CircleGeometry(0.09, 28),
-            new THREE.MeshStandardMaterial({ color: 0x8b5a4a, roughness: 0.95, metalness: 0 })
-        );
-        rug.rotation.x = -Math.PI / 2;
-        rug.position.set(0, 0.001, zCenter + 0.02);
-        rug.receiveShadow = true;
-        root.add(rug);
+        root.add(boxMesh(0.048, 0.036, 0.005, trimMat, 0.02, 0.175, zBack + 0.003));
     }
 
     const contact = softContactShadow();
-    contact.position.set(0, 0.0015, zCenter + 0.02);
+    contact.position.set(0, 0.0014, -0.03);
     root.add(contact);
     root.userData.contactShadow = contact;
     root.userData.floor = floor;
     root.userData.windowLight = windowLight;
+    root.userData.propMarkers = {
+        window: { x: winX, y: winY, z: zBack + 0.008 },
+        shelf: { x: 0.1, y: 0.13, z: zBack + 0.02 },
+        plant: { x: 0.095, y: 0.055, z: zBack + 0.07 }
+    };
 }
 
 function softContactShadow() {
-    const shadowGeo = new THREE.CircleGeometry(0.055, 28);
+    const shadowGeo = new THREE.CircleGeometry(0.048, 28);
     const shadowMat = new THREE.MeshBasicMaterial({
         color: 0x000000,
         transparent: true,
-        opacity: 0.32,
+        opacity: 0.22,
         depthWrite: false
     });
     const contact = new THREE.Mesh(shadowGeo, shadowMat);
@@ -348,22 +310,21 @@ function softContactShadow() {
     return contact;
 }
 
-/** Background / fog palette per mode */
 export function sceneAtmosphere(mode) {
     if (mode === 'room') {
         return {
             background: 0x1c2228,
             fogColor: 0x2a323c,
-            fogNear: 1.8,
-            fogFar: 4.5,
+            fogNear: 2.0,
+            fogFar: 5.0,
             ambient: 0xfff1e4,
-            ambientIntensity: 0.38,
+            ambientIntensity: 0.4,
             hemiSky: 0xf0e6d8,
             hemiGround: 0x7a6248
         };
     }
     return {
-        background: null, // caller keeps gradient texture
+        background: null,
         fogColor: 0x1a222c,
         fogNear: 1.4,
         fogFar: 3.8,

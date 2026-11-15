@@ -13,7 +13,8 @@ import {
     applyRestPoseAndSettle,
     reapplyArmRestPose,
     softResetSprings,
-    springsPolicyForModel
+    springsPolicyForModel,
+    measureArmSilhouette
 } from './vrm-pose.mjs';
 import {
     loadSettings,
@@ -590,6 +591,8 @@ class DesktopPortraitApp {
                 paused: this.idlePaused
             });
             this.animator.captureRestBases();
+            // Re-measure after figurine scale so silhouette metrics match on-screen
+            const silhouette = measureArmSilhouette(this.vrm);
 
             this.setLoadProgress(100, '');
             const springShort = this.springsActive ? '弹簧开' : '弹簧关';
@@ -620,16 +623,19 @@ class DesktopPortraitApp {
                 metaVersion: this.metaVersion,
                 rotatedVRM0: this.rotatedVRM0,
                 restPose: this.restPoseSet,
-                poseStyle: poseResult.poseStyle || 'natural-relaxed',
+                poseStyle: poseResult.poseStyle || 'natural-relaxed-beside',
                 armFoldRad: poseResult.armFoldRad,
                 leftUpperArmQuat: poseResult.leftUpperArmQuat,
+                silhouette,
                 springsActive: this.springsActive,
                 springsFallbackNote: this.springsFallbackNote,
                 springsPolicy: policy,
                 quality: this.profile.id,
                 sceneMode: this.sceneMode,
                 idlePaused: this.idlePaused,
+                reducedMotion: this.caps.reducedMotion,
                 webglOpts: this.webglOpts || null,
+                envProps: this.envRoot?.userData?.propMarkers || null,
             vrmMeta: this.vrm.meta,
             hasExpressions: !!this.vrm.expressionManager,
             hasLookAt: !!this.vrm.lookAt,
@@ -709,9 +715,9 @@ class DesktopPortraitApp {
             };
         }
 
-        // Portrait figurine: leave hair/toes margin; room mode slightly smaller so walls/props read
-        const fill = this.sceneMode === 'room' ? 0.66 : 0.78;
-        const cap = this.sceneMode === 'room' ? 0.128 : 0.148;
+        // Room mode: smaller figurine so back-wall window/shelf/plant stay in framing
+        const fill = this.sceneMode === 'room' ? 0.52 : 0.78;
+        const cap = this.sceneMode === 'room' ? 0.105 : 0.148;
         const targetHeight = Math.min(cap, this.params.height * fill);
         const scale = targetHeight / extents.height;
         scene.scale.setScalar(scale);

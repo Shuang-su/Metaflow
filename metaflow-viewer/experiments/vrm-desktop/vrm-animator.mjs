@@ -1,7 +1,7 @@
 /**
  * VRM Animation Controller
- * Natural idle: breathing, blink, lookAt, subtle weight shift / head sway.
- * Arms are owned by vrm-pose reapply — this module must not lift them.
+ * Subtle-but-perceptible idle: breath, blink, weight shift, head sway.
+ * Arms owned by vrm-pose reapply — do not lift them.
  */
 
 import * as THREE from 'three';
@@ -13,28 +13,29 @@ export class VRMAnimator {
         this.reducedMotion = !!options.reducedMotion;
         this.paused = !!options.paused;
 
-        this.breathingPhase = Math.random() * Math.PI * 2;
-        this.breathingRate = this.reducedMotion ? 0.1 : 0.28;
-        this.breathingAmplitude = this.reducedMotion ? 0.015 : 0.04;
+        // Amplitudes tuned so a 15–30s capture shows clear but natural motion
+        this.breathingPhase = 0;
+        this.breathingRate = this.reducedMotion ? 0.12 : 0.38;
+        this.breathingAmplitude = this.reducedMotion ? 0.02 : 0.085;
 
-        this.weightPhase = Math.random() * Math.PI * 2;
-        this.weightRate = this.reducedMotion ? 0.05 : 0.11;
-        this.weightAmplitude = this.reducedMotion ? 0.004 : 0.012;
+        this.weightPhase = Math.PI * 0.5;
+        this.weightRate = this.reducedMotion ? 0.06 : 0.18;
+        this.weightAmplitude = this.reducedMotion ? 0.006 : 0.028;
 
-        this.headPhase = Math.random() * Math.PI * 2;
-        this.headRate = this.reducedMotion ? 0.04 : 0.09;
+        this.headPhase = 0;
+        this.headRate = this.reducedMotion ? 0.05 : 0.14;
 
         this.blinkTimer = 0;
-        this.blinkInterval = this.reducedMotion ? 5.5 : 2.8 + Math.random() * 1.5;
-        this.blinkDuration = 0.15;
+        this.blinkInterval = this.reducedMotion ? 5.0 : 2.2;
+        this.blinkDuration = 0.16;
         this.isBlinking = false;
         this.blinkPhase = 0;
+        this.blinkCount = 0;
 
         this.audioContext = null;
         this.mouthAnimationActive = false;
         this.mouthPhase = 0;
 
-        // Rest bases for bones we modulate (set after pose apply)
         this._bases = {};
         this.captureRestBases();
 
@@ -67,11 +68,34 @@ export class VRMAnimator {
         }
     }
 
+    /** Snapshot for QA — chest delta / blink count / paused flags. */
+    getMotionDiagnostics() {
+        const chest = this.vrm?.humanoid?.getNormalizedBoneNode('chest');
+        const hips = this.vrm?.humanoid?.getNormalizedBoneNode('hips');
+        const baseC = this._bases.chest || { x: 0 };
+        const baseH = this._bases.hips || { z: 0 };
+        return {
+            paused: this.paused,
+            reducedMotion: this.reducedMotion,
+            blinkCount: this.blinkCount,
+            isBlinking: this.isBlinking,
+            chestDelta: chest ? chest.rotation.x - baseC.x : 0,
+            hipsDelta: hips ? hips.rotation.z - baseH.z : 0,
+            breathingPhase: this.breathingPhase,
+            weightPhase: this.weightPhase
+        };
+    }
+
     update(deltaTime) {
         if (!this.vrm) return;
-        if (this.paused || this.reducedMotion) {
-            // Still allow lookAt when reduced (static gaze), skip motion loops
-            if (!this.paused) this.updateLookAt();
+        if (this.paused) {
+            if (this.mouthAnimationActive) this.updateMouth(deltaTime);
+            return;
+        }
+        if (this.reducedMotion) {
+            // Still blink rarely + lookAt; skip body sway
+            this.updateBlinking(deltaTime);
+            this.updateLookAt();
             if (this.mouthAnimationActive) this.updateMouth(deltaTime);
             return;
         }
@@ -81,10 +105,7 @@ export class VRMAnimator {
         this.updateHeadSway(deltaTime);
         this.updateBlinking(deltaTime);
         this.updateLookAt();
-
-        if (this.mouthAnimationActive) {
-            this.updateMouth(deltaTime);
-        }
+        if (this.mouthAnimationActive) this.updateMouth(deltaTime);
     }
 
     updateBreathing(deltaTime) {
@@ -92,14 +113,10 @@ export class VRMAnimator {
         const breathAmount = Math.sin(this.breathingPhase) * this.breathingAmplitude;
         const chest = this.vrm.humanoid?.getNormalizedBoneNode('chest');
         const base = this._bases.chest || { x: 0, y: 0, z: 0 };
-        if (chest) {
-            chest.rotation.x = base.x + breathAmount * 0.55;
-        }
+        if (chest) chest.rotation.x = base.x + breathAmount;
         const spine = this.vrm.humanoid?.getNormalizedBoneNode('spine');
         const spineBase = this._bases.spine || { x: 0, y: 0, z: 0 };
-        if (spine) {
-            spine.rotation.x = spineBase.x + breathAmount * 0.2;
-        }
+        if (spine) spine.rotation.x = spineBase.x + breathAmount * 0.45;
     }
 
     updateWeightShift(deltaTime) {
@@ -109,7 +126,7 @@ export class VRMAnimator {
         const base = this._bases.hips || { x: 0, y: 0, z: 0 };
         if (hips) {
             hips.rotation.z = base.z + sway;
-            hips.rotation.y = base.y + sway * 0.35;
+            hips.rotation.y = base.y + sway * 0.4;
         }
     }
 
@@ -120,40 +137,38 @@ export class VRMAnimator {
         const hb = this._bases.head || { x: 0, y: 0, z: 0 };
         const nb = this._bases.neck || { x: 0, y: 0, z: 0 };
         if (head) {
-            head.rotation.y = hb.y + Math.sin(this.headPhase) * 0.035;
-            head.rotation.x = hb.x + Math.sin(this.headPhase * 0.7) * 0.015;
+            head.rotation.y = hb.y + Math.sin(this.headPhase) * 0.055;
+            head.rotation.x = hb.x + Math.sin(this.headPhase * 0.65) * 0.028;
         }
         if (neck) {
-            neck.rotation.y = nb.y + Math.sin(this.headPhase) * 0.012;
+            neck.rotation.y = nb.y + Math.sin(this.headPhase) * 0.022;
         }
     }
 
     updateBlinking(deltaTime) {
         this.blinkTimer += deltaTime;
-
         if (!this.isBlinking) {
             if (this.blinkTimer >= this.blinkInterval) {
                 this.isBlinking = true;
                 this.blinkPhase = 0;
                 this.blinkTimer = 0;
-                this.blinkInterval = 2.2 + Math.random() * 3.2;
+                this.blinkInterval = 1.8 + Math.random() * 2.4;
+                this.blinkCount += 1;
             }
         } else {
             this.blinkPhase += deltaTime / this.blinkDuration;
-
             if (this.blinkPhase >= 1) {
                 this.isBlinking = false;
                 this.blinkPhase = 0;
-            }
-
-            const t = this.blinkPhase;
-            const curve = t < 0.5
-                ? 2 * t * t
-                : 1 - Math.pow(-2 * t + 2, 2) / 2;
-
-            if (this.vrm.expressionManager) {
-                const blinkValue = Math.sin(curve * Math.PI);
-                this.vrm.expressionManager.setValue('blink', blinkValue);
+                if (this.vrm.expressionManager) {
+                    this.vrm.expressionManager.setValue('blink', 0);
+                }
+            } else {
+                const t = this.blinkPhase;
+                const curve = t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
+                if (this.vrm.expressionManager) {
+                    this.vrm.expressionManager.setValue('blink', Math.sin(curve * Math.PI));
+                }
             }
         }
     }
@@ -167,33 +182,26 @@ export class VRMAnimator {
     updateMouth(deltaTime) {
         if (!this.vrm.expressionManager) return;
         this.mouthPhase += deltaTime * 8;
-        const mouthValue = (Math.sin(this.mouthPhase) + 1) * 0.3;
-        this.vrm.expressionManager.setValue('aa', mouthValue);
+        this.vrm.expressionManager.setValue('aa', (Math.sin(this.mouthPhase) + 1) * 0.3);
     }
 
     async playAudioWithMouth(audioBuffer) {
         if (!this.audioContext) {
             this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
         }
-
         let buffer = audioBuffer;
         if (audioBuffer instanceof ArrayBuffer) {
             buffer = await this.audioContext.decodeAudioData(audioBuffer);
         }
-
         const source = this.audioContext.createBufferSource();
         source.buffer = buffer;
         source.connect(this.audioContext.destination);
-
         this.mouthAnimationActive = true;
         this.mouthPhase = 0;
-
         return new Promise((resolve) => {
             source.onended = () => {
                 this.mouthAnimationActive = false;
-                if (this.vrm.expressionManager) {
-                    this.vrm.expressionManager.setValue('aa', 0);
-                }
+                if (this.vrm.expressionManager) this.vrm.expressionManager.setValue('aa', 0);
                 resolve();
             };
             source.start(0);
