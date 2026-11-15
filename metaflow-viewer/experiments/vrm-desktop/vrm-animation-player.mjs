@@ -9,8 +9,17 @@ import {
     VRMAnimationLoaderPlugin,
     createVRMAnimationClip
 } from '@pixiv/three-vrm-animation';
+import { applyAuthoredArmClearance } from './vrm-pose.mjs';
 
 const FADE = 0.45;
+/**
+ * Amplify authored idle deltas (relative to first key) so figurine-scale
+ * full-body framing still reads breath/sway. Caps keep sway natural.
+ */
+const TORSO_AMP = 2.35;
+const TORSO_BONES = /hips|spine|chest|upperChest|neck|head/i;
+// Do NOT amplify arm tracks — relative amp on ChatVRM arm keys produced
+// discontinuous raised-hand poses (~9–12s). Skirt clearance is additive bias.
 
 export const ANIM_CATALOG_URL = './animations/CATALOG.json';
 
@@ -34,6 +43,46 @@ function rootLockHipXZ(clip) {
     return clip;
 }
 
+/**
+ * Amplify quaternion *deltas from the first key* (not absolute euler).
+ * Absolute amplify crushed rest pose into the sway caps and left motion tiny.
+ */
+function amplifyRelativeQuaternions(clip, boneRegex, amp, eulerCap) {
+    const q = new THREE.Quaternion();
+    const qRest = new THREE.Quaternion();
+    const qDelta = new THREE.Quaternion();
+    const qOut = new THREE.Quaternion();
+    const e = new THREE.Euler(0, 0, 0, 'XYZ');
+    for (const track of clip.tracks) {
+        if (!(track instanceof THREE.QuaternionKeyframeTrack)) continue;
+        if (!boneRegex.test(track.name)) continue;
+        const v = track.values;
+        if (v.length < 4) continue;
+        qRest.set(v[0], v[1], v[2], v[3]).normalize();
+        const restInv = qRest.clone().invert();
+        for (let i = 0; i < v.length; i += 4) {
+            q.set(v[i], v[i + 1], v[i + 2], v[i + 3]).normalize();
+            qDelta.copy(restInv).multiply(q);
+            e.setFromQuaternion(qDelta, 'XYZ');
+            e.x = THREE.MathUtils.clamp(e.x * amp, -eulerCap.x, eulerCap.x);
+            e.y = THREE.MathUtils.clamp(e.y * amp, -eulerCap.y, eulerCap.y);
+            e.z = THREE.MathUtils.clamp(e.z * amp, -eulerCap.z, eulerCap.z);
+            qOut.setFromEuler(e);
+            q.copy(qRest).multiply(qOut);
+            v[i] = q.x;
+            v[i + 1] = q.y;
+            v[i + 2] = q.z;
+            v[i + 3] = q.w;
+        }
+    }
+    return clip;
+}
+
+function amplifyAuthoredIdle(clip) {
+    amplifyRelativeQuaternions(clip, TORSO_BONES, TORSO_AMP, { x: 0.12, y: 0.14, z: 0.09 });
+    return clip;
+}
+
 export class VRMAnimationPlayer {
     constructor() {
         this.vrm = null;
@@ -46,6 +95,7 @@ export class VRMAnimationPlayer {
         this.loader.register((parser) => new VRMAnimationLoaderPlugin(parser));
         this._hipsHome = new THREE.Vector3();
         this.active = false;
+        this.metaVersion = null;
     }
 
     async init(catalog) {
@@ -53,9 +103,10 @@ export class VRMAnimationPlayer {
         return catalog;
     }
 
-    async bindVrm(vrm) {
+    async bindVrm(vrm, metaVersion = null) {
         this.disposeMixer();
         this.vrm = vrm;
+        this.metaVersion = metaVersion;
         this.mixer = new THREE.AnimationMixer(vrm.scene);
         this.clips.clear();
         this.actions.clear();
@@ -79,6 +130,7 @@ export class VRMAnimationPlayer {
                 }
                 let clip = createVRMAnimationClip(vrmAnims[0], vrm);
                 clip = rootLockHipXZ(clip);
+                clip = amplifyAuthoredIdle(clip);
                 clip.name = entry.id;
                 this.clips.set(entry.id, clip);
             } catch (e) {
@@ -133,7 +185,10 @@ export class VRMAnimationPlayer {
         this.active = false;
     }
 
-    /** Call each frame before vrm.update when authored mode is active. */
+    /**
+     * Call each frame BEFORE vrm.update when authored mode is active.
+     * Order: mixer → arm clearance bias → hip XZ lock → (caller) vrm.update.
+     */
     update(delta) {
         if (!this.mixer || !this.active) return;
         this.mixer.update(delta);
@@ -143,6 +198,8 @@ export class VRMAnimationPlayer {
             hips.position.x = 0;
             hips.position.z = 0;
         }
+        // Skirt clearance for Wenjing / similar VRM0 — additive, keeps torso authored
+        applyAuthoredArmClearance(this.vrm, this.metaVersion);
     }
 
     disposeMixer() {

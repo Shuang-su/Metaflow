@@ -659,7 +659,7 @@ class DesktopPortraitApp {
             // Bind authored VRMA clips (Waiting substitutes) — does not override until play()
             try {
                 await this._animCatalogReady;
-                await this.animPlayer.bindVrm(this.vrm);
+                await this.animPlayer.bindVrm(this.vrm, this.metaVersion);
                 this.populateAnimSelect();
                 await this.applyAnimClip(this.animClipId || this.animCatalog?.defaultId || 'chatvrm-idle', {
                     persist: false
@@ -1858,37 +1858,47 @@ class DesktopPortraitApp {
         this.statusEl.className = type;
     }
 
+    /**
+     * Advance one simulation tick and render. Used by QA so capture does not
+     * depend on throttled rAF while Puppeteer screenshots.
+     */
+    stepSimulation(delta = 1 / 30) {
+        const dt = Math.min(Math.max(delta, 0), 0.05);
+        const authored = !!(this.animPlayer?.active && !this.idlePaused);
+        if (!authored && this.restPoseSet && this.vrm) {
+            reapplyArmRestPose(this.vrm, this.metaVersion);
+        }
+        if (authored) this.animPlayer.update(dt);
+        if (this.animator) this.animator.update(dt);
+        if (this.vrm) {
+            if (this.springsActive) {
+                this.vrm.update(dt);
+            } else {
+                const mgr = this.vrm.springBoneManager;
+                if (mgr) {
+                    this.vrm.springBoneManager = undefined;
+                    this.vrm.update(dt);
+                    this.vrm.springBoneManager = mgr;
+                } else {
+                    this.vrm.update(dt);
+                }
+            }
+        }
+        this.renderer.render(this.scene, this.camera);
+        return {
+            authored,
+            anim: this.animPlayer?.diagnostics?.() || null,
+            bodyDrive: this.animator?.bodyDrive || null
+        };
+    }
+
     animate() {
         requestAnimationFrame(() => this.animate());
         this.lastFrameTime = performance.now();
 
         let delta = this.clock.getDelta();
         delta = Math.min(delta, 0.05);
-
-        const authored = !!(this.animPlayer?.active && !this.idlePaused);
-        // Arms BEFORE vrm.update only in procedural mode — never fight authored VRMA
-        if (!authored && this.restPoseSet && this.vrm) {
-            reapplyArmRestPose(this.vrm, this.metaVersion);
-        }
-        if (authored) this.animPlayer.update(delta);
-        if (this.animator) this.animator.update(delta);
-
-        if (this.vrm) {
-            if (this.springsActive) {
-                this.vrm.update(delta);
-            } else {
-                const mgr = this.vrm.springBoneManager;
-                if (mgr) {
-                    this.vrm.springBoneManager = undefined;
-                    this.vrm.update(delta);
-                    this.vrm.springBoneManager = mgr;
-                } else {
-                    this.vrm.update(delta);
-                }
-            }
-        }
-
-        this.renderer.render(this.scene, this.camera);
+        this.stepSimulation(delta);
     }
 }
 

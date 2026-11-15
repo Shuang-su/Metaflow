@@ -190,6 +190,79 @@ export function reapplyArmRestPose(vrm, metaVersion) {
     }
 }
 
+/**
+ * After VRMA mixer update: keep authored torso/head motion, but push upper/lower
+ * arms slightly outward/forward so hands clear Wenjing's skirt volume.
+ * Does not replace the clip — additive Euler bias on arm bones only.
+ */
+export const AUTHORED_ARM_OUT = 0.48;
+export const AUTHORED_ARM_FWD = 0.2;
+export const AUTHORED_FOLD_OPEN = 0.28; // reduce fold toward more open silhouette
+export const AUTHORED_ELBOW = 0.48;
+/** Extra outward push when hand world-X is still too close to hips. */
+export const AUTHORED_CLEAR_MIN = 0.09;
+
+export function applyAuthoredArmClearance(vrm, metaVersion) {
+    if (!vrm?.humanoid) return;
+    const isVrm0 = metaVersion === '0';
+    const out = AUTHORED_ARM_OUT;
+    const fwd = AUTHORED_ARM_FWD;
+    const open = AUTHORED_FOLD_OPEN;
+    const elbow = AUTHORED_ELBOW;
+
+    const bias = (name, dx, dy, dz) => {
+        const node = vrm.humanoid.getNormalizedBoneNode(name);
+        if (!node) return;
+        node.rotation.x += dx;
+        node.rotation.y += dy;
+        node.rotation.z += dz;
+    };
+
+    // VRM0 Z fold sign flips vs VRM1; open = subtract fold magnitude toward T-ish
+    if (isVrm0) {
+        bias('leftUpperArm', fwd, -out, -open);
+        bias('rightUpperArm', fwd, out, open);
+        bias('leftLowerArm', elbow, -out * 0.25, 0.06);
+        bias('rightLowerArm', elbow, out * 0.25, -0.06);
+        bias('leftHand', 0.06, 0, -0.1);
+        bias('rightHand', 0.06, 0, 0.1);
+    } else {
+        bias('leftUpperArm', fwd, out, open);
+        bias('rightUpperArm', fwd, -out, -open);
+        bias('leftLowerArm', elbow, out * 0.25, -0.06);
+        bias('rightLowerArm', elbow, -out * 0.25, 0.06);
+        bias('leftHand', 0.06, 0, 0.1);
+        bias('rightHand', 0.06, 0, -0.1);
+    }
+
+    // World-space enforcement: if a hand still sits near the hip column, nudge out more
+    const hips = vrm.humanoid.getNormalizedBoneNode('hips');
+    if (!hips) return;
+    const worldX = (node) => {
+        node.updateWorldMatrix(true, false);
+        return node.matrixWorld.elements[12];
+    };
+    const hipsX = worldX(hips);
+    const push = (side) => {
+        const hand = vrm.humanoid.getNormalizedBoneNode(side === 'left' ? 'leftHand' : 'rightHand');
+        const upper = vrm.humanoid.getNormalizedBoneNode(side === 'left' ? 'leftUpperArm' : 'rightUpperArm');
+        if (!hand || !upper) return;
+        const clear = Math.abs(worldX(hand) - hipsX);
+        if (clear >= AUTHORED_CLEAR_MIN) return;
+        const extra = (AUTHORED_CLEAR_MIN - clear) * 2.2;
+        if (isVrm0) {
+            upper.rotation.y += side === 'left' ? -extra : extra;
+            upper.rotation.z += side === 'left' ? -extra * 0.35 : extra * 0.35;
+        } else {
+            upper.rotation.y += side === 'left' ? extra : -extra;
+            upper.rotation.z += side === 'left' ? extra * 0.35 : -extra * 0.35;
+        }
+        upper.rotation.x += 0.04;
+    };
+    push('left');
+    push('right');
+}
+
 export function springsPolicyForModel(modelName, metaVersion) {
     const n = (modelName || '').toLowerCase();
     if (n.includes('constraint_twist') || n.includes('vrm1_constraint')) {

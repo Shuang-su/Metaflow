@@ -1,8 +1,9 @@
 /**
  * VRM Animation Controller
  * Procedural idle: breath, blink, weight shift, head sway.
- * When authored VRMA drives the body (`bodyDrive === 'authored'`), only
- * blink / lookAt / mouth run — do not override authored bone tracks.
+ * When authored VRMA drives the body (`bodyDrive === 'authored'`), blink /
+ * lookAt / mouth run, plus a light *additive* chest breath overlay so subtle
+ * VRMA idles still read as alive (does not replace mixer tracks).
  * Arms owned by vrm-pose reapply in procedural mode only.
  */
 
@@ -101,8 +102,9 @@ export class VRMAnimator {
             if (this.mouthAnimationActive) this.updateMouth(deltaTime);
             return;
         }
-        // Authored VRMA owns body — only facial layers
+        // Authored VRMA owns body — facial layers + light additive breath
         if (this.bodyDrive === 'authored') {
+            this.updateAuthoredBreathOverlay(deltaTime);
             this.updateBlinking(deltaTime);
             this.updateLookAt();
             if (this.mouthAnimationActive) this.updateMouth(deltaTime);
@@ -133,6 +135,22 @@ export class VRMAnimator {
         const spine = this.vrm.humanoid?.getNormalizedBoneNode('spine');
         const spineBase = this._bases.spine || { x: 0, y: 0, z: 0 };
         if (spine) spine.rotation.x = spineBase.x + breathAmount * 0.45;
+    }
+
+    /**
+     * Additive breath on top of VRMA (mixer already wrote this frame).
+     * Milder than procedural replace so authored idle stays primary.
+     */
+    updateAuthoredBreathOverlay(deltaTime) {
+        if (this.reducedMotion) return;
+        this.breathingPhase += deltaTime * this.breathingRate * Math.PI * 2;
+        const breathAmount = Math.sin(this.breathingPhase) * 0.048;
+        const chest = this.vrm.humanoid?.getNormalizedBoneNode('chest');
+        if (chest) chest.rotation.x += breathAmount;
+        const spine = this.vrm.humanoid?.getNormalizedBoneNode('spine');
+        if (spine) spine.rotation.x += breathAmount * 0.4;
+        const upperChest = this.vrm.humanoid?.getNormalizedBoneNode('upperChest');
+        if (upperChest) upperChest.rotation.x += breathAmount * 0.55;
     }
 
     updateWeightShift(deltaTime) {
