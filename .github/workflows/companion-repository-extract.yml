@@ -1,0 +1,104 @@
+name: Prepare standalone companion repository
+on:
+  push:
+    branches: [codex/mf-165-companion-extraction]
+    paths: [.github/workflows/companion-repository-extract.yml]
+permissions:
+  contents: read
+jobs:
+  extract:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    env:
+      SOURCE_REF: 24c29d25a57aa54a60fd5ba9e99c2700e848ef2f
+      USABILITY_REF: d5785c9b87079f6c4b9a2c16978e0d5cdd2f418a
+      MOBILE_REF: ff5204c8dff1e43d7c426575425231b9621657f7
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: 24c29d25a57aa54a60fd5ba9e99c2700e848ef2f
+          fetch-depth: 0
+          filter: blob:none
+          persist-credentials: false
+          sparse-checkout: |
+            metaflow-viewer/experiments/desktop-companion
+            docs/changes/165-desktop-portrait
+            scripts
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install pinned path-rewrite tool in disposable runner
+        run: python3 -m pip install --disable-pip-version-check git-filter-repo==2.47.0
+      - name: Export only approved paths and historical refs
+        run: |
+          set -euo pipefail
+          git status --short --branch
+          git branch -f companion-export-main "$SOURCE_REF"
+          git cat-file -e "$USABILITY_REF^{commit}" || git fetch --filter=blob:none origin "$USABILITY_REF"
+          git cat-file -e "$MOBILE_REF^{commit}" || git fetch --filter=blob:none origin "$MOBILE_REF"
+          git branch archive/companion-usability "$USABILITY_REF"
+          git branch archive/companion-mobile "$MOBILE_REF"
+          mkdir -p "$RUNNER_TEMP/extracted-companion" "$RUNNER_TEMP/companion-export"
+          git init "$RUNNER_TEMP/extracted-companion"
+          git fast-export --signed-tags=strip --tag-of-filtered-object=drop --full-tree --export-marks="$RUNNER_TEMP/companion-export/source.marks" refs/heads/companion-export-main refs/heads/archive/companion-usability refs/heads/archive/companion-mobile -- metaflow-viewer/experiments/desktop-companion docs/changes/165-desktop-portrait scripts/publish-desktop-companion.py scripts/verify-desktop-companion.mjs ':(glob).github/workflows/desktop-companion*.yml' | git -C "$RUNNER_TEMP/extracted-companion" fast-import --quiet --export-marks="$RUNNER_TEMP/companion-export/import.marks"
+          python3 - <<'PY'
+          import os,subprocess,json,hashlib,pathlib
+          ref=os.environ['SOURCE_REF'];out=pathlib.Path(os.environ['RUNNER_TEMP'])/'companion-export'
+          paths=['metaflow-viewer/experiments/desktop-companion','docs/changes/165-desktop-portrait','scripts/publish-desktop-companion.py','scripts/verify-desktop-companion.mjs',':(glob).github/workflows/desktop-companion*.yml']
+          raw=subprocess.check_output(['git','ls-tree','-r','-z',ref,'--',*paths])
+          rows=[]
+          for entry in raw.split(b'\0'):
+            if not entry:continue
+            meta,path=entry.decode().split('\t',1);mode,kind,sha=meta.split()
+            if kind!='blob':raise RuntimeError('Unexpected submodule')
+            data=subprocess.check_output(['git','cat-file','blob',sha])
+            dest=path.replace('metaflow-viewer/experiments/desktop-companion/','app/',1).replace('docs/changes/165-desktop-portrait/','docs/history/mf-165/',1).replace('.github/workflows/','docs/history/workflows/',1)
+            rows.append({'sourcePath':path,'destinationPath':dest,'gitBlob':sha,'bytes':len(data),'sha256':hashlib.sha256(data).hexdigest()})
+          (out/'source-snapshot.json').write_text(json.dumps({'repository':'Shuang-su/Metaflow','sourceRef':ref,'applicationSourceRef':os.environ['USABILITY_REF'],'files':rows},ensure_ascii=False,indent=2)+'\n')
+          PY
+      - name: Relocate paths in new local repository only
+        run: |
+          cd "$RUNNER_TEMP/extracted-companion"
+          git filter-repo --force --path-rename metaflow-viewer/experiments/desktop-companion/:app/ --path-rename docs/changes/165-desktop-portrait/:docs/history/mf-165/ --path-rename .github/workflows/:docs/history/workflows/
+          git branch -m companion-export-main main
+          git checkout main
+          git remote -v
+          python3 - <<'PY'
+          import pathlib,os,hashlib,json,subprocess
+          out=pathlib.Path(os.environ['RUNNER_TEMP'])/'companion-export';root=pathlib.Path.cwd()
+          snap=json.loads((out/'source-snapshot.json').read_text())
+          expected=set()
+          for item in snap['files']:
+            p=root/item['destinationPath'];expected.add(item['destinationPath'])
+            assert hashlib.sha256(p.read_bytes()).hexdigest()==item['sha256'],str(p)
+          actual=set(subprocess.check_output(['git','ls-files','-z']).decode().rstrip('\0').split('\0'))
+          assert actual==expected,(actual-expected,expected-actual)
+          assert not (root/'.github/workflows').exists(),'Historical workflows must not trigger in the new repository'
+          def marks(path):return dict(line.split() for line in path.read_text().splitlines())
+          old=marks(out/'source.marks');intermediate=marks(out/'import.marks')
+          rewrite=dict(line.split() for line in (root/'.git/filter-repo/commit-map').read_text().splitlines()[1:])
+          pairs=[]
+          for mark,sha in old.items():
+            stage=intermediate.get(mark);new=rewrite.get(stage)
+            if new and new!='0'*40:pairs.append({'sourceCommit':sha,'extractedCommit':new})
+          (out/'commit-map.json').write_text(json.dumps(pairs,indent=2)+'\n')
+          refs=subprocess.check_output(['git','show-ref','--heads'],text=True)
+          (out/'refs.txt').write_text(refs)
+          summary={'status':'history-extracted-not-published','targetRepository':'Shuang-su/metaflow-companion','requiredVisibility':'private','sourceRef':snap['sourceRef'],'mainRef':subprocess.check_output(['git','rev-parse','main'],text=True).strip(),'mappedCommits':len(pairs),'preservedFiles':len(expected),'verifiedBytes':True,'remoteCreated':False,'productionChanged':False}
+          (out/'extraction-result.json').write_text(json.dumps(summary,indent=2)+'\n')
+          print('EXTRACTION_VERIFIED',json.dumps(summary))
+          PY
+          git fsck --full --no-reflogs
+          git bundle create "$RUNNER_TEMP/companion-export/metaflow-companion.bundle" --branches
+          git bundle verify "$RUNNER_TEMP/companion-export/metaflow-companion.bundle"
+          sha256sum "$RUNNER_TEMP/companion-export/metaflow-companion.bundle" > "$RUNNER_TEMP/companion-export/bundle.sha256"
+      - name: Verify unchanged application tests at new path
+        run: |
+          cd "$RUNNER_TEMP/extracted-companion"
+          node --test app/mobile-voice.test.mjs app/tracking-refinement.test.mjs app/usability.test.mjs
+      - uses: actions/upload-artifact@v4
+        if: success()
+        with:
+          name: metaflow-companion-history-extraction
+          path: ${{ runner.temp }}/companion-export/
+          retention-days: 30
