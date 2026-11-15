@@ -16,7 +16,6 @@ jobs:
     timeout-minutes: 18
     env:
       APP: metaflow-viewer/experiments/desktop-companion
-      EVIDENCE_DIR: ${{ runner.temp }}/companion-evidence
     steps:
       - uses: actions/checkout@v4
         with:
@@ -30,6 +29,7 @@ jobs:
           node-version: '22'
       - name: Integrate guarded source changes and validate syntax
         run: |
+          echo "EVIDENCE_DIR=$RUNNER_TEMP/companion-evidence" >> "$GITHUB_ENV"
           python3 "$APP/apply-usability.py"
           python3 "$APP/finalize-usability.py"
           python3 "$APP/polish-usability.py"
@@ -65,9 +65,9 @@ jobs:
             git commit -m 'feat(companion): polish verified preview settings and original-mesh room composition'
             git push origin HEAD:refs/heads/codex/mf-165-usability-scenes
           fi
-          mkdir -p "$RUNNER_TEMP/companion-evidence"
-          git rev-parse HEAD > "$RUNNER_TEMP/companion-evidence/source-commit.txt"
-          cp "$APP/dist/assets/terrace-provenance.json" "$RUNNER_TEMP/companion-evidence/terrace-provenance.json"
+          mkdir -p "$EVIDENCE_DIR"
+          git rev-parse HEAD > "$EVIDENCE_DIR/source-commit.txt"
+          cp "$APP/dist/assets/terrace-provenance.json" "$EVIDENCE_DIR/terrace-provenance.json"
           python3 - <<'PY'
           import json,os,pathlib,subprocess
           ref=subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip()
