@@ -16,6 +16,7 @@ jobs:
     timeout-minutes: 18
     env:
       APP: metaflow-viewer/experiments/desktop-companion
+      EVIDENCE_DIR: ${{ runner.temp }}/companion-evidence
     steps:
       - uses: actions/checkout@v4
         with:
@@ -31,6 +32,7 @@ jobs:
         run: |
           python3 "$APP/apply-usability.py"
           python3 "$APP/finalize-usability.py"
+          python3 "$APP/polish-usability.py"
           for f in "$APP"/*.mjs "$APP"/*.js; do node --check "$f"; done
           python3 -m py_compile "$APP/prepare-terrace.py"
           git diff --check
@@ -45,23 +47,22 @@ jobs:
           npm install --prefix "$RUNNER_TEMP/companion-browser" --ignore-scripts --no-audit --no-fund playwright@1.56.1
           ln -s "$RUNNER_TEMP/companion-browser/node_modules" "$APP/node_modules"
           "$RUNNER_TEMP/companion-browser/node_modules/.bin/playwright" install --with-deps chromium
-      - name: Exercise old and new user flows with real software WebGL
-        env:
-          EVIDENCE_DIR: ${{ runner.temp }}/companion-evidence
-        run: |
           python3 -m http.server 4173 --bind 127.0.0.1 --directory "$APP/dist" > "$RUNNER_TEMP/companion-http.log" 2>&1 &
-          node "$APP/mobile-voice.e2e.mjs"
-          node "$APP/tracking-refinement.e2e.mjs"
-          node "$APP/usability.e2e.mjs"
+      - name: Recheck existing mobile motion and audio flows
+        run: node "$APP/mobile-voice.e2e.mjs"
+      - name: Recheck quiet tracking, orientation and both palms
+        run: node "$APP/tracking-refinement.e2e.mjs"
+      - name: Verify grouped settings, undo, preview and detailed scenes
+        run: node "$APP/usability.e2e.mjs"
       - name: Preserve tested ordinary source on this branch only
         run: |
-          git add "$APP/app.js" "$APP/renderer.js" "$APP/index.html" "$APP/experience.mjs" "$APP/device-detection.mjs" "$APP/room-details.mjs" "$APP/mobile-voice.e2e.mjs" "$APP/tracking-refinement.e2e.mjs"
+          git add "$APP/app.js" "$APP/renderer.js" "$APP/index.html" "$APP/about.html" "$APP/experience.mjs" "$APP/experience.css" "$APP/device-detection.mjs" "$APP/room-details.mjs" "$APP/mobile-voice.e2e.mjs" "$APP/tracking-refinement.e2e.mjs" "$APP/usability.e2e.mjs" "$APP/usability.test.mjs" docs/changes/165-desktop-portrait/spec.md docs/changes/165-desktop-portrait/plan.md
           if ! git diff --cached --quiet; then
             current=$(git ls-remote origin refs/heads/codex/mf-165-usability-scenes | cut -f1)
             test "$current" = "$GITHUB_SHA" || { echo 'Branch advanced; no overwrite'; exit 1; }
             git config user.name 'github-actions[bot]'
             git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-            git commit -m 'feat(companion): integrate verified guided settings device suggestions and detailed rooms'
+            git commit -m 'feat(companion): polish verified preview settings and original-mesh room composition'
             git push origin HEAD:refs/heads/codex/mf-165-usability-scenes
           fi
           mkdir -p "$RUNNER_TEMP/companion-evidence"
@@ -70,7 +71,7 @@ jobs:
           python3 - <<'PY'
           import json,os,pathlib,subprocess
           ref=subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip()
-          (pathlib.Path(os.environ['APP'])/'dist/release.json').write_text(json.dumps({'release':'companion-2026-11-15.1','gitRef':ref,'features':['guided-settings','device-screen-suggestions','undo-settings','detailed-study','metaxingtong-terrace-kit','retained-quiet-head-tracking'],'validation':'CI Chromium software WebGL; no physical Apple device accuracy claim'},ensure_ascii=False)+'\n')
+          (pathlib.Path(os.environ['APP'])/'dist/release.json').write_text(json.dumps({'release':'companion-2026-11-15.1','gitRef':ref,'features':['guided-settings','device-screen-suggestions','undo-settings','preview-roundtrip','detailed-study','metaxingtong-terrace-kit','retained-quiet-head-tracking'],'validation':'CI Chromium software WebGL; no physical Apple device accuracy claim'},ensure_ascii=False)+'\n')
           print('TESTED_SOURCE_COMMIT',ref)
           PY
       - name: Preserve screenshots and reports
