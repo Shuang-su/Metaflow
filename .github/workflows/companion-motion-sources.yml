@@ -1,0 +1,77 @@
+name: Inspect public companion motion sources
+on:
+  push:
+    branches: [codex/mf-165-persona-motion-sources]
+    paths: [.github/workflows/companion-motion-sources.yml]
+permissions:
+  contents: read
+jobs:
+  inspect:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - name: Read public motion catalogue and verify original asset bytes
+        run: |
+          python3 - <<'PY'
+          import urllib.request,urllib.parse,json,hashlib,zipfile,tarfile,io,struct,re,pathlib,base64,datetime
+          out=pathlib.Path('motion-sources');out.mkdir()
+          def read(url,limit=20000000):
+            with urllib.request.urlopen(urllib.request.Request(url,headers={'User-Agent':'MetaFlow-public-motion-inspection/1.0'}),timeout=45) as r:
+              data=r.read(limit+1)
+              if len(data)>limit:raise ValueError('Response exceeds limit')
+              return data
+          raw=read('https://marketplace.laplace.live/api/items',3000000);catalogue=json.loads(raw)
+          (out/'catalogue.json').write_bytes(raw)
+          def walk(value):
+            if isinstance(value,list):
+              for x in value:yield from walk(x)
+            elif isinstance(value,dict):
+              if isinstance(value.get('download'),dict) and value['download'].get('url'):yield value
+              else:
+                for x in value.values():yield from walk(x)
+          wanted=['waiting','handsbehindback','handonhip','foldedarms','modelpose']
+          selected=[]
+          for item in walk(catalogue):
+            name=re.sub('[^a-z]','',str(item.get('id','')).lower()+str(item.get('name','')).lower())
+            if any(w in name for w in wanted):selected.append(item)
+          print('SELECTED_CATALOGUE',json.dumps(selected,ensure_ascii=False))
+          report={'checkedAt':datetime.datetime.now(datetime.timezone.utc).isoformat(),'catalogue':'https://marketplace.laplace.live/api/items','items':[],'note':'Read-only public asset verification; not a publication or blanket redistribution license.'}
+          for item in selected[:8]:
+            link=item['download']['url'];u=urllib.parse.urlparse(link)
+            if u.scheme!='https' or u.hostname!='downloads.vrp.moe' or not u.path.startswith('/persona-marketplace/'):raise ValueError('Unexpected download origin')
+            raw=read(link);sha=hashlib.sha256(raw).hexdigest()
+            if sha!=item['download']['sha256']:raise ValueError('Catalogue archive hash mismatch')
+            root=out/re.sub('[^A-Za-z0-9._-]','_',str(item['id']));root.mkdir()
+            files=[]
+            with zipfile.ZipFile(io.BytesIO(raw)) as z:
+              for f in z.infolist():
+                if f.is_dir() or f.file_size>20000000 or pathlib.PurePosixPath(f.filename).suffix.lower() not in ['.vrma','.fbx','.txt','.md','.json']:continue
+                data=z.read(f);dest=root/pathlib.PurePosixPath(f.filename).name
+                if dest.exists():raise ValueError('Duplicate basename')
+                dest.write_bytes(data)
+                row={'member':f.filename,'path':str(dest.relative_to(out)),'bytes':len(data),'sha256':hashlib.sha256(data).hexdigest()}
+                if data[:4]==b'glTF':
+                  n=struct.unpack_from('<I',data,12)[0];g=json.loads(data[20:20+n]);row['extensions']=list(g.get('extensions',{}));row['vrmaMeta']=g.get('extensions',{}).get('VRMC_vrm_animation',{});row['animations']=[{'name':a.get('name'),'channels':len(a.get('channels',[]))} for a in g.get('animations',[])]
+                files.append(row)
+            report['items'].append({'catalogue':item,'archiveSha256':sha,'files':files})
+          version='3.5.5';meta=json.loads(read('https://registry.npmjs.org/@pixiv%2fthree-vrm-animation/'+version,1000000));dist=meta['dist'];url=dist['tarball']
+          if urllib.parse.urlparse(url).hostname!='registry.npmjs.org':raise ValueError('Unexpected package origin')
+          raw=read(url);kind,digest=dist['integrity'].split('-',1)
+          if kind!='sha512' or base64.b64encode(hashlib.sha512(raw).digest()).decode()!=digest:raise ValueError('npm integrity mismatch')
+          vendor=out/'vendor';vendor.mkdir()
+          with tarfile.open(fileobj=io.BytesIO(raw),mode='r:gz') as tar:
+            for member in tar:
+              if member.name in ['package/lib/three-vrm-animation.module.js','package/lib/three-vrm-animation.module.min.js','package/LICENSE','package/package.json']:
+                data=tar.extractfile(member).read();(vendor/pathlib.PurePosixPath(member.name).name).write_bytes(data)
+          report['library']={'package':'@pixiv/three-vrm-animation','version':version,'url':url,'integrity':dist['integrity']}
+          (out/'report.json').write_text(json.dumps(report,ensure_ascii=False,indent=2)+'\n')
+          print('PUBLIC_SOURCE_INSPECTION_COMPLETE',len(report['items']))
+          for row in report['items']:
+            print('VERIFIED',row['catalogue'].get('id'),json.dumps(row['files'],ensure_ascii=False))
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: companion-public-motion-sources
+          path: motion-sources/
+          retention-days: 3
