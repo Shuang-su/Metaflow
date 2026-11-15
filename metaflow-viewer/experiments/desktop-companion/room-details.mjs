@@ -93,7 +93,7 @@ export function createRoomDetails(desk){
       lamp.scale.setScalar(p*.75);lamp.position.set(-w*.34,0,-Math.min(d*.44,.075));
       shadeMat.emissiveIntensity=room.lighting==='evening'?.7:.08;light.intensity=room.lighting==='evening'?.0018:0;light.distance=p*7;
       rug.scale.set(w*.42,Math.min(d*.45,w*.65),1);rug.position.z=-d*.40;
-      lamp.visible=books.every(o=>{o.visible=room.decor;return true;})&&room.decor;picture.visible=room.decor;
+      for(const o of books)o.visible=room.decor;lamp.visible=room.decor;picture.visible=room.decor;
     }
     if(terrace.visible){
       const rz=-d*.83;railing.scale.set(w*.94,.0025,.0025);railing.position.set(0,h*.28,rz);

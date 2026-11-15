@@ -12,9 +12,9 @@ try{
   await page.goto('http://127.0.0.1:4173/',{waitUntil:'domcontentloaded'});
   await page.waitForFunction(()=>window.__companionDiagnostics?.().ready,{},{timeout:90000});
   assert.equal(await page.locator('#show-preview').isChecked(),false,'legacy preference must not re-enable camera preview');
-  await page.locator('#settings-toggle').click();await page.locator('#device-preset').selectOption('iphone-air');
+  await page.locator('#settings-toggle').click();await page.locator('#tab-setup').click();await page.locator('#device-preset').selectOption('iphone-air');
   assert.ok(Math.abs(Number(await page.locator('#width').inputValue())-6.9573913)<.02);
-  await page.locator('#confirm-calibration').click();await page.locator('#close-settings').click();
+  await page.locator('[data-step="2"]').click();await page.locator('#confirm-calibration').click();await page.locator('#close-settings').click();
   report.checks.push('Air explicit profile, calibrated portrait width, no false auto-identification');
   await page.locator('#camera-start').click();
   await page.waitForFunction(()=>window.__companionDiagnostics().cameraActive,{},{timeout:60000});
@@ -26,7 +26,7 @@ try{
   assert.ok(await page.locator('#quiet-camera-stop').isVisible());
   await page.screenshot({path:`${out}/air-quiet-tracking.png`});
   report.checks.push('camera permission/stop remain explicit; hidden attached video keeps advancing');
-  await page.locator('#settings-toggle').click();await page.locator('#show-preview').check();assert.equal(await page.locator('#camera-card').isVisible(),true);
+  await page.locator('#settings-toggle').click();await page.locator('#tab-setup').click();await page.locator('[data-step="1"]').click();await page.locator('#show-preview').check();assert.equal(await page.locator('#camera-card').isVisible(),true);
   await page.locator('#show-preview').uncheck();assert.equal(await page.locator('#camera-card').isVisible(),false);await page.locator('#close-settings').click();
   const cdp=await context.newCDPSession(page);
   await cdp.send('Emulation.setDeviceMetricsOverride',{width:912,height:420,deviceScaleFactor:3,mobile:true,screenWidth:912,screenHeight:420,screenOrientation:{type:'landscapePrimary',angle:90}});
@@ -36,7 +36,7 @@ try{
   report.checks.push('actual emulated orientation event updates Air width, invalidates calibration and releases camera');
   await cdp.send('Emulation.setDeviceMetricsOverride',{width:420,height:912,deviceScaleFactor:3,mobile:true,screenWidth:420,screenHeight:912,screenOrientation:{type:'portraitPrimary',angle:0}});
   for(const [choice,label] of [['wenjing','文镜'],['reconstruction','重建版']]){
-    await page.locator('#settings-toggle').click();await page.locator('#model-choice').selectOption(choice);
+    await page.locator('#settings-toggle').click();await page.locator('#tab-avatar').click();await page.locator('#model-choice').selectOption(choice);
     await page.waitForFunction(label=>{const d=window.__companionDiagnostics();return d.ready&&!d.renderer.loading&&d.model.includes(label);},label,{timeout:90000});
     await page.locator('#close-settings').click();
     const before=await page.evaluate(()=>window.__companionDiagnostics().renderer.cameraPosition);

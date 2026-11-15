@@ -7,6 +7,7 @@
   <meta name="description" content="iPhone Air、iPhone、iPad 与 Mac 的三维桌面窗口。保留明前奶绿重建版，也可导入 VRM；校准屏幕与镜头，使用真实摄像头跟随观看位置。">
   <title>桌面人像 · iPhone / iPhone Air / iPad mini / Mac · MetaFlow</title>
   <link rel="stylesheet" href="./styles.css">
+  <link rel="stylesheet" href="./experience.css">
   <script type="importmap">{"imports":{"three":"./vendor/three.module.js","@pixiv/three-vrm":"./vendor/three-vrm.module.min.js"}}</script>
 </head>
 <body>
@@ -73,7 +74,7 @@
     <div id="screen-ruler" class="screen-ruler glass hud" hidden aria-label="五厘米屏幕校准尺"><span id="ruler-label">用实体尺核对：5 cm</span><div id="ruler-line" class="ruler-line"></div></div>
 
     <div class="scene-dock hud">
-      <p id="notice" class="notice glass" role="status" aria-live="polite">先在「调整」中量准屏幕，再开启前摄追踪。</p>
+      <p id="notice" class="notice glass" role="status" aria-live="polite">从“设备与摆放”开始校准；相机只有点击后才开启。</p>
       <div class="command-bar glass" aria-label="场景操作">
         <button id="camera-start" class="button primary" type="button">
           <svg aria-hidden="true" viewBox="0 0 24 24"><rect x="3" y="6" width="13" height="12" rx="3"/><path d="m16 10 5-3v10l-5-3"/></svg>
@@ -165,7 +166,7 @@
             <label class="slider-label" for="eye-y"><span>手动眼位上下</span><output id="eye-y-value" for="eye-y">2.5 cm</output></label>
             <input id="eye-y" type="range" min="-30" max="30" step="0.1" value="2.5">
           </details>
-          <label class="toggle"><span>显示真实相机取景</span><input id="show-preview" type="checkbox"></label>
+          <label class="toggle"><span>显示诊断取景（仅本次）</span><input id="show-preview" type="checkbox"></label>
         </section>
 
         <section class="settings-section">

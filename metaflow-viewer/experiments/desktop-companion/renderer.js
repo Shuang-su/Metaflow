@@ -1,3 +1,6 @@
+// MF165_USABILITY_SCENES_V1
+import {createRoomDetails} from './room-details.mjs';
+import {sanitizeRoom} from './device-detection.mjs';
 // MF165_HEAD_PALM_AIR_V1
 import {createPalmFacing} from './palm-facing.mjs';
 // MF165_MOBILE_VOICE_V1
@@ -223,6 +226,8 @@ export function createTabletopRenderer({ canvas, getSettings, onLoad = () => {},
   const eventAbort = new AbortController();
   const gestures=createGesturePlayer();
   let palmFacing=null;
+  const roomDetails=createRoomDetails(desk);
+  let roomGeometry={w:.25,h:.19,d:.24,front:0},qualityKey='';
   const state = {
     disposed: false, paused: false, graphicsLost: false, raf: 0, lastTime: performance.now(), time: 0,
     width: .262, height: .1965, pixels: { width: 1, height: 1 }, eye: { x: 0, y: .025, z: .55 },
@@ -235,6 +240,7 @@ export function createTabletopRenderer({ canvas, getSettings, onLoad = () => {},
   const settings = () => {
     const value = getSettings() || {};
     return {
+      room:sanitizeRoom(value.room),
       width: number(value.width, .262, .05, 1.2), tilt: number(value.tilt, 65, 20, 90),
       eye: { x: number(value.eye?.x, 0, -.4, .4), y: number(value.eye?.y, .025, -.45, .5), z: number(value.eye?.z, .55, .18, 1.8) },
       mode: ['manual', 'camera', 'auto'].includes(value.mode) ? value.mode : 'manual',
@@ -355,7 +361,7 @@ export function createTabletopRenderer({ canvas, getSettings, onLoad = () => {},
 
   function layout(current) {
     state.width = current.width; state.height = current.width * state.pixels.height / state.pixels.width;
-    const layoutKey = [state.width, state.height, current.tilt, current.floorOffset, current.avatarDepth, current.roomDepth, current.wood, current.inspect].join('|');
+    const layoutKey = [state.width, state.height, current.tilt, current.floorOffset, current.avatarDepth, current.roomDepth, current.wood, current.inspect,current.room.scene,current.room.lighting,current.room.quality,current.room.decor,current.room.clock].join('|');
     const layoutChanged = layoutKey !== state.layoutKey;
     if (layoutChanged) {
       state.layoutKey = layoutKey;
@@ -383,7 +389,7 @@ export function createTabletopRenderer({ canvas, getSettings, onLoad = () => {},
       const frontTop = -(state.height - border) * s;
       const frontFloor = current.floorOffset * Math.tan(beta);
       const depth = Math.max(current.roomDepth, -frontTop + .055, current.avatarDepth + .06);
-      state.roomDepth = depth;
+      state.roomDepth = depth;roomGeometry={w:innerWidth,h:roomHeight,d:depth,front:frontFloor};
       const floorDepth = Math.max(.04, depth + frontFloor);
       floor.scale.set(innerWidth, floorDepth, 1); floor.position.set(0, -.0002, (frontFloor - depth) / 2);
       woods.oak.repeat.set(innerWidth / .28, floorDepth / .65); woods.walnut.repeat.copy(woods.oak.repeat);
@@ -415,8 +421,20 @@ export function createTabletopRenderer({ canvas, getSettings, onLoad = () => {},
     }
     fitAvatar(current);
     syncSpringDimensions(layoutChanged);
+    if(layoutChanged){
+      roomDetails.update({...roomGeometry,room:current.room,inspect:current.inspect});
+      if(!current.inspect){
+        back.material.color.setHex(current.room.scene==='terrace'?0xc8d1bf:0xd6dbcd);
+        key.color.setHex(current.room.lighting==='evening'?0xffd8a0:0xfff1db);
+        fill.color.setHex(current.room.lighting==='evening'?0xb7c2cc:0xdce8df);
+      }
+    }
+    const q=current.room.quality;
+    if(q!==qualityKey){qualityKey=q;const budget=q==='low'?1:q==='high'?2:recommendedPixelRatio(navigator,window.devicePixelRatio||1);renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,budget));renderer.shadowMap.enabled=q!=='low';}
+    flowers.visible=!current.inspect&&current.room.decor;
+    clockGroup.visible=!current.inspect&&current.room.clock;
     grid.visible = current.grid && !current.inspect;
-    hemisphere.intensity = 1.45 * current.light; key.intensity = 2.35 * current.light; fill.intensity = .42 * current.light;
+    hemisphere.intensity = (current.room.lighting==='evening'?1.05:1.45) * current.light; key.intensity = (current.room.lighting==='evening'?1.7:2.35) * current.light; fill.intensity = .42 * current.light;
   }
 
   function updateProjection(current, dt = 0, snap = false) {
@@ -613,7 +631,7 @@ export function createTabletopRenderer({ canvas, getSettings, onLoad = () => {},
     if (state.disposed) return;
     state.disposed = true; ++state.loadGeneration; state.loadAbort?.abort(); state.speaking = false; gestures.stop();
     cancelAnimationFrame(state.raf); observer?.disconnect(); eventAbort.abort();
-    releaseCurrent(); disposeSceneResources([scene], [woods.oak, woods.walnut]);
+    roomDetails.dispose();releaseCurrent(); disposeSceneResources([scene], [woods.oak, woods.walnut]);
     key.shadow.dispose(); renderer.dispose();
   }
 
@@ -627,6 +645,7 @@ export function createTabletopRenderer({ canvas, getSettings, onLoad = () => {},
       referenceBounds: state.bounds ? { min: state.bounds.min.toArray(), max: state.bounds.max.toArray() } : null,
       expressions: state.vrm?.expressionManager?.expressions?.map((expression) => expression.expressionName) || [],
       runtimeExpressionBindings: state.expressionRepairs.map((repair) => ({ ...repair })),
+      scene:roomDetails.diagnostics(),pixelRatio:renderer.getPixelRatio(),shadows:renderer.shadowMap.enabled,
       fps: state.fps, triangles: renderer.info.render.triangles, calls: renderer.info.render.calls,
       palm:palmFacing?.diagnostics()||null,gesture:gestures.active,mouthLevel:state.mouthLevel,headPose:bone('head')?.rotation.toArray().slice(0,3)||null,
       loading: state.loading, modelCount: avatarMount.children.length, speaking: state.speaking,

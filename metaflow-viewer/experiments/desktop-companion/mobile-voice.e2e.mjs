@@ -53,9 +53,9 @@ try{
         await page.screenshot({path:`${evidence}/iphone-landscape.png`});
       }
       if(name==='mac'){
-        await page.locator('#model-choice').selectOption('reconstruction');
+        await page.locator('#tab-avatar').click();await page.locator('#model-choice').selectOption('reconstruction');
         await page.waitForFunction(()=>{const d=window.__companionDiagnostics();return d.ready&&d.model.includes('重建版')&&!d.renderer.loading;},{},{timeout:90000});
-        await page.locator('[data-gesture="wave"]').click();
+        await page.locator('#tab-interaction').click();await page.locator('[data-gesture="wave"]').click();
         await page.waitForFunction(()=>window.__companionDiagnostics().renderer.gesture==='wave');
       }
       const result={name,pass:true,profile,viewport:options.viewport,triangles:first.renderer.triangles,voice:'actual local WAV playback and analyser',systemTts:'lifecycle tested with unit doubles; device voices not verified',errors};

@@ -33,11 +33,16 @@ export function createExperience({showSettings,notify,getState,applySuggestion,s
     <details class="advanced-fields" id="appearance-advanced"><summary>材质与性能</summary><div id="surface-controls"></div>
     <label class="field-label spaced-label" for="room-quality">画质预算</label><select id="room-quality"><option value="balanced">均衡 · 推荐</option><option value="high">细致 · 更高渲染负担</option><option value="low">节能 · 降低像素与阴影</option></select><p class="micro">画质档位不保证特定帧率；发热明显时可切换节能。</p></details>`;
   scroll.prepend(roomSection);
+  const assetStatus=doc.createElement('p');assetStatus.id='scene-asset-status';assetStatus.setAttribute('role','status');
+  const retry=doc.createElement('button');retry.id='retry-scene';retry.type='button';retry.className='button small';retry.textContent='重试露台资源';retry.hidden=true;
+  $('room-source').after(assetStatus,retry);
+  listen(retry,'click',()=>environment.dispatchEvent(new CustomEvent('companion:retry-scene')));
+  listen(environment,'companion:scene-status',event=>{const {status,error}=event.detail;assetStatus.textContent=status==='loading'?'正在加载轻量露台部件…':status==='error'?error:status==='ready'?'原模型部件已载入':'';assetStatus.classList.toggle('error',status==='error');retry.hidden=status!=='error';});
   function moveField(id,destination){const e=$(id);const label=doc.querySelector(`label[for="${id}"]`);if(label)destination.append(label);if(e)destination.append(e);}
   for(const id of ['light','wood'])moveField(id,$('surface-controls'));
-  $('grid').closest('label')?.remove();
-  // The grid control remains available in calibration, with its original ID.
-  const gridToggle=doc.createElement('label');gridToggle.className='toggle';gridToggle.innerHTML='<span>显示校准网格</span><input id="grid" type="checkbox">';viewSection.append(gridToggle);
+  viewSection.append($('grid').closest('label'));
+  const inspectControls=viewSection.querySelector('.segmented.two');
+  avatarSection.append(inspectControls,$('view-help'),$('gaze').closest('label'),$('animate').closest('label'));
   const setup=doc.createElement('section');setup.id='setup-intro';
   setup.innerHTML=`<p class="section-intro">先摆好设备，再按平时的坐姿校准。无需持续盯住镜头。</p>
     <div class="setup-stage-nav" aria-label="校准步骤"><button type="button" data-step="0">1 屏幕</button><button type="button" data-step="1">2 摆放</button><button type="button" data-step="2">3 开始</button></div>
@@ -60,11 +65,12 @@ export function createExperience({showSettings,notify,getState,applySuggestion,s
   $('app').append(welcome);
   let tab='scene',step=0,disposed=false,snapshot=null,noticeTimer=0,opened=false,restoring=false;
   const editableIds=['device-preset','width','tilt','height','distance','eye-x','eye-y','floor-offset','avatar-depth','room-depth','light','camera-x','camera-y','ipd','camera-placement','wood','gaze','animate','auto-height'];
-  function capture(){return {fields:Object.fromEntries(editableIds.map(id=>[id,$(id).type==='checkbox'?$(id).checked:$(id).value])),room:getRoomPreferences()};}
+  function capture(){return {fields:Object.fromEntries(editableIds.map(id=>[id,$(id).type==='checkbox'?$(id).checked:$(id).value])),room:(({model,...settings})=>settings)(getRoomPreferences())};}
   function dirty(){return snapshot&&JSON.stringify(capture())!==JSON.stringify(snapshot);}
   function refresh(){
     for(const b of nav.querySelectorAll('button'))b.setAttribute('aria-pressed',String(b.dataset.tab===tab));
-    roomSection.hidden=tab!=='scene';avatarSection.hidden=tab!=='avatar';extras.hidden=tab!=='interaction';
+    roomSection.hidden=tab!=='scene';assetStatus.hidden=room.scene!=='terrace';if(room.scene!=='terrace')retry.hidden=true;
+    if(room.scene==='terrace')assetStatus.hidden=false;avatarSection.hidden=tab!=='avatar';extras.hidden=tab!=='interaction';
     setup.hidden=guide.hidden=tab!=='setup';
     screenSection.hidden=tab!=='setup'||step!==0;cameraSection.hidden=tab!=='setup'||step!==1;
     startCard.hidden=viewSection.hidden=tab!=='setup'||step!==2;
@@ -78,7 +84,9 @@ export function createExperience({showSettings,notify,getState,applySuggestion,s
   }
   function selectTab(value){if(!Object.hasOwn(names,value))return;tab=value;refresh();scroll.scrollTop=0;}
   function detect(){const d=detectDeviceProfile(readDeviceInfo(environment,environment.navigator));$('device-match').textContent=d.label;$('device-basis').textContent=`${d.basis}。${d.note}`;return d;}
-  function updateProgress(){const s=getState();welcome.hidden=s.displayConfirmed||$('app').classList.contains('immersive');
+  function updateProgress(){const s=getState();
+    if(s.sceneStatus&&room.scene==='terrace'){const a=s.sceneStatus;assetStatus.hidden=false;assetStatus.textContent=a.status==='loading'?'正在加载轻量露台部件…':a.status==='error'?a.error:a.status==='ready'?'原模型部件已载入':'';retry.hidden=a.status!=='error';}
+welcome.hidden=s.displayConfirmed||$('app').classList.contains('immersive');
     $('setup-shortcut-copy').textContent=s.displayConfirmed?'校准已确认':'设备与摆放 · 开始校准';
     if(!startCard.hidden)$('guided-result').textContent=s.cameraActive?(s.cameraPhase==='tracking'?'追踪已启动；可以关闭设置并进入纯净展示。':'相机已开启，正在等待稳定面部。'):s.displayConfirmed?'画布已确认。点击上方按钮后才会请求摄像头。':'先确认画布与镜头位置；无需开启诊断取景。';
   }
@@ -103,7 +111,7 @@ export function createExperience({showSettings,notify,getState,applySuggestion,s
     for(const [id,value] of Object.entries(snapshot.fields)){$(id)[$(id).type==='checkbox'?'checked':'value']=value;}
     // Do not dispatch the preset selector: it would overwrite restored measured dimensions.
     for(const id of editableIds.filter(id=>id!=='device-preset'))$(id).dispatchEvent(new Event($(id).type==='range'?'input':'change',{bubbles:true}));
-    room=sanitizeRoom(snapshot.room);saveRoom();savePreferences();restoring=false;refresh();notify('已恢复打开设置前的数值。尺寸改动后的物理校准需要重新确认。');
+    room=sanitizeRoom({...snapshot.room,model:room.model});saveRoom();savePreferences();restoring=false;refresh();notify('已恢复打开设置前的数值。尺寸改动后的物理校准需要重新确认。');
   });
   listen($('settings-done'),'click',()=>showSettings(false));
   listen(shortcut,'click',()=>showSettings(true,'scene'));
