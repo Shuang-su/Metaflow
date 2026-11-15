@@ -1,0 +1,96 @@
+name: Companion usability and scenes validation
+on:
+  push:
+    branches: [codex/mf-165-usability-scenes]
+    paths:
+      - metaflow-viewer/experiments/desktop-companion/**
+      - .github/workflows/desktop-companion-usability.yml
+permissions:
+  contents: write
+concurrency:
+  group: companion-usability-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  validate:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 18
+    env:
+      APP: metaflow-viewer/experiments/desktop-companion
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+          filter: blob:none
+          sparse-checkout: |
+            metaflow-viewer/experiments/desktop-companion
+            docs/changes/165-desktop-portrait
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Integrate guarded source changes and validate syntax
+        run: |
+          echo "EVIDENCE_DIR=$RUNNER_TEMP/companion-evidence" >> "$GITHUB_ENV"
+          python3 "$APP/apply-usability.py"
+          python3 "$APP/finalize-usability.py"
+          python3 "$APP/polish-usability.py"
+          python3 "$APP/fix-animation-timing.py"
+          for f in "$APP"/*.mjs "$APP"/*.js; do node --check "$f"; done
+          python3 -m py_compile "$APP/prepare-terrace.py"
+          git diff --check
+      - name: Test geometry, tracking, motion, audio and device preferences
+        run: node --test "$APP/mobile-voice.test.mjs" "$APP/tracking-refinement.test.mjs" "$APP/usability.test.mjs"
+      - name: Build verified runtime and derive actual terrace subset
+        run: |
+          python3 "$APP/restore-assets.py"
+          python3 "$APP/prepare-terrace.py"
+      - name: Prepare existing isolated browser dependency
+        id: browser
+        run: |
+          npm install --prefix "$RUNNER_TEMP/companion-browser" --ignore-scripts --no-audit --no-fund playwright@1.56.1
+          ln -s "$RUNNER_TEMP/companion-browser/node_modules" "$APP/node_modules"
+          "$RUNNER_TEMP/companion-browser/node_modules/.bin/playwright" install --with-deps chromium
+          python3 -m http.server 4173 --bind 127.0.0.1 --directory "$APP/dist" > "$RUNNER_TEMP/companion-http.log" 2>&1 &
+      - name: Recheck existing mobile motion and audio flows
+        if: ${{ !cancelled() && steps.browser.outcome == 'success' }}
+        run: node "$APP/mobile-voice.e2e.mjs"
+      - name: Recheck quiet tracking, orientation and both palms
+        if: ${{ !cancelled() && steps.browser.outcome == 'success' }}
+        run: node "$APP/tracking-refinement.e2e.mjs"
+      - name: Verify grouped settings, undo, preview and detailed scenes
+        if: ${{ !cancelled() && steps.browser.outcome == 'success' }}
+        run: node "$APP/usability.e2e.mjs"
+      - name: Preserve tested ordinary source on this branch only
+        run: |
+          git add "$APP/app.js" "$APP/renderer.js" "$APP/index.html" "$APP/about.html" "$APP/experience.mjs" "$APP/experience.css" "$APP/device-detection.mjs" "$APP/room-details.mjs" "$APP/mobile-voice.e2e.mjs" "$APP/tracking-refinement.e2e.mjs" "$APP/usability.e2e.mjs" "$APP/usability.test.mjs" docs/changes/165-desktop-portrait/spec.md docs/changes/165-desktop-portrait/plan.md
+          if ! git diff --cached --quiet; then
+            current=$(git ls-remote origin refs/heads/codex/mf-165-usability-scenes | cut -f1)
+            test "$current" = "$GITHUB_SHA" || { echo 'Branch advanced; no overwrite'; exit 1; }
+            git config user.name 'github-actions[bot]'
+            git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+            git commit -m 'feat(companion): preserve verified usability scenes and low-fps animation fixes'
+            git push origin HEAD:refs/heads/codex/mf-165-usability-scenes
+          fi
+          mkdir -p "$EVIDENCE_DIR"
+          git rev-parse HEAD > "$EVIDENCE_DIR/source-commit.txt"
+          cp "$APP/dist/assets/terrace-provenance.json" "$EVIDENCE_DIR/terrace-provenance.json"
+          python3 - <<'PY'
+          import json,os,pathlib,subprocess
+          ref=subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip()
+          (pathlib.Path(os.environ['APP'])/'dist/release.json').write_text(json.dumps({'release':'companion-2026-11-15.1','gitRef':ref,'features':['guided-settings','device-screen-suggestions','undo-settings','preview-roundtrip','detailed-study','metaxingtong-terrace-kit','real-time-gesture-clock','retained-quiet-head-tracking'],'validation':'CI Chromium software WebGL; no physical Apple device accuracy claim'},ensure_ascii=False)+'\n')
+          print('TESTED_SOURCE_COMMIT',ref)
+          PY
+      - name: Preserve screenshots and reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: companion-usability-evidence
+          path: ${{ runner.temp }}/companion-evidence/
+          if-no-files-found: warn
+          retention-days: 14
+      - name: Preserve complete tested static site
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: companion-usability-netlify
+          path: metaflow-viewer/experiments/desktop-companion/dist/
+          retention-days: 14

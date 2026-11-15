@@ -1,3 +1,6 @@
+// MF165_USABILITY_SCENES_V1
+import {createExperience,getRoomPreferences,rememberBuiltin} from './experience.mjs';
+import {detectDeviceProfile,readDeviceInfo} from './device-detection.mjs';
 // MF165_HEAD_PALM_AIR_V1
 import {placeTrackingVideo} from './tracking-preview.mjs';
 // MF165_MOBILE_VOICE_V1
@@ -22,7 +25,7 @@ const builtinModels = {
 const defaultModelChoice='wenjing';
 const isMac = detectDesktopMac({userAgent:navigator.userAgent,platform:navigator.platform,maxTouchPoints:navigator.maxTouchPoints||0});
 const state = { mode: 'manual', eye: {x:0,y:.025,z:.55}, ready:false, disposed:false, generation:0, speaking:false, utterance:null, speechTimer:0, video:null, sample:null, cameraPhase:'idle', permission:'prompt', displayGeneration:0, wakeLock:null, wakePending:null, wakeGeneration:0, calibratedRect:null, resizeTimer:0, graphicsError:false, fullscreenWanted:false, view:'tabletop', inspectYaw:0, inspectPitch:.06, inspectZoom:1, modelPhase:'empty', sourceFile:null, modelName:'', displayCalibration:null, displayConfirmed:false, lastViewport:null, cameraOrigin:null, cameraListGeneration:0 };
-let renderer = null, extras = null, mobileMeasurement = null;
+let renderer = null, extras = null, experience=null, mobileMeasurement = null;
 const family=deviceFamily(navigator);
 installMobileOptions(document);
 $('show-preview').checked=false;
@@ -54,7 +57,7 @@ function cameraCalibration() {
   return {cameraX,cameraY,ipd:n('ipd')/100,estimateOrigin:true};
 }
 function renderSettings() {
-  return {width:n('width')/100,tilt:n('tilt'),eye:state.eye,mode:state.mode,
+  return {room:getRoomPreferences(),width:n('width')/100,tilt:n('tilt'),eye:state.eye,mode:state.mode,
     avatarHeight:$('auto-height').checked?null:n('height')/100,
     floorOffset:n('floor-offset')/100,avatarDepth:n('avatar-depth')/100,roomDepth:n('room-depth')/100,
     gaze:$('gaze').checked,animate:$('animate').checked,light:n('light'),wood:$('wood').value,grid:$('grid').checked,
@@ -64,7 +67,7 @@ function loadPreferences() {
   let stored=false;
   try {
     const data=JSON.parse(localStorage.getItem(storageKey)||'{}');
-    stored=typeof data['device-preset']==='string';
+    stored=typeof data?.['device-preset']==='string'&&[...$('device-preset').options].some(o=>o.value===data['device-preset']);
     for(const id of preferences) {
       const element=$(id), value=data[id];
       if(!element||value===undefined)continue;
@@ -73,9 +76,7 @@ function loadPreferences() {
       else if(element.tagName==='SELECT'&&[...element.options].some(o=>o.value===value))element.value=value;
     }
   } catch {}
-  if(!stored&&family==='phone'){$('device-preset').value='iphone-standard';applyProfileValues('iphone-standard');}
-  if(!stored&&family==='tablet'&&Math.min(screen.width,screen.height)<800){$('device-preset').value='ipad-mini';applyProfileValues('ipad-mini');}
-  if(!stored&&isMac){$('device-preset').value='macbook';applyProfileValues('macbook');}
+  if(!stored){const suggestion=detectDeviceProfile(readDeviceInfo());$('device-preset').value=suggestion.profile;applyProfileValues(suggestion.profile);}
 }
 function applyProfileValues(value){
   const mobile=mobileProfileValues(value,mobileMetrics());
@@ -126,16 +127,16 @@ function paintMode() {
   for(const b of document.querySelectorAll('[data-mode]'))b.setAttribute('aria-pressed',String(b.dataset.mode===state.mode));
   for(const b of document.querySelectorAll('[data-view]'))b.setAttribute('aria-pressed',String(b.dataset.view===state.view));
   $('view-label').textContent=state.view==='inspect'?'拖动旋转 · 滚动缩放':state.mode==='camera'?'相机眼位':state.mode==='auto'?'演示镜头 · 非真实追踪':'拖动 / 方向键 · R 复位';
-  $('camera-start').textContent=state.mode==='camera'?(tracker?.starting?'相机启动中 · 可取消':'重新校准相机'):desktopMode()?'开启摄像头追踪':'开启前摄追踪';
+  $('camera-start').textContent=state.mode==='camera'?(tracker?.starting?'取消启动':'重新居中'):'开启追踪';
   $('camera-stop').disabled=state.mode!=='camera'&&!tracker?.starting&&!tracker?.running;
   $('recenter').disabled=state.mode!=='camera'||!tracker?.running;
   paintActivity();
 }
-function showSettings(open) {
+function showSettings(open,tab) {
   $('settings-panel').hidden=!open;
   $('settings-toggle').setAttribute('aria-expanded',String(open));
   if(open)$('close-settings').focus();else $('settings-toggle').focus();
-  if(open)enumerateCameras();
+  if(open){experience?.onPanelOpened(tab);enumerateCameras();}else experience?.onPanelClosed();
 }
 function showCameraCard(){placeTrackingVideo(state.video,$('show-preview').checked&&!$('app').classList.contains('immersive'),document);}
 function overlay(sample) {
@@ -222,7 +223,7 @@ const tracker=createHeadTracker({
 function beginCamera(){
   if(state.disposed)return;
   handleViewportChange();handleWindowPositionChange();
-  if(state.mode==='camera'&&tracker.running){if(!state.displayConfirmed)showSettings(true);tracker.recenter();return;}
+  if(state.mode==='camera'&&tracker.running){if(!state.displayConfirmed)showSettings(true,'setup');tracker.recenter();return;}
   if(tracker.starting){++state.generation;state.mode='manual';tracker.stop();paintMode();return;}
   const generation=++state.generation;
   state.view='tabletop';updateRuler();
@@ -232,7 +233,7 @@ function beginCamera(){
   // start() requests getUserMedia synchronously before any download awaits.
   const deviceId=$('camera-device').value||undefined;
   const pending=tracker.start({deviceId,allowEnvironmentCamera:desktopMode()&&Boolean(deviceId)});
-  if(!state.displayConfirmed)showSettings(true);
+  if(!state.displayConfirmed)showSettings(true,'setup');
   pending.then(ok=>{if(generation!==state.generation||state.disposed)return;if(!ok&&state.mode==='camera'){state.mode='manual';state.eye=baseline();}paintMode();}).catch(error=>{if(generation!==state.generation)return;state.mode='manual';notice(error.message,true);paintMode();});
 }
 function setMode(mode){
@@ -281,7 +282,7 @@ try {
     },
     onAvatar(info){
       if(state.graphicsError||state.disposed)return;
-      state.activeModelChoice=state.loadingModelChoice;
+      state.activeModelChoice=state.loadingModelChoice;rememberBuiltin(state.activeModelChoice);
       state.modelName=info.name||'导入的 VRM';
       $('scene-name').textContent=state.modelName;$('model-label').textContent=state.modelName;
       $('model-credit').textContent=builtinModels[state.activeModelChoice]?.credit||`${info.credit||'本地导入'} · 文件仅在当前浏览器读取`;
@@ -300,7 +301,7 @@ try {
 }
 
 extras=createCompanionControls({getRenderer:()=>renderer,isReady:()=>state.ready&&!state.graphicsError,
-  notify:notice,openSettings:()=>showSettings(true),onSpeaking:value=>{state.speaking=value;}});
+  notify:notice,openSettings:()=>showSettings(true,'interaction'),onSpeaking:value=>{state.speaking=value;}});
 function stopSpeech(){extras?.stop();renderer?.stopGesture();state.speaking=false;}
 function speak(){extras?.toggleSpeech();}
 
@@ -362,7 +363,7 @@ listen($('confirm-calibration'),'click',()=>{
   $('display-calibration-status').textContent=`已确认 ${n('width').toFixed(1)} cm。窗口或显示器变化后，请重新核对镜头位置。`;
   $('show-ruler').checked=false;updateRuler();savePreferences();
   if(state.mode==='camera')tracker.recenter();paintMode();
-  notice('画布尺寸与镜头位置已确认。请正对镜头保持片刻，完成眼位校准。');
+  notice('画布与镜头已确认。保持自然坐姿片刻，完成头部位置校准。');
 });
 
 for(const id of ranges){
@@ -526,7 +527,7 @@ async function enterFullscreen(hideControls){
     return;
   }
   $('app').classList.toggle('immersive',hideControls);$('leave-display').hidden=!hideControls;showCameraCard();
-  if(hideControls){$('settings-panel').hidden=true;$('settings-toggle').setAttribute('aria-expanded','false');}else showSettings(true);
+  if(hideControls){$('settings-panel').hidden=true;$('settings-toggle').setAttribute('aria-expanded','false');experience?.onPanelClosed();}else showSettings(true);
   if(!document.fullscreenElement)notice('浏览器未进入系统全屏。请按当前可见画布测量；相机位置可用自定义厘米值校准。');
   await acquireWakeLock();renderer?.resize();scheduleCalibration();
 }
@@ -575,7 +576,7 @@ listen(document,'visibilitychange',()=>{
 });
 function dispose(){
   if(state.disposed)return;state.disposed=true;++state.generation;++state.displayGeneration;
-  stopSpeech();extras?.dispose();tracker.stop();tiltSensor.stop();renderer?.dispose();resizeObserver.disconnect();clearTimeout(state.resizeTimer);clearInterval(displayWatcher);abort.abort();releaseWakeLock();
+  stopSpeech();experience?.dispose();extras?.dispose();tracker.stop();tiltSensor.stop();renderer?.dispose();resizeObserver.disconnect();clearTimeout(state.resizeTimer);clearInterval(displayWatcher);abort.abort();releaseWakeLock();
 }
 listen(window,'pagehide',(event)=>{if(event.persisted){renderer?.pause(true);stopSpeech();setMode('manual');tiltSensor.stop();releaseWakeLock();}else dispose();});
 listen(window,'pageshow',()=>{renderer?.pause(document.hidden);if(!document.hidden)acquireWakeLock();});
@@ -604,13 +605,15 @@ listen(window,'orientationchange',scheduleMobileOrientation);
 listen(window,'resize',scheduleMobileOrientation);
 listen(window,'pagehide',()=>clearTimeout(orientationTimer));
 
+experience=createExperience({showSettings,notify:notice,getState:()=>({...state,cameraActive:!!state.video,sceneStatus:renderer?.diagnostics().scene}),savePreferences,
+  applySuggestion:s=>{$('device-preset').value=s.profile;$('device-preset').dispatchEvent(new Event('change'));}});
 if(window.matchMedia('(prefers-reduced-motion: reduce)').matches)$('animate').checked=false;
 paintMode();
 enumerateCameras();
-loadSelectedModel(defaultModelChoice);
+loadSelectedModel(getRoomPreferences().model);
 $('tracking-status').textContent='先确认画布宽和镜头位置，然后开启前摄，在浏览器提示中允许相机。';
 $('tracking-quality').textContent='等待相机授权';
 if(window.top!==window.self)notice('请在独立网页中打开本网站，以便浏览器请求摄像头和传感器权限。');
 
 // Non-sensitive validation output. No frames, landmarks, device IDs or audio.
-window.__companionDiagnostics=()=>({model:$('scene-name').textContent,ready:state.ready,mode:state.mode,view:state.view,profile:$('device-preset').value,physicalWidthCm:n('width'),displayConfirmed:state.displayConfirmed,cameraPhase:state.cameraPhase,cameraActive:!!state.video,permission:state.permission,eye:{...state.eye},graphics:!state.graphicsError,voice:extras?.diagnostics()||null,renderer:renderer?.diagnostics()||null});
+window.__companionDiagnostics=()=>({model:$('scene-name').textContent,ready:state.ready,mode:state.mode,view:state.view,profile:$('device-preset').value,physicalWidthCm:n('width'),displayConfirmed:state.displayConfirmed,cameraPhase:state.cameraPhase,cameraActive:!!state.video,permission:state.permission,eye:{...state.eye},graphics:!state.graphicsError,experience:experience?.diagnostics()||null,voice:extras?.diagnostics()||null,renderer:renderer?.diagnostics()||null});
