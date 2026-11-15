@@ -342,7 +342,8 @@ export function createTabletopRenderer({ canvas, getSettings, onLoad = () => {},
     if (fitKey === state.fitKey) return;
     state.fitKey = fitKey; state.avatarHeight = desired;
     fitReferenceAvatar(state.calibration, state.bounds, desired);
-    const propScale = clamp(desired / .17, .58, 1.12);
+    // MF165_PROP_BUDGET: keep the clock and flowers inside narrow phone windows.
+    const propScale = clamp(Math.min(desired / .17,state.width / .23), .22, 1.12);
     flowers.scale.setScalar(propScale); clockGroup.scale.setScalar(propScale);
   }
 

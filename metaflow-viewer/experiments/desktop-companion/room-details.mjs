@@ -1,3 +1,4 @@
+// MF165_VISUAL_POLISH
 import * as THREE from 'three';
 import {GLTFLoader} from './vendor/GLTFLoader.js';
 // All detail lives under the calibrated desk. No CSS perspective, camera
@@ -17,7 +18,7 @@ export function createRoomDetails(desk){
   function sky(evening){
     const c=document.createElement('canvas');c.width=512;c.height=640;const x=c.getContext('2d');
     const g=x.createLinearGradient(0,0,0,640);g.addColorStop(0,evening?'#727f91':'#b9d5d6');g.addColorStop(.62,evening?'#dbb18d':'#e5e5cc');g.addColorStop(1,evening?'#788776':'#a3b89b');x.fillStyle=g;x.fillRect(0,0,512,640);
-    x.fillStyle=evening?'#ead0a3':'#f5efcf';x.beginPath();x.arc(375,150,48,0,Math.PI*2);x.fill();
+    // A quiet sky gradient remains undistorted across tall and wide windows.
     for(let i=0;i<8;i++){x.fillStyle=i%2?(evening?'#647365':'#93ac92'):(evening?'#778471':'#b2c4a5');x.beginPath();x.ellipse(i*95-40,630-i%3*37,160,110,0,0,Math.PI*2);x.fill();}
     const texture=new THREE.CanvasTexture(c);texture.colorSpace=THREE.SRGBColorSpace;textures.add(texture);return texture;
   }
@@ -43,6 +44,11 @@ export function createRoomDetails(desk){
   // the chair, round table and overhead lattice are verified source meshes.
   const railing=cuboid(terrace,dark),railPosts=Array.from({length:7},()=>cuboid(terrace,dark));
   const terraceBack=cuboid(terrace,cream);
+  const outdoor=mesh(terrace,geo(new THREE.PlaneGeometry(1,1)),glassMat);outdoor.castShadow=false;outdoor.receiveShadow=false;
+  for(const o of [...frames,...panels,baseboard,cornice,leftTrim,rightTrim])o.castShadow=false;
+  const fabric=document.createElement('canvas');fabric.width=fabric.height=128;const fx=fabric.getContext('2d');fx.fillStyle='#eee9dc';fx.fillRect(0,0,128,128);fx.strokeStyle='#dedbcd';fx.lineWidth=1;
+  for(let i=0;i<128;i+=4){fx.beginPath();fx.moveTo(i,0);fx.lineTo(i,128);fx.moveTo(0,i);fx.lineTo(128,i);fx.stroke();}
+  const fabricMap=new THREE.CanvasTexture(fabric);fabricMap.colorSpace=THREE.SRGBColorSpace;fabricMap.wrapS=fabricMap.wrapT=THREE.RepeatWrapping;fabricMap.repeat.set(8,8);textures.add(fabricMap);rugMat.map=fabricMap;rugMat.roughness=.98;
   let kit=null,disposed=false,pending=null,controller=null,last=null,status='idle',error='',generation=0;
   const stateEvent=()=>window.dispatchEvent(new CustomEvent('companion:scene-status',{detail:{status,error}}));
   function placeKit(){
@@ -90,12 +96,13 @@ export function createRoomDetails(desk){
       shelf.scale.set(w*.29,.003,p*.58);shelf.position.set(w*.32,h*.42,rear+p*.25);
       books.forEach((o,i)=>{o.scale.set(p*(.58+i*.05),p*.12,p*.42);o.position.set(w*.30,h*.42+.003+i*p*.13,rear+p*.25);o.rotation.y=(i-1)*.1;});
       picture.scale.set(p*.95,p*1.1,p*.95);picture.position.set(w*.32,h*.64,rear+.004);
-      lamp.scale.setScalar(p*.75);lamp.position.set(-w*.34,0,-Math.min(d*.44,.075));
+      lamp.scale.setScalar(p*.75);lamp.position.set(w*.35,0,-d*.67);
       shadeMat.emissiveIntensity=room.lighting==='evening'?.7:.08;light.intensity=room.lighting==='evening'?.0018:0;light.distance=p*7;
       rug.scale.set(w*.42,Math.min(d*.45,w*.65),1);rug.position.z=-d*.40;
       for(const o of books)o.visible=room.decor;lamp.visible=room.decor;picture.visible=room.decor;
     }
     if(terrace.visible){
+      glassMat.map=skies[room.lighting];outdoor.scale.set(w,h,1);outdoor.position.set(0,h/2,rear+.001);
       const rz=-d*.83;railing.scale.set(w*.94,.0025,.0025);railing.position.set(0,h*.28,rz);
       railPosts.forEach((o,i)=>{o.scale.set(.0014,h*.28,.0014);o.position.set((i-3)*w*.145,h*.14,rz);});
       terraceBack.scale.set(w,h*.30,.001);terraceBack.position.set(0,h*.15,rear+.002);

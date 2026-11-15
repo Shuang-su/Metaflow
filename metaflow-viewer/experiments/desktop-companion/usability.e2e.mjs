@@ -22,11 +22,25 @@ try{
       await page.locator('#room-lighting').selectOption('evening');await page.locator('#appearance-advanced').locator('summary').click();
       await page.locator('#room-quality').selectOption('low');
       await page.waitForFunction(()=>window.__companionDiagnostics().renderer.pixelRatio<=1&&!window.__companionDiagnostics().renderer.shadows);
+      // A peek preserves undo rather than silently accepting the edit.
+      await page.locator('#settings-peek').click();assert.equal(await page.locator('#settings-panel').isVisible(),false);assert.equal(await page.locator('#resume-settings').isVisible(),true);
+      await page.locator('#resume-settings').click();assert.equal(await page.locator('#settings-undo').isDisabled(),false);
       await page.locator('#settings-undo').click();assert.equal(await page.locator('#room-lighting').inputValue(),'day');assert.equal(await page.locator('#room-quality').inputValue(),'balanced');
       assert.equal(await page.locator('#settings-undo').isDisabled(),true);
       await page.locator('#tab-setup').click();assert.equal(await page.locator('#device-preset').isVisible(),true);assert.equal(await page.locator('#camera-placement').isVisible(),false);
       await page.locator('#setup-next').click();assert.equal(await page.locator('#camera-placement').isVisible(),true);assert.equal(await page.locator('#device-preset').isVisible(),false);
       await page.locator('#setup-next').click();assert.equal(await page.locator('#confirm-calibration').isVisible(),true);
+      // Incomplete setup must never acquire the camera or silently confirm centimetres.
+      await page.locator('#guided-camera-start').click();
+      assert.equal((await page.evaluate(()=>window.__companionDiagnostics())).cameraActive,false);
+      assert.equal((await page.evaluate(()=>window.__companionDiagnostics())).displayConfirmed,false);
+      if(name==='desktop'){
+        await page.locator('#confirm-calibration').click();
+        assert.equal(await page.locator('#camera-placement').isVisible(),true,'blocked confirmation reveals the field that needs fixing');
+        assert.equal((await page.evaluate(()=>window.__companionDiagnostics())).displayConfirmed,false);
+        await page.locator('#setup-next').click();
+      }
+
       await page.locator('#guided-without-camera').click();assert.equal(await page.locator('#settings-panel').isVisible(),false);assert.equal((await page.evaluate(()=>window.__companionDiagnostics())).cameraActive,false);
       await page.locator('#motion-speech').click();assert.equal(await page.locator('#tab-interaction').getAttribute('aria-pressed'),'true');assert.equal(await page.locator('#speech-text').isVisible(),true);
       await page.locator('#tab-avatar').click();assert.equal(await page.locator('#model-choice').isVisible(),true);assert.equal(await page.locator('[data-view="inspect"]').isVisible(),true);

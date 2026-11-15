@@ -55,8 +55,14 @@ export function createExperience({showSettings,notify,getState,applySuggestion,s
   stepFooter.innerHTML='<button id="setup-back" class="button quiet" type="button">上一步</button><button id="setup-next" class="button primary" type="button">下一步</button>';
   scroll.append(stepFooter);
   const footer=doc.createElement('footer');footer.className='settings-footer';
-  footer.innerHTML='<span id="settings-save-status" role="status">实时预览 · 自动保存到此设备</span><div><button id="settings-undo" type="button" class="button quiet" disabled>撤销本次调整</button><button id="settings-done" type="button" class="button primary">完成</button></div>';
+  footer.innerHTML='<span id="settings-save-status" role="status">实时预览 · 场景与校准参数可撤销</span><div><button id="settings-undo" type="button" class="button quiet" disabled>撤销本次参数</button><button id="settings-peek" type="button" class="button quiet">看效果</button><button id="settings-done" type="button" class="button primary">完成</button></div>';
   panel.append(footer);
+  const resume=doc.createElement('button');resume.id='resume-settings';resume.type='button';resume.className='preview-return button glass';resume.textContent='返回调整';resume.hidden=true;$('app').append(resume);
+  function endPeek(){resume.hidden=true;$('app').classList.remove('settings-peeking');}
+  function resumePanel(){panel.hidden=false;$('settings-toggle').setAttribute('aria-expanded','true');endPeek();$('settings-peek').focus();}
+  listen($('settings-peek'),'click',()=>{panel.hidden=true;$('settings-toggle').setAttribute('aria-expanded','false');resume.hidden=false;$('app').classList.add('settings-peeking');resume.focus();});
+  listen(resume,'click',resumePanel);
+  listen(doc,'keydown',event=>{if(event.key==='Escape'&&!resume.hidden){event.preventDefault();event.stopPropagation();resumePanel();}});
   const shortcut=doc.createElement('button');shortcut.id='room-shortcut';shortcut.type='button';shortcut.className='button quiet';shortcut.textContent='布置';
   doc.querySelector('.command-bar').append(shortcut);
   $('motion-speech').textContent='互动';
@@ -97,12 +103,14 @@ welcome.hidden=s.displayConfirmed||$('app').classList.contains('immersive');
   listen($('setup-next'),'click',()=>{if(step<2){step++;refresh();scroll.scrollTop=0;}else showSettings(false);});
   listen($('apply-device-suggestion'),'click',()=>{applySuggestion(detect());refresh();notify('已应用推荐起点；请核对校准尺，未自动确认物理尺寸。');});
   listen($('guided-camera-start'),'click',()=>{
-    if(!getState().displayConfirmed){$('confirm-calibration').click();if(!getState().displayConfirmed){step=1;refresh();return;}}
+    if(!getState().displayConfirmed){$('guided-result').textContent='请先量准画布并点击“确认画布与镜头位置”。';$('confirm-calibration').focus();return;}
     // Preserve the original user activation for getUserMedia.
     $('camera-start').click();
   });
+  // Recover incomplete desktop setup instead of focusing a hidden field.
+  listen($('confirm-calibration'),'click',()=>{if(!getState().displayConfirmed){step=1;selectTab('setup');$('camera-placement').focus();}});
   listen($('guided-without-camera'),'click',()=>{doc.querySelector('[data-mode="manual"]').click();showSettings(false);});
-  listen(roomSection,'click',event=>{const b=event.target.closest('[data-room]');if(b){room.scene=b.dataset.room;saveRoom();refresh();}});
+  listen(roomSection,'click',event=>{const b=event.target.closest('[data-room]');if(b){room.scene=b.dataset.room;$('settings-save-status').textContent=saveRoom()?'参数已保存 · 角色和相机操作单独生效':'本次预览有效；浏览器未允许保存';refresh();}});
   for(const [id,key] of [['room-lighting','lighting'],['room-quality','quality'],['room-decor','decor'],['room-clock','clock']])listen($(id),'change',()=>{room[key]=$(id).type==='checkbox'?$(id).checked:$(id).value;$('settings-save-status').textContent=saveRoom()?'已保存到此设备':'本次预览有效；浏览器未允许保存';refresh();});
   listen(panel,'input',()=>{if(!restoring)$('settings-undo').disabled=!dirty();});
   listen(panel,'change',()=>{if(!restoring)$('settings-undo').disabled=!dirty();});
@@ -122,8 +130,8 @@ welcome.hidden=s.displayConfirmed||$('app').classList.contains('immersive');
   });observer.observe($('notice'),{childList:true,characterData:true,subtree:true});
   const progressTimer=environment.setInterval(updateProgress,500);
   detect();refresh();updateProgress();
-  return {onPanelOpened(requested){if(!opened){snapshot=capture();opened=true;}if(requested)selectTab(requested);else refresh();},onPanelClosed(){opened=false;snapshot=null;},
+  return {onPanelOpened(requested){endPeek();if(!opened){snapshot=capture();opened=true;}if(requested)selectTab(requested);else refresh();},onPanelClosed(){endPeek();opened=false;snapshot=null;},
     selectTab,diagnostics:()=>({tab,step,device:detectDeviceProfile(readDeviceInfo(environment,environment.navigator)),room:getRoomPreferences()}),
-    dispose(){if(disposed)return;disposed=true;abort.abort();observer.disconnect();environment.clearInterval(progressTimer);environment.clearTimeout(noticeTimer);}
+    dispose(){if(disposed)return;disposed=true;endPeek();resume.remove();abort.abort();observer.disconnect();environment.clearInterval(progressTimer);environment.clearTimeout(noticeTimer);}
   };
 }

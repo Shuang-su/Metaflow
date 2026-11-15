@@ -32,3 +32,7 @@ test('scene settings reject null, malformed and arbitrary values',()=>{
 test('valid room options and explicit false controls survive reload',()=>{
   assert.deepEqual(sanitizeRoom({scene:'terrace',quality:'low',lighting:'evening',clock:false,decor:false,model:'reconstruction'}),{scene:'terrace',quality:'low',lighting:'evening',clock:false,decor:false,model:'reconstruction'});
 });
+
+test('Android tablet is not an iPad even with the same screen signature',()=>{const d=detectDeviceProfile({userAgent:'Mozilla/5.0 Android 15',platform:'Linux armv8l',maxTouchPoints:5,screenWidth:744,screenHeight:1133,dpr:2});assert.equal(d.confidence,'family');assert.notEqual(d.profile,'ipad-mini');});
+
+test('Android is never named iPhone merely because its screen matches',()=>{const d=detectDeviceProfile({...air,userAgent:'Mozilla Android Mobile',platform:'Linux armv8l'});assert.equal(d.confidence,'family');assert.doesNotMatch(d.label,/iPhone Air/);});

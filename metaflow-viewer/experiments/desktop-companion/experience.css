@@ -95,3 +95,11 @@
   .setup-shortcut{display:none;}.scene-header{top:7px;}.scene-dock{bottom:6px;}
 }
 @media(prefers-reduced-motion:reduce){#notice{transition:none;}}
+
+/* A preview round-trip keeps the edit snapshot and the physical canvas. */
+.preview-return{position:absolute;z-index:50;left:50%;transform:translateX(-50%);bottom:max(14px,env(safe-area-inset-bottom));min-height:44px;border-radius:15px;padding:10px 22px;font-size:13px;}
+.settings-peeking .scene-dock,.settings-peeking .setup-shortcut{opacity:0;pointer-events:none;}
+.settings-peeking .scene-dock *{pointer-events:none;}
+#settings-panel.settings-panel{max-width:calc(100vw - 24px);}
+@media(max-width:600px){#settings-panel.settings-panel{max-width:100%;}.settings-footer>div{gap:4px;}.settings-footer .button{padding-left:9px;padding-right:9px;}}
+@media(max-height:480px) and (orientation:landscape){#settings-panel.settings-panel{top:8px;bottom:8px;height:auto;max-width:65vw;}}

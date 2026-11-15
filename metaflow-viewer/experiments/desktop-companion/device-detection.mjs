@@ -18,7 +18,7 @@ export function detectDeviceProfile(info={}){
   const values=[Number(info.screenWidth),Number(info.screenHeight)].sort((a,b)=>a-b);
   const dpr=Number(info.dpr)||1;
   const signature=signatures.find(([a,b,r,,])=>Math.abs(values[0]-a)<1.1&&Math.abs(values[1]-b)<1.1&&Math.abs(dpr-r)<.1);
-  const allowed=signature&&(family==='phone'&&/iPhone|iPod/i.test(info.userAgent||'')&&signature[3].startsWith('iphone')||family==='tablet'&&signature[3].startsWith('ipad'));
+  const allowed=signature&&(family==='phone'&&/iPhone|iPod/i.test(info.userAgent||'')&&signature[3].startsWith('iphone')||family==='tablet'&&(/iPad/i.test(info.userAgent||'')||(/Mac/i.test(info.platform||'')&&info.maxTouchPoints>1))&&signature[3].startsWith('ipad'));
   if(allowed)return {family,profile:signature[3],label:signature[4],confidence:'screen-match',basis:`${values.join(' × ')} 逻辑像素 · ${dpr}×`,note:'按屏幕特征推荐，不是硬件型号识别。显示缩放、同尺寸机型可能影响结果，请用校准尺复核。'};
   if(family==='phone')return {family,profile:'iphone-standard',label:'手机 · 通用起点',confidence:'family',basis:'手机浏览环境',note:'未匹配到可靠屏幕档位，请手动选择设备或测量画布。'};
   if(family==='tablet')return {family,profile:values[0]<800?'tablet-small':'ipad-11-landscape',label:'平板 · 通用起点',confidence:'family',basis:'触控平板浏览环境',note:'浏览器不能确定具体平板型号，选择实际尺寸后用尺核对。'};
