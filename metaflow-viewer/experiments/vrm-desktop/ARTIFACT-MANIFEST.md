@@ -7,7 +7,7 @@ Filled by build/report scripts. Do not treat as a release tag.
 | Field | Value |
 | --- | --- |
 | Intent | Fix QA blank「正在初始化…」+ dead buttons; visible boot errors; clean ZIP HTTP proof |
-| Commit | b1db69ba15ab1dc201fa3b08c910f2b7543738a9 |
+| Commit | 09c6b63ca44dd6c3e14a83e2004680df2416540c |
 | ZIP | `/opt/cursor/artifacts/metaflow-desktop-preview.zip` |
 | ZIP SHA256 | `148351525fa07b2e328455a67e83d9ab6fd365cce1e414e1ab258b61a365d12d` |
 | Verify | `node verify-p0-boot.mjs` → `/opt/cursor/artifacts/p0-boot-verify.json` |
