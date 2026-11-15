@@ -201,6 +201,58 @@
         }
         .hint { color: #6b7280; font-size: 11px; margin-top: 4px; line-height: 1.4; }
         #calibrateSteps p { margin-top: 6px; color: #c4bbb0; font-size: 12px; line-height: 1.45; }
+        .layer-grid {
+            display: grid;
+            grid-template-columns: 110px 1fr;
+            gap: 3px 8px;
+            font-size: 11px;
+            color: #c4bbb0;
+            margin: 6px 0 8px;
+        }
+        .layer-grid span:nth-child(odd) { color: #8a8278; }
+        .ruler-stage {
+            margin-top: 8px;
+            padding: 10px;
+            background: #161c26;
+            border: 1px dashed #3a4658;
+            border-radius: 6px;
+        }
+        .ruler-card {
+            height: 34px;
+            width: 120px;
+            background: linear-gradient(180deg, #f3efe8, #d8d0c4);
+            border: 1px solid #9a9288;
+            border-radius: 3px;
+            color: #2a241c;
+            font-size: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            user-select: none;
+        }
+        .cap-list { margin: 6px 0 0; padding-left: 16px; font-size: 11px; color: #8b95a5; line-height: 1.45; }
+        .cap-list.cannot { color: #a88a7a; }
+        .screen-list { margin-top: 6px; font-size: 11px; color: #c4bbb0; }
+        .screen-list button {
+            width: auto;
+            display: inline-block;
+            padding: 4px 8px;
+            margin: 2px 4px 2px 0;
+            font-size: 11px;
+        }
+        .custom-fields { display: none; margin-top: 6px; }
+        .custom-fields.visible { display: block; }
+        .custom-fields input[type="number"],
+        input[type="text"]#screenProfileLabel {
+            width: 100%;
+            padding: 6px 8px;
+            margin: 2px 0 6px;
+            background: #161c26;
+            border: 1px solid #243040;
+            border-radius: 6px;
+            color: #e8e4de;
+            font-size: 12px;
+        }
     </style>
 </head>
 <body>
@@ -266,6 +318,35 @@
                     <button id="calibratePrev" class="secondary" type="button">上一步</button>
                     <button id="calibrateNext" type="button">下一步</button>
                 </div>
+                <hr style="border:none;border-top:1px solid #243040;margin:12px 0">
+                <label>显示预设（手动 · 非自动识别机型）</label>
+                <select id="displayPreset"></select>
+                <p class="hint" id="displayPresetHint">请手动选择；分辨率不会被当作已检测的 Mac 机型。</p>
+                <div class="custom-fields" id="customExternalFields">
+                    <label>对角（英寸）</label>
+                    <input type="number" id="customDiagonalIn" min="10" max="50" step="0.1" placeholder="例如 27">
+                    <label>宽 × 高（cm，优先于对角）</label>
+                    <input type="number" id="customWidthCm" min="10" max="120" step="0.1" placeholder="宽 cm">
+                    <input type="number" id="customHeightCm" min="8" max="80" step="0.1" placeholder="高 cm">
+                    <label>比例（对角推算时）</label>
+                    <select id="customAspect">
+                        <option value="1.777">16:9</option>
+                        <option value="1.6">16:10</option>
+                        <option value="2.333">21:9</option>
+                    </select>
+                </div>
+                <button id="applyDisplayPreset" class="secondary" type="button">应用预设为建议尺寸</button>
+                <button id="commitSuggestedDisplay" type="button">写入当前投影宽高</button>
+                <p class="hint" id="displaySuggestNote"></p>
+
+                <div class="ruler-stage">
+                    <p class="hint">信用卡比例尺（85.6 mm 宽）：把下方卡片调到与实体卡同宽</p>
+                    <div class="ruler-card" id="rulerCard">信用卡宽</div>
+                    <label>卡片显示宽度（CSS px）</label>
+                    <input type="range" id="rulerWidthPx" min="40" max="320" step="1" value="120">
+                    <div class="value-display" id="rulerWidthPxValue">120 px</div>
+                    <button id="applyRulerCalibration" class="secondary" type="button">由比例尺推算并建议</button>
+                </div>
             </div>
         </details>
 
@@ -287,11 +368,27 @@
         </details>
 
         <details class="panel" id="panel-device">
-            <summary>设备与能力（提示）</summary>
+            <summary>显示器与能力</summary>
             <div class="panel-body">
+                <p class="hint" id="windowMgmtNote"></p>
+                <button id="recognizeDisplays" type="button">识别显示器</button>
+                <p class="hint">仅在点击后请求 Window Management 权限；Safari 等无 API 时不会伪造外接屏。</p>
+                <div class="screen-list" id="screenList"></div>
+                <label>当前档案显示名（可改）</label>
+                <input type="text" id="screenProfileLabel" maxlength="64" placeholder="例如：书房外接">
+                <div class="btn-row">
+                    <button id="renameScreenProfile" class="secondary" type="button">重命名档案</button>
+                    <button id="saveScreenProfile" class="secondary" type="button">保存本屏校准</button>
+                </div>
+                <label>像素层（只读）</label>
+                <div class="layer-grid" id="displayLayerGrid"></div>
                 <div class="device-grid" id="deviceGrid"></div>
                 <p class="device-note" id="deviceDisclaimer"></p>
                 <button id="applySuggestedQuality" class="secondary">应用建议画质</button>
+                <strong style="display:block;margin-top:10px;font-size:12px;color:#93c5fd">能做到</strong>
+                <ul class="cap-list" id="capCanList"></ul>
+                <strong style="display:block;margin-top:8px;font-size:12px;color:#93c5fd">做不到</strong>
+                <ul class="cap-list cannot" id="capCannotList"></ul>
             </div>
         </details>
     </aside>

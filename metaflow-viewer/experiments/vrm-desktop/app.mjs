@@ -24,6 +24,26 @@ import {
     detectCapabilities,
     qualityProfile
 } from './settings.mjs';
+import {
+    listDisplayPresets,
+    readBrowserDisplayLayers,
+    featureDetectWindowManagement,
+    requestScreenDetails,
+    observeScreenDetails,
+    observeBasicDisplayChanges,
+    screenProfileKey,
+    loadScreenProfiles,
+    loadActiveScreenKey,
+    saveActiveScreenKey,
+    upsertScreenProfile,
+    setProfileCalibration,
+    renameScreenProfile,
+    suggestViewportPhysicalMeters,
+    calibrateFromRuler,
+    applyCustomExternal,
+    capabilitiesVsLimitations,
+    CREDIT_CARD_MM
+} from './display-calibration.mjs';
 
 window.THREE = THREE;
 
@@ -104,10 +124,17 @@ class DesktopPortraitApp {
         this.loadError = null;
         this.lastModelUrl = './models/wenjing.vrm';
 
+        this.displayPresets = listDisplayPresets();
+        this.pendingDisplaySuggest = null;
+        this.screenDetails = null;
+        this._unsubScreens = null;
+        this.activeScreenKey = loadActiveScreenKey() || screenProfileKey(readBrowserDisplayLayers());
+
         this.setupControls();
         this.setupPanels();
         this.setupDevicePanel();
         this.setupCalibration();
+        this.setupDisplayCalibration();
         this.applyQuality(true);
         this.syncSlidersFromParams();
         this.setupResize();
@@ -560,40 +587,230 @@ class DesktopPortraitApp {
     }
 
     setupDevicePanel() {
-        const caps = this.caps;
-        const grid = document.getElementById('deviceGrid');
-        const disc = document.getElementById('deviceDisclaimer');
-        if (disc) disc.textContent = caps.disclaimer;
-        if (!grid) return;
-        const rows = [
-            ['形态提示', caps.formFactor],
-            ['浏览器', caps.uaSummary],
-            ['平台', caps.platform],
-            ['屏幕 CSS px', caps.screenCssPx],
-            ['DPR', String(caps.devicePixelRatio)],
-            ['WebGL2', caps.webgl2 ? '是' : '否'],
-            ['逻辑核心', caps.cores ?? '未知'],
-            ['内存提示', caps.deviceMemoryGiB != null ? `${caps.deviceMemoryGiB} GiB` : '未知'],
-            ['减少动态', caps.reducedMotion ? '是' : '否'],
-            ['建议画质', caps.suggestedQuality]
-        ];
-        grid.innerHTML = rows.map(([k, v]) => `<span>${k}</span><span>${v}</span>`).join('');
+        this.refreshCapabilityGrids();
 
         document.getElementById('applySuggestedQuality')?.addEventListener('click', () => {
-            this.quality = caps.suggestedQuality;
+            this.quality = this.caps.suggestedQuality;
             const q = document.getElementById('qualityPreset');
             if (q) q.value = this.quality;
             this.applyQuality();
             this.setStatus(`已应用建议画质：${this.quality}`, 'success');
         });
+
+        document.getElementById('recognizeDisplays')?.addEventListener('click', () => {
+            this.onRecognizeDisplays();
+        });
+        document.getElementById('renameScreenProfile')?.addEventListener('click', () => {
+            const label = document.getElementById('screenProfileLabel')?.value || '';
+            renameScreenProfile(this.activeScreenKey, label);
+            this.setStatus('已更新本屏档案显示名（仅本地）', 'success');
+            this.refreshScreenList();
+        });
+        document.getElementById('saveScreenProfile')?.addEventListener('click', () => {
+            this.persistCurrentScreenCalibration();
+            this.setStatus('已保存本屏校准档案（不覆盖其他屏）', 'success');
+        });
+
+        // Basic resize/DPR observers — refresh suggestions only, never overwrite saved
+        this._unsubBasicDisplay = observeBasicDisplayChanges(() => {
+            this.refreshDisplayLayers();
+            this.refreshSuggestedNoteFromLayers();
+        });
+    }
+
+    refreshCapabilityGrids() {
+        const caps = this.caps;
+        const disc = document.getElementById('deviceDisclaimer');
+        if (disc) {
+            disc.textContent =
+                '浏览器无法可靠识别具体 Mac 机型或物理厘米；下列为能力提示。分辨率匹配≠已检测机型。';
+        }
+        const wm = featureDetectWindowManagement();
+        const wmNote = document.getElementById('windowMgmtNote');
+        if (wmNote) wmNote.textContent = wm.explanation;
+
+        const grid = document.getElementById('deviceGrid');
+        if (grid) {
+            const rows = [
+                ['形态提示', caps.formFactor],
+                ['浏览器', caps.uaSummary],
+                ['平台', caps.platform],
+                ['WebGL2', caps.webgl2 ? '是' : '否'],
+                ['逻辑核心', caps.cores ?? '未知'],
+                ['内存提示', caps.deviceMemoryGiB != null ? `${caps.deviceMemoryGiB} GiB` : '未知'],
+                ['减少动态', caps.reducedMotion ? '是' : '否'],
+                ['建议画质', caps.suggestedQuality],
+                ['Window Mgmt', wm.supported ? '可用（需点击授权）' : '不可用']
+            ];
+            grid.innerHTML = rows.map(([k, v]) => `<span>${k}</span><span>${v}</span>`).join('');
+        }
+
+        const capsInfo = capabilitiesVsLimitations();
+        const can = document.getElementById('capCanList');
+        const cannot = document.getElementById('capCannotList');
+        if (can) can.innerHTML = capsInfo.can.map((t) => `<li>${t}</li>`).join('');
+        if (cannot) cannot.innerHTML = capsInfo.cannot.map((t) => `<li>${t}</li>`).join('');
+
+        this.refreshDisplayLayers();
+        this.refreshScreenList();
+    }
+
+    refreshDisplayLayers() {
+        const layers = readBrowserDisplayLayers();
+        const grid = document.getElementById('displayLayerGrid');
+        if (!grid) return;
+        const rows = [
+            ['CSS 视口', `${layers.viewportCssPx.w}×${layers.viewportCssPx.h}`],
+            ['screen 逻辑 px', `${layers.screenLogicalPx.w}×${layers.screenLogicalPx.h}`],
+            ['avail 逻辑 px', `${layers.screenAvailLogicalPx.w}×${layers.screenAvailLogicalPx.h}`],
+            ['DPR', String(layers.devicePixelRatio)],
+            ['背板近似 px', `${layers.backingApproxPx.w}×${layers.backingApproxPx.h}`]
+        ];
+        grid.innerHTML = rows.map(([k, v]) => `<span>${k}</span><span>${v}</span>`).join('');
+    }
+
+    refreshScreenList() {
+        const el = document.getElementById('screenList');
+        if (!el) return;
+        const profiles = loadScreenProfiles();
+        const known = this._lastScreens || [];
+        if (!known.length) {
+            const key = this.activeScreenKey;
+            const p = profiles[key];
+            el.innerHTML = `<p>当前档案 key：<code>${key}</code>${p?.userLabel ? ` · ${p.userLabel}` : ''}（粗粒度本地键，非硬件指纹）</p>`;
+            const labelInput = document.getElementById('screenProfileLabel');
+            if (labelInput && p?.userLabel) labelInput.value = p.userLabel;
+            return;
+        }
+        el.innerHTML = known.map((s) => {
+            const p = profiles[s.key];
+            const name = p?.userLabel || s.label || (s.isInternal === true ? '内建屏' : s.isInternal === false ? '外接屏' : '显示器');
+            const mark = s.key === this.activeScreenKey ? ' ✓' : '';
+            return `<button type="button" class="secondary screen-pick" data-key="${s.key}">${name} ${s.width}×${s.height}${mark}</button>`;
+        }).join('');
+        el.querySelectorAll('.screen-pick').forEach((btn) => {
+            btn.addEventListener('click', () => {
+                this.selectScreenProfile(btn.getAttribute('data-key'));
+            });
+        });
+    }
+
+    selectScreenProfile(key) {
+        if (!key) return;
+        this.activeScreenKey = key;
+        saveActiveScreenKey(key);
+        const profile = loadScreenProfiles()[key];
+        const labelInput = document.getElementById('screenProfileLabel');
+        if (labelInput) labelInput.value = profile?.userLabel || '';
+        // Offer saved calibration as suggestion — do not auto-overwrite live params
+        if (profile?.calibration?.widthM && profile?.calibration?.heightM) {
+            this.pendingDisplaySuggest = {
+                widthM: profile.calibration.widthM,
+                heightM: profile.calibration.heightM,
+                labeled: `来自已保存档案「${profile.userLabel || key}」——点「写入当前投影宽高」才会应用`
+            };
+            this.showPendingSuggest();
+        }
+        this.refreshScreenList();
+        this.setStatus('已选择显示器档案（未自动改写投影）', 'success');
+    }
+
+    async onRecognizeDisplays() {
+        this.setStatus('正在请求显示器信息（需你授权）…', 'loading');
+        const result = await requestScreenDetails();
+        this.setStatus(result.message, result.ok ? 'success' : 'error');
+        if (!result.ok) {
+            this._lastScreens = [];
+            this.refreshScreenList();
+            this.refreshDisplayLayers();
+            return;
+        }
+        this.screenDetails = result.details;
+        this._lastScreens = result.screens;
+        if (result.current) {
+            this.activeScreenKey = result.current.key;
+            saveActiveScreenKey(this.activeScreenKey);
+            upsertScreenProfile(result.current.key, {
+                label: result.current.label,
+                isInternal: result.current.isInternal,
+                width: result.current.width,
+                height: result.current.height,
+                devicePixelRatio: result.current.devicePixelRatio
+            }, { overwriteCalibration: false });
+        }
+        for (const s of result.screens) {
+            upsertScreenProfile(s.key, {
+                label: s.label,
+                isInternal: s.isInternal,
+                width: s.width,
+                height: s.height,
+                devicePixelRatio: s.devicePixelRatio
+            }, { overwriteCalibration: false });
+        }
+        this.refreshScreenList();
+        this.refreshDisplayLayers();
+
+        if (this._unsubScreens) this._unsubScreens();
+        this._unsubScreens = observeScreenDetails(this.screenDetails, ({ screens, current }) => {
+            this._lastScreens = screens;
+            if (current) {
+                const prevKey = this.activeScreenKey;
+                this.activeScreenKey = current.key;
+                saveActiveScreenKey(current.key);
+                upsertScreenProfile(current.key, {
+                    label: current.label,
+                    isInternal: current.isInternal,
+                    width: current.width,
+                    height: current.height,
+                    devicePixelRatio: current.devicePixelRatio
+                }, { overwriteCalibration: false });
+                // Refresh suggestion from saved profile if any; never overwrite live params
+                if (current.key !== prevKey) {
+                    const profile = loadScreenProfiles()[current.key];
+                    if (profile?.calibration) {
+                        this.pendingDisplaySuggest = {
+                            widthM: profile.calibration.widthM,
+                            heightM: profile.calibration.heightM,
+                            labeled: '显示器已切换：已加载该屏档案建议（未自动写入）'
+                        };
+                        this.showPendingSuggest();
+                        this.setStatus('检测到当前屏切换；建议已刷新，未覆盖你的当前滑杆值', 'success');
+                    } else {
+                        this.setStatus('检测到当前屏切换；该屏尚无保存校准', 'loading');
+                    }
+                }
+            }
+            this.refreshScreenList();
+            this.refreshDisplayLayers();
+        });
+    }
+
+    persistCurrentScreenCalibration() {
+        const key = this.activeScreenKey || screenProfileKey(readBrowserDisplayLayers());
+        this.activeScreenKey = key;
+        saveActiveScreenKey(key);
+        const label = document.getElementById('screenProfileLabel')?.value || '';
+        setProfileCalibration(key, {
+            widthM: this.params.width,
+            heightM: this.params.height,
+            tiltDeg: this.params.tiltDegrees,
+            eyeX: this.params.eye.x,
+            eyeY: this.params.eye.y,
+            eyeZ: this.params.eye.z,
+            quality: this.quality
+        });
+        if (label) renameScreenProfile(key, label);
+        upsertScreenProfile(key, {
+            layers: readBrowserDisplayLayers()
+        }, { overwriteCalibration: false });
     }
 
     setupCalibration() {
         const steps = [
             { title: '① 确认模型正向', text: '文镜应正面朝向你。若背面朝外，点「重新加载文镜」。' },
-            { title: '② 调支架倾角', text: '从 10–15° 开始，使桌面略向后倾、人物站立自然。' },
-            { title: '③ 调眼睛深度 Z', text: '拉近/推远直到全身（头到脚）留有边距。' },
-            { title: '④ 保存', text: '满意后点「保存本地设置」。画质可按设备能力面板建议覆盖。' }
+            { title: '② 选择显示预设或比例尺', text: '在下方手动选 MacBook / 外接预设，或用信用卡比例尺；不会自动当成已识别机型。' },
+            { title: '③ 调支架倾角与眼睛 Z', text: '从 10–15° 开始；拉近/推远直到全身留有边距。' },
+            { title: '④ 保存本屏档案', text: '「写入当前投影宽高」后，再到「显示器与能力」保存本屏校准；换屏不会静默覆盖。' }
         ];
         const box = document.getElementById('calibrateSteps');
         if (!box) return;
@@ -610,6 +827,133 @@ class DesktopPortraitApp {
             i = (i - 1 + steps.length) % steps.length;
             render();
         });
+    }
+
+    setupDisplayCalibration() {
+        const sel = document.getElementById('displayPreset');
+        if (sel) {
+            sel.innerHTML = this.displayPresets.map((p) =>
+                `<option value="${p.id}">${p.label}</option>`
+            ).join('');
+            sel.addEventListener('change', () => this.onDisplayPresetChange());
+            this.onDisplayPresetChange();
+        }
+
+        document.getElementById('applyDisplayPreset')?.addEventListener('click', () => {
+            this.buildDisplaySuggestionFromPreset();
+        });
+        document.getElementById('commitSuggestedDisplay')?.addEventListener('click', () => {
+            this.commitPendingDisplaySuggest();
+        });
+
+        const ruler = document.getElementById('rulerWidthPx');
+        const rulerVal = document.getElementById('rulerWidthPxValue');
+        const card = document.getElementById('rulerCard');
+        const syncRuler = () => {
+            const px = Number(ruler?.value || 120);
+            if (rulerVal) rulerVal.textContent = `${px} px`;
+            if (card) card.style.width = `${px}px`;
+        };
+        ruler?.addEventListener('input', syncRuler);
+        syncRuler();
+
+        document.getElementById('applyRulerCalibration')?.addEventListener('click', () => {
+            const px = Number(document.getElementById('rulerWidthPx')?.value || 0);
+            const result = calibrateFromRuler(px, CREDIT_CARD_MM.width);
+            if (!result) {
+                this.setStatus('比例尺无效', 'error');
+                return;
+            }
+            const suggest = suggestViewportPhysicalMeters(result.screenWidthM, result.screenHeightM);
+            this.pendingDisplaySuggest = {
+                widthM: suggest.widthM,
+                heightM: suggest.heightM,
+                labeled: `${result.labeled}；整屏约 ${result.widthCm.toFixed(1)}×${result.heightCm.toFixed(1)} cm。${suggest.labeled}`
+            };
+            this.showPendingSuggest();
+            this.setStatus('已由比例尺生成建议（未自动写入）', 'success');
+        });
+    }
+
+    onDisplayPresetChange() {
+        const id = document.getElementById('displayPreset')?.value;
+        const preset = this.displayPresets.find((p) => p.id === id);
+        const hint = document.getElementById('displayPresetHint');
+        const custom = document.getElementById('customExternalFields');
+        if (hint && preset) {
+            hint.textContent = `${preset.physicalLabel} · ${preset.source}`;
+        }
+        if (custom) {
+            custom.classList.toggle('visible', id === 'ext-custom');
+        }
+    }
+
+    buildDisplaySuggestionFromPreset() {
+        const id = document.getElementById('displayPreset')?.value;
+        const preset = this.displayPresets.find((p) => p.id === id);
+        if (!preset) return;
+
+        let screenW;
+        let screenH;
+        let labeled;
+
+        if (id === 'ext-custom') {
+            const diagonalIn = Number(document.getElementById('customDiagonalIn')?.value);
+            const widthCm = Number(document.getElementById('customWidthCm')?.value);
+            const heightCm = Number(document.getElementById('customHeightCm')?.value);
+            const aspect = Number(document.getElementById('customAspect')?.value) || 16 / 9;
+            const custom = applyCustomExternal({ diagonalIn, widthCm, heightCm, aspect });
+            if (!custom) {
+                this.setStatus('请填写对角或宽高 cm', 'error');
+                return;
+            }
+            screenW = custom.widthM;
+            screenH = custom.heightM;
+            labeled = `自定义外接：${custom.source}`;
+        } else if (preset.physical) {
+            screenW = preset.physical.widthM;
+            screenH = preset.physical.heightM;
+            labeled = `${preset.label} — ${preset.physicalLabel}`;
+        } else {
+            this.setStatus('该预设无可用尺寸', 'error');
+            return;
+        }
+
+        const suggest = suggestViewportPhysicalMeters(screenW, screenH);
+        this.pendingDisplaySuggest = {
+            widthM: suggest.widthM,
+            heightM: suggest.heightM,
+            labeled: `${labeled}。${suggest.labeled}`
+        };
+        this.showPendingSuggest();
+        this.setStatus('已生成显示建议（未自动写入已保存值）', 'success');
+    }
+
+    showPendingSuggest() {
+        const note = document.getElementById('displaySuggestNote');
+        if (!note || !this.pendingDisplaySuggest) return;
+        const s = this.pendingDisplaySuggest;
+        note.textContent =
+            `建议视口投影：宽 ${mToCm(s.widthM)} × 高 ${mToCm(s.heightM)}。${s.labeled}`;
+    }
+
+    refreshSuggestedNoteFromLayers() {
+        // Keep note text current if we have a pending suggest; do not change params
+        if (this.pendingDisplaySuggest) this.showPendingSuggest();
+    }
+
+    commitPendingDisplaySuggest() {
+        if (!this.pendingDisplaySuggest) {
+            this.setStatus('没有待写入的建议', 'error');
+            return;
+        }
+        this.userLockedWidth = true;
+        this.params.width = this.pendingDisplaySuggest.widthM;
+        this.params.height = this.pendingDisplaySuggest.heightM;
+        this.syncSlidersFromParams();
+        this.updateProjection();
+        if (this.vrm) this.normalizeAndAnchor();
+        this.setStatus('已写入建议投影宽高（可再保存本屏档案）', 'success');
     }
 
     snapshotSettings() {
