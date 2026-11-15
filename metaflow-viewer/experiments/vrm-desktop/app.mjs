@@ -1,6 +1,6 @@
 /**
  * Standalone Three.js + @pixiv/three-vrm Desktop Portrait Viewer
- * Pure Three.js implementation with off-axis projection calibration
+ * Pure Three.js with off-axis projection. Supports VRM0 (rotateVRM0) and VRM1.
  */
 
 import * as THREE from 'three';
@@ -10,145 +10,133 @@ import { getProjection, tablePose } from './projection.mjs';
 import { VRMAnimator } from './vrm-animator.mjs';
 import { generateTestAudio } from './test-audio.mjs';
 
-// Expose THREE to window for diagnostics
 window.THREE = THREE;
+
+function vrmDisplayName(vrm) {
+    const meta = vrm?.meta;
+    if (!meta) return 'Unknown';
+    // VRM1 uses name; VRM0 uses title
+    return meta.name || meta.title || meta.modelName || 'Unknown';
+}
+
+function vrmMetaVersion(vrm) {
+    return vrm?.meta?.metaVersion ?? null;
+}
 
 class DesktopPortraitApp {
     constructor() {
         this.canvas = document.getElementById('main-canvas');
         this.statusEl = document.getElementById('status');
-        
-        // Scene setup
+
         this.scene = new THREE.Scene();
-        this.scene.background = new THREE.Color(0x1a1a1a);
-        
-        // Renderer
+        this.scene.background = new THREE.Color(0x2a241c);
+
         this.renderer = new THREE.WebGLRenderer({
             canvas: this.canvas,
             antialias: true,
             alpha: false
         });
-        this.renderer.setPixelRatio(window.devicePixelRatio);
+        this.renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
         this.renderer.outputColorSpace = THREE.SRGBColorSpace;
         this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
-        this.renderer.toneMappingExposure = 1.0;
-        
-        // Camera (will be updated with off-axis projection)
+        this.renderer.toneMappingExposure = 1.05;
+
         this.camera = new THREE.PerspectiveCamera(50, 1, 0.01, 10);
-        // Position set by updateProjection based on eye parameter
-        
-        // Lighting
+
         this.setupLighting();
-        
-        // Screen parameters (initialize before desk)
-        // Width will be updated by setupResize based on actual canvas aspect
+
+        // Physical screen params; width recalculated from canvas aspect on resize
+        // tiltDegrees = stand lean from vertical (0=upright screen). Converted for tablePose.
         this.params = {
-            width: 0.15,      // Initial, will be recalculated from canvas aspect
-            height: 0.20,     // 20cm screen height  
-            tiltDegrees: 15,  // Slight tilt
-            eye: { x: -0.04, y: 0.03, z: 0.65 }  // Match HTML slider defaults
+            width: 0.15,
+            height: 0.20,
+            tiltDegrees: 15,
+            eye: { x: -0.03, y: 0.0, z: 0.48 }
         };
-        
-        // Desk plane
+
+        // Desk visual (tilted with stand). Character stays world-upright as sibling.
         this.deskRoot = new THREE.Group();
         this.deskRoot.name = 'DeskRoot';
         this.scene.add(this.deskRoot);
         this.createDesk();
-        
-        // VRM model container
+
         this.personRoot = new THREE.Group();
         this.personRoot.name = 'PersonRoot';
         this.scene.add(this.personRoot);
-        
-        // State
+
         this.vrm = null;
         this.animator = null;
         this.clock = new THREE.Clock();
-        
-        // Setup UI
+        this.restPoseSet = false;
+        this.rotatedVRM0 = false;
+
         this.setupControls();
         this.setupResize();
-        
-        // Initial projection update
         this.updateProjection();
-        
-        // Start render loop
         this.animate();
-        
-        // Load default model
         this.loadDefaultModel();
     }
-    
+
     setupLighting() {
-        // Ambient light
-        const ambient = new THREE.AmbientLight(0xffffff, 0.6);
-        this.scene.add(ambient);
-        
-        // Key light (from upper front)
-        const keyLight = new THREE.DirectionalLight(0xffffff, 0.8);
-        keyLight.position.set(1, 2, 3);
+        this.scene.add(new THREE.AmbientLight(0xfff5eb, 0.55));
+
+        const keyLight = new THREE.DirectionalLight(0xfff0e0, 0.95);
+        keyLight.position.set(0.4, 1.6, 2.2);
         this.scene.add(keyLight);
-        
-        // Fill light (from side)
-        const fillLight = new THREE.DirectionalLight(0xffffff, 0.3);
-        fillLight.position.set(-2, 1, 1);
+
+        const fillLight = new THREE.DirectionalLight(0xc8d8ff, 0.35);
+        fillLight.position.set(-1.5, 0.8, 1.2);
         this.scene.add(fillLight);
-        
-        // Rim light (from behind)
-        const rimLight = new THREE.DirectionalLight(0xffffff, 0.2);
-        rimLight.position.set(0, 1, -2);
+
+        const rimLight = new THREE.DirectionalLight(0xffe0c0, 0.25);
+        rimLight.position.set(0.2, 1.2, -1.8);
         this.scene.add(rimLight);
     }
-    
+
     createDesk() {
-        // Desk plane geometry
-        const geometry = new THREE.PlaneGeometry(2, 2, 20, 20);
-        
-        // Wood-like material with procedural variation
+        const geometry = new THREE.PlaneGeometry(0.45, 0.35, 1, 1);
         const material = new THREE.MeshStandardMaterial({
-            color: 0xc19a6b,
-            roughness: 0.8,
-            metalness: 0.1,
+            color: 0xb8956a,
+            roughness: 0.85,
+            metalness: 0.05,
             side: THREE.DoubleSide
         });
-        
         const desk = new THREE.Mesh(geometry, material);
         desk.name = 'Desk';
         desk.receiveShadow = true;
-        
-        // Rotate to horizontal
         desk.rotation.x = -Math.PI / 2;
-        
+        // Desk surface local y=0; extend behind screen
+        desk.position.set(0, 0, -0.12);
         this.deskRoot.add(desk);
         this.updateDeskPose();
     }
-    
+
     updateDeskPose() {
+        // UI tiltDegrees = lean from vertical (0 upright … 90 flat).
+        // tablePose expects angle-from-horizontal (90 = vertical screen).
+        const fromHorizontal = Math.max(0, Math.min(90, 90 - this.params.tiltDegrees));
         const pose = tablePose({
             height: this.params.height,
-            tiltDegrees: this.params.tiltDegrees
+            tiltDegrees: fromHorizontal
         });
-        
-        // Apply rotation and position
         this.deskRoot.rotation.x = pose.rotationX * Math.PI / 180;
         this.deskRoot.position.set(
             pose.position.x,
             pose.position.y,
             pose.position.z
         );
+        // Re-anchor figurine after desk pose changes
+        if (this.vrm) {
+            this.normalizeAndAnchor();
+        }
     }
-    
+
     updateProjection() {
         const proj = getProjection(this.params);
-        
-        // Set camera position from eye parameters
         this.camera.position.set(proj.eye.x, proj.eye.y, proj.eye.z);
-        
-        // Update camera FOV and aspect
         this.camera.fov = proj.fov;
         this.camera.aspect = proj.aspect;
-        
-        // Build off-axis projection matrix
+
         const near = this.camera.near;
         const far = this.camera.far;
         const fov = proj.fov * Math.PI / 180;
@@ -156,277 +144,270 @@ class DesktopPortraitApp {
         const bottom = -top;
         const right = top * proj.aspect;
         const left = -right;
-        
-        // Apply offset (shift frustum based on eye position relative to screen center)
+
         const offsetX = proj.offset.x * (right - left) / 2;
         const offsetY = proj.offset.y * (top - bottom) / 2;
-        
-        // Manual projection matrix (off-axis frustum)
+
         const x = 2 * near / (right - left);
         const y = 2 * near / (top - bottom);
         const a = (right + left + offsetX) / (right - left);
         const b = (top + bottom + offsetY) / (top - bottom);
         const c = -(far + near) / (far - near);
         const d = -2 * far * near / (far - near);
-        
+
         this.camera.projectionMatrix.set(
             x, 0, a, 0,
             0, y, b, 0,
             0, 0, c, d,
             0, 0, -1, 0
         );
-        
         this.camera.projectionMatrixInverse.copy(this.camera.projectionMatrix).invert();
-        
-        // Update desk pose
         this.updateDeskPose();
     }
-    
+
     async loadVRM(url) {
         try {
             console.log(`[VRM] Loading from: ${url}`);
             this.setStatus('正在加载 VRM 模型...', 'loading');
-            
+
             const loader = new GLTFLoader();
             loader.register((parser) => new VRMLoaderPlugin(parser));
-            
-            console.log('[VRM] Starting loadAsync...');
+
             const gltf = await loader.loadAsync(url);
-            console.log('[VRM] GLTF loaded');
-            
             if (!gltf.userData.vrm) {
                 throw new Error('Not a valid VRM file');
             }
-            
-            // Clear old model
+
             if (this.vrm) {
                 this.personRoot.remove(this.vrm.scene);
                 VRMUtils.deepDispose(this.vrm.scene);
                 if (this.animator) {
                     this.animator.dispose();
+                    this.animator = null;
                 }
             }
-            
+
             this.vrm = gltf.userData.vrm;
-            console.log('[VRM] VRM object extracted:', !!this.vrm);
+            this.restPoseSet = false;
+            this.rotatedVRM0 = false;
+            this.leftArmNode = null;
+            this.rightArmNode = null;
+
+            // VRM0 faces -Z in glTF; rotate once so model faces the camera (+Z viewer)
+            VRMUtils.rotateVRM0(this.vrm);
+            this.rotatedVRM0 = vrmMetaVersion(this.vrm) === '0';
+            console.log('[VRM] metaVersion=', vrmMetaVersion(this.vrm), 'rotatedVRM0=', this.rotatedVRM0);
+
             this.personRoot.add(this.vrm.scene);
-            
-            // Normalize and anchor to desk
-            console.log('[VRM] Normalizing and anchoring...');
+
+            // Soften T-pose only when arms look extended; do not raise natural poses
+            this.applyRestPoseIfNeeded();
+
             this.normalizeAndAnchor();
-            
-            // Setup animator
-            console.log('[VRM] Setting up animator...');
+
             this.animator = new VRMAnimator(this.vrm, this.camera);
-            
-            // Set resting pose (arms down instead of T-pose)
-            this.setRestingPose();
-            
-            console.log('[VRM] Load complete!');
-            this.setStatus(`VRM 加载成功: ${this.vrm.meta?.name || 'Unknown'}`, 'success');
-            
-            // Expose for diagnostics
+
+            // Settle spring bones after orientation/pose
+            if (this.vrm.springBoneManager) {
+                for (let i = 0; i < 90; i++) {
+                    this.vrm.update(1 / 30);
+                }
+            }
+
+            const name = vrmDisplayName(this.vrm);
+            const ver = vrmMetaVersion(this.vrm);
+            this.setStatus(`VRM 加载成功: ${name}${ver ? ` (VRM${ver})` : ''}`, 'success');
+
             window.diagnostics = {
                 ready: true,
                 modelType: 'vrm',
+                modelName: name,
+                metaVersion: ver,
+                rotatedVRM0: this.rotatedVRM0,
                 vrmMeta: this.vrm.meta,
                 hasExpressions: !!this.vrm.expressionManager,
                 hasLookAt: !!this.vrm.lookAt,
-                hasSpringBone: !!this.vrm.springBoneManager
+                hasSpringBone: !!this.vrm.springBoneManager,
+                sceneRotationY: this.vrm.scene.rotation.y
             };
-            
         } catch (error) {
             console.error('VRM load error:', error);
             this.setStatus(`加载失败: ${error.message}`, 'error');
             throw error;
         }
     }
-    
-    setRestingPose() {
+
+    /**
+     * Soft A-pose for VRM1 T-pose samples only.
+     * VRM0 (Wenjing) keeps bind pose — forced arm overrides broke skirt/spring meshes.
+     */
+    applyRestPoseIfNeeded() {
         if (!this.vrm?.humanoid) return;
-        
-        console.log('[Pose] Setting resting pose...');
-        
-        // Get raw bone nodes (not normalized)
-        const leftUpperArm = this.vrm.humanoid.getRawBoneNode('leftUpperArm');
-        const rightUpperArm = this.vrm.humanoid.getRawBoneNode('rightUpperArm');
-        
-        if (leftUpperArm) {
-            // Apply quaternion rotation: down and slightly forward
-            const quat = new THREE.Quaternion();
-            quat.setFromEuler(new THREE.Euler(0.8, 0, -1.2, 'XYZ')); // Rotate down
-            leftUpperArm.quaternion.copy(quat);
-            console.log('[Pose] Left arm down, rotation:', leftUpperArm.rotation.toArray());
+        this.restPoseSet = false;
+        this.leftArmNode = null;
+        this.rightArmNode = null;
+
+        if (vrmMetaVersion(this.vrm) === '0') {
+            console.log('[Pose] VRM0 bind pose kept (no arm override)');
+            return;
         }
-        if (rightUpperArm) {
-            const quat = new THREE.Quaternion();
-            quat.setFromEuler(new THREE.Euler(0.8, 0, 1.2, 'XYZ')); // Rotate down
-            rightUpperArm.quaternion.copy(quat);
-            console.log('[Pose] Right arm down, rotation:', rightUpperArm.rotation.toArray());
-        }
-        
-        // Save pose to restore after animator updates
+
+        const left = this.vrm.humanoid.getNormalizedBoneNode('leftUpperArm');
+        const right = this.vrm.humanoid.getNormalizedBoneNode('rightUpperArm');
+        if (!left || !right) return;
+
+        left.rotation.set(0, 0, -Math.PI * 0.35);
+        right.rotation.set(0, 0, Math.PI * 0.35);
+        this.vrm.humanoid.update();
+
         this.restPoseSet = true;
-        this.leftArmQuat = leftUpperArm ? leftUpperArm.quaternion.clone() : null;
-        this.rightArmQuat = rightUpperArm ? rightUpperArm.quaternion.clone() : null;
-        this.leftArmNode = leftUpperArm;
-        this.rightArmNode = rightUpperArm;
-        
-        // Update spring bones to settle after pose change
-        if (this.vrm.springBoneManager) {
-            console.log('[Pose] Settling spring bones...');
-            for (let i = 0; i < 120; i++) {
-                this.vrm.springBoneManager.update(0.033);
-            }
-        }
-        
-        console.log('[Pose] Resting pose complete');
+        this.leftArmNode = left;
+        this.rightArmNode = right;
+        this.leftArmQuat = left.quaternion.clone();
+        this.rightArmQuat = right.quaternion.clone();
+        console.log('[Pose] VRM1 soft A-pose');
     }
-    
+
+    /** World AABB from skinned/static meshes (more reliable than setFromObject for VRM). */
+    computeMeshWorldBox(root) {
+        const box = new THREE.Box3();
+        root.updateMatrixWorld(true);
+        root.traverse((obj) => {
+            if (!(obj.isMesh || obj.isSkinnedMesh) || !obj.geometry) return;
+            if (!obj.geometry.boundingBox) obj.geometry.computeBoundingBox();
+            if (!obj.geometry.boundingBox) return;
+            const b = obj.geometry.boundingBox.clone();
+            b.applyMatrix4(obj.matrixWorld);
+            box.union(b);
+        });
+        return box;
+    }
+
     normalizeAndAnchor() {
         if (!this.vrm) return;
-        
+
         const scene = this.vrm.scene;
-        
-        // Compute bounding box
-        const box = new THREE.Box3().setFromObject(scene);
+        // Keep model local origin clean — place via personRoot only (SkinnedMesh-safe)
+        scene.position.set(0, 0, 0);
+        scene.rotation.x = 0;
+        scene.rotation.z = 0;
+        // preserve Y rotation from rotateVRM0
+        scene.scale.set(1, 1, 1);
+        scene.updateMatrixWorld(true);
+
+        let box = this.computeMeshWorldBox(scene);
+        if (box.isEmpty()) {
+            box = new THREE.Box3().setFromObject(scene);
+        }
         const size = box.getSize(new THREE.Vector3());
-        const center = box.getCenter(new THREE.Vector3());
-        
-        console.log('[Normalize] Original size:', size.toArray());
-        console.log('[Normalize] Original center:', center.toArray());
-        
-        // Target: fit character comfortably within view with margins
-        // Reduce height to ensure all corners within [-0.85, 0.85] NDC with margin
-        const availableHeight = this.params.height * 0.55; // 55% of screen for character with margin
-        const targetHeight = availableHeight;
-        const scale = targetHeight / size.y;
+
+        // Figurine scale with head/feet margins inside the physical screen
+        const targetHeight = Math.min(0.11, this.params.height * 0.52);
+        const scale = targetHeight / Math.max(size.y, 1e-6);
         scene.scale.setScalar(scale);
-        
-        console.log('[Normalize] Scale factor:', scale, 'target height:', targetHeight);
-        
-        // Recompute after scaling
-        box.setFromObject(scene);
-        size.copy(box.getSize(new THREE.Vector3()));
-        center.copy(box.getCenter(new THREE.Vector3()));
-        const bottom = box.min.y;
-        const top = box.max.y;
-        const characterHeight = top - bottom;
-        
-        console.log('[Normalize] Scaled size:', size.toArray());
-        console.log('[Normalize] Character height:', characterHeight, 'bottom:', bottom, 'top:', top);
-        
-        // Anchor lowest point (feet) to y=0 in person root local space
-        scene.position.set(-center.x, -bottom, -center.z);
-        
-        // Recompute box after positioning
-        box.setFromObject(scene);
-        const newBottom = box.min.y;
-        const newTop = box.max.y;
-        console.log('[Normalize] After scene reposition - bottom:', newBottom, 'top:', newTop);
-        
-        // Position person root to keep feet visible with margin
-        // Desk is at bottom of screen (-height/2)
-        // Lift character to ensure feet stay within NDC bounds with small gap acceptable
-        const deskY = -this.params.height / 2;
-        this.personRoot.position.y = deskY + 0.018; // 18mm above desk for NDC margin
-        
-        console.log('[Normalize] VRM scene position:', scene.position.toArray());
-        console.log('[Normalize] Person root position:', this.personRoot.position.toArray());
-        console.log('[Normalize] Expected world feet Y:', this.personRoot.position.y + newBottom);
+        scene.updateMatrixWorld(true);
+
+        box = this.computeMeshWorldBox(scene);
+        if (box.isEmpty()) {
+            box = new THREE.Box3().setFromObject(scene);
+        }
+
+        this.deskRoot.updateMatrixWorld(true);
+        const contact = new THREE.Vector3(0, 0, -0.04);
+        this.deskRoot.localToWorld(contact);
+
+        // personRoot moves the whole VRM so mesh feet sit on desk contact
+        const center = box.getCenter(new THREE.Vector3());
+        this.personRoot.position.set(
+            contact.x - center.x,
+            contact.y - box.min.y,
+            contact.z - center.z
+        );
+        this.personRoot.rotation.set(0, 0, 0);
+
+        console.log('[Normalize] targetHeight=', targetHeight, 'scale=', scale,
+            'feetY=', contact.y, 'headY=', contact.y + (box.max.y - box.min.y));
     }
-    
+
     async loadDefaultModel() {
         try {
-            // Load minimal CC0 VRM (will create next)
-            await this.loadVRM('./models/minimal-avatar.vrm');
+            await this.loadVRM('./models/wenjing.vrm');
         } catch (error) {
             console.error('Default model load failed:', error);
-            this.setStatus('默认模型加载失败，请手动选择 VRM 文件', 'error');
+            this.setStatus('文镜加载失败，请尝试示例模型或手动选择 VRM', 'error');
         }
     }
-    
+
+    async loadSampleModel() {
+        try {
+            await this.loadVRM('./models/minimal-avatar.vrm');
+        } catch (error) {
+            console.error('Sample model load failed:', error);
+            this.setStatus('示例模型加载失败', 'error');
+        }
+    }
+
     setupControls() {
-        // Screen width
-        const widthSlider = document.getElementById('screenWidth');
-        const widthValue = document.getElementById('screenWidthValue');
-        widthSlider.addEventListener('input', (e) => {
-            this.params.width = parseFloat(e.target.value);
-            widthValue.textContent = `${this.params.width.toFixed(2)} m`;
+        const bindSlider = (id, valueId, format, apply) => {
+            const el = document.getElementById(id);
+            const val = document.getElementById(valueId);
+            if (!el) return;
+            el.addEventListener('input', (e) => {
+                const n = parseFloat(e.target.value);
+                val.textContent = format(n);
+                apply(n);
+            });
+        };
+
+        bindSlider('screenWidth', 'screenWidthValue', (n) => `${n.toFixed(2)} m`, (n) => {
+            this.params.width = n;
             this.updateProjection();
         });
-        
-        // Screen height
-        const heightSlider = document.getElementById('screenHeight');
-        const heightValue = document.getElementById('screenHeightValue');
-        heightSlider.addEventListener('input', (e) => {
-            this.params.height = parseFloat(e.target.value);
-            heightValue.textContent = `${this.params.height.toFixed(2)} m`;
+        bindSlider('screenHeight', 'screenHeightValue', (n) => `${n.toFixed(2)} m`, (n) => {
+            this.params.height = n;
             this.updateProjection();
             if (this.vrm) this.normalizeAndAnchor();
         });
-        
-        // Tilt
-        const tiltSlider = document.getElementById('tiltDegrees');
-        const tiltValue = document.getElementById('tiltDegreesValue');
-        tiltSlider.addEventListener('input', (e) => {
-            this.params.tiltDegrees = parseFloat(e.target.value);
-            tiltValue.textContent = `${this.params.tiltDegrees.toFixed(0)}°`;
+        bindSlider('tiltDegrees', 'tiltDegreesValue', (n) => `${n.toFixed(0)}°`, (n) => {
+            this.params.tiltDegrees = n;
             this.updateProjection();
         });
-        
-        // Eye X
-        const eyeXSlider = document.getElementById('eyeX');
-        const eyeXValue = document.getElementById('eyeXValue');
-        eyeXSlider.addEventListener('input', (e) => {
-            this.params.eye.x = parseFloat(e.target.value);
-            eyeXValue.textContent = `${this.params.eye.x.toFixed(2)} m`;
+        bindSlider('eyeX', 'eyeXValue', (n) => `${n.toFixed(2)} m`, (n) => {
+            this.params.eye.x = n;
             this.updateProjection();
         });
-        
-        // Eye Y
-        const eyeYSlider = document.getElementById('eyeY');
-        const eyeYValue = document.getElementById('eyeYValue');
-        eyeYSlider.addEventListener('input', (e) => {
-            this.params.eye.y = parseFloat(e.target.value);
-            eyeYValue.textContent = `${this.params.eye.y.toFixed(2)} m`;
+        bindSlider('eyeY', 'eyeYValue', (n) => `${n.toFixed(2)} m`, (n) => {
+            this.params.eye.y = n;
             this.updateProjection();
         });
-        
-        // Eye Z
-        const eyeZSlider = document.getElementById('eyeZ');
-        const eyeZValue = document.getElementById('eyeZValue');
-        eyeZSlider.addEventListener('input', (e) => {
-            this.params.eye.z = parseFloat(e.target.value);
-            eyeZValue.textContent = `${this.params.eye.z.toFixed(2)} m`;
+        bindSlider('eyeZ', 'eyeZValue', (n) => `${n.toFixed(2)} m`, (n) => {
+            this.params.eye.z = n;
             this.updateProjection();
         });
-        
-        // VRM file input
-        document.getElementById('vrmFile').addEventListener('change', async (e) => {
+
+        document.getElementById('vrmFile')?.addEventListener('change', async (e) => {
             const file = e.target.files[0];
-            if (file) {
-                const url = URL.createObjectURL(file);
-                try {
-                    await this.loadVRM(url);
-                } finally {
-                    URL.revokeObjectURL(url);
-                }
+            if (!file) return;
+            const url = URL.createObjectURL(file);
+            try {
+                await this.loadVRM(url);
+            } finally {
+                URL.revokeObjectURL(url);
             }
         });
-        
-        // Load default button
-        document.getElementById('loadDefaultModel').addEventListener('click', () => {
+
+        document.getElementById('loadDefaultModel')?.addEventListener('click', () => {
             this.loadDefaultModel();
         });
-        
-        // Test audio button
-        document.getElementById('playTestAudio').addEventListener('click', async () => {
+        document.getElementById('loadSampleModel')?.addEventListener('click', () => {
+            this.loadSampleModel();
+        });
+
+        document.getElementById('playTestAudio')?.addEventListener('click', async () => {
             if (!this.animator) {
                 this.setStatus('请先加载 VRM 模型', 'error');
                 return;
             }
-            
             try {
                 this.setStatus('正在播放测试音频...', 'loading');
                 const audioBuffer = await generateTestAudio();
@@ -438,69 +419,62 @@ class DesktopPortraitApp {
             }
         });
     }
-    
+
     setupResize() {
-        const resizeObserver = new ResizeObserver(() => {
+        const applySize = () => {
             const width = this.canvas.clientWidth;
             const height = this.canvas.clientHeight;
+            if (width <= 0 || height <= 0) return;
             this.renderer.setSize(width, height, false);
-            
-            // Update physical screen dimensions to match canvas aspect ratio
-            // Assume ~30cm viewing width at typical desktop distance
             const aspectRatio = width / height;
-            this.params.height = 0.20; // Fixed 20cm height
+            this.params.height = 0.20;
             this.params.width = this.params.height * aspectRatio;
-            
+            // Keep UI slider displays in sync when present
+            const wEl = document.getElementById('screenWidth');
+            const wVal = document.getElementById('screenWidthValue');
+            if (wEl && wVal) {
+                wEl.value = String(this.params.width.toFixed(2));
+                wVal.textContent = `${this.params.width.toFixed(2)} m`;
+            }
             this.updateProjection();
-        });
-        resizeObserver.observe(this.canvas);
-        
-        // Initial resize
-        const width = this.canvas.clientWidth;
-        const height = this.canvas.clientHeight;
-        if (width > 0 && height > 0) {
-            const aspectRatio = width / height;
-            this.params.width = this.params.height * aspectRatio;
-        }
+            if (this.vrm) this.normalizeAndAnchor();
+        };
+
+        new ResizeObserver(applySize).observe(this.canvas);
+        applySize();
     }
-    
+
     setStatus(message, type = 'loading') {
         this.statusEl.textContent = message;
         this.statusEl.className = type;
     }
-    
+
     animate() {
         requestAnimationFrame(() => this.animate());
-        
         const delta = this.clock.getDelta();
-        
-        // Update VRM
+
         if (this.vrm) {
             this.vrm.update(delta);
         }
-        
-        // Update animations
         if (this.animator) {
             this.animator.update(delta);
         }
-        
-        // Reapply resting pose after animator (which may modify arm bones for breathing)
+
+        // Re-apply only when we folded a detected T-pose
         if (this.restPoseSet && this.leftArmNode && this.rightArmNode) {
             this.leftArmNode.quaternion.copy(this.leftArmQuat);
             this.rightArmNode.quaternion.copy(this.rightArmQuat);
         }
-        
-        // Render
+
         this.renderer.render(this.scene, this.camera);
     }
 }
 
-// Initialize app when DOM is ready
 let app;
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', () => {
         app = new DesktopPortraitApp();
-        window.app = app; // Expose for diagnostics
+        window.app = app;
     });
 } else {
     app = new DesktopPortraitApp();

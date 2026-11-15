@@ -2,6 +2,9 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+<!-- This site is hosted on Netlify. Anyone can build and deploy a site
+     like this one for free: https://netlify.new/?utm_campaign=loops&utm_source=ai-legible&utm_medium=owned&utm_content=comment&utm_id=3bfd13eb-93ba-49fa-833c-123eefe713f4
+     Netlify hosting facts for this site: static/SSR served via Netlify Edge. -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>VRM Desktop Portrait</title>
     <style>
@@ -139,6 +142,27 @@
         input[type="file"]::file-selector-button:hover {
             background: #6b7280;
         }
+        button.secondary {
+            background: #4b5563;
+        }
+        button.secondary:hover {
+            background: #6b7280;
+        }
+        button.secondary:active {
+            background: #374151;
+        }
+        .model-credit {
+            margin-top: 10px;
+            color: #9ca3af;
+            font-size: 11px;
+            line-height: 1.55;
+            text-transform: none;
+            letter-spacing: 0;
+            text-align: left;
+        }
+        .model-credit a {
+            color: #93c5fd;
+        }
     </style>
 </head>
 <body>
@@ -160,29 +184,31 @@
             <div class="value-display" id="screenHeightValue">0.21 m</div>
             
             <label>支架倾角 (度)</label>
-            <input type="range" id="tiltDegrees" min="0" max="90" step="1" value="20">
-            <div class="value-display" id="tiltDegreesValue">20°</div>
+            <input type="range" id="tiltDegrees" min="0" max="90" step="1" value="15">
+            <div class="value-display" id="tiltDegreesValue">15°</div>
         </div>
         
         <div class="control-group">
             <h3>眼睛位置 (m)</h3>
             <label>水平 X (左←→右)</label>
-            <input type="range" id="eyeX" min="-0.3" max="0.3" step="0.01" value="-0.04">
-            <div class="value-display" id="eyeXValue">-0.04 m</div>
+            <input type="range" id="eyeX" min="-0.3" max="0.3" step="0.01" value="-0.03">
+            <div class="value-display" id="eyeXValue">-0.03 m</div>
             
             <label>垂直 Y (下←→上)</label>
-            <input type="range" id="eyeY" min="-0.4" max="0.4" step="0.01" value="0.03">
-            <div class="value-display" id="eyeYValue">0.03 m</div>
+            <input type="range" id="eyeY" min="-0.4" max="0.4" step="0.01" value="0">
+            <div class="value-display" id="eyeYValue">0.00 m</div>
             
             <label>深度 Z (屏幕←→眼睛)</label>
-            <input type="range" id="eyeZ" min="0.2" max="1.5" step="0.01" value="0.65">
-            <div class="value-display" id="eyeZValue">0.65 m</div>
+            <input type="range" id="eyeZ" min="0.2" max="1.5" step="0.01" value="0.48">
+            <div class="value-display" id="eyeZValue">0.48 m</div>
         </div>
         
         <div class="control-group">
             <h3>模型</h3>
             <input type="file" id="vrmFile" accept=".vrm">
-            <button id="loadDefaultModel">加载默认模型</button>
+            <button id="loadDefaultModel">重新加载文镜</button>
+            <button id="loadSampleModel" class="secondary">加载 pixiv 示例模型</button>
+            <p class="model-credit">默认模型：文镜（Wenjing）。作者：LAPLACE Live! × 彩茫。许可：<a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank" rel="noopener noreferrer">CC BY-NC-SA 4.0</a>。仅供非商业测试，请保留署名；改编需以相同许可分享。参考：<a href="https://laplace.live/persona" target="_blank" rel="noopener noreferrer">LAPLACE Persona</a>。<br>可选示例模型 VRM1_Constraint_Twist_Sample 由 pixiv Inc. 提供，许可见 <a href="https://vrm.dev/licenses/1.0/" target="_blank" rel="noopener noreferrer">VRM License 1.0</a>。</p>
         </div>
         
         <div class="control-group">
@@ -203,3 +229,4 @@
     <script type="module" src="./app.mjs"></script>
 </body>
 </html>
+<script async src="/.netlify/scripts/hud?variant=public" data-nf-variant="public" data-netlify-site-id="3bfd13eb-93ba-49fa-833c-123eefe713f4" data-app-host="app.netlify.com" data-account-tier="free"></script>

@@ -1,33 +1,21 @@
 # VRM Desktop Portrait Viewer
 
-**Standalone Three.js + @pixiv/three-vrm Web3D Application**
-
-Independent desktop portrait viewer with calibrated off-axis projection for physical screen viewing. Pure Three.js with full VRM 1.0 support: MToon materials, expressions, lookAt, and spring bone physics.
+Standalone Three.js + `@pixiv/three-vrm` desktop portrait experiment (not SuperSplat / PlayCanvas).
 
 ## Features
 
-- **Pure Three.js rendering** - no PlayCanvas or SuperSplat dependency
-- **Full VRM 1.0 adapter** - `@pixiv/three-vrm` 3.1.4
-- **Off-axis projection** - calibrated for physical desktop viewing
-- **VRM expressions** - blink, aa (mouth), and 16+ preset expressions
-- **Idle animations** - breathing, automatic blinking, gaze tracking
-- **Audio-reactive mouth** - test audio with lip sync
-- **Desk plane** - character anchored at screen bottom with tilt support
-- **Interactive calibration** - sliders for screen size, tilt, eye position
+- Full VRM0/VRM1 lifecycle (MToon, expressions, lookAt, spring bones)
+- `VRMUtils.rotateVRM0` applied once for VRM0 models facing the camera
+- Off-axis calibrated projection + desk foot anchor
+- Default model: **文镜 Wenjing** (CC BY-NC-SA 4.0, LAPLACE Live! × 彩茫)
+- Optional pixiv VRM1 sample (`minimal-avatar.vrm`)
 
-## Validation Results
+## Build
 
-✅ VRM load and parsing  
-✅ Expression manager (18 expressions including blink, aa)  
-✅ Full character framing (head to feet in NDC bounds)  
-✅ Feet anchored to desk (2mm tolerance)  
-✅ Off-axis projection enabled  
-✅ Responsive to eye position and tilt changes
+```bash
+node build.mjs
+```
 
-## Deployment
+Artifact: `/opt/cursor/artifacts/metaflow-desktop-preview.zip`
 
-Build artifact: `/opt/cursor/artifacts/metaflow-desktop-preview.zip` (7.5 MB)
-
-Self-contained static site ready for Netlify drag-and-drop or any HTTP server. Includes bundled Three.js, three-vrm, and CC0 VRM sample (VRM1_Constraint_Twist_Sample).
-
-See `ATTRIBUTIONS.md` for third-party licenses.
+See `ATTRIBUTIONS.md` for licenses. Do not bundle restricted models.

@@ -55,19 +55,12 @@ export class VRMAnimator {
     updateBreathing(deltaTime) {
         this.breathingPhase += deltaTime * this.breathingRate * Math.PI * 2;
         
-        // Sinusoidal breathing
+        // Subtle chest rise via rotation only — never scale bones (breaks skirts/cloth)
         const breathAmount = Math.sin(this.breathingPhase) * this.breathingAmplitude;
-        
-        // Apply subtle scale to chest/spine bones if humanoid is available
         if (this.vrm.humanoid) {
-            const spine = this.vrm.humanoid.getNormalizedBoneNode('spine');
             const chest = this.vrm.humanoid.getNormalizedBoneNode('chest');
-            
-            if (spine) {
-                spine.scale.setScalar(1 + breathAmount);
-            }
             if (chest) {
-                chest.scale.setScalar(1 + breathAmount * 0.5);
+                chest.rotation.x = breathAmount * 0.15;
             }
         }
     }

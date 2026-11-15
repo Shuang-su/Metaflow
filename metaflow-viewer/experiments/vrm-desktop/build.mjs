@@ -54,69 +54,27 @@ async function copyVendorLibraries() {
     console.log('  ✓ three-vrm.module.js');
 }
 
-async function downloadTestModel() {
-    console.log('Downloading CC0 test VRM model...');
-    
-    // Try multiple sample models (some are more complete humanoids)
-    const modelUrls = [
-        // VRM 1.0 samples from @pixiv/three-vrm
-        'https://raw.githubusercontent.com/pixiv/three-vrm/dev/packages/three-vrm/examples/models/VRM1_Constraint_Twist_Sample.vrm',
-        'https://raw.githubusercontent.com/pixiv/three-vrm/dev/packages/three-vrm-core/examples/models/three-vrm-girl.vrm',
-        // Fallback: VRoid Hub sample (if available via CDN)
-        'https://hub.vroid.com/en/models/1234567890'  // Placeholder - won't work
-    ];
-    
-    const modelDest = path.join(__dirname, 'models/minimal-avatar.vrm');
-    
-    // For now, just note that users need to provide their own VRM
-    // The downloaded sample works for testing the infrastructure
-    for (const modelUrl of modelUrls) {
-        try {
-            console.log(`  Trying: ${modelUrl}`);
-            const response = await fetch(modelUrl);
-            if (!response.ok) continue;
-            
-            const buffer = await response.arrayBuffer();
-            if (buffer.byteLength < 100) continue; // Skip tiny/invalid files
-            
-            fs.writeFileSync(modelDest, Buffer.from(buffer));
-            console.log(`  ✓ Downloaded model (${(buffer.byteLength / 1024 / 1024).toFixed(2)} MB)`);
-            return;
-        } catch (error) {
-            console.warn(`  ⚠ Failed:`, error.message);
-        }
+function verifyModels() {
+    console.log('Verifying bundled models...');
+    const modelsDir = path.join(__dirname, 'models');
+    const wenjing = path.join(modelsDir, 'wenjing.vrm');
+    const sample = path.join(modelsDir, 'minimal-avatar.vrm');
+
+    if (!fs.existsSync(wenjing)) {
+        throw new Error('models/wenjing.vrm missing (CC BY-NC-SA 4.0 Wenjing VRM0)');
     }
-    
-    console.warn('  ⚠ All downloads failed. Users must provide their own VRM model.');
-    console.warn('  ⚠ Creating placeholder...');
-    fs.writeFileSync(modelDest, 'PLACEHOLDER_VRM_FILE');
-}
+    const wenjingSize = fs.statSync(wenjing).size;
+    console.log(`  ✓ wenjing.vrm (${(wenjingSize / 1024 / 1024).toFixed(2)} MB)`);
 
-function createAttributions() {
-    const attributions = `# Third-Party Attributions
+    if (!fs.existsSync(sample)) {
+        throw new Error('models/minimal-avatar.vrm missing (pixiv VRM1 sample)');
+    }
+    console.log(`  ✓ minimal-avatar.vrm (${(fs.statSync(sample).size / 1024 / 1024).toFixed(2)} MB)`);
 
-## Three.js
-- **License**: MIT License
-- **Copyright**: Copyright © 2010-2024 three.js authors
-- **Source**: https://github.com/mrdoob/three.js
-
-## @pixiv/three-vrm
-- **License**: MIT License
-- **Copyright**: Copyright (c) 2019-2024 pixiv Inc.
-- **Source**: https://github.com/pixiv/three-vrm
-
-## VRM Specification
-- **License**: CC0 1.0 Universal (Public Domain)
-- **Source**: https://github.com/vrm-c/vrm-specification
-
-## Default Model
-- **Name**: Minimal Avatar
-- **License**: CC0 1.0 Universal (Public Domain)
-- **Source**: Generated procedurally or derived from @pixiv/three-vrm samples
-`;
-    
-    fs.writeFileSync(path.join(__dirname, 'ATTRIBUTIONS.md'), attributions);
-    console.log('  ✓ Created ATTRIBUTIONS.md');
+    if (!fs.existsSync(path.join(__dirname, 'ATTRIBUTIONS.md'))) {
+        throw new Error('ATTRIBUTIONS.md missing — do not regenerate incorrectly');
+    }
+    console.log('  ✓ ATTRIBUTIONS.md preserved');
 }
 
 function createNetlifyHeaders() {
@@ -187,17 +145,12 @@ async function main() {
     
     try {
         await copyVendorLibraries();
-        await downloadTestModel();
-        createAttributions();
+        verifyModels();
         createNetlifyHeaders();
         await createArtifactZip();
         
         console.log('\n✅ Build complete!');
         console.log(`\nDeployment artifact: ${path.join(ARTIFACT_DIR, ARTIFACT_NAME)}`);
-        console.log('\nTo deploy to Netlify:');
-        console.log('  1. Extract the zip file');
-        console.log('  2. Drag the extracted folder to Netlify (netlify.com/drop)');
-        console.log('  3. Or use Netlify CLI: netlify deploy --prod --dir=<extracted-folder>');
         
     } catch (error) {
         console.error('\n❌ Build failed:', error.message);
