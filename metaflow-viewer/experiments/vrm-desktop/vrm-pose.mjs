@@ -199,8 +199,11 @@ export const AUTHORED_ARM_OUT = 0.48;
 export const AUTHORED_ARM_FWD = 0.2;
 export const AUTHORED_FOLD_OPEN = 0.28; // reduce fold toward more open silhouette
 export const AUTHORED_ELBOW = 0.48;
-/** Extra outward push when hand world-X is still too close to hips. */
-export const AUTHORED_CLEAR_MIN = 0.09;
+/**
+ * Extra outward push when hand–hips XZ distance is too small.
+ * Desktop portrait uses figurine scale (~0.2m tall) — ~2.5–4cm reads as clear.
+ */
+export const AUTHORED_CLEAR_MIN = 0.028;
 
 export function applyAuthoredArmClearance(vrm, metaVersion) {
     if (!vrm?.humanoid) return;
@@ -235,30 +238,37 @@ export function applyAuthoredArmClearance(vrm, metaVersion) {
         bias('rightHand', 0.06, 0, -0.1);
     }
 
-    // World-space enforcement: if a hand still sits near the hip column, nudge out more
+    // World-space enforcement: keep hands outside hip/skirt volume (XZ distance).
+    // NDC |hand.x−hips.x| is a bad proxy for front-clasped idles (ChatVRM).
     const hips = vrm.humanoid.getNormalizedBoneNode('hips');
     if (!hips) return;
-    const worldX = (node) => {
+    const worldXZ = (node) => {
         node.updateWorldMatrix(true, false);
-        return node.matrixWorld.elements[12];
+        const e = node.matrixWorld.elements;
+        return { x: e[12], z: e[14] };
     };
-    const hipsX = worldX(hips);
+    const hipsXZ = worldXZ(hips);
     const push = (side) => {
         const hand = vrm.humanoid.getNormalizedBoneNode(side === 'left' ? 'leftHand' : 'rightHand');
         const upper = vrm.humanoid.getNormalizedBoneNode(side === 'left' ? 'leftUpperArm' : 'rightUpperArm');
         if (!hand || !upper) return;
-        const clear = Math.abs(worldX(hand) - hipsX);
+        const h = worldXZ(hand);
+        const clear = Math.hypot(h.x - hipsXZ.x, h.z - hipsXZ.z);
         if (clear >= AUTHORED_CLEAR_MIN) return;
-        const extra = (AUTHORED_CLEAR_MIN - clear) * 2.2;
+        const extra = (AUTHORED_CLEAR_MIN - clear) * 2.4;
+        // Prefer forward+out so hands read in front of skirt rather than buried
+        upper.rotation.x += 0.05 + extra * 0.25;
         if (isVrm0) {
             upper.rotation.y += side === 'left' ? -extra : extra;
-            upper.rotation.z += side === 'left' ? -extra * 0.35 : extra * 0.35;
+            upper.rotation.z += side === 'left' ? -extra * 0.3 : extra * 0.3;
         } else {
             upper.rotation.y += side === 'left' ? extra : -extra;
-            upper.rotation.z += side === 'left' ? extra * 0.35 : -extra * 0.35;
+            upper.rotation.z += side === 'left' ? extra * 0.3 : -extra * 0.3;
         }
-        upper.rotation.x += 0.04;
     };
+    // Two passes — ACCAD Wait/Sway can pull hands inward harder than ChatVRM
+    push('left');
+    push('right');
     push('left');
     push('right');
 }

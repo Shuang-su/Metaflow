@@ -1,5 +1,7 @@
 {
   "defaultId": "chatvrm-idle",
+  "autoPlaylist": ["chatvrm-idle", "accad-wait", "accad-sway"],
+  "autoPlaylistNotes": "Default ON: cycle only these three bundled licensed substitutes. Local user .vrma and procedural are never auto-queued.",
   "clips": [
     {
       "id": "chatvrm-idle",

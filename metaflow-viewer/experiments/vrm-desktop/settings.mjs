@@ -23,6 +23,8 @@ export const DEFAULT_SETTINGS = {
     idlePaused: false,
     /** Authored VRMA catalog id, or 'procedural' */
     animClipId: 'chatvrm-idle',
+    /** Auto-cycle ChatVRM + ACCAD Wait + ACCAD Sway (default ON). */
+    animAutoCycle: true,
     // Full-screen physical size of the display (metres). Null = preview-only defaults.
     screenPhysical: null, // { widthM, heightM, source, labeled }
     projectionMode: 'preview', // preview | calibrated
@@ -93,6 +95,7 @@ export function saveSettings(settings) {
         animClipId: typeof settings.animClipId === 'string' && settings.animClipId
             ? String(settings.animClipId).slice(0, 64)
             : 'chatvrm-idle',
+        animAutoCycle: settings.animAutoCycle !== false,
         screenPhysical: sp && sp.widthM > 0 && sp.heightM > 0
             ? {
                 widthM: clamp(sp.widthM, 0.15, 2.5),

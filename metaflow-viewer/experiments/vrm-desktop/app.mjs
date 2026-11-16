@@ -95,7 +95,10 @@ class DesktopPortraitApp {
         this.sceneMode = this.settings.sceneMode === 'minimal' ? 'minimal' : 'room';
         this.idlePaused = !!this.settings.idlePaused;
         this.animClipId = this.settings.animClipId || 'chatvrm-idle';
+        this.animAutoCycle = this.settings.animAutoCycle !== false;
         this.animPlayer = new VRMAnimationPlayer();
+        this.animPlayer.autoCycle = this.animAutoCycle;
+        this.animPlayer.onClipChange = (id) => this._onAuthoredClipChange(id);
         this.animCatalog = null;
         this._gradientBackground = null;
 
@@ -217,14 +220,37 @@ class DesktopPortraitApp {
         sel.value = this.animClipId;
     }
 
-    async applyAnimClip(id, { persist = true } = {}) {
+    _onAuthoredClipChange(id) {
+        this.animClipId = id;
+        const sel = document.getElementById('animClip');
+        if (sel && [...sel.options].some((o) => o.value === id) && sel.value !== id) {
+            sel.value = id;
+        }
+        if (window.diagnostics) {
+            window.diagnostics.animClipId = id;
+            window.diagnostics.animMode = id === 'procedural' ? 'procedural' : 'authored';
+            window.diagnostics.animPlayer = this.animPlayer?.diagnostics?.() || null;
+            window.diagnostics.animAutoCycle = !!this.animAutoCycle;
+        }
+        const label = this.animCatalog?.clips?.find((c) => c.id === id)?.labelZh || id;
+        const auto = this.animPlayer?.autoCycle && this.animPlayer?.playlistIds?.()?.includes(id);
+        if (auto) {
+            this.setStatus(`自动轮播: ${label}`, 'success');
+        }
+    }
+
+    async applyAnimClip(id, { persist = true, manual = false, fromAuto = false } = {}) {
         this.animClipId = id || 'chatvrm-idle';
         if (persist) {
             this.settings.animClipId = this.animClipId;
+            this.settings.animAutoCycle = this.animAutoCycle !== false;
             this.settings = saveSettings(this.snapshotSettings());
         }
         if (!this.vrm || !this.animPlayer) return;
-        const result = this.animPlayer.play(this.animClipId);
+        this.animPlayer.autoCycle = this.animAutoCycle !== false;
+        const result = manual
+            ? this.animPlayer.playManual(this.animClipId)
+            : this.animPlayer.play(this.animClipId, { fromAuto: !!fromAuto });
         if (this.animator) {
             this.animator.setBodyDrive(result.mode === 'authored' ? 'authored' : 'procedural');
             if (result.mode === 'procedural') {
@@ -235,6 +261,7 @@ class DesktopPortraitApp {
             window.diagnostics.animClipId = result.id;
             window.diagnostics.animMode = result.mode;
             window.diagnostics.animPlayer = this.animPlayer.diagnostics();
+            window.diagnostics.animAutoCycle = !!this.animAutoCycle;
         }
         const label =
             this.animCatalog?.clips?.find((c) => c.id === result.id)?.labelZh || result.id;
@@ -242,6 +269,24 @@ class DesktopPortraitApp {
             result.mode === 'authored' ? `已播放授权动作: ${label}` : `程序化 idle: ${label}`,
             'success'
         );
+    }
+
+    setAnimAutoCycle(enabled, { persist = true } = {}) {
+        this.animAutoCycle = !!enabled;
+        this.animPlayer?.setAutoCycle(this.animAutoCycle);
+        if (persist) {
+            this.settings.animAutoCycle = this.animAutoCycle;
+            this.settings = saveSettings(this.snapshotSettings());
+        }
+        const el = document.getElementById('animAutoCycle');
+        if (el) el.checked = this.animAutoCycle;
+        this.setStatus(
+            this.animAutoCycle
+                ? '已开启自动切换（ChatVRM → ACCAD Wait → ACCAD Sway）'
+                : '已关闭自动切换（保持当前动作）',
+            'success'
+        );
+        if (window.diagnostics) window.diagnostics.animAutoCycle = this.animAutoCycle;
     }
 
     createRenderer() {
@@ -711,6 +756,7 @@ class DesktopPortraitApp {
                 sceneMode: this.sceneMode,
                 idlePaused: this.idlePaused,
                 animClipId: this.animClipId,
+                animAutoCycle: this.animAutoCycle !== false,
                 animMode: this.animPlayer?.active ? 'authored' : 'procedural',
                 animPlayer: this.animPlayer?.diagnostics?.() || null,
                 reducedMotion: this.caps.reducedMotion,
@@ -1254,6 +1300,7 @@ class DesktopPortraitApp {
             sceneMode: this.sceneMode === 'minimal' ? 'minimal' : 'room',
             idlePaused: !!this.idlePaused,
             animClipId: this.animClipId || 'chatvrm-idle',
+            animAutoCycle: this.animAutoCycle !== false,
             screenPhysical: this.screenPhysical,
             projectionMode: this.projectionMode,
             panelCollapsed: this.settings.panelCollapsed
@@ -1650,6 +1697,8 @@ class DesktopPortraitApp {
         if (idlePause) idlePause.checked = !!this.idlePaused;
         const animSel = document.getElementById('animClip');
         if (animSel && this.animClipId) animSel.value = this.animClipId;
+        const autoEl = document.getElementById('animAutoCycle');
+        if (autoEl) autoEl.checked = this.animAutoCycle !== false;
     }
 
     setupControls() {
@@ -1708,11 +1757,14 @@ class DesktopPortraitApp {
             this.idlePaused = !!e.target.checked;
             this.animator?.setPaused(this.idlePaused);
             if (this.idlePaused) this.animPlayer?.stopAuthored(0.2);
-            else this.applyAnimClip(this.animClipId, { persist: false });
+            else this.applyAnimClip(this.animClipId, { persist: false, manual: true });
             this.setStatus(this.idlePaused ? '已暂停 idle 动画' : '已恢复 idle 动画', 'success');
         });
+        document.getElementById('animAutoCycle')?.addEventListener('change', (e) => {
+            this.setAnimAutoCycle(!!e.target.checked);
+        });
         document.getElementById('animClip')?.addEventListener('change', (e) => {
-            this.applyAnimClip(e.target.value);
+            this.applyAnimClip(e.target.value, { manual: true });
         });
         document.getElementById('vrmaFile')?.addEventListener('change', async (e) => {
             const file = e.target.files?.[0];
@@ -1747,7 +1799,8 @@ class DesktopPortraitApp {
                     sel.appendChild(opt);
                 }
                 if (sel) sel.value = id;
-                await this.applyAnimClip(id);
+                // Local file is optional and never enters the auto playlist
+                await this.applyAnimClip(id, { manual: true });
             } catch (err) {
                 this.setStatus(`本地 VRMA 加载失败: ${err.message}`, 'error');
             }
@@ -1781,6 +1834,8 @@ class DesktopPortraitApp {
             this.sceneMode = this.settings.sceneMode === 'minimal' ? 'minimal' : 'room';
             this.idlePaused = !!this.settings.idlePaused;
             this.animClipId = this.settings.animClipId || 'chatvrm-idle';
+            this.animAutoCycle = this.settings.animAutoCycle !== false;
+            this.animPlayer.autoCycle = this.animAutoCycle;
             this.screenPhysical = null;
             this.projectionMode = 'preview';
             this.rebuildEnvironment();
@@ -1892,9 +1947,20 @@ class DesktopPortraitApp {
         };
     }
 
+    /**
+     * When true, rAF keeps pumping but does not advance simulation.
+     * Used by GPU QA forced-step capture so wall-time screenshots cannot
+     * double-drive dwell / auto-cycle alongside stepSimulation.
+     */
+    setSuspendRafSimulation(suspend) {
+        this._suspendRafSimulation = !!suspend;
+        if (!suspend) this.clock.getDelta(); // drop backlog
+    }
+
     animate() {
         requestAnimationFrame(() => this.animate());
         this.lastFrameTime = performance.now();
+        if (this._suspendRafSimulation) return;
 
         let delta = this.clock.getDelta();
         delta = Math.min(delta, 0.05);
