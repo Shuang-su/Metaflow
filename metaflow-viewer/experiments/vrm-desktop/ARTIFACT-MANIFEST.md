@@ -96,3 +96,13 @@ Evidence: `final-6afb201f-qa-report.json`, `final-auto-wenjing-minimal-normal-ra
 
 Evidence: `rejected-wait-face-block.jpg`, `final7-qa-report.json`, `final7-auto-normal-raf.mp4`, `visual-nraf/*`
 
+## Text honesty fix (7-clip UI / ATTRIBUTIONS)
+
+| Field | Value |
+| --- | --- |
+| ZIP SHA256 | `a9837a5c579609cdce119c8eeec30c8869450ce093c074c4d93b9f9021a3d244` |
+| Changed | `index.html`, `app.mjs` (catalog-driven hint + auto status), `ATTRIBUTIONS.md`, `settings.mjs` |
+| Unchanged | VRMA / Wenjing / CATALOG autoPlaylist (still 7), grounding plant |
+| Deployed `6afb4885` | Functional 7 (= `ee006091…`); **text still stale** until coordinator redeploys this ZIP |
+
+

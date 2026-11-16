@@ -218,6 +218,41 @@ class DesktopPortraitApp {
             this.animClipId = this.animCatalog.defaultId || 'chatvrm-idle';
         }
         sel.value = this.animClipId;
+        this.updateAnimPlaylistHint();
+    }
+
+    /** Keep UI copy in sync with CATALOG.json autoPlaylist / bundledButNotAuto (avoids stale 8/Wait text). */
+    updateAnimPlaylistHint() {
+        const el = document.getElementById('animPlaylistHint');
+        if (!el || !this.animCatalog) return;
+        const byId = new Map((this.animCatalog.clips || []).map((c) => [c.id, c]));
+        const autoIds = Array.isArray(this.animCatalog.autoPlaylist)
+            ? this.animCatalog.autoPlaylist.slice()
+            : [];
+        const n = autoIds.length;
+        const names = autoIds
+            .map((id) => {
+                const c = byId.get(id);
+                const label = c?.labelZh || c?.label || id;
+                return label.replace(/（[^）]*）/g, '').trim() || id;
+            })
+            .join(' → ');
+        const dropped = (this.animCatalog.bundledButNotAuto || [])
+            .map((b) => {
+                const short =
+                    b.id === 'accad-wait'
+                        ? 'ACCAD Wait（源近脸手势→文镜挡脸；已移出自动与下拉）'
+                        : b.id.replace(/^accad-/, 'ACCAD ').replace(/^quat-/, 'Quaternius ');
+                return short;
+            })
+            .join('、');
+        el.innerHTML =
+            `默认轮播<strong>通过脚底贴地 + 面部遮挡目视 QA 的自然站立 idle</strong>（现 <strong>${n}</strong> 段，来自 CATALOG）：${names || '（加载中）'}。` +
+            `每段约 12–25 秒，交叉淡入淡出约 0.9 秒。播放时按网格 AABB 贴地，避免下沉/悬空。` +
+            (dropped
+                ? `<strong>已从自动轮播剔除</strong>（文件仍在盘，见 ATTRIBUTIONS）：${dropped}。`
+                : '') +
+            `亦<strong>不是</strong> Persona Waiting、BOOTH Model Pose、Quaternius 叉腰/背手。手动下拉可覆盖；手动后<strong>播完当前一轮再自动继续</strong>。本地 .vrma 不进自动列表。`;
     }
 
     _onAuthoredClipChange(id) {
@@ -292,10 +327,19 @@ class DesktopPortraitApp {
         }
         const el = document.getElementById('animAutoCycle');
         if (el) el.checked = this.animAutoCycle;
+        const ids = this.animPlayer?.playlistIds?.() || this.animCatalog?.autoPlaylist || [];
+        const chain =
+            ids.length > 0
+                ? ids
+                      .map((id) => {
+                          const c = this.animCatalog?.clips?.find((x) => x.id === id);
+                          return (c?.labelZh || id).replace(/（[^）]*）/g, '').trim() || id;
+                      })
+                      .slice(0, 3)
+                      .join(' → ') + (ids.length > 3 ? ' → …' : '')
+                : 'CATALOG 自动列表';
         this.setStatus(
-            this.animAutoCycle
-                ? '已开启自动切换（ChatVRM → ACCAD Wait → ACCAD Sway）'
-                : '已关闭自动切换（保持当前动作）',
+            this.animAutoCycle ? `已开启自动切换（${chain}）` : '已关闭自动切换（保持当前动作）',
             'success'
         );
         if (window.diagnostics) window.diagnostics.animAutoCycle = this.animAutoCycle;

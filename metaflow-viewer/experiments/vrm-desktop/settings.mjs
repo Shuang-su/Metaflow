@@ -23,7 +23,7 @@ export const DEFAULT_SETTINGS = {
     idlePaused: false,
     /** Authored VRMA catalog id, or 'procedural' */
     animClipId: 'chatvrm-idle',
-    /** Auto-cycle ChatVRM + ACCAD Wait + ACCAD Sway (default ON). */
+    /** Auto-cycle CATALOG autoPlaylist standing idles (default ON; wait excluded). */
     animAutoCycle: true,
     // Full-screen physical size of the display (metres). Null = preview-only defaults.
     screenPhysical: null, // { widthM, heightM, source, labeled }

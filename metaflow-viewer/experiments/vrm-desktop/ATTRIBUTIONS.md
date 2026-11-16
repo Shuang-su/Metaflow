@@ -38,18 +38,19 @@ Catalog: `animations/CATALOG.json`. Default playback is authored VRMA, not homem
 - **License**: CC BY 3.0 — https://creativecommons.org/licenses/by/3.0/
 - **Credit**: Motion data © ACCAD / The Ohio State University — CC BY 3.0
 - **Conversion**: BVH→VRMA via https://github.com/vrm-c/bvh2vrma (MIT) pipeline (scale `0.01`).
-- **Bundled** after visual QA on Wenjing (locomotion / dance / combat / crouch / box / cartwheel omitted; RandomStuff1/2 dropped):
+- **In auto-cycle + registered UI** after Wenjing floor+face visual QA (7 total with ChatVRM + Quat Idle; locomotion / dance / combat / crouch / box / cartwheel omitted; RandomStuff1/2 dropped):
 
 | File | Source BVH | SHA256 |
 | --- | --- | --- |
-| `animations/accad_female1_wait.vrma` | `Female1_D2_Wait.bvh` | `5d077a5d5c8313ece1820d8a7a9f4e263a5f2b5ed868e06aab296a2bad8425a7` |
 | `animations/accad_female1_sway.vrma` | `Female1_A02_Sway.bvh` | `268efba627344b7d78a369f2e378845fc0b070242191a3b3c3f58bf3a0802058` |
 | `animations/accad_female1_stand.vrma` | `Female1_A01_Stand.bvh` | `269c842586e6e0cabd5fc301b6027d77da1366df2b63103a5725aff021a484f5` |
 | `animations/accad_female1_sway_t2.vrma` | `Female1_A02_SwayT2.bvh` | `4b94b7c3065a5b6613a2cc9e0a3f6963f25f784ca97fa5ef3978d162bbf26cba` |
 | `animations/accad_female1_look.vrma` | `Female1_A04_Look.bvh` | `7982d25984a415adeda55c9666896de74969f0123806718d7960bd74f43dfdeb` |
 | `animations/accad_female1_conversation.vrma` | `Female1_D3_ConversationGestures.bvh` | `d07f723215a6bd0f2abef23d88899941abd6841abe04014691c03dab7ce6763f` |
 
-- **On disk but removed from auto-cycle** after Wenjing visual QA (face-obscuring / non-calm idle): `accad_female1_swing.vrma`, `accad_female1_swing_t2.vrma`, `accad_female1_urban.vrma`.
+- **On disk; legal attribution retained; removed from auto-cycle and registered anim UI** (see `CATALOG.json` `bundledButNotAuto`):
+  - `accad_female1_wait.vrma` ← `Female1_D2_Wait.bvh` — SHA256 `5d077a5d5c8313ece1820d8a7a9f4e263a5f2b5ed868e06aab296a2bad8425a7`. Source near-face wait gesture retargets to forearm/hand face-cover on Wenjing — unsuitable for default standing auto-idle.
+  - `accad_female1_swing.vrma`, `accad_female1_swing_t2.vrma`, `accad_female1_urban.vrma` — face-obscuring / non-calm idle on Wenjing.
 
 ### Quaternius Universal Animation Library Standard (CC0 1.0)
 - **UAL1**: https://opengameart.org/content/universal-animation-library · https://quaternius.itch.io/universal-animation-library
