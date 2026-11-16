@@ -1,0 +1,83 @@
+name: Stage approved companion runtime
+on:
+  push:
+    branches: [codex/mf-165-motion-release-20261116]
+    paths: [scripts/companion-runtime-transport.json]
+permissions:
+  contents: write
+jobs:
+  stage:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 4
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Verify the bounded browser-only artifact and persist a reproducible manifest
+        run: |
+          python3 - <<'PY'
+          import pathlib,json,urllib.request,urllib.parse,hashlib,zipfile,io,gzip
+          cfg=json.loads(pathlib.Path('scripts/companion-runtime-transport.json').read_text())
+          u=urllib.parse.urlsplit(cfg['url'])
+          assert u.scheme=='https' and u.hostname.endswith('.oaiusercontent.com')
+          try:
+            with urllib.request.urlopen(cfg['url'],timeout=60) as r:data=r.read(50000001)
+          except Exception as e:raise RuntimeError('One-time runtime transport unavailable; URL not logged') from None
+          assert len(data)<=50000000 and hashlib.sha256(data).hexdigest()==cfg['sha256']
+          z=zipfile.ZipFile(io.BytesIO(data));names=z.namelist()
+          assert len(names)<=100 and sum(i.file_size for i in z.infolist())<120000000
+          for n in names:
+            p=pathlib.PurePosixPath(n)
+            assert not p.is_absolute() and '..' not in p.parts and '\\' not in n
+            assert not n.startswith(('.git','docs/','tests/','scripts/'))
+          release=json.loads(z.read('release.json'))
+          assert release['gitRef']==cfg['sourceRef'] and release['release']=='companion-2026-11-16-motion-library'
+          provenance=json.loads(z.read('assets/motions/provenance.json'))
+          assert len(provenance['clips'])==7
+          m={'sourceRef':cfg['sourceRef'],'release':release['release'],'sourceCI':cfg['sourceCI'],'candidateArtifact':cfg['artifactId'],'candidateZipSha256':cfg['sha256'],'files':[],'archives':[]}
+          arcpaths=set()
+          for c in provenance['clips']:
+            assert c['author']=='Quaternius' and c['license']=='CC0-1.0'
+            arc=c['catalogueArchive'];f=c['file'];dest='assets/motions/'+f['member'];arcpaths.add(dest)
+            raw=z.read(dest);assert len(raw)==f['bytes'] and hashlib.sha256(raw).hexdigest()==f['sha256']
+            m['archives'].append({'url':arc['url'],'format':'zip','bytes':arc['size'],'sha256':arc['sha256'],'members':{f['member']:dest}})
+          lib=provenance['adapter'];members={'package/LICENSE':'vendor/three-vrm-animation.LICENSE.txt','package/lib/three-vrm-animation.module.min.js':'vendor/three-vrm-animation.module.min.js'}
+          arcpaths.update(members.values());m['archives'].append({'url':lib['url'],'format':'tar.gz','integrity':lib['integrity'],'members':members})
+          base='https://6af9bce566091757a2aea7c8--polite-semolina-b478fc.netlify.app/'
+          for name in sorted(names):
+            if name.endswith('/'):continue
+            raw=z.read(name);row={'path':name,'bytes':len(raw),'sha256':hashlib.sha256(raw).hexdigest()}
+            if name in arcpaths:pass
+            elif name.startswith('vendor/') or name in ['assets/milky-green-reconstruction.vrm','assets/wenjing.vrm.gz']:
+              row['url']=base+urllib.parse.quote(name,safe='/')
+            else:row['text']=raw.decode('utf-8')
+            m['files'].append(row)
+          assert not any(r['path'].startswith('assets/motions/VRMA_') or r['path']=='assets/motions/Idle_Waiting.vrma' for r in m['files'])
+          raw=json.dumps(m,ensure_ascii=False,separators=(',',':')).encode();payload=gzip.compress(raw,mtime=0)
+          pathlib.Path('scripts/companion-release-20261116.json.gz').write_bytes(payload)
+          result={'sourceRef':cfg['sourceRef'],'sourceCI':cfg['sourceCI'],'artifactId':cfg['artifactId'],'candidateSha256':cfg['sha256'],'payloadSha256':hashlib.sha256(payload).hexdigest(),'payloadBytes':len(payload),'files':len(m['files']),'productionChanged':False}
+          pathlib.Path('staging-result.json').write_text(json.dumps(result,indent=2)+'\n')
+          print('VERIFIED_RUNTIME_STAGED',json.dumps(result))
+          PY
+      - name: Save only the compressed runtime manifest on the isolated branch
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          python3 - <<'PY'
+          import os,json,base64,pathlib,urllib.request
+          base='https://api.github.com/repos/'+os.environ['GITHUB_REPOSITORY']+'/'
+          def api(path,data=None,method=None):
+            req=urllib.request.Request(base+path,data=json.dumps(data).encode() if data is not None else None,method=method,headers={'Authorization':'Bearer '+os.environ['GH_TOKEN'],'Accept':'application/vnd.github+json','Content-Type':'application/json'})
+            with urllib.request.urlopen(req,timeout=30) as r:return json.load(r)
+          branch='codex/mf-165-motion-release-20261116';head=api('git/ref/heads/'+branch)['object']['sha'];assert head==os.environ['GITHUB_SHA'],'Branch advanced; no overwrite'
+          blob=api('git/blobs',{'encoding':'base64','content':base64.b64encode(pathlib.Path('scripts/companion-release-20261116.json.gz').read_bytes()).decode()})
+          parent=api('git/commits/'+head);tree=api('git/trees',{'base_tree':parent['tree']['sha'],'tree':[{'path':'scripts/companion-release-20261116.json.gz','type':'blob','mode':'100644','sha':blob['sha']}]})
+          commit=api('git/commits',{'message':'build: persist exact browser-only motion release manifest; no production change','tree':tree['sha'],'parents':[head]})
+          api('git/refs/heads/'+branch,{'sha':commit['sha'],'force':False},'PATCH')
+          print('STAGED_COMMIT',commit['sha'])
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: companion-runtime-staging-result
+          path: staging-result.json
+          retention-days: 30
