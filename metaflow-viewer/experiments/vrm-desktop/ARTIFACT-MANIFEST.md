@@ -4,7 +4,7 @@
 
 | Field | Value |
 | --- | --- |
-| Tip commit | *(filled after commit)* |
+| Tip commit | `2b7195b89c445f6e6ba6596169f237d4a1efe779` |
 | ZIP | `/opt/cursor/artifacts/metaflow-desktop-preview.zip` |
 | ZIP SHA256 | `cf056f06ce29922f2fa1528fc3ee3c3ea5c7470b710259c8e22844fe7e5bd9b1` |
 | Prior three-clip draft | `64790aa1…` / tip `98c5b098…` / Netlify `6afa64a14cde7a8f0a275429` — **leave** |
