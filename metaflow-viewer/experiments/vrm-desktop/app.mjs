@@ -927,15 +927,17 @@ class DesktopPortraitApp {
         const footBoneY = extents?.footY;
         // Blend mesh AABB with foot/toes bones. SkinnedMesh Box3 can lag bind-pose
         // (too high → under-plant → sink); bone-only with a huge sole offset overshoots
-        // (float). Use a modest sole-below-bone and the lower of the two.
-        const soleBelowBone = Math.max(0.0055, (extents?.height || 0.12) * 0.038);
+        // (float). Prefer the lower of the two.
+        // ACCAD Wait mid-cycle: shoe AABB sits ~0.04–0.08 below ankle bones; a tight
+        // "skirt outlier" guard previously discarded that AABB and under-planted (~4cm sink).
+        const soleBelowBone = Math.max(0.0065, (extents?.height || 0.12) * 0.05);
         const candidates = [];
         if (!box.isEmpty() && Number.isFinite(box.min.y)) candidates.push(box.min.y);
         if (Number.isFinite(footBoneY)) candidates.push(footBoneY - soleBelowBone);
         if (!candidates.length) return null;
         let soleY = Math.min(...candidates);
-        // Ignore absurd skirt/hair outliers far below the feet.
-        if (Number.isFinite(footBoneY) && soleY < footBoneY - 0.04) {
+        // Ignore only extreme outliers (stray hair/tris), not real shoe soles.
+        if (Number.isFinite(footBoneY) && soleY < footBoneY - 0.10) {
             soleY = footBoneY - soleBelowBone;
         }
         // Sit just above the contact plane (avoid z-fight / embedded soles).

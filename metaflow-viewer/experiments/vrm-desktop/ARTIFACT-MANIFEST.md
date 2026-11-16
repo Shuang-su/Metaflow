@@ -55,3 +55,15 @@ Floor report: `floor-contact-report.json` — `allFloorPass` true (sole above co
 - Headless SwiftShader; Box WebGL2 unavailable — cloud GPU QA only.
 - Production dwell 12–25s; QA shortens dwell via `setQaDwellSec` for multi-clip evidence.
 - Mild sole z-fight can still appear at extreme camera angles; plant targets EnvFloor world Y, not camera framing.
+
+## Live deploy gap-fill + wait-sink fix
+
+| Field | Value |
+| --- | --- |
+| Deployed draft tested | `6afb047d426f4b1a8635e756` (ZIP `b2256bb8…`) |
+| Normal-rAF auto ordered 8-cycle | PASS (production dwell, no stepSimulation / no QA dwell) |
+| Deployed floor-through auto | **FAIL** — mid `accad-wait` sole≈-0.04 (guard discarded shoe AABB) |
+| Fix ZIP SHA256 | `d2d7786d54c76af759a97d966d755d681c0dff19f3fcce99732cd4627e057357` |
+| Tip | *(after commit)* |
+| Production | Preserve `6af9df4…` — no promote |
+
