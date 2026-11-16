@@ -32,15 +32,22 @@ Catalog: `animations/CATALOG.json`. Default playback is authored VRMA, not homem
 - **Credit**: idle_loop.vrma from pixiv/ChatVRM (MIT)
 - **Why substitute**: Persona animation-library entry “Waiting — pixiv Inc.'s VRoid Project” is **not** in the free BOOTH VRM Animation 7-pack (https://booth.pm/ja/items/5512385 lists Show full body / Greeting / Peace / Shoot / Spin / Model pose / Squat only). Private Persona app assets are not copied.
 
-### ACCAD Female1 Wait + Sway
-- **Bundled**: `animations/accad_female1_wait.vrma`, `animations/accad_female1_sway.vrma`
-- **SHA256 (wait)**: `5d077a5d5c8313ece1820d8a7a9f4e263a5f2b5ed868e06aab296a2bad8425a7`
-- **SHA256 (sway)**: `268efba627344b7d78a369f2e378845fc0b070242191a3b3c3f58bf3a0802058`
+### ACCAD Female1 standing idle / wait / sway / fidget (CC BY 3.0)
 - **Upstream mocap**: https://accad.osu.edu/research/motion-lab/mocap-system-and-data
 - **Source archive**: https://accad.osu.edu/sites/accad.osu.edu/files/Female1_bvh.zip
 - **License**: CC BY 3.0 — https://creativecommons.org/licenses/by/3.0/
 - **Credit**: Motion data © ACCAD / The Ohio State University — CC BY 3.0
-- **Conversion**: BVH→VRMA via https://github.com/vrm-c/bvh2vrma (MIT); conversion notes mirrored from Sunwood-ai-labs/GeminiVRM `public/motions/README.md`
+- **Conversion**: BVH→VRMA via https://github.com/vrm-c/bvh2vrma (MIT) pipeline (scale `0.01`). Wait/Sway also mirrored from Sunwood-ai-labs/GeminiVRM `public/motions/`; Stand / SwayT2 / Look / ConversationGestures converted with the same pipeline for this experiment.
+- **Bundled** (standing-only; locomotion / dance / combat / crouch / box / cartwheel omitted):
+
+| File | Source BVH | SHA256 |
+| --- | --- | --- |
+| `animations/accad_female1_wait.vrma` | `Female1_D2_Wait.bvh` | `5d077a5d5c8313ece1820d8a7a9f4e263a5f2b5ed868e06aab296a2bad8425a7` |
+| `animations/accad_female1_sway.vrma` | `Female1_A02_Sway.bvh` | `268efba627344b7d78a369f2e378845fc0b070242191a3b3c3f58bf3a0802058` |
+| `animations/accad_female1_stand.vrma` | `Female1_A01_Stand.bvh` | `269c842586e6e0cabd5fc301b6027d77da1366df2b63103a5725aff021a484f5` |
+| `animations/accad_female1_sway_t2.vrma` | `Female1_A02_SwayT2.bvh` | `4b94b7c3065a5b6613a2cc9e0a3f6963f25f784ca97fa5ef3978d162bbf26cba` |
+| `animations/accad_female1_look.vrma` | `Female1_A04_Look.bvh` | `7982d25984a415adeda55c9666896de74969f0123806718d7960bd74f43dfdeb` |
+| `animations/accad_female1_conversation.vrma` | `Female1_D3_ConversationGestures.bvh` | `d07f723215a6bd0f2abef23d88899941abd6841abe04014691c03dab7ce6763f` |
 
 ### Screenshot entries **not** bundled (honest unavailability)
 | Screenshot label | Why not bundled |

@@ -1,7 +1,7 @@
 /**
  * Authored VRMA playback for VRM0/VRM1 via @pixiv/three-vrm-animation.
  * Cross-fades clips; root-locks hip XZ to avoid foot skating on figurine scale.
- * Default: auto-cycle the three bundled licensed idles (ChatVRM + ACCAD Wait/Sway).
+ * Default: auto-cycle all bundled licensed standing idles (ChatVRM + ACCAD Female1 set).
  */
 
 import * as THREE from 'three';
@@ -25,7 +25,15 @@ const TORSO_BONES = /hips|spine|chest|upperChest|neck|head/i;
 // discontinuous raised-hand poses (~9–12s). Skirt clearance is additive bias.
 
 /** Bundled licensed auto-cycle only — never Persona/BOOTH/Quaternius/local. */
-export const AUTO_PLAYLIST_IDS = ['chatvrm-idle', 'accad-wait', 'accad-sway'];
+export const AUTO_PLAYLIST_IDS = [
+    'chatvrm-idle',
+    'accad-wait',
+    'accad-sway',
+    'accad-stand',
+    'accad-sway-t2',
+    'accad-look',
+    'accad-conversation'
+];
 const DWELL_MIN = 12;
 const DWELL_MAX = 25;
 
@@ -105,7 +113,7 @@ export class VRMAnimationPlayer {
         this.active = false;
         this.metaVersion = null;
 
-        /** Default ON — cycle ChatVRM + ACCAD Wait + ACCAD Sway only. */
+        /** Default ON — cycle every bundled licensed standing idle. */
         this.autoCycle = true;
         this._dwellElapsed = 0;
         this._dwellTarget = 16;
@@ -190,7 +198,7 @@ export class VRMAnimationPlayer {
     }
 
     /**
-     * QA helper: shorten dwell so a full 3-clip cycle is observable quickly.
+     * QA helper: shorten dwell so multi-clip auto-cycle is observable quickly.
      * Pass null to restore production 12–25s policy.
      */
     setQaDwellSec(sec) {

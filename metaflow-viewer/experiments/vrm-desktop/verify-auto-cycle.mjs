@@ -1,6 +1,6 @@
 /**
- * GPU QA: auto-cycle of 3 bundled licensed idles (ChatVRM → ACCAD Wait → ACCAD Sway).
- * Uses stepSimulation + short QA dwell so all transitions are observable; also
+ * GPU QA: auto-cycle of bundled licensed standing idles (≥4 distinct poses).
+ * Uses stepSimulation + short QA dwell so transitions are observable; also
  * records production dwell policy. No URL flags. ZIP must be freshly built.
  */
 import fs from 'fs';
@@ -118,15 +118,29 @@ async function main() {
     }
 
     const frameDir = path.join(OUT, 'qa-auto-cycle-frames');
-    fs.rmSync(frameDir, { recursive: true, force: true });
+    try {
+        fs.rmSync(frameDir, { recursive: true, force: true });
+    } catch (e) {
+        // Artifact FS can throw EIO on stale frames; fall back to a fresh dir name.
+        console.warn('frameDir cleanup:', e.code || e.message);
+    }
+    if (fs.existsSync(frameDir)) {
+        // rename aside if unlink failed
+        const bak = `${frameDir}-bak-${Date.now()}`;
+        try {
+            fs.renameSync(frameDir, bak);
+        } catch {
+            /* ignore */
+        }
+    }
     fs.mkdirSync(frameDir, { recursive: true });
 
     const seen = [];
     const samples = [];
     const stills = {};
     let capIdx = 0;
-    // Capture ~3 dwells + fades: 3 * 5s + margin ≈ 20s sim @ 30fps
-    const totalSteps = 30 * 22;
+    // Capture ≥4 dwells + fades: 5 * 5s + margin ≈ 28s sim @ 30fps
+    const totalSteps = 30 * 28;
     let lastId = null;
 
     await page.evaluate(() => {
@@ -286,9 +300,10 @@ async function main() {
         features,
         checks: {
             autoDefaultOn: boot?.autoCycle === true || ready?.animAutoCycle !== false,
-            playlistThree: (boot?.playlist || []).length === 3,
-            sawAtLeastTwoClips: uniqueIds.length >= 2,
-            sawAllThree: ['chatvrm-idle', 'accad-wait', 'accad-sway'].every((id) =>
+            playlistAtLeastFour: (boot?.playlist || []).length >= 4,
+            playlistSeven: (boot?.playlist || []).length === 7,
+            sawAtLeastFourDistinct: uniqueIds.length >= 4,
+            sawCoreThree: ['chatvrm-idle', 'accad-wait', 'accad-sway'].every((id) =>
                 uniqueIds.includes(id)
             ),
             hadTransition: seen.length >= 2,

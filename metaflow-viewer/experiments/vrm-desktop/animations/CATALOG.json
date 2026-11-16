@@ -1,7 +1,15 @@
 {
   "defaultId": "chatvrm-idle",
-  "autoPlaylist": ["chatvrm-idle", "accad-wait", "accad-sway"],
-  "autoPlaylistNotes": "Default ON: cycle only these three bundled licensed substitutes. Local user .vrma and procedural are never auto-queued.",
+  "autoPlaylist": [
+    "chatvrm-idle",
+    "accad-wait",
+    "accad-sway",
+    "accad-stand",
+    "accad-sway-t2",
+    "accad-look",
+    "accad-conversation"
+  ],
+  "autoPlaylistNotes": "Default ON: cycle every bundled licensed standing idle/wait/sway/fidget (7 clips). Local user .vrma and procedural are never auto-queued.",
   "clips": [
     {
       "id": "chatvrm-idle",
@@ -26,6 +34,7 @@
       "role": "waiting-mocap",
       "upstream": "https://accad.osu.edu/research/motion-lab/mocap-system-and-data",
       "sourceArchive": "https://accad.osu.edu/sites/accad.osu.edu/files/Female1_bvh.zip",
+      "sourceBvh": "Female1_D2_Wait.bvh",
       "convertedVia": "https://github.com/vrm-c/bvh2vrma (MIT); conversion published in Sunwood-ai-labs/GeminiVRM motions README",
       "license": "CC BY 3.0",
       "licenseUrl": "https://creativecommons.org/licenses/by/3.0/",
@@ -40,10 +49,77 @@
       "loop": true,
       "role": "optional-idle",
       "upstream": "https://accad.osu.edu/research/motion-lab/mocap-system-and-data",
+      "sourceArchive": "https://accad.osu.edu/sites/accad.osu.edu/files/Female1_bvh.zip",
+      "sourceBvh": "Female1_A02_Sway.bvh",
+      "convertedVia": "https://github.com/vrm-c/bvh2vrma (MIT)",
       "license": "CC BY 3.0",
       "licenseUrl": "https://creativecommons.org/licenses/by/3.0/",
       "credit": "Motion data © ACCAD / The Ohio State University — CC BY 3.0",
-      "notes": "Optional second licensed loop."
+      "notes": "Standing sway loop."
+    },
+    {
+      "id": "accad-stand",
+      "label": "Stand (ACCAD Female1)",
+      "labelZh": "站立（ACCAD Female1）",
+      "file": "accad_female1_stand.vrma",
+      "loop": true,
+      "role": "standing-idle",
+      "upstream": "https://accad.osu.edu/research/motion-lab/mocap-system-and-data",
+      "sourceArchive": "https://accad.osu.edu/sites/accad.osu.edu/files/Female1_bvh.zip",
+      "sourceBvh": "Female1_A01_Stand.bvh",
+      "convertedVia": "https://github.com/vrm-c/bvh2vrma (MIT) pipeline, Node port scale 0.01",
+      "license": "CC BY 3.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/3.0/",
+      "credit": "Motion data © ACCAD / The Ohio State University — CC BY 3.0",
+      "notes": "Quiet standing idle from Female1 open set."
+    },
+    {
+      "id": "accad-sway-t2",
+      "label": "Sway take 2 (ACCAD Female1)",
+      "labelZh": "轻晃 take2（ACCAD Female1）",
+      "file": "accad_female1_sway_t2.vrma",
+      "loop": true,
+      "role": "standing-sway",
+      "upstream": "https://accad.osu.edu/research/motion-lab/mocap-system-and-data",
+      "sourceArchive": "https://accad.osu.edu/sites/accad.osu.edu/files/Female1_bvh.zip",
+      "sourceBvh": "Female1_A02_SwayT2.bvh",
+      "convertedVia": "https://github.com/vrm-c/bvh2vrma (MIT) pipeline, Node port scale 0.01",
+      "license": "CC BY 3.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/3.0/",
+      "credit": "Motion data © ACCAD / The Ohio State University — CC BY 3.0",
+      "notes": "Alternate standing sway take."
+    },
+    {
+      "id": "accad-look",
+      "label": "Look (ACCAD Female1)",
+      "labelZh": "张望（ACCAD Female1）",
+      "file": "accad_female1_look.vrma",
+      "loop": true,
+      "role": "standing-fidget",
+      "upstream": "https://accad.osu.edu/research/motion-lab/mocap-system-and-data",
+      "sourceArchive": "https://accad.osu.edu/sites/accad.osu.edu/files/Female1_bvh.zip",
+      "sourceBvh": "Female1_A04_Look.bvh",
+      "convertedVia": "https://github.com/vrm-c/bvh2vrma (MIT) pipeline, Node port scale 0.01",
+      "license": "CC BY 3.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/3.0/",
+      "credit": "Motion data © ACCAD / The Ohio State University — CC BY 3.0",
+      "notes": "Standing look-around fidget; hip XZ root-locked."
+    },
+    {
+      "id": "accad-conversation",
+      "label": "Conversation gestures (ACCAD Female1)",
+      "labelZh": "交谈手势（ACCAD Female1）",
+      "file": "accad_female1_conversation.vrma",
+      "loop": true,
+      "role": "standing-fidget",
+      "upstream": "https://accad.osu.edu/research/motion-lab/mocap-system-and-data",
+      "sourceArchive": "https://accad.osu.edu/sites/accad.osu.edu/files/Female1_bvh.zip",
+      "sourceBvh": "Female1_D3_ConversationGestures.bvh",
+      "convertedVia": "https://github.com/vrm-c/bvh2vrma (MIT) pipeline, Node port scale 0.01",
+      "license": "CC BY 3.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/3.0/",
+      "credit": "Motion data © ACCAD / The Ohio State University — CC BY 3.0",
+      "notes": "Standing conversation/fidget gestures; locomotion/dance/combat ACCAD clips intentionally omitted."
     },
     {
       "id": "procedural",
@@ -68,7 +144,7 @@
     },
     {
       "name": "Hands Behind Back — Quaternius",
-      "reason": "Not present in Quaternius Universal Animation Library [Standard] free pack (verified clip list includes Idle_Loop etc., not HandsBehindBack). Pro/Source tier not purchased for this experiment — no invented rights."
+      "reason": "Not present in Quaternius Universal Animation Library [Standard] free pack (verified clip list includes Idle_Loop etc., not HandsBehindBack). Pro/Source tier not purchased for this experiment — no invented rights. Free Idle_Loop is GLB skeletal (CC0) but not an established VRMA retarget in this pipeline, so it is not substituted under a renamed screenshot label."
     },
     {
       "name": "Hand on Hip — Quaternius",

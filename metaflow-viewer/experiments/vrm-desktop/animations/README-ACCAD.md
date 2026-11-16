@@ -1,6 +1,6 @@
 # ACCAD Converted VRMA Files
 
-These `.vrma` files were generated on 2026-03-27 from the official ACCAD / Open Motion Project `Female1_bvh.zip` archive.
+These `.vrma` files were generated from the official ACCAD / Open Motion Project `Female1_bvh.zip` archive.
 
 Source material:
 
@@ -14,8 +14,15 @@ Conversion tool:
 - Tool license: MIT
 - Conversion scale: `0.01`
 
-Generated files:
+Standing idle / wait / sway / fidget only (bundled for auto-cycle):
 
-- `accad_female1_stand.vrma`
-- `accad_female1_sway.vrma`
-- `accad_female1_wait.vrma`
+| VRMA | Source BVH |
+| --- | --- |
+| `accad_female1_stand.vrma` | `Female1_A01_Stand.bvh` |
+| `accad_female1_sway.vrma` | `Female1_A02_Sway.bvh` |
+| `accad_female1_sway_t2.vrma` | `Female1_A02_SwayT2.bvh` |
+| `accad_female1_look.vrma` | `Female1_A04_Look.bvh` |
+| `accad_female1_wait.vrma` | `Female1_D2_Wait.bvh` |
+| `accad_female1_conversation.vrma` | `Female1_D3_ConversationGestures.bvh` |
+
+Intentionally **not** converted for this playlist: locomotion, box carry, crouch/lie/crawl, skip, cartwheel, Urban/RandomStuff, and other non-standing clips from the same archive.
