@@ -64,6 +64,6 @@ Floor report: `floor-contact-report.json` — `allFloorPass` true (sole above co
 | Normal-rAF auto ordered 8-cycle | PASS (production dwell, no stepSimulation / no QA dwell) |
 | Deployed floor-through auto | **FAIL** — mid `accad-wait` sole≈-0.04 (guard discarded shoe AABB) |
 | Fix ZIP SHA256 | `d2d7786d54c76af759a97d966d755d681c0dff19f3fcce99732cd4627e057357` |
-| Tip | *(after commit)* |
+| Tip | `65ea04137b7b8ef4592b3c3abf8d941adb759ad7` |
 | Production | Preserve `6af9df4…` — no promote |
 
