@@ -257,11 +257,23 @@ class DesktopPortraitApp {
                 this.animator.captureRestBases();
             }
         }
+        // Apply one mixer tick + plant feet so clip switches don't flash sunk/floating.
+        if (result.mode === 'authored' && this.animPlayer?.active) {
+            this.animPlayer.update(1 / 30);
+            if (this.vrm) this.vrm.update(0);
+            this.groundFeetToFloor();
+        } else {
+            this.groundFeetToFloor();
+        }
         if (window.diagnostics) {
             window.diagnostics.animClipId = result.id;
             window.diagnostics.animMode = result.mode;
             window.diagnostics.animPlayer = this.animPlayer.diagnostics();
             window.diagnostics.animAutoCycle = !!this.animAutoCycle;
+            window.diagnostics.floorContact = {
+                contactY: this._floorContactWorldY,
+                grounded: this.groundFeetToFloor()
+            };
         }
         const label =
             this.animCatalog?.clips?.find((c) => c.id === result.id)?.labelZh || result.id;
@@ -302,6 +314,9 @@ class DesktopPortraitApp {
                 const renderer = new THREE.WebGLRenderer({
                     canvas: this.canvas,
                     alpha: false,
+                    // Needed so canvas.toDataURL / GPU QA captures see the last frame
+                    // (default WebGL clears the drawing buffer after composite).
+                    preserveDrawingBuffer: true,
                     ...opts
                 });
                 const gl = renderer.getContext();
@@ -853,12 +868,29 @@ class DesktopPortraitApp {
         const center = extents.box.getCenter(new THREE.Vector3());
 
         this.deskRoot.updateMatrixWorld(true);
-        const contactLocal = this.contactShadow
-            ? this.contactShadow.position.clone()
-            : new THREE.Vector3(0, 0, this.sceneMode === 'room' ? -0.03 : -0.04);
-        contactLocal.y = 0;
-        const contact = contactLocal.clone();
-        this.deskRoot.localToWorld(contact);
+        // Prefer EnvFloor world Y so plant matches the visible floor mesh (not a
+        // zeroed shadow local that can drift from room/minimal floor placement).
+        const floorMesh = this.deskRoot.userData?.floor;
+        let contact;
+        if (floorMesh) {
+            floorMesh.updateMatrixWorld(true);
+            contact = new THREE.Vector3();
+            floorMesh.getWorldPosition(contact);
+            // Keep XZ under the contact-shadow footprint when present.
+            if (this.contactShadow) {
+                const shadow = this.contactShadow.position.clone();
+                this.deskRoot.localToWorld(shadow);
+                contact.x = shadow.x;
+                contact.z = shadow.z;
+            }
+        } else {
+            const contactLocal = this.contactShadow
+                ? this.contactShadow.position.clone()
+                : new THREE.Vector3(0, 0, this.sceneMode === 'room' ? -0.03 : -0.04);
+            contactLocal.y = 0;
+            contact = contactLocal.clone();
+            this.deskRoot.localToWorld(contact);
+        }
 
         this.personRoot.position.set(
             contact.x - center.x,
@@ -866,6 +898,9 @@ class DesktopPortraitApp {
             contact.z - center.z
         );
         this.personRoot.rotation.set(0, 0, 0);
+        // World Y of the desk contact plane — used every frame to keep feet planted
+        // while authored VRMA hips translation drifts (or is missing/wrong).
+        this._floorContactWorldY = contact.y;
 
         if (this.contactShadow) {
             const cz = this.contactShadow.position.z;
@@ -874,6 +909,50 @@ class DesktopPortraitApp {
             const footprint = Math.max(0.035, Math.min(0.09, width * 0.5));
             this.contactShadow.scale.setScalar(footprint / 0.06);
         }
+    }
+
+    /**
+     * Keep the visual mesh on the desk/floor contact plane after mixer updates.
+     * Uses skinned-mesh AABB min.y (shoe soles), not just ankle bones — ankle
+     * planting left Quaternius/ACCAD soles sunk. Also corrects missing/wrong
+     * hips Y translation without camera zoom/masking.
+     */
+    groundFeetToFloor() {
+        if (!this.vrm || this._floorContactWorldY == null) return null;
+        this.vrm.scene.updateMatrixWorld(true);
+        // Prefer the lower of: skinned-mesh AABB min, and foot/toes bones minus sole thickness.
+        // Bind-pose Box3 alone can sit above animated soles (false "planted" while shoes clip).
+        const box = new THREE.Box3().setFromObject(this.vrm.scene);
+        const extents = this.computeHumanoidExtents();
+        const footBoneY = extents?.footY;
+        // Blend mesh AABB with foot/toes bones. SkinnedMesh Box3 can lag bind-pose
+        // (too high → under-plant → sink); bone-only with a huge sole offset overshoots
+        // (float). Use a modest sole-below-bone and the lower of the two.
+        const soleBelowBone = Math.max(0.0055, (extents?.height || 0.12) * 0.038);
+        const candidates = [];
+        if (!box.isEmpty() && Number.isFinite(box.min.y)) candidates.push(box.min.y);
+        if (Number.isFinite(footBoneY)) candidates.push(footBoneY - soleBelowBone);
+        if (!candidates.length) return null;
+        let soleY = Math.min(...candidates);
+        // Ignore absurd skirt/hair outliers far below the feet.
+        if (Number.isFinite(footBoneY) && soleY < footBoneY - 0.04) {
+            soleY = footBoneY - soleBelowBone;
+        }
+        // Sit just above the contact plane (avoid z-fight / embedded soles).
+        const SOLE_LIFT = 0.0028;
+        const targetY = this._floorContactWorldY + SOLE_LIFT;
+        const dy = targetY - soleY;
+        if (Math.abs(dy) < 5e-5) {
+            return { dy: 0, soleY, contactY: this._floorContactWorldY, footBoneY: footBoneY ?? null };
+        }
+        this.personRoot.position.y += dy;
+        this.personRoot.updateMatrixWorld(true);
+        return {
+            dy,
+            soleY: soleY + dy,
+            contactY: this._floorContactWorldY,
+            footBoneY: footBoneY != null ? footBoneY + dy : null
+        };
     }
 
     async loadDefaultModel() {
@@ -1938,6 +2017,8 @@ class DesktopPortraitApp {
                     this.vrm.update(dt);
                 }
             }
+            // After bone solve: plant feet on contact plane (room + minimal).
+            this.groundFeetToFloor();
         }
         this.renderer.render(this.scene, this.camera);
         return {

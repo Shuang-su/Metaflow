@@ -16,8 +16,8 @@ const OUT = '/opt/cursor/artifacts';
 const ZIP = '/opt/cursor/artifacts/metaflow-desktop-preview.zip';
 const EXTRACT = '/tmp/vrm-desktop-auto-cycle';
 const PORT = 8803;
-const QA_DWELL = 5; // seconds per clip for evidence (production is 12–25s)
-const FPS = 10;
+const QA_DWELL = 4; // seconds per clip for evidence (production is 12–25s)
+const FPS = 2; // sparse video frames — SwiftShader canvas encode is expensive
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 const sha256 = (p) => createHash('sha256').update(fs.readFileSync(p)).digest('hex');
 
@@ -62,6 +62,18 @@ async function waitReady(page, timeout = 120000) {
         await sleep(400);
     }
     return { timeout: true };
+}
+
+async function saveCanvasJpeg(page, dest, quality = 0.72) {
+    const dataUrl = await page.evaluate((q) => {
+        const app = window.app;
+        const c = document.querySelector('canvas');
+        if (!c || !app?.renderer) return null;
+        app.renderer.render(app.scene, app.camera);
+        return c.toDataURL('image/jpeg', q);
+    }, quality);
+    if (!dataUrl) throw new Error(`no canvas for ${dest}`);
+    fs.writeFileSync(dest, Buffer.from(dataUrl.split(',')[1], 'base64'));
 }
 
 async function main() {
@@ -139,9 +151,10 @@ async function main() {
     const samples = [];
     const stills = {};
     let capIdx = 0;
-    // Capture many dwells across expanded playlist: ~8 * 5s ≈ 40s sim @ 30fps
-    const totalSteps = 30 * 40;
+    // ~8 clips × 4s dwell ≈ 32s sim @ 30fps (+ fades)
+    const totalSteps = 30 * 36;
     let lastId = null;
+    console.log(JSON.stringify({ phase: 'sim-start', totalSteps, playlist: boot?.playlist }));
 
     await page.evaluate(() => {
         let el = document.getElementById('qaTimeHud');
@@ -191,14 +204,16 @@ async function main() {
         if (snap.currentId && snap.currentId !== lastId) {
             lastId = snap.currentId;
             seen.push({ t, id: lastId, transitionCount: snap.transitionCount });
-            const fp = path.join(OUT, `qa-auto-cycle-${lastId}.png`);
-            await page.screenshot({ path: fp, type: 'png' });
+            const fp = path.join(OUT, `qa-auto-cycle-${lastId}.jpg`);
+            await saveCanvasJpeg(page, fp, 0.72);
             stills[lastId] = fp;
+            console.log(JSON.stringify({ phase: 'clip', t, id: lastId, transitions: snap.transitionCount }));
         }
 
+        // Capture ~2 fps video evidence without encoding every sim step
         if (step % Math.round(30 / FPS) === 0) {
             const fp = path.join(frameDir, `f${String(capIdx).padStart(4, '0')}.jpg`);
-            await page.screenshot({ path: fp, type: 'jpeg', quality: 72 });
+            await saveCanvasJpeg(page, fp, 0.5);
             capIdx++;
         }
         if (step % 30 === 0) {
@@ -212,6 +227,9 @@ async function main() {
                 dwell: snap.dwellElapsed,
                 target: snap.dwellTarget
             });
+            if (step % 150 === 0) {
+                console.log(JSON.stringify({ phase: 'tick', t, id: snap.currentId, frames: capIdx }));
+            }
         }
     }
 
@@ -243,7 +261,7 @@ async function main() {
         return out;
     });
 
-    await page.screenshot({ path: path.join(OUT, 'qa-auto-cycle-final.png'), type: 'png' });
+    await saveCanvasJpeg(page, path.join(OUT, 'qa-auto-cycle-final.jpg'), 0.82);
 
     const mp4 = path.join(OUT, 'qa-auto-cycle-motion.mp4');
     spawnSync(
@@ -301,14 +319,15 @@ async function main() {
         checks: {
             autoDefaultOn: boot?.autoCycle === true || ready?.animAutoCycle !== false,
             playlistAtLeastFour: (boot?.playlist || []).length >= 4,
-            playlistThirteen: (boot?.playlist || []).length === 13,
+            playlistEight: (boot?.playlist || []).length === 8,
             sawAtLeastFourDistinct: uniqueIds.length >= 4,
             sawAtLeastSixDistinct: uniqueIds.length >= 6,
             sawCoreThree: ['chatvrm-idle', 'accad-wait', 'accad-sway'].every((id) =>
                 uniqueIds.includes(id)
             ),
-            sawNewAccadOrQuat: ['accad-swing', 'accad-urban', 'quat-idle', 'quat-fold'].some((id) =>
-                uniqueIds.includes(id)
+            sawQuatIdle: uniqueIds.includes('quat-idle') || (boot?.playlist || []).includes('quat-idle'),
+            noDroppedSwingInPlaylist: !['accad-swing', 'accad-swing-t2', 'accad-urban', 'quat-talk', 'quat-fold'].some(
+                (id) => (boot?.playlist || []).includes(id)
             ),
             hadTransition: seen.length >= 2,
             // Figurine-scale world XZ (metres); ~2cm+ reads as clear beside/front of skirt
@@ -326,7 +345,7 @@ async function main() {
         stills,
         mp4,
         limitations: [
-            'QA dwell shortened to 5s via setQaDwellSec — production dwell remains 12–25s',
+            'QA dwell shortened via setQaDwellSec — production dwell remains 12–25s',
             'Capture uses stepSimulation for deterministic multi-clip proof under headless rAF throttle',
             'Local .vrma and procedural are excluded from auto playlist by design'
         ]

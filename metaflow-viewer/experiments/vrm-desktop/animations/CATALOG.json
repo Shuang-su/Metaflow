@@ -6,16 +6,11 @@
     "accad-sway",
     "accad-stand",
     "accad-sway-t2",
-    "accad-swing",
-    "accad-swing-t2",
     "accad-look",
     "accad-conversation",
-    "accad-urban",
-    "quat-idle",
-    "quat-talk",
-    "quat-fold"
+    "quat-idle"
   ],
-  "autoPlaylistNotes": "Default ON: every bundled licensed standing idle that passed visual QA on Wenjing (13 clips). Local .vrma and procedural never auto-queued. Dropped after inspect: ACCAD RandomStuff1 (T-pose/broken), RandomStuff2 (kick/gesture), Quaternius Idle_No_Loop (head-shake gag).",
+  "autoPlaylistNotes": "Default ON: natural standing idles that passed Wenjing floor+face visual QA after GO-set audit (8). Local .vrma / procedural never auto-queued. Swing/SwingT2/Urban and Quaternius Talking/FoldArms dropped — face-obscure or bad retarget on Wenjing.",
   "clips": [
     {
       "id": "chatvrm-idle",
@@ -28,8 +23,7 @@
       "license": "MIT",
       "licenseUrl": "https://github.com/pixiv/ChatVRM/blob/main/LICENSE",
       "copyright": "Copyright (c) 2023 pixiv Inc.",
-      "credit": "idle_loop.vrma from pixiv/ChatVRM (MIT)",
-      "notes": "Licensed substitute for Persona/VRoid Hub Waiting — not in free BOOTH 7-pack."
+      "credit": "idle_loop.vrma from pixiv/ChatVRM (MIT)"
     },
     {
       "id": "accad-wait",
@@ -90,39 +84,7 @@
       "license": "CC BY 3.0",
       "licenseUrl": "https://creativecommons.org/licenses/by/3.0/",
       "credit": "Motion data © ACCAD / The Ohio State University — CC BY 3.0",
-      "notes": "Closest licensed standing arms-near-hips analogue. NOT Quaternius Hand on Hip (absent from UAL Standard)."
-    },
-    {
-      "id": "accad-swing",
-      "label": "Swing (ACCAD Female1)",
-      "labelZh": "摆臂（ACCAD Female1）",
-      "file": "accad_female1_swing.vrma",
-      "loop": true,
-      "role": "standing-sway",
-      "upstream": "https://accad.osu.edu/research/motion-lab/mocap-system-and-data",
-      "sourceArchive": "https://accad.osu.edu/sites/accad.osu.edu/files/Female1_bvh.zip",
-      "sourceBvh": "Female1_A03_Swing.bvh",
-      "convertedVia": "https://github.com/vrm-c/bvh2vrma (MIT) pipeline, Node port scale 0.01",
-      "license": "CC BY 3.0",
-      "licenseUrl": "https://creativecommons.org/licenses/by/3.0/",
-      "credit": "Motion data © ACCAD / The Ohio State University — CC BY 3.0",
-      "notes": "Visual QA: standing arm swing idle on Wenjing."
-    },
-    {
-      "id": "accad-swing-t2",
-      "label": "Swing take 2 (ACCAD Female1)",
-      "labelZh": "摆臂 take2（ACCAD Female1）",
-      "file": "accad_female1_swing_t2.vrma",
-      "loop": true,
-      "role": "standing-sway",
-      "upstream": "https://accad.osu.edu/research/motion-lab/mocap-system-and-data",
-      "sourceArchive": "https://accad.osu.edu/sites/accad.osu.edu/files/Female1_bvh.zip",
-      "sourceBvh": "Female1_A03_SwingT2.bvh",
-      "convertedVia": "https://github.com/vrm-c/bvh2vrma (MIT) pipeline, Node port scale 0.01",
-      "license": "CC BY 3.0",
-      "licenseUrl": "https://creativecommons.org/licenses/by/3.0/",
-      "credit": "Motion data © ACCAD / The Ohio State University — CC BY 3.0",
-      "notes": "More arm swing; visual QA: standing idle on Wenjing."
+      "notes": "Closest licensed arms-near-hips analogue. NOT Quaternius Hand on Hip."
     },
     {
       "id": "accad-look",
@@ -155,22 +117,6 @@
       "credit": "Motion data © ACCAD / The Ohio State University — CC BY 3.0"
     },
     {
-      "id": "accad-urban",
-      "label": "Urban standing fidget (ACCAD Female1)",
-      "labelZh": "都市站立小动作（ACCAD Female1）",
-      "file": "accad_female1_urban.vrma",
-      "loop": true,
-      "role": "standing-fidget",
-      "upstream": "https://accad.osu.edu/research/motion-lab/mocap-system-and-data",
-      "sourceArchive": "https://accad.osu.edu/sites/accad.osu.edu/files/Female1_bvh.zip",
-      "sourceBvh": "Female1_D1_Urban.bvh",
-      "convertedVia": "https://github.com/vrm-c/bvh2vrma (MIT) pipeline, Node port scale 0.01",
-      "license": "CC BY 3.0",
-      "licenseUrl": "https://creativecommons.org/licenses/by/3.0/",
-      "credit": "Motion data © ACCAD / The Ohio State University — CC BY 3.0",
-      "notes": "Inspected on Wenjing: standing shade-eyes / look-around fidget — included. RandomStuff1/2 dropped (broken T-pose / non-idle kick)."
-    },
-    {
       "id": "quat-idle",
       "label": "Idle loop (Quaternius UAL1 Standard)",
       "labelZh": "Idle loop（Quaternius UAL1）",
@@ -184,39 +130,8 @@
       "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
       "licenseFile": "LICENSE-Quaternius-UAL-CC0.txt",
       "credit": "Idle_Loop from Quaternius Universal Animation Library [Standard] — CC0 1.0",
-      "convertedVia": "Extract clip from UAL1_Standard.glb → VRMA (vrm-c/bvh2vrma-style humanoid map)",
-      "notes": "From official Standard zip with License.txt CC0. Not Pro / site-only QAL."
-    },
-    {
-      "id": "quat-talk",
-      "label": "Idle talking (Quaternius UAL1 Standard)",
-      "labelZh": "交谈 idle（Quaternius UAL1）",
-      "file": "quaternius_idle_talking.vrma",
-      "loop": true,
-      "role": "standing-fidget",
-      "upstream": "https://opengameart.org/content/universal-animation-library",
-      "sourceClip": "Idle_Talking_Loop in UAL1_Standard.glb",
-      "license": "CC0 1.0",
-      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
-      "licenseFile": "LICENSE-Quaternius-UAL-CC0.txt",
-      "credit": "Idle_Talking_Loop from Quaternius UAL1 Standard — CC0 1.0",
-      "convertedVia": "Extract clip from UAL1_Standard.glb → VRMA"
-    },
-    {
-      "id": "quat-fold",
-      "label": "Fold arms idle (Quaternius UAL2 Standard)",
-      "labelZh": "抱臂 idle（Quaternius UAL2）",
-      "file": "quaternius_idle_fold_arms.vrma",
-      "loop": true,
-      "role": "standing-idle",
-      "upstream": "https://opengameart.org/content/universal-animation-library-2",
-      "sourceClip": "Idle_FoldArms_Loop in UAL2_Standard.glb",
-      "license": "CC0 1.0",
-      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
-      "licenseFile": "LICENSE-Quaternius-UAL2-CC0.txt",
-      "credit": "Idle_FoldArms_Loop from Quaternius UAL2 Standard — CC0 1.0",
-      "convertedVia": "Extract clip from UAL2_Standard.glb → VRMA",
-      "notes": "Idle_No_Loop inspected and dropped (head-shake gag, not subtle standing fidget). Hands Behind Back / Hand on Hip absent from Standard — not bundled."
+      "convertedVia": "Rotation-only extract from UAL1_Standard.glb → VRMA (hips translation omitted; Unreal local pelvis Y ≠ world height)",
+      "notes": "Rebuilt rotation-only after hips-Y=0 sink bug. Mesh AABB foot plant at playback."
     },
     {
       "id": "procedural",
@@ -229,49 +144,63 @@
       "notes": "Bone breath/weight/blink only — not claimed as authored library motion."
     }
   ],
+  "bundledButNotAuto": [
+    {
+      "id": "accad-swing",
+      "file": "accad_female1_swing.vrma",
+      "reason": "Wenjing visual QA: hands rise/cross in front of face mid-cycle — unsuitable for natural standing auto-idle. Still on disk for manual pick / research; not in autoPlaylist."
+    },
+    {
+      "id": "accad-swing-t2",
+      "file": "accad_female1_swing_t2.vrma",
+      "reason": "Same family as Swing — face-adjacent arm motion on Wenjing."
+    },
+    {
+      "id": "accad-urban",
+      "file": "accad_female1_urban.vrma",
+      "reason": "Arms crossed high at chest/neck; not a calm standing idle on Wenjing."
+    },
+    {
+      "id": "quat-talk",
+      "file": "quaternius_idle_talking.vrma",
+      "reason": "Hand rises into face on Wenjing after Unreal→VRM retarget."
+    },
+    {
+      "id": "quat-fold",
+      "file": "quaternius_idle_fold_arms.vrma",
+      "reason": "Fold-arms retarget sits too high (chin/neck); not natural idle on Wenjing."
+    }
+  ],
   "inspectedAndDropped": [
     {
-      "name": "ACCAD Female1_D4_RandomStuff",
-      "reason": "Visual QA on Wenjing: collapsed to T-pose / broken retarget — not a natural standing idle."
+      "name": "ACCAD Female1_D4_RandomStuff / D5_RandomStuff2",
+      "reason": "T-pose/broken or kick/gesture — not standing idle."
     },
     {
-      "name": "ACCAD Female1_D5_RandomStuff2",
-      "reason": "Visual QA: energetic kick + thumbs-up — not standing idle/fidget."
+      "name": "Quaternius Idle_No_Loop",
+      "reason": "Head-shake gag."
     },
     {
-      "name": "Quaternius Idle_No_Loop (UAL2 Standard)",
-      "reason": "Inspected: head-shake 'No' gag, not a subtle standing fidget — excluded per GO criteria."
-    },
-    {
-      "name": "CMU 141_20 / 77_* / 40_* / 137_28",
-      "reason": "Legally OK (CMU FAQ allows copy/modify/redistribute) but deferred: official deliverables are ASF/AMC; no established ASF→VRMA path in this experiment yet. Not invented as bundled rights."
+      "name": "CMU standing waits",
+      "reason": "Legally OK per FAQ; ASF/AMC→VRMA path not established — deferred."
     }
   ],
   "unavailableFromScreenshot": [
     {
       "name": "Waiting — pixiv Inc.'s VRoid Project",
-      "reason": "No free official redistributable Waiting file; not in BOOTH 7-pack. Persona listing ≠ redistribution grant. Substitute: ChatVRM idle + ACCAD Wait."
+      "reason": "No free official redistributable Waiting file; not in BOOTH 7-pack."
     },
     {
       "name": "Model Pose — pixiv Inc.'s VRoid Project",
-      "reason": "BOOTH 5512385 VRMA_06 terms prohibit redistributing motions in extractable/re-riggable form. Load via local picker if you hold a BOOTH download.",
-      "booth": "https://booth.pm/ja/items/5512385"
+      "reason": "BOOTH terms prohibit extractable redistribution."
     },
     {
-      "name": "Hands Behind Back — Quaternius",
-      "reason": "Not in UAL Standard free packs (UAL1/UAL2 Official OpenGameArt/itch with License.txt CC0). Pro/Source / site-only QAL not used — no invented rights."
-    },
-    {
-      "name": "Hand on Hip — Quaternius",
-      "reason": "Same — absent from Standard. Closest bundled analogue: ACCAD Female1 SwayT2 (CC BY 3.0), labeled as arms-near-hips — not a renamed Quaternius clip."
+      "name": "Hands Behind Back / Hand on Hip — Quaternius",
+      "reason": "Absent from UAL Standard. Closest analogue: ACCAD SwayT2 (not a rename)."
     },
     {
       "name": "Mixamo idles",
-      "reason": "Mixamo license is project-use oriented; file redistribution of converted assets is not clearly granted — not bundled."
-    },
-    {
-      "name": "tk256ailab/vrm-viewer / three-vrm test.vrma / Bandai Namco",
-      "reason": "Animation provenance undocumented or no standing idle — not bundled."
+      "reason": "File redistribution unclear — not bundled."
     }
   ]
 }

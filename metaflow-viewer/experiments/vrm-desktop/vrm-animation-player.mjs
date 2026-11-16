@@ -32,14 +32,9 @@ export const AUTO_PLAYLIST_IDS = [
     'accad-sway',
     'accad-stand',
     'accad-sway-t2',
-    'accad-swing',
-    'accad-swing-t2',
     'accad-look',
     'accad-conversation',
-    'accad-urban',
-    'quat-idle',
-    'quat-talk',
-    'quat-fold'
+    'quat-idle'
 ];
 const DWELL_MIN = 12;
 const DWELL_MAX = 25;
