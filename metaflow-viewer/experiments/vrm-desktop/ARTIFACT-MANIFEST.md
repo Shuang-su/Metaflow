@@ -101,8 +101,28 @@ Evidence: `rejected-wait-face-block.jpg`, `final7-qa-report.json`, `final7-auto-
 | Field | Value |
 | --- | --- |
 | ZIP SHA256 | `a9837a5c579609cdce119c8eeec30c8869450ce093c074c4d93b9f9021a3d244` |
-| Changed | `index.html`, `app.mjs` (catalog-driven hint + auto status), `ATTRIBUTIONS.md`, `settings.mjs` |
-| Unchanged | VRMA / Wenjing / CATALOG autoPlaylist (still 7), grounding plant |
-| Deployed `6afb4885` | Functional 7 (= `ee006091…`); **text still stale** until coordinator redeploys this ZIP |
+| Tip | `3c76fa23…` |
+| Changed files | `index.html`, `app.mjs` (catalog-driven `#animPlaylistHint` + auto status), `ATTRIBUTIONS.md`, `settings.mjs`, `ARTIFACT-MANIFEST.md` |
+| Unchanged behavior | VRMA / Wenjing / pixiv / `CATALOG.json` autoPlaylist (7) / grounding plant — `CATALOG` SHA `91ae3ac4…` identical to deployed draft |
+| Wait on disk | Legal attribution + SHA retained; explicitly **not** auto/UI (`bundledButNotAuto`) |
+| Deployed `6afb4885` | Functional 7 (= `ee006091…`); **index/ATTRIBUTIONS text still stale** until coordinator redeploys this ZIP |
+
+## Deployed draft `6afb4885` verification (evidence ≠ text candidate)
+
+| Check | Result |
+| --- | --- |
+| URL | `https://6afb4885636779ce43189801--vrm-desktop-portrait-20261114.netlify.app/` |
+| Functional ZIP | `ee006091…` (player/catalog/models/motions) |
+| Playlist / Wait UI | 7 clips; Wait absent from registered UI |
+| Wrap | `quat-idle` → `chatvrm-idle` (normal-rAF, production dwell) |
+| Floor | sole sunk=0 on wrap (n=1840) + 28 mid stills |
+| Visual face | No wait-class forearm face-cover; conversation mid hand-near-chin/mouth + look/bow hair-hide = **limits** |
+| Skirt | No severe Wenjing skirt penetration on mid samples (mid-only, not full scrub) |
+| UI text | **FAIL honesty** — static hint still「现 8 段」+ lists Wait |
+| Overall | **NOT final delivery** — functional OK; text-stale. Next draft from `a9837a5c…` only |
+
+Evidence: `dep7-6afb4885-qa-report.json`, `dep7-6afb4885-SUMMARY.txt`, `dep7-auto-normal-raf.mp4`, `dep7-{wenjing,pixiv}-{minimal,room}-*.jpg` (28)
+
+Production `6af9df4…` protected. Prior `6afb201f` obsolete (includes Wait). No agent deploy/merge.
 
 
