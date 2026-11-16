@@ -67,3 +67,18 @@ Floor report: `floor-contact-report.json` — `allFloorPass` true (sole above co
 | Tip | `65ea04137b7b8ef4592b3c3abf8d941adb759ad7` |
 | Production | Preserve `6af9df4…` — no promote |
 
+## Final validated draft (wait-sink fix)
+
+| Field | Value |
+| --- | --- |
+| Deploy draft | `6afb201fa35b698e03a347bc` |
+| ZIP SHA256 | `d2d7786d54c76af759a97d966d755d681c0dff19f3fcce99732cd4627e057357` |
+| Tip | `9a5763da258712496f072ccbc289a302973fb3b1` |
+| app.mjs SHA256 | `8fc896b5047ee649a13bf5f39bfa5b68def1a40679b1a9a8586956baeabd51a0` |
+| Normal-rAF auto ordered 8 (Wenjing minimal, production dwell) | PASS — waitSole min 0.0028 sunk=0, root maxStep 0.0023 |
+| Full-loop matrix 2×2×8 | PASS (32/32) |
+| Pre-fix draft | `6afb047d…` / `b2256bb8…` — not approved |
+| Production | Preserve `6af9df4…` |
+
+Evidence: `final-6afb201f-qa-report.json`, `final-auto-wenjing-minimal-normal-raf.mp4`, `final-*-accad-wait*.jpg`
+
