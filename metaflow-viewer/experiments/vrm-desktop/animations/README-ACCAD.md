@@ -14,15 +14,20 @@ Conversion tool:
 - Tool license: MIT
 - Conversion scale: `0.01`
 
-Standing idle / wait / sway / fidget only (bundled for auto-cycle):
+Standing idle / wait / sway / fidget bundled after Wenjing visual QA:
 
 | VRMA | Source BVH |
 | --- | --- |
 | `accad_female1_stand.vrma` | `Female1_A01_Stand.bvh` |
 | `accad_female1_sway.vrma` | `Female1_A02_Sway.bvh` |
 | `accad_female1_sway_t2.vrma` | `Female1_A02_SwayT2.bvh` |
+| `accad_female1_swing.vrma` | `Female1_A03_Swing.bvh` |
+| `accad_female1_swing_t2.vrma` | `Female1_A03_SwingT2.bvh` |
 | `accad_female1_look.vrma` | `Female1_A04_Look.bvh` |
 | `accad_female1_wait.vrma` | `Female1_D2_Wait.bvh` |
 | `accad_female1_conversation.vrma` | `Female1_D3_ConversationGestures.bvh` |
+| `accad_female1_urban.vrma` | `Female1_D1_Urban.bvh` |
 
-Intentionally **not** converted for this playlist: locomotion, box carry, crouch/lie/crawl, skip, cartwheel, Urban/RandomStuff, and other non-standing clips from the same archive.
+Inspected and **not** bundled: `Female1_D4_RandomStuff` (T-pose/broken on Wenjing), `Female1_D5_RandomStuff2` (kick/gesture, not idle).
+
+Also omitted: locomotion, box carry, crouch/lie/crawl, skip, cartwheel, and other non-standing clips.

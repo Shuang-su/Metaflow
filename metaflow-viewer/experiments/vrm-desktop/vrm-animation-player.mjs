@@ -1,7 +1,8 @@
 /**
  * Authored VRMA playback for VRM0/VRM1 via @pixiv/three-vrm-animation.
  * Cross-fades clips; root-locks hip XZ to avoid foot skating on figurine scale.
- * Default: auto-cycle all bundled licensed standing idles (ChatVRM + ACCAD Female1 set).
+ * Default: auto-cycle all bundled licensed standing idles
+ * (ChatVRM + ACCAD Female1 standing set + Quaternius UAL Standard CC0).
  */
 
 import * as THREE from 'three';
@@ -24,15 +25,21 @@ const TORSO_BONES = /hips|spine|chest|upperChest|neck|head/i;
 // Do NOT amplify arm tracks — relative amp on ChatVRM arm keys produced
 // discontinuous raised-hand poses (~9–12s). Skirt clearance is additive bias.
 
-/** Bundled licensed auto-cycle only — never Persona/BOOTH/Quaternius/local. */
+/** Bundled licensed auto-cycle only — never Persona/BOOTH extractables/local/Pro Quaternius. */
 export const AUTO_PLAYLIST_IDS = [
     'chatvrm-idle',
     'accad-wait',
     'accad-sway',
     'accad-stand',
     'accad-sway-t2',
+    'accad-swing',
+    'accad-swing-t2',
     'accad-look',
-    'accad-conversation'
+    'accad-conversation',
+    'accad-urban',
+    'quat-idle',
+    'quat-talk',
+    'quat-fold'
 ];
 const DWELL_MIN = 12;
 const DWELL_MAX = 25;

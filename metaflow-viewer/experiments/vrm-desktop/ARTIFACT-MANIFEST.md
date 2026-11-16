@@ -1,38 +1,32 @@
 # vrm-desktop artifact manifest
 
-## Expanded auto-cycle standing idles (t36u) — QA PASS
+## GO-set expanded auto-cycle (license research) — QA PASS
 
 | Field | Value |
 | --- | --- |
-| Tip commit | `887bba1392db68920b19e28ed6b1052ba82842f6` |
+| Tip commit | *(filled after commit)* |
 | ZIP | `/opt/cursor/artifacts/metaflow-desktop-preview.zip` |
-| ZIP SHA256 | `9cea5a06965dafa1a0011c619dd72aeadcf45ff4ffbae25a9e8bb92e32ce40e7` |
-| Prior three-clip draft | `64790aa1…` / tip `98c5b098…` / Netlify draft `6afa64a14cde7a8f0a275429` — **leave as-is** |
-| Prior authored draft | `842df070…` / Netlify draft `6af9f72b09942bc643061570` |
+| ZIP SHA256 | `cf056f06ce29922f2fa1528fc3ee3c3ea5c7470b710259c8e22844fe7e5bd9b1` |
+| Prior three-clip draft | `64790aa1…` / tip `98c5b098…` / Netlify `6afa64a14cde7a8f0a275429` — **leave** |
+| Prior 7-clip draft | `9cea5a06…` / tip `c190225f…` |
 | Production / live | **Preserve** `6af9df4cf8b7ab03f7970227` / ZIP `b1246a48…` |
 | This candidate | **NOT promoted** — no merge/deploy from agent |
 
 ### Behavior
 
-- Default **ON**: auto-cycle **all 7** bundled licensed standing idles — ChatVRM `idle_loop` (MIT) → ACCAD Female1 Wait / Sway / Stand / SwayT2 / Look / ConversationGestures (CC BY 3.0)
-- Dwell ≈ **12–25s** (≥1 full loop, slight variation); crossfade ≈ **0.9s**
-- Manual selector overrides; **after manual pick, current dwell finishes then auto continues**
-- Local `.vrma` optional, **never** enters auto playlist; procedural / Persona / BOOTH Model Pose / Quaternius hip & behind-back stay unbundled (honest unavailability documented)
+- Default **ON**: auto-cycle **13** bundled licensed standing idles that passed Wenjing visual QA
+  - ChatVRM idle (MIT)
+  - ACCAD Female1: Wait, Sway, Stand, SwayT2, Swing, SwingT2, Look, Conversation, Urban (CC BY 3.0)
+  - Quaternius UAL Standard: Idle_Loop, Idle_Talking_Loop, Idle_FoldArms_Loop (CC0)
+- Dropped after inspect: ACCAD RandomStuff1/2, Quaternius Idle_No_Loop
+- Dwell ≈ **12–25s**; crossfade ≈ **0.9s**; manual override then resume; local `.vrma` out of playlist
 
-### Evidence
+### Prior: 7-clip ACCAD expansion
 
-- `qa-auto-cycle-motion.mp4` (~28s) — ≥4 distinct idles + transitions (QA dwell 5s via `setQaDwellSec` only)
-- Per-clip stills: `qa-auto-cycle-{chatvrm-idle,accad-wait,accad-sway,accad-stand,accad-sway-t2,accad-look}.png`
-- `qa-auto-cycle-report.json` — PASS (`playlistSeven`, `sawAtLeastFourDistinct`, `transitionCountSane`, arms/feet, scene/model switch)
+| ZIP SHA256 | `9cea5a06965dafa1a0011c619dd72aeadcf45ff4ffbae25a9e8bb92e32ce40e7` |
+| Tip | `c190225fe0d0ca569748894cb67f47c4903b0314` |
 
-### Limitations
-
-- Headless capture uses `stepSimulation` + `setSuspendRafSimulation` for deterministic multi-clip proof (headless rAF alone under-advances)
-- Production dwell is 12–25s; QA used 5s dwell override for evidence length
-- 28s QA window observed 6 of 7 playlist ids; 7th (`accad-conversation`) is in the playlist and loads, just beyond the shortened capture window
-
-## Prior: three-clip auto-cycle (t35u)
+### Prior: three-clip auto-cycle (t35u)
 
 | ZIP SHA256 | `64790aa10ad97439fdde78a94a9c15e0e1d6ec88bc389adad39e927f98e2d33d` |
 | Tip | `98c5b09802cbc70d936fbe09e393eb5fed99f7d9` |
-| Playlist | ChatVRM → ACCAD Wait → ACCAD Sway only |

@@ -139,8 +139,8 @@ async function main() {
     const samples = [];
     const stills = {};
     let capIdx = 0;
-    // Capture ≥4 dwells + fades: 5 * 5s + margin ≈ 28s sim @ 30fps
-    const totalSteps = 30 * 28;
+    // Capture many dwells across expanded playlist: ~8 * 5s ≈ 40s sim @ 30fps
+    const totalSteps = 30 * 40;
     let lastId = null;
 
     await page.evaluate(() => {
@@ -301,9 +301,13 @@ async function main() {
         checks: {
             autoDefaultOn: boot?.autoCycle === true || ready?.animAutoCycle !== false,
             playlistAtLeastFour: (boot?.playlist || []).length >= 4,
-            playlistSeven: (boot?.playlist || []).length === 7,
+            playlistThirteen: (boot?.playlist || []).length === 13,
             sawAtLeastFourDistinct: uniqueIds.length >= 4,
+            sawAtLeastSixDistinct: uniqueIds.length >= 6,
             sawCoreThree: ['chatvrm-idle', 'accad-wait', 'accad-sway'].every((id) =>
+                uniqueIds.includes(id)
+            ),
+            sawNewAccadOrQuat: ['accad-swing', 'accad-urban', 'quat-idle', 'quat-fold'].some((id) =>
                 uniqueIds.includes(id)
             ),
             hadTransition: seen.length >= 2,
