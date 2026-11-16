@@ -51,6 +51,18 @@ def build(m):
         if 'text' in row:put(row['path'],row['text'].encode())
     def remote(row):
         if 'url' in row:put(row['path'],download(row['url'],row['bytes']))
+        elif 'patch' in row:
+            p=row['patch'];base=download(p['baseUrl'],1000000)
+            if digest(base)!=p['baseSha256']:raise RuntimeError('Immutable delta baseline mismatch')
+            lines=base.decode('utf-8').splitlines(keepends=True);chunks=[]
+            for op in p['operations']:
+                if 'copyLines' in op:
+                    a,b=op['copyLines']
+                    if type(a)!=int or type(b)!=int or not 0<=a<=b<=len(lines):raise RuntimeError('Invalid release delta range')
+                    chunks.append(''.join(lines[a:b]))
+                elif isinstance(op.get('text'),str):chunks.append(op['text'])
+                else:raise RuntimeError('Invalid release delta operation')
+            put(row['path'],''.join(chunks).encode('utf-8'))
     with ThreadPoolExecutor(max_workers=5) as pool:list(pool.map(remote,m['files']))
     for package in m['archives']:
         data=download(package['url'],package.get('bytes',5000000))
