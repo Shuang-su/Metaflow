@@ -2,7 +2,6 @@
   "defaultId": "chatvrm-idle",
   "autoPlaylist": [
     "chatvrm-idle",
-    "accad-wait",
     "accad-sway",
     "accad-stand",
     "accad-sway-t2",
@@ -10,7 +9,7 @@
     "accad-conversation",
     "quat-idle"
   ],
-  "autoPlaylistNotes": "Default ON: natural standing idles that passed Wenjing floor+face visual QA after GO-set audit (8). Local .vrma / procedural never auto-queued. Swing/SwingT2/Urban and Quaternius Talking/FoldArms dropped — face-obscure or bad retarget on Wenjing.",
+  "autoPlaylistNotes": "Default ON: natural standing idles that passed Wenjing floor+face visual QA (7). Local .vrma / procedural never auto-queued. Dropped from auto+UI: ACCAD Wait (source near-face wait gesture → face-cover on Wenjing), Swing/SwingT2/Urban, Quaternius Talking/FoldArms.",
   "clips": [
     {
       "id": "chatvrm-idle",
@@ -24,21 +23,6 @@
       "licenseUrl": "https://github.com/pixiv/ChatVRM/blob/main/LICENSE",
       "copyright": "Copyright (c) 2023 pixiv Inc.",
       "credit": "idle_loop.vrma from pixiv/ChatVRM (MIT)"
-    },
-    {
-      "id": "accad-wait",
-      "label": "Wait (ACCAD Female1)",
-      "labelZh": "等待（ACCAD Female1）",
-      "file": "accad_female1_wait.vrma",
-      "loop": true,
-      "role": "waiting-mocap",
-      "upstream": "https://accad.osu.edu/research/motion-lab/mocap-system-and-data",
-      "sourceArchive": "https://accad.osu.edu/sites/accad.osu.edu/files/Female1_bvh.zip",
-      "sourceBvh": "Female1_D2_Wait.bvh",
-      "convertedVia": "https://github.com/vrm-c/bvh2vrma (MIT)",
-      "license": "CC BY 3.0",
-      "licenseUrl": "https://creativecommons.org/licenses/by/3.0/",
-      "credit": "Motion data © ACCAD / The Ohio State University — CC BY 3.0"
     },
     {
       "id": "accad-sway",
@@ -145,6 +129,11 @@
     }
   ],
   "bundledButNotAuto": [
+    {
+      "id": "accad-wait",
+      "file": "accad_female1_wait.vrma",
+      "reason": "Source Female1_D2_Wait.bvh has intentional near-face hand gesture (~28cm hand–head at t≈18s). On Wenjing VRM0 retarget this becomes forearm/hand across face — unsuitable for default natural standing auto-idle. File kept on disk; removed from autoPlaylist and registered anim UI (same policy as Swing)."
+    },
     {
       "id": "accad-swing",
       "file": "accad_female1_swing.vrma",

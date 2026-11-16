@@ -82,3 +82,17 @@ Floor report: `floor-contact-report.json` — `allFloorPass` true (sole above co
 
 Evidence: `final-6afb201f-qa-report.json`, `final-auto-wenjing-minimal-normal-raf.mp4`, `final-*-accad-wait*.jpg`
 
+## Face reject → wait dropped (7-clip candidate)
+
+| Field | Value |
+| --- | --- |
+| ZIP SHA256 | `ee00609105ad009ce2b5b2130bf2c45226e60b589bf5060b020559a23898c648` |
+| Change | Remove `accad-wait` from `autoPlaylist` + registered UI (`CATALOG.clips`); keep file on disk |
+| Reason | Source Wait near-face gesture (~28cm @ t≈18s) → forearm/hand face-cover on Wenjing; coordinator visual REJECT |
+| Grounding fix | Kept (soleBelowBone / 10cm outlier guard) |
+| Auto playlist (7) | chatvrm-idle, sway, stand, sway-t2, look, conversation, quat-idle |
+| Wrap proof | quat-idle → chatvrm-idle observed (normal rAF, production dwell) |
+| Prior draft `6afb201f` | Floor-only; **not** face-accepted |
+
+Evidence: `rejected-wait-face-block.jpg`, `final7-qa-report.json`, `final7-auto-normal-raf.mp4`, `visual-nraf/*`
+

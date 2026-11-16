@@ -28,7 +28,6 @@ const TORSO_BONES = /hips|spine|chest|upperChest|neck|head/i;
 /** Bundled licensed auto-cycle only — never Persona/BOOTH extractables/local/Pro Quaternius. */
 export const AUTO_PLAYLIST_IDS = [
     'chatvrm-idle',
-    'accad-wait',
     'accad-sway',
     'accad-stand',
     'accad-sway-t2',
@@ -115,7 +114,7 @@ export class VRMAnimationPlayer {
         this.active = false;
         this.metaVersion = null;
 
-        /** Default ON — cycle every bundled licensed standing idle. */
+        /** Default ON — cycle bundled licensed standing idles that pass face+floor visual QA. */
         this.autoCycle = true;
         this._dwellElapsed = 0;
         this._dwellTarget = 16;
