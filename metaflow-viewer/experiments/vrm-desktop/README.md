@@ -1,33 +1,44 @@
 # VRM Desktop Portrait Viewer
 
-**Standalone Three.js + @pixiv/three-vrm Web3D Application**
-
-Independent desktop portrait viewer with calibrated off-axis projection for physical screen viewing. Pure Three.js with full VRM 1.0 support: MToon materials, expressions, lookAt, and spring bone physics.
+Standalone Three.js + `@pixiv/three-vrm` desktop portrait experiment (not SuperSplat / PlayCanvas).
 
 ## Features
 
-- **Pure Three.js rendering** - no PlayCanvas or SuperSplat dependency
-- **Full VRM 1.0 adapter** - `@pixiv/three-vrm` 3.1.4
-- **Off-axis projection** - calibrated for physical desktop viewing
-- **VRM expressions** - blink, aa (mouth), and 16+ preset expressions
-- **Idle animations** - breathing, automatic blinking, gaze tracking
-- **Audio-reactive mouth** - test audio with lip sync
-- **Desk plane** - character anchored at screen bottom with tilt support
-- **Interactive calibration** - sliders for screen size, tilt, eye position
+- Full VRM0/VRM1 lifecycle (MToon, expressions, lookAt, spring bones)
+- `VRMUtils.rotateVRM0` applied once for VRM0 models facing the camera
+- Normalized humanoid A-pose (quaternion rest pose) + spring `setInitState` rebind
+- Off-axis calibrated projection + bone-based desk foot anchor
+- Quality tiers that change DPR / lights / shadows / springs
+- Short calibration wizard + honest device capability hints
+- **Fullscreen-first calibration** on the scene container (settings stay out of FS)
+- Mac / external display presets (manual), optional Window Management recognition, credit-card ruler
+- Per-screen local calibration profiles; preview mode after leaving fullscreen
+- Physical mapping uses CSS/logical px only (never × DPR)
+- Recoverable loading (progress bar + retry)
+- Default model: **文镜 Wenjing** (CC BY-NC-SA 4.0, LAPLACE Live! × 彩茫)
+- Optional pixiv VRM1 sample (`minimal-avatar.vrm`)
 
-## Validation Results
+## Known limitations (honest)
 
-✅ VRM load and parsing  
-✅ Expression manager (18 expressions including blink, aa)  
-✅ Full character framing (head to feet in NDC bounds)  
-✅ Feet anchored to desk (2mm tolerance)  
-✅ Off-axis projection enabled  
-✅ Responsive to eye position and tilt changes
+- Wenjing skirt springs still flare after A-pose; **springs default OFF** for Wenjing (toggle +「重新稳定」to experiment).
+- pixiv Constraint_Twist sample: hair spikes after idle/lookAt; **springs default OFF** with labeled policy.
+- Web canvas ≠ OS transparent desktop pet window.
+- No accessories / DOF / advanced Persona editor features.
 
-## Deployment
+## Build
 
-Build artifact: `/opt/cursor/artifacts/metaflow-desktop-preview.zip` (7.5 MB)
+```bash
+node build.mjs
+```
 
-Self-contained static site ready for Netlify drag-and-drop or any HTTP server. Includes bundled Three.js, three-vrm, and CC0 VRM sample (VRM1_Constraint_Twist_Sample).
+Artifact: `/opt/cursor/artifacts/metaflow-desktop-preview.zip`
 
-See `ATTRIBUTIONS.md` for third-party licenses.
+See `ATTRIBUTIONS.md` for licenses. Do not bundle restricted models (no Milky Green).
+
+## Local verify
+
+```bash
+node verify-baseline.mjs
+node verify-display.mjs
+node verify-fullscreen.mjs
+```

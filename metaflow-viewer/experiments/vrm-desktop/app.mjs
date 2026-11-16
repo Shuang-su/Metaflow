@@ -1,6 +1,6 @@
 /**
  * Standalone Three.js + @pixiv/three-vrm Desktop Portrait Viewer
- * Pure Three.js implementation with off-axis projection calibration
+ * VRM0/VRM1, off-axis projection, rest pose + spring reset, quality tiers.
  */
 
 import * as THREE from 'three';
@@ -8,147 +8,587 @@ import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { VRMLoaderPlugin, VRMUtils } from '@pixiv/three-vrm';
 import { getProjection, tablePose } from './projection.mjs';
 import { VRMAnimator } from './vrm-animator.mjs';
+import { VRMAnimationPlayer, loadAnimationCatalog } from './vrm-animation-player.mjs';
 import { generateTestAudio } from './test-audio.mjs';
+import {
+    applyRestPoseAndSettle,
+    reapplyArmRestPose,
+    softResetSprings,
+    springsPolicyForModel,
+    measureArmSilhouette
+} from './vrm-pose.mjs';
+import {
+    loadSettings,
+    saveSettings,
+    resetSettings,
+    mToCm,
+    degLabel,
+    detectCapabilities,
+    qualityProfile
+} from './settings.mjs';
+import {
+    listDisplayPresets,
+    readBrowserDisplayLayers,
+    featureDetectWindowManagement,
+    requestScreenDetails,
+    observeScreenDetails,
+    observeBasicDisplayChanges,
+    screenProfileKey,
+    loadScreenProfiles,
+    loadActiveScreenKey,
+    saveActiveScreenKey,
+    upsertScreenProfile,
+    setProfileCalibration,
+    renameScreenProfile,
+    suggestViewportPhysicalMeters,
+    calibrateFromRuler,
+    applyCustomExternal,
+    capabilitiesVsLimitations,
+    CREDIT_CARD_MM
+} from './display-calibration.mjs';
+import {
+    buildEnvironment,
+    sceneAtmosphere,
+    SCENE_MODES
+} from './environment.mjs';
+import {
+    featureDetectFullscreen,
+    enterSceneFullscreen,
+    exitSceneFullscreen,
+    onFullscreenChange,
+    isElementFullscreen,
+    mapCanvasPhysicalFromScreen,
+    readCanvasCssBounds,
+    readMappingScreenCss,
+    FS_WIZARD_STEPS
+} from './fullscreen-calibration.mjs';
 
-// Expose THREE to window for diagnostics
 window.THREE = THREE;
+
+function vrmDisplayName(vrm) {
+    const meta = vrm?.meta;
+    if (!meta) return 'Unknown';
+    return meta.name || meta.title || meta.modelName || 'Unknown';
+}
+
+function vrmMetaVersion(vrm) {
+    return vrm?.meta?.metaVersion ?? null;
+}
 
 class DesktopPortraitApp {
     constructor() {
         this.canvas = document.getElementById('main-canvas');
+        this.sceneContainer = document.getElementById('canvas-container');
         this.statusEl = document.getElementById('status');
-        
-        // Scene setup
+        this.loadBar = document.getElementById('loadBar');
+        this.retryBtn = document.getElementById('retryLoad');
+        this.fsModeBanner = document.getElementById('fsModeBanner');
+        this.bootErrorEl = document.getElementById('bootError');
+        this._bootWatchdog = null;
+        this._ready = false;
+        this.loadError = null;
+        this.lastModelUrl = './models/wenjing.vrm';
+
+        this.setStatus('正在初始化场景…', 'loading');
+        window.__bootPhase = 'settings';
+        this.settings = loadSettings();
+        this.sceneMode = this.settings.sceneMode === 'minimal' ? 'minimal' : 'room';
+        this.idlePaused = !!this.settings.idlePaused;
+        this.animClipId = this.settings.animClipId || 'chatvrm-idle';
+        this.animAutoCycle = this.settings.animAutoCycle !== false;
+        this.animPlayer = new VRMAnimationPlayer();
+        this.animPlayer.autoCycle = this.animAutoCycle;
+        this.animPlayer.onClipChange = (id) => this._onAuthoredClipChange(id);
+        this.animCatalog = null;
+        this._gradientBackground = null;
+
+        window.__bootPhase = 'scene';
         this.scene = new THREE.Scene();
-        this.scene.background = new THREE.Color(0x1a1a1a);
-        
-        // Renderer
-        this.renderer = new THREE.WebGLRenderer({
-            canvas: this.canvas,
-            antialias: true,
-            alpha: false
-        });
-        this.renderer.setPixelRatio(window.devicePixelRatio);
+        this._gradientBackground = this.createGradientBackground();
+        this.applySceneAtmosphere();
+
+        window.__bootPhase = 'webgl';
+        this.renderer = this.createRenderer();
+        this.renderer.setPixelRatio(1);
         this.renderer.outputColorSpace = THREE.SRGBColorSpace;
         this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
-        this.renderer.toneMappingExposure = 1.0;
-        
-        // Camera (will be updated with off-axis projection)
+        this.renderer.toneMappingExposure = 1.05;
+        this.renderer.shadowMap.enabled = false;
+        this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+
         this.camera = new THREE.PerspectiveCamera(50, 1, 0.01, 10);
-        // Position set by updateProjection based on eye parameter
-        
-        // Lighting
-        this.setupLighting();
-        
-        // Screen parameters (initialize before desk)
-        // Width will be updated by setupResize based on actual canvas aspect
+
         this.params = {
-            width: 0.15,      // Initial, will be recalculated from canvas aspect
-            height: 0.20,     // 20cm screen height  
-            tiltDegrees: 15,  // Slight tilt
-            eye: { x: -0.04, y: 0.03, z: 0.65 }  // Match HTML slider defaults
+            width: this.settings.widthM,
+            height: this.settings.heightM,
+            tiltDegrees: this.settings.tiltDeg,
+            eye: {
+                x: this.settings.eyeX,
+                y: this.settings.eyeY,
+                z: this.settings.eyeZ
+            }
         };
-        
-        // Desk plane
+        this.quality = this.settings.quality || 'balanced';
+        this.springsEnabled = this.settings.springsEnabled !== false;
+        this.userLockedWidth = false;
+        this.screenPhysical = this.settings.screenPhysical || null;
+        this.projectionMode = this.screenPhysical ? (this.settings.projectionMode || 'calibrated') : 'preview';
+        this.fsWizardStep = 0;
+        this.fsWizardOpen = false;
+        this.caps = detectCapabilities();
+        this.profile = qualityProfile(this.quality, window.devicePixelRatio || 1, this.caps.reducedMotion);
+
+        this.lights = {};
+        this.setupLighting();
+
         this.deskRoot = new THREE.Group();
         this.deskRoot.name = 'DeskRoot';
         this.scene.add(this.deskRoot);
         this.createDesk();
-        
-        // VRM model container
+
         this.personRoot = new THREE.Group();
         this.personRoot.name = 'PersonRoot';
         this.scene.add(this.personRoot);
-        
-        // State
+
         this.vrm = null;
         this.animator = null;
         this.clock = new THREE.Clock();
-        
-        // Setup UI
+        this.restPoseSet = false;
+        this.rotatedVRM0 = false;
+        this.metaVersion = null;
+        this.springsActive = true;
+        this.springsFallbackNote = '';
+        this.lastFrameTime = 0;
+
+        this.displayPresets = listDisplayPresets();
+        this.pendingDisplaySuggest = null;
+        this.screenDetails = null;
+        this._unsubScreens = null;
+        this.activeScreenKey = loadActiveScreenKey() || screenProfileKey(readBrowserDisplayLayers());
+
+        window.__bootPhase = 'controls';
+        // Wire UI before model I/O so clicks never look dead during a long VRM fetch
         this.setupControls();
+        this.setupPanels();
+        this.setupDevicePanel();
+        this.setupCalibration();
+        this.setupDisplayCalibration();
+        this.setupFullscreenWizard();
+        this.applyQuality(true);
+        this.syncSlidersFromParams();
         this.setupResize();
-        
-        // Initial projection update
         this.updateProjection();
-        
-        // Start render loop
+        this.updateProjectionModeBanner();
         this.animate();
-        
-        // Load default model
+        this.armBootWatchdog();
+        window.__bootPhase = 'loading-model';
+        this.setStatus('正在加载文镜模型…', 'loading');
+        this._animCatalogReady = loadAnimationCatalog()
+            .then((cat) => {
+                this.animCatalog = cat;
+                this.animPlayer.init(cat);
+                this.populateAnimSelect();
+                return cat;
+            })
+            .catch((e) => {
+                console.warn('[anim catalog]', e);
+                this.animCatalog = null;
+            });
         this.loadDefaultModel();
     }
-    
-    setupLighting() {
-        // Ambient light
-        const ambient = new THREE.AmbientLight(0xffffff, 0.6);
-        this.scene.add(ambient);
-        
-        // Key light (from upper front)
-        const keyLight = new THREE.DirectionalLight(0xffffff, 0.8);
-        keyLight.position.set(1, 2, 3);
-        this.scene.add(keyLight);
-        
-        // Fill light (from side)
-        const fillLight = new THREE.DirectionalLight(0xffffff, 0.3);
-        fillLight.position.set(-2, 1, 1);
-        this.scene.add(fillLight);
-        
-        // Rim light (from behind)
-        const rimLight = new THREE.DirectionalLight(0xffffff, 0.2);
-        rimLight.position.set(0, 1, -2);
-        this.scene.add(rimLight);
+
+    populateAnimSelect() {
+        const sel = document.getElementById('animClip');
+        if (!sel || !this.animCatalog) return;
+        const playableIds = new Set(
+            (this.animPlayer?.listPlayable?.() || this.animCatalog.clips).map((c) => c.id)
+        );
+        // Before bind, all file clips are candidates; after bind, filter to loaded
+        const entries = this.animCatalog.clips.filter(
+            (c) => !c.file || playableIds.has(c.id) || !this.animPlayer?.clips?.size
+        );
+        sel.innerHTML = '';
+        for (const c of entries) {
+            const opt = document.createElement('option');
+            opt.value = c.id;
+            opt.textContent = c.labelZh || c.label || c.id;
+            sel.appendChild(opt);
+        }
+        if (![...sel.options].some((o) => o.value === this.animClipId)) {
+            this.animClipId = this.animCatalog.defaultId || 'chatvrm-idle';
+        }
+        sel.value = this.animClipId;
+        this.updateAnimPlaylistHint();
     }
-    
-    createDesk() {
-        // Desk plane geometry
-        const geometry = new THREE.PlaneGeometry(2, 2, 20, 20);
-        
-        // Wood-like material with procedural variation
-        const material = new THREE.MeshStandardMaterial({
-            color: 0xc19a6b,
-            roughness: 0.8,
-            metalness: 0.1,
-            side: THREE.DoubleSide
-        });
-        
-        const desk = new THREE.Mesh(geometry, material);
-        desk.name = 'Desk';
-        desk.receiveShadow = true;
-        
-        // Rotate to horizontal
-        desk.rotation.x = -Math.PI / 2;
-        
-        this.deskRoot.add(desk);
-        this.updateDeskPose();
+
+    /** Keep UI copy in sync with CATALOG.json autoPlaylist / bundledButNotAuto (avoids stale 8/Wait text). */
+    updateAnimPlaylistHint() {
+        const el = document.getElementById('animPlaylistHint');
+        if (!el || !this.animCatalog) return;
+        const byId = new Map((this.animCatalog.clips || []).map((c) => [c.id, c]));
+        const autoIds = Array.isArray(this.animCatalog.autoPlaylist)
+            ? this.animCatalog.autoPlaylist.slice()
+            : [];
+        const n = autoIds.length;
+        const names = autoIds
+            .map((id) => {
+                const c = byId.get(id);
+                const label = c?.labelZh || c?.label || id;
+                return label.replace(/（[^）]*）/g, '').trim() || id;
+            })
+            .join(' → ');
+        const dropped = (this.animCatalog.bundledButNotAuto || [])
+            .map((b) => {
+                const short =
+                    b.id === 'accad-wait'
+                        ? 'ACCAD Wait（源近脸手势→文镜挡脸；已移出自动与下拉）'
+                        : b.id.replace(/^accad-/, 'ACCAD ').replace(/^quat-/, 'Quaternius ');
+                return short;
+            })
+            .join('、');
+        el.innerHTML =
+            `默认轮播<strong>通过脚底贴地 + 面部遮挡目视 QA 的自然站立 idle</strong>（现 <strong>${n}</strong> 段，来自 CATALOG）：${names || '（加载中）'}。` +
+            `每段约 12–25 秒，交叉淡入淡出约 0.9 秒。播放时按网格 AABB 贴地，避免下沉/悬空。` +
+            (dropped
+                ? `<strong>已从自动轮播剔除</strong>（文件仍在盘，见 ATTRIBUTIONS）：${dropped}。`
+                : '') +
+            `亦<strong>不是</strong> Persona Waiting、BOOTH Model Pose、Quaternius 叉腰/背手。手动下拉可覆盖；手动后<strong>播完当前一轮再自动继续</strong>。本地 .vrma 不进自动列表。`;
     }
-    
-    updateDeskPose() {
-        const pose = tablePose({
-            height: this.params.height,
-            tiltDegrees: this.params.tiltDegrees
-        });
-        
-        // Apply rotation and position
-        this.deskRoot.rotation.x = pose.rotationX * Math.PI / 180;
-        this.deskRoot.position.set(
-            pose.position.x,
-            pose.position.y,
-            pose.position.z
+
+    _onAuthoredClipChange(id) {
+        this.animClipId = id;
+        const sel = document.getElementById('animClip');
+        if (sel && [...sel.options].some((o) => o.value === id) && sel.value !== id) {
+            sel.value = id;
+        }
+        if (window.diagnostics) {
+            window.diagnostics.animClipId = id;
+            window.diagnostics.animMode = id === 'procedural' ? 'procedural' : 'authored';
+            window.diagnostics.animPlayer = this.animPlayer?.diagnostics?.() || null;
+            window.diagnostics.animAutoCycle = !!this.animAutoCycle;
+        }
+        const label = this.animCatalog?.clips?.find((c) => c.id === id)?.labelZh || id;
+        const auto = this.animPlayer?.autoCycle && this.animPlayer?.playlistIds?.()?.includes(id);
+        if (auto) {
+            this.setStatus(`自动轮播: ${label}`, 'success');
+        }
+    }
+
+    async applyAnimClip(id, { persist = true, manual = false, fromAuto = false } = {}) {
+        this.animClipId = id || 'chatvrm-idle';
+        if (persist) {
+            this.settings.animClipId = this.animClipId;
+            this.settings.animAutoCycle = this.animAutoCycle !== false;
+            this.settings = saveSettings(this.snapshotSettings());
+        }
+        if (!this.vrm || !this.animPlayer) return;
+        this.animPlayer.autoCycle = this.animAutoCycle !== false;
+        const result = manual
+            ? this.animPlayer.playManual(this.animClipId)
+            : this.animPlayer.play(this.animClipId, { fromAuto: !!fromAuto });
+        if (this.animator) {
+            this.animator.setBodyDrive(result.mode === 'authored' ? 'authored' : 'procedural');
+            if (result.mode === 'procedural') {
+                this.animator.captureRestBases();
+            }
+        }
+        // Apply one mixer tick + plant feet so clip switches don't flash sunk/floating.
+        if (result.mode === 'authored' && this.animPlayer?.active) {
+            this.animPlayer.update(1 / 30);
+            if (this.vrm) this.vrm.update(0);
+            this.groundFeetToFloor();
+        } else {
+            this.groundFeetToFloor();
+        }
+        if (window.diagnostics) {
+            window.diagnostics.animClipId = result.id;
+            window.diagnostics.animMode = result.mode;
+            window.diagnostics.animPlayer = this.animPlayer.diagnostics();
+            window.diagnostics.animAutoCycle = !!this.animAutoCycle;
+            window.diagnostics.floorContact = {
+                contactY: this._floorContactWorldY,
+                grounded: this.groundFeetToFloor()
+            };
+        }
+        const label =
+            this.animCatalog?.clips?.find((c) => c.id === result.id)?.labelZh || result.id;
+        this.setStatus(
+            result.mode === 'authored' ? `已播放授权动作: ${label}` : `程序化 idle: ${label}`,
+            'success'
         );
     }
-    
+
+    setAnimAutoCycle(enabled, { persist = true } = {}) {
+        this.animAutoCycle = !!enabled;
+        this.animPlayer?.setAutoCycle(this.animAutoCycle);
+        if (persist) {
+            this.settings.animAutoCycle = this.animAutoCycle;
+            this.settings = saveSettings(this.snapshotSettings());
+        }
+        const el = document.getElementById('animAutoCycle');
+        if (el) el.checked = this.animAutoCycle;
+        const ids = this.animPlayer?.playlistIds?.() || this.animCatalog?.autoPlaylist || [];
+        const chain =
+            ids.length > 0
+                ? ids
+                      .map((id) => {
+                          const c = this.animCatalog?.clips?.find((x) => x.id === id);
+                          return (c?.labelZh || id).replace(/（[^）]*）/g, '').trim() || id;
+                      })
+                      .slice(0, 3)
+                      .join(' → ') + (ids.length > 3 ? ' → …' : '')
+                : 'CATALOG 自动列表';
+        this.setStatus(
+            this.animAutoCycle ? `已开启自动切换（${chain}）` : '已关闭自动切换（保持当前动作）',
+            'success'
+        );
+        if (window.diagnostics) window.diagnostics.animAutoCycle = this.animAutoCycle;
+    }
+
+    createRenderer() {
+        const attempts = [
+            { antialias: true, powerPreference: 'high-performance' },
+            { antialias: true, powerPreference: 'default' },
+            { antialias: false, powerPreference: 'default' },
+            { antialias: false, powerPreference: 'low-power' }
+        ];
+        let lastErr = null;
+        for (const opts of attempts) {
+            try {
+                const renderer = new THREE.WebGLRenderer({
+                    canvas: this.canvas,
+                    alpha: false,
+                    // Needed so canvas.toDataURL / GPU QA captures see the last frame
+                    // (default WebGL clears the drawing buffer after composite).
+                    preserveDrawingBuffer: true,
+                    ...opts
+                });
+                const gl = renderer.getContext();
+                if (!gl) throw new Error('WebGL context is null');
+                this.webglOpts = opts;
+                return renderer;
+            } catch (err) {
+                lastErr = err;
+                console.warn('[boot] WebGLRenderer attempt failed', opts, err);
+            }
+        }
+        throw new Error(
+            '无法创建 WebGL 渲染器（浏览器可能禁用了硬件加速或 WebGL）。' +
+            (lastErr ? ` 详情: ${lastErr.message || lastErr}` : '')
+        );
+    }
+
+    armBootWatchdog() {
+        if (this._bootWatchdog) clearTimeout(this._bootWatchdog);
+        this._bootWatchdog = setTimeout(() => {
+            if (this._ready || this.loadError) return;
+            const phase = window.__bootPhase || 'unknown';
+            this.setStatus(
+                `启动较慢或可能卡住（阶段: ${phase}）。可点「重试加载」或检查网络/WebGL。`,
+                'error'
+            );
+            if (this.retryBtn) this.retryBtn.hidden = false;
+            window.diagnostics = {
+                ...(window.diagnostics || {}),
+                ready: false,
+                loading: true,
+                stalled: true,
+                phase,
+                bootMs: Date.now() - (window.__bootStartedAt || Date.now())
+            };
+        }, 20000);
+    }
+
+    clearBootWatchdog() {
+        if (this._bootWatchdog) {
+            clearTimeout(this._bootWatchdog);
+            this._bootWatchdog = null;
+        }
+    }
+
+    createGradientBackground() {
+        const canvas = document.createElement('canvas');
+        canvas.width = 4;
+        canvas.height = 256;
+        const ctx = canvas.getContext('2d');
+        const g = ctx.createLinearGradient(0, 0, 0, 256);
+        g.addColorStop(0, '#1a222c');
+        g.addColorStop(0.55, '#3a4554');
+        g.addColorStop(1, '#c4a882');
+        ctx.fillStyle = g;
+        ctx.fillRect(0, 0, 4, 256);
+        const tex = new THREE.CanvasTexture(canvas);
+        tex.colorSpace = THREE.SRGBColorSpace;
+        tex.magFilter = THREE.LinearFilter;
+        tex.minFilter = THREE.LinearFilter;
+        return tex;
+    }
+
+    applySceneAtmosphere() {
+        const atm = sceneAtmosphere(this.sceneMode || 'room');
+        if (atm.background == null) {
+            this.scene.background = this._gradientBackground || this.createGradientBackground();
+        } else {
+            this.scene.background = new THREE.Color(atm.background);
+        }
+        this.scene.fog = new THREE.Fog(atm.fogColor, atm.fogNear, atm.fogFar);
+        this._atmosphere = atm;
+        if (this.lights?.ambient) {
+            this.lights.ambient.color.setHex(atm.ambient);
+            this.lights.ambient.intensity = atm.ambientIntensity;
+        }
+        if (this.lights?.hemi) {
+            this.lights.hemi.color.setHex(atm.hemiSky);
+            this.lights.hemi.groundColor.setHex(atm.hemiGround);
+        }
+    }
+
+    setupLighting() {
+        const atm = this._atmosphere || sceneAtmosphere(this.sceneMode || 'room');
+        this.lights.ambient = new THREE.AmbientLight(atm.ambient, atm.ambientIntensity);
+        this.scene.add(this.lights.ambient);
+
+        // Window-side key for room; frontal key for minimal
+        this.lights.key = new THREE.DirectionalLight(0xfff0e0, 0.95);
+        this.lights.key.position.set(
+            this.sceneMode === 'room' ? -0.55 : 0.35,
+            1.15,
+            this.sceneMode === 'room' ? 0.35 : 1.8
+        );
+        this.lights.key.castShadow = true;
+        this.lights.key.shadow.mapSize.set(512, 512);
+        this.lights.key.shadow.camera.near = 0.05;
+        this.lights.key.shadow.camera.far = 3.5;
+        this.lights.key.shadow.camera.left = -0.45;
+        this.lights.key.shadow.camera.right = 0.45;
+        this.lights.key.shadow.camera.top = 0.5;
+        this.lights.key.shadow.camera.bottom = -0.2;
+        this.scene.add(this.lights.key);
+
+        this.lights.fill = new THREE.DirectionalLight(0xb8c8e8, 0.32);
+        this.lights.fill.position.set(1.1, 0.7, 0.9);
+        this.scene.add(this.lights.fill);
+
+        this.lights.rim = new THREE.DirectionalLight(0xffd8b8, 0.22);
+        this.lights.rim.position.set(0.15, 0.9, -1.2);
+        this.scene.add(this.lights.rim);
+
+        this.lights.hemi = new THREE.HemisphereLight(atm.hemiSky, atm.hemiGround, 0.28);
+        this.scene.add(this.lights.hemi);
+    }
+
+    applyQuality(initial = false) {
+        this.profile = qualityProfile(
+            this.quality,
+            window.devicePixelRatio || 1,
+            this.caps.reducedMotion
+        );
+
+        // Recreate renderer antialias requires new context — toggle soft flags instead
+        this.renderer.setPixelRatio(this.profile.pixelRatio);
+        this.renderer.toneMappingExposure = this.profile.toneExposure;
+        this.renderer.shadowMap.enabled = this.profile.shadows;
+
+        const full = this.profile.lights === 'full';
+        const minimal = this.profile.lights === 'minimal';
+        this.lights.ambient.intensity = minimal ? 0.7 : 0.42;
+        this.lights.key.intensity = minimal ? 0.55 : full ? 1.05 : 0.95;
+        this.lights.fill.visible = !minimal;
+        this.lights.fill.intensity = minimal ? 0 : full ? 0.38 : 0.34;
+        // Soft rim on balanced too — composition depth without waiting for "quality"
+        this.lights.rim.visible = !minimal;
+        this.lights.rim.intensity = full ? 0.28 : 0.16;
+        this.lights.hemi.visible = !minimal;
+        this.lights.key.castShadow = this.profile.shadows;
+        if (this.desk) this.desk.receiveShadow = this.profile.shadows;
+        if (this.contactShadow) this.contactShadow.visible = this.profile.shadows;
+        if (this.envRoot) {
+            this.envRoot.traverse((o) => {
+                if (o.isMesh) {
+                    o.castShadow = this.profile.shadows && o.name !== 'EnvFloor';
+                    o.receiveShadow = this.profile.shadows || o.name === 'EnvFloor';
+                }
+            });
+            const win = this.envRoot.userData?.windowLight;
+            if (win) {
+                win.visible = !minimal;
+                win.intensity = full ? 0.6 : 0.35;
+            }
+        }
+        // Re-aim key for scene mode
+        if (this.lights?.key) {
+            this.lights.key.position.set(
+                this.sceneMode === 'room' ? -0.55 : 0.35,
+                1.15,
+                this.sceneMode === 'room' ? 0.35 : 1.8
+            );
+        }
+
+        // Springs: quality may force off; user toggle can also disable
+        const wantSprings = this.profile.springs && this.springsEnabled;
+        this.springsActive = wantSprings;
+        this.springsFallbackNote = wantSprings
+            ? ''
+            : (this.profile.springs
+                ? '弹簧骨骼已手动关闭'
+                : '省电档已关闭弹簧骨骼（避免毛发尖刺/掉帧）');
+
+        const hint = document.getElementById('qualityHint');
+        if (hint) {
+            hint.textContent = `${this.profile.label} · DPR ${this.profile.pixelRatio.toFixed(2)} · ${this.springsFallbackNote || '弹簧开启'}`;
+        }
+        const springToggle = document.getElementById('springsEnabled');
+        if (springToggle) springToggle.checked = this.springsEnabled;
+
+        if (!initial) {
+            const w = this.canvas.clientWidth;
+            const h = this.canvas.clientHeight;
+            if (w > 0 && h > 0) this.renderer.setSize(w, h, false);
+            if (this.vrm) this.normalizeAndAnchor();
+        }
+    }
+
+    createDesk() {
+        this.rebuildEnvironment();
+        this.updateDeskPose();
+    }
+
+    rebuildEnvironment() {
+        const detail = this.profile?.lights === 'full'
+            ? 'full'
+            : (this.profile?.lights === 'minimal' ? 'minimal' : 'standard');
+        this.envRoot = buildEnvironment(this.deskRoot, this.sceneMode || 'room', { detail });
+        this.desk = this.envRoot?.userData?.floor || this.envRoot?.getObjectByName('EnvFloor') || null;
+        this.contactShadow = this.envRoot?.userData?.contactShadow || null;
+        this.applySceneAtmosphere();
+        if (this.profile) this.applyQuality(true);
+    }
+
+    setSceneMode(mode) {
+        const next = mode === 'minimal' ? 'minimal' : 'room';
+        if (next === this.sceneMode && this.envRoot) return;
+        this.sceneMode = next;
+        this.settings.sceneMode = next;
+        this.rebuildEnvironment();
+        if (this.vrm) this.normalizeAndAnchor();
+        this.setStatus(next === 'room' ? '场景：室内小景' : '场景：极简地板', 'success');
+    }
+
+    updateDeskPose() {
+        const fromHorizontal = Math.max(0, Math.min(90, 90 - this.params.tiltDegrees));
+        const pose = tablePose({
+            height: this.params.height,
+            tiltDegrees: fromHorizontal
+        });
+        this.deskRoot.rotation.x = pose.rotationX * Math.PI / 180;
+        this.deskRoot.position.set(pose.position.x, pose.position.y, pose.position.z);
+        if (this.vrm) this.normalizeAndAnchor();
+    }
+
     updateProjection() {
         const proj = getProjection(this.params);
-        
-        // Set camera position from eye parameters
         this.camera.position.set(proj.eye.x, proj.eye.y, proj.eye.z);
-        
-        // Update camera FOV and aspect
-        this.camera.fov = proj.fov;
-        this.camera.aspect = proj.aspect;
-        
-        // Build off-axis projection matrix
+
         const near = this.camera.near;
         const far = this.camera.far;
         const fov = proj.fov * Math.PI / 180;
@@ -156,355 +596,1536 @@ class DesktopPortraitApp {
         const bottom = -top;
         const right = top * proj.aspect;
         const left = -right;
-        
-        // Apply offset (shift frustum based on eye position relative to screen center)
         const offsetX = proj.offset.x * (right - left) / 2;
         const offsetY = proj.offset.y * (top - bottom) / 2;
-        
-        // Manual projection matrix (off-axis frustum)
+
         const x = 2 * near / (right - left);
         const y = 2 * near / (top - bottom);
         const a = (right + left + offsetX) / (right - left);
         const b = (top + bottom + offsetY) / (top - bottom);
         const c = -(far + near) / (far - near);
         const d = -2 * far * near / (far - near);
-        
+
+        this.camera.fov = proj.fov;
+        this.camera.aspect = proj.aspect;
         this.camera.projectionMatrix.set(
             x, 0, a, 0,
             0, y, b, 0,
             0, 0, c, d,
             0, 0, -1, 0
         );
-        
         this.camera.projectionMatrixInverse.copy(this.camera.projectionMatrix).invert();
-        
-        // Update desk pose
         this.updateDeskPose();
     }
-    
-    async loadVRM(url) {
-        try {
-            console.log(`[VRM] Loading from: ${url}`);
-            this.setStatus('正在加载 VRM 模型...', 'loading');
-            
+
+    setLoadProgress(pct, label) {
+        if (this.loadBar) {
+            this.loadBar.style.width = `${Math.max(0, Math.min(100, pct))}%`;
+            this.loadBar.parentElement?.classList.toggle('visible', pct > 0 && pct < 100);
+        }
+        if (label) this.setStatus(label, 'loading');
+    }
+
+    async loadVRM(url, { retries = 2 } = {}) {
+        this.lastModelUrl = url;
+        this.loadError = null;
+        this._ready = false;
+        this._loadGeneration = (this._loadGeneration || 0) + 1;
+        const gen = this._loadGeneration;
+        if (this.retryBtn) this.retryBtn.hidden = true;
+        this.armBootWatchdog();
+        window.diagnostics = { ready: false, loading: true, url, generation: gen };
+
+        let lastError = null;
+        for (let attempt = 0; attempt <= retries; attempt++) {
+          try {
+            if (attempt > 0) {
+                this.setLoadProgress(3, `加载中断，正在重试（${attempt}/${retries}）…`);
+                await new Promise((r) => setTimeout(r, 350 * attempt));
+                if (gen !== this._loadGeneration) return;
+            }
+            this.setLoadProgress(5, '正在加载 VRM 模型…');
             const loader = new GLTFLoader();
             loader.register((parser) => new VRMLoaderPlugin(parser));
-            
-            console.log('[VRM] Starting loadAsync...');
-            const gltf = await loader.loadAsync(url);
-            console.log('[VRM] GLTF loaded');
-            
-            if (!gltf.userData.vrm) {
-                throw new Error('Not a valid VRM file');
-            }
-            
-            // Clear old model
-            if (this.vrm) {
-                this.personRoot.remove(this.vrm.scene);
-                VRMUtils.deepDispose(this.vrm.scene);
-                if (this.animator) {
-                    this.animator.dispose();
+
+            const gltf = await loader.loadAsync(
+                url,
+                (e) => {
+                    if (e.total > 0) {
+                        const pct = 5 + Math.floor((e.loaded / e.total) * 70);
+                        this.setLoadProgress(pct, `加载中 ${(e.loaded / 1e6).toFixed(1)} / ${(e.total / 1e6).toFixed(1)} MB`);
+                    }
                 }
+            );
+            if (gen !== this._loadGeneration) return;
+            // Continue with parse below (break out of retry loop via fallthrough)
+            lastError = null;
+            await this._finishVRMLoad(gltf, gen);
+            return;
+          } catch (error) {
+            lastError = error;
+            const msg = String(error?.message || error);
+            const retryable = /abort|network|fetch|failed to load|ERR_/i.test(msg);
+            console.warn(`[loadVRM] attempt ${attempt + 1}/${retries + 1} failed:`, msg);
+            if (!(retryable && attempt < retries && gen === this._loadGeneration)) {
+                break;
             }
-            
-            this.vrm = gltf.userData.vrm;
-            console.log('[VRM] VRM object extracted:', !!this.vrm);
-            this.personRoot.add(this.vrm.scene);
-            
-            // Normalize and anchor to desk
-            console.log('[VRM] Normalizing and anchoring...');
+          }
+        }
+
+        if (gen !== this._loadGeneration) return;
+        const error = lastError || new Error('VRM load failed');
+        console.error('VRM load error:', error);
+        this.loadError = error;
+        this._ready = false;
+        this.clearBootWatchdog();
+        this.setLoadProgress(0, '');
+        this.setStatus(`加载失败: ${error.message}`, 'error');
+        if (this.retryBtn) this.retryBtn.hidden = false;
+        if (this.bootErrorEl) {
+            this.bootErrorEl.hidden = false;
+            this.bootErrorEl.textContent = String(error?.stack || error);
+        }
+        window.diagnostics = {
+            ready: false,
+            loading: false,
+            error: String(error.message || error),
+            generation: gen,
+            phase: window.__bootPhase || 'load-error',
+            bootMs: Date.now() - (window.__bootStartedAt || Date.now())
+        };
+    }
+
+    async _finishVRMLoad(gltf, gen) {
+        if (gen !== this._loadGeneration) return;
+        this.setLoadProgress(80, '解析 VRM…');
+
+        if (!gltf.userData.vrm) {
+            throw new Error('不是有效的 VRM 文件');
+        }
+
+        if (this.vrm) {
+            this.personRoot.remove(this.vrm.scene);
+            VRMUtils.deepDispose(this.vrm.scene);
+            if (this.animator) {
+                this.animator.dispose();
+                this.animator = null;
+            }
+        }
+
+        this.vrm = gltf.userData.vrm;
+        this.restPoseSet = false;
+        this.metaVersion = vrmMetaVersion(this.vrm);
+
+        VRMUtils.rotateVRM0(this.vrm);
+        this.rotatedVRM0 = this.metaVersion === '0';
+
+        this.vrm.scene.traverse((obj) => {
+            if (obj.isMesh || obj.isSkinnedMesh) {
+                obj.castShadow = true;
+                obj.receiveShadow = true;
+            }
+        });
+
+        this.personRoot.add(this.vrm.scene);
+        this.setLoadProgress(88, '应用休息姿势并稳定弹簧…');
+
+        // Scale/place with bone anchors BEFORE spring settle (world matrices matter)
+        this.normalizeAndAnchor();
+
+        const name = vrmDisplayName(this.vrm);
+        const policy = springsPolicyForModel(name, this.metaVersion);
+        // Restore user preference, then apply per-model honest default when needed
+        this.springsEnabled = this.settings.springsEnabled !== false;
+        if (policy.defaultEnabled === false) {
+            this.springsEnabled = false;
+        }
+        const springToggle = document.getElementById('springsEnabled');
+        if (springToggle) springToggle.checked = this.springsEnabled;
+        this.springsActive = this.profile.springs && this.springsEnabled;
+        this.springsFallbackNote = !this.springsActive
+            ? (policy.reason || '弹簧骨骼已关闭')
+            : (policy.reason || '');
+
+        const poseResult = applyRestPoseAndSettle(this.vrm, this.metaVersion, {
+            settleFrames: 150,
+            updateSprings: this.springsActive
+        });
+        this.restPoseSet = poseResult.applied;
+        console.log('[Pose]', poseResult, policy);
+
             this.normalizeAndAnchor();
-            
-            // Setup animator
-            console.log('[VRM] Setting up animator...');
-            this.animator = new VRMAnimator(this.vrm, this.camera);
-            
-            // Set resting pose (arms down instead of T-pose)
-            this.setRestingPose();
-            
-            console.log('[VRM] Load complete!');
-            this.setStatus(`VRM 加载成功: ${this.vrm.meta?.name || 'Unknown'}`, 'success');
-            
-            // Expose for diagnostics
+            this.animator = new VRMAnimator(this.vrm, this.camera, {
+                reducedMotion: this.caps.reducedMotion,
+                paused: this.idlePaused
+            });
+            this.animator.captureRestBases();
+            // Bind authored VRMA clips (Waiting substitutes) — does not override until play()
+            try {
+                await this._animCatalogReady;
+                await this.animPlayer.bindVrm(this.vrm, this.metaVersion);
+                this.populateAnimSelect();
+                await this.applyAnimClip(this.animClipId || this.animCatalog?.defaultId || 'chatvrm-idle', {
+                    persist: false
+                });
+            } catch (e) {
+                console.warn('[VRMA bind]', e);
+                this.animator.setBodyDrive('procedural');
+            }
+            // Re-measure after figurine scale so silhouette metrics match on-screen
+            const silhouette = measureArmSilhouette(this.vrm);
+
+            this.setLoadProgress(100, '');
+            const springShort = this.springsActive ? '弹簧开' : '弹簧关';
+            const poseShort = '自然站姿';
+            this.setStatus(
+                `VRM 加载成功: ${name}${this.metaVersion ? ` (VRM${this.metaVersion})` : ''} · ${poseShort} · ${springShort}`,
+                'success'
+            );
+        const policyEl = document.getElementById('springsPolicyNote');
+        if (policyEl) {
+            policyEl.textContent = this.springsFallbackNote || '';
+        }
+
+        this._ready = true;
+        this.clearBootWatchdog();
+        window.__bootPhase = 'ready';
+        if (this.bootErrorEl) {
+            this.bootErrorEl.hidden = true;
+            this.bootErrorEl.textContent = '';
+        }
+
             window.diagnostics = {
                 ready: true,
+                loading: false,
+                generation: gen,
                 modelType: 'vrm',
-                vrmMeta: this.vrm.meta,
-                hasExpressions: !!this.vrm.expressionManager,
-                hasLookAt: !!this.vrm.lookAt,
-                hasSpringBone: !!this.vrm.springBoneManager
-            };
-            
-        } catch (error) {
-            console.error('VRM load error:', error);
-            this.setStatus(`加载失败: ${error.message}`, 'error');
-            throw error;
-        }
+                modelName: name,
+                metaVersion: this.metaVersion,
+                rotatedVRM0: this.rotatedVRM0,
+                restPose: this.restPoseSet,
+                poseStyle: poseResult.poseStyle || 'natural-relaxed-beside',
+                armFoldRad: poseResult.armFoldRad,
+                leftUpperArmQuat: poseResult.leftUpperArmQuat,
+                silhouette,
+                springsActive: this.springsActive,
+                springsFallbackNote: this.springsFallbackNote,
+                springsPolicy: policy,
+                quality: this.profile.id,
+                sceneMode: this.sceneMode,
+                idlePaused: this.idlePaused,
+                animClipId: this.animClipId,
+                animAutoCycle: this.animAutoCycle !== false,
+                animMode: this.animPlayer?.active ? 'authored' : 'procedural',
+                animPlayer: this.animPlayer?.diagnostics?.() || null,
+                reducedMotion: this.caps.reducedMotion,
+                webglOpts: this.webglOpts || null,
+                envProps: this.envRoot?.userData?.propMarkers || null,
+            vrmMeta: this.vrm.meta,
+            hasExpressions: !!this.vrm.expressionManager,
+            hasLookAt: !!this.vrm.lookAt,
+            hasSpringBone: !!this.vrm.springBoneManager,
+            sceneRotationY: this.vrm.scene.rotation.y,
+            bootMs: Date.now() - (window.__bootStartedAt || Date.now())
+        };
     }
-    
-    setRestingPose() {
-        if (!this.vrm?.humanoid) return;
-        
-        console.log('[Pose] Setting resting pose...');
-        
-        // Get raw bone nodes (not normalized)
-        const leftUpperArm = this.vrm.humanoid.getRawBoneNode('leftUpperArm');
-        const rightUpperArm = this.vrm.humanoid.getRawBoneNode('rightUpperArm');
-        
-        if (leftUpperArm) {
-            // Apply quaternion rotation: down and slightly forward
-            const quat = new THREE.Quaternion();
-            quat.setFromEuler(new THREE.Euler(0.8, 0, -1.2, 'XYZ')); // Rotate down
-            leftUpperArm.quaternion.copy(quat);
-            console.log('[Pose] Left arm down, rotation:', leftUpperArm.rotation.toArray());
+
+    /**
+     * Bone-based extents — SkinnedMesh geometry.boundingBox is bind-pose (T-pose)
+     * and will mis-frame / float the character after A-pose.
+     */
+    computeHumanoidExtents() {
+        const h = this.vrm?.humanoid;
+        if (!h) return null;
+        this.vrm.scene.updateMatrixWorld(true);
+        const names = [
+            'hips', 'spine', 'chest', 'neck', 'head',
+            'leftUpperLeg', 'leftLowerLeg', 'leftFoot', 'leftToes',
+            'rightUpperLeg', 'rightLowerLeg', 'rightFoot', 'rightToes',
+            'leftUpperArm', 'leftLowerArm', 'leftHand',
+            'rightUpperArm', 'rightLowerArm', 'rightHand'
+        ];
+        const box = new THREE.Box3();
+        const p = new THREE.Vector3();
+        let any = false;
+        for (const name of names) {
+            const node = h.getNormalizedBoneNode(name) || h.getRawBoneNode(name);
+            if (!node) continue;
+            node.getWorldPosition(p);
+            box.expandByPoint(p);
+            any = true;
         }
-        if (rightUpperArm) {
-            const quat = new THREE.Quaternion();
-            quat.setFromEuler(new THREE.Euler(0.8, 0, 1.2, 'XYZ')); // Rotate down
-            rightUpperArm.quaternion.copy(quat);
-            console.log('[Pose] Right arm down, rotation:', rightUpperArm.rotation.toArray());
-        }
-        
-        // Save pose to restore after animator updates
-        this.restPoseSet = true;
-        this.leftArmQuat = leftUpperArm ? leftUpperArm.quaternion.clone() : null;
-        this.rightArmQuat = rightUpperArm ? rightUpperArm.quaternion.clone() : null;
-        this.leftArmNode = leftUpperArm;
-        this.rightArmNode = rightUpperArm;
-        
-        // Update spring bones to settle after pose change
-        if (this.vrm.springBoneManager) {
-            console.log('[Pose] Settling spring bones...');
-            for (let i = 0; i < 120; i++) {
-                this.vrm.springBoneManager.update(0.033);
+        if (!any || box.isEmpty()) return null;
+
+        const leftFoot = h.getNormalizedBoneNode('leftFoot') || h.getRawBoneNode('leftFoot');
+        const rightFoot = h.getNormalizedBoneNode('rightFoot') || h.getRawBoneNode('rightFoot');
+        const leftToes = h.getNormalizedBoneNode('leftToes') || h.getRawBoneNode('leftToes');
+        const rightToes = h.getNormalizedBoneNode('rightToes') || h.getRawBoneNode('rightToes');
+        const head = h.getNormalizedBoneNode('head') || h.getRawBoneNode('head');
+        const footY = (() => {
+            let y = Infinity;
+            for (const f of [leftFoot, rightFoot, leftToes, rightToes]) {
+                if (!f) continue;
+                f.getWorldPosition(p);
+                y = Math.min(y, p.y);
             }
-        }
-        
-        console.log('[Pose] Resting pose complete');
+            return Number.isFinite(y) ? y : box.min.y;
+        })();
+        // Head bone is below hair/braid crown — pad so framing keeps full head silhouette
+        const headBoneY = head ? head.getWorldPosition(p).y : box.max.y;
+        const boneSpan = Math.max(1e-6, headBoneY - footY);
+        const headY = headBoneY + boneSpan * 0.16;
+        return { box, footY, headY, headBoneY, height: Math.max(1e-6, headY - footY) };
     }
-    
+
     normalizeAndAnchor() {
         if (!this.vrm) return;
-        
+
         const scene = this.vrm.scene;
-        
-        // Compute bounding box
-        const box = new THREE.Box3().setFromObject(scene);
-        const size = box.getSize(new THREE.Vector3());
-        const center = box.getCenter(new THREE.Vector3());
-        
-        console.log('[Normalize] Original size:', size.toArray());
-        console.log('[Normalize] Original center:', center.toArray());
-        
-        // Target: fit character comfortably within view with margins
-        // Reduce height to ensure all corners within [-0.85, 0.85] NDC with margin
-        const availableHeight = this.params.height * 0.55; // 55% of screen for character with margin
-        const targetHeight = availableHeight;
-        const scale = targetHeight / size.y;
+        scene.position.set(0, 0, 0);
+        scene.rotation.x = 0;
+        scene.rotation.z = 0;
+        scene.scale.set(1, 1, 1);
+        this.personRoot.position.set(0, 0, 0);
+        scene.updateMatrixWorld(true);
+
+        let extents = this.computeHumanoidExtents();
+        if (!extents) {
+            const box = new THREE.Box3().setFromObject(scene);
+            extents = {
+                box,
+                footY: box.min.y,
+                headY: box.max.y,
+                height: Math.max(1e-6, box.max.y - box.min.y)
+            };
+        }
+
+        // Room mode: smaller figurine so back-wall window/shelf/plant stay in framing
+        const fill = this.sceneMode === 'room' ? 0.52 : 0.78;
+        const cap = this.sceneMode === 'room' ? 0.105 : 0.148;
+        const targetHeight = Math.min(cap, this.params.height * fill);
+        const scale = targetHeight / extents.height;
         scene.scale.setScalar(scale);
-        
-        console.log('[Normalize] Scale factor:', scale, 'target height:', targetHeight);
-        
-        // Recompute after scaling
-        box.setFromObject(scene);
-        size.copy(box.getSize(new THREE.Vector3()));
-        center.copy(box.getCenter(new THREE.Vector3()));
-        const bottom = box.min.y;
-        const top = box.max.y;
-        const characterHeight = top - bottom;
-        
-        console.log('[Normalize] Scaled size:', size.toArray());
-        console.log('[Normalize] Character height:', characterHeight, 'bottom:', bottom, 'top:', top);
-        
-        // Anchor lowest point (feet) to y=0 in person root local space
-        scene.position.set(-center.x, -bottom, -center.z);
-        
-        // Recompute box after positioning
-        box.setFromObject(scene);
-        const newBottom = box.min.y;
-        const newTop = box.max.y;
-        console.log('[Normalize] After scene reposition - bottom:', newBottom, 'top:', newTop);
-        
-        // Position person root to keep feet visible with margin
-        // Desk is at bottom of screen (-height/2)
-        // Lift character to ensure feet stay within NDC bounds with small gap acceptable
-        const deskY = -this.params.height / 2;
-        this.personRoot.position.y = deskY + 0.018; // 18mm above desk for NDC margin
-        
-        console.log('[Normalize] VRM scene position:', scene.position.toArray());
-        console.log('[Normalize] Person root position:', this.personRoot.position.toArray());
-        console.log('[Normalize] Expected world feet Y:', this.personRoot.position.y + newBottom);
-    }
-    
-    async loadDefaultModel() {
-        try {
-            // Load minimal CC0 VRM (will create next)
-            await this.loadVRM('./models/minimal-avatar.vrm');
-        } catch (error) {
-            console.error('Default model load failed:', error);
-            this.setStatus('默认模型加载失败，请手动选择 VRM 文件', 'error');
+        scene.updateMatrixWorld(true);
+
+        extents = this.computeHumanoidExtents() || extents;
+        const center = extents.box.getCenter(new THREE.Vector3());
+
+        this.deskRoot.updateMatrixWorld(true);
+        // Prefer EnvFloor world Y so plant matches the visible floor mesh (not a
+        // zeroed shadow local that can drift from room/minimal floor placement).
+        const floorMesh = this.deskRoot.userData?.floor;
+        let contact;
+        if (floorMesh) {
+            floorMesh.updateMatrixWorld(true);
+            contact = new THREE.Vector3();
+            floorMesh.getWorldPosition(contact);
+            // Keep XZ under the contact-shadow footprint when present.
+            if (this.contactShadow) {
+                const shadow = this.contactShadow.position.clone();
+                this.deskRoot.localToWorld(shadow);
+                contact.x = shadow.x;
+                contact.z = shadow.z;
+            }
+        } else {
+            const contactLocal = this.contactShadow
+                ? this.contactShadow.position.clone()
+                : new THREE.Vector3(0, 0, this.sceneMode === 'room' ? -0.03 : -0.04);
+            contactLocal.y = 0;
+            contact = contactLocal.clone();
+            this.deskRoot.localToWorld(contact);
+        }
+
+        this.personRoot.position.set(
+            contact.x - center.x,
+            contact.y - extents.footY,
+            contact.z - center.z
+        );
+        this.personRoot.rotation.set(0, 0, 0);
+        // World Y of the desk contact plane — used every frame to keep feet planted
+        // while authored VRMA hips translation drifts (or is missing/wrong).
+        this._floorContactWorldY = contact.y;
+
+        if (this.contactShadow) {
+            const cz = this.contactShadow.position.z;
+            this.contactShadow.position.set(0, 0.0015, cz);
+            const width = extents.box.max.x - extents.box.min.x;
+            const footprint = Math.max(0.035, Math.min(0.09, width * 0.5));
+            this.contactShadow.scale.setScalar(footprint / 0.06);
         }
     }
-    
+
+    /**
+     * Keep the visual mesh on the desk/floor contact plane after mixer updates.
+     * Uses skinned-mesh AABB min.y (shoe soles), not just ankle bones — ankle
+     * planting left Quaternius/ACCAD soles sunk. Also corrects missing/wrong
+     * hips Y translation without camera zoom/masking.
+     */
+    groundFeetToFloor() {
+        if (!this.vrm || this._floorContactWorldY == null) return null;
+        this.vrm.scene.updateMatrixWorld(true);
+        // Prefer the lower of: skinned-mesh AABB min, and foot/toes bones minus sole thickness.
+        // Bind-pose Box3 alone can sit above animated soles (false "planted" while shoes clip).
+        const box = new THREE.Box3().setFromObject(this.vrm.scene);
+        const extents = this.computeHumanoidExtents();
+        const footBoneY = extents?.footY;
+        // Blend mesh AABB with foot/toes bones. SkinnedMesh Box3 can lag bind-pose
+        // (too high → under-plant → sink); bone-only with a huge sole offset overshoots
+        // (float). Prefer the lower of the two.
+        // ACCAD Wait mid-cycle: shoe AABB sits ~0.04–0.08 below ankle bones; a tight
+        // "skirt outlier" guard previously discarded that AABB and under-planted (~4cm sink).
+        const soleBelowBone = Math.max(0.0065, (extents?.height || 0.12) * 0.05);
+        const candidates = [];
+        if (!box.isEmpty() && Number.isFinite(box.min.y)) candidates.push(box.min.y);
+        if (Number.isFinite(footBoneY)) candidates.push(footBoneY - soleBelowBone);
+        if (!candidates.length) return null;
+        let soleY = Math.min(...candidates);
+        // Ignore only extreme outliers (stray hair/tris), not real shoe soles.
+        if (Number.isFinite(footBoneY) && soleY < footBoneY - 0.10) {
+            soleY = footBoneY - soleBelowBone;
+        }
+        // Sit just above the contact plane (avoid z-fight / embedded soles).
+        const SOLE_LIFT = 0.0028;
+        const targetY = this._floorContactWorldY + SOLE_LIFT;
+        const dy = targetY - soleY;
+        if (Math.abs(dy) < 5e-5) {
+            return { dy: 0, soleY, contactY: this._floorContactWorldY, footBoneY: footBoneY ?? null };
+        }
+        this.personRoot.position.y += dy;
+        this.personRoot.updateMatrixWorld(true);
+        return {
+            dy,
+            soleY: soleY + dy,
+            contactY: this._floorContactWorldY,
+            footBoneY: footBoneY != null ? footBoneY + dy : null
+        };
+    }
+
+    async loadDefaultModel() {
+        await this.loadVRM('./models/wenjing.vrm');
+    }
+
+    async loadSampleModel() {
+        await this.loadVRM('./models/minimal-avatar.vrm');
+    }
+
+    setupPanels() {
+        const map = {
+            basic: 'panel-basic',
+            viewpoint: 'panel-viewpoint',
+            calibrate: 'panel-calibrate',
+            advanced: 'panel-advanced',
+            device: 'panel-device'
+        };
+        for (const [key, id] of Object.entries(map)) {
+            const el = document.getElementById(id);
+            if (!el) continue;
+            el.open = !this.settings.panelCollapsed?.[key];
+            el.addEventListener('toggle', () => {
+                this.settings.panelCollapsed = {
+                    ...this.settings.panelCollapsed,
+                    [key]: !el.open
+                };
+                saveSettings({ ...this.snapshotSettings() });
+            });
+        }
+    }
+
+    setupDevicePanel() {
+        this.refreshCapabilityGrids();
+
+        document.getElementById('applySuggestedQuality')?.addEventListener('click', () => {
+            this.quality = this.caps.suggestedQuality;
+            const q = document.getElementById('qualityPreset');
+            if (q) q.value = this.quality;
+            this.applyQuality();
+            this.setStatus(`已应用建议画质：${this.quality}`, 'success');
+        });
+
+        document.getElementById('recognizeDisplays')?.addEventListener('click', () => {
+            this.onRecognizeDisplays();
+        });
+        document.getElementById('renameScreenProfile')?.addEventListener('click', () => {
+            const label = document.getElementById('screenProfileLabel')?.value || '';
+            renameScreenProfile(this.activeScreenKey, label);
+            this.setStatus('已更新本屏档案显示名（仅本地）', 'success');
+            this.refreshScreenList();
+        });
+        document.getElementById('saveScreenProfile')?.addEventListener('click', () => {
+            this.persistCurrentScreenCalibration();
+            this.setStatus('已保存本屏校准档案（不覆盖其他屏）', 'success');
+        });
+
+        // Basic resize/DPR observers — refresh suggestions only, never overwrite saved
+        this._unsubBasicDisplay = observeBasicDisplayChanges(() => {
+            this.refreshDisplayLayers();
+            this.refreshSuggestedNoteFromLayers();
+        });
+    }
+
+    refreshCapabilityGrids() {
+        const caps = this.caps;
+        const disc = document.getElementById('deviceDisclaimer');
+        if (disc) {
+            disc.textContent =
+                '浏览器无法可靠识别具体 Mac 机型或物理厘米；下列为能力提示。分辨率匹配≠已检测机型。';
+        }
+        const wm = featureDetectWindowManagement();
+        const wmNote = document.getElementById('windowMgmtNote');
+        if (wmNote) wmNote.textContent = wm.explanation;
+
+        const grid = document.getElementById('deviceGrid');
+        if (grid) {
+            const rows = [
+                ['形态提示', caps.formFactor],
+                ['浏览器', caps.uaSummary],
+                ['平台', caps.platform],
+                ['WebGL2', caps.webgl2 ? '是' : '否'],
+                ['逻辑核心', caps.cores ?? '未知'],
+                ['内存提示', caps.deviceMemoryGiB != null ? `${caps.deviceMemoryGiB} GiB` : '未知'],
+                ['减少动态', caps.reducedMotion ? '是' : '否'],
+                ['建议画质', caps.suggestedQuality],
+                ['Window Mgmt', wm.supported ? '可用（需点击授权）' : '不可用']
+            ];
+            grid.innerHTML = rows.map(([k, v]) => `<span>${k}</span><span>${v}</span>`).join('');
+        }
+
+        const capsInfo = capabilitiesVsLimitations();
+        const can = document.getElementById('capCanList');
+        const cannot = document.getElementById('capCannotList');
+        if (can) can.innerHTML = capsInfo.can.map((t) => `<li>${t}</li>`).join('');
+        if (cannot) cannot.innerHTML = capsInfo.cannot.map((t) => `<li>${t}</li>`).join('');
+
+        this.refreshDisplayLayers();
+        this.refreshScreenList();
+    }
+
+    refreshDisplayLayers() {
+        const layers = readBrowserDisplayLayers();
+        const grid = document.getElementById('displayLayerGrid');
+        if (!grid) return;
+        const rows = [
+            ['CSS 视口', `${layers.viewportCssPx.w}×${layers.viewportCssPx.h}`],
+            ['screen 逻辑 px', `${layers.screenLogicalPx.w}×${layers.screenLogicalPx.h}`],
+            ['avail 逻辑 px', `${layers.screenAvailLogicalPx.w}×${layers.screenAvailLogicalPx.h}`],
+            ['DPR', String(layers.devicePixelRatio)],
+            ['背板近似 px', `${layers.backingApproxPx.w}×${layers.backingApproxPx.h}`]
+        ];
+        grid.innerHTML = rows.map(([k, v]) => `<span>${k}</span><span>${v}</span>`).join('');
+    }
+
+    refreshScreenList() {
+        const el = document.getElementById('screenList');
+        if (!el) return;
+        const profiles = loadScreenProfiles();
+        const known = this._lastScreens || [];
+        if (!known.length) {
+            const key = this.activeScreenKey;
+            const p = profiles[key];
+            el.innerHTML = `<p>当前档案 key：<code>${key}</code>${p?.userLabel ? ` · ${p.userLabel}` : ''}（粗粒度本地键，非硬件指纹）</p>`;
+            const labelInput = document.getElementById('screenProfileLabel');
+            if (labelInput && p?.userLabel) labelInput.value = p.userLabel;
+            return;
+        }
+        el.innerHTML = known.map((s) => {
+            const p = profiles[s.key];
+            const name = p?.userLabel || s.label || (s.isInternal === true ? '内建屏' : s.isInternal === false ? '外接屏' : '显示器');
+            const mark = s.key === this.activeScreenKey ? ' ✓' : '';
+            return `<button type="button" class="secondary screen-pick" data-key="${s.key}">${name} ${s.width}×${s.height}${mark}</button>`;
+        }).join('');
+        el.querySelectorAll('.screen-pick').forEach((btn) => {
+            btn.addEventListener('click', () => {
+                this.selectScreenProfile(btn.getAttribute('data-key'));
+            });
+        });
+    }
+
+    selectScreenProfile(key) {
+        if (!key) return;
+        this.activeScreenKey = key;
+        saveActiveScreenKey(key);
+        const profile = loadScreenProfiles()[key];
+        const labelInput = document.getElementById('screenProfileLabel');
+        if (labelInput) labelInput.value = profile?.userLabel || '';
+        // Offer saved calibration as suggestion — do not auto-overwrite live params
+        if (profile?.calibration?.screenPhysical) {
+            this.pendingScreenPhysical = profile.calibration.screenPhysical;
+            this.pendingDisplaySuggest = {
+                widthM: profile.calibration.widthM,
+                heightM: profile.calibration.heightM,
+                labeled: `来自已保存全屏档案「${profile.userLabel || key}」——点「写入」或打开全屏校准第②步应用`
+            };
+            this.showPendingSuggest();
+        } else if (profile?.calibration?.widthM && profile?.calibration?.heightM) {
+            this.pendingDisplaySuggest = {
+                widthM: profile.calibration.widthM,
+                heightM: profile.calibration.heightM,
+                labeled: `来自已保存档案「${profile.userLabel || key}」——点「写入当前投影宽高」才会应用`
+            };
+            this.showPendingSuggest();
+        }
+        this.refreshScreenList();
+        this.setStatus('已选择显示器档案（未自动改写投影）', 'success');
+    }
+
+    async onRecognizeDisplays() {
+        this.setStatus('正在请求显示器信息（需你授权）…', 'loading');
+        const result = await requestScreenDetails();
+        this.setStatus(result.message, result.ok ? 'success' : 'error');
+        if (!result.ok) {
+            this._lastScreens = [];
+            this.refreshScreenList();
+            this.refreshDisplayLayers();
+            return;
+        }
+        this.screenDetails = result.details;
+        this._lastScreens = result.screens;
+        if (result.current) {
+            this.activeScreenKey = result.current.key;
+            saveActiveScreenKey(this.activeScreenKey);
+            upsertScreenProfile(result.current.key, {
+                label: result.current.label,
+                isInternal: result.current.isInternal,
+                width: result.current.width,
+                height: result.current.height,
+                devicePixelRatio: result.current.devicePixelRatio
+            }, { overwriteCalibration: false });
+        }
+        for (const s of result.screens) {
+            upsertScreenProfile(s.key, {
+                label: s.label,
+                isInternal: s.isInternal,
+                width: s.width,
+                height: s.height,
+                devicePixelRatio: s.devicePixelRatio
+            }, { overwriteCalibration: false });
+        }
+        this.refreshScreenList();
+        this.refreshDisplayLayers();
+
+        if (this._unsubScreens) this._unsubScreens();
+        this._unsubScreens = observeScreenDetails(this.screenDetails, ({ screens, current }) => {
+            this._lastScreens = screens;
+            if (current) {
+                const prevKey = this.activeScreenKey;
+                this.activeScreenKey = current.key;
+                saveActiveScreenKey(current.key);
+                upsertScreenProfile(current.key, {
+                    label: current.label,
+                    isInternal: current.isInternal,
+                    width: current.width,
+                    height: current.height,
+                    devicePixelRatio: current.devicePixelRatio
+                }, { overwriteCalibration: false });
+                // Refresh suggestion from saved profile if any; never overwrite live params
+                if (current.key !== prevKey) {
+                    const profile = loadScreenProfiles()[current.key];
+                    if (profile?.calibration) {
+                        this.pendingDisplaySuggest = {
+                            widthM: profile.calibration.widthM,
+                            heightM: profile.calibration.heightM,
+                            labeled: '显示器已切换：已加载该屏档案建议（未自动写入）'
+                        };
+                        this.showPendingSuggest();
+                        this.setStatus('检测到当前屏切换；建议已刷新，未覆盖你的当前滑杆值', 'success');
+                    } else {
+                        this.setStatus('检测到当前屏切换；该屏尚无保存校准', 'loading');
+                    }
+                }
+            }
+            this.refreshScreenList();
+            this.refreshDisplayLayers();
+        });
+    }
+
+    persistCurrentScreenCalibration() {
+        const key = this.activeScreenKey || screenProfileKey(readBrowserDisplayLayers());
+        this.activeScreenKey = key;
+        saveActiveScreenKey(key);
+        const label = document.getElementById('screenProfileLabel')?.value || '';
+        setProfileCalibration(key, {
+            widthM: this.params.width,
+            heightM: this.params.height,
+            tiltDeg: this.params.tiltDegrees,
+            eyeX: this.params.eye.x,
+            eyeY: this.params.eye.y,
+            eyeZ: this.params.eye.z,
+            quality: this.quality,
+            screenPhysical: this.screenPhysical,
+            projectionMode: this.projectionMode
+        });
+        if (label) renameScreenProfile(key, label);
+        upsertScreenProfile(key, {
+            layers: readBrowserDisplayLayers(),
+            fullscreenCalibrated: this.projectionMode === 'calibrated'
+        }, { overwriteCalibration: false });
+    }
+
+    setupCalibration() {
+        const steps = [
+            { title: '① 确认模型正向', text: '文镜应正面朝向你。若背面朝外，点「重新加载文镜」。' },
+            { title: '② 选择显示预设或比例尺', text: '在下方手动选 MacBook / 外接预设，或用信用卡比例尺；不会自动当成已识别机型。' },
+            { title: '③ 调支架倾角与眼睛 Z', text: '从 10–15° 开始；拉近/推远直到全身留有边距。' },
+            { title: '④ 保存本屏档案', text: '「写入当前投影宽高」后，再到「显示器与能力」保存本屏校准；换屏不会静默覆盖。' }
+        ];
+        const box = document.getElementById('calibrateSteps');
+        if (!box) return;
+        let i = 0;
+        const render = () => {
+            box.innerHTML = `<strong>${steps[i].title}</strong><p>${steps[i].text}</p><p class="hint">步骤 ${i + 1}/${steps.length}</p>`;
+        };
+        render();
+        document.getElementById('calibrateNext')?.addEventListener('click', () => {
+            i = (i + 1) % steps.length;
+            render();
+        });
+        document.getElementById('calibratePrev')?.addEventListener('click', () => {
+            i = (i - 1 + steps.length) % steps.length;
+            render();
+        });
+    }
+
+    setupDisplayCalibration() {
+        const sel = document.getElementById('displayPreset');
+        if (sel) {
+            sel.innerHTML = this.displayPresets.map((p) =>
+                `<option value="${p.id}">${p.label}</option>`
+            ).join('');
+            sel.addEventListener('change', () => this.onDisplayPresetChange());
+            this.onDisplayPresetChange();
+        }
+
+        document.getElementById('applyDisplayPreset')?.addEventListener('click', () => {
+            this.buildDisplaySuggestionFromPreset();
+        });
+        document.getElementById('commitSuggestedDisplay')?.addEventListener('click', () => {
+            this.commitPendingDisplaySuggest();
+        });
+
+        const ruler = document.getElementById('rulerWidthPx');
+        const rulerVal = document.getElementById('rulerWidthPxValue');
+        const card = document.getElementById('rulerCard');
+        const syncRuler = () => {
+            const px = Number(ruler?.value || 120);
+            if (rulerVal) rulerVal.textContent = `${px} px`;
+            if (card) card.style.width = `${px}px`;
+        };
+        ruler?.addEventListener('input', syncRuler);
+        syncRuler();
+
+        document.getElementById('applyRulerCalibration')?.addEventListener('click', () => {
+            const px = Number(document.getElementById('rulerWidthPx')?.value || 0);
+            const result = calibrateFromRuler(px, CREDIT_CARD_MM.width);
+            if (!result) {
+                this.setStatus('比例尺无效', 'error');
+                return;
+            }
+            const suggest = suggestViewportPhysicalMeters(result.screenWidthM, result.screenHeightM);
+            this.pendingDisplaySuggest = {
+                widthM: suggest.widthM,
+                heightM: suggest.heightM,
+                labeled: `${result.labeled}；整屏约 ${result.widthCm.toFixed(1)}×${result.heightCm.toFixed(1)} cm。${suggest.labeled}`
+            };
+            this.showPendingSuggest();
+            this.setStatus('已由比例尺生成建议（未自动写入）', 'success');
+        });
+    }
+
+    onDisplayPresetChange() {
+        const id = document.getElementById('displayPreset')?.value;
+        const preset = this.displayPresets.find((p) => p.id === id);
+        const hint = document.getElementById('displayPresetHint');
+        const custom = document.getElementById('customExternalFields');
+        if (hint && preset) {
+            hint.textContent = `${preset.physicalLabel} · ${preset.source}`;
+        }
+        if (custom) {
+            custom.classList.toggle('visible', id === 'ext-custom');
+        }
+    }
+
+    buildDisplaySuggestionFromPreset() {
+        const id = document.getElementById('displayPreset')?.value;
+        const preset = this.displayPresets.find((p) => p.id === id);
+        if (!preset) return;
+
+        let screenW;
+        let screenH;
+        let labeled;
+
+        if (id === 'ext-custom') {
+            const diagonalIn = Number(document.getElementById('customDiagonalIn')?.value);
+            const widthCm = Number(document.getElementById('customWidthCm')?.value);
+            const heightCm = Number(document.getElementById('customHeightCm')?.value);
+            const aspect = Number(document.getElementById('customAspect')?.value) || 16 / 9;
+            const custom = applyCustomExternal({ diagonalIn, widthCm, heightCm, aspect });
+            if (!custom) {
+                this.setStatus('请填写对角或宽高 cm', 'error');
+                return;
+            }
+            screenW = custom.widthM;
+            screenH = custom.heightM;
+            labeled = `自定义外接：${custom.source}`;
+        } else if (preset.physical) {
+            screenW = preset.physical.widthM;
+            screenH = preset.physical.heightM;
+            labeled = `${preset.label} — ${preset.physicalLabel}`;
+        } else {
+            this.setStatus('该预设无可用尺寸', 'error');
+            return;
+        }
+
+        const suggest = suggestViewportPhysicalMeters(screenW, screenH);
+        this.pendingDisplaySuggest = {
+            widthM: suggest.widthM,
+            heightM: suggest.heightM,
+            labeled: `${labeled}。${suggest.labeled}`
+        };
+        this.showPendingSuggest();
+        this.setStatus('已生成显示建议（未自动写入已保存值）', 'success');
+    }
+
+    showPendingSuggest() {
+        const note = document.getElementById('displaySuggestNote');
+        if (!note || !this.pendingDisplaySuggest) return;
+        const s = this.pendingDisplaySuggest;
+        note.textContent =
+            `建议视口投影：宽 ${mToCm(s.widthM)} × 高 ${mToCm(s.heightM)}。${s.labeled}`;
+    }
+
+    refreshSuggestedNoteFromLayers() {
+        // Keep note text current if we have a pending suggest; do not change params
+        if (this.pendingDisplaySuggest) this.showPendingSuggest();
+    }
+
+    commitPendingDisplaySuggest() {
+        if (!this.pendingDisplaySuggest) {
+            this.setStatus('没有待写入的建议', 'error');
+            return;
+        }
+        this.userLockedWidth = true;
+        this.params.width = this.pendingDisplaySuggest.widthM;
+        this.params.height = this.pendingDisplaySuggest.heightM;
+        this.syncSlidersFromParams();
+        this.updateProjection();
+        if (this.vrm) this.normalizeAndAnchor();
+        this.setStatus('已写入建议投影宽高（可再保存本屏档案）', 'success');
+    }
+
+    snapshotSettings() {
+        return {
+            widthM: this.params.width,
+            heightM: this.params.height,
+            tiltDeg: this.params.tiltDegrees,
+            eyeX: this.params.eye.x,
+            eyeY: this.params.eye.y,
+            eyeZ: this.params.eye.z,
+            quality: this.quality,
+            springsEnabled: this.springsEnabled,
+            sceneMode: this.sceneMode === 'minimal' ? 'minimal' : 'room',
+            idlePaused: !!this.idlePaused,
+            animClipId: this.animClipId || 'chatvrm-idle',
+            animAutoCycle: this.animAutoCycle !== false,
+            screenPhysical: this.screenPhysical,
+            projectionMode: this.projectionMode,
+            panelCollapsed: this.settings.panelCollapsed
+        };
+    }
+
+    setupFullscreenWizard() {
+        const feat = featureDetectFullscreen(this.sceneContainer);
+        const sideHint = document.getElementById('fsSidebarHint');
+        if (sideHint) {
+            sideHint.textContent = feat.supported
+                ? '主流程：场景全屏校准（设置栏不进入全屏）。全屏≠知道物理厘米。外接屏请先拖到目标显示器。'
+                : feat.explanation;
+        }
+
+        const open = () => this.openFullscreenWizard();
+        document.getElementById('startFullscreenCalib')?.addEventListener('click', open);
+        document.getElementById('fsCalibrateOpen')?.addEventListener('click', open);
+        document.getElementById('fsWizardPrev')?.addEventListener('click', () => this.fsWizardNavigate(-1));
+        document.getElementById('fsWizardNext')?.addEventListener('click', () => this.fsWizardNavigate(1));
+        document.getElementById('fsWizardCollapse')?.addEventListener('click', () => this.collapseFullscreenWizard());
+        document.getElementById('fsWizardExitFs')?.addEventListener('click', async () => {
+            await exitSceneFullscreen();
+            this.updateProjectionModeBanner();
+        });
+
+        this._unsubFs = onFullscreenChange(() => {
+            const fs = isElementFullscreen(this.sceneContainer);
+            if (!fs) {
+                // Leaving fullscreen → preview mode messaging (keep physical map if saved)
+                if (this.projectionMode === 'calibrated' && this.screenPhysical) {
+                    this.setStatus('已退出全屏：预览模式（按画布 CSS 映射物理比例，非整屏）', 'loading');
+                } else {
+                    this.setStatus('已退出全屏：预览模式 · 尚未完成全屏物理校准', 'loading');
+                }
+                this.applyPhysicalMappingToParams();
+            } else {
+                this.setStatus('场景全屏中：请完成物理尺寸确认（像素≠厘米）', 'success');
+                this.applyPhysicalMappingToParams();
+            }
+            this.updateProjectionModeBanner();
+            // Force layout sync after FS transition
+            requestAnimationFrame(() => this.syncRendererToCanvas());
+        });
+    }
+
+    openFullscreenWizard() {
+        this.fsWizardOpen = true;
+        this.fsWizardStep = 0;
+        const wiz = document.getElementById('fsWizard');
+        if (wiz) wiz.hidden = false;
+        this.renderFsWizardStep();
+        this.setStatus('已打开全屏校准向导（需你点击进入全屏）', 'loading');
+    }
+
+    collapseFullscreenWizard() {
+        this.fsWizardOpen = false;
+        const wiz = document.getElementById('fsWizard');
+        if (wiz) wiz.hidden = true;
+        const fab = document.getElementById('fsCalibrateOpen');
+        if (fab) fab.hidden = false;
+    }
+
+    async fsWizardNavigate(delta) {
+        const step = FS_WIZARD_STEPS[this.fsWizardStep];
+        if (delta > 0) {
+            const ok = await this.fsWizardAdvanceGate(step);
+            if (!ok) return;
+        }
+        this.fsWizardStep = Math.max(0, Math.min(FS_WIZARD_STEPS.length - 1, this.fsWizardStep + delta));
+        if (delta > 0 && step.id === 'save') {
+            this.finishFullscreenCalibration();
+            return;
+        }
+        this.renderFsWizardStep();
+    }
+
+    async fsWizardAdvanceGate(step) {
+        if (step.id === 'fullscreen') {
+            if (!isElementFullscreen(this.sceneContainer)) {
+                const res = await enterSceneFullscreen(this.sceneContainer);
+                this.setStatus(res.message || (res.ok ? '已全屏' : '全屏失败'), res.ok ? 'success' : 'error');
+                if (!res.ok) {
+                    // Allow continuing in large-window fallback with clear warning
+                    const warn = document.getElementById('fsWizardWarn');
+                    if (warn) {
+                        warn.textContent =
+                            '未能进入全屏。可继续在当前窗口校准，但存在边框/窗口尺寸歧义；外接屏请先拖到目标显示器。';
+                    }
+                    return true; // still allow wizard with fallback messaging
+                }
+                await new Promise((r) => setTimeout(r, 100));
+                this.syncRendererToCanvas();
+            }
+            return true;
+        }
+        if (step.id === 'display') {
+            const applied = this.applyFsWizardPhysicalFromFields();
+            if (!applied) {
+                this.setStatus('请选择预设、填写物理尺寸或使用比例尺', 'error');
+                return false;
+            }
+            return true;
+        }
+        if (step.id === 'tilt' || step.id === 'eye') {
+            this.readFsWizardViewParams();
+            return true;
+        }
+        return true;
+    }
+
+    renderFsWizardStep() {
+        const step = FS_WIZARD_STEPS[this.fsWizardStep];
+        const title = document.getElementById('fsWizardTitle');
+        const body = document.getElementById('fsWizardBody');
+        const fields = document.getElementById('fsWizardFields');
+        const next = document.getElementById('fsWizardNext');
+        const prev = document.getElementById('fsWizardPrev');
+        if (title) title.textContent = step.title;
+        if (body) body.textContent = step.body;
+        if (prev) prev.disabled = this.fsWizardStep === 0;
+        if (next) next.textContent = step.id === 'save' ? '保存并完成' : '下一步';
+
+        if (!fields) return;
+        if (step.id === 'fullscreen') {
+            const feat = featureDetectFullscreen(this.sceneContainer);
+            fields.innerHTML = `
+                <button type="button" id="fsEnterBtn">进入场景全屏</button>
+                <p class="warn">${feat.explanation}</p>
+                <p class="hint">外接显示器：先把浏览器窗口拖到目标屏，再点全屏，然后在下一步选择/保存该屏档案。</p>`;
+            document.getElementById('fsEnterBtn')?.addEventListener('click', async () => {
+                const res = await enterSceneFullscreen(this.sceneContainer);
+                this.setStatus(res.message || '', res.ok ? 'success' : 'error');
+                this.syncRendererToCanvas();
+                this.updateProjectionModeBanner();
+            });
+        } else if (step.id === 'display') {
+            const opts = this.displayPresets.map((p) =>
+                `<option value="${p.id}">${p.label}</option>`
+            ).join('');
+            fields.innerHTML = `
+                <label>显示预设</label>
+                <select id="fsPreset">${opts}</select>
+                <p class="hint" id="fsPresetHint"></p>
+                <div id="fsCustomBox" class="custom-fields">
+                    <label>对角英寸</label>
+                    <input type="number" id="fsDiag" step="0.1" min="10" max="50">
+                    <label>宽 cm</label>
+                    <input type="number" id="fsWcm" step="0.1">
+                    <label>高 cm</label>
+                    <input type="number" id="fsHcm" step="0.1">
+                </div>
+                <div class="fs-mini-ruler">
+                    <p class="hint">信用卡宽 85.6 mm — 调至与实体卡同宽（CSS px，不乘 DPR）</p>
+                    <div class="ruler-card" id="fsRulerCard">卡</div>
+                    <input type="range" id="fsRulerPx" min="40" max="320" value="120">
+                    <div class="value-display" id="fsRulerPxVal">120 px</div>
+                    <button type="button" class="secondary" id="fsUseRuler">用比例尺推算整屏</button>
+                </div>
+                <p class="hint" id="fsPhysNote"></p>`;
+            const syncPreset = () => {
+                const id = document.getElementById('fsPreset')?.value;
+                const p = this.displayPresets.find((x) => x.id === id);
+                const hint = document.getElementById('fsPresetHint');
+                if (hint && p) hint.textContent = `${p.physicalLabel} · ${p.source}`;
+                document.getElementById('fsCustomBox')?.classList.toggle('visible', id === 'ext-custom');
+            };
+            document.getElementById('fsPreset')?.addEventListener('change', syncPreset);
+            syncPreset();
+            const ruler = document.getElementById('fsRulerPx');
+            const card = document.getElementById('fsRulerCard');
+            const val = document.getElementById('fsRulerPxVal');
+            const syncR = () => {
+                const px = Number(ruler?.value || 120);
+                if (val) val.textContent = `${px} px`;
+                if (card) card.style.width = `${px}px`;
+            };
+            ruler?.addEventListener('input', syncR);
+            syncR();
+            document.getElementById('fsUseRuler')?.addEventListener('click', () => {
+                const px = Number(document.getElementById('fsRulerPx')?.value || 0);
+                const screenCss = readMappingScreenCss(this.sceneContainer);
+                const result = calibrateFromRuler(px, CREDIT_CARD_MM.width, {
+                    viewportCssPx: readCanvasCssBounds(this.canvas),
+                    screenLogicalPx: screenCss,
+                    devicePixelRatio: window.devicePixelRatio || 1,
+                    backingApproxPx: { w: 0, h: 0 },
+                    screenAvailLogicalPx: screenCss
+                });
+                if (!result) return;
+                this.pendingScreenPhysical = {
+                    widthM: result.screenWidthM,
+                    heightM: result.screenHeightM,
+                    source: 'credit-card-ruler-css-px',
+                    labeled: result.labeled
+                };
+                const note = document.getElementById('fsPhysNote');
+                if (note) {
+                    note.textContent =
+                        `整屏约 ${result.widthCm.toFixed(1)}×${result.heightCm.toFixed(1)} cm（由 CSS px 推算，未乘 DPR）`;
+                }
+            });
+        } else if (step.id === 'tilt') {
+            fields.innerHTML = `
+                <label>支架倾角（相对竖直）</label>
+                <input type="range" id="fsTilt" min="0" max="90" step="1" value="${this.params.tiltDegrees}">
+                <div class="value-display" id="fsTiltVal">${degLabel(this.params.tiltDegrees)}</div>`;
+            const el = document.getElementById('fsTilt');
+            const val = document.getElementById('fsTiltVal');
+            el?.addEventListener('input', () => {
+                const n = Number(el.value);
+                if (val) val.textContent = degLabel(n);
+                this.params.tiltDegrees = n;
+                this.updateProjection();
+            });
+        } else if (step.id === 'eye') {
+            fields.innerHTML = `
+                <label>眼睛 X</label>
+                <input type="range" id="fsEyeX" min="-0.3" max="0.3" step="0.01" value="${this.params.eye.x}">
+                <div class="value-display" id="fsEyeXVal">${mToCm(this.params.eye.x)}</div>
+                <label>眼睛 Y</label>
+                <input type="range" id="fsEyeY" min="-0.4" max="0.4" step="0.01" value="${this.params.eye.y}">
+                <div class="value-display" id="fsEyeYVal">${mToCm(this.params.eye.y)}</div>
+                <label>眼睛 Z</label>
+                <input type="range" id="fsEyeZ" min="0.2" max="1.5" step="0.01" value="${this.params.eye.z}">
+                <div class="value-display" id="fsEyeZVal">${mToCm(this.params.eye.z)}</div>`;
+            const bind = (id, valId, apply, fmt) => {
+                const el = document.getElementById(id);
+                const val = document.getElementById(valId);
+                el?.addEventListener('input', () => {
+                    const n = Number(el.value);
+                    if (val) val.textContent = fmt(n);
+                    apply(n);
+                    this.updateProjection();
+                });
+            };
+            bind('fsEyeX', 'fsEyeXVal', (n) => { this.params.eye.x = n; }, mToCm);
+            bind('fsEyeY', 'fsEyeYVal', (n) => { this.params.eye.y = n; }, mToCm);
+            bind('fsEyeZ', 'fsEyeZVal', (n) => { this.params.eye.z = n; }, mToCm);
+        } else if (step.id === 'save') {
+            fields.innerHTML = `
+                <p>将保存：整屏物理尺寸 + 倾角/视点到本屏档案。退出全屏后为预览映射。</p>
+                <label>档案显示名</label>
+                <input type="text" id="fsSaveLabel" maxlength="64" placeholder="例如：MacBook / 书房外接"
+                    value="${document.getElementById('screenProfileLabel')?.value || ''}">`;
+        }
+    }
+
+    applyFsWizardPhysicalFromFields() {
+        if (this.pendingScreenPhysical?.widthM) {
+            this.screenPhysical = { ...this.pendingScreenPhysical };
+            this.applyPhysicalMappingToParams();
+            return true;
+        }
+        const id = document.getElementById('fsPreset')?.value;
+        const preset = this.displayPresets.find((p) => p.id === id);
+        if (!preset) return false;
+        let widthM;
+        let heightM;
+        let source;
+        let labeled;
+        if (id === 'ext-custom') {
+            const custom = applyCustomExternal({
+                diagonalIn: Number(document.getElementById('fsDiag')?.value),
+                widthCm: Number(document.getElementById('fsWcm')?.value),
+                heightCm: Number(document.getElementById('fsHcm')?.value),
+                aspect: 16 / 9
+            });
+            if (!custom) return false;
+            widthM = custom.widthM;
+            heightM = custom.heightM;
+            source = custom.source;
+            labeled = '自定义外接物理尺寸';
+        } else if (preset.physical) {
+            widthM = preset.physical.widthM;
+            heightM = preset.physical.heightM;
+            source = preset.source;
+            labeled = preset.physicalLabel;
+        } else {
+            return false;
+        }
+        this.screenPhysical = { widthM, heightM, source, labeled };
+        this.pendingScreenPhysical = this.screenPhysical;
+        this.applyPhysicalMappingToParams();
+        const note = document.getElementById('fsPhysNote');
+        if (note) note.textContent = `整屏物理：${mToCm(widthM)} × ${mToCm(heightM)}（${labeled}）`;
+        return true;
+    }
+
+    readFsWizardViewParams() {
+        const tilt = document.getElementById('fsTilt');
+        if (tilt) this.params.tiltDegrees = Number(tilt.value);
+        const x = document.getElementById('fsEyeX');
+        const y = document.getElementById('fsEyeY');
+        const z = document.getElementById('fsEyeZ');
+        if (x) this.params.eye.x = Number(x.value);
+        if (y) this.params.eye.y = Number(y.value);
+        if (z) this.params.eye.z = Number(z.value);
+        this.syncSlidersFromParams();
+        this.updateProjection();
+    }
+
+    finishFullscreenCalibration() {
+        this.readFsWizardViewParams();
+        if (!this.screenPhysical) this.applyFsWizardPhysicalFromFields();
+        if (!this.screenPhysical) {
+            this.setStatus('缺少整屏物理尺寸，无法完成校准', 'error');
+            return;
+        }
+        this.projectionMode = 'calibrated';
+        this.userLockedWidth = true;
+        this.applyPhysicalMappingToParams();
+        const label = document.getElementById('fsSaveLabel')?.value || '';
+        if (label) {
+            const input = document.getElementById('screenProfileLabel');
+            if (input) input.value = label;
+        }
+        this.persistCurrentScreenCalibration();
+        this.settings = saveSettings(this.snapshotSettings());
+        this.collapseFullscreenWizard();
+        this.updateProjectionModeBanner();
+        this.setStatus('全屏校准已保存。可退出全屏进入预览映射，或保持全屏观看。', 'success');
+    }
+
+    applyPhysicalMappingToParams() {
+        if (!this.screenPhysical) return;
+        const canvasCss = readCanvasCssBounds(this.canvas);
+        const screenCss = readMappingScreenCss(this.sceneContainer);
+        const mapped = mapCanvasPhysicalFromScreen(this.screenPhysical, canvasCss, screenCss);
+        if (!mapped) return;
+        this.params.width = mapped.widthM;
+        this.params.height = mapped.heightM;
+        this.userLockedWidth = true;
+        this.syncSlidersFromParams();
+        this.updateProjection();
+        if (this.vrm) this.normalizeAndAnchor();
+    }
+
+    updateProjectionModeBanner() {
+        const el = this.fsModeBanner;
+        if (!el) return;
+        const fs = isElementFullscreen(this.sceneContainer);
+        if (fs && this.projectionMode === 'calibrated' && this.screenPhysical) {
+            el.className = 'fs-banner calibrated';
+            el.textContent =
+                `全屏校准投影 · 整屏约 ${mToCm(this.screenPhysical.widthM)}×${mToCm(this.screenPhysical.heightM)}（用户确认，非 OS 实测）`;
+        } else if (this.projectionMode === 'calibrated' && this.screenPhysical) {
+            el.className = 'fs-banner';
+            el.textContent =
+                '预览模式 · 已保存全屏物理档案；当前按画布 CSS 比例映射（非整屏）。像素≠物理厘米。';
+        } else {
+            el.className = 'fs-banner';
+            el.textContent = '预览模式 · 尚未完成全屏物理校准（像素≠物理厘米）';
+        }
+    }
+
+    syncRendererToCanvas() {
+        const width = this.canvas.clientWidth;
+        const height = this.canvas.clientHeight;
+        if (width <= 0 || height <= 0) return;
+        this.renderer.setSize(width, height, false);
+        if (this.screenPhysical) {
+            this.applyPhysicalMappingToParams();
+        } else if (!this.userLockedWidth) {
+            this.params.width = this.params.height * (width / height);
+            this.syncSlidersFromParams();
+            this.updateProjection();
+        } else {
+            this.updateProjection();
+        }
+        if (this.vrm) this.normalizeAndAnchor();
+    }
+
+    syncSlidersFromParams() {
+        const set = (id, valueId, value, format) => {
+            const el = document.getElementById(id);
+            const val = document.getElementById(valueId);
+            if (el) el.value = String(value);
+            if (val) val.textContent = format(value);
+        };
+        set('screenWidth', 'screenWidthValue', this.params.width, mToCm);
+        set('screenHeight', 'screenHeightValue', this.params.height, mToCm);
+        set('tiltDegrees', 'tiltDegreesValue', this.params.tiltDegrees, degLabel);
+        set('eyeX', 'eyeXValue', this.params.eye.x, mToCm);
+        set('eyeY', 'eyeYValue', this.params.eye.y, mToCm);
+        set('eyeZ', 'eyeZValue', this.params.eye.z, mToCm);
+        const q = document.getElementById('qualityPreset');
+        if (q) q.value = this.quality;
+        const springToggle = document.getElementById('springsEnabled');
+        if (springToggle) springToggle.checked = this.springsEnabled;
+        const sceneSel = document.getElementById('sceneMode');
+        if (sceneSel) sceneSel.value = this.sceneMode === 'minimal' ? 'minimal' : 'room';
+        const idlePause = document.getElementById('idlePaused');
+        if (idlePause) idlePause.checked = !!this.idlePaused;
+        const animSel = document.getElementById('animClip');
+        if (animSel && this.animClipId) animSel.value = this.animClipId;
+        const autoEl = document.getElementById('animAutoCycle');
+        if (autoEl) autoEl.checked = this.animAutoCycle !== false;
+    }
+
     setupControls() {
-        // Screen width
-        const widthSlider = document.getElementById('screenWidth');
-        const widthValue = document.getElementById('screenWidthValue');
-        widthSlider.addEventListener('input', (e) => {
-            this.params.width = parseFloat(e.target.value);
-            widthValue.textContent = `${this.params.width.toFixed(2)} m`;
+        const bindSlider = (id, valueId, format, apply) => {
+            const el = document.getElementById(id);
+            const val = document.getElementById(valueId);
+            if (!el) return;
+            el.addEventListener('input', (e) => {
+                const n = parseFloat(e.target.value);
+                if (val) val.textContent = format(n);
+                apply(n);
+            });
+        };
+
+        bindSlider('screenWidth', 'screenWidthValue', mToCm, (n) => {
+            this.userLockedWidth = true;
+            this.params.width = n;
             this.updateProjection();
         });
-        
-        // Screen height
-        const heightSlider = document.getElementById('screenHeight');
-        const heightValue = document.getElementById('screenHeightValue');
-        heightSlider.addEventListener('input', (e) => {
-            this.params.height = parseFloat(e.target.value);
-            heightValue.textContent = `${this.params.height.toFixed(2)} m`;
+        bindSlider('screenHeight', 'screenHeightValue', mToCm, (n) => {
+            this.params.height = n;
             this.updateProjection();
             if (this.vrm) this.normalizeAndAnchor();
         });
-        
-        // Tilt
-        const tiltSlider = document.getElementById('tiltDegrees');
-        const tiltValue = document.getElementById('tiltDegreesValue');
-        tiltSlider.addEventListener('input', (e) => {
-            this.params.tiltDegrees = parseFloat(e.target.value);
-            tiltValue.textContent = `${this.params.tiltDegrees.toFixed(0)}°`;
+        bindSlider('tiltDegrees', 'tiltDegreesValue', degLabel, (n) => {
+            this.params.tiltDegrees = n;
             this.updateProjection();
         });
-        
-        // Eye X
-        const eyeXSlider = document.getElementById('eyeX');
-        const eyeXValue = document.getElementById('eyeXValue');
-        eyeXSlider.addEventListener('input', (e) => {
-            this.params.eye.x = parseFloat(e.target.value);
-            eyeXValue.textContent = `${this.params.eye.x.toFixed(2)} m`;
+        bindSlider('eyeX', 'eyeXValue', mToCm, (n) => {
+            this.params.eye.x = n;
             this.updateProjection();
         });
-        
-        // Eye Y
-        const eyeYSlider = document.getElementById('eyeY');
-        const eyeYValue = document.getElementById('eyeYValue');
-        eyeYSlider.addEventListener('input', (e) => {
-            this.params.eye.y = parseFloat(e.target.value);
-            eyeYValue.textContent = `${this.params.eye.y.toFixed(2)} m`;
+        bindSlider('eyeY', 'eyeYValue', mToCm, (n) => {
+            this.params.eye.y = n;
             this.updateProjection();
         });
-        
-        // Eye Z
-        const eyeZSlider = document.getElementById('eyeZ');
-        const eyeZValue = document.getElementById('eyeZValue');
-        eyeZSlider.addEventListener('input', (e) => {
-            this.params.eye.z = parseFloat(e.target.value);
-            eyeZValue.textContent = `${this.params.eye.z.toFixed(2)} m`;
+        bindSlider('eyeZ', 'eyeZValue', mToCm, (n) => {
+            this.params.eye.z = n;
             this.updateProjection();
         });
-        
-        // VRM file input
-        document.getElementById('vrmFile').addEventListener('change', async (e) => {
-            const file = e.target.files[0];
-            if (file) {
+
+        document.getElementById('qualityPreset')?.addEventListener('change', (e) => {
+            this.quality = e.target.value;
+            this.applyQuality();
+            // Quality tiers change env detail
+            this.rebuildEnvironment();
+            if (this.vrm) this.normalizeAndAnchor();
+            this.setStatus(`画质已切换：${this.profile.id}`, 'success');
+        });
+
+        document.getElementById('sceneMode')?.addEventListener('change', (e) => {
+            this.setSceneMode(e.target.value);
+        });
+
+        document.getElementById('idlePaused')?.addEventListener('change', (e) => {
+            this.idlePaused = !!e.target.checked;
+            this.animator?.setPaused(this.idlePaused);
+            if (this.idlePaused) this.animPlayer?.stopAuthored(0.2);
+            else this.applyAnimClip(this.animClipId, { persist: false, manual: true });
+            this.setStatus(this.idlePaused ? '已暂停 idle 动画' : '已恢复 idle 动画', 'success');
+        });
+        document.getElementById('animAutoCycle')?.addEventListener('change', (e) => {
+            this.setAnimAutoCycle(!!e.target.checked);
+        });
+        document.getElementById('animClip')?.addEventListener('change', (e) => {
+            this.applyAnimClip(e.target.value, { manual: true });
+        });
+        document.getElementById('vrmaFile')?.addEventListener('change', async (e) => {
+            const file = e.target.files?.[0];
+            if (!file || !this.vrm) return;
+            try {
                 const url = URL.createObjectURL(file);
-                try {
-                    await this.loadVRM(url);
-                } finally {
-                    URL.revokeObjectURL(url);
+                const gltf = await this.animPlayer.loader.loadAsync(url);
+                URL.revokeObjectURL(url);
+                const vrmAnims = gltf.userData.vrmAnimations;
+                if (!vrmAnims?.length) throw new Error('文件中无 VRMA 动画');
+                const { createVRMAnimationClip } = await import('@pixiv/three-vrm-animation');
+                let clip = createVRMAnimationClip(vrmAnims[0], this.vrm);
+                // reuse root lock via play path: stash under local id
+                const id = 'local-user-vrma';
+                // strip hip XZ
+                for (const track of clip.tracks) {
+                    if (/\.position$/i.test(track.name) && /hips/i.test(track.name)) {
+                        for (let i = 0; i < track.values.length; i += 3) {
+                            track.values[i] = 0;
+                            track.values[i + 2] = 0;
+                        }
+                    }
                 }
+                clip.name = id;
+                this.animPlayer.clips.set(id, clip);
+                this.animPlayer.actions.delete(id);
+                const sel = document.getElementById('animClip');
+                if (sel && ![...sel.options].some((o) => o.value === id)) {
+                    const opt = document.createElement('option');
+                    opt.value = id;
+                    opt.textContent = `本地 VRMA: ${file.name}`;
+                    sel.appendChild(opt);
+                }
+                if (sel) sel.value = id;
+                // Local file is optional and never enters the auto playlist
+                await this.applyAnimClip(id, { manual: true });
+            } catch (err) {
+                this.setStatus(`本地 VRMA 加载失败: ${err.message}`, 'error');
             }
         });
-        
-        // Load default button
-        document.getElementById('loadDefaultModel').addEventListener('click', () => {
-            this.loadDefaultModel();
+
+        document.getElementById('springsEnabled')?.addEventListener('change', (e) => {
+            this.springsEnabled = !!e.target.checked;
+            this.applyQuality();
+            if (this.vrm?.springBoneManager && this.springsActive) {
+                softResetSprings(this.vrm, 40);
+            }
+            this.setStatus(this.springsActive ? '弹簧骨骼已开启并重置' : '弹簧骨骼已关闭', 'success');
         });
-        
-        // Test audio button
-        document.getElementById('playTestAudio').addEventListener('click', async () => {
+
+        document.getElementById('saveSettings')?.addEventListener('click', () => {
+            this.settings = saveSettings(this.snapshotSettings());
+            this.setStatus('本地设置已保存', 'success');
+        });
+        document.getElementById('resetSettings')?.addEventListener('click', () => {
+            this.settings = resetSettings();
+            this.params.width = this.settings.widthM;
+            this.params.height = this.settings.heightM;
+            this.params.tiltDegrees = this.settings.tiltDeg;
+            this.params.eye = {
+                x: this.settings.eyeX,
+                y: this.settings.eyeY,
+                z: this.settings.eyeZ
+            };
+            this.quality = this.settings.quality;
+            this.springsEnabled = this.settings.springsEnabled !== false;
+            this.sceneMode = this.settings.sceneMode === 'minimal' ? 'minimal' : 'room';
+            this.idlePaused = !!this.settings.idlePaused;
+            this.animClipId = this.settings.animClipId || 'chatvrm-idle';
+            this.animAutoCycle = this.settings.animAutoCycle !== false;
+            this.animPlayer.autoCycle = this.animAutoCycle;
+            this.screenPhysical = null;
+            this.projectionMode = 'preview';
+            this.rebuildEnvironment();
+            this.animator?.setPaused(this.idlePaused);
+            this.userLockedWidth = false;
+            this.applyQuality();
+            this.syncSlidersFromParams();
+            this.setupPanels();
+            this.updateProjection();
+            this.updateProjectionModeBanner();
+            if (this.vrm) this.normalizeAndAnchor();
+            this.setStatus('已重置为默认设置（预览模式）', 'success');
+        });
+
+        document.getElementById('vrmFile')?.addEventListener('change', async (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+            const url = URL.createObjectURL(file);
+            try {
+                await this.loadVRM(url);
+            } finally {
+                URL.revokeObjectURL(url);
+            }
+        });
+
+        document.getElementById('loadDefaultModel')?.addEventListener('click', () => this.loadDefaultModel());
+        document.getElementById('loadSampleModel')?.addEventListener('click', () => this.loadSampleModel());
+        this.retryBtn?.addEventListener('click', () => this.loadVRM(this.lastModelUrl));
+
+        document.getElementById('playTestAudio')?.addEventListener('click', async () => {
             if (!this.animator) {
                 this.setStatus('请先加载 VRM 模型', 'error');
                 return;
             }
-            
             try {
-                this.setStatus('正在播放测试音频...', 'loading');
+                this.setStatus('正在播放测试音频…', 'loading');
                 const audioBuffer = await generateTestAudio();
                 await this.animator.playAudioWithMouth(audioBuffer);
                 this.setStatus('音频播放完成', 'success');
             } catch (error) {
-                console.error('Audio playback error:', error);
                 this.setStatus(`音频播放失败: ${error.message}`, 'error');
             }
         });
-    }
-    
-    setupResize() {
-        const resizeObserver = new ResizeObserver(() => {
-            const width = this.canvas.clientWidth;
-            const height = this.canvas.clientHeight;
-            this.renderer.setSize(width, height, false);
-            
-            // Update physical screen dimensions to match canvas aspect ratio
-            // Assume ~30cm viewing width at typical desktop distance
-            const aspectRatio = width / height;
-            this.params.height = 0.20; // Fixed 20cm height
-            this.params.width = this.params.height * aspectRatio;
-            
-            this.updateProjection();
+
+        document.getElementById('resettleSprings')?.addEventListener('click', () => {
+            if (!this.vrm) return;
+            if (this.restPoseSet) {
+                applyRestPoseAndSettle(this.vrm, this.metaVersion, {
+                    settleFrames: 120,
+                    updateSprings: this.springsActive
+                });
+            } else {
+                softResetSprings(this.vrm, this.springsActive ? 60 : 5);
+            }
+            this.normalizeAndAnchor();
+            this.setStatus(this.springsActive ? '已重新稳定姿势与弹簧' : '已重新应用休息姿势（弹簧关闭）', 'success');
         });
-        resizeObserver.observe(this.canvas);
-        
-        // Initial resize
-        const width = this.canvas.clientWidth;
-        const height = this.canvas.clientHeight;
-        if (width > 0 && height > 0) {
-            const aspectRatio = width / height;
-            this.params.width = this.params.height * aspectRatio;
-        }
     }
-    
+
+    setupResize() {
+        const applySize = () => this.syncRendererToCanvas();
+        new ResizeObserver(applySize).observe(this.canvas);
+        if (this.sceneContainer) {
+            new ResizeObserver(applySize).observe(this.sceneContainer);
+        }
+        window.addEventListener('orientationchange', () => {
+            setTimeout(applySize, 200);
+        });
+        applySize();
+    }
+
     setStatus(message, type = 'loading') {
+        if (!this.statusEl) return;
         this.statusEl.textContent = message;
         this.statusEl.className = type;
     }
-    
+
+    /**
+     * Advance one simulation tick and render. Used by QA so capture does not
+     * depend on throttled rAF while Puppeteer screenshots.
+     */
+    stepSimulation(delta = 1 / 30) {
+        const dt = Math.min(Math.max(delta, 0), 0.05);
+        const authored = !!(this.animPlayer?.active && !this.idlePaused);
+        if (!authored && this.restPoseSet && this.vrm) {
+            reapplyArmRestPose(this.vrm, this.metaVersion);
+        }
+        if (authored) this.animPlayer.update(dt);
+        if (this.animator) this.animator.update(dt);
+        if (this.vrm) {
+            if (this.springsActive) {
+                this.vrm.update(dt);
+            } else {
+                const mgr = this.vrm.springBoneManager;
+                if (mgr) {
+                    this.vrm.springBoneManager = undefined;
+                    this.vrm.update(dt);
+                    this.vrm.springBoneManager = mgr;
+                } else {
+                    this.vrm.update(dt);
+                }
+            }
+            // After bone solve: plant feet on contact plane (room + minimal).
+            this.groundFeetToFloor();
+        }
+        this.renderer.render(this.scene, this.camera);
+        return {
+            authored,
+            anim: this.animPlayer?.diagnostics?.() || null,
+            bodyDrive: this.animator?.bodyDrive || null
+        };
+    }
+
+    /**
+     * When true, rAF keeps pumping but does not advance simulation.
+     * Used by GPU QA forced-step capture so wall-time screenshots cannot
+     * double-drive dwell / auto-cycle alongside stepSimulation.
+     */
+    setSuspendRafSimulation(suspend) {
+        this._suspendRafSimulation = !!suspend;
+        if (!suspend) this.clock.getDelta(); // drop backlog
+    }
+
     animate() {
         requestAnimationFrame(() => this.animate());
-        
-        const delta = this.clock.getDelta();
-        
-        // Update VRM
-        if (this.vrm) {
-            this.vrm.update(delta);
-        }
-        
-        // Update animations
-        if (this.animator) {
-            this.animator.update(delta);
-        }
-        
-        // Reapply resting pose after animator (which may modify arm bones for breathing)
-        if (this.restPoseSet && this.leftArmNode && this.rightArmNode) {
-            this.leftArmNode.quaternion.copy(this.leftArmQuat);
-            this.rightArmNode.quaternion.copy(this.rightArmQuat);
-        }
-        
-        // Render
-        this.renderer.render(this.scene, this.camera);
+        this.lastFrameTime = performance.now();
+        if (this._suspendRafSimulation) return;
+
+        let delta = this.clock.getDelta();
+        delta = Math.min(delta, 0.05);
+        this.stepSimulation(delta);
     }
 }
 
-// Initialize app when DOM is ready
 let app;
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', () => {
+
+/**
+ * Entry used by index.html dynamic import so module/network/syntax failures
+ * surface in #status / #bootError instead of a silent blank canvas.
+ */
+export function bootDesktopPortraitApp() {
+    if (app) return app;
+    try {
+        window.__bootPhase = 'constructing';
         app = new DesktopPortraitApp();
-        window.app = app; // Expose for diagnostics
-    });
-} else {
-    app = new DesktopPortraitApp();
-    window.app = app;
+        window.app = app;
+        return app;
+    } catch (err) {
+        if (typeof window.showBootError === 'function') {
+            window.showBootError(err);
+        } else {
+            console.error('[boot]', err);
+            const el = document.getElementById('status');
+            if (el) {
+                el.textContent = `启动失败: ${err.message || err}`;
+                el.className = 'error';
+            }
+        }
+        window.diagnostics = {
+            ready: false,
+            error: String(err?.stack || err?.message || err),
+            phase: window.__bootPhase || 'construct'
+        };
+        throw err;
+    }
 }
 
 export { DesktopPortraitApp };
