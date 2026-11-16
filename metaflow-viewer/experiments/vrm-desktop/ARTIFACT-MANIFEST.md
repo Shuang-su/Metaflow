@@ -4,7 +4,7 @@
 
 | Field | Value |
 | --- | --- |
-| Tip commit | *(filled after push)* |
+| Tip commit | *633f5811d68bedf72829c3a5701d400c9f3803b7* |
 | ZIP | `/opt/cursor/artifacts/metaflow-desktop-preview.zip` |
 | ZIP SHA256 | `64790aa10ad97439fdde78a94a9c15e0e1d6ec88bc389adad39e927f98e2d33d` |
 | Prior authored draft | `842df070…` / Netlify draft `6af9f72b09942bc643061570` (do not treat as production) |
