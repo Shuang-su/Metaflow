@@ -1,7 +1,5 @@
 #!/usr/bin/env python3
-"""Immutable browser-only handoff. No private source history or credentials in payload.
-Build has no deployment credentials; publication uses the existing protected site.
-"""
+"""Immutable browser-only handoff; build has no deployment credentials."""
 from pathlib import Path, PurePosixPath
 from concurrent.futures import ThreadPoolExecutor
 import argparse, base64, datetime, hashlib, io, json, lzma, os, shutil
@@ -18,6 +16,12 @@ PACKED_SHA = 'bf5e8b5b3d19547e6b9e0d3905ef0b5dc35757847848bd8a9db0fa103371f383'
 MANIFEST_SHA = '89cc7c2fbc84a4e1f52583f4fa545e6a2a3ea127dea8f6f1e85324e137a5f991'
 SITE = ROOT / 'companion-motion-site'
 TOKEN = os.environ.get('NETLIFY_AUTH_TOKEN', '')
+# Netlify consumes these two files; it deliberately does not serve their URLs.
+# These are the exact bytes of the verified 15.1 artifact, not guessed responses.
+BASE_CONFIG = {
+    '_headers': b'/*\n  X-Content-Type-Options: nosniff\n  Referrer-Policy: strict-origin-when-cross-origin\n  Permissions-Policy: camera=(self), microphone=(), geolocation=()\n/assets/*.gz\n  Content-Type: application/gzip\n',
+    '_redirects': b'/about /about.html 200\n',
+}
 
 
 def sha(data):
@@ -81,11 +85,11 @@ def download(url, limit, hosts=None):
                     raise RuntimeError('Asset HTTP status not 200')
                 data = response.read(limit + 1)
             if len(data) > limit:
-                raise ValueError('Asset exceeds budget')
+                raise ValueError('Asset exceeds budget: ' + u.path)
             return data
         except urllib.error.HTTPError as error:
             if error.code not in (429, 500, 502, 503, 504) or attempt == 2:
-                raise
+                raise RuntimeError(f'Public asset HTTP {error.code}: {u.hostname}{u.path}') from None
             time.sleep(attempt + 1)
         except (TimeoutError, urllib.error.URLError):
             if attempt == 2:
@@ -96,6 +100,10 @@ def download(url, limit, hosts=None):
 def check_file(data, row):
     if len(data) != row['bytes'] or sha(data) != row['sha256']:
         raise ValueError('Tested artifact mismatch: ' + row['path'])
+
+
+def baseline(name, limit):
+    return BASE_CONFIG[name] if name in BASE_CONFIG else download(BASE_ORIGIN + '/' + urllib.parse.quote(name, safe='/'), limit)
 
 
 def build():
@@ -129,10 +137,10 @@ def build():
         def restore(row):
             name = row['path']
             if row['source'] == 'baseline':
-                data = download(BASE_ORIGIN + '/' + urllib.parse.quote(name, safe='/'), row['bytes'])
+                data = baseline(name, row['bytes'])
             elif row['source'] == 'delta':
                 change = m['changes'][name]
-                before = download(BASE_ORIGIN + '/' + urllib.parse.quote(name, safe='/'), 8 * 1024 * 1024) if change['hasBase'] else b''
+                before = baseline(name, 8 * 1024 * 1024) if change['hasBase'] else b''
                 if sha(before) != change['baseSha256']:
                     raise ValueError('Immutable baseline changed: ' + name)
                 lines = before.decode('utf-8').splitlines(keepends=True)
@@ -194,11 +202,23 @@ def public(root, path, limit=2_000_000):
 
 
 def smoke(root, m):
-    # Every resource, including models, dependency files and all seven original clips.
+    # All 66 served files are byte-verified; two Netlify configuration files are
+    # verified at build/upload and by their applied HTTP behavior, not fake URLs.
     def verify(row):
         check_file(public(root, row['path'], row['bytes']), row)
+    rows = [r for r in m['files'] if r['path'] not in BASE_CONFIG]
+    if len(rows) != 66:
+        raise ValueError('Unexpected served resource count')
     with ThreadPoolExecutor(max_workers=6) as pool:
-        list(pool.map(verify, m['files']))
+        list(pool.map(verify, rows))
+    request = urllib.request.Request(root.rstrip('/') + '/?release=' + SOURCE, headers={'Cache-Control': 'no-cache'})
+    with urllib.request.urlopen(request, timeout=30) as response:
+        for key, value in [('X-Content-Type-Options', 'nosniff'), ('Referrer-Policy', 'strict-origin-when-cross-origin'), ('Permissions-Policy', 'camera=(self), microphone=(), geolocation=(), window-management=(self)')]:
+            if response.headers.get(key) != value:
+                raise RuntimeError('Expected routing header not applied: ' + key)
+    about = next(r for r in m['files'] if r['path'] == 'about.html')
+    check_file(public(root, 'about', about['bytes']), about)
+    print('REMOTE_BYTES_AND_ROUTING_VERIFIED', root, len(rows), flush=True)
 
 
 def browser_smoke(root, label):
@@ -284,7 +304,7 @@ def publish():
             api('sites/' + sid + '/deploys/' + old_id + '/restore', {}, 'POST')
         save_record({'status': 'production-verification-failed', 'failedDeployId': did, 'previousDeployId': old_id, 'rollbackPerformed': rollback, 'sourceRef': SOURCE})
         raise
-    save_record({'status': 'published-http-and-browser-verified', 'url': ORIGIN, 'preview': preview, 'deployId': did, 'previousDeployId': old_id, 'sourceRepository': m['sourceRepository'], 'sourceRef': SOURCE, 'release': m['release'], 'filesVerified': len(m['files']), 'candidateArtifact': m['artifactId'], 'candidateArtifactSha256': m['artifactSha256'], 'manifestSha256': MANIFEST_SHA, 'motionCatalogue': {'total': 16, 'bundled': 7, 'localImport': 8, 'originalSourceRequired': 1}})
+    save_record({'status': 'published-http-and-browser-verified', 'url': ORIGIN, 'preview': preview, 'deployId': did, 'previousDeployId': old_id, 'sourceRepository': m['sourceRepository'], 'sourceRef': SOURCE, 'release': m['release'], 'filesVerified': len(m['files']), 'httpFilesVerified': 66, 'routingConfigurationsVerified': 2, 'candidateArtifact': m['artifactId'], 'candidateArtifactSha256': m['artifactSha256'], 'manifestSha256': MANIFEST_SHA, 'motionCatalogue': {'total': 16, 'bundled': 7, 'localImport': 8, 'originalSourceRequired': 1}})
 
 
 if __name__ == '__main__':
