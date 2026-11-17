@@ -1,0 +1,103 @@
+name: Publish approved companion motion library
+on:
+  push:
+    branches: [main, codex/mf-165-motion-library-release]
+    paths:
+      - .github/workflows/desktop-companion-motion-release.yml
+      - scripts/companion-motion-release.py
+      - scripts/verify-companion-motion-release.mjs
+      - releases/companion/2026-11-16-motion-library/**
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+concurrency:
+  group: ${{ github.ref == 'refs/heads/main' && 'approved-desktop-companion-publication' || format('companion-motion-build-{0}', github.ref) }}
+  cancel-in-progress: false
+jobs:
+  build:
+    if: github.repository == 'Shuang-su/Metaflow'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          sparse-checkout: |
+            releases/companion/2026-11-16-motion-library
+            scripts/companion-motion-release.py
+            scripts/verify-companion-motion-release.mjs
+          sparse-checkout-cone-mode: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Validate release scripts and reconstruct exact tested browser runtime
+        run: |
+          python3 -m py_compile scripts/companion-motion-release.py
+          node --check scripts/verify-companion-motion-release.mjs
+          python3 scripts/companion-motion-release.py build
+          python3 scripts/companion-motion-release.py verify
+      - uses: actions/upload-artifact@v4
+        with:
+          name: companion-approved-motion-runtime
+          path: companion-motion-site/
+          retention-days: 14
+      - uses: actions/upload-artifact@v4
+        with:
+          name: companion-motion-build-verification
+          path: companion-motion-build.json
+          retention-days: 30
+  publish:
+    needs: build
+    if: github.ref == 'refs/heads/main' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    environment: production
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          sparse-checkout: |
+            releases/companion/2026-11-16-motion-library
+            scripts/companion-motion-release.py
+            scripts/verify-companion-motion-release.mjs
+          sparse-checkout-cone-mode: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/download-artifact@v4
+        with:
+          name: companion-approved-motion-runtime
+          path: companion-motion-site
+      - name: Recheck all runtime files without credentials
+        run: python3 scripts/companion-motion-release.py verify
+      - name: Prepare isolated browser validation
+        run: |
+          npm install --prefix "$RUNNER_TEMP/companion-browser" --ignore-scripts --no-audit --no-fund playwright@1.56.1
+          "$RUNNER_TEMP/companion-browser/node_modules/.bin/playwright" install --with-deps chromium
+          echo "BROWSER_MODULE_DIR=$RUNNER_TEMP/companion-browser" >> "$GITHUB_ENV"
+          echo "EVIDENCE_DIR=$RUNNER_TEMP/companion-motion-publication" >> "$GITHUB_ENV"
+      - name: Draft, actual playback verification, atomic publication and production verification
+        env:
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+        run: python3 scripts/companion-motion-release.py publish
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: companion-motion-publication-result
+          path: companion-motion-publication.json
+          if-no-files-found: warn
+          retention-days: 30
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: companion-motion-publication-evidence
+          path: ${{ runner.temp }}/companion-motion-publication/
+          if-no-files-found: warn
+          retention-days: 30
