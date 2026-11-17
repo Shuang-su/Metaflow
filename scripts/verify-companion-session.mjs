@@ -13,8 +13,12 @@ const browser=await chromium.launch({headless:true,args:['--use-angle=swiftshade
 try{
  for(const mobile of [false,true]){
   const name=mobile?'mobile':'desktop',ctx=await browser.newContext({viewport:mobile?{width:420,height:912}:{width:1280,height:900},isMobile:mobile,hasTouch:mobile,deviceScaleFactor:1,reducedMotion:'reduce'});
-  const page=await ctx.newPage(),errors=[];page.setDefaultTimeout(30000);
-  page.on('pageerror',e=>errors.push(e.message));page.on('console',m=>{if(m.type()==='error'&&!m.text().includes('favicon.ico'))errors.push(m.text());});
+  const page=await ctx.newPage(),errors=[],knownDiagnostics=[];page.setDefaultTimeout(30000);
+  page.on('pageerror',e=>errors.push(e.message));page.on('console',m=>{
+   const message=m.text();
+   if(message==='INFO: Created TensorFlow Lite XNNPACK delegate for CPU.'){knownDiagnostics.push({channel:m.type(),message});return;}
+   if(m.type()==='error'&&!message.includes('favicon.ico'))errors.push(message);
+  });
   await page.addInitScript(()=>{
    let hidden=false;const qa={wakeRequests:0,releases:0,mediaRequests:0,deny:false,locks:[]};
    Object.defineProperty(document,'hidden',{configurable:true,get:()=>hidden});
@@ -58,9 +62,9 @@ try{
    assert.equal(await page.evaluate(()=>__qaSession.qa.mediaRequests),2);await page.locator('#dismiss-session-resume').click();assert.equal(await page.locator('#display-resume-card').isVisible(),false);
    const final=await page.evaluate(()=>window.__companionDiagnostics());assert.equal(final.renderer.disposed,false);assert.equal(final.renderer.modelCount,1);assert.equal(final.renderer.nativeMotion.idle,'hand-hip');assert.equal(final.cameraActive,false);
    assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth+1),false);assert.deepEqual(errors,[]);
-   report.scenarios.push({name,pass:true,errors,checks:['actual Wenjing/default and original native idle','16-item catalogue','no automatic wake/camera permission','inline display exit releases lock','denial/system-release and explicit retry','awake switch honored','background stops pending camera and rendering','return renders but does not restart camera','explicit tracking resume only','cached page keeps renderer alive','original idle retained','no overflow']});
+   report.scenarios.push({name,pass:true,errors,knownDiagnostics,checks:['actual Wenjing/default and original native idle','16-item catalogue','no automatic wake/camera permission','inline display exit releases lock','denial/system-release and explicit retry','awake switch honored','background stops pending camera and rendering','return renders but does not restart camera','explicit tracking resume only','cached page keeps renderer alive','original idle retained','no overflow']});
    console.log('LIVE_SESSION_VERIFIED',label,name);
-  }catch(error){report.scenarios.push({name,pass:false,error:error.stack,errors});await page.screenshot({path:`${out}/${label}-${name}-failed.png`}).catch(()=>{});throw error;}
+  }catch(error){report.scenarios.push({name,pass:false,error:error.stack,errors,knownDiagnostics});await page.screenshot({path:`${out}/${label}-${name}-failed.png`}).catch(()=>{});throw error;}
   finally{await ctx.close();}
  }
  report.pass=true;
