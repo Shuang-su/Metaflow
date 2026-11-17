@@ -1,0 +1,34 @@
+name: Inspect companion public asset delivery
+on:
+  push:
+    branches: [codex/mf-165-reliability-delivery-fix]
+    paths: [.github/workflows/companion-reliability-http-diagnostic.yml]
+permissions:
+  contents: read
+jobs:
+  inspect:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 3
+    steps:
+      - name: Compare draft and immutable baseline model responses, no deployment
+        run: |
+          python3 - <<'PY'
+          import urllib.request,hashlib,time,json,gzip
+          path='assets/milky-green-reconstruction.vrm'
+          expected='e4e277ebba12f3b07dde4bfcbe5664147e69a787ee2e40c14f6facae9d588ac8'
+          for deploy in ['6afc40386124f394de44d924','6afc2ff6bf40939437cf963a']:
+            for mode in ['existing-query','unique-identity']:
+              query='release=8555630aa63e31e6339d0b5dbef3a5917385feb9' if mode=='existing-query' else 'qa='+str(time.time_ns())
+              url='https://'+deploy+'--polite-semolina-b478fc.netlify.app/'+path+'?'+query
+              headers={'Cache-Control':'no-cache','User-Agent':'MetaFlow-companion-release/3.0'}
+              if mode=='unique-identity':headers['Accept-Encoding']='identity'
+              try:
+                with urllib.request.urlopen(urllib.request.Request(url,headers=headers),timeout=35) as r:
+                  b=r.read(20000001)
+                  info={'deploy':deploy,'mode':mode,'status':r.status,'bytes':len(b),'sha256':hashlib.sha256(b).hexdigest(),'prefixHex':b[:4].hex(),'headers':{k:r.headers.get(k) for k in ['Content-Type','Content-Encoding','Content-Length','ETag','Cache-Control','X-Nf-Request-Id']}}
+                info['matchesOriginal']=info['sha256']==expected
+                if info['headers']['Content-Encoding']=='gzip':
+                  decoded=gzip.decompress(b);info['decodedBytes']=len(decoded);info['decodedSha256']=hashlib.sha256(decoded).hexdigest()
+                print('PUBLIC_DELIVERY',json.dumps(info),flush=True)
+              except Exception as e:print('PUBLIC_DELIVERY_FAILURE',deploy,mode,type(e).__name__,str(e),flush=True)
+          PY
