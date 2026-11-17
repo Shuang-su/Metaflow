@@ -1,0 +1,94 @@
+name: Publish approved companion reliability release
+on:
+  push:
+    branches: [main, codex/mf-165-reliability-release]
+    paths:
+      - .github/workflows/desktop-companion-reliability-release.yml
+      - scripts/companion-reliability-release.py
+      - scripts/verify-companion-reliability.mjs
+      - releases/companion/2026-11-17-reliability/**
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+concurrency:
+  group: ${{ github.ref == 'refs/heads/main' && 'approved-desktop-companion-publication' || format('companion-reliability-build-{0}', github.ref) }}
+  cancel-in-progress: false
+jobs:
+  build:
+    if: github.repository == 'Shuang-su/Metaflow'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          sparse-checkout: |
+            releases/companion/2026-11-17-reliability
+            scripts/companion-reliability-release.py
+            scripts/verify-companion-reliability.mjs
+          sparse-checkout-cone-mode: false
+      - uses: actions/setup-node@v4
+        with: {node-version: '22'}
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.12'}
+      - name: Check scripts and reconstruct all 68 accepted files
+        run: |
+          python3 -m py_compile scripts/companion-reliability-release.py
+          node --check scripts/verify-companion-reliability.mjs
+          python3 scripts/companion-reliability-release.py build
+          python3 scripts/companion-reliability-release.py verify
+      - uses: actions/upload-artifact@v4
+        with:
+          name: companion-approved-reliability-runtime
+          path: companion-reliability-site/
+          retention-days: 14
+  publish:
+    needs: build
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    environment: production
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          sparse-checkout: |
+            releases/companion/2026-11-17-reliability
+            scripts/companion-reliability-release.py
+            scripts/verify-companion-reliability.mjs
+          sparse-checkout-cone-mode: false
+      - uses: actions/setup-node@v4
+        with: {node-version: '22'}
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.12'}
+      - uses: actions/download-artifact@v4
+        with:
+          name: companion-approved-reliability-runtime
+          path: companion-reliability-site
+      - name: Verify candidate without deployment credentials
+        run: python3 scripts/companion-reliability-release.py verify
+      - name: Prepare isolated browser validation
+        run: |
+          npm install --prefix "$RUNNER_TEMP/companion-browser" --ignore-scripts --no-audit --no-fund playwright@1.56.1
+          "$RUNNER_TEMP/companion-browser/node_modules/.bin/playwright" install --with-deps chromium
+          echo "BROWSER_MODULE_DIR=$RUNNER_TEMP/companion-browser" >> "$GITHUB_ENV"
+          echo "EVIDENCE_DIR=$RUNNER_TEMP/companion-reliability-publication" >> "$GITHUB_ENV"
+      - name: Validate draft, publish atomically and validate production
+        env:
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+        run: python3 scripts/companion-reliability-release.py publish
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: companion-reliability-publication-result
+          path: companion-reliability-publication.json
+          if-no-files-found: warn
+          retention-days: 30
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: companion-reliability-publication-evidence
+          path: ${{ runner.temp }}/companion-reliability-publication/
+          if-no-files-found: warn
+          retention-days: 30
