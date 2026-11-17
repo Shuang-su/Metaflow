@@ -1,0 +1,98 @@
+name: Publish approved companion Wenjing startup
+on:
+  push:
+    branches: [main, codex/mf-165-wenjing-startup]
+    paths:
+      - .github/workflows/desktop-companion-startup-release.yml
+      - scripts/publish-companion-startup.py
+      - scripts/verify-companion-startup.mjs
+      - releases/companion/2026-11-17-wenjing-default/**
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+concurrency:
+  group: ${{ github.ref == 'refs/heads/main' && 'approved-desktop-companion-publication' || format('companion-startup-build-{0}', github.ref) }}
+  cancel-in-progress: false
+jobs:
+  build:
+    if: github.repository == 'Shuang-su/Metaflow'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          sparse-checkout: |
+            releases/companion/2026-11-17-wenjing-default
+            releases/companion/2026-11-17-reliability
+            scripts/companion-reliability-release.py
+            scripts/publish-companion-startup.py
+            scripts/verify-companion-startup.mjs
+          sparse-checkout-cone-mode: false
+      - uses: actions/setup-node@v4
+        with: {node-version: '22'}
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.12'}
+      - name: Reconstruct and verify all 69 tested files without credentials
+        run: |
+          python3 -m py_compile scripts/publish-companion-startup.py
+          node --check scripts/verify-companion-startup.mjs
+          python3 scripts/publish-companion-startup.py build
+          python3 scripts/publish-companion-startup.py verify
+      - uses: actions/upload-artifact@v4
+        with:
+          name: companion-approved-startup-runtime
+          path: companion-startup-site/
+          retention-days: 14
+  publish:
+    needs: build
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    environment: production
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          sparse-checkout: |
+            releases/companion/2026-11-17-wenjing-default
+            releases/companion/2026-11-17-reliability
+            scripts/companion-reliability-release.py
+            scripts/publish-companion-startup.py
+            scripts/verify-companion-startup.mjs
+          sparse-checkout-cone-mode: false
+      - uses: actions/setup-node@v4
+        with: {node-version: '22'}
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.12'}
+      - uses: actions/download-artifact@v4
+        with:
+          name: companion-approved-startup-runtime
+          path: companion-startup-site
+      - name: Recheck candidate before any deployment credential is used
+        run: python3 scripts/publish-companion-startup.py verify
+      - name: Prepare existing isolated browser validation
+        run: |
+          npm install --prefix "$RUNNER_TEMP/companion-browser" --ignore-scripts --no-audit --no-fund playwright@1.56.1
+          "$RUNNER_TEMP/companion-browser/node_modules/.bin/playwright" install --with-deps chromium
+          echo "BROWSER_MODULE_DIR=$RUNNER_TEMP/companion-browser" >> "$GITHUB_ENV"
+          echo "EVIDENCE_DIR=$RUNNER_TEMP/companion-startup-publication" >> "$GITHUB_ENV"
+      - name: Check draft, promote atomically, then recheck production
+        env:
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+        run: python3 scripts/publish-companion-startup.py publish
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: companion-startup-publication-result
+          path: companion-startup-publication.json
+          if-no-files-found: warn
+          retention-days: 30
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: companion-startup-publication-evidence
+          path: ${{ runner.temp }}/companion-startup-publication/
+          if-no-files-found: warn
+          retention-days: 30
