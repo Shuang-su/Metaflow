@@ -16,7 +16,7 @@ Metaflow 围绕 3D Gaussian Splatting（3DGS）提供处理、编辑、编排、
 | Manage | 素材引用、产物、草稿、版本、标签与发布入口 | [MF-98 首期规划](https://github.com/Shuang-su/Metaflow/issues/98)；现有 data 目录仍承担公开资源存放，内部管理产品尚待实现 |
 | Studio | 标点、相机、动画、环境与展示编排 | [MF-58 本地原型与内部交付](https://github.com/Shuang-su/Metaflow/issues/58)；尚无正式公开入口，作者工程与运行配置分别处理 |
 | Director | 取景、镜头、景深、照片与视频 | [MF-106 线上 ACG 实验](https://github.com/Shuang-su/Metaflow/issues/106)；完整摄影与光学研究继续由 [MF-62](https://github.com/Shuang-su/Metaflow/issues/62) 跟踪 |
-| App | 原生平台文件入口、生命周期、渲染与设备输入 | [NextNews HarmonyOS](https://github.com/Shuang-su/NextNews/blob/main/docs/harmonyos/README.md) 已有阶段实现，完整发布验收未完成；[MF-102](https://github.com/Shuang-su/Metaflow/issues/102) 承接后续 |
+| App | 原生平台文件入口、生命周期、渲染与设备输入 | [MetaFlow HarmonyOS](https://github.com/Shuang-su/Metaflow-HarmonyOS/blob/main/docs/harmonyos/README.md) 已有阶段实现，完整发布验收未完成；[MF-102](https://github.com/Shuang-su/Metaflow/issues/102) 承接后续 |
 | Daily | 有来源的论文、工具与专题内容 | [内容仓库](https://github.com/Shuang-su/gaussian-splatting-daily)可用；[门户与发布任务](https://github.com/Shuang-su/gaussian-splatting-daily/issues/33)独立推进 |
 
 Convert、Editor 产出适用资产；Studio 面向展示编排，Director 面向摄影成片；Viewer 和 App 按各自支持范围消费资产与体验配置。Manage 规划负责引用与发布管理，各工具仍可直接接收适用本地输入。产品职责图见 [首页协作关系](../../README.md#产品如何协作)，交接责任继续由 [MF-99](https://github.com/Shuang-su/Metaflow/issues/99) 定义，不预设统一工程格式。
@@ -25,7 +25,7 @@ Convert、Editor 产出适用资产；Studio 面向展示编排，Director 面�
 
 Nav、粒子开场、动态大气和 XR 是产品上的扩展方向，进展入口见 [首页扩展表](../../README.md#扩展与插件方向)。Nav 由 Studio 作者侧和 Viewer 运行侧协作，当前接入与实景验收由 [MF-97](https://github.com/Shuang-su/Metaflow/issues/97) 跟踪。通用插件运行时、SDK 与分发机制仍待决策；各实验分别验收。
 
-App 是独立原生产品。当前 HarmonyOS 路线采用 ArkTS／ArkUI、C++17／OpenGL ES 3.0；Web Viewer 与原生端分别验证格式、画质、输入和生命周期。Web 扩展在 App 中的适用范围需要另行声明，具体限制以 [原生开发与验收记录](https://github.com/Shuang-su/NextNews/blob/main/docs/harmonyos/README.md) 为准。
+App 是独立原生产品。当前 HarmonyOS 路线采用 ArkTS／ArkUI、C++17／OpenGL ES 3.0；Web Viewer 与原生端分别验证格式、画质、输入和生命周期。Web 扩展在 App 中的适用范围需要另行声明，具体限制以 [原生开发与验收记录](https://github.com/Shuang-su/Metaflow-HarmonyOS/blob/main/docs/harmonyos/README.md) 为准。
 
 ## 一条完整链路
 

@@ -18,7 +18,7 @@ Metaflow 是围绕 3D Gaussian Splatting（3DGS）的产品与工具体系，覆
 | **Manage** | 资产引用、草稿、版本、标签与发布管理 | 规划中 | [首期定义 MF-98](https://github.com/Shuang-su/Metaflow/issues/98) |
 | **Studio** | 标点、相机、动画、环境与展示编排 | 已有本地原型与内部交付；尚无正式公开入口 | [产品与原型 MF-58](https://github.com/Shuang-su/Metaflow/issues/58) |
 | **Director** | 取景、镜头、景深、照片与视频输出 | 已上线限定 ACG 实验入口；完整摄影研究继续 | [摄影体验](https://metaflow.shuang-su.com/acg/szcaf15/honkai_star_rail-tribbie/director) · [范围 MF-106](https://github.com/Shuang-su/Metaflow/issues/106) |
-| **App** | 原生设备上的场景浏览、输入与应用生命周期 | HarmonyOS 阶段实现；完整发布验收未完成 | [NextNews 原生端](https://github.com/Shuang-su/NextNews) · [后续验收 MF-102](https://github.com/Shuang-su/Metaflow/issues/102) |
+| **App** | 原生设备上的场景浏览、输入与应用生命周期 | HarmonyOS 阶段实现；完整发布验收未完成 | [MetaFlow HarmonyOS](https://github.com/Shuang-su/Metaflow-HarmonyOS) · [后续验收 MF-102](https://github.com/Shuang-su/Metaflow/issues/102) |
 | **Daily** | 论文、工具与研究内容归档 | 内容仓库可用；门户建设另行推进 | [高斯日报](https://github.com/Shuang-su/gaussian-splatting-daily) · [门户任务](https://github.com/Shuang-su/gaussian-splatting-daily/issues/33) |
 
 ### 扩展与插件方向
