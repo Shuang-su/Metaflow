@@ -1,0 +1,96 @@
+name: Publish approved companion voice playback
+on:
+  push:
+    branches: [main, codex/mf-165-voice-playback-release]
+    paths:
+      - .github/workflows/desktop-companion-voice-release.yml
+      - scripts/publish-companion-voice.py
+      - scripts/verify-companion-voice.mjs
+      - releases/companion/2026-11-21-voice-playback/**
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+concurrency:
+  group: ${{ github.ref == 'refs/heads/main' && 'approved-desktop-companion-publication' || format('companion-voice-build-{0}', github.ref) }}
+  cancel-in-progress: false
+jobs:
+  build:
+    if: github.repository == 'Shuang-su/Metaflow'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          sparse-checkout: |
+            releases/companion/2026-11-21-voice-playback
+            scripts/companion-reliability-release.py
+            scripts/publish-companion-voice.py
+            scripts/verify-companion-voice.mjs
+          sparse-checkout-cone-mode: false
+      - uses: actions/setup-node@v4
+        with: {node-version: '22'}
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.12'}
+      - name: Reconstruct and verify exact public runtime without credentials
+        run: |
+          python3 -m py_compile scripts/publish-companion-voice.py
+          node --check scripts/verify-companion-voice.mjs
+          python3 scripts/publish-companion-voice.py build
+          python3 scripts/publish-companion-voice.py verify
+      - uses: actions/upload-artifact@v4
+        with:
+          name: companion-approved-voice-runtime
+          path: companion-voice-site/
+          retention-days: 14
+  publish:
+    needs: build
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    environment: production
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          sparse-checkout: |
+            releases/companion/2026-11-21-voice-playback
+            scripts/companion-reliability-release.py
+            scripts/publish-companion-voice.py
+            scripts/verify-companion-voice.mjs
+          sparse-checkout-cone-mode: false
+      - uses: actions/setup-node@v4
+        with: {node-version: '22'}
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.12'}
+      - uses: actions/download-artifact@v4
+        with:
+          name: companion-approved-voice-runtime
+          path: companion-voice-site
+      - name: Verify exact candidate before using any deployment credential
+        run: python3 scripts/publish-companion-voice.py verify
+      - name: Prepare existing isolated browser checker
+        run: |
+          npm install --prefix "$RUNNER_TEMP/companion-browser" --ignore-scripts --no-audit --no-fund playwright@1.56.1
+          "$RUNNER_TEMP/companion-browser/node_modules/.bin/playwright" install --with-deps chromium
+          echo "BROWSER_MODULE_DIR=$RUNNER_TEMP/companion-browser" >> "$GITHUB_ENV"
+          echo "EVIDENCE_DIR=$RUNNER_TEMP/companion-voice-publication" >> "$GITHUB_ENV"
+      - name: Verify one draft, promote without concurrent overwrite, and verify production
+        env:
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+        run: python3 scripts/publish-companion-voice.py publish
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: companion-voice-publication-result
+          path: companion-voice-publication.json
+          if-no-files-found: warn
+          retention-days: 30
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: companion-voice-publication-evidence
+          path: ${{ runner.temp }}/companion-voice-publication/
+          if-no-files-found: warn
+          retention-days: 30
