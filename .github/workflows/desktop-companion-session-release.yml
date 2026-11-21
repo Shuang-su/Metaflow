@@ -1,0 +1,106 @@
+name: Publish approved companion display session
+on:
+  push:
+    branches: [main, codex/mf-165-display-session-release]
+    paths:
+      - .github/workflows/desktop-companion-session-release.yml
+      - scripts/publish-companion-session.py
+      - scripts/verify-companion-session.mjs
+      - releases/companion/2026-11-18-display-session/**
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+concurrency:
+  group: ${{ github.ref == 'refs/heads/main' && 'approved-desktop-companion-publication' || format('companion-session-build-{0}', github.ref) }}
+  cancel-in-progress: false
+jobs:
+  build:
+    if: github.repository == 'Shuang-su/Metaflow'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          sparse-checkout: |
+            releases/companion/2026-11-18-display-session
+            releases/companion/2026-11-17-motion-feedback
+            releases/companion/2026-11-17-wenjing-default
+            releases/companion/2026-11-17-reliability
+            scripts/companion-reliability-release.py
+            scripts/publish-companion-startup.py
+            scripts/publish-companion-feedback.py
+            scripts/publish-companion-session.py
+            scripts/verify-companion-session.mjs
+          sparse-checkout-cone-mode: false
+      - uses: actions/setup-node@v4
+        with: {node-version: '22'}
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.12'}
+      - name: Reconstruct and verify exact accepted runtime without credentials
+        run: |
+          python3 -m py_compile scripts/publish-companion-session.py
+          node --check scripts/verify-companion-session.mjs
+          python3 scripts/publish-companion-session.py build
+          python3 scripts/publish-companion-session.py verify
+      - uses: actions/upload-artifact@v4
+        with:
+          name: companion-approved-session-runtime
+          path: companion-session-site/
+          retention-days: 14
+  publish:
+    needs: build
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    environment: production
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          sparse-checkout: |
+            releases/companion/2026-11-18-display-session
+            releases/companion/2026-11-17-motion-feedback
+            releases/companion/2026-11-17-wenjing-default
+            releases/companion/2026-11-17-reliability
+            scripts/companion-reliability-release.py
+            scripts/publish-companion-startup.py
+            scripts/publish-companion-feedback.py
+            scripts/publish-companion-session.py
+            scripts/verify-companion-session.mjs
+          sparse-checkout-cone-mode: false
+      - uses: actions/setup-node@v4
+        with: {node-version: '22'}
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.12'}
+      - uses: actions/download-artifact@v4
+        with:
+          name: companion-approved-session-runtime
+          path: companion-session-site
+      - name: Verify exact candidate before accessing deployment credential
+        run: python3 scripts/publish-companion-session.py verify
+      - name: Prepare existing isolated browser validation
+        run: |
+          npm install --prefix "$RUNNER_TEMP/companion-browser" --ignore-scripts --no-audit --no-fund playwright@1.56.1
+          "$RUNNER_TEMP/companion-browser/node_modules/.bin/playwright" install --with-deps chromium
+          echo "BROWSER_MODULE_DIR=$RUNNER_TEMP/companion-browser" >> "$GITHUB_ENV"
+          echo "EVIDENCE_DIR=$RUNNER_TEMP/companion-session-publication" >> "$GITHUB_ENV"
+      - name: Check draft, promote atomically, then check production
+        env:
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+        run: python3 scripts/publish-companion-session.py publish
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: companion-session-publication-result
+          path: companion-session-publication.json
+          if-no-files-found: warn
+          retention-days: 30
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: companion-session-publication-evidence
+          path: ${{ runner.temp }}/companion-session-publication/
+          if-no-files-found: warn
+          retention-days: 30
