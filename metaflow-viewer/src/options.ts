@@ -25,6 +25,10 @@ type ViewerAssets = {
     environmentContents?: Promise<Response>;
     defaultCameraMode?: CameraMode;
     syntheticAnimation?: 'figure8' | 'none';
+    /** Wait for the selected opening view's detail and a submitted frame before revealing it. */
+    initialViewPreload?: boolean;
+    /** Keyboard movement from orbit or animation may explicitly enter fly mode. */
+    orbitMovementMode?: 'fly';
     animationFirstExitMode?: AnimationFirstExitMode;
     revealEffect?: RevealEffect;
     experienceType?: ExperienceType;

@@ -770,7 +770,7 @@ const createViewer = async (options: CreateViewerOptions): Promise<ViewerHandle>
                 config,
                 {
                     onProgress: (progress: number) => {
-                        state.progress = progress;
+                        state.progress = config.initialViewPreload ? Math.floor(Math.max(0, progress) * .05) : progress;
                     },
                     onStatus: (status: string) => {
                         state.loadingStatus = status;
@@ -790,7 +790,7 @@ const createViewer = async (options: CreateViewerOptions): Promise<ViewerHandle>
             if (entity && !destroyed) entity.reparent(sceneRoot);
             state.loadingStage = 'prepare';
             state.loadingStatus = '主体模型已就绪，正在准备首帧...';
-            state.progress = -1;
+            state.progress = config.initialViewPreload ? Math.max(5, state.progress) : -1;
             return entity;
         } catch (err) {
             if (destroyed) throw err;

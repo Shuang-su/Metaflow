@@ -41,6 +41,7 @@ import type { DirectorPosition } from './director-handoff';
 import { initFullscreen } from './fullscreen';
 import { GsplatRevealRadial } from './gsplat-reveal-radial';
 import type { RevealDotProfile } from './gsplat-reveal-radial';
+import { InitialViewGate, openingWork } from './initial-view-preload';
 import { InputController } from './input-controller';
 import { MeshDebugOverlay } from './mesh-debug-overlay';
 import { NavCursor } from './nav-cursor';
@@ -646,7 +647,7 @@ class Viewer {
                 return;
             }
 
-            if (this.inputController && this.cameraManager) {
+            if (this.inputController && this.cameraManager && (!config.initialViewPreload || state.loaded)) {
                 // update inputs
                 this.inputController.update(deltaTime, this.cameraManager.camera.distance);
 
@@ -878,7 +879,7 @@ class Viewer {
                     octree.files.map((file) => file.url),
                     document.baseURI,
                     (value) => {
-                        state.progress = Math.max(state.progress, value);
+                        state.progress = Math.max(state.progress, config.initialViewPreload ? Math.floor(value * .45) : value);
                     }
                 );
                 const frame = (camera: CameraComponent, layer: Layer, ready: boolean, loading: number) =>
@@ -937,7 +938,7 @@ class Viewer {
         }, ignoreLoadFailure);
 
         // wait for the model to load
-        Promise.all([gsplatLoad, skyboxLoad]).then((results) => {
+        Promise.all([gsplatLoad, skyboxLoad, config.initialViewPreload ? environmentLoad : null]).then((results) => {
             // destroyed while loading: the app is gone, so there is nothing to wire up
             if (this.destroyed) return;
 
@@ -1269,6 +1270,15 @@ class Viewer {
             const octree = (gsplatComponent.resource as GSplatOctreeResourceLike | null)?.octree ?? null;
             let streamingStarted = !octree;
 
+            const preload = config.initialViewPreload ? new InitialViewGate() : null;
+            let completedFrames = 0;
+            const savedUnderfill = gsplat.lodUnderfillLimit;
+            if (preload) {
+                const frame = app.on('frameend', () => { completedFrames++; });
+                this.onDestroy(() => frame.off());
+                global.root.dataset.initialViewStage = 'coarse';
+            }
+
             const readyHandler = (camera: CameraComponent, layer: Layer, ready: boolean, loading: number) => {
                 // `frame.gsplats` is the rendered splat count, the same stat the ministats panel
                 // above reads. It covers an octree that renders before it reports work in flight.
@@ -1276,12 +1286,41 @@ class Viewer {
                     streamingStarted = true;
                 }
 
-                if (ready && loading === 0 && streamingStarted) {
+                let viewReady = ready && loading === 0 && streamingStarted;
+                if (preload) {
+                    if (camera !== global.camera.camera || state.loadingStage === 'error' || this.destroyed) return;
+                    const world = (app.renderer as any).gsplatDirector?.camerasMap.get(camera.camera)?.layersMap.get(layer)?.gsplatManager?.world;
+                    const work = openingWork(world);
+                    if (!work.available) return;
+                    if (work.failed) {
+                        state.loadingStage = 'error';
+                        state.loadingStatus = '初始视野分块载入失败，请刷新后重试。';
+                        ignoreLoadFailure(new Error('初始视野分块载入失败 · ' + work.failed));
+                        return;
+                    }
+                    const action = preload.sample({ frame: completedFrames, ready, pending: work.pending,
+                        started: streamingStarted && work.available && work.resident > 0 });
+                    global.root.dataset.initialViewStage = preload.phase;
+                    if (action === 'open-detail') {
+                        gsplat.lodUnderfillLimit = 0;
+                        applyPerfSettings();
+                        world.markInstancesNeedLodUpdate();
+                        state.progress = Math.max(45, state.progress);
+                        app.autoRender = true;
+                    }
+                    if (preload.phase === 'detail') {
+                        state.loadingStatus = '正在预渲染初始视野的高精度高斯…';
+                        if (work.resident) state.progress = Math.max(state.progress,
+                            45 + Math.floor(49 * work.resident / (work.resident + work.pending)));
+                    }
+                    viewReady = action === 'reveal';
+                }
+                if (viewReady) {
                     // scene is done with initial/reveal loading
                     eventHandler.off('frame:ready', readyHandler);
 
                     stopProgress?.();
-                    state.progress = 100;
+                    state.progress = preload ? 97 : 100;
 
                     // switch to on-demand rendering (frame:request + camera-change detection)
                     app.autoRender = false;
@@ -1306,7 +1345,7 @@ class Viewer {
                     state.readyToRender = true;
                     state.loadingStage = 'prepare';
                     state.loadingStatus = 'LOD 数据就绪，正在准备首帧...';
-                    state.progress = 100;
+                    state.progress = preload ? 97 : 100;
 
                     if (config.revealEffect === 'none') {
                         // No reveal will fire onComplete, so load high detail immediately.
@@ -1321,7 +1360,13 @@ class Viewer {
                     }
 
                     // wait for the first valid frame to complete rendering
+                    app.renderNextFrame = true;
                     app.once('frameend', () => {
+                        if (this.destroyed || state.loadingStage === 'error') return;
+                        if (preload) {
+                            gsplat.lodUnderfillLimit = savedUnderfill;
+                            global.root.dataset.initialViewStage = 'complete';
+                        }
                         events.fire('firstFrame');
 
                         // emit first frame event on window
@@ -1330,7 +1375,7 @@ class Viewer {
                 }
 
                 // update loading status
-                if (!state.loaded) {
+                if (!state.loaded && (!preload || preload.phase === 'coarse')) {
                     if (loading > 0) {
                         state.loadingStage =
                             state.loadingMode === 'streaming-json' ? 'stream-loading' : 'legacy-lod-loading';

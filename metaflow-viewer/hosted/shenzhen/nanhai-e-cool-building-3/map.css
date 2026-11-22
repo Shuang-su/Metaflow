@@ -33,7 +33,6 @@ html, body, #viewer { margin: 0; width: 100%; height: 100%; overflow: hidden; ba
 #site-map .map-action:focus-visible { outline: 2px solid var(--sse-accent); outline-offset: -2px; }
 #site-map .map-a11y { position: absolute; width: 1px; height: 1px; clip-path: inset(50%); overflow: hidden; white-space: nowrap; }
 @media (prefers-reduced-motion: reduce) { #site-map #map-locate { transition: none; } }
-#load-status, #repairs { position: absolute; z-index: 14; font: 13px/1.4 system-ui, sans-serif; }
-#load-status { left: 50%; bottom: 13vh; transform: translateX(-50%); border-radius: 9px; padding: 8px 14px; background: #1e2831da; color: #fff; }
+#repairs { position: absolute; z-index: 14; font: 13px/1.4 system-ui, sans-serif; }
 #repairs { right: 12px; top: 12px; background: #fff; color: #253641; padding: 8px 12px; border-radius: 7px; }
-#site-map[hidden], #repairs[hidden], #load-status[hidden] { display: none; }
+#site-map[hidden], #repairs[hidden] { display: none; }
