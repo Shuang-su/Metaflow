@@ -2,14 +2,14 @@
   "version": "1.0",
   "schemaVersion": "1.2",
   "release": {
-    "displayVersion": "5.24.0",
-    "appSemver": "5.24.0",
+    "displayVersion": "5.24.1",
+    "appSemver": "5.24.1",
     "schemaVersion": "1.2",
     "historyUrl": "/data/version-history.json",
-    "updatedAt": "2026-11-22",
-    "gitRef": "04ebcb0f69292d6a86486585ec71eacae9e5e6d7"
+    "updatedAt": "2026-11-23",
+    "gitRef": "b21ef37c3889dd21d28247a2c9e6165442e5330c"
   },
-  "lastUpdated": "2026-11-22",
+  "lastUpdated": "2026-11-23",
   "totalResources": 104,
   "categories": {
     "animals": {

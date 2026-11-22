@@ -1,14 +1,14 @@
 {
   "schemaVersion": "1.1",
   "cutoffGitRef": "c613a87",
-  "documentedThrough": "04ebcb0f69292d6a86486585ec71eacae9e5e6d7",
+  "documentedThrough": "b21ef37c3889dd21d28247a2c9e6165442e5330c",
   "defaultResourceVersion": "1.0a",
   "current": {
-    "displayVersion": "5.24.0",
-    "appSemver": "5.24.0",
+    "displayVersion": "5.24.1",
+    "appSemver": "5.24.1",
     "indexSchemaVersion": "1.2",
-    "date": "2026-11-22",
-    "gitRef": "04ebcb0f69292d6a86486585ec71eacae9e5e6d7",
+    "date": "2026-11-23",
+    "gitRef": "b21ef37c3889dd21d28247a2c9e6165442e5330c",
     "historyUrl": "/data/version-history.json",
     "upstream": {
       "repository": "playcanvas/supersplat-viewer",
@@ -468,6 +468,12 @@
       "date": "2026-11-22",
       "type": "release-support",
       "summary": "Bind the unpublished preview to the preceding product checkpoint."
+    },
+    {
+      "gitRef": "41af9823c4871f8ba3832fab4c94011757feffd8",
+      "date": "2026-11-22",
+      "type": "release-support",
+      "summary": "Bind the published four-scene 5.24.0 deployment to its verified SP map implementation."
     }
   ],
   "entries": [
@@ -2156,6 +2162,31 @@
         "plan": "docs/changes/185-shenzhen-scenes/plan.md",
         "evidence": "https://github.com/Shuang-su/Metaflow/issues/185",
         "releaseTag": "viewer-v5.24.0"
+      }
+    },
+    {
+      "displayVersion": "5.24.1",
+      "appSemver": "5.24.1",
+      "type": "fix",
+      "scope": "viewer",
+      "date": "2026-11-23",
+      "gitRef": "b21ef37c3889dd21d28247a2c9e6165442e5330c",
+      "summary": "Restore single-panel SP map controls, camera heading, touch exploration and the registered neutral ground in Nanhai E-Cool.",
+      "resourceChanges": [
+        {
+          "action": "update",
+          "routes": [
+            "/shenzhen/nanhai-e-cool-building-3"
+          ]
+        }
+      ],
+      "trace": {
+        "changeId": "MF-187",
+        "pullRequest": "https://github.com/Shuang-su/Metaflow/pull/188",
+        "spec": "docs/changes/187-nanhai-map/spec.md",
+        "plan": "docs/changes/187-nanhai-map/plan.md",
+        "evidence": "https://github.com/Shuang-su/Metaflow/issues/187",
+        "releaseTag": "viewer-v5.24.1"
       }
     }
   ],
