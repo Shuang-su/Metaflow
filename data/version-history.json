@@ -1,14 +1,14 @@
 {
   "schemaVersion": "1.1",
   "cutoffGitRef": "c613a87",
-  "documentedThrough": "b3989b00608f9dc479fdca9226b1d88d1fe5dd36",
+  "documentedThrough": "04ebcb0f69292d6a86486585ec71eacae9e5e6d7",
   "defaultResourceVersion": "1.0a",
   "current": {
     "displayVersion": "5.24.0",
     "appSemver": "5.24.0",
     "indexSchemaVersion": "1.2",
     "date": "2026-11-22",
-    "gitRef": "b3989b00608f9dc479fdca9226b1d88d1fe5dd36",
+    "gitRef": "04ebcb0f69292d6a86486585ec71eacae9e5e6d7",
     "historyUrl": "/data/version-history.json",
     "upstream": {
       "repository": "playcanvas/supersplat-viewer",
@@ -456,6 +456,18 @@
       "date": "2026-11-22",
       "type": "release-support",
       "summary": "Unpublished MF-185 implementation checkpoint, integrated into Viewer 5.24.0."
+    },
+    {
+      "gitRef": "b3989b00608f9dc479fdca9226b1d88d1fe5dd36",
+      "date": "2026-11-22",
+      "type": "release-support",
+      "summary": "Register the four-scene asset manifest and surveyed map before the final SP map window."
+    },
+    {
+      "gitRef": "535ecacdba3c72e62e0569d1ec8dfce792bd6c67",
+      "date": "2026-11-22",
+      "type": "release-support",
+      "summary": "Bind the unpublished preview to the preceding product checkpoint."
     }
   ],
   "entries": [
@@ -2124,8 +2136,8 @@
       "type": "feature",
       "scope": "viewer",
       "date": "2026-11-22",
-      "gitRef": "b3989b00608f9dc479fdca9226b1d88d1fe5dd36",
-      "summary": "Add four Shenzhen scenes, six compatible routes and a single surveyed walking map for Nanhai E-Cool",
+      "gitRef": "04ebcb0f69292d6a86486585ec71eacae9e5e6d7",
+      "summary": "Add four Shenzhen scenes, six compatible routes and the SP follow and overview map for Nanhai E-Cool",
       "resourceChanges": [
         {
           "action": "add",
