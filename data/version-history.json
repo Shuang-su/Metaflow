@@ -1,14 +1,14 @@
 {
   "schemaVersion": "1.1",
   "cutoffGitRef": "c613a87",
-  "documentedThrough": "a8476fdc9f4c8f7dc1ec086e050a09d3bea67f77",
+  "documentedThrough": "21170dd6e8b231a40b3b0d098c6803984c209af5",
   "defaultResourceVersion": "1.0a",
   "current": {
-    "displayVersion": "5.24.1",
-    "appSemver": "5.24.1",
+    "displayVersion": "5.24.2",
+    "appSemver": "5.24.2",
     "indexSchemaVersion": "1.2",
     "date": "2026-11-23",
-    "gitRef": "a8476fdc9f4c8f7dc1ec086e050a09d3bea67f77",
+    "gitRef": "21170dd6e8b231a40b3b0d098c6803984c209af5",
     "historyUrl": "/data/version-history.json",
     "upstream": {
       "repository": "playcanvas/supersplat-viewer",
@@ -532,6 +532,66 @@
       "gitRef": "1c793aa0e21ff5e727dfc14e1e0ce6674a301b46",
       "date": "2026-11-23",
       "summary": "Packaging checkpoint for the initial linework preview"
+    },
+    {
+      "gitRef": "438e3e45f9ab04c0de402c73c334916dfc38caac",
+      "date": "2026-11-23",
+      "type": "release-support",
+      "summary": "Bind the published 5.24.1 packaging checkpoint to the surveyed Nanhai doorways."
+    },
+    {
+      "gitRef": "b0c47ebea5d4a1944db74012928ac6ed35084316",
+      "date": "2026-11-23",
+      "type": "release-support",
+      "summary": "Bind the Nanhai window styling to the Viewer 5.24.2 catalog."
+    },
+    {
+      "gitRef": "b83e5e0f9cf5eb3acbe4def8a8c7d37cd8cce7b5",
+      "date": "2026-11-23",
+      "type": "release-support",
+      "summary": "Refresh the hosted entry cache key for the Viewer 5.24.2 runtime identity."
+    },
+    {
+      "gitRef": "4eb530ea524d55c1c0e413163b91877fe4f2c1a3",
+      "date": "2026-11-23",
+      "type": "release-support",
+      "summary": "Preview the shared menu style before equalizing all four map borders."
+    },
+    {
+      "gitRef": "365630cffe4d178a4f7f697f2bcc7e8dcefb8d4e",
+      "date": "2026-11-23",
+      "type": "release-support",
+      "summary": "Equalize all four map borders in the preview before correcting the inner corner radii."
+    },
+    {
+      "gitRef": "50e149e69084ff65564fba32d074870c15f6ff5c",
+      "date": "2026-11-23",
+      "type": "release-support",
+      "summary": "Record the equal-width border preview in the release catalog."
+    },
+    {
+      "gitRef": "3120309f34f7584bc4f8e630877aaa1aa954b2f3",
+      "date": "2026-11-23",
+      "type": "release-support",
+      "summary": "Preview the inset-adjusted inner corner radius before aligning the frame with the round controls."
+    },
+    {
+      "gitRef": "b5fd4e5b21c69c32d43cf9af54e70c0918b5b4a2",
+      "date": "2026-11-23",
+      "type": "release-support",
+      "summary": "Register the first concentric corner preview."
+    },
+    {
+      "gitRef": "6fd4503dd1d61ba07d3cf9e187a7b4883753d53e",
+      "date": "2026-11-23",
+      "type": "release-support",
+      "summary": "Align the frame and resize arc with the round controls in the Nanhai preview."
+    },
+    {
+      "gitRef": "373b3f7fdaa278edaae7f914488fed44b695d3d5",
+      "date": "2026-11-23",
+      "type": "release-support",
+      "summary": "Record the aligned frame and controls before the orbit follow correction."
     }
   ],
   "entries": [
@@ -2245,6 +2305,31 @@
         "plan": "docs/changes/187-nanhai-map/plan.md",
         "evidence": "https://github.com/Shuang-su/Metaflow/issues/187",
         "releaseTag": "viewer-v5.24.1"
+      }
+    },
+    {
+      "displayVersion": "5.24.2",
+      "appSemver": "5.24.2",
+      "type": "fix",
+      "scope": "viewer",
+      "date": "2026-11-23",
+      "gitRef": "21170dd6e8b231a40b3b0d098c6803984c209af5",
+      "summary": "Match the map window menu and translucent grip to SuperSplat. Align the outer and inner corners of the uniform frame with both circular map controls and the external resize grip. In orbit follow mode, lock the position and forward-facing cone to the center while the map rotates with camera yaw.",
+      "resourceChanges": [
+        {
+          "action": "update",
+          "routes": [
+            "/shenzhen/nanhai-e-cool-building-3"
+          ]
+        }
+      ],
+      "trace": {
+        "changeId": "MF-187",
+        "pullRequest": "https://github.com/Shuang-su/Metaflow/pull/189",
+        "spec": "docs/changes/187-nanhai-map/spec.md",
+        "plan": "docs/changes/187-nanhai-map/plan.md",
+        "evidence": "https://github.com/Shuang-su/Metaflow/issues/187",
+        "releaseTag": "viewer-v5.24.2"
       }
     }
   ],

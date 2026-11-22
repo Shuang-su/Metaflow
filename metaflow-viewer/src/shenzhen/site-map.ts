@@ -50,9 +50,10 @@ export function mountSiteMap(viewer: ViewerHandle, camera: Entity, map: Registra
         const p = camera.getPosition();
         return { x: p.x * ex - p.z * ey - map.eastMin, y: p.y, z: map.northMax - p.x * nx + p.z * ny };
     };
-    const follow = (): MapView => {
-        const { x, z } = localPosition();
-        return { x, z, span: followSpan, rotation: motion.rotation, anchorY: .65 };
+    let cameraBearing = 0;
+    const follow = ({ x, z } = localPosition()): MapView => {
+        const orbit = viewer.state.cameraMode === 'orbit';
+        return { x, z, span: followSpan, rotation: orbit ? -cameraBearing : motion.rotation, anchorY: orbit ? .5 : .65 };
     };
     let manual = false;
     const setManual = (value: boolean) => {
@@ -140,9 +141,17 @@ export function mountSiteMap(viewer: ViewerHandle, camera: Entity, map: Registra
 
     function update(dt: number) {
         const pos = localPosition();
-        const forward = camera.forward;
-        const dx = forward.x * ex - forward.z * ey;
-        const dz = -forward.x * nx + forward.z * ny;
+        const orbit = viewer.state.cameraMode === 'orbit';
+        let { x: fx, z: fz } = camera.forward;
+        if (orbit && Math.hypot(fx, fz) < .001) {
+            // The horizontal right axis still defines yaw when looking straight up or down.
+            const right = camera.right;
+            fx = right.z;
+            fz = -right.x;
+        }
+        const dx = fx * ex - fz * ey;
+        const dz = -fx * nx + fz * ny;
+        cameraBearing = Math.atan2(dx, -dz);
         const support = viewer.walkSupportHeight;
         if (viewer.state.cameraMode !== 'walk') currentFloor = '自由视角';
         else if (support !== null) {
@@ -155,7 +164,13 @@ export function mountSiteMap(viewer: ViewerHandle, camera: Entity, map: Registra
         motion.seed(dx, dz);
         motion.sample({ position: pos, tick, epoch: 0, grounded: support !== null, collision: support !== null ? 'active' : 'pending', supportHeight: support });
         motion.step(dt, reduced.matches);
-        if (!manual && mode === 'follow') view.track(follow());
+        const following = !manual && mode === 'follow';
+        const orbitFollow = orbit && following;
+        if (following) {
+            const target = follow(pos);
+            if (orbitFollow && view.moving) view.moveTo(target, true);
+            else view.track(target);
+        }
         const animating = view.step(dt, reduced.matches);
         if (panel.hidden || !viewer.state.loaded || !image.complete || !canvas.clientWidth) return;
         const current = view.view;
@@ -181,8 +196,8 @@ export function mountSiteMap(viewer: ViewerHandle, camera: Entity, map: Registra
         ctx.drawImage(image, -current.x, -current.z, width, height);
         ctx.restore();
         const [mx, my] = mapPoint(pos.x, pos.z, current);
-        const heading = Math.atan2(dx, -dz) + current.rotation;
-        if (pos.x >= 0 && pos.x <= width && pos.z >= 0 && pos.z <= height) {
+        const heading = cameraBearing + current.rotation;
+        if (orbitFollow || (pos.x >= 0 && pos.x <= width && pos.z >= 0 && pos.z <= height)) {
             ctx.save();
             ctx.translate(mx, my);
             ctx.rotate(heading);

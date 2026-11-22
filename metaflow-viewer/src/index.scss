@@ -570,6 +570,10 @@
         position: absolute;
         right: max(16px, env(safe-area-inset-right));
         bottom: calc(max(16px, env(safe-area-inset-bottom)) + 70px);
+    }
+
+    .sse-settingsPanel,
+    .sse-settingsSurface {
         padding: 12px;
         border-radius: 16px;
         border: 1px solid rgba(white, 0.08);
