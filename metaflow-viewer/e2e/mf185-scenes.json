@@ -1,0 +1,38 @@
+{
+  "origin": "https://6b0310ec986f9611eda9d7f0--charming-salamander-fc1af0.netlify.app",
+  "scenes": [
+    {
+      "id": "shenzhenCivilCenter",
+      "route": "/shenzhen/shenzhen-civic-center",
+      "aliases": [
+        "/shenzhen/shiminzhongxin"
+      ],
+      "files": {
+        "model": "261024shenzhenCivilCenter/fusion/streamed/lod-meta.json"
+      }
+    },
+    {
+      "id": "szu",
+      "route": "/shenzhen/shenzhen-university-yuehai-campus",
+      "aliases": [
+        "/shenzhen/szu",
+        "/shenzhen/shenzhendaxue",
+        "/shenzhen/shenzhendaxueyuehai"
+      ],
+      "files": {
+        "model": "261013szu/scene/campus/lod-meta.json"
+      }
+    },
+    {
+      "id": "huafa",
+      "route": "/shenzhen/huafa-ice-and-snow-world",
+      "aliases": [
+        "/shenzhen/qianhaibingxueshijie",
+        "/shenzhen/huafabingxueshijie"
+      ],
+      "files": {
+        "model": "260722huafa/streamed/lod-meta.json"
+      }
+    }
+  ]
+}
