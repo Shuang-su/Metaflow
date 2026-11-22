@@ -1,14 +1,14 @@
 {
   "schemaVersion": "1.1",
   "cutoffGitRef": "c613a87",
-  "documentedThrough": "4be41420fbd0c16245b4485f615f47ee5746b3d2",
+  "documentedThrough": "a8476fdc9f4c8f7dc1ec086e050a09d3bea67f77",
   "defaultResourceVersion": "1.0a",
   "current": {
     "displayVersion": "5.24.1",
     "appSemver": "5.24.1",
     "indexSchemaVersion": "1.2",
     "date": "2026-11-23",
-    "gitRef": "4be41420fbd0c16245b4485f615f47ee5746b3d2",
+    "gitRef": "a8476fdc9f4c8f7dc1ec086e050a09d3bea67f77",
     "historyUrl": "/data/version-history.json",
     "upstream": {
       "repository": "playcanvas/supersplat-viewer",
@@ -522,6 +522,16 @@
       "gitRef": "566157edfe1c1a9edf3b7ebdc42e05bef48be406",
       "date": "2026-11-23",
       "summary": "Packaging checkpoint for the Gaussian texture preview"
+    },
+    {
+      "gitRef": "4be41420fbd0c16245b4485f615f47ee5746b3d2",
+      "date": "2026-11-23",
+      "summary": "Rear-wing linework checkpoint before surveyed door corrections"
+    },
+    {
+      "gitRef": "1c793aa0e21ff5e727dfc14e1e0ce6674a301b46",
+      "date": "2026-11-23",
+      "summary": "Packaging checkpoint for the initial linework preview"
     }
   ],
   "entries": [
@@ -2218,8 +2228,8 @@
       "type": "fix",
       "scope": "viewer",
       "date": "2026-11-23",
-      "gitRef": "4be41420fbd0c16245b4485f615f47ee5746b3d2",
-      "summary": "Complete the registered Nanhai rear-wing plan over real Gaussian color. Add map window controls, the nanhaiyiku alias, square poster, opening-view pre-render, figure-eight motion, fly input and radial particles.",
+      "gitRef": "a8476fdc9f4c8f7dc1ec086e050a09d3bea67f77",
+      "summary": "Restore open doorways and align passages with recorded survey paths in the Nanhai rear-wing plan over real Gaussian color. Add map window controls, the nanhaiyiku alias, square poster, opening-view pre-render, figure-eight motion, fly input and radial particles.",
       "resourceChanges": [
         {
           "action": "update",
