@@ -415,6 +415,7 @@ const resolveConfig = (options: CreateViewerOptions): Config => ({
     heatmap: options.heatmap ?? false,
     debug: options.debug ?? false,
     lang: options.lang,
+    controlsHintInitiallyClosed: options.controlsHintInitiallyClosed ?? false,
     exposeGlobals: options.exposeGlobals ?? false
 });
 

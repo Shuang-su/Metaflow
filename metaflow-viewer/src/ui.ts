@@ -269,7 +269,7 @@ const initUI = (
     // panel's open state is the user's choice and persists: it stays open while the scene is used,
     // and shows once the scene has loaded. Settings is a quick look, so while it is open it only
     // stands in for the controls panel, which comes back when it closes.
-    let controlsOpen = readControlsOpen();
+    let controlsOpen = !global.config.controlsHintInitiallyClosed && readControlsOpen();
 
     const applyControls = () => {
         const visible = controlsOpen && state.loaded && !isVisible(dom.settingsPanel);

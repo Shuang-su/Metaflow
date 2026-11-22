@@ -1,3 +1,4 @@
+import { compile as compileSass } from 'sass';
 import { copyFileSync, existsSync, readFileSync } from 'fs';
 import path from 'path';
 
@@ -199,6 +200,14 @@ const buildNanhai = {
     input: 'src/shenzhen/nanhai.ts',
     output: { file: 'public/shenzhen/nanhai.js', format: 'esm', inlineDynamicImports: true },
     plugins: [
+        {
+            name: 'sp-map-window-styles',
+            generateBundle() {
+                const stylesheet = 'src/shenzhen/sp-map/map-window.scss';
+                this.addWatchFile(stylesheet);
+                this.emitFile({ type: 'asset', fileName: 'map-window.css', source: compileSass(stylesheet).css });
+            }
+        },
         {
             name: 'nanhai-engine',
             resolveId(source, importer) {

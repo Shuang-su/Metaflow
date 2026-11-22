@@ -81,6 +81,8 @@ type ViewerFlags = {
     ui?: boolean;
     /** Show the centre reticle in desktop fly/walk mode with gaming controls. Defaults to `false`. */
     reticle?: boolean;
+    /** Start with the controls hint closed when the host supplies its own floating panel. */
+    controlsHintInitiallyClosed?: boolean;
     /** Start with the camera animation paused. */
     noanim?: boolean;
     /** Disable post effects. */
