@@ -1,3 +1,4 @@
+import { existsSync } from 'node:fs';
 import { defineConfig } from '@playwright/test';
 
 const mode = process.env.E2E_MODE === 'dev' ? 'dev' : 'build';
@@ -6,7 +7,10 @@ const extended = process.env.E2E_EXTENDED === '1';
 const extendedBrowser = process.env.E2E_BROWSER || 'chromium';
 const extendedRenderer = process.env.E2E_RENDERER || 'webgl';
 
+// The release acceptance suite opens the deployed site directly. Ordinary fixture runs still start their local server.
+const online = extended && existsSync(new URL('./e2e/mf185-scenes.json', import.meta.url));
 export default defineConfig({
+    ...(online ? { testMatch: 'mf185-online.spec.mjs' } : {}),
     testDir: './e2e',
     outputDir: `test-results/${mode}`,
     snapshotPathTemplate: '{testDir}/{testFilePath}-snapshots/{arg}-{projectName}-{platform}{ext}',
@@ -44,7 +48,7 @@ export default defineConfig({
                 browserName: extendedBrowser,
                 viewport: { width: 1440, height: 900 },
                 launchOptions: extendedBrowser === 'chromium' && extendedRenderer === 'webgpu'
-                    ? { args: ['--enable-unsafe-webgpu', '--enable-features=Vulkan'] }
+                    ? { args: online ? ['--use-gl=angle','--use-angle=swiftshader','--enable-unsafe-webgpu','--enable-unsafe-swiftshader','--enable-features=Vulkan','--use-vulkan=swiftshader','--disable-vulkan-surface'] : ['--enable-unsafe-webgpu','--enable-features=Vulkan'] }
                     : undefined
             }
         }
@@ -58,7 +62,7 @@ export default defineConfig({
             use: { viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true }
         }
     ],
-    webServer: {
+    webServer: online ? undefined : {
         command: mode === 'dev' ? 'npm run serve:e2e:dev' : 'npm run serve:e2e:build',
         url: `http://127.0.0.1:${port}/index.html`,
         reuseExistingServer: !process.env.CI,
