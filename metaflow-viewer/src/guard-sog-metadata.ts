@@ -11,7 +11,7 @@ const installSogMetadataGuard = (handler: GSplatHandler) => {
         asset: undefined,
         app: handler.app
     };
-    const delegate = handler.parsers.reverse().find((parser) => parser.canParse(context));
+    const delegate = [...handler.parsers].reverse().find((parser) => parser.canParse(context));
     if (!delegate) return;
     const parser: GSplatHandler['parsers'][number] = {
         canParse: (ctx) => ctx.ext === 'json' && ctx.basename !== 'lod-meta.json' && delegate.canParse(ctx),
@@ -35,7 +35,9 @@ const installSogMetadataGuard = (handler: GSplatHandler) => {
                             meta[key].files.length >= (key === 'means' ? 2 : 1) &&
                             meta[key].files.every((file: unknown) => typeof file === 'string')
                     ) &&
-                    (meta.version === 2 ? Number.isFinite(meta.count) : Array.isArray(meta.means.shape));
+                    (meta.version === 2 || meta.version === 3
+                        ? Number.isSafeInteger(meta.count) && Number(meta.count) > 0
+                        : (meta.version === undefined || meta.version === 1) && Array.isArray(meta.means.shape));
                 if (error || !valid) {
                     callback(`Invalid SOG metadata: ${location.original} [${error ?? 'missing texture metadata'}]`);
                     return;

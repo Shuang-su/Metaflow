@@ -16,13 +16,15 @@ import type { CameraMode, AnimationFirstExitMode, ExperienceType, RevealEffect, 
  * `renderViewerHtml` — so the two surfaces cannot drift.
  */
 type ViewerAssets = {
+    /** Scene orientation shared by the subject and its environment. */
+    displayEuler?: [number, number, number];
     voxelUrl?: string;
     voxelManifestUrl?: string;
     voxelCoordinateSpace?: VoxelCoordinateSpace;
     environmentUrl?: string;
     environmentContents?: Promise<Response>;
     defaultCameraMode?: CameraMode;
-    syntheticAnimation?: 'figure8';
+    syntheticAnimation?: 'figure8' | 'none';
     animationFirstExitMode?: AnimationFirstExitMode;
     revealEffect?: RevealEffect;
     experienceType?: ExperienceType;

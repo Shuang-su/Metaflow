@@ -98,6 +98,8 @@ class CameraManager {
     // and the mode the camera falls back to when an animation is interrupted.
     setCollision: (collision: Collision | null) => void;
 
+    getWalkSupportHeight: () => number | null;
+
     // holds the camera state
     camera = new Camera();
 
@@ -163,6 +165,7 @@ class CameraManager {
         controllers.fly.fov = resetCamera.fov;
         controllers.fly.collision = collision;
         controllers.walk.collision = collision;
+        this.getWalkSupportHeight = () => state.cameraMode === 'walk' ? controllers.walk.supportHeight : null;
 
         const walkSource = new WalkSource();
         const flySource = new FlySource();

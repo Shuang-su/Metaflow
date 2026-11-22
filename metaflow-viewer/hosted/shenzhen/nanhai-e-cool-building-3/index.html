@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <meta name="color-scheme" content="dark">
+    <title>南海意库3栋 · Nanhai E-Cool</title>
+    <link rel="stylesheet" href="/index.css">
+    <link rel="stylesheet" href="/shenzhen/nanhai-e-cool-building-3/map.css">
+</head>
+<body>
+    <main id="viewer" aria-label="南海意库3栋"></main>
+    <aside id="site-map" aria-label="位置地图">
+        <button id="map-toggle" aria-expanded="true" aria-controls="map-image"><span>南海意库3栋</span><span id="current-floor">定位中</span></button>
+        <div id="map-image"><img alt="南海意库现场重建俯视图" draggable="false"><span id="you" hidden aria-label="当前位置与朝向"></span></div>
+    </aside>
+    <button id="repairs" hidden aria-pressed="false">显示补面</button>
+    <p role="status" id="load-status">正在载入南海意库3栋…</p>
+    <script type="module" src="/shenzhen/nanhai.js"></script>
+</body>
+</html>

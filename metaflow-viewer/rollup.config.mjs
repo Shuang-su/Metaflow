@@ -187,7 +187,28 @@ const buildPublic = {
         json(),
         htmlTemplatePlugin(),
         htmlPlugin(),
-        copy({ targets: [{ src: 'src/assets/*', dest: 'public/assets' }] })
+        copy({ targets: [
+            { src: 'src/assets/*', dest: 'public/assets' },
+            { src: 'hosted/shenzhen', dest: 'public' }
+        ] })
+    ]
+};
+
+// The building's v3 reader is scoped to this entry. Existing pages use their pinned engine.
+const buildNanhai = {
+    input: 'src/shenzhen/nanhai.ts',
+    output: { file: 'public/shenzhen/nanhai.js', format: 'esm', inlineDynamicImports: true },
+    plugins: [
+        {
+            name: 'nanhai-engine',
+            resolveId(source, importer) {
+                if (source === 'playcanvas' || source.startsWith('playcanvas/')) {
+                    return this.resolve(source.replace(/^playcanvas/, 'playcanvas-sog-v3'), importer, { skipSelf: true });
+                }
+                return null;
+            }
+        },
+        resolve(), transpileTypescript(), json(), htmlTemplatePlugin()
     ]
 };
 
@@ -280,6 +301,7 @@ const buildSettingsTypes = {
 export default [
     buildCss,
     buildPublic,
+    buildNanhai,
     buildDist,
     buildViewer,
     buildSettings,

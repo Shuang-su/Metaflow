@@ -16,6 +16,48 @@
   force = true
   conditions = {Host = ["xn--fes68bkzcz5lkjgrkl.com", "www.xn--fes68bkzcz5lkjgrkl.com"]}
 
+# MF-185 Shenzhen SP routes
+[[redirects]]
+  from = "/shenzhen/szu"
+  to = "/shenzhen/shenzhen-university-yuehai-campus/"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/shenzhen/shenzhendaxue"
+  to = "/shenzhen/shenzhen-university-yuehai-campus/"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/shenzhen/shenzhendaxueyuehai"
+  to = "/shenzhen/shenzhen-university-yuehai-campus/"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/shenzhen/qianhaibingxueshijie"
+  to = "/shenzhen/huafa-ice-and-snow-world/"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/shenzhen/huafabingxueshijie"
+  to = "/shenzhen/huafa-ice-and-snow-world/"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/shenzhen/shiminzhongxin"
+  to = "/shenzhen/shenzhen-civic-center/"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/shenzhen/data/*"
+  to = "/data/Shenzhen/sp-20261102/:splat"
+  status = 200
+
 # Handle SPA routing - redirect all routes to index.html
 [[redirects]]
   from = "/data/*"
