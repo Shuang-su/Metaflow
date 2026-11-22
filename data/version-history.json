@@ -1,14 +1,14 @@
 {
   "schemaVersion": "1.1",
   "cutoffGitRef": "c613a87",
-  "documentedThrough": "a8476fdc9f4c8f7dc1ec086e050a09d3bea67f77",
+  "documentedThrough": "4eb530ea524d55c1c0e413163b91877fe4f2c1a3",
   "defaultResourceVersion": "1.0a",
   "current": {
-    "displayVersion": "5.24.1",
-    "appSemver": "5.24.1",
+    "displayVersion": "5.24.2",
+    "appSemver": "5.24.2",
     "indexSchemaVersion": "1.2",
     "date": "2026-11-23",
-    "gitRef": "a8476fdc9f4c8f7dc1ec086e050a09d3bea67f77",
+    "gitRef": "4eb530ea524d55c1c0e413163b91877fe4f2c1a3",
     "historyUrl": "/data/version-history.json",
     "upstream": {
       "repository": "playcanvas/supersplat-viewer",
@@ -532,6 +532,12 @@
       "gitRef": "1c793aa0e21ff5e727dfc14e1e0ce6674a301b46",
       "date": "2026-11-23",
       "summary": "Packaging checkpoint for the initial linework preview"
+    },
+    {
+      "gitRef": "438e3e45f9ab04c0de402c73c334916dfc38caac",
+      "date": "2026-11-23",
+      "type": "release-support",
+      "summary": "Bind the published 5.24.1 packaging checkpoint to the surveyed Nanhai doorways."
     }
   ],
   "entries": [
@@ -2245,6 +2251,31 @@
         "plan": "docs/changes/187-nanhai-map/plan.md",
         "evidence": "https://github.com/Shuang-su/Metaflow/issues/187",
         "releaseTag": "viewer-v5.24.1"
+      }
+    },
+    {
+      "displayVersion": "5.24.2",
+      "appSemver": "5.24.2",
+      "type": "fix",
+      "scope": "viewer",
+      "date": "2026-11-23",
+      "gitRef": "4eb530ea524d55c1c0e413163b91877fe4f2c1a3",
+      "summary": "Match the Nanhai map window menu to SuperSplat settings. Center the translucent three-dot drag handle on the top border at both window sizes.",
+      "resourceChanges": [
+        {
+          "action": "update",
+          "routes": [
+            "/shenzhen/nanhai-e-cool-building-3"
+          ]
+        }
+      ],
+      "trace": {
+        "changeId": "MF-187",
+        "pullRequest": "https://github.com/Shuang-su/Metaflow/pull/189",
+        "spec": "docs/changes/187-nanhai-map/spec.md",
+        "plan": "docs/changes/187-nanhai-map/plan.md",
+        "evidence": "https://github.com/Shuang-su/Metaflow/issues/187",
+        "releaseTag": "viewer-v5.24.2"
       }
     }
   ],
