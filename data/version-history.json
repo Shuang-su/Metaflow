@@ -538,6 +538,18 @@
       "date": "2026-11-23",
       "type": "release-support",
       "summary": "Bind the published 5.24.1 packaging checkpoint to the surveyed Nanhai doorways."
+    },
+    {
+      "gitRef": "b0c47ebea5d4a1944db74012928ac6ed35084316",
+      "date": "2026-11-23",
+      "type": "release-support",
+      "summary": "Bind the Nanhai window styling to the Viewer 5.24.2 catalog."
+    },
+    {
+      "gitRef": "b83e5e0f9cf5eb3acbe4def8a8c7d37cd8cce7b5",
+      "date": "2026-11-23",
+      "type": "release-support",
+      "summary": "Refresh the hosted entry cache key for the Viewer 5.24.2 runtime identity."
     }
   ],
   "entries": [
