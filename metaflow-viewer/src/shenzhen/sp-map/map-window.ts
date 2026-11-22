@@ -33,11 +33,12 @@ export class MapWindow {
     private moveButton: HTMLButtonElement;
     private collapsed = false;
     private expanded = false;
-    private closeButton: HTMLButtonElement;
-    private backdrop: HTMLButtonElement;
+    private menu: HTMLElement;
+    private sizeButton: HTMLButtonElement;
+    private dragged = false;
 
     constructor(private root: HTMLElement, private panel: HTMLElement, private surface: HTMLElement,
-        private changed: () => void) {
+        private changed: () => void, private minimize: () => void) {
         this.safe.style.cssText = 'position:absolute;visibility:hidden;pointer-events:none;inset:max(4px,env(safe-area-inset-top)) max(4px,env(safe-area-inset-right)) max(4px,env(safe-area-inset-bottom)) max(4px,env(safe-area-inset-left));';
         root.append(this.safe);
         this.observer = new ResizeObserver(() => this.schedule());
@@ -63,65 +64,61 @@ export class MapWindow {
         window.addEventListener('keydown', e => {
             if (e.key === 'Escape' && this.gesture) { e.preventDefault(); e.stopImmediatePropagation(); this.end(true); }
         }, { capture: true, signal });
-        this.closeButton = document.createElement('button');
-        this.closeButton.type = 'button';
-        this.closeButton.className = 'sse-mapClose';
-        this.closeButton.textContent = '×';
-        panel.append(this.closeButton);
-        this.backdrop = document.createElement('button');
-        this.backdrop.type = 'button';
-        this.backdrop.className = 'sse-mapBackdrop';
-        this.backdrop.tabIndex = -1;
-        this.backdrop.setAttribute('aria-hidden', 'true');
-        root.append(this.backdrop);
-        const close = () => this.setExpanded(false);
-        this.closeButton.addEventListener('click', close, { signal });
-        this.backdrop.addEventListener('click', close, { signal });
-        root.querySelector('.sse-mapButton')?.addEventListener('click', e => {
-            if (!this.collapsed) return;
-            e.preventDefault(); e.stopImmediatePropagation();
+        this.menu = panel.querySelector('#map-window-menu');
+        this.sizeButton = panel.querySelector('#map-window-size');
+        move.setAttribute('aria-controls', this.menu.id);
+        move.setAttribute('aria-expanded', 'false');
+        move.addEventListener('click', e => {
+            if (e.detail && this.dragged) return;
+            this.showMenu(this.menu.inert);
+        }, { signal });
+        this.sizeButton.addEventListener('click', () => {
+            this.showMenu(false);
             this.setExpanded(!this.expanded);
+            move.focus({ preventScroll: true });
+        }, { signal });
+        panel.querySelector('#map-minimize').addEventListener('click', () => this.minimize(), { signal });
+        document.addEventListener('pointerdown', e => {
+            if (!this.menu.contains(e.target as Node) && !move.contains(e.target as Node)) this.showMenu(false);
         }, { capture: true, signal });
-        window.addEventListener('keydown', e => {
-            if (!this.expanded) return;
-            if (e.key === 'Escape') { e.preventDefault(); e.stopImmediatePropagation(); close(); }
-            if (e.key === 'Tab') {
-                const buttons = Array.from(panel.querySelectorAll<HTMLElement>('button, select, [tabindex="0"]'))
-                    .filter(el => el.getClientRects().length && !el.hasAttribute('disabled'));
-                const first = buttons[0], last = buttons.at(-1);
-                if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last?.focus(); }
-                else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first?.focus(); }
-            }
+        document.addEventListener('keydown', e => {
+            if (e.key !== 'Escape' || panel.hidden || panel.inert || (this.menu.inert && !this.expanded)) return;
+            e.preventDefault(); e.stopImmediatePropagation();
+            if (!this.menu.inert) this.showMenu(false);
+            else this.setExpanded(false);
+            move.focus({ preventScroll: true });
         }, { capture: true, signal });
         this.refreshLabels();
         this.schedule();
     }
 
+    private showMenu(open: boolean) {
+        if (this.menu.inert === !open) return;
+        this.menu.inert = !open;
+        this.menu.setAttribute('aria-hidden', String(!open));
+        this.moveButton.setAttribute('aria-expanded', String(open));
+        if (open) this.sizeButton.focus({ preventScroll: true });
+    }
+
     private setExpanded(expanded: boolean) {
         this.expanded = expanded;
-        this.root.classList.toggle('sse-map-expanded', expanded);
-        this.panel.setAttribute('role', expanded ? 'dialog' : 'region');
-        if (expanded) this.panel.setAttribute('aria-modal', 'true');
-        else this.panel.removeAttribute('aria-modal');
-        this.root.querySelector('.sse-mapButton')?.setAttribute('aria-expanded', String(expanded));
+        this.panel.classList.toggle('map-maximized', expanded);
+        this.sizeButton.querySelector('span').textContent = expanded ? '缩小' : '进入全屏幕';
         this.schedule();
-        if (expanded) this.closeButton.focus();
-        else this.root.querySelector<HTMLElement>('.sse-mapButton')?.focus();
+    }
+
+    dismiss(resetSize: boolean) {
+        this.showMenu(false);
+        this.end(true);
+        if (resetSize && this.expanded) this.setExpanded(false);
     }
 
     private overlayLayout() {
-        const width = Math.min(320, this.root.clientWidth - 32);
-        const height = Math.max(1, this.root.clientHeight - 32);
-        this.panel.style.width = `${width}px`;
-        this.panel.style.left = `${(this.root.clientWidth - width) / 2}px`;
-        this.panel.style.top = '16px';
-        this.panel.style.right = this.panel.style.bottom = 'auto';
-        this.surface.style.maxHeight = `${height}px`;
-        const viewport = this.surface.querySelector<HTMLElement>('.sse-guidanceMapViewport');
-        if (viewport) {
-            const chrome = this.surface.scrollHeight - viewport.getBoundingClientRect().height;
-            viewport.style.height = `${Math.max(120, Math.min(viewport.clientWidth, height - chrome))}px`;
-        }
+        const { left, top, right, bottom } = this.cornerBounds;
+        Object.assign(this.panel.style, { left: left + 'px', top: top + 'px', width: (right-left) + 'px',
+            height: (bottom-top) + 'px', right: 'auto', bottom: 'auto' });
+        this.surface.style.maxHeight = '';
+        this.surface.querySelector<HTMLElement>('.sse-guidanceMapViewport').style.height = '100%';
         this.changed();
     }
 
@@ -149,7 +146,7 @@ export class MapWindow {
         button.addEventListener('blur', () => this.schedule(), { signal });
         button.addEventListener('keydown', e => {
             e.stopPropagation();
-            if (!e.key.startsWith('Arrow') || !this.rect || this.gesture) return;
+            if (this.expanded || !e.key.startsWith('Arrow') || !this.rect || this.gesture) return;
             e.preventDefault();
             const step = e.shiftKey ? 24 : 8;
             const dx = e.key === 'ArrowLeft' ? -step : e.key === 'ArrowRight' ? step : 0;
@@ -179,6 +176,7 @@ export class MapWindow {
     private bindDrag(element: HTMLElement, kind: Gesture['kind']) {
         const signal = this.abort.signal;
         element.addEventListener('pointerdown', e => {
+            this.dragged = false;
             if (this.expanded) return;
             e.stopPropagation(); e.preventDefault();
             if (e.button !== 0 || this.gesture || !this.rect) return;
@@ -191,6 +189,11 @@ export class MapWindow {
         element.addEventListener('pointermove', e => {
             e.stopPropagation();
             if (this.gesture?.id !== e.pointerId || this.gesture.finishing) return;
+            if (Math.hypot(e.clientX-this.gesture.startX, e.clientY-this.gesture.startY) >= 4) {
+                this.dragged = true;
+                this.showMenu(false);
+            }
+            if (!this.dragged) return;
             this.gesture.dx = e.clientX - this.gesture.startX;
             this.gesture.dy = e.clientY - this.gesture.startY;
             this.schedule();
@@ -200,7 +203,8 @@ export class MapWindow {
             if (this.gesture?.id === e.pointerId) {
                 this.gesture.dx = e.clientX - this.gesture.startX;
                 this.gesture.dy = e.clientY - this.gesture.startY;
-                this.end(false);
+                if (!this.dragged && Math.hypot(this.gesture.dx, this.gesture.dy) >= 4) this.dragged = true;
+                this.end(!this.dragged);
             }
         }, { signal });
         for (const name of ['pointercancel', 'lostpointercapture']) element.addEventListener(name, e => {
@@ -219,12 +223,10 @@ export class MapWindow {
         const top = Math.max(safe.top, vv?.offsetTop ?? 0) - host.top;
         const right = Math.min(safe.right, (vv?.offsetLeft ?? 0) + (vv?.width ?? innerWidth)) - host.left;
         let bottom = Math.min(safe.bottom, (vv?.offsetTop ?? 0) + (vv?.height ?? innerHeight)) - host.top;
-        const toolbar = this.root.querySelector<HTMLElement>('.sse-controlsWrap');
-        if (toolbar) {
-            this.observe(toolbar);
-            const r = toolbar.getBoundingClientRect();
-            // Allow 12px of overlap, while leaving the controls' central tap area exposed.
-            if (r.height) bottom = Math.min(bottom, r.top - host.top + Math.min(12, r.height / 4));
+        for (const bar of Array.from(this.root.querySelectorAll<HTMLElement>('.sse-controlsWrap, .sse-timelineContainer, .sse-time'))) {
+            this.observe(bar);
+            const rect = bar.getBoundingClientRect();
+            if (rect.height && rect.width) bottom = Math.min(bottom, rect.top - host.top - 10);
         }
         this.cornerBounds = { left, top, right, bottom };
         const inset = mapHandleInsets(this.corner);
@@ -246,8 +248,9 @@ export class MapWindow {
 
     private layout() {
         if (this.disposed || !this.panel.getClientRects().length) return;
-        if (this.expanded) { this.overlayLayout(); return; }
         this.environment();
+        if (this.expanded) { this.overlayLayout(); return; }
+        this.panel.style.height = '';
         const moving = this.gesture;
         if (moving?.kind === 'move') {
             this.setCorner(mapResizeCorner({ ...moving.rect, x: moving.rect.x + moving.dx, y: moving.rect.y + moving.dy }, this.cornerBounds, this.corner));
@@ -291,12 +294,12 @@ export class MapWindow {
             extra = measuredExtra;
         }
         this.collapsed = result!.width < this.minimum();
-        this.root.classList.toggle('sse-map-collapsed', this.collapsed);
+
         if (this.collapsed) {
-            if (this.expanded) this.overlayLayout();
+            this.setExpanded(true);
             return;
         }
-        if (this.expanded) this.setExpanded(false);
+
         // The final pass may itself change wrapping. Never crop the actions
         // against a height measured at the previous width.
         const measuredHeight = this.surface.getBoundingClientRect().height;
@@ -306,8 +309,8 @@ export class MapWindow {
                 g?.kind === 'resize' ? resizeAnchor(g.rect,g.corner) : undefined);
             if (result.width === 0) {
                 this.collapsed = true;
-                this.root.classList.add('sse-map-collapsed');
-                if (this.expanded) this.overlayLayout();
+
+                this.setExpanded(true);
                 return;
             }
             this.panel.style.width = `${result.width}px`;
@@ -355,11 +358,8 @@ export class MapWindow {
     }
 
     refreshLabels() {
-        const close = messageText(this.root.lang, 'closeMapPanel');
-        this.closeButton?.setAttribute('aria-label', close);
-        this.backdrop?.setAttribute('aria-label', close);
         for (const [button, kind] of [[this.moveButton, 'move'], [this.resizeButton, 'resize']] as const) {
-            const label = mapHandleLabel(this.root.lang, kind, this.corner);
+            const label = kind === 'move' ? '窗口选项，拖动可移动地图' : mapHandleLabel(this.root.lang, kind, this.corner);
             button.setAttribute('aria-label', label);
             button.title = label;
         }
@@ -397,7 +397,6 @@ export class MapWindow {
         cancelAnimationFrame(this.frame);
         this.abort.abort(); this.observer.disconnect(); this.mutation.disconnect();
         this.safe.remove();
-        this.closeButton.remove(); this.backdrop.remove();
         this.root.classList.remove('sse-map-collapsed', 'sse-map-expanded');
         this.panel.querySelectorAll('.sse-mapHandle').forEach(el => el.remove());
     }

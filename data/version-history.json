@@ -1,14 +1,14 @@
 {
   "schemaVersion": "1.1",
   "cutoffGitRef": "c613a87",
-  "documentedThrough": "04ebcb0f69292d6a86486585ec71eacae9e5e6d7",
+  "documentedThrough": "a8476fdc9f4c8f7dc1ec086e050a09d3bea67f77",
   "defaultResourceVersion": "1.0a",
   "current": {
-    "displayVersion": "5.24.0",
-    "appSemver": "5.24.0",
+    "displayVersion": "5.24.1",
+    "appSemver": "5.24.1",
     "indexSchemaVersion": "1.2",
-    "date": "2026-11-22",
-    "gitRef": "04ebcb0f69292d6a86486585ec71eacae9e5e6d7",
+    "date": "2026-11-23",
+    "gitRef": "a8476fdc9f4c8f7dc1ec086e050a09d3bea67f77",
     "historyUrl": "/data/version-history.json",
     "upstream": {
       "repository": "playcanvas/supersplat-viewer",
@@ -468,6 +468,70 @@
       "date": "2026-11-22",
       "type": "release-support",
       "summary": "Bind the unpublished preview to the preceding product checkpoint."
+    },
+    {
+      "gitRef": "41af9823c4871f8ba3832fab4c94011757feffd8",
+      "date": "2026-11-22",
+      "type": "release-support",
+      "summary": "Bind the published four-scene 5.24.0 deployment to its verified SP map implementation."
+    },
+    {
+      "gitRef": "b21ef37c3889dd21d28247a2c9e6165442e5330c",
+      "date": "2026-11-23",
+      "type": "release-support",
+      "summary": "Unpublished 5.24.1 checkpoint. fix(viewer): restore SP minimap controls and touch exploration for Nanhai"
+    },
+    {
+      "gitRef": "39641687d8273f7e1569658ced23da020d308872",
+      "date": "2026-11-23",
+      "type": "release-support",
+      "summary": "Unpublished 5.24.1 checkpoint. chore(release): bind Viewer 5.24.1 to the Nanhai map patch"
+    },
+    {
+      "gitRef": "56fea5d49b0cf86ae7c456a5608d33b6444bb31b",
+      "date": "2026-11-23",
+      "type": "release-support",
+      "summary": "Unpublished 5.24.1 checkpoint. test(viewer): pin the 5.24.1 release identity"
+    },
+    {
+      "gitRef": "7a7820fc806f932658eb332824216157b8bb3c94",
+      "date": "2026-11-23",
+      "summary": "Registered opening with a provisional landscape poster, unpublished candidate"
+    },
+    {
+      "gitRef": "9190a9b2179f42f4b233c3b5c442b79010c8852f",
+      "date": "2026-11-23",
+      "summary": "Release packaging for the superseded registered opening draft"
+    },
+    {
+      "gitRef": "029603b673581625b6b20941028b4b0b0ffdf755",
+      "date": "2026-11-23",
+      "summary": "Nanhai map window and square cover preview before retaining rear-wing coverage"
+    },
+    {
+      "gitRef": "ef2c9d11baf75b0fb361ffae4014964ad69bf05a",
+      "date": "2026-11-23",
+      "summary": "Packaging checkpoint for the previous Nanhai map window preview"
+    },
+    {
+      "gitRef": "ce714239f690c30e3fec9b087776677911099661",
+      "date": "2026-11-23",
+      "summary": "Rear-wing Gaussian texture preview before completed cartographic linework"
+    },
+    {
+      "gitRef": "566157edfe1c1a9edf3b7ebdc42e05bef48be406",
+      "date": "2026-11-23",
+      "summary": "Packaging checkpoint for the Gaussian texture preview"
+    },
+    {
+      "gitRef": "4be41420fbd0c16245b4485f615f47ee5746b3d2",
+      "date": "2026-11-23",
+      "summary": "Rear-wing linework checkpoint before surveyed door corrections"
+    },
+    {
+      "gitRef": "1c793aa0e21ff5e727dfc14e1e0ce6674a301b46",
+      "date": "2026-11-23",
+      "summary": "Packaging checkpoint for the initial linework preview"
     }
   ],
   "entries": [
@@ -2156,6 +2220,31 @@
         "plan": "docs/changes/185-shenzhen-scenes/plan.md",
         "evidence": "https://github.com/Shuang-su/Metaflow/issues/185",
         "releaseTag": "viewer-v5.24.0"
+      }
+    },
+    {
+      "displayVersion": "5.24.1",
+      "appSemver": "5.24.1",
+      "type": "fix",
+      "scope": "viewer",
+      "date": "2026-11-23",
+      "gitRef": "a8476fdc9f4c8f7dc1ec086e050a09d3bea67f77",
+      "summary": "Restore open doorways and align passages with recorded survey paths in the Nanhai rear-wing plan over real Gaussian color. Add map window controls, the nanhaiyiku alias, square poster, opening-view pre-render, figure-eight motion, fly input and radial particles.",
+      "resourceChanges": [
+        {
+          "action": "update",
+          "routes": [
+            "/shenzhen/nanhai-e-cool-building-3"
+          ]
+        }
+      ],
+      "trace": {
+        "changeId": "MF-187",
+        "pullRequest": "https://github.com/Shuang-su/Metaflow/pull/188",
+        "spec": "docs/changes/187-nanhai-map/spec.md",
+        "plan": "docs/changes/187-nanhai-map/plan.md",
+        "evidence": "https://github.com/Shuang-su/Metaflow/issues/187",
+        "releaseTag": "viewer-v5.24.1"
       }
     }
   ],

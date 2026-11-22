@@ -98,3 +98,8 @@ export function relativeMapPosition(rect: WindowRect, bounds: Box) {
 export function mapBackingSize(cssWidth: number, dpr: number) {
     return Math.max(1, Math.round(cssWidth * clamp(dpr || 1, 1, 2)));
 }
+
+// The same virtual 440-unit map is used for rectangular rendering and pointer inversion.
+export function mapCameraPixels(width: number, height: number, mapAspect: number) {
+    return Math.min(width, height * mapAspect);
+}

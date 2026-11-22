@@ -2,14 +2,14 @@
   "version": "1.0",
   "schemaVersion": "1.2",
   "release": {
-    "displayVersion": "5.24.0",
-    "appSemver": "5.24.0",
+    "displayVersion": "5.24.1",
+    "appSemver": "5.24.1",
     "schemaVersion": "1.2",
     "historyUrl": "/data/version-history.json",
-    "updatedAt": "2026-11-22",
-    "gitRef": "04ebcb0f69292d6a86486585ec71eacae9e5e6d7"
+    "updatedAt": "2026-11-23",
+    "gitRef": "a8476fdc9f4c8f7dc1ec086e050a09d3bea67f77"
   },
-  "lastUpdated": "2026-11-22",
+  "lastUpdated": "2026-11-23",
   "totalResources": 104,
   "categories": {
     "animals": {
@@ -4320,17 +4320,19 @@
       "files": {
         "model": "Shenzhen/nanhai-e-cool-v1/streamed/lod-meta.json",
         "environment": "Shenzhen/nanhai-e-cool-v1/environment.sog",
-        "settings": "Shenzhen/nanhai-e-cool-v1/settings.json",
+        "settings": "Shenzhen/nanhai-e-cool-v1/opening-settings.json",
         "collision": "Shenzhen/nanhai-e-cool-v1/collision.glb",
-        "thumbnail": "Shenzhen/nanhai-e-cool-v1/cover.jpg"
+        "thumbnail": "Shenzhen/nanhai-e-cool-v1/cover-4096.webp",
+        "poster": "Shenzhen/nanhai-e-cool-v1/cover-4096.webp"
       },
       "fileSize": {
         "model": 1040050537,
         "environment": 1936977,
-        "settings": 1073,
+        "settings": 1081,
         "collision": 6151824,
-        "thumbnail": 251943,
-        "total": 1055424191
+        "thumbnail": 14026970,
+        "total": 1072175110,
+        "poster": 14026970
       },
       "meta": {
         "date": "2026-11-12",
@@ -4338,13 +4340,17 @@
         "folderName": "nanhai-e-cool-v1"
       },
       "viewer": {
-        "defaultCameraMode": "walk",
-        "syntheticAnimation": "none"
+        "defaultCameraMode": "anim",
+        "syntheticAnimation": "figure8",
+        "animationFirstExitMode": "orbit"
       },
       "version": {
         "addedIn": "5.24.0",
-        "updatedIn": "5.24.0"
-      }
+        "updatedIn": "5.24.1"
+      },
+      "aliases": [
+        "/shenzhen/nanhaiyiku"
+      ]
     }
   ]
 }

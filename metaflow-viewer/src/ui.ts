@@ -3,6 +3,7 @@ import type { EventHandler } from 'playcanvas';
 
 import { version as appVersion } from '../package.json';
 
+import { ownsKeyboard } from './input/shared';
 import { initLoadingDetails } from './loading-details';
 import type { Picker } from './picker';
 import { initPoster } from './poster';
@@ -271,13 +272,22 @@ const initUI = (
     // stands in for the controls panel, which comes back when it closes.
     let controlsOpen = !global.config.controlsHintInitiallyClosed && readControlsOpen();
 
+    let mapMounted = false;
     const applyControls = () => {
-        const visible = controlsOpen && state.loaded && !isVisible(dom.settingsPanel);
+        const settings = isVisible(dom.settingsPanel);
+        const info = isVisible(dom.infoPanel);
+        const visible = controlsOpen && state.loaded && !settings && !(mapMounted && info);
         dom.controlsHint.classList.toggle('sse-hidden', !visible);
         dom.controlsButton.classList.toggle('sse-active', visible);
+        if (mapMounted) events.fire('ui:mapObscured', !state.loaded || Boolean(state.xrMode) || visible || settings || info);
     };
 
+    const setInfoVisible = (visible: boolean) => {
+        dom.infoPanel.classList.toggle('sse-hidden', !visible);
+        dom.info.classList.toggle('sse-active', visible);
+    };
     const showSettings = (visible: boolean) => {
+        if (visible && mapMounted) setInfoVisible(false);
         dom.settingsPanel.classList.toggle('sse-hidden', !visible);
         dom.settings.classList.toggle('sse-active', visible);
         applyControls();
@@ -288,7 +298,10 @@ const initUI = (
     const showControls = (open: boolean) => {
         controlsOpen = open;
         writeControlsOpen(open);
-        if (open) showSettings(false);
+        if (open) {
+            if (mapMounted) setInfoVisible(false);
+            showSettings(false);
+        }
         applyControls();
     };
 
@@ -313,9 +326,37 @@ const initUI = (
         dom.infoShortcuts.classList.toggle('sse-hidden', state.inputMode !== 'desktop');
         dom.walkShortcut.classList.toggle('sse-hidden', !state.walkAllowed);
         dom.playShortcut.classList.toggle('sse-hidden', !state.hasAnimation);
-        dom.infoPanel.classList.toggle('sse-hidden', !visible);
-        dom.info.classList.toggle('sse-active', visible);
+        if (visible && mapMounted) showSettings(false);
+        setInfoVisible(visible);
+        applyControls();
     };
+
+    on('ui:mapMount', (mounted: boolean) => {
+        mapMounted = mounted;
+        if (mounted && isVisible(dom.infoPanel)) showSettings(false);
+        applyControls();
+    });
+    on('xrMode:changed', applyControls);
+    on('ui:requestMap', () => {
+        if (!mapMounted) return;
+        setInfoVisible(false);
+        if (controlsOpen) showControls(false);
+        showSettings(false);
+    });
+
+    // Dismiss the temporary panel before Escape is interpreted as leaving walk mode.
+    const dismissMapPanel = (event: KeyboardEvent) => {
+        if (event.key !== 'Escape' || !mapMounted || !ownsKeyboard(global)) return;
+        if (isVisible(dom.infoPanel)) showInfo(false);
+        else if (isVisible(dom.settingsPanel)) showSettings(false);
+        else if (isVisible(dom.controlsHint)) showControls(false);
+        else return;
+        event.preventDefault();
+        event.stopImmediatePropagation();
+        showUI();
+    };
+    window.addEventListener('keydown', dismissMapPanel, true);
+    disposers.push(() => window.removeEventListener('keydown', dismissMapPanel, true));
 
     // Info panel
     const toggleHelp = () => showInfo(!isVisible(dom.infoPanel));

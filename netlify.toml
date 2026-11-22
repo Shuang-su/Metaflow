@@ -48,6 +48,12 @@
   force = true
 
 [[redirects]]
+  from = "/shenzhen/nanhaiyiku"
+  to = "/shenzhen/nanhai-e-cool-building-3/"
+  status = 301
+  force = true
+
+[[redirects]]
   from = "/shenzhen/shiminzhongxin"
   to = "/shenzhen/shenzhen-civic-center/"
   status = 301
