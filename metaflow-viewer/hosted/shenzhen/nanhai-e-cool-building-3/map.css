@@ -4,6 +4,10 @@ html, body, #viewer { margin: 0; width: 100%; height: 100%; overflow: hidden; ba
     --map-stroke: color-mix(in srgb, var(--sse-text-light) 16%, transparent);
     --map-frame: 9px;
     --map-outline: 1px;
+    --map-action-size: 44px;
+    --map-action-offset: 6px;
+    /* The lower frame corners share their centers with the two circular actions. */
+    --sse-map-radius: calc(var(--map-frame) + var(--map-action-offset) + var(--map-action-size) / 2);
     --map-grip-center: calc(var(--map-frame) / 2);
     --map-ground: #706e73;
 }
@@ -25,7 +29,8 @@ html, body, #viewer { margin: 0; width: 100%; height: 100%; overflow: hidden; ba
 #site-map canvas { border-radius: 0; cursor: grab; touch-action: none; background: var(--map-ground); }
 #site-map canvas:active { cursor: grabbing; }
 #site-map .map-action {
-    position: absolute; bottom: 6px; width: 44px; height: 44px; padding: 0;
+    position: absolute; bottom: var(--map-action-offset);
+    width: var(--map-action-size); height: var(--map-action-size); padding: 0;
     display: grid; place-items: center; border: 0; border-radius: 50%;
     background: transparent; color: var(--sse-text); touch-action: manipulation;
 }
@@ -35,9 +40,9 @@ html, body, #viewer { margin: 0; width: 100%; height: 100%; overflow: hidden; ba
     backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
 }
 #site-map .map-action svg { width: 21px; height: 21px; position: relative; pointer-events: none; }
-#map-mode { right: 6px; }
+#map-mode { right: var(--map-action-offset); }
 #map-mode:not([data-next="overview"]) .map-overview-icon, #map-mode[data-next="overview"] .map-follow-icon { display: none; }
-#site-map #map-locate { left: 6px; color: #70ceff; transition: opacity 180ms ease; }
+#site-map #map-locate { left: var(--map-action-offset); color: #70ceff; transition: opacity 180ms ease; }
 #site-map #map-locate[aria-hidden="true"] { opacity: 0; pointer-events: none; }
 #site-map .map-action:focus-visible { outline: 2px solid var(--sse-accent); outline-offset: -2px; }
 #site-map .map-a11y { position: absolute; width: 1px; height: 1px; clip-path: inset(50%); overflow: hidden; white-space: nowrap; }
@@ -56,6 +61,28 @@ html, body, #viewer { margin: 0; width: 100%; height: 100%; overflow: hidden; ba
     transform: translate(-50%, -50%);
     border-radius: 0;
     mask: radial-gradient(circle, #000 1.6px, transparent 2px) left center / 8px 4px repeat-x;
+}
+/* Extend the resize grip along the frame. Its outer reach and the canvas hit area stay fixed. */
+#site-map .sse-mapHandle-resize {
+    --arc-radius: calc(var(--sse-map-radius) + 10px); /* 5px clear gap and 5px stroke */
+    --arc-cap: radial-gradient(closest-side, #000 80%, transparent);
+    --grip-edge: calc(23px + var(--map-frame));
+    clip-path: polygon(0 0, 100% 0, 100% var(--grip-edge), var(--grip-edge) var(--grip-edge),
+        var(--grip-edge) 100%, 0 100%);
+    width: calc(var(--sse-map-radius) + 26px);
+    height: calc(var(--sse-map-radius) + 26px);
+}
+#site-map .sse-mapHandle-resize::before {
+    left: 13px;
+    top: 13px;
+    width: calc(var(--arc-radius) + 2.5px);
+    height: calc(var(--arc-radius) + 2.5px);
+    mask:
+        radial-gradient(circle at right bottom, transparent calc(var(--arc-radius) - 5.5px),
+            #000 calc(var(--arc-radius) - 4.5px) calc(var(--arc-radius) - .5px), transparent var(--arc-radius))
+            0 0 / var(--arc-radius) var(--arc-radius) no-repeat,
+        var(--arc-cap) calc(var(--arc-radius) - 2.5px) 0 / 5px 5px no-repeat,
+        var(--arc-cap) 0 calc(var(--arc-radius) - 2.5px) / 5px 5px no-repeat;
 }
 #site-map.map-maximized .sse-guidanceSurface, #site-map.map-maximized canvas { width: 100%; height: 100%; }
 #site-map.map-maximized .sse-mapHandle-resize { display: none; }
