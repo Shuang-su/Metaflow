@@ -2,15 +2,15 @@
   "version": "1.0",
   "schemaVersion": "1.2",
   "release": {
-    "displayVersion": "5.23.2",
-    "appSemver": "5.23.2",
+    "displayVersion": "5.24.0",
+    "appSemver": "5.24.0",
     "schemaVersion": "1.2",
     "historyUrl": "/data/version-history.json",
-    "updatedAt": "2026-11-14",
-    "gitRef": "7cbe28cd2f552dcd850c7a5724365244d523bb65"
+    "updatedAt": "2026-11-22",
+    "gitRef": "04ebcb0f69292d6a86486585ec71eacae9e5e6d7"
   },
-  "lastUpdated": "2026-09-30",
-  "totalResources": 100,
+  "lastUpdated": "2026-11-22",
+  "totalResources": 104,
   "categories": {
     "animals": {
       "name": "动物",
@@ -4135,6 +4135,215 @@
       "version": {
         "addedIn": "4.0a",
         "updatedIn": "4.0a"
+      }
+    },
+    {
+      "id": "shenzhenCivilCenter",
+      "title": "深圳市民中心",
+      "titleEn": "Shenzhen Civic Center",
+      "category": [
+        "shenzhen"
+      ],
+      "route": "/shenzhen/shenzhen-civic-center",
+      "source": "photogrammetry",
+      "experienceType": "scene",
+      "files": {
+        "model": "Shenzhen/sp-20261102/261024shenzhenCivilCenter/fusion/streamed/lod-meta.json",
+        "settings": "Shenzhen/sp-20261102/261024shenzhenCivilCenter/settings.json",
+        "sceneManifest": "Shenzhen/sp-20261102/261024shenzhenCivilCenter/scene-manifest.json",
+        "voxelManifest": "Shenzhen/sp-20261102/261024shenzhenCivilCenter/fusion/voxel-v001/scene.voxel-tiles.json",
+        "poster": "Shenzhen/sp-20261102/261024shenzhenCivilCenter/posters/cover-4096.webp",
+        "thumbnail": "Shenzhen/sp-20261102/261024shenzhenCivilCenter/posters/cover-4096.webp"
+      },
+      "meta": {
+        "date": "2026-10-24",
+        "device": null,
+        "folderName": "261024shenzhenCivilCenter",
+        "gaussianScope": "9-level central fusion + full outer video, one shared renderer"
+      },
+      "viewer": {
+        "defaultCameraMode": "anim",
+        "animationFirstExitMode": "orbit",
+        "voxelCoordinateSpace": "world",
+        "worldUnitsPerMeter": 0.018994308848046808
+      },
+      "animation": {
+        "duration": 25,
+        "frameRate": 60,
+        "loopMode": "repeat"
+      },
+      "version": {
+        "addedIn": "5.24.0",
+        "updatedIn": "5.24.0"
+      },
+      "aliases": [
+        "/shenzhen/shiminzhongxin"
+      ],
+      "fileSize": {
+        "runtimeTotal": 2525832577,
+        "runtimeFiles": 2743,
+        "settings": 15474,
+        "poster": 12135550,
+        "total": 2537971290,
+        "additionalPosters": 0,
+        "model": 2525832577,
+        "thumbnail": 12135550
+      }
+    },
+    {
+      "id": "szu",
+      "title": "深圳大学粤海校区",
+      "titleEn": "Shenzhen University (Yuehai Campus)",
+      "category": [
+        "shenzhen"
+      ],
+      "route": "/shenzhen/shenzhen-university-yuehai-campus",
+      "aliases": [
+        "/shenzhen/szu",
+        "/shenzhen/shenzhendaxue",
+        "/shenzhen/shenzhendaxueyuehai"
+      ],
+      "files": {
+        "model": "Shenzhen/sp-20261102/261013szu/scene/campus/lod-meta.json",
+        "settings": "Shenzhen/sp-20261102/261013szu/settings.json",
+        "sceneManifest": "Shenzhen/sp-20261102/261013szu/scene-manifest-v012-20261102.json",
+        "voxelManifest": "Shenzhen/sp-20261102/261013szu/voxel-v001/scene.voxel-tiles.json",
+        "poster": "Shenzhen/sp-20261102/261013szu/posters/plaza-v012-4096.webp",
+        "thumbnail": "Shenzhen/sp-20261102/261013szu/posters/plaza-v012-4096.webp"
+      },
+      "viewer": {
+        "defaultCameraMode": "anim",
+        "animationFirstExitMode": "orbit",
+        "voxelCoordinateSpace": "world",
+        "worldUnitsPerMeter": 1,
+        "walkFallbackPosition": [
+          36.11290777837705,
+          1.26,
+          -24.339634236988804
+        ]
+      },
+      "tracks": {
+        "plaza": "Shenzhen/sp-20261102/261013szu/animations/plaza.json",
+        "orbit": "Shenzhen/sp-20261102/261013szu/animations/orbit.json"
+      },
+      "fileSize": {
+        "runtimeTotal": 10394255573,
+        "runtimeFiles": 10765,
+        "settings": 641,
+        "poster": 17422718,
+        "additionalPosters": 13359750,
+        "total": 10435698159,
+        "model": 10394255573,
+        "thumbnail": 17422718
+      },
+      "trackPosters": {
+        "plaza": "Shenzhen/sp-20261102/261013szu/posters/plaza-v012-4096.webp",
+        "orbit": "Shenzhen/sp-20261102/261013szu/posters/orbit-v012-4096.webp"
+      },
+      "source": "photogrammetry",
+      "experienceType": "scene",
+      "version": {
+        "addedIn": "5.24.0",
+        "updatedIn": "5.24.0"
+      },
+      "meta": {
+        "date": "2026-10-13",
+        "device": null,
+        "folderName": "261013szu"
+      }
+    },
+    {
+      "id": "huafa",
+      "title": "前海冰雪世界（华发冰雪世界）",
+      "titleEn": "Huafa Ice and Snow World",
+      "category": [
+        "shenzhen"
+      ],
+      "route": "/shenzhen/huafa-ice-and-snow-world",
+      "source": "photogrammetry",
+      "experienceType": "scene",
+      "files": {
+        "model": "Shenzhen/sp-20261102/260722huafa/streamed/lod-meta.json",
+        "settings": "Shenzhen/sp-20261102/260722huafa/settings.json",
+        "voxelManifest": "Shenzhen/sp-20261102/260722huafa/voxel/scene.voxel-tiles.json",
+        "bookmarks": "Shenzhen/sp-20261102/260722huafa/bookmarks.json",
+        "poster": "Shenzhen/sp-20261102/260722huafa/posters/cover-4096.webp",
+        "thumbnail": "Shenzhen/sp-20261102/260722huafa/posters/cover-4096.webp"
+      },
+      "fileSize": {
+        "runtimeTotal": 4557285806,
+        "runtimeFiles": 7936,
+        "settings": 3773,
+        "poster": 7361666,
+        "total": 4564647472,
+        "additionalPosters": 0,
+        "model": 4557285806,
+        "thumbnail": 7361666
+      },
+      "meta": {
+        "date": "2026-07-22",
+        "folderName": "260722huafa",
+        "gaussianScope": "Complete cleaned L2 and manually cleaned P1, 8 independently simplified LOD levels",
+        "sourceVersion": "v005_双清理版正式合并_流式体素",
+        "coordinateUnits": "L2 coordinate units; physical unit unverified"
+      },
+      "viewer": {
+        "defaultCameraMode": "anim",
+        "animationFirstExitMode": "orbit",
+        "voxelCoordinateSpace": "world",
+        "budget": 8
+      },
+      "animation": {
+        "duration": 20,
+        "frameRate": 1,
+        "loopMode": "repeat"
+      },
+      "aliases": [
+        "/shenzhen/qianhaibingxueshijie",
+        "/shenzhen/huafabingxueshijie"
+      ],
+      "version": {
+        "addedIn": "5.24.0",
+        "updatedIn": "5.24.0"
+      }
+    },
+    {
+      "id": "nanhai-e-cool-building-3",
+      "route": "/shenzhen/nanhai-e-cool-building-3",
+      "title": "南海意库3栋",
+      "titleEn": "Nanhai E-Cool",
+      "category": [
+        "shenzhen"
+      ],
+      "source": "photogrammetry",
+      "experienceType": "scene",
+      "files": {
+        "model": "Shenzhen/nanhai-e-cool-v1/streamed/lod-meta.json",
+        "environment": "Shenzhen/nanhai-e-cool-v1/environment.sog",
+        "settings": "Shenzhen/nanhai-e-cool-v1/settings.json",
+        "collision": "Shenzhen/nanhai-e-cool-v1/collision.glb",
+        "thumbnail": "Shenzhen/nanhai-e-cool-v1/cover.jpg"
+      },
+      "fileSize": {
+        "model": 1040050537,
+        "environment": 1936977,
+        "settings": 1073,
+        "collision": 6151824,
+        "thumbnail": 251943,
+        "total": 1055424191
+      },
+      "meta": {
+        "date": "2026-11-12",
+        "device": null,
+        "folderName": "nanhai-e-cool-v1"
+      },
+      "viewer": {
+        "defaultCameraMode": "walk",
+        "syntheticAnimation": "none"
+      },
+      "version": {
+        "addedIn": "5.24.0",
+        "updatedIn": "5.24.0"
       }
     }
   ]

@@ -16,13 +16,15 @@ import type { CameraMode, AnimationFirstExitMode, ExperienceType, RevealEffect, 
  * `renderViewerHtml` — so the two surfaces cannot drift.
  */
 type ViewerAssets = {
+    /** Scene orientation shared by the subject and its environment. */
+    displayEuler?: [number, number, number];
     voxelUrl?: string;
     voxelManifestUrl?: string;
     voxelCoordinateSpace?: VoxelCoordinateSpace;
     environmentUrl?: string;
     environmentContents?: Promise<Response>;
     defaultCameraMode?: CameraMode;
-    syntheticAnimation?: 'figure8';
+    syntheticAnimation?: 'figure8' | 'none';
     animationFirstExitMode?: AnimationFirstExitMode;
     revealEffect?: RevealEffect;
     experienceType?: ExperienceType;
@@ -79,6 +81,8 @@ type ViewerFlags = {
     ui?: boolean;
     /** Show the centre reticle in desktop fly/walk mode with gaming controls. Defaults to `false`. */
     reticle?: boolean;
+    /** Start with the controls hint closed when the host supplies its own floating panel. */
+    controlsHintInitiallyClosed?: boolean;
     /** Start with the camera animation paused. */
     noanim?: boolean;
     /** Disable post effects. */

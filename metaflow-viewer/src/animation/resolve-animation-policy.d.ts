@@ -11,7 +11,7 @@ declare const policyUtils: {
         hasExplicitStartPose: boolean;
         hasCollider: boolean;
         preferredCameraMode?: CameraMode;
-        syntheticAnimation?: 'figure8';
+        syntheticAnimation?: 'figure8' | 'none';
     }): {
         trackKind: AnimationTrackKind;
         hasAnimation: boolean;

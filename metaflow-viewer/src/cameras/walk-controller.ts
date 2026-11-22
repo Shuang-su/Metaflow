@@ -43,6 +43,9 @@ class WalkController implements CameraController {
      */
     fov = 90;
 
+    /** Most recent measured support under the capsule in world coordinates. */
+    supportHeight: number | null = null;
+
     /**
      * Total capsule height in meters (default: human proportion)
      */
@@ -297,6 +300,7 @@ class WalkController implements CameraController {
 
         // ground probe: cast a ray downward to find the terrain surface
         const groundY = this._probeGround(this._position);
+        this.supportHeight = this._heldFloorY === null ? groundY : null;
         const hasGround = groundY !== null;
 
         // jump (require release before re-triggering)
@@ -362,6 +366,7 @@ class WalkController implements CameraController {
      */
     goto(camera: Camera) {
         // position
+        this.supportHeight = null;
         this._hasPosition = true;
         this._position.copy(camera.position);
         this._prevPosition.copy(this._position);

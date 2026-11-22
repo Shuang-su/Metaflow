@@ -114,7 +114,7 @@ const loadGsplat = async (app: AppBase, config: Config, callbacks: LoadCallbacks
             }
             callbacks.onStage('gpu');
             const entity = new Entity('gsplat', app);
-            entity.setLocalEulerAngles(0, 0, 180);
+            entity.setLocalEulerAngles(...(config.displayEuler ?? [0, 0, 180] as const));
             entity.addComponent('gsplat', {
                 unified: true,
                 asset
@@ -183,7 +183,7 @@ const loadEnvironment = async (app: AppBase, config: Config, cancelled: () => bo
                 return;
             }
             const entity = new Entity('environment', app);
-            entity.setLocalEulerAngles(0, 0, 180);
+            entity.setLocalEulerAngles(...(config.displayEuler ?? [0, 0, 180] as const));
             entity.addComponent('gsplat', {
                 unified: true,
                 asset
@@ -415,6 +415,7 @@ const resolveConfig = (options: CreateViewerOptions): Config => ({
     heatmap: options.heatmap ?? false,
     debug: options.debug ?? false,
     lang: options.lang,
+    controlsHintInitiallyClosed: options.controlsHintInitiallyClosed ?? false,
     exposeGlobals: options.exposeGlobals ?? false
 });
 
@@ -859,6 +860,9 @@ const createViewer = async (options: CreateViewerOptions): Promise<ViewerHandle>
     viewer.onDestroy(persistPreferences(events));
     const handle: ViewerHandle = {
         app,
+        get walkSupportHeight() {
+            return viewer.cameraManager?.getWalkSupportHeight() ?? null;
+        },
         state,
         events,
         annotations: global.settings.annotations,

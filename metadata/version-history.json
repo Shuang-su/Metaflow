@@ -1,14 +1,14 @@
 {
   "schemaVersion": "1.1",
   "cutoffGitRef": "c613a87",
-  "documentedThrough": "7cbe28cd2f552dcd850c7a5724365244d523bb65",
+  "documentedThrough": "04ebcb0f69292d6a86486585ec71eacae9e5e6d7",
   "defaultResourceVersion": "1.0a",
   "current": {
-    "displayVersion": "5.23.2",
-    "appSemver": "5.23.2",
+    "displayVersion": "5.24.0",
+    "appSemver": "5.24.0",
     "indexSchemaVersion": "1.2",
-    "date": "2026-11-14",
-    "gitRef": "7cbe28cd2f552dcd850c7a5724365244d523bb65",
+    "date": "2026-11-22",
+    "gitRef": "04ebcb0f69292d6a86486585ec71eacae9e5e6d7",
     "historyUrl": "/data/version-history.json",
     "upstream": {
       "repository": "playcanvas/supersplat-viewer",
@@ -438,6 +438,36 @@
       "date": "2026-11-14",
       "type": "release-support",
       "summary": "Finalize Viewer 5.23.2 against the real PR #167 squash product; preserve all published history and bind recovery evidence and fixtures to main-history commits."
+    },
+    {
+      "gitRef": "401bfca27b5add08c11aae69a11a3ded9d6b0b79",
+      "date": "2026-11-14",
+      "type": "release-support",
+      "summary": "Record the packaging identity and rollback evidence of the published Viewer 5.23.2."
+    },
+    {
+      "gitRef": "aa54f4950f5981bc0012fc49be3f47fb686dae83",
+      "date": "2026-11-22",
+      "type": "release-support",
+      "summary": "Define the scope and acceptance plan for MF-185."
+    },
+    {
+      "gitRef": "13c1dc69e36a2a67b549cd0afbc79fbd0a325a15",
+      "date": "2026-11-22",
+      "type": "release-support",
+      "summary": "Unpublished MF-185 implementation checkpoint, integrated into Viewer 5.24.0."
+    },
+    {
+      "gitRef": "b3989b00608f9dc479fdca9226b1d88d1fe5dd36",
+      "date": "2026-11-22",
+      "type": "release-support",
+      "summary": "Register the four-scene asset manifest and surveyed map before the final SP map window."
+    },
+    {
+      "gitRef": "535ecacdba3c72e62e0569d1ec8dfce792bd6c67",
+      "date": "2026-11-22",
+      "type": "release-support",
+      "summary": "Bind the unpublished preview to the preceding product checkpoint."
     }
   ],
   "entries": [
@@ -2098,6 +2128,34 @@
         "pullRequest": "https://github.com/Shuang-su/Metaflow/pull/167",
         "evidence": "docs/guides/production-runtime-recovery.md",
         "releaseTag": "viewer-v5.23.2"
+      }
+    },
+    {
+      "displayVersion": "5.24.0",
+      "appSemver": "5.24.0",
+      "type": "feature",
+      "scope": "viewer",
+      "date": "2026-11-22",
+      "gitRef": "04ebcb0f69292d6a86486585ec71eacae9e5e6d7",
+      "summary": "Add four Shenzhen scenes, six compatible routes and the SP follow and overview map for Nanhai E-Cool",
+      "resourceChanges": [
+        {
+          "action": "add",
+          "routes": [
+            "/shenzhen/shenzhen-civic-center",
+            "/shenzhen/shenzhen-university-yuehai-campus",
+            "/shenzhen/huafa-ice-and-snow-world",
+            "/shenzhen/nanhai-e-cool-building-3"
+          ]
+        }
+      ],
+      "trace": {
+        "changeId": "MF-185",
+        "pullRequest": "https://github.com/Shuang-su/Metaflow/pull/186",
+        "spec": "docs/changes/185-shenzhen-scenes/spec.md",
+        "plan": "docs/changes/185-shenzhen-scenes/plan.md",
+        "evidence": "https://github.com/Shuang-su/Metaflow/issues/185",
+        "releaseTag": "viewer-v5.24.0"
       }
     }
   ],

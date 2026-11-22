@@ -1,3 +1,4 @@
+import { compile as compileSass } from 'sass';
 import { copyFileSync, existsSync, readFileSync } from 'fs';
 import path from 'path';
 
@@ -187,7 +188,36 @@ const buildPublic = {
         json(),
         htmlTemplatePlugin(),
         htmlPlugin(),
-        copy({ targets: [{ src: 'src/assets/*', dest: 'public/assets' }] })
+        copy({ targets: [
+            { src: 'src/assets/*', dest: 'public/assets' },
+            { src: 'hosted/shenzhen', dest: 'public' }
+        ] })
+    ]
+};
+
+// The building's v3 reader is scoped to this entry. Existing pages use their pinned engine.
+const buildNanhai = {
+    input: 'src/shenzhen/nanhai.ts',
+    output: { file: 'public/shenzhen/nanhai.js', format: 'esm', inlineDynamicImports: true },
+    plugins: [
+        {
+            name: 'sp-map-window-styles',
+            generateBundle() {
+                const stylesheet = 'src/shenzhen/sp-map/map-window.scss';
+                this.addWatchFile(stylesheet);
+                this.emitFile({ type: 'asset', fileName: 'map-window.css', source: compileSass(stylesheet).css });
+            }
+        },
+        {
+            name: 'nanhai-engine',
+            resolveId(source, importer) {
+                if (source === 'playcanvas' || source.startsWith('playcanvas/')) {
+                    return this.resolve(source.replace(/^playcanvas/, 'playcanvas-sog-v3'), importer, { skipSelf: true });
+                }
+                return null;
+            }
+        },
+        resolve(), transpileTypescript(), json(), htmlTemplatePlugin()
     ]
 };
 
@@ -280,6 +310,7 @@ const buildSettingsTypes = {
 export default [
     buildCss,
     buildPublic,
+    buildNanhai,
     buildDist,
     buildViewer,
     buildSettings,

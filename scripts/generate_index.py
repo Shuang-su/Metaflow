@@ -1024,8 +1024,10 @@ def scan_resource_folder(folder_path, category, subcategory=None):
 
 def scan_data_directory():
     """扫描整个 data 目录"""
-    resources = []
-    
+    hosted = json.loads((REPO_ROOT / "metadata" / "shenzhen-hosted-scenes.json").read_text(encoding="utf-8"))
+    hosted_roots = {Path(row["files"]["model"]).parts[1] for row in hosted}
+    resources = list(hosted)
+
     for category_dir in DATA_DIR.iterdir():
         if not category_dir.is_dir() or category_dir.name.startswith('.'):
             continue
@@ -1067,6 +1069,8 @@ def scan_data_directory():
         else:
             # 其他类别直接包含资源文件夹
             for resource_dir in category_dir.iterdir():
+                if category == "shenzhen" and resource_dir.name in hosted_roots:
+                    continue
                 if not resource_dir.is_dir() or resource_dir.name.startswith('.'):
                     continue
                 

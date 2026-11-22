@@ -166,6 +166,8 @@ type CaptureOptions = {
 type ViewerHandle = {
     /** The engine application, for a host that needs to reach past this api. */
     readonly app: AppBase;
+    /** Height sampled by the active walk capsule. */
+    readonly walkSupportHeight: number | null;
     /** Observable state. Writes to its writable keys take effect at once. */
     readonly state: ViewerState;
     /** Fires `<key>:changed` with `(value, previous)` for every key of {@link ViewerState}. */
