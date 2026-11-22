@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <meta name="color-scheme" content="dark">
     <title>南海意库3栋 · Nanhai E-Cool</title>
-    <link rel="preload" as="image" href="/data/Shenzhen/nanhai-e-cool-v1/opening-cover.jpg">
+    <link rel="preload" as="image" href="/data/Shenzhen/nanhai-e-cool-v1/cover-4096.webp">
     <link rel="icon" href="/assets/metaflow_logo.svg">
     <link rel="stylesheet" href="/index.css">
     <link rel="stylesheet" href="/shenzhen/map-window.css">
@@ -31,6 +31,10 @@
                     <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M20.4 3.3a.9.9 0 0 1 1.2 1.2l-7.3 16.1c-.5.9-1.7.7-1.9-.3l-1.2-7.2-7.2-1.2c-.9-.2-1.2-1.4-.2-1.9Z"/></svg>
                 </button>
             </div>
+        </div>
+        <div class="map-window-menu" id="map-window-menu" role="group" aria-label="地图窗口选项" aria-hidden="true" inert>
+            <button type="button" id="map-window-size"><span>进入全屏幕</span><svg viewBox="0 0 20 20" aria-hidden="true"><rect x="2.5" y="4" width="15" height="12" rx="2"/><path d="M6 7h8v6H6z"/></svg></button>
+            <button type="button" id="map-minimize">最小化<svg viewBox="0 0 20 20" aria-hidden="true"><rect x="2.5" y="4" width="15" height="12" rx="2"/><path d="M7 10h6"/></svg></button>
         </div>
     </aside>
     <button id="repairs" hidden aria-pressed="false">显示补面</button>

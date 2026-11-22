@@ -3,7 +3,7 @@ import type { ViewerHandle } from '../types';
 import { MapCamera, MapHeading, mapPoint, type MapView } from './sp-map/map-view';
 import { attachMapGestures } from './map-gestures';
 import { MapWindow } from './sp-map/map-window';
-import { mapBackingSize } from './sp-map/map-window-layout';
+import { mapBackingSize, mapCameraPixels } from './sp-map/map-window-layout';
 
 export type Registration = {
     sourceEast: [number, number];
@@ -44,7 +44,7 @@ export function mountSiteMap(viewer: ViewerHandle, camera: Entity, map: Registra
     let lastSample = '';
     let dirty = true;
     view.moveTo(overview, true);
-    const windowLayout = new MapWindow(root, panel, surface, () => { dirty = true; });
+    const windowLayout = new MapWindow(root, panel, surface, () => { dirty = true; }, () => launcher.click());
 
     const localPosition = () => {
         const p = camera.getPosition();
@@ -84,11 +84,31 @@ export function mountSiteMap(viewer: ViewerHandle, camera: Entity, map: Registra
         panel.addEventListener(name, e => e.stopPropagation(), { signal: listeners.signal });
     }
 
-    const setVisible = (visible: boolean) => {
-        panel.hidden = !visible;
-        launcher.classList.toggle('sse-active', visible);
-        launcher.setAttribute('aria-pressed', String(visible));
-        launcher.setAttribute('aria-expanded', String(visible));
+    let windowAnimation: Animation | undefined;
+    const setVisible = (show: boolean, animate = false) => {
+        const wasVisible = !panel.hidden && !panel.inert;
+        windowAnimation?.cancel();
+        windowAnimation = undefined;
+        panel.inert = !show;
+        launcher.classList.toggle('sse-active', show);
+        launcher.setAttribute('aria-pressed', String(show));
+        launcher.setAttribute('aria-expanded', String(show));
+        if (!show) windowLayout.dismiss(false);
+        if (!animate || wasVisible === show || reduced.matches) {
+            panel.hidden = !show;
+            if (!show && animate) windowLayout.dismiss(true);
+        } else {
+            panel.hidden = false;
+            const open = { opacity: 1, clipPath: 'inset(-32px round 16px)' };
+            const closed = { opacity: 0, clipPath: 'inset(35% 25% 0 round 16px)' };
+            windowAnimation = panel.animate(show ? [closed, open] : [open, closed],
+                { duration: 180, easing: 'ease-out' });
+            windowAnimation.onfinish = () => {
+                panel.hidden = !show;
+                if (!show) windowLayout.dismiss(true);
+                windowAnimation = undefined;
+            };
+        }
         dirty = true;
     };
     const portraitPhone = matchMedia('(max-width: 700px) and (orientation: portrait)').matches;
@@ -98,17 +118,23 @@ export function mountSiteMap(viewer: ViewerHandle, camera: Entity, map: Registra
         if (saved !== null) visible = saved === 'true';
     } catch { /* The map also works with storage disabled. */ }
     let obscured = true;
+    let openingFromToolbar = false;
     const syncPanels = () => setVisible(visible && !obscured);
     const subscription = viewer.events.on('ui:mapObscured', (value: boolean) => {
         obscured = value;
         if (value) gestures.reset();
-        syncPanels();
+        if (!openingFromToolbar) syncPanels();
     });
     viewer.events.fire('ui:mapMount', true);
     launcher.onclick = () => {
-        visible = panel.hidden;
-        if (visible) viewer.events.fire('ui:requestMap');
-        syncPanels();
+        visible = panel.hidden || panel.inert;
+        if (!visible) launcher.focus({ preventScroll: true });
+        if (visible) {
+            openingFromToolbar = true;
+            try { viewer.events.fire('ui:requestMap'); }
+            finally { openingFromToolbar = false; }
+        }
+        setVisible(visible && !obscured, true);
         try { localStorage.setItem('metaflow.nanhai.mapVisible', String(visible)); } catch { /* optional */ }
     };
 
@@ -134,15 +160,19 @@ export function mountSiteMap(viewer: ViewerHandle, camera: Entity, map: Registra
         if (panel.hidden || !viewer.state.loaded || !image.complete || !canvas.clientWidth) return;
         const current = view.view;
         const size = mapBackingSize(canvas.clientWidth, window.devicePixelRatio);
-        const nextSample = [pos.x, pos.z, dx, dz, current.rotation, current.span, current.x, current.z, current.anchorY, size].map(n => n.toFixed(4)).join(',');
+        const h = mapBackingSize(canvas.clientHeight, window.devicePixelRatio);
+        const unit = mapCameraPixels(size, h, width / height);
+        const nextSample = [pos.x, pos.z, dx, dz, current.rotation, current.span, current.x, current.z, current.anchorY, size, h].map(n => n.toFixed(4)).join(',');
         if (!dirty && !animating && nextSample === lastSample) return;
         dirty = false;
         lastSample = nextSample;
-        if (canvas.width !== size) { canvas.width = size; canvas.height = size; }
-        const ratio = size / 440;
-        ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
+        if (canvas.width !== size) canvas.width = size;
+        if (canvas.height !== h) canvas.height = h;
+        ctx.setTransform(1, 0, 0, 1, 0, 0);
         ctx.fillStyle = ground;
-        ctx.fillRect(0, 0, 440, 440);
+        ctx.fillRect(0, 0, size, h);
+        const ratio = unit / 440;
+        ctx.setTransform(ratio, 0, 0, ratio, (size-unit)/2, (h-unit)/2);
         ctx.save();
         ctx.translate(220, 440 * current.anchorY);
         ctx.rotate(current.rotation);
@@ -156,7 +186,7 @@ export function mountSiteMap(viewer: ViewerHandle, camera: Entity, map: Registra
             ctx.save();
             ctx.translate(mx, my);
             ctx.rotate(heading);
-            const pixel = 440 / canvas.clientWidth;
+            const pixel = 440 / mapCameraPixels(canvas.clientWidth, canvas.clientHeight, width / height);
             ctx.scale(pixel, pixel);
             const cone = ctx.createRadialGradient(0, 0, 0, 0, 0, 24);
             cone.addColorStop(0, '#199bff80');
@@ -189,6 +219,7 @@ export function mountSiteMap(viewer: ViewerHandle, camera: Entity, map: Registra
         viewer.app.off('update', update);
         subscription.off();
         viewer.events.fire('ui:mapMount', false);
+        windowAnimation?.cancel();
         gestures.destroy();
         listeners.abort();
         locate.onclick = toggle.onclick = null;

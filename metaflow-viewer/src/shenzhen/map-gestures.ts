@@ -1,5 +1,7 @@
 import { MapCamera, mapWorld } from './sp-map/map-view';
 
+import { mapCameraPixels } from './sp-map/map-window-layout';
+
 type Point = { x: number; y: number };
 const distance = (a: Point, b: Point) => Math.hypot(a.x - b.x, a.y - b.y);
 
@@ -22,7 +24,9 @@ export function attachMapGestures(canvas: HTMLCanvasElement, camera: MapCamera, 
     };
     const normalized = (p: Point): [number, number] => {
         const rect = canvas.getBoundingClientRect();
-        return [(p.x - rect.left) * 440 / rect.width, (p.y - rect.top) * 440 / rect.height];
+        const unit = mapCameraPixels(rect.width, rect.height, width / height);
+        return [220 + (p.x - rect.left - rect.width / 2) * 440 / unit,
+            220 + (p.y - rect.top - rect.height / 2) * 440 / unit];
     };
     function anchored(start: Point, end: Point, span: number) {
         const old = camera.view;

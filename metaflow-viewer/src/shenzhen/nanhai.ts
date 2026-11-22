@@ -49,7 +49,7 @@ async function openBuilding() {
     const renderer = selectHostedRenderer(rendererQuery, isAppleMobileWebKit(navigator));
     const viewer = await createViewer({
         container: host,
-        posterUrl: dataRoot + 'opening-cover.jpg',
+        posterUrl: dataRoot + 'cover-4096.webp',
         contentUrl: dataRoot + 'streamed/lod-meta.json',
         environmentUrl: dataRoot + 'environment.sog',
         collisionUrl: dataRoot + (query.get('repairs') === 'off' ? 'collision-survey.glb' : 'collision.glb'),
