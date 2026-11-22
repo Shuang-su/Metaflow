@@ -16,7 +16,7 @@ export default defineConfig({
     snapshotPathTemplate: '{testDir}/{testFilePath}-snapshots/{arg}-{projectName}-{platform}{ext}',
     fullyParallel: false,
     forbidOnly: Boolean(process.env.CI),
-    retries: process.env.CI ? 1 : 0,
+    retries: online ? 0 : process.env.CI ? 1 : 0,
     workers: 1,
     reporter: process.env.CI ? [['line'], ['html', { outputFolder: `playwright-report/${mode}`, open: 'never' }]] : 'line',
     expect: {
@@ -38,8 +38,8 @@ export default defineConfig({
         timezoneId: 'Asia/Shanghai',
         reducedMotion: 'reduce',
         screenshot: 'only-on-failure',
-        trace: 'retain-on-failure',
-        video: 'retain-on-failure'
+        trace: online ? 'off' : 'retain-on-failure',
+        video: online ? 'off' : 'retain-on-failure'
     },
     projects: extended ? [
         {
