@@ -7,9 +7,9 @@
     <title>南海意库3栋 · Nanhai E-Cool</title>
     <link rel="preload" as="image" href="/data/Shenzhen/nanhai-e-cool-v1/cover-4096.webp">
     <link rel="icon" href="/assets/metaflow_logo.svg">
-    <link rel="stylesheet" href="/index.css">
+    <link rel="stylesheet" href="/index.css?v=5.24.2">
     <link rel="stylesheet" href="/shenzhen/map-window.css">
-    <link rel="stylesheet" href="/shenzhen/nanhai-e-cool-building-3/map.css?v=5.24.1">
+    <link rel="stylesheet" href="/shenzhen/nanhai-e-cool-building-3/map.css?v=5.24.2">
 </head>
 <body>
     <main id="viewer" aria-label="南海意库3栋"></main>
@@ -32,9 +32,22 @@
                 </button>
             </div>
         </div>
-        <div class="map-window-menu" id="map-window-menu" role="group" aria-label="地图窗口选项" aria-hidden="true" inert>
-            <button type="button" id="map-window-size"><span>进入全屏幕</span><svg viewBox="0 0 20 20" aria-hidden="true"><rect x="2.5" y="4" width="15" height="12" rx="2"/><path d="M6 7h8v6H6z"/></svg></button>
-            <button type="button" id="map-minimize">最小化<svg viewBox="0 0 20 20" aria-hidden="true"><rect x="2.5" y="4" width="15" height="12" rx="2"/><path d="M7 10h6"/></svg></button>
+        <div class="map-window-menu sse-settingsSurface" id="map-window-menu" role="group" aria-label="地图窗口选项" aria-hidden="true" inert>
+            <div class="sse-settingsGroup">
+                <div class="sse-settingsRow">
+                    <button type="button" id="map-window-size">
+                        <svg class="map-expand-icon" viewBox="0 0 24 24" aria-hidden="true"><use href="#enterFullscreenIcon"/></svg>
+                        <svg class="map-restore-icon" viewBox="0 0 24 24" aria-hidden="true"><use href="#exitFullscreenIcon"/></svg>
+                        <span>进入全屏幕</span>
+                    </button>
+                </div>
+                <div class="sse-settingsRow">
+                    <button type="button" id="map-minimize">
+                        <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="11" width="16" height="2" rx="1"/></svg>
+                        <span>最小化</span>
+                    </button>
+                </div>
+            </div>
         </div>
     </aside>
     <button id="repairs" hidden aria-pressed="false">显示补面</button>
