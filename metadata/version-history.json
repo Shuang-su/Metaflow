@@ -1,14 +1,14 @@
 {
   "schemaVersion": "1.1",
   "cutoffGitRef": "c613a87",
-  "documentedThrough": "6fd4503dd1d61ba07d3cf9e187a7b4883753d53e",
+  "documentedThrough": "21170dd6e8b231a40b3b0d098c6803984c209af5",
   "defaultResourceVersion": "1.0a",
   "current": {
     "displayVersion": "5.24.2",
     "appSemver": "5.24.2",
     "indexSchemaVersion": "1.2",
     "date": "2026-11-23",
-    "gitRef": "6fd4503dd1d61ba07d3cf9e187a7b4883753d53e",
+    "gitRef": "21170dd6e8b231a40b3b0d098c6803984c209af5",
     "historyUrl": "/data/version-history.json",
     "upstream": {
       "repository": "playcanvas/supersplat-viewer",
@@ -580,6 +580,18 @@
       "date": "2026-11-23",
       "type": "release-support",
       "summary": "Register the first concentric corner preview."
+    },
+    {
+      "gitRef": "6fd4503dd1d61ba07d3cf9e187a7b4883753d53e",
+      "date": "2026-11-23",
+      "type": "release-support",
+      "summary": "Align the frame and resize arc with the round controls in the Nanhai preview."
+    },
+    {
+      "gitRef": "373b3f7fdaa278edaae7f914488fed44b695d3d5",
+      "date": "2026-11-23",
+      "type": "release-support",
+      "summary": "Record the aligned frame and controls before the orbit follow correction."
     }
   ],
   "entries": [
@@ -2301,8 +2313,8 @@
       "type": "fix",
       "scope": "viewer",
       "date": "2026-11-23",
-      "gitRef": "6fd4503dd1d61ba07d3cf9e187a7b4883753d53e",
-      "summary": "Match the map window menu and translucent grip to SuperSplat. Align the outer and inner corners of the uniform frame with both circular map controls and the external resize grip.",
+      "gitRef": "21170dd6e8b231a40b3b0d098c6803984c209af5",
+      "summary": "Match the map window menu and translucent grip to SuperSplat. Align the outer and inner corners of the uniform frame with both circular map controls and the external resize grip. In orbit follow mode, lock the position and forward-facing cone to the center while the map rotates with camera yaw.",
       "resourceChanges": [
         {
           "action": "update",
