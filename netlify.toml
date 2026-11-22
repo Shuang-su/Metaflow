@@ -1,6 +1,6 @@
 [build]
   base = "metaflow-viewer"
-  command = "node ../scripts/mcl.mjs check-all && python3 ../scripts/validate_platform.py && npm ci && npm run build && npm --prefix ../metaflow-director ci && npm --prefix ../metaflow-director run build && node ../scripts/stage-director-site.mjs"
+  command = "node ../scripts/mcl.mjs check-all && python3 ../scripts/validate_platform.py && npm ci && npm run build && npm --prefix ../metaflow-director ci && npm --prefix ../metaflow-director run build && node ../scripts/stage-director-site.mjs && python3 ../scripts/stage-shenzhen-assets.py"
   ignore = "test \"$BRANCH\" = \"main\""
   publish = "public"
 

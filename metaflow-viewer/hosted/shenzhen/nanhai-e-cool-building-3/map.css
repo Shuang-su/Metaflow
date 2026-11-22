@@ -11,3 +11,10 @@ html, body, #viewer { margin: 0; width: 100%; height: 100%; overflow: hidden; ba
 #repairs { right: 12px; top: 12px; background: #fff; color: #253641; padding: 8px 12px; border-radius: 7px; }
 #site-map [hidden], #repairs[hidden], #load-status[hidden] { display: none; }
 @media (max-width: 650px) { #site-map { width: min(44vw, 210px); } #map-toggle { padding: 7px 9px; font-size: 12px; } }
+
+#site-map.expanded { width: min(82vw, 810px, 119vh); }
+#north, #map-size { position: absolute; color: #2c353a; background: #fafbf6e8; border: 0; border-radius: 4px; }
+#north { top: 5px; left: 5px; padding: 2px 5px; font: 11px/1.3 system-ui, sans-serif; }
+#map-size { right: 4px; bottom: 4px; width: 32px; height: 32px; font-size: 19px; cursor: pointer; }
+
+#site-map[hidden] { display: none; }

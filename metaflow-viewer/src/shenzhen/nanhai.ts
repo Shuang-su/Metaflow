@@ -64,6 +64,12 @@ async function openBuilding() {
         panel.hidden = !panel.hidden;
         toggle.setAttribute('aria-expanded', String(!panel.hidden));
     };
+    const sizeButton = document.querySelector<HTMLButtonElement>('#map-size');
+    sizeButton.onclick = () => {
+        const expanded = document.querySelector('#site-map').classList.toggle('expanded');
+        sizeButton.setAttribute('aria-pressed', String(expanded));
+        sizeButton.setAttribute('aria-label', expanded ? '缩小地图' : '展开地图');
+    };
     const rendererQuery = new URLSearchParams(query);
     if (query.get('renderer') === 'webgl' || query.get('renderer') === 'webgpu') {
         rendererQuery.set(query.get('renderer'), '');
@@ -80,6 +86,23 @@ async function openBuilding() {
         exposeGlobals: true, noanalytics: query.has('noanalytics'), noanim: true, reticle: false
     });
     Object.assign(window, { metaflowViewer: viewer });
+    const mapWindow = document.querySelector<HTMLElement>('#site-map');
+    const template = document.querySelector<HTMLTemplateElement>('#map-control');
+    const launcher = template.content.firstElementChild.cloneNode(true) as HTMLButtonElement;
+    const settingsButton = document.querySelector<HTMLButtonElement>('#viewer .sse-settings');
+    settingsButton.parentElement.insertBefore(launcher, settingsButton);
+    const setVisible = (visible: boolean) => {
+        mapWindow.hidden = !visible;
+        launcher.classList.toggle('sse-active', visible);
+        launcher.setAttribute('aria-pressed', String(visible));
+        launcher.setAttribute('aria-expanded', String(visible));
+        if (visible) {
+            panel.hidden = false;
+            toggle.setAttribute('aria-expanded', 'true');
+        }
+    };
+    setVisible(true);
+    launcher.onclick = () => setVisible(mapWindow.hidden);
     const camera = viewer.app.root.findComponents('camera')[0]?.entity;
     if (!camera) throw new Error('场景相机载入失败');
     const [ex, ey] = map.sourceEast;

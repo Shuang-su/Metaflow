@@ -5,14 +5,25 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <meta name="color-scheme" content="dark">
     <title>南海意库3栋 · Nanhai E-Cool</title>
+    <link rel="icon" href="/assets/metaflow_logo.svg">
     <link rel="stylesheet" href="/index.css">
     <link rel="stylesheet" href="/shenzhen/nanhai-e-cool-building-3/map.css">
 </head>
 <body>
     <main id="viewer" aria-label="南海意库3栋"></main>
+    <template id="map-control"><button class="sse-mapButton sse-controlButton" id="map-launcher" aria-controls="site-map" title="小地图" aria-label="小地图" aria-pressed="false">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true">
+                        <path d="m3 5 6-2 6 2 6-2v16l-6 2-6-2-6 2Zm6-2v16m6-14v16"/>
+                    </svg>
+                </button></template>
     <aside id="site-map" aria-label="位置地图">
         <button id="map-toggle" aria-expanded="true" aria-controls="map-image"><span>南海意库3栋</span><span id="current-floor">定位中</span></button>
-        <div id="map-image"><img alt="南海意库现场重建俯视图" draggable="false"><span id="you" hidden aria-label="当前位置与朝向"></span></div>
+        <div id="map-image">
+            <img alt="南海意库现场重建俯视图，后翼缺测处用灰底线稿表示" draggable="false">
+            <span id="north" aria-label="北向朝下">北 ↓</span>
+            <button id="map-size" aria-label="展开地图" aria-pressed="false">⛶</button>
+            <span id="you" hidden aria-label="当前位置与朝向"></span>
+        </div>
     </aside>
     <button id="repairs" hidden aria-pressed="false">显示补面</button>
     <p role="status" id="load-status">正在载入南海意库3栋…</p>
