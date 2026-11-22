@@ -1,14 +1,14 @@
 {
   "schemaVersion": "1.1",
   "cutoffGitRef": "c613a87",
-  "documentedThrough": "365630cffe4d178a4f7f697f2bcc7e8dcefb8d4e",
+  "documentedThrough": "3120309f34f7584bc4f8e630877aaa1aa954b2f3",
   "defaultResourceVersion": "1.0a",
   "current": {
     "displayVersion": "5.24.2",
     "appSemver": "5.24.2",
     "indexSchemaVersion": "1.2",
     "date": "2026-11-23",
-    "gitRef": "365630cffe4d178a4f7f697f2bcc7e8dcefb8d4e",
+    "gitRef": "3120309f34f7584bc4f8e630877aaa1aa954b2f3",
     "historyUrl": "/data/version-history.json",
     "upstream": {
       "repository": "playcanvas/supersplat-viewer",
@@ -556,6 +556,18 @@
       "date": "2026-11-23",
       "type": "release-support",
       "summary": "Preview the shared menu style before equalizing all four map borders."
+    },
+    {
+      "gitRef": "365630cffe4d178a4f7f697f2bcc7e8dcefb8d4e",
+      "date": "2026-11-23",
+      "type": "release-support",
+      "summary": "Equalize all four map borders in the preview before correcting the inner corner radii."
+    },
+    {
+      "gitRef": "50e149e69084ff65564fba32d074870c15f6ff5c",
+      "date": "2026-11-23",
+      "type": "release-support",
+      "summary": "Record the equal-width border preview in the release catalog."
     }
   ],
   "entries": [
@@ -2277,8 +2289,8 @@
       "type": "fix",
       "scope": "viewer",
       "date": "2026-11-23",
-      "gitRef": "365630cffe4d178a4f7f697f2bcc7e8dcefb8d4e",
-      "summary": "Use the native SuperSplat settings surface and buttons in the Nanhai map window. Keep all four borders equally wide and center the translucent three-dot drag handle on the top edge in both window sizes.",
+      "gitRef": "3120309f34f7584bc4f8e630877aaa1aa954b2f3",
+      "summary": "Use the native SuperSplat settings surface and buttons in the Nanhai map window. Keep all four borders equally wide and center the translucent three-dot drag handle on the top edge in both window sizes. Inset the corner radii by the full border width so the inner and outer arcs share their centers.",
       "resourceChanges": [
         {
           "action": "update",
