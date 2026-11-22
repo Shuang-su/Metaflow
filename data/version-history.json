@@ -1,14 +1,14 @@
 {
   "schemaVersion": "1.1",
   "cutoffGitRef": "c613a87",
-  "documentedThrough": "029603b673581625b6b20941028b4b0b0ffdf755",
+  "documentedThrough": "ce714239f690c30e3fec9b087776677911099661",
   "defaultResourceVersion": "1.0a",
   "current": {
     "displayVersion": "5.24.1",
     "appSemver": "5.24.1",
     "indexSchemaVersion": "1.2",
     "date": "2026-11-23",
-    "gitRef": "029603b673581625b6b20941028b4b0b0ffdf755",
+    "gitRef": "ce714239f690c30e3fec9b087776677911099661",
     "historyUrl": "/data/version-history.json",
     "upstream": {
       "repository": "playcanvas/supersplat-viewer",
@@ -502,6 +502,16 @@
       "gitRef": "9190a9b2179f42f4b233c3b5c442b79010c8852f",
       "date": "2026-11-23",
       "summary": "Release packaging for the superseded registered opening draft"
+    },
+    {
+      "gitRef": "029603b673581625b6b20941028b4b0b0ffdf755",
+      "date": "2026-11-23",
+      "summary": "Nanhai map window and square cover preview before retaining rear-wing coverage"
+    },
+    {
+      "gitRef": "ef2c9d11baf75b0fb361ffae4014964ad69bf05a",
+      "date": "2026-11-23",
+      "summary": "Packaging checkpoint for the previous Nanhai map window preview"
     }
   ],
   "entries": [
@@ -2198,8 +2208,8 @@
       "type": "fix",
       "scope": "viewer",
       "date": "2026-11-23",
-      "gitRef": "029603b673581625b6b20941028b4b0b0ffdf755",
-      "summary": "Add Nanhai map window controls and road-color infill, the nanhaiyiku alias, and a registered opening with a square WebP, detail preload, figure-eight motion, fly input and radial particles.",
+      "gitRef": "ce714239f690c30e3fec9b087776677911099661",
+      "summary": "Add Nanhai map window controls and road-color infill, the nanhaiyiku alias, and a registered opening with a square WebP, detail preload, figure-eight motion, fly input and radial particles. Preserve real Gaussian color within the surveyed rear wing.",
       "resourceChanges": [
         {
           "action": "update",
