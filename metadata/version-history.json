@@ -1,14 +1,14 @@
 {
   "schemaVersion": "1.1",
   "cutoffGitRef": "c613a87",
-  "documentedThrough": "b21ef37c3889dd21d28247a2c9e6165442e5330c",
+  "documentedThrough": "7a7820fc806f932658eb332824216157b8bb3c94",
   "defaultResourceVersion": "1.0a",
   "current": {
     "displayVersion": "5.24.1",
     "appSemver": "5.24.1",
     "indexSchemaVersion": "1.2",
     "date": "2026-11-23",
-    "gitRef": "b21ef37c3889dd21d28247a2c9e6165442e5330c",
+    "gitRef": "7a7820fc806f932658eb332824216157b8bb3c94",
     "historyUrl": "/data/version-history.json",
     "upstream": {
       "repository": "playcanvas/supersplat-viewer",
@@ -474,6 +474,24 @@
       "date": "2026-11-22",
       "type": "release-support",
       "summary": "Bind the published four-scene 5.24.0 deployment to its verified SP map implementation."
+    },
+    {
+      "gitRef": "b21ef37c3889dd21d28247a2c9e6165442e5330c",
+      "date": "2026-11-23",
+      "type": "release-support",
+      "summary": "Unpublished 5.24.1 checkpoint. fix(viewer): restore SP minimap controls and touch exploration for Nanhai"
+    },
+    {
+      "gitRef": "39641687d8273f7e1569658ced23da020d308872",
+      "date": "2026-11-23",
+      "type": "release-support",
+      "summary": "Unpublished 5.24.1 checkpoint. chore(release): bind Viewer 5.24.1 to the Nanhai map patch"
+    },
+    {
+      "gitRef": "56fea5d49b0cf86ae7c456a5608d33b6444bb31b",
+      "date": "2026-11-23",
+      "type": "release-support",
+      "summary": "Unpublished 5.24.1 checkpoint. test(viewer): pin the 5.24.1 release identity"
     }
   ],
   "entries": [
@@ -2170,8 +2188,8 @@
       "type": "fix",
       "scope": "viewer",
       "date": "2026-11-23",
-      "gitRef": "b21ef37c3889dd21d28247a2c9e6165442e5330c",
-      "summary": "Restore single-panel SP map controls, camera heading, touch exploration and the registered neutral ground in Nanhai E-Cool.",
+      "gitRef": "7a7820fc806f932658eb332824216157b8bb3c94",
+      "summary": "Restore SP map controls and preload the registered Nanhai opening view, with a rendered poster, figure-eight motion, fly input and radial particles.",
       "resourceChanges": [
         {
           "action": "update",
