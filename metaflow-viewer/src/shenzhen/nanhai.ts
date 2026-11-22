@@ -43,7 +43,7 @@ async function prepareRepairOverlay(app: AppBase) {
 
 async function openBuilding() {
     const mapImage = new Image();
-    mapImage.src = dataRoot + 'map.webp';
+    mapImage.src = dataRoot + 'map.webp?v=5.24.1';
     const response = await fetch(dataRoot + 'map.json');
     if (!response.ok) throw new Error('现场地图载入失败');
     const map: Registration = await response.json();

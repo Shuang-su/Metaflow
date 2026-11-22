@@ -1,6 +1,7 @@
 import type { Entity } from 'playcanvas';
 import type { ViewerHandle } from '../types';
 import { MapCamera, MapHeading, mapPoint, type MapView } from './sp-map/map-view';
+import { attachMapGestures } from './map-gestures';
 import { MapWindow } from './sp-map/map-window';
 import { mapBackingSize } from './sp-map/map-window-layout';
 
@@ -20,7 +21,9 @@ export function mountSiteMap(viewer: ViewerHandle, camera: Entity, map: Registra
     const surface = panel.querySelector<HTMLElement>('.sse-guidanceSurface');
     const canvas = panel.querySelector<HTMLCanvasElement>('#map-canvas');
     const floor = panel.querySelector<HTMLElement>('#current-floor');
-    const actions = Array.from(panel.querySelectorAll<HTMLButtonElement>('[data-mode]'));
+    const toggle = panel.querySelector<HTMLButtonElement>('#map-mode');
+    const locate = panel.querySelector<HTMLButtonElement>('#map-locate');
+    const ground = getComputedStyle(panel).getPropertyValue('--map-ground').trim();
     const template = document.querySelector<HTMLTemplateElement>('#map-control');
     const launcher = template.content.firstElementChild.cloneNode(true) as HTMLButtonElement;
     root.querySelector('.sse-settings').before(launcher);
@@ -31,7 +34,7 @@ export function mountSiteMap(viewer: ViewerHandle, camera: Entity, map: Registra
     const reduced = matchMedia('(prefers-reduced-motion: reduce)');
     const width = map.width * map.metersPerPixel;
     const height = map.height * map.metersPerPixel;
-    const overview: MapView = { x: width / 2, z: height / 2, span: Math.max(width, height), rotation: 0, anchorY: .5 };
+    const overview: MapView = { x: width * .49, z: height * .47, span: Math.max(width, height) * .88, rotation: 0, anchorY: .5 };
     const followSpan = 18;
     const [ex, ey] = map.sourceEast;
     const [nx, ny] = map.sourceNorth;
@@ -51,18 +54,34 @@ export function mountSiteMap(viewer: ViewerHandle, camera: Entity, map: Registra
         const { x, z } = localPosition();
         return { x, z, span: followSpan, rotation: motion.rotation, anchorY: .65 };
     };
-    for (const action of actions) {
-        action.classList.toggle('sse-active', action.dataset.mode === mode);
-        action.onclick = () => {
-            mode = action.dataset.mode === 'follow' ? 'follow' : 'overview';
-            view.moveTo(mode === 'follow' ? follow() : overview, reduced.matches, true);
-            for (const button of actions) {
-                const active = button.dataset.mode === mode;
-                button.classList.toggle('sse-active', active);
-                button.setAttribute('aria-pressed', String(active));
-            }
-            dirty = true;
-        };
+    let manual = false;
+    const setManual = (value: boolean) => {
+        if (manual === value) return;
+        manual = value;
+        if (value) view.freeze();
+        else if (document.activeElement === locate) toggle.focus({ preventScroll: true });
+        locate.inert = !value;
+        locate.tabIndex = value ? 0 : -1;
+        locate.setAttribute('aria-hidden', String(!value));
+        dirty = true;
+    };
+    const gestures = attachMapGestures(canvas, view, width, height, () => setManual(true), reduced);
+    const restore = () => {
+        gestures.reset();
+        setManual(false);
+        view.moveTo(mode === 'follow' ? follow() : overview, reduced.matches, true);
+        const next = mode === 'overview' ? 'follow' : 'overview';
+        toggle.dataset.next = next;
+        toggle.title = next === 'follow' ? '切换到跟随' : '切换到全览';
+        toggle.setAttribute('aria-label', toggle.title);
+        dirty = true;
+    };
+    toggle.onclick = () => { mode = mode === 'overview' ? 'follow' : 'overview'; restore(); };
+    locate.onclick = restore;
+    restore();
+    const listeners = new AbortController();
+    for (const name of ['pointerdown', 'pointermove', 'pointerup', 'wheel', 'dblclick', 'touchstart', 'touchmove', 'touchend']) {
+        panel.addEventListener(name, e => e.stopPropagation(), { signal: listeners.signal });
     }
 
     const setVisible = (visible: boolean) => {
@@ -78,24 +97,17 @@ export function mountSiteMap(viewer: ViewerHandle, camera: Entity, map: Registra
         const saved = localStorage.getItem('metaflow.nanhai.mapVisible');
         if (saved !== null) visible = saved === 'true';
     } catch { /* The map also works with storage disabled. */ }
-    const nativePanels = [
-        ['.sse-controlsHint', '.sse-controlsHintClose'],
-        ['.sse-settingsPanel', '.sse-settings'],
-        ['.sse-infoPanel', '.sse-infoClose']
-    ].map(([panelSelector, closeSelector]) => ({
-        panel: root.querySelector<HTMLElement>(panelSelector),
-        close: root.querySelector<HTMLElement>(closeSelector)
-    }));
-    const isOpen = (element: HTMLElement) => !element.classList.contains('sse-hidden');
-    const syncPanels = () => setVisible(visible && !nativePanels.some(item => isOpen(item.panel)));
-    const panelObserver = new MutationObserver(syncPanels);
-    for (const item of nativePanels) panelObserver.observe(item.panel, { attributes: true, attributeFilter: ['class'] });
-    syncPanels();
+    let obscured = true;
+    const syncPanels = () => setVisible(visible && !obscured);
+    const subscription = viewer.events.on('ui:mapObscured', (value: boolean) => {
+        obscured = value;
+        if (value) gestures.reset();
+        syncPanels();
+    });
+    viewer.events.fire('ui:mapMount', true);
     launcher.onclick = () => {
         visible = panel.hidden;
-        if (visible) {
-            for (const item of nativePanels) if (isOpen(item.panel)) item.close.click();
-        }
+        if (visible) viewer.events.fire('ui:requestMap');
         syncPanels();
         try { localStorage.setItem('metaflow.nanhai.mapVisible', String(visible)); } catch { /* optional */ }
     };
@@ -117,7 +129,7 @@ export function mountSiteMap(viewer: ViewerHandle, camera: Entity, map: Registra
         motion.seed(dx, dz);
         motion.sample({ position: pos, tick, epoch: 0, grounded: support !== null, collision: support !== null ? 'active' : 'pending', supportHeight: support });
         motion.step(dt, reduced.matches);
-        if (mode === 'follow') view.track(follow());
+        if (!manual && mode === 'follow') view.track(follow());
         const animating = view.step(dt, reduced.matches);
         if (panel.hidden || !viewer.state.loaded || !image.complete || !canvas.clientWidth) return;
         const current = view.view;
@@ -129,7 +141,7 @@ export function mountSiteMap(viewer: ViewerHandle, camera: Entity, map: Registra
         if (canvas.width !== size) { canvas.width = size; canvas.height = size; }
         const ratio = size / 440;
         ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
-        ctx.fillStyle = '#f4f5f1';
+        ctx.fillStyle = ground;
         ctx.fillRect(0, 0, 440, 440);
         ctx.save();
         ctx.translate(220, 440 * current.anchorY);
@@ -144,19 +156,42 @@ export function mountSiteMap(viewer: ViewerHandle, camera: Entity, map: Registra
             ctx.save();
             ctx.translate(mx, my);
             ctx.rotate(heading);
+            const pixel = 440 / canvas.clientWidth;
+            ctx.scale(pixel, pixel);
+            const cone = ctx.createRadialGradient(0, 0, 0, 0, 0, 24);
+            cone.addColorStop(0, '#199bff80');
+            cone.addColorStop(1, '#199bff00');
             ctx.beginPath();
-            ctx.moveTo(0, -10); ctx.lineTo(7, 8); ctx.lineTo(0, 5); ctx.lineTo(-7, 8); ctx.closePath();
-            ctx.fillStyle = '#1482b3'; ctx.strokeStyle = '#fff'; ctx.lineWidth = 2;
-            ctx.fill(); ctx.stroke(); ctx.restore();
+            ctx.moveTo(0, 0);
+            ctx.arc(0, 0, 24, -Math.PI / 2 - .55, -Math.PI / 2 + .55);
+            ctx.closePath();
+            ctx.fillStyle = cone;
+            ctx.fill();
+            ctx.beginPath();
+            ctx.arc(0, 0, 4.5, 0, Math.PI * 2);
+            ctx.shadowColor = '#16334890';
+            ctx.shadowBlur = 3 * size / canvas.clientWidth;
+            ctx.fillStyle = '#159dff';
+            ctx.fill();
+            ctx.shadowBlur = 0;
+            ctx.strokeStyle = '#f7fcff';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+            ctx.restore();
         }
-        canvas.dataset.view = mode;
+        canvas.dataset.view = manual ? 'manual' : mode;
+        canvas.dataset.rotation = String(current.rotation);
         canvas.dataset.marker = [mx, my, heading].join(',');
         canvas.dataset.center = [current.x, current.z, current.span, current.anchorY].join(',');
     }
     viewer.app.on('update', update);
     return () => {
         viewer.app.off('update', update);
-        panelObserver.disconnect();
+        subscription.off();
+        viewer.events.fire('ui:mapMount', false);
+        gestures.destroy();
+        listeners.abort();
+        locate.onclick = toggle.onclick = null;
         windowLayout.destroy();
         launcher.remove();
     };

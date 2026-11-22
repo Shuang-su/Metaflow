@@ -1,6 +1,38 @@
 html, body, #viewer { margin: 0; width: 100%; height: 100%; overflow: hidden; background: #262b30; }
-#site-map .sse-mapMoveText { display: flex; justify-content: space-between; gap: 6px; }
-#current-floor { white-space: nowrap; font-variant-numeric: tabular-nums; }
+#site-map {
+    --map-glass: color-mix(in srgb, var(--sse-bkg) 50%, transparent);
+    --map-stroke: color-mix(in srgb, var(--sse-text-light) 16%, transparent);
+    --map-ground: #989898;
+}
+#site-map .sse-guidanceSurface {
+    padding: 0;
+    overflow: hidden;
+    background: var(--map-glass);
+    border-color: var(--map-stroke);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+}
+#site-map .sse-guidanceMapViewport { border-radius: inherit; background: var(--map-ground); }
+#site-map canvas { border-radius: 0; cursor: grab; touch-action: none; background: var(--map-ground); }
+#site-map canvas:active { cursor: grabbing; }
+#site-map .map-action {
+    position: absolute; bottom: 6px; width: 44px; height: 44px; padding: 0;
+    display: grid; place-items: center; border: 0; border-radius: 50%;
+    background: transparent; color: var(--sse-text); touch-action: manipulation;
+}
+#site-map .map-action::before {
+    content: ''; position: absolute; inset: 3px; border-radius: 50%;
+    border: 1px solid var(--map-stroke); background: var(--map-glass);
+    backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+}
+#site-map .map-action svg { width: 21px; height: 21px; position: relative; pointer-events: none; }
+#map-mode { right: 6px; }
+#map-mode:not([data-next="overview"]) .map-overview-icon, #map-mode[data-next="overview"] .map-follow-icon { display: none; }
+#site-map #map-locate { left: 6px; color: #70ceff; transition: opacity 180ms ease; }
+#site-map #map-locate[aria-hidden="true"] { opacity: 0; pointer-events: none; }
+#site-map .map-action:focus-visible { outline: 2px solid var(--sse-accent); outline-offset: -2px; }
+#site-map .map-a11y { position: absolute; width: 1px; height: 1px; clip-path: inset(50%); overflow: hidden; white-space: nowrap; }
+@media (prefers-reduced-motion: reduce) { #site-map #map-locate { transition: none; } }
 #load-status, #repairs { position: absolute; z-index: 14; font: 13px/1.4 system-ui, sans-serif; }
 #load-status { left: 50%; bottom: 13vh; transform: translateX(-50%); border-radius: 9px; padding: 8px 14px; background: #1e2831da; color: #fff; }
 #repairs { right: 12px; top: 12px; background: #fff; color: #253641; padding: 8px 12px; border-radius: 7px; }
