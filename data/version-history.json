@@ -1,14 +1,14 @@
 {
   "schemaVersion": "1.1",
   "cutoffGitRef": "c613a87",
-  "documentedThrough": "7a7820fc806f932658eb332824216157b8bb3c94",
+  "documentedThrough": "029603b673581625b6b20941028b4b0b0ffdf755",
   "defaultResourceVersion": "1.0a",
   "current": {
     "displayVersion": "5.24.1",
     "appSemver": "5.24.1",
     "indexSchemaVersion": "1.2",
     "date": "2026-11-23",
-    "gitRef": "7a7820fc806f932658eb332824216157b8bb3c94",
+    "gitRef": "029603b673581625b6b20941028b4b0b0ffdf755",
     "historyUrl": "/data/version-history.json",
     "upstream": {
       "repository": "playcanvas/supersplat-viewer",
@@ -492,6 +492,16 @@
       "date": "2026-11-23",
       "type": "release-support",
       "summary": "Unpublished 5.24.1 checkpoint. test(viewer): pin the 5.24.1 release identity"
+    },
+    {
+      "gitRef": "7a7820fc806f932658eb332824216157b8bb3c94",
+      "date": "2026-11-23",
+      "summary": "Registered opening with a provisional landscape poster, unpublished candidate"
+    },
+    {
+      "gitRef": "9190a9b2179f42f4b233c3b5c442b79010c8852f",
+      "date": "2026-11-23",
+      "summary": "Release packaging for the superseded registered opening draft"
     }
   ],
   "entries": [
@@ -2188,8 +2198,8 @@
       "type": "fix",
       "scope": "viewer",
       "date": "2026-11-23",
-      "gitRef": "7a7820fc806f932658eb332824216157b8bb3c94",
-      "summary": "Restore SP map controls and preload the registered Nanhai opening view, with a rendered poster, figure-eight motion, fly input and radial particles.",
+      "gitRef": "029603b673581625b6b20941028b4b0b0ffdf755",
+      "summary": "Add Nanhai map window controls and road-color infill, the nanhaiyiku alias, and a registered opening with a square WebP, detail preload, figure-eight motion, fly input and radial particles.",
       "resourceChanges": [
         {
           "action": "update",
