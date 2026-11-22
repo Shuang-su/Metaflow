@@ -1,14 +1,14 @@
 {
   "schemaVersion": "1.1",
   "cutoffGitRef": "c613a87",
-  "documentedThrough": "3120309f34f7584bc4f8e630877aaa1aa954b2f3",
+  "documentedThrough": "6fd4503dd1d61ba07d3cf9e187a7b4883753d53e",
   "defaultResourceVersion": "1.0a",
   "current": {
     "displayVersion": "5.24.2",
     "appSemver": "5.24.2",
     "indexSchemaVersion": "1.2",
     "date": "2026-11-23",
-    "gitRef": "3120309f34f7584bc4f8e630877aaa1aa954b2f3",
+    "gitRef": "6fd4503dd1d61ba07d3cf9e187a7b4883753d53e",
     "historyUrl": "/data/version-history.json",
     "upstream": {
       "repository": "playcanvas/supersplat-viewer",
@@ -568,6 +568,18 @@
       "date": "2026-11-23",
       "type": "release-support",
       "summary": "Record the equal-width border preview in the release catalog."
+    },
+    {
+      "gitRef": "3120309f34f7584bc4f8e630877aaa1aa954b2f3",
+      "date": "2026-11-23",
+      "type": "release-support",
+      "summary": "Preview the inset-adjusted inner corner radius before aligning the frame with the round controls."
+    },
+    {
+      "gitRef": "b5fd4e5b21c69c32d43cf9af54e70c0918b5b4a2",
+      "date": "2026-11-23",
+      "type": "release-support",
+      "summary": "Register the first concentric corner preview."
     }
   ],
   "entries": [
@@ -2289,8 +2301,8 @@
       "type": "fix",
       "scope": "viewer",
       "date": "2026-11-23",
-      "gitRef": "3120309f34f7584bc4f8e630877aaa1aa954b2f3",
-      "summary": "Use the native SuperSplat settings surface and buttons in the Nanhai map window. Keep all four borders equally wide and center the translucent three-dot drag handle on the top edge in both window sizes. Inset the corner radii by the full border width so the inner and outer arcs share their centers.",
+      "gitRef": "6fd4503dd1d61ba07d3cf9e187a7b4883753d53e",
+      "summary": "Match the map window menu and translucent grip to SuperSplat. Align the outer and inner corners of the uniform frame with both circular map controls and the external resize grip.",
       "resourceChanges": [
         {
           "action": "update",
