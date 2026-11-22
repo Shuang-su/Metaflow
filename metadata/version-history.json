@@ -1,14 +1,14 @@
 {
   "schemaVersion": "1.1",
   "cutoffGitRef": "c613a87",
-  "documentedThrough": "4eb530ea524d55c1c0e413163b91877fe4f2c1a3",
+  "documentedThrough": "365630cffe4d178a4f7f697f2bcc7e8dcefb8d4e",
   "defaultResourceVersion": "1.0a",
   "current": {
     "displayVersion": "5.24.2",
     "appSemver": "5.24.2",
     "indexSchemaVersion": "1.2",
     "date": "2026-11-23",
-    "gitRef": "4eb530ea524d55c1c0e413163b91877fe4f2c1a3",
+    "gitRef": "365630cffe4d178a4f7f697f2bcc7e8dcefb8d4e",
     "historyUrl": "/data/version-history.json",
     "upstream": {
       "repository": "playcanvas/supersplat-viewer",
@@ -550,6 +550,12 @@
       "date": "2026-11-23",
       "type": "release-support",
       "summary": "Refresh the hosted entry cache key for the Viewer 5.24.2 runtime identity."
+    },
+    {
+      "gitRef": "4eb530ea524d55c1c0e413163b91877fe4f2c1a3",
+      "date": "2026-11-23",
+      "type": "release-support",
+      "summary": "Preview the shared menu style before equalizing all four map borders."
     }
   ],
   "entries": [
@@ -2271,8 +2277,8 @@
       "type": "fix",
       "scope": "viewer",
       "date": "2026-11-23",
-      "gitRef": "4eb530ea524d55c1c0e413163b91877fe4f2c1a3",
-      "summary": "Match the Nanhai map window menu to SuperSplat settings. Center the translucent three-dot drag handle on the top border at both window sizes.",
+      "gitRef": "365630cffe4d178a4f7f697f2bcc7e8dcefb8d4e",
+      "summary": "Use the native SuperSplat settings surface and buttons in the Nanhai map window. Keep all four borders equally wide and center the translucent three-dot drag handle on the top edge in both window sizes.",
       "resourceChanges": [
         {
           "action": "update",

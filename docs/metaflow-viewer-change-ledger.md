@@ -21,11 +21,11 @@
 
 上述四个 Git 对象在当前可访问仓库中不存在。固定生产快照、原始记录摘要、不可变部署 URL 与公开镜像构成生产发布事实见证，不替代 Git 对象见证，也不补造原始 trace。来源契约只覆盖这四条旧记录；仓库原有记录与本次及未来版本仍检查真实 Git 对象和祖先／发布标签。篡改快照、旧记录、来源清单，扩大导入范围，或将 current 指向这些缺失对象均必须失败。详见 [恢复证据](guides/production-runtime-recovery.md)。
 
-### `5.24.2` · `4eb530ea524d55c1c0e413163b91877fe4f2c1a3`
+### `5.24.2` · `365630cffe4d178a4f7f697f2bcc7e8dcefb8d4e`
 
-南海意库小地图的三点把手沿用 SP 拖动横条的半透明灰，普通与全屏视图均居中对齐上边框。窗口菜单复用 SuperSplat 设置面板的材质、圆角、按键与全屏图标。触屏菜单按钮的点击高度为 44 像素。上一版生产打包提交为 `438e3e45f9ab04c0de402c73c334916dfc38caac`，回滚部署为 `6b0344f9e80f34cd2adf7bf1`。[变更记录](https://github.com/Shuang-su/Metaflow/pull/189)
+南海意库小地图的三点把手沿用 SP 拖动横条的半透明灰，普通与全屏视图都使用四边等宽的 9 像素边框，三点居中对齐上边。窗口菜单复用 SuperSplat 设置面板的材质、圆角、按键与全屏图标。触屏菜单按钮的点击高度为 44 像素。上一版生产打包提交为 `438e3e45f9ab04c0de402c73c334916dfc38caac`，回滚部署为 `6b0344f9e80f34cd2adf7bf1`。[变更记录](https://github.com/Shuang-su/Metaflow/pull/189)
 
-打包检查点 `b0c47ebea5d4a1944db74012928ac6ed35084316` 记录版本目录，`b83e5e0f9cf5eb3acbe4def8a8c7d37cd8cce7b5` 更新托管 JS 的缓存版本。
+窗口样式的初版检查点为 `4eb530ea524d55c1c0e413163b91877fe4f2c1a3`。打包检查点 `b0c47ebea5d4a1944db74012928ac6ed35084316` 记录版本目录，`b83e5e0f9cf5eb3acbe4def8a8c7d37cd8cce7b5` 更新托管 JS 的缓存版本。
 
 ### `5.24.1` · `a8476fdc9f4c8f7dc1ec086e050a09d3bea67f77`
 
