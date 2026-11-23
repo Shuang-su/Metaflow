@@ -598,6 +598,12 @@
       "date": "2026-11-23",
       "type": "release-support",
       "summary": "Register the 5.24.2 deployment with heading-up orbit follow."
+    },
+    {
+      "gitRef": "603ff32f1272fb7660bb3f9e51a271046e574a56",
+      "date": "2026-11-23",
+      "type": "release-support",
+      "summary": "Update hosted catalog resource versions and the Nanhai runtime cache key for 5.24.3."
     }
   ],
   "entries": [
