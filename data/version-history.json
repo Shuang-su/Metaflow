@@ -1,14 +1,14 @@
 {
   "schemaVersion": "1.1",
   "cutoffGitRef": "c613a87",
-  "documentedThrough": "21170dd6e8b231a40b3b0d098c6803984c209af5",
+  "documentedThrough": "788b70e26d382f85e332966d1ee0e005aa455daa",
   "defaultResourceVersion": "1.0a",
   "current": {
-    "displayVersion": "5.24.2",
-    "appSemver": "5.24.2",
+    "displayVersion": "5.24.3",
+    "appSemver": "5.24.3",
     "indexSchemaVersion": "1.2",
     "date": "2026-11-23",
-    "gitRef": "21170dd6e8b231a40b3b0d098c6803984c209af5",
+    "gitRef": "788b70e26d382f85e332966d1ee0e005aa455daa",
     "historyUrl": "/data/version-history.json",
     "upstream": {
       "repository": "playcanvas/supersplat-viewer",
@@ -592,6 +592,12 @@
       "date": "2026-11-23",
       "type": "release-support",
       "summary": "Record the aligned frame and controls before the orbit follow correction."
+    },
+    {
+      "gitRef": "f1a44e4a02a73d2c075694113be9011ec777d668",
+      "date": "2026-11-23",
+      "type": "release-support",
+      "summary": "Register the 5.24.2 deployment with heading-up orbit follow."
     }
   ],
   "entries": [
@@ -2330,6 +2336,31 @@
         "plan": "docs/changes/187-nanhai-map/plan.md",
         "evidence": "https://github.com/Shuang-su/Metaflow/issues/187",
         "releaseTag": "viewer-v5.24.2"
+      }
+    },
+    {
+      "displayVersion": "5.24.3",
+      "appSemver": "5.24.3",
+      "type": "fix",
+      "scope": "viewer",
+      "date": "2026-11-23",
+      "gitRef": "788b70e26d382f85e332966d1ee0e005aa455daa",
+      "summary": "Restore the existing SP quality slider in the hosted settings for Shenzhen University, Huafa Ice and Snow World, and Shenzhen Civic Center.",
+      "resourceChanges": [
+        {
+          "action": "update",
+          "routes": [
+            "/shenzhen/shenzhen-civic-center",
+            "/shenzhen/shenzhen-university-yuehai-campus",
+            "/shenzhen/huafa-ice-and-snow-world"
+          ]
+        }
+      ],
+      "trace": {
+        "changeId": "MF-185",
+        "pullRequest": "https://github.com/Shuang-su/Metaflow/pull/190",
+        "evidence": "https://github.com/Shuang-su/Metaflow/issues/185",
+        "releaseTag": "viewer-v5.24.3"
       }
     }
   ],
