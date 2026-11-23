@@ -1,11 +1,12 @@
 import type { EventHandler } from 'playcanvas';
 
-import type { State } from './types';
+import { QUALITY_LEVELS } from './quality';
+import type { QualityLevel, State } from './types';
 
-type Preferences = Pick<State, 'performanceMode' | 'gamingControls' | 'showAnnotations'>;
+type Preferences = Pick<State, 'quality' | 'performanceMode' | 'gamingControls' | 'showAnnotations'>;
 
 const readPreferences = (mobile: boolean): Preferences => {
-    const defaults = { performanceMode: mobile, gamingControls: false, showAnnotations: true };
+    const defaults: Preferences = { quality: mobile ? 'performance' : 'default', performanceMode: mobile, gamingControls: false, showAnnotations: true };
     try {
         // Preserve the legacy preference migration and origin-wide keys.
         const legacyRetina = localStorage.getItem('retinaDisplay');
@@ -19,8 +20,12 @@ const readPreferences = (mobile: boolean): Preferences => {
                 // Keep the migrated runtime value even if storage cannot be updated.
             }
         }
+        const stored = localStorage.getItem('quality') as QualityLevel;
+        const legacy = performanceMode === null ? defaults.quality : performanceMode === 'true' ? 'performance' : 'default';
+        const quality = QUALITY_LEVELS.includes(stored) ? stored : legacy;
         return {
-            performanceMode: performanceMode === null ? mobile : performanceMode === 'true',
+            quality,
+            performanceMode: quality === 'performance',
             gamingControls: localStorage.getItem('gamingControls') === 'true',
             showAnnotations: localStorage.getItem('showAnnotations') !== 'false'
         };
@@ -32,8 +37,10 @@ const readPreferences = (mobile: boolean): Preferences => {
 
 const persistPreferences = (events: EventHandler) => {
     // Write changes only, so creating a viewer does not persist platform defaults.
-    const subscriptions = (['performanceMode', 'gamingControls', 'showAnnotations'] as const).map((key) =>
-        events.on(`${key}:changed`, (value: boolean) => {
+    const subscriptions = (['quality', 'performanceMode', 'gamingControls', 'showAnnotations'] as const).map((key) =>
+        // A slider change only writes quality. The standalone viewer uses its legacy
+        // performanceMode key for a separate renderer preference on the same origin.
+        events.on(key === 'performanceMode' ? 'legacyPerformancePreference' : `${key}:changed`, (value: string | boolean) => {
             try {
                 localStorage.setItem(key, String(value));
             } catch {

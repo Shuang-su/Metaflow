@@ -188,6 +188,35 @@ const buildPublic = {
         json(),
         htmlTemplatePlugin(),
         htmlPlugin(),
+        {
+            name: 'hosted-scene-quality',
+            generateBundle() {
+                // The three standalone pages share a prebuilt SP entry. Its native slider is
+                // already wired up. Remove only the host's budget overrides and CSS mask.
+                const assets = 'hosted/shenzhen/assets/';
+                const patches = [
+                    ['index-CuYAiZXM.js', 'js', [
+                        ['let h,u,d;if(t.files.sceneManifest)', 'let h,d;if(t.files.sceneManifest)'],
+                        ['u=y.budget??8,d=y.cameraClipping', 'd=y.cameraClipping'],
+                        ['budget:u??t.viewer?.budget,adaptiveBudget:!s,', ''],
+                        ['Q.budget*1e6+(c.sceneLayers??[]).reduce((Le,mt)=>Le+(mt.visible&&mt.fullLayer?mt.pointCount??0:0),0)', 'Q.budget*1e6'],
+                        ['r.budget*1e6+s.sceneLayers.reduce((l,c)=>l+(c.visible&&c.fullLayer?c.pointCount??0:0),0)', 'r.budget*1e6']
+                    ]],
+                    ['index-DDuvy4hi.css', 'css', [
+                        ['#viewer .sse-qualityRow,#viewer .sse-qualitySliderRow,#viewer .sse-settingsGroup:has(.sse-frame)', '#viewer .sse-settingsGroup:has(.sse-frame)']
+                    ]]
+                ];
+                for (const [file, ext, changes] of patches) {
+                    this.addWatchFile(assets + file);
+                    let source = readFileSync(assets + file, 'utf8');
+                    for (const [before, after] of changes) {
+                        if (source.split(before).length !== 2) this.error('Check the hosted SP quality integration in ' + file);
+                        source = source.replace(before, after);
+                    }
+                    this.emitFile({ type: 'asset', fileName: 'shenzhen/assets/scene-quality-5.25.0.' + ext, source });
+                }
+            }
+        },
         copy({ targets: [
             { src: 'src/assets/*', dest: 'public/assets' },
             { src: 'hosted/shenzhen', dest: 'public' }

@@ -8,6 +8,7 @@ import type { Entity, EventHandler, AppBase } from 'playcanvas';
 import type { AnalyticsClient } from './analytics/client';
 import type { CaptureResult } from './capture';
 import type { Localize } from './localization';
+import type { Quality } from './quality';
 import type { ViewerAssets, ViewerFlags } from './options';
 import type { Annotation, ExperienceSettings } from './settings';
 
@@ -68,7 +69,11 @@ type Config = ViewerAssets &
     };
 
 // observable state that can change at runtime
+type QualityLevel = 'performance' | 'default' | 'high' | 'max';
+
 type State = {
+    quality: QualityLevel;
+    qualityAvailable: QualityLevel[];
     /** True once the first complete frame has rendered. */
     loaded: boolean;
     readyToRender: boolean;
@@ -137,6 +142,7 @@ type State = {
 type WritableStateKey =
     | 'cameraMode'
     | 'performanceMode'
+    | 'quality'
     | 'showAnnotations'
     | 'gamingControls'
     | 'animationPaused'
@@ -245,6 +251,7 @@ type ViewerHandle = {
 };
 
 type Global = {
+    quality: Quality;
     app: AppBase;
     /** Authored scene content, independently transformable from the camera/XR rig. */
     sceneRoot: Entity;
@@ -266,6 +273,7 @@ type Global = {
 export { CameraMode, InputMode, XrMode, Config, State, Global, ViewerState, CaptureOptions, ViewerHandle };
 
 export type {
+    QualityLevel,
     LoadMode,
     LoadingStage,
     PrimarySourceKind,

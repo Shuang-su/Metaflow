@@ -36,7 +36,7 @@
     },
     "version": {
       "addedIn": "5.24.0",
-      "updatedIn": "5.24.0"
+      "updatedIn": "5.25.0"
     },
     "aliases": [
       "/shenzhen/shiminzhongxin"
@@ -106,7 +106,7 @@
     "experienceType": "scene",
     "version": {
       "addedIn": "5.24.0",
-      "updatedIn": "5.24.0"
+      "updatedIn": "5.25.0"
     },
     "meta": {
       "date": "2026-10-13",
@@ -166,7 +166,7 @@
     ],
     "version": {
       "addedIn": "5.24.0",
-      "updatedIn": "5.24.0"
+      "updatedIn": "5.25.0"
     }
   },
   {
@@ -208,7 +208,7 @@
     },
     "version": {
       "addedIn": "5.24.0",
-      "updatedIn": "5.24.2"
+      "updatedIn": "5.25.0"
     },
     "aliases": [
       "/shenzhen/nanhaiyiku"

@@ -24,6 +24,7 @@ import { observe } from './core/observe';
 import { initLocalization } from './localization';
 import type { CreateViewerOptions } from './options';
 import { parseSettings } from './parse-settings';
+import { canvasPixelRatio, Quality, resolutionScaleFor } from './quality';
 import { persistPreferences, readPreferences } from './preferences';
 import { configureWebglImageDecoding, isAppleMobileWebKit } from './render-compatibility.js';
 import { importSettings } from './settings';
@@ -318,15 +319,11 @@ const measureCanvas = (canvas: HTMLCanvasElement) => ({
 const resizeCanvas = (
     canvas: HTMLCanvasElement,
     cssSize: { width: number; height: number },
-    performanceMode: boolean
+    resolutionScale: number
 ) => {
     if (!cssSize.width || !cssSize.height) return;
 
-    // maximum pixel dimension we will allow along the shortest screen dimension based on platform
-    const maxPixelDim = platform.mobile ? 1080 : 2160;
-    const pixelRatio = Math.min(maxPixelDim / Math.min(screen.width, screen.height), window.devicePixelRatio);
-
-    const scale = pixelRatio * (performanceMode ? 0.5 : 1.0);
+    const scale = canvasPixelRatio() * resolutionScale;
     const width = Math.ceil(cssSize.width * scale);
     const height = Math.ceil(cssSize.height * scale);
     if (width !== canvas.width || height !== canvas.height) {
@@ -337,7 +334,7 @@ const resizeCanvas = (
 
 // initialize canvas size and resizing
 const initCanvas = (global: Global) => {
-    const { app, events, state } = global;
+    const { app, events } = global;
     const { canvas } = app.graphicsDevice;
 
     // the canvas css size, kept current by the resize observer. measured directly at
@@ -349,7 +346,7 @@ const initCanvas = (global: Global) => {
         // and resetting canvas dimensions can invalidate the XRWebGLLayer
         if (app.xr?.active) return;
 
-        resizeCanvas(canvas, cssSize, state.performanceMode);
+        resizeCanvas(canvas, cssSize, global.quality.resolutionScale);
     };
 
     const resizeObserver = new ResizeObserver((entries: ResizeObserverEntry[]) => {
@@ -363,7 +360,7 @@ const initCanvas = (global: Global) => {
     });
     resizeObserver.observe(canvas);
 
-    events.on('performanceMode:changed', () => {
+    events.on('quality:changed', () => {
         app.renderNextFrame = true;
     });
 
@@ -563,7 +560,7 @@ const createViewer = async (options: CreateViewerOptions): Promise<ViewerHandle>
     // chain and any backbuffer-sized resources start at the correct resolution instead
     // of being recreated on the first frame's resize. a hidden embed keeps the default
     // canvas size here; the resize observer sizes it on reveal
-    resizeCanvas(canvas, measureCanvas(canvas), preferences.performanceMode);
+    resizeCanvas(canvas, measureCanvas(canvas), resolutionScaleFor(preferences.quality, config.stochastic && config.renderer === 'webgpu'));
 
     const { app, camera, renderer } = await createApp(canvas, config).catch((error) => {
         disposePoster?.();
@@ -583,6 +580,7 @@ const createViewer = async (options: CreateViewerOptions): Promise<ViewerHandle>
         loadingStatus: '',
         walkCapability: !!(config.voxelManifestUrl || config.voxelUrl || config.collisionUrl),
         ...preferences,
+        qualityAvailable: [],
         progress: 0,
         inputMode: platform.mobile ? 'touch' : 'desktop',
         cameraMode: 'orbit',
@@ -627,7 +625,18 @@ const createViewer = async (options: CreateViewerOptions): Promise<ViewerHandle>
 
     const sceneRoot = new Entity('scene root', app);
     app.root.addChild(sceneRoot);
+    const quality = new Quality(app, config, state, events, renderer);
+    // Existing embedders can still set performanceMode to select the corresponding stop.
+    state.performanceMode = state.quality === 'performance';
+    events.on('quality:changed', () => { state.performanceMode = state.quality === 'performance'; });
+    events.on('performanceMode:changed', (on: boolean) => {
+        if (on !== (state.quality === 'performance')) {
+            state.quality = on ? 'performance' : 'default';
+            events.fire('legacyPerformancePreference', on);
+        }
+    });
     const global: Global = {
+        quality,
         app,
         sceneRoot,
         settings: importedSettings,
@@ -857,6 +866,7 @@ const createViewer = async (options: CreateViewerOptions): Promise<ViewerHandle>
         collisionLoadPlan.immediate,
         collisionLoadPlan.deferred
     );
+    viewer.onDestroy(() => quality.destroy());
     viewer.onDestroy(persistPreferences(events));
     const handle: ViewerHandle = {
         app,

@@ -1,4 +1,9 @@
 {
+    "settings.quality": "화질",
+    "settings.quality-performance": "성능",
+    "settings.quality-default": "기본",
+    "settings.quality-high": "높음",
+    "settings.quality-max": "최고",
     "settings.performance-mode": "성능 모드",
     "settings.gaming-controls": "게임 컨트롤",
     "settings.show-annotations": "주석 표시",

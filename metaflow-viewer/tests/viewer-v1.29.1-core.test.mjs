@@ -27,7 +27,10 @@ test('streaming quality uses v1.29.1 SH while writing LOD range on the component
     const viewer = await readText('../src/viewer.ts');
     const applyPerf = viewer.slice(viewer.indexOf('const applyPerfSettings'), viewer.indexOf('if (config.fullload)'));
 
-    assert.match(applyPerf, /gsplat\.colorUpdateAngle = state\.performanceMode \? 1 : 0\.2/);
+    const quality = await readText('../src/quality.ts');
+    assert.match(applyPerf, /gsplat\.colorUpdateAngle = global\.quality\.colorUpdateAngle/);
+    assert.match(quality, /COLOR_UPDATE_ANGLE = 0\.2;/);
+    assert.match(quality, /COLOR_UPDATE_ANGLE_PERFORMANCE = 1;/);
     assert.match(applyPerf, /gsplatComponent\.lodRangeMin = 0/);
     assert.match(applyPerf, /gsplatComponent\.lodRangeMax = 1000/);
     assert.match(applyPerf, /app\.renderNextFrame = true/);

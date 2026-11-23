@@ -13,7 +13,7 @@ const XR_FAR_CLIP = 1000;
 // Standalone headsets run XR on a mobile gpu, which draws every splat once per eye, but their
 // browsers report a desktop platform. Their sessions render with fixed foveation and a 72 Hz
 // target, at 0.8x resolution in performance mode, and the viewer lowers the splat budget.
-const standaloneHeadset = /OculusBrowser|PicoBrowser/.test(globalThis.navigator?.userAgent ?? '');
+
 
 // The viewer reconfigures the camera (clear color, post effects) when state.xrMode changes
 const initXr = (global: Global) => {
@@ -154,9 +154,10 @@ const initXr = (global: Global) => {
         camera.camera.nearClip = XR_NEAR_CLIP;
         camera.camera.farClip = XR_FAR_CLIP;
 
-        if (standaloneHeadset) {
+        if (global.quality.xrFixedFoveation) {
             xr.fixedFoveation = 1;
-            if (xr.supportedFrameRates?.includes(72)) xr.updateTargetFrameRate(72);
+            const rate = global.quality.xrTargetFrameRate;
+            if (rate && xr.supportedFrameRates?.includes(rate)) xr.updateTargetFrameRate(rate);
         }
 
         // AR scales about the hands, for content brought to a tabletop; VR about the feet, so
@@ -203,7 +204,7 @@ const initXr = (global: Global) => {
                 rejectStart = reject;
                 xr.start(camera.camera, type, 'local-floor', {
                     optionalFeatures: mode === 'ar' ? ['anchors', 'plane-detection'] : [],
-                    framebufferScaleFactor: standaloneHeadset && state.performanceMode ? 0.8 : 1,
+                    framebufferScaleFactor: global.quality.xrFramebufferScale,
                     callback: (error) => {
                         if (destroyed) {
                             // Browser session requests cannot be cancelled. Close a late result.
@@ -288,4 +289,4 @@ const initXr = (global: Global) => {
     };
 };
 
-export { initXr, standaloneHeadset };
+export { initXr };
