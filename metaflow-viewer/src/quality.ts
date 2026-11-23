@@ -30,11 +30,8 @@ const LADDERS: Record<'desktop' | 'mobile' | 'standaloneXr', readonly (number | 
     standaloneXr: [0.5, 1, 2, null]
 };
 
-// The resolution at the Performance position: half on screens (as the Performance Mode switch
-// did), 0.8x of the recommended framebuffer in a standalone headset's session. The stochastic
-// renderer keeps full resolution there: its image is already softer than sorted's
+// Sorted rendering uses half resolution at the Performance position.
 const PERFORMANCE_SCALE = 0.5;
-const PERFORMANCE_XR_SCALE = 0.8;
 
 // The memory model, from the device runs (docs/device-benchmarks-2026-10-14.md, Memory): the
 // same on every gpu within 5-15 %. Per million of budget, with the scene's own data: the sorted
@@ -176,21 +173,6 @@ class Quality {
     /** The canvas backbuffer scale for the current position. */
     get resolutionScale() {
         return resolutionScaleFor(this.state.quality, this.stochastic);
-    }
-
-    /** The XR session's framebuffer scale, fixed when the session starts. */
-    get xrFramebufferScale() {
-        return standaloneHeadset && this.state.quality === 'performance' ? PERFORMANCE_XR_SCALE : 1;
-    }
-
-    /** Whether an XR session renders with fixed foveation (standalone headsets; it only reaches the sorted renderer). */
-    get xrFixedFoveation() {
-        return standaloneHeadset;
-    }
-
-    /** The XR session's target frame rate where the viewer sets one, or null for the browser's. */
-    get xrTargetFrameRate() {
-        return standaloneHeadset ? 72 : null;
     }
 
     get colorUpdateAngle() {
