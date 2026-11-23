@@ -3,9 +3,9 @@ html, body, #viewer { margin: 0; width: 100%; height: 100%; overflow: hidden; ba
     --map-glass: color-mix(in srgb, var(--sse-bkg) 50%, transparent);
     --map-stroke: color-mix(in srgb, var(--sse-text-light) 16%, transparent);
     --map-handle-stroke: 5px;
-    /* Reference grip: 5px dots on 8px centers, with 9.5px clear to the edge. */
+    /* Keep the reference dot spacing on a compact, evenly padded rail. */
     --map-dot-pitch: calc(var(--map-handle-stroke) * 1.6);
-    --map-frame: calc(var(--map-handle-stroke) * 4.8);
+    --map-frame: calc(var(--map-handle-stroke) + 7px);
     --map-outline: 1px;
     --map-action-size: 44px;
     --map-action-offset: 6px;
