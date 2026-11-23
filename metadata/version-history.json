@@ -1,14 +1,14 @@
 {
   "schemaVersion": "1.1",
   "cutoffGitRef": "c613a87",
-  "documentedThrough": "21170dd6e8b231a40b3b0d098c6803984c209af5",
+  "documentedThrough": "4530aaf339bd56ccf7508abbf74d946680d42422",
   "defaultResourceVersion": "1.0a",
   "current": {
-    "displayVersion": "5.24.2",
-    "appSemver": "5.24.2",
+    "displayVersion": "5.25.0",
+    "appSemver": "5.25.0",
     "indexSchemaVersion": "1.2",
     "date": "2026-11-23",
-    "gitRef": "21170dd6e8b231a40b3b0d098c6803984c209af5",
+    "gitRef": "4530aaf339bd56ccf7508abbf74d946680d42422",
     "historyUrl": "/data/version-history.json",
     "upstream": {
       "repository": "playcanvas/supersplat-viewer",
@@ -592,6 +592,12 @@
       "date": "2026-11-23",
       "type": "release-support",
       "summary": "Record the aligned frame and controls before the orbit follow correction."
+    },
+    {
+      "gitRef": "f1a44e4a02a73d2c075694113be9011ec777d668",
+      "date": "2026-11-23",
+      "type": "release-support",
+      "summary": "Register the 5.24.2 production package for heading-up orbit follow."
     }
   ],
   "entries": [
@@ -2330,6 +2336,34 @@
         "plan": "docs/changes/187-nanhai-map/plan.md",
         "evidence": "https://github.com/Shuang-su/Metaflow/issues/187",
         "releaseTag": "viewer-v5.24.2"
+      }
+    },
+    {
+      "displayVersion": "5.25.0",
+      "appSemver": "5.25.0",
+      "type": "feature",
+      "scope": "viewer",
+      "date": "2026-11-23",
+      "gitRef": "4530aaf339bd56ccf7508abbf74d946680d42422",
+      "summary": "Expose the native SuperSplat quality slider on every resource route. Fit the streaming budget to the selected level and device, and apply the selected render scale to single-file and streaming content.",
+      "resourceChanges": [
+        {
+          "action": "update",
+          "routes": [
+            "/shenzhen/shenzhen-civic-center",
+            "/shenzhen/shenzhen-university-yuehai-campus",
+            "/shenzhen/huafa-ice-and-snow-world",
+            "/shenzhen/nanhai-e-cool-building-3"
+          ]
+        }
+      ],
+      "trace": {
+        "changeId": "MF-185",
+        "pullRequest": "https://github.com/Shuang-su/Metaflow/pull/191",
+        "spec": "docs/changes/185-shenzhen-scenes/spec.md",
+        "plan": "docs/changes/185-shenzhen-scenes/plan.md",
+        "evidence": "https://github.com/Shuang-su/Metaflow/issues/185",
+        "releaseTag": "viewer-v5.25.0"
       }
     }
   ],
