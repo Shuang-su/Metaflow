@@ -1,14 +1,14 @@
 {
   "schemaVersion": "1.1",
   "cutoffGitRef": "c613a87",
-  "documentedThrough": "520ecfca96728ff520d420c198fb7084c55599b3",
+  "documentedThrough": "a2be9a21f0ba034335cff6ff69bf66ded76617c8",
   "defaultResourceVersion": "1.0a",
   "current": {
     "displayVersion": "5.25.1",
     "appSemver": "5.25.1",
     "indexSchemaVersion": "1.2",
     "date": "2026-11-23",
-    "gitRef": "520ecfca96728ff520d420c198fb7084c55599b3",
+    "gitRef": "a2be9a21f0ba034335cff6ff69bf66ded76617c8",
     "historyUrl": "/data/version-history.json",
     "upstream": {
       "repository": "playcanvas/supersplat-viewer",
@@ -616,6 +616,18 @@
       "date": "2026-11-23",
       "type": "release-support",
       "summary": "Register the 5.25.0 native quality release package."
+    },
+    {
+      "gitRef": "520ecfca96728ff520d420c198fb7084c55599b3",
+      "date": "2026-11-23",
+      "type": "release-support",
+      "summary": "Align the map grip and frame dimensions."
+    },
+    {
+      "gitRef": "c1ee2fd3fef3e02c23df9f69250873cf26a57d98",
+      "date": "2026-11-23",
+      "type": "release-support",
+      "summary": "Register the first map grip candidate."
     }
   ],
   "entries": [
@@ -2390,8 +2402,8 @@
       "type": "fix",
       "scope": "viewer",
       "date": "2026-11-23",
-      "gitRef": "520ecfca96728ff520d420c198fb7084c55599b3",
-      "summary": "Match the Nanhai map menu dots to the resize grip stroke and center them in a uniform wider frame.",
+      "gitRef": "a2be9a21f0ba034335cff6ff69bf66ded76617c8",
+      "summary": "Match the Nanhai map menu dots to the resize grip stroke, center them in a uniform wider frame, and trim the concentric resize arc to its middle 40 degrees with round ends.",
       "resourceChanges": [
         {
           "action": "update",
