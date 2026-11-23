@@ -1,0 +1,5 @@
+/* Restore the native SP controls hidden by the standalone preview theme. */
+#viewer .sse-qualityRow:not(.sse-hidden),
+#viewer .sse-qualitySliderRow:not(.sse-hidden) {
+    display: flex;
+}
