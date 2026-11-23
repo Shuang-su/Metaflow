@@ -2,7 +2,11 @@ html, body, #viewer { margin: 0; width: 100%; height: 100%; overflow: hidden; ba
 #site-map {
     --map-glass: color-mix(in srgb, var(--sse-bkg) 50%, transparent);
     --map-stroke: color-mix(in srgb, var(--sse-text-light) 16%, transparent);
-    --map-frame: 9px;
+    --map-handle-stroke: 5px;
+    --map-dot-diameter: 6px;
+    --map-dot-pitch: calc(var(--map-dot-diameter) + 3px);
+    --map-dot-padding: 4px;
+    --map-frame: calc(var(--map-dot-diameter) + 2 * var(--map-dot-padding));
     --map-outline: 1px;
     --map-action-size: 44px;
     --map-action-offset: 6px;
@@ -54,18 +58,28 @@ html, body, #viewer { margin: 0; width: 100%; height: 100%; overflow: hidden; ba
 /* Center the three dots on the top rail while keeping the full SP drag target. */
 #site-map .sse-mapHandle-move { top: calc(var(--map-grip-center) - 24px); }
 #site-map .sse-mapHandle-move::before {
-    width: 24px;
-    height: 4px;
+    width: calc(3 * var(--map-dot-pitch));
+    height: var(--map-dot-diameter);
     left: 50%;
     top: 50%;
     transform: translate(-50%, -50%);
     border-radius: 0;
-    mask: radial-gradient(circle, #000 1.6px, transparent 2px) left center / 8px 4px repeat-x;
+    mask: radial-gradient(circle closest-side, #000 calc(100% - .5px), transparent 100%)
+        center / var(--map-dot-pitch) 100% repeat-x;
 }
-/* Extend the resize grip along the frame. Its outer reach and the canvas hit area stay fixed. */
+/* Keep a short, round-ended arc on the same center as the frame. */
 #site-map .sse-mapHandle-resize {
-    --arc-radius: calc(var(--sse-map-radius) + 10px); /* 5px clear gap and 5px stroke */
-    --arc-cap: radial-gradient(closest-side, #000 80%, transparent);
+    --arc-gap: 5px;
+    --arc-half: calc(var(--map-handle-stroke) / 2);
+    --arc-radius: calc(var(--sse-map-radius) + var(--arc-gap) + var(--map-handle-stroke));
+    --arc-inset: calc(23px - var(--arc-gap) - var(--map-handle-stroke));
+    --arc-midline: calc(var(--arc-radius) - var(--arc-half));
+    /* Maintain the short visible grip as the frame radius changes. */
+    --arc-trim: calc(45deg - atan2(18.5px, var(--arc-midline)));
+    /* Cap centers at the two ends of the trimmed quarter-circle. */
+    --cap-x: calc(var(--arc-radius) - var(--arc-midline) * cos(var(--arc-trim)));
+    --cap-y: calc(var(--arc-radius) - var(--arc-midline) * sin(var(--arc-trim)));
+    --cap-stops: #000 calc(var(--arc-half) - .5px), transparent var(--arc-half);
     --grip-edge: calc(23px + var(--map-frame));
     clip-path: polygon(0 0, 100% 0, 100% var(--grip-edge), var(--grip-edge) var(--grip-edge),
         var(--grip-edge) 100%, 0 100%);
@@ -73,16 +87,18 @@ html, body, #viewer { margin: 0; width: 100%; height: 100%; overflow: hidden; ba
     height: calc(var(--sse-map-radius) + 26px);
 }
 #site-map .sse-mapHandle-resize::before {
-    left: 13px;
-    top: 13px;
-    width: calc(var(--arc-radius) + 2.5px);
-    height: calc(var(--arc-radius) + 2.5px);
+    left: var(--arc-inset);
+    top: var(--arc-inset);
+    width: var(--arc-radius);
+    height: var(--arc-radius);
     mask:
-        radial-gradient(circle at right bottom, transparent calc(var(--arc-radius) - 5.5px),
-            #000 calc(var(--arc-radius) - 4.5px) calc(var(--arc-radius) - .5px), transparent var(--arc-radius))
-            0 0 / var(--arc-radius) var(--arc-radius) no-repeat,
-        var(--arc-cap) calc(var(--arc-radius) - 2.5px) 0 / 5px 5px no-repeat,
-        var(--arc-cap) 0 calc(var(--arc-radius) - 2.5px) / 5px 5px no-repeat;
+        radial-gradient(circle at var(--cap-x) var(--cap-y), var(--cap-stops)),
+        radial-gradient(circle at var(--cap-y) var(--cap-x), var(--cap-stops)),
+        conic-gradient(at right bottom, transparent 0 calc(270deg + var(--arc-trim)),
+            #000 0 calc(360deg - var(--arc-trim)), transparent 0),
+        radial-gradient(circle at right bottom, transparent calc(var(--arc-radius) - var(--map-handle-stroke) - .5px),
+            #000 calc(var(--arc-radius) - var(--map-handle-stroke) + .5px) calc(var(--arc-radius) - .5px), transparent var(--arc-radius));
+    mask-composite: add, add, intersect, add;
 }
 #site-map.map-maximized .sse-guidanceSurface, #site-map.map-maximized canvas { width: 100%; height: 100%; }
 #site-map.map-maximized .sse-mapHandle-resize { display: none; }
@@ -123,6 +139,7 @@ html, body, #viewer { margin: 0; width: 100%; height: 100%; overflow: hidden; ba
 #site-map.sse-map-compact .map-window-menu { padding: 6px; }
 #site-map.sse-map-compact .map-window-menu button { gap: 4px; padding-inline: 4px; }
 @media (pointer: coarse) {
+    #site-map { --map-dot-padding: 3px; }
     #site-map .map-window-menu button { min-height: 44px; }
 }
 @media (prefers-reduced-motion: reduce) {

@@ -1,14 +1,14 @@
 {
   "schemaVersion": "1.1",
   "cutoffGitRef": "c613a87",
-  "documentedThrough": "3b4e4b1b5ecb938be52caf4187e6d536a8a90172",
+  "documentedThrough": "59fac5306f0eddae69caa0c87624a68a5034ac2b",
   "defaultResourceVersion": "1.0a",
   "current": {
-    "displayVersion": "5.25.0",
-    "appSemver": "5.25.0",
+    "displayVersion": "5.25.1",
+    "appSemver": "5.25.1",
     "indexSchemaVersion": "1.2",
     "date": "2026-11-23",
-    "gitRef": "3b4e4b1b5ecb938be52caf4187e6d536a8a90172",
+    "gitRef": "59fac5306f0eddae69caa0c87624a68a5034ac2b",
     "historyUrl": "/data/version-history.json",
     "upstream": {
       "repository": "playcanvas/supersplat-viewer",
@@ -610,6 +610,60 @@
       "date": "2026-11-23",
       "type": "release-support",
       "summary": "Register the complete catalog quality release candidate."
+    },
+    {
+      "gitRef": "bfd49986249245a0529021d1da66edff32e6e01b",
+      "date": "2026-11-23",
+      "type": "release-support",
+      "summary": "Register the 5.25.0 native quality release package."
+    },
+    {
+      "gitRef": "520ecfca96728ff520d420c198fb7084c55599b3",
+      "date": "2026-11-23",
+      "type": "release-support",
+      "summary": "Align the map grip and frame dimensions."
+    },
+    {
+      "gitRef": "c1ee2fd3fef3e02c23df9f69250873cf26a57d98",
+      "date": "2026-11-23",
+      "type": "release-support",
+      "summary": "Register the first map grip candidate."
+    },
+    {
+      "gitRef": "a2be9a21f0ba034335cff6ff69bf66ded76617c8",
+      "date": "2026-11-23",
+      "type": "release-support",
+      "summary": "Shorten the concentric map resize grip."
+    },
+    {
+      "gitRef": "e48014fc16d80cea8247dab8ef2b5c265e7ee473",
+      "date": "2026-11-23",
+      "type": "release-support",
+      "summary": "Register the first shortened grip candidate."
+    },
+    {
+      "gitRef": "cedddff4827a383772454e92620471b01bdff66a",
+      "date": "2026-11-23",
+      "type": "release-support",
+      "summary": "Verify the reference dot spacing."
+    },
+    {
+      "gitRef": "d9a6c4a2f54f8a508610920725755d0457ce8856",
+      "date": "2026-11-23",
+      "type": "release-support",
+      "summary": "Record the reference spacing candidate."
+    },
+    {
+      "gitRef": "f960a899de2e2a736e6eb26e8ca9b206a58ed1b7",
+      "date": "2026-11-23",
+      "type": "release-support",
+      "summary": "Verify the compact frame candidate."
+    },
+    {
+      "gitRef": "278bbb942aa77204e0defd148bb7712eae92f505",
+      "date": "2026-11-23",
+      "type": "release-support",
+      "summary": "Register the compact frame candidate."
     }
   ],
   "entries": [
@@ -2376,6 +2430,31 @@
         "plan": "docs/changes/185-shenzhen-scenes/plan.md",
         "evidence": "https://github.com/Shuang-su/Metaflow/issues/185",
         "releaseTag": "viewer-v5.25.0"
+      }
+    },
+    {
+      "displayVersion": "5.25.1",
+      "appSemver": "5.25.1",
+      "type": "fix",
+      "scope": "viewer",
+      "date": "2026-11-23",
+      "gitRef": "59fac5306f0eddae69caa0c87624a68a5034ac2b",
+      "summary": "Use a 12px frame on touch-first devices and a 14px desktop frame for the Nanhai minimap. Center three 6px dots with 3px gaps and retain the 5px concentric corner grip.",
+      "resourceChanges": [
+        {
+          "action": "update",
+          "routes": [
+            "/shenzhen/nanhai-e-cool-building-3"
+          ]
+        }
+      ],
+      "trace": {
+        "changeId": "MF-187",
+        "pullRequest": "https://github.com/Shuang-su/Metaflow/pull/192",
+        "spec": "docs/changes/187-nanhai-map/spec.md",
+        "plan": "docs/changes/187-nanhai-map/plan.md",
+        "evidence": "https://github.com/Shuang-su/Metaflow/issues/187",
+        "releaseTag": "viewer-v5.25.1"
       }
     }
   ],

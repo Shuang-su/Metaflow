@@ -2,12 +2,12 @@
   "version": "1.0",
   "schemaVersion": "1.2",
   "release": {
-    "displayVersion": "5.25.0",
-    "appSemver": "5.25.0",
+    "displayVersion": "5.25.1",
+    "appSemver": "5.25.1",
     "schemaVersion": "1.2",
     "historyUrl": "/data/version-history.json",
     "updatedAt": "2026-11-23",
-    "gitRef": "3b4e4b1b5ecb938be52caf4187e6d536a8a90172"
+    "gitRef": "59fac5306f0eddae69caa0c87624a68a5034ac2b"
   },
   "lastUpdated": "2026-11-23",
   "totalResources": 104,
@@ -4346,7 +4346,7 @@
       },
       "version": {
         "addedIn": "5.24.0",
-        "updatedIn": "5.25.0"
+        "updatedIn": "5.25.1"
       },
       "aliases": [
         "/shenzhen/nanhaiyiku"
