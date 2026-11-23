@@ -3,9 +3,10 @@ html, body, #viewer { margin: 0; width: 100%; height: 100%; overflow: hidden; ba
     --map-glass: color-mix(in srgb, var(--sse-bkg) 50%, transparent);
     --map-stroke: color-mix(in srgb, var(--sse-text-light) 16%, transparent);
     --map-handle-stroke: 5px;
-    /* Keep the reference dot spacing on a compact, evenly padded rail. */
-    --map-dot-pitch: calc(var(--map-handle-stroke) * 1.6);
-    --map-frame: calc(var(--map-handle-stroke) + 7px);
+    --map-dot-diameter: 6px;
+    --map-dot-pitch: calc(var(--map-dot-diameter) + 3px);
+    --map-dot-padding: 4px;
+    --map-frame: calc(var(--map-dot-diameter) + 2 * var(--map-dot-padding));
     --map-outline: 1px;
     --map-action-size: 44px;
     --map-action-offset: 6px;
@@ -58,7 +59,7 @@ html, body, #viewer { margin: 0; width: 100%; height: 100%; overflow: hidden; ba
 #site-map .sse-mapHandle-move { top: calc(var(--map-grip-center) - 24px); }
 #site-map .sse-mapHandle-move::before {
     width: calc(3 * var(--map-dot-pitch));
-    height: var(--map-handle-stroke);
+    height: var(--map-dot-diameter);
     left: 50%;
     top: 50%;
     transform: translate(-50%, -50%);
@@ -74,7 +75,7 @@ html, body, #viewer { margin: 0; width: 100%; height: 100%; overflow: hidden; ba
     --arc-inset: calc(23px - var(--arc-gap) - var(--map-handle-stroke));
     --arc-midline: calc(var(--arc-radius) - var(--arc-half));
     /* Maintain the short visible grip as the frame radius changes. */
-    --arc-trim: calc(45deg - atan2(16.6px, var(--arc-midline)));
+    --arc-trim: calc(45deg - atan2(18.5px, var(--arc-midline)));
     /* Cap centers at the two ends of the trimmed quarter-circle. */
     --cap-x: calc(var(--arc-radius) - var(--arc-midline) * cos(var(--arc-trim)));
     --cap-y: calc(var(--arc-radius) - var(--arc-midline) * sin(var(--arc-trim)));
@@ -138,6 +139,7 @@ html, body, #viewer { margin: 0; width: 100%; height: 100%; overflow: hidden; ba
 #site-map.sse-map-compact .map-window-menu { padding: 6px; }
 #site-map.sse-map-compact .map-window-menu button { gap: 4px; padding-inline: 4px; }
 @media (pointer: coarse) {
+    #site-map { --map-dot-padding: 3px; }
     #site-map .map-window-menu button { min-height: 44px; }
 }
 @media (prefers-reduced-motion: reduce) {
