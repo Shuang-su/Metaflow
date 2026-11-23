@@ -1,14 +1,14 @@
 {
   "schemaVersion": "1.1",
   "cutoffGitRef": "c613a87",
-  "documentedThrough": "f960a899de2e2a736e6eb26e8ca9b206a58ed1b7",
+  "documentedThrough": "59fac5306f0eddae69caa0c87624a68a5034ac2b",
   "defaultResourceVersion": "1.0a",
   "current": {
     "displayVersion": "5.25.1",
     "appSemver": "5.25.1",
     "indexSchemaVersion": "1.2",
     "date": "2026-11-23",
-    "gitRef": "f960a899de2e2a736e6eb26e8ca9b206a58ed1b7",
+    "gitRef": "59fac5306f0eddae69caa0c87624a68a5034ac2b",
     "historyUrl": "/data/version-history.json",
     "upstream": {
       "repository": "playcanvas/supersplat-viewer",
@@ -652,6 +652,18 @@
       "date": "2026-11-23",
       "type": "release-support",
       "summary": "Record the reference spacing candidate."
+    },
+    {
+      "gitRef": "f960a899de2e2a736e6eb26e8ca9b206a58ed1b7",
+      "date": "2026-11-23",
+      "type": "release-support",
+      "summary": "Verify the compact frame candidate."
+    },
+    {
+      "gitRef": "278bbb942aa77204e0defd148bb7712eae92f505",
+      "date": "2026-11-23",
+      "type": "release-support",
+      "summary": "Register the compact frame candidate."
     }
   ],
   "entries": [
@@ -2426,8 +2438,8 @@
       "type": "fix",
       "scope": "viewer",
       "date": "2026-11-23",
-      "gitRef": "f960a899de2e2a736e6eb26e8ca9b206a58ed1b7",
-      "summary": "Match the Nanhai map menu to the reference with 5px dots on 8px centers in a compact 12px frame. Preserve the short concentric corner grip, rounded ends and resize target.",
+      "gitRef": "59fac5306f0eddae69caa0c87624a68a5034ac2b",
+      "summary": "Use a 12px frame on touch-first devices and a 14px desktop frame for the Nanhai minimap. Center three 6px dots with 3px gaps and retain the 5px concentric corner grip.",
       "resourceChanges": [
         {
           "action": "update",
