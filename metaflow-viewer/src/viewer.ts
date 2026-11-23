@@ -20,8 +20,7 @@ import {
     GSPLAT_DEBUG_NONE,
     GSPLAT_RENDERER_RASTER_CPU_SORT,
     GSPLAT_RENDERER_RASTER_GPU_SORT,
-    LAYERID_SKYBOX,
-    platform
+    LAYERID_SKYBOX
 } from 'playcanvas';
 import type { CameraComponent, Entity, GraphicsDevice, GSplatComponent, Layer } from 'playcanvas';
 
@@ -54,7 +53,7 @@ import { observeInitialLodProgress } from './streaming-progress';
 import { createSwitchingPicker } from './switching-picker';
 import type { LoadMode, CaptureOptions, Config, Global, XrMode } from './types';
 import { TiledVoxelDebugOverlay, VoxelDebugOverlay } from './voxel-debug-overlay';
-import { initXr, standaloneHeadset } from './xr';
+import { initXr } from './xr';
 
 function resolveRevealDotProfile(config: Config, loadingMode: LoadMode): RevealDotProfile {
     if (loadingMode === 'legacy-sog' && config.experienceType === 'character') {
@@ -93,23 +92,6 @@ const rendererTable: Record<Config['renderer'], number> = {
     webgl: GSPLAT_RENDERER_RASTER_CPU_SORT,
     webgpu: GSPLAT_RENDERER_RASTER_GPU_SORT
 };
-
-// quality budget, millions of splats
-const budgets = {
-    mobile: {
-        low: 1,
-        high: 2
-    },
-    desktop: {
-        low: 2,
-        high: 4
-    }
-};
-
-// budget while an XR session runs on a standalone headset, millions of splats. On a Quest 3,
-// 1M splats render at about 30 fps (40 at 0.8x resolution), against 10 fps at the 4M desktop
-// budget it otherwise gets
-const standaloneXrBudget = 1;
 
 // how much further away parts of the scene behind the camera count when choosing their detail,
 // which saves a lot of splats while orbiting, and the turn after which detail is chosen again.
@@ -549,10 +531,7 @@ class Viewer {
         if (config.stochastic && renderer === 'webgpu') {
             const worldLayer = app.scene.layers.getLayerByName('World');
             // the largest budget this instance can ask for must fit the device's storage binding
-            const budget =
-                (config.budget && config.budget > 0
-                    ? config.budget
-                    : (platform.mobile ? budgets.mobile : budgets.desktop).high) * 1000000;
+            const budget = global.quality.budget * 1000000;
             if (!StochasticSplatRenderer.cacheFits(app.graphicsDevice, budget)) {
                 console.warn(
                     `stochastic renderer: a ${budget / 1000000}M splat budget exceeds this device's storage binding limit; the sorted renderer draws`
@@ -1216,24 +1195,10 @@ class Viewer {
             }
 
             const applyPerfSettings = () => {
-                const budget = () => {
-                    if (config.budget !== undefined && Number.isFinite(config.budget) && config.budget > 0) {
-                        return config.budget;
-                    }
-                    if (standaloneHeadset && state.xrMode !== null) {
-                        return standaloneXrBudget;
-                    }
-                    const quality = platform.mobile ? budgets.mobile : budgets.desktop;
-                    return state.performanceMode ? quality.low : quality.high;
-                };
-
-                gsplat.splatBudget = budget() * 1000000;
-                // Match SuperSplat Viewer v1.29.1. A non-zero quality
-                // threshold avoids the v1.29.0 every-frame SH regression,
-                // while 1° / 0.2° keeps view-dependent color responsive.
-                gsplat.colorUpdateAngle = state.performanceMode ? 1 : 0.2;
-                gsplat.lodBehindPenalty = state.xrMode === null ? lodBehindPenalty : 1;
-                gsplat.lodUpdateAngle = state.xrMode === null ? lodUpdateAngle : 0;
+                gsplat.splatBudget = global.quality.budget * 1000000;
+                gsplat.colorUpdateAngle = global.quality.colorUpdateAngle;
+                gsplat.lodBehindPenalty = global.quality.lodBehindPenalty;
+                gsplat.lodUpdateAngle = global.quality.lodUpdateAngle;
                 gsplatComponent.lodRangeMin = 0;
                 gsplatComponent.lodRangeMax = 1000;
                 // Restore the default cull threshold lowered during the streaming reveal.
@@ -1333,7 +1298,7 @@ class Viewer {
                             return;
                         }
                         highDetailOpened = true;
-                        events.on('performanceMode:changed', applyPerfSettings);
+                        events.on('quality:changed', applyPerfSettings);
                         events.on('xrMode:changed', applyPerfSettings);
                         applyPerfSettings();
                     };

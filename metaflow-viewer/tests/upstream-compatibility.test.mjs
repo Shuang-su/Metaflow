@@ -73,11 +73,11 @@ test('environment, reveal, loading visibility, and synthetic animation ordering 
 test('streaming SH follows v1.29.1 while staged low-to-high LOD remains local behavior', async () => {
     const viewer = await readText('../src/viewer.ts');
 
-    assert.match(viewer, /gsplat\.colorUpdateAngle = state\.performanceMode \? 1 : 0\.2/);
+    assert.match(viewer, /gsplat\.colorUpdateAngle = global\.quality\.colorUpdateAngle/);
     assert.doesNotMatch(viewer, /colorUpdateAngle = state\.performanceMode \? 4 : 2/);
     assert.match(viewer, /gsplatComponent\.lodRangeMax = gsplatComponent\.lodRangeMin = lodLevels - 1/);
     assert.match(viewer, /onSubjectRevealed: openHighDetailLod/);
-    assert.match(viewer, /events\.on\('performanceMode:changed', applyPerfSettings\)/);
+    assert.match(viewer, /events\.on\('quality:changed', applyPerfSettings\)/);
     assert.match(viewer, /app\.scene\.gsplat\.minPixelSize = 0\.5/);
     assert.match(viewer, /app\.scene\.gsplat\.minPixelSize = 2/);
 });
