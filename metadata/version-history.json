@@ -1,14 +1,14 @@
 {
   "schemaVersion": "1.1",
   "cutoffGitRef": "c613a87",
-  "documentedThrough": "3b4e4b1b5ecb938be52caf4187e6d536a8a90172",
+  "documentedThrough": "520ecfca96728ff520d420c198fb7084c55599b3",
   "defaultResourceVersion": "1.0a",
   "current": {
-    "displayVersion": "5.25.0",
-    "appSemver": "5.25.0",
+    "displayVersion": "5.25.1",
+    "appSemver": "5.25.1",
     "indexSchemaVersion": "1.2",
     "date": "2026-11-23",
-    "gitRef": "3b4e4b1b5ecb938be52caf4187e6d536a8a90172",
+    "gitRef": "520ecfca96728ff520d420c198fb7084c55599b3",
     "historyUrl": "/data/version-history.json",
     "upstream": {
       "repository": "playcanvas/supersplat-viewer",
@@ -610,6 +610,12 @@
       "date": "2026-11-23",
       "type": "release-support",
       "summary": "Register the complete catalog quality release candidate."
+    },
+    {
+      "gitRef": "bfd49986249245a0529021d1da66edff32e6e01b",
+      "date": "2026-11-23",
+      "type": "release-support",
+      "summary": "Register the 5.25.0 native quality release package."
     }
   ],
   "entries": [
@@ -2376,6 +2382,31 @@
         "plan": "docs/changes/185-shenzhen-scenes/plan.md",
         "evidence": "https://github.com/Shuang-su/Metaflow/issues/185",
         "releaseTag": "viewer-v5.25.0"
+      }
+    },
+    {
+      "displayVersion": "5.25.1",
+      "appSemver": "5.25.1",
+      "type": "fix",
+      "scope": "viewer",
+      "date": "2026-11-23",
+      "gitRef": "520ecfca96728ff520d420c198fb7084c55599b3",
+      "summary": "Match the Nanhai map menu dots to the resize grip stroke and center them in a uniform wider frame.",
+      "resourceChanges": [
+        {
+          "action": "update",
+          "routes": [
+            "/shenzhen/nanhai-e-cool-building-3"
+          ]
+        }
+      ],
+      "trace": {
+        "changeId": "MF-187",
+        "pullRequest": "https://github.com/Shuang-su/Metaflow/pull/192",
+        "spec": "docs/changes/187-nanhai-map/spec.md",
+        "plan": "docs/changes/187-nanhai-map/plan.md",
+        "evidence": "https://github.com/Shuang-su/Metaflow/issues/187",
+        "releaseTag": "viewer-v5.25.1"
       }
     }
   ],
