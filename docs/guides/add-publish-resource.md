@@ -35,16 +35,11 @@
 
 同一路径覆盖大型 immutable 文件前必须评估缓存；优先采用新文件名或内容地址，避免客户端继续命中旧内容。
 
-## 4. 处理 Git 与 LFS
+## 4. 发布文件与数据锁
 
-先检查文件大小和 `.gitattributes`。当前规则是混合策略：多数 LFS 资产按精确路径列出，但 `data/Shenzhen/250917 Dayun/**` 是目录级规则。Dayun 目录下即使新增较小的 settings、thumbnail、SOG、PLY 或 voxel，也会命中 LFS；不能用“文件较小”推断它会进入普通 Git。
+在独立的素材目录准备完整资源，按版本保留母版引用、导出命令和校验值。由 Manage 登记不可变部署的路径、实际字节数及摘要，复制审核后的压缩清单和对应锁到主仓 `metadata/data-releases/`，并将选中锁复制为 `active.lock.json`。同步同版 `data/index.json`。发布脚本严格按锁重组线上资源，仓内小型元数据用于维护和测试。
 
-```bash
-git check-attr filter -- "data/<资源路径>/<文件>"
-git lfs ls-files
-```
-
-若目标被标记为 LFS，确认提交的是 pointer，且托管端已有对象。目录级例外是否合理应在独立存储/部署变更中调整；不要在一次资源上传中顺手扩大或缩小 LFS glob，这会改变部署和历史可用性。
+历史版本可从对应锁完整恢复。发布前用空目录运行 `python3 scripts/materialize-data.py --all --lock <lock> --output <directory>`。本地挂载的归档可通过 `--source` 复用。确认内容后再提升发布版本。
 
 ## 5. 生成并审查 index
 

@@ -2,6 +2,8 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readdir, readFile, stat } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
+import { gunzipSync } from 'node:zlib';
+import { createHash } from 'node:crypto';
 
 const dataRoot = fileURLToPath(new URL('../../data/', import.meta.url));
 const readJson = async (path) => JSON.parse(await readFile(path, 'utf8'));
@@ -147,6 +149,12 @@ test('BitCity and SZCAF resources keep their explicit public naming and three-fi
         device: 'PQWJ'
     });
 
+    const lockBase = new URL('../../metadata/data-releases/', import.meta.url);
+    const lock = await readJson(new URL('active.lock.json', lockBase));
+    const packed = await readFile(new URL(lock.manifest, lockBase));
+    assert.equal(createHash('sha256').update(packed).digest('hex'), lock.sha256);
+    const lockedFiles = Object.keys(JSON.parse(gunzipSync(packed).toString()).files);
+
     for (const expected of EVENT_RESOURCES) {
         const route = `/acg/${expected.subcategory}/${expected.id}`;
         const resource = routeMap.get(route);
@@ -176,13 +184,19 @@ test('BitCity and SZCAF resources keep their explicit public naming and three-fi
         assert.equal(resource.files.environment, null);
 
         const directory = `${dataRoot}${relativeDirectory}`;
-        const packageFiles = (await readdir(directory)).toSorted();
+        const prefix = relativeDirectory + '/';
+        const packageFiles = lockedFiles.filter((path) => path.startsWith(prefix))
+            .map((path) => path.slice(prefix.length)).toSorted();
         assert.deepEqual(packageFiles, [
             `${expected.folder}.jpg`,
             `${expected.folder}.sog`,
             'settings-v2.json'
         ].toSorted(), `${route} must contain only the public three-file package`);
-        for (const relativePath of [resource.files.model, resource.files.thumbnail, resource.files.settings]) {
+        if (process.env.METAFLOW_FULL_DATA === '1') {
+            assert.deepEqual((await readdir(directory)).toSorted(), packageFiles);
+        }
+        for (const relativePath of (process.env.METAFLOW_FULL_DATA === '1'
+            ? [resource.files.model, resource.files.thumbnail, resource.files.settings] : [resource.files.settings])) {
             assert.ok((await stat(`${dataRoot}${relativePath}`)).isFile(), `missing ${relativePath}`);
         }
 

@@ -202,7 +202,10 @@ test('viewer console output is wired to the version history display version', as
     const [index]=await sources('index.ts');assert.match(index,/versionHistory\.current\.displayVersion/);assert.match(index,/appVersion/);assert.match(index,/engineVersion/);assert.match(index,/SuperSplat v1\.37\.0/);
 });
 
-test('change ledger preserves every version with Git or bounded production-history provenance', async () => {
+// Full release validation walks Git tags and previous release commits.
+const releaseHistorySkip = process.env.METAFLOW_DEV_TEST === '1' && 'requires the release Git history';
+
+test('change ledger preserves every version with Git or bounded production-history provenance', { skip: releaseHistorySkip }, async () => {
     const manifest = await readJson(new URL('../../metadata/version-history.json', import.meta.url));
     const ledger = await readFile(new URL('../../docs/metaflow-viewer-change-ledger.md', import.meta.url), 'utf8');
     const productionRecovery = await validateProductionHistoryRecovery(repoRoot, manifest);
@@ -252,7 +255,7 @@ test('change ledger preserves every version with Git or bounded production-histo
     }
 });
 
-test('commits after the legacy cutoff require records only for affected product components', async () => {
+test('commits after the legacy cutoff require records only for affected product components', { skip: releaseHistorySkip }, async () => {
     const manifest = await readJson(new URL('../../metadata/version-history.json', import.meta.url));
     const editorManifest = await readJson(new URL('../../metadata/editor-version-history.json', import.meta.url));
     const componentRegistry = await loadComponentRegistry(repoRoot);

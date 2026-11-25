@@ -2,62 +2,21 @@
 
 本页让你在本地启动当前 Metaflow Viewer，并通过资源路由打开一个场景。
 
-## 前置条件
+## 默认开发入口
 
-- Node.js `20.19.0`；仓库根 `.nvmrc` 是统一基线。
-- npm 可用。
-- 若要加载完整资源，Git LFS 对象应已拉取；只做界面或小 fixture 开发时不必下载全部大文件。
+按主 README 的 partial clone 和 sparse checkout 获取开发文件。在 `metaflow-viewer` 运行 `npm ci`、`npm run build`、`npm start`。依赖安装完成后可离线访问 `http://localhost:3000/e2e-fixture?noanalytics`，转动模型、打开设置或切换相机。需要持续构建时运行 `npm run develop`。
 
-## 安装与准备
+## 按路由取数据
 
-```bash
-cd metaflow-viewer
-npm ci
-mkdir -p public
-# 仅在 public/data 尚不存在时执行
-ln -s ../../data public/data
-```
-
-`public/` 是忽略的构建目录；本地链接让静态服务器读取仓库根的 `data/`。如果 `public/data` 已由其他流程生成或链接，不要覆盖它。Netlify 发布不依赖此链接，而是把数据同步为 publish 副本。
-
-## 用 SPA fallback 启动
-
-稳定 route（例如 `/acg/yzx/yzx`）必须让静态服务器把未知路径回退到 `index.html`。当前 package 的 `npm run develop` 使用 `serve public`，没有 `-s`，只适合根路径或直接 query，不能单独验证深层 route。
-
-开发时使用两个终端：
+从仓库根运行以下命令，再通过本地 Viewer 访问 `/sztu/fes/top10-26`。按锁文件恢复整个资源目录（含分块、环境、碰撞和设置），也支持 canonical route 的别名。同版可以继续添加其他场景。
 
 ```bash
-# 终端 1：持续构建
-cd metaflow-viewer
-npm run watch
-
-# 终端 2：提供 SPA fallback；--no-install 避免临时下载新工具
-cd metaflow-viewer
-npx --no-install serve -s public -l 3000
+python3 scripts/materialize-data.py --route /top10-26 --output metaflow-viewer/public/data
 ```
 
-默认访问：
+`metadata/data-releases/active.lock.json` 对应本代码分支。要检查其他已发布数据版本，指定 `--lock metadata/data-releases/5.25.1.lock.json` 和独立的输出目录。已有本地数据根目录时使用 `--source /path/to/data`，加 `--offline` 可要求每个文件都由本地验证。完整构建使用 `--all`，要求干净目标并按清单逐文件核对摘要。正式发布使用对应版本的 Viewer 及其宿主页面。
 
-```text
-http://localhost:3000
-```
-
-只验证 production build 时：
-
-```bash
-npm run build
-npx --no-install serve -s public -l 3000
-```
-
-`npm run serve` / `npm start` 仍可用于根路径和显式 `?content=...` 调试，但没有 SPA fallback。
-
-## 打开资源
-
-优先使用 `data/index.json` 中的稳定 route，例如：
-
-```text
-http://localhost:3000/acg/yzx/yzx
-```
+默认开发测试使用 `npm run test:dev`。完整的 `npm test` 额外检查 Git 发布历史。检验已完整恢复到仓库根 data 的实物时，可使用 `METAFLOW_FULL_DATA=1 npm test`。
 
 也可以绕过 index，显式传入模型与 settings：
 

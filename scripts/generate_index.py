@@ -3,6 +3,7 @@
 自动扫描 data 目录，生成 index.json 资源索引
 """
 
+import sys
 import json
 import re
 from datetime import datetime
@@ -1088,6 +1089,11 @@ def scan_data_directory():
     return resources
 
 def main():
+    if OUTPUT_FILE.exists() and (DATA_DIR.parent / "metadata/data-releases/active.lock.json").is_file():
+        prior = json.loads(OUTPUT_FILE.read_text(encoding="utf-8"))
+        missing = [r["route"] for r in prior["resources"] if not (DATA_DIR / r["files"]["model"]).is_file()]
+        if missing and "--allow-removed-routes" not in sys.argv:
+            raise SystemExit(f"Missing model inputs for {len(missing)} routes. Materialize the full release before generating an index. Use --allow-removed-routes only for an intentional retirement.")
     print("🔍 扫描 data 目录...")
     version_history = load_version_history()
     resources = scan_data_directory()

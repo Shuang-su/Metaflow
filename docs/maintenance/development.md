@@ -33,7 +33,7 @@ npm ci
 npm run watch
 ```
 
-另一个终端运行 `npx --no-install serve -s public -l 3000`，才能验证深层 route 的 SPA fallback。当前 `npm run develop` 内部服务器没有 `-s`，只用于根路径或直接 query；完整准备见 [Viewer 快速开始](../getting-started/viewer.md)。
+也可以用 `npm run develop` 同时启动构建和支持深层 route 的开发服务器。默认交互样例及轻量检出见 [Viewer 快速开始](../getting-started/viewer.md)。
 
 定向验证：
 
