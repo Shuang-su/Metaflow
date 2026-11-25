@@ -90,47 +90,19 @@ Viewer 源码在 `metaflow-viewer/`；Editor 源码在 `supersplat-v2.28.0/`，`
 
 ### 本地运行 Viewer
 
-在仓库根目录开始，使用 [`.nvmrc`](.nvmrc) 指定的 Node.js `20.19.0` 和 npm。运行实际资源前需准备对应 Git LFS 对象；模型下载前检查磁盘空间，只做界面开发无需拉取全部资源。
+从公共主仓轻量检出，在 Node.js 环境中启动可交互的离线样例。Python 3.9+ 用于按需恢复发布资源。
 
 ```bash
+git clone --filter=blob:none --sparse https://github.com/Shuang-su/Metaflow.git
+cd Metaflow
+git show HEAD:scripts/viewer-sparse-checkout.txt | git sparse-checkout set --no-cone --stdin
 cd metaflow-viewer
 npm ci
-mkdir -p public
-# 仅在没有文件、目录或符号链接时创建，保留已有 public/data
-if [ ! -e public/data ] && [ ! -L public/data ]; then
-  ln -s ../../data public/data
-fi
 npm run build
-npx --no-install serve -s public -l 3000
+npm start
 ```
 
-然后打开 [本地示例](http://localhost:3000/acg/yzx/yzx)。`-s` 提供深层资源路径所需的 SPA fallback；若已有 `public/data`，请确认它指向所需数据，失效链接需单独处理。完整准备和持续构建见 [Viewer 快速开始](docs/getting-started/viewer.md)。Editor 与 Director 分别按 [Editor 指南](docs/getting-started/editor.md) 和 [Director 构建说明](metaflow-director/README.md) 运行。
-
-### 原有 Viewer 启动步骤
-
-上方为最小启动路径，下面为原有展开步骤，选择一套执行即可。
-
-以下保留原有展开步骤；已有 `public/data` 时应跳过其中的 `ln -s`，或使用上方带存在性检查的命令。
-
-```bash
-# 进入 Viewer 包
-cd metaflow-viewer
-
-# 安装依赖
-npm ci
-
-# 首次需要读取仓库 data/ 时建立本地链接（public/data 不存在时执行）
-mkdir -p public
-ln -s ../../data public/data
-
-# 构建项目
-npm run build
-
-# 用 SPA fallback 启动服务器，稳定 route 才不会直接 404
-npx --no-install serve -s public -l 3000
-```
-
-服务器将在 http://localhost:3000 启动。
+浏览器打开 `http://localhost:3000/e2e-fixture?noanalytics`。调试具体模型时按正式 route 或别名获取整套资源。详见 [Viewer 快速开始](docs/getting-started/viewer.md)。
 
 ### ACG Director 实验入口
 
@@ -138,7 +110,7 @@ npx --no-install serve -s public -l 3000
 
 在符合条件的 ACG 单文件 SOG／PLY 资源主路由或别名后追加 `/director`，例如 `/acg/szcaf15/honkai_star_rail-tribbie/director`。页面按索引加载主模型与已声明环境；不支持流式资源，也不接受任意远程模型地址。需要 WebGPU 和浮点渲染能力。Viewer 同标签页的有效机位优先，直接打开则读取资源 JSON 初始机位。
 
-完整站点构建和预览（先物化已登记的 Git LFS 资源）：
+完整站点构建和预览使用当前分支的数据锁。若已有发布数据目录，可用 `METAFLOW_DATA_SOURCE` 指向它以复用本地文件。
 
 ```bash
 npm --prefix metaflow-viewer ci

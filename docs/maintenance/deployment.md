@@ -9,7 +9,7 @@
 ```mermaid
 flowchart LR
     VS["metaflow-viewer/ 源码"] -->|npm run build| VP["metaflow-viewer/public/"]
-    D["data/"] -->|rsync| PD["public/data/"]
+    D["active.lock.json + 版本化对象"] -->|校验与组装| PD["public/data/"]
     ES["supersplat-v2.28.0/ 源码"] -->|npm run build| ED["supersplat-v2.28.0/dist/"]
     ED -->|显式 release staging| EM["metaflow-editor/ tracked 镜像"]
     EM -->|Netlify rsync| PE["public/editor/"]
@@ -28,7 +28,7 @@ flowchart LR
 2. 在 Viewer package 执行 `npm ci`；
 3. 运行 `scripts/generate_index.py`；
 4. 构建 Viewer 到 `public/`；
-5. 把仓库 `data/` 同步到 `public/data/`；
+5. 从 `metadata/data-releases/active.lock.json` 还原全部文件到独立暂存目录，核验索引与引用后装入 `public/data/`；
 6. 把 tracked `metaflow-editor/` 同步到 `public/editor/`。
 
 因此 Viewer/data 发布前要检查生成 diff；Editor 发布前要先完成下一节的 tracked mirror staging。

@@ -300,7 +300,7 @@ test('Dayun tiled voxel source is pinned and full manifest paths validate when a
     const rawManifest = await readFile(manifestUrl);
     const expectedSha256 = '4654f0904fd641c92f8d62fd6d90e65bd339d5421083180d267dfd8f12133ef4';
     const expectedSize = 157118;
-    const checkLargeFiles = process.env.MCL_SMALL_FIXTURES !== '1';
+    const checkLargeFiles = process.env.METAFLOW_FULL_DATA === '1' && process.env.MCL_SMALL_FIXTURES !== '1';
 
     if (rawManifest.toString('utf8').startsWith('version https://git-lfs.github.com/spec/v1\n')) {
         assert.equal(checkLargeFiles, false, 'full-data validation requires the resolved LFS object');

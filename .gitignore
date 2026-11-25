@@ -53,3 +53,13 @@ npm-debug.log*
 # Python bytecode caches
 __pycache__/
 *.py[cod]
+
+# Locally materialized release payloads
+data/**/*.sog
+data/**/*.ply
+data/**/*.bin
+data/**/*.webp
+data/**/*.jpg
+data/**/*.png
+data/**/*.glb
+data/Shenzhen/250917 Dayun/**

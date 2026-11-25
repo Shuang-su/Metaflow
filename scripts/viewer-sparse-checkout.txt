@@ -1,0 +1,27 @@
+/*
+!/*/
+/metaflow-viewer/
+!/metaflow-viewer/experiments/
+/.github/workflows/release.yml
+/analytics/
+/supabase/
+/metaflow-director/src/
+/metaflow-director/index.html
+/metadata/
+/scripts/
+/data/*.json
+/data/production-history-recovery/
+/data/ACG/**/*.json
+/data/Shenzhen/250917 Dayun/settings-rx90-close.json
+/data/Shenzhen/250917 Dayun/tiled-voxel/voxel-tiles.json
+/docs/metaflow-viewer-change-ledger.md
+/docs/metaflow-editor-change-ledger.md
+/docs/getting-started/viewer.md
+/metaflow-editor/version.json
+/metaflow-editor/index.html
+/metaflow-editor/index.js
+/metaflow-editor/sw.js
+/references/supersplat-v2.18.1/src/ui/timeline-panel.ts
+/supersplat-v2.28.0/src/metaflow-editor-version.ts
+/supersplat-v2.28.0/src/ui/timeline-panel.ts
+/supersplat-v2.28.0/src/splat-serialize.ts
