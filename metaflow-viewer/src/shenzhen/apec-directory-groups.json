@@ -1,0 +1,26 @@
+{
+    "A": {
+        "zh": "综合服务区",
+        "en": "Media Service Area"
+    },
+    "B": {
+        "zh": "媒体工作区",
+        "en": "Media Work Area"
+    },
+    "C": {
+        "zh": "技术支持区",
+        "en": "Television and Broadcast Services Area"
+    },
+    "D": {
+        "zh": "新闻发布厅",
+        "en": "Press Conference Hall"
+    },
+    "E": {
+        "zh": "记者之家服务区",
+        "en": "Journalist Service Area"
+    },
+    "F": {
+        "zh": "休憩区",
+        "en": "Leisure Area"
+    }
+}

@@ -75,10 +75,11 @@ test('5.19.0 clears inferred controls once and only persists subsequent state ch
         index,
         /getItem\(preferenceMigrationKey\) !== preferenceMigrationVersion[\s\S]*removeItem\('performanceMode'\)[\s\S]*removeItem\('gamingControls'\)[\s\S]*removeItem\('retinaDisplay'\)[\s\S]*setItem\(preferenceMigrationKey, preferenceMigrationVersion\)/
     );
-    assert.match(index, /performanceMode: performanceMode === null \? mobile : performanceMode === 'true'/);
+    assert.match(index, /QUALITY_LEVELS\.includes\(stored\) \? stored : legacy/);
+    assert.match(index, /performanceMode: quality === 'performance'/);
     assert.match(index, /gamingControls: localStorage\.getItem\('gamingControls'\) === 'true'/);
-    assert.match(ui, /\['performanceMode', 'gamingControls', 'showAnnotations'\]/);
-    assert.match(ui, /events\.on\(`\$\{key\}:changed`[\s\S]*localStorage\.setItem\(key, String\(value\)\)/);
+    assert.match(ui, /\['quality', 'performanceMode', 'gamingControls', 'showAnnotations'\]/);
+    assert.match(ui, /events\.on\(\s*key === 'performanceMode' \? 'legacyPerformancePreference' : `\$\{key\}:changed`[\s\S]*localStorage\.setItem\(key, String\(value\)\)/);
 
     const performanceUi = ui.slice(ui.indexOf('const updatePerformanceMode'), ui.indexOf('// Gaming mode toggle'));
     const gamingUi = ui.slice(ui.indexOf('const updateGamingControls'), ui.indexOf('// Annotation visibility toggle'));
@@ -175,7 +176,7 @@ test('model and environment prefetches retry only transient failures and expose 
     assert.match(index, /app\.autoRender = false;[\s\S]*app\.renderNextFrame = false;/);
     assert.match(ui, /loadingStatus\.textContent = state\.loadingStatus/);
     assert.match(ui, /loadingBar\.classList\.toggle\('sse-failed', state\.loadingStage === 'error'\)/);
-    assert.match(viewer, /Promise\.all\(\[gsplatLoad, skyboxLoad\]\)/);
+    assert.match(viewer, /Promise\.all\(\[gsplatLoad, skyboxLoad, config\.initialViewPreload \? environmentLoad : null\]\)/);
     assert.match(viewer, /ignoreLoadFailure = \(error: unknown\)[\s\S]*this\.failReady/);
 });
 

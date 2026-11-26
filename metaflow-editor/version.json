@@ -1,48 +1,46 @@
 {
   "productName": "Metaflow Editor",
-  "displayVersion": "1.1",
-  "appSemver": "1.1.0",
-  "date": "2026-06-27",
-  "gitRef": "aa4c35f",
+  "displayVersion": "1.4.0",
+  "appSemver": "1.4.0",
+  "date": "2026-11-27",
+  "gitRef": "3fa19fdb314f5b726403b0912228842f433c00b2",
   "historyUrl": "/data/editor-version-history.json",
-  "sourcePath": "supersplat-v2.28.0",
+  "runtimeUrl": "/editor/version.json",
+  "sourcePath": "supersplat-v3.5.2",
+  "edition": "default",
+  "development": false,
+  "buildType": "release",
+  "buildId": "bbeed22b053e925f0e248407dca25749175f714b326e01d2950d32533005ed51",
   "upstream": {
     "name": "SuperSplat Editor",
-    "version": "2.28.0",
-    "tag": "v2.28.0",
-    "gitRef": "9f4dfe1",
-    "releaseUrl": "https://github.com/playcanvas/supersplat/releases/tag/v2.28.0"
+    "version": "3.9.2",
+    "tag": "v3.9.2",
+    "gitRef": "7912e1d78b7a98cff26f7c8c2820a784b537819e",
+    "releaseUrl": "https://github.com/playcanvas/supersplat/releases/tag/v3.9.2"
   },
   "dependencies": {
-    "@playcanvas/splat-transform": "2.5.1",
+    "@playcanvas/splat-transform": "3.12.0",
     "@playcanvas/supersplat-viewer": "1.26.3",
-    "@playcanvas/pcui": "6.1.4",
-    "playcanvas": "2.19.2"
+    "@playcanvas/pcui": "6.2.0",
+    "playcanvas": "2.24.2",
+    "mediabunny": "1.65.2"
   },
   "latestChange": {
-    "type": "upstream-sync",
+    "type": "feature",
     "scope": "editor",
-    "summary": "Sync Metaflow Editor to SuperSplat Editor v2.28.0 and preserve Metaflow export, timeline, branding, and version surfaces",
+    "summary": "Stage verified SOG v3 and v2 exports and offline Viewer runtime",
     "changes": [
       {
-        "area": "source",
-        "summary": "Version the active editor source as supersplat-v2.28.0 using the same original-repository plus version naming convention as the viewer baselines."
+        "area": "default",
+        "summary": "SuperSplat 3.9.2 with PlayCanvas 2.24.2 and SplatTransform 3.12.0."
       },
       {
-        "area": "versioning",
-        "summary": "Expose Metaflow Editor 1.1 through source constants, console/About labels, runtime version JSON, structured history, and service worker cache naming."
+        "area": "compatibility",
+        "summary": "Retain the locked SuperSplat 2.32.5 edition and explicit legacy SOG v2 exports."
       },
       {
-        "area": "timeline",
-        "summary": "Keep the Metaflow timeline frame cap at 100000 in src/ui/timeline-panel.ts."
-      },
-      {
-        "area": "export",
-        "summary": "Preserve upstream SOG HTML package export and add Metaflow legacy ZIP plus direct settings.json export."
-      },
-      {
-        "area": "large-project-load",
-        "summary": "Retain upstream BlobReadSource, BufferedReadStream 4MB buffering, and streaming zip project load behavior from v2.28.0."
+        "area": "appearance",
+        "summary": "Keep the gradient picker visible immediately while a viewport resize is applied."
       }
     ]
   },

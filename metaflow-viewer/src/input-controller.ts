@@ -147,6 +147,7 @@ class InputController {
         const ctx: UpdateContext = {
             dt,
             distance,
+            unitsPerMeter: this._global.config.worldUnitsPerMeter,
             cameraComponent,
             mode: state.cameraMode,
             isOrbit,

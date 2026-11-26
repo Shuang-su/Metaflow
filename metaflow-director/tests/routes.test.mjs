@@ -16,7 +16,7 @@ const api = await import(
 );
 const index = JSON.parse(await readFile("../data/index.json"));
 const eligible = index.resources.filter(
-  (r) => r.category.includes("acg") && /\.(sog|ply)$/i.test(r.files.model),
+  (r) => r.category.includes("acg") && /\.(sog|ply)$/i.test(api.directorModelFile(r) ?? ''),
 );
 const storage = () => {
   const store = new Map();
@@ -118,4 +118,18 @@ test("Viewer bootstrap never imports the engine on the Director branch", async (
     html,
     /if \(window\.metaflowDirectorPath\)[\s\S]*await \(async function loadDirectorEntry\([\s\S]*\}\)\(\);\s*\} else \{\s*const \{ createViewer \} = await \(async function loadViewerEntry\(/,
   );
+});
+
+test("a compatibility model drives media selection and camera identity for streamed or v3 resources", () => {
+  const original = eligible[0];
+  const compatibilityModel = api.directorModelFile(original);
+  const migrated = {
+    ...original,
+    files: { ...original.files, model: "scene/lod-meta.json", compatibilityModel },
+  };
+  const resolved = api.resolveDirectorResource([migrated], migrated.route + "/director");
+  assert.equal(api.directorModelFile(resolved), compatibilityModel);
+  assert.equal(api.handoffIdentity(resolved), api.handoffIdentity(original));
+  const unsafe = { ...migrated, files: { ...migrated.files, compatibilityModel: "../unsafe.sog" } };
+  assert.throws(() => api.resolveDirectorResource([unsafe], migrated.route + "/director"));
 });

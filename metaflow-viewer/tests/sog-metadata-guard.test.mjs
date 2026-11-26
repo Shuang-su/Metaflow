@@ -40,3 +40,16 @@ test('embedded legacy metadata is supported and a removed asset cannot start tex
     f.destroy(); f.wrapper.load('meta.json', (error, result) => { assert.equal(error, null); assert.equal(result, null); }, f.asset);
     assert.equal(f.loads, 1);
 });
+
+test('v3 delegates with a rotation texture and early v3 reports the compatible toolchain', () => {
+    const modern = fixture({ ...metadata(), version: 3 });
+    modern.wrapper.load('meta.json', (err, result) => {
+        assert.equal(err, null);
+        assert.equal(result, 'resource');
+    }, modern.asset);
+    assert.equal(modern.loads, 1);
+
+    const early = fixture({ ...metadata(), version: 3, quats: undefined });
+    early.wrapper.load('meta.json', (err) => assert.match(err, /missing rotation texture.*2\.24\.0.*3\.11\.2/), early.asset);
+    assert.equal(early.loads, 0);
+});

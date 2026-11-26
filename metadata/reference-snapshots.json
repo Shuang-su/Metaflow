@@ -206,6 +206,38 @@
       "identityVerification": "exact-upstream-tree",
       "license": "MIT",
       "mutable": false
+    },
+    {
+      "id": "supersplat-v3.5.2",
+      "path": "references/supersplat-v3.5.2",
+      "kind": "upstream",
+      "repository": "https://github.com/playcanvas/supersplat",
+      "tag": "v3.5.2",
+      "tagObject": "f2a1b4975b4766e0ee0c95e63c2737dc2ecb6e5b",
+      "commit": "f2a1b4975b4766e0ee0c95e63c2737dc2ecb6e5b",
+      "tree": "a68cca67d492861b047c78dc086bc5f4a9e1db50",
+      "trackedFileCount": 270,
+      "canonicalContentSha256": "22316c8ec1d9fcd8aa9c7ce13c1aa630b5a876d4a37c0b62dca15b768cccc9f5",
+      "canonicalFormat": "lexicographically sorted complete <mode> <git-blob-sha1>\\t<relative-path>\\n lines",
+      "identityVerification": "exact-upstream-tree",
+      "license": "MIT",
+      "mutable": false
+    },
+    {
+      "id": "supersplat-v2.32.5",
+      "path": "references/supersplat-v2.32.5",
+      "kind": "upstream",
+      "repository": "https://github.com/playcanvas/supersplat",
+      "tag": "v2.32.5",
+      "tagObject": "c5939d5446d2a2c860c04f72695ac7a122529d63",
+      "commit": "e060989b202548848eb440a5005cd41a8b26f7db",
+      "tree": "6c2a0ee3ce7de0dbc55840096abe6204d297e878",
+      "trackedFileCount": 256,
+      "canonicalContentSha256": "a1ee41a997c1b124efe37aa19a2ad27f2cf75eb42e93e17c7d6633d76bc0f2e1",
+      "canonicalFormat": "lexicographically sorted complete <mode> <git-blob-sha1>\\t<relative-path>\\n lines",
+      "identityVerification": "exact-upstream-tree",
+      "license": "MIT",
+      "mutable": false
     }
   ]
 }

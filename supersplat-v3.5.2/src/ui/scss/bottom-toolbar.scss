@@ -1,0 +1,19 @@
+@use 'colors.scss' as *;
+@use 'layout.scss' as *;
+
+// the shell only; its controls are toolbar.scss's
+#bottom-toolbar {
+    position: absolute;
+    left: 50%;
+    bottom: $edge;
+    height: $bottom-toolbar-height;
+    transform: translate(-50%, 0);
+    padding: 0px 8px;
+    border-radius: $toolbar-radius;
+
+    background-color: $bcg-dark;
+
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}

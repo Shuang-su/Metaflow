@@ -1,6 +1,6 @@
 [build]
   base = "metaflow-viewer"
-  command = "node ../scripts/mcl.mjs check-all && python3 ../scripts/validate_platform.py && npm ci && npm run build && npm --prefix ../metaflow-director ci && npm --prefix ../metaflow-director run build && node ../scripts/stage-director-site.mjs"
+  command = "node ../scripts/mcl.mjs check-all && python3 ../scripts/validate_platform.py && npm ci && npm run build && npm --prefix ../metaflow-director ci && npm --prefix ../metaflow-director run build && node ../scripts/stage-director-site.mjs --runtime-only && python3 ../scripts/materialize-data.py --all --output public/data"
   ignore = "test \"$BRANCH\" = \"main\""
   publish = "public"
 
@@ -15,6 +15,54 @@
   status = 302
   force = true
   conditions = {Host = ["xn--fes68bkzcz5lkjgrkl.com", "www.xn--fes68bkzcz5lkjgrkl.com"]}
+
+# MF-185 Shenzhen SP routes
+[[redirects]]
+  from = "/shenzhen/szu"
+  to = "/shenzhen/shenzhen-university-yuehai-campus/"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/shenzhen/shenzhendaxue"
+  to = "/shenzhen/shenzhen-university-yuehai-campus/"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/shenzhen/shenzhendaxueyuehai"
+  to = "/shenzhen/shenzhen-university-yuehai-campus/"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/shenzhen/qianhaibingxueshijie"
+  to = "/shenzhen/huafa-ice-and-snow-world/"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/shenzhen/huafabingxueshijie"
+  to = "/shenzhen/huafa-ice-and-snow-world/"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/shenzhen/nanhaiyiku"
+  to = "/shenzhen/nanhai-e-cool-building-3/"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/shenzhen/shiminzhongxin"
+  to = "/shenzhen/shenzhen-civic-center/"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/shenzhen/data/*"
+  to = "/data/Shenzhen/sp-20261102/:splat"
+  status = 200
 
 # Handle SPA routing - redirect all routes to index.html
 [[redirects]]
@@ -31,6 +79,11 @@
 [[redirects]]
   from = "/director/*"
   to = "/director/:splat"
+  status = 200
+
+[[redirects]]
+  from = "/editor-legacy/*"
+  to = "/editor-legacy/:splat"
   status = 200
 
 [[redirects]]
@@ -90,7 +143,7 @@
 [[headers]]
   for = "/editor/static/*"
   [headers.values]
-    Cache-Control = "public, max-age=31536000, immutable"
+    Cache-Control = "public, max-age=0, must-revalidate"
 
 [[headers]]
   for = "/data/*"
@@ -118,3 +171,19 @@
   [headers.values]
     Cache-Control = "public, max-age=31536000, immutable"
     Content-Type = "application/octet-stream"
+
+# Editor entrypoints must revalidate across versions and SW retirement.
+[[headers]]
+  for = "/editor/*"
+  [headers.values]
+    Cache-Control = "public, max-age=0, must-revalidate"
+
+[[headers]]
+  for = "/editor-legacy/*"
+  [headers.values]
+    Cache-Control = "public, max-age=0, must-revalidate"
+
+[[headers]]
+  for = "/data/editor-version-history.json"
+  [headers.values]
+    Cache-Control = "public, max-age=0, must-revalidate"

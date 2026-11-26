@@ -138,8 +138,6 @@ class DebugPanel {
 
     private _taaButton: HTMLButtonElement | null = null;
 
-    private _poplessButton: HTMLButtonElement | null = null;
-
     private _culledValue: HTMLSpanElement | null = null;
 
     private _cullStatsFrames = 0;
@@ -299,7 +297,6 @@ class DebugPanel {
             <div class="sse-debug-buttons">
                 <button data-id="depth-cull" title="Stochastic renderer: cull splats hidden in the previous frame's depth (auto suspends the test when it removes too little)">Depth cull</button>
                 <button data-id="taa" title="Stochastic renderer: accumulate the samples over frames (reprojected while the camera moves)">TAA</button>
-                <button data-id="popless" title="Stochastic renderer: give each fragment the depth of the Gaussian's peak along its ray, rather than the splat centre's">Popless</button>
             </div>
             <div class="sse-debug-row"><span class="sse-debug-label">culled</span><span class="sse-debug-value" data-id="culled">—</span></div>`
                     : ''
@@ -336,13 +333,6 @@ class DebugPanel {
         if (this._splatRenderer) {
             this._cullButton = root.querySelector('[data-id="depth-cull"]')!;
             this._taaButton = root.querySelector('[data-id="taa"]')!;
-            this._poplessButton = root.querySelector('[data-id="popless"]')!;
-            this._poplessButton.addEventListener('click', () => {
-                const renderer = this._splatRenderer!;
-                renderer.variant.popless = renderer.variant.popless === 'on' ? 'off' : 'on';
-                renderer.applyVariant();
-                this._renderCull();
-            });
             this._culledValue = root.querySelector('[data-id="culled"]')!;
             this._taaButton.addEventListener('click', () => {
                 const renderer = this._splatRenderer!;
@@ -468,10 +458,6 @@ class DebugPanel {
         if (this._taaButton) {
             this._taaButton.textContent = `TAA: ${renderer.variant.taa}`;
             this._taaButton.classList.toggle('sse-debug-on', renderer.variant.taa === 'on');
-        }
-        if (this._poplessButton) {
-            this._poplessButton.textContent = `Popless: ${renderer.variant.popless}`;
-            this._poplessButton.classList.toggle('sse-debug-on', renderer.variant.popless === 'on');
         }
         if (mode === 'off') {
             this._culledValue.textContent = 'off';

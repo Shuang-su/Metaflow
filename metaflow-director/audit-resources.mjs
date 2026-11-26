@@ -21,7 +21,7 @@ const response = await fetch(origin + "/data/index.json");
 if (!response.ok) throw Error("Index unavailable");
 const index = await response.json();
 const eligible = index.resources.filter(
-  (r) => r.category.includes("acg") && /\.(sog|ply)$/i.test(r.files.model),
+  (r) => r.category.includes("acg") && /\.(sog|ply)$/i.test(api.directorModelFile(r) ?? ''),
 );
 const files = new Map();
 const rows = [];
@@ -32,10 +32,11 @@ for (const r of eligible) {
         api.resolveDirectorResource(index.resources, route + suffix).id !== r.id
       )
         throw Error(route);
-  for (const [role, ref] of Object.entries(r.files).filter(
-    ([k, v]) =>
-      ["model", "environment", "settings"].includes(k) && typeof v === "string",
-  ))
+  for (const [role, ref] of Object.entries({
+    model: api.directorModelFile(r),
+    environment: r.files.environment,
+    settings: r.files.settings,
+  }).filter(([, ref]) => typeof ref === "string"))
     files.set(ref, { ref, role });
   const settings = JSON.parse(
     await readFile(path.join(dataRoot, r.files.settings), "utf8"),

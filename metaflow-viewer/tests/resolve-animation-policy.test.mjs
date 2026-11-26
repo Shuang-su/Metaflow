@@ -147,3 +147,18 @@ test('replayed walk animation falls back to fly when walk is no longer ready', (
         consumeFirstExit: false
     });
 });
+
+test('an authored walking scene can open on its spawn without generating a camera tour', () => {
+    const options = {
+        hasExplicitAnimTrack: false,
+        startMode: 'default',
+        isObjectExperience: false,
+        hasExplicitStartPose: true,
+        preferredCameraMode: 'walk',
+        syntheticAnimation: 'none'
+    };
+    assert.deepEqual(resolveAnimationPolicy({ ...options, hasCollider: true }), {
+        trackKind: 'none', hasAnimation: false, initialCameraMode: 'walk'
+    });
+    assert.equal(resolveAnimationPolicy({ ...options, hasCollider: false }).initialCameraMode, 'fly');
+});

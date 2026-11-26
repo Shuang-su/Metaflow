@@ -15,6 +15,9 @@ import { damp } from '../core/math';
 
 const FIXED_DT = 1 / 60;
 const MAX_SUBSTEPS = 10;
+// For scenes with an authored walk entry, an aerial camera should use that
+// entry instead of snapping to an arbitrary roof hundreds of metres below.
+const LOCAL_WALK_ENTRY_DROP_METRES = 5;
 
 /** Pre-allocated push-out vector for capsule collision */
 const out: PushOut = { x: 0, y: 0, z: 0 };
@@ -42,6 +45,9 @@ class WalkController implements CameraController {
      * Field of view in degrees for walk mode.
      */
     fov = 90;
+
+    /** Most recent measured support under the capsule in world coordinates. */
+    supportHeight: number | null = null;
 
     /**
      * Total capsule height in meters (default: human proportion)
@@ -128,6 +134,8 @@ class WalkController implements CameraController {
     private _spawn = new SpawnState();
 
     private _spawnGrounded = false;
+    recoverDrops = false;
+    private _supportedEye = new Vec3();
 
     private _velocity = new Vec3();
 
@@ -169,6 +177,26 @@ class WalkController implements CameraController {
      * region, so the capsule keeps the synthetic floor and `_step` engages it once it fits.
      * Collision normally lands this way, after walk mode may already be active.
      */
+    constructor(
+        private readonly unitsPerMeter = 1,
+        private readonly entryFallbackPosition?: [number, number, number]
+    ) {
+        if (!Number.isFinite(unitsPerMeter) || unitsPerMeter <= 0) throw new Error('Invalid world units per metre');
+        for (const field of [
+            'capsuleHeight',
+            'capsuleRadius',
+            'eyeHeight',
+            'gravity',
+            'jumpSpeed',
+            'moveGroundSpeed',
+            'moveAirSpeed',
+            'hoverHeight',
+            'groundProbeRange'
+        ] as const) {
+            this[field] *= unitsPerMeter;
+        }
+    }
+
     set collision(value: Collision | null) {
         if (value && this._hasPosition && !this._capsuleClear(value, this._position)) {
             this._pendingCollision = value;
@@ -192,6 +220,7 @@ class WalkController implements CameraController {
         // Spawn is scoped to this walk-mode entry; reset so a stale spawn from a previous entry
         // can't be restored if this entry fails or has no collision to place against.
         this._spawn.clear();
+        if (this.recoverDrops && this.entryFallbackPosition) this._supportedEye.set(...this.entryFallbackPosition);
 
         // Entry may follow a previous one that ended with collision held, so start from the
         // collision we have either way. Whether to hold again is decided fresh, from this
@@ -224,13 +253,25 @@ class WalkController implements CameraController {
                     camera.position.z,
                     (this.capsuleHeight + this.hoverHeight) * 0.5,
                     this.capsuleRadius,
-                    spawnProbe
-                )
+                    spawnProbe,
+                    this.unitsPerMeter,
+                    this.entryFallbackPosition ? LOCAL_WALK_ENTRY_DROP_METRES : undefined
+                ) ||
+                (this.entryFallbackPosition &&
+                    findCylinderSpawn(
+                        collision,
+                        ...this.entryFallbackPosition,
+                        (this.capsuleHeight + this.hoverHeight) * 0.5,
+                        this.capsuleRadius,
+                        spawnProbe,
+                        this.unitsPerMeter
+                    ))
             ) {
                 // spawnProbe is the floor world position the cylinder rests
                 // on. Eye sits hoverHeight + eyeHeight above the floor.
                 this._position.set(spawnProbe.x, spawnProbe.y + this.hoverHeight + this.eyeHeight, spawnProbe.z);
                 this._storeSpawn();
+                if (this.recoverDrops) this._supportedEye.copy(this._position);
 
                 // The placement is known to fit, so engage directly rather than re-testing it
                 // through the setter's capsule query, which is a different test from the
@@ -297,7 +338,18 @@ class WalkController implements CameraController {
 
         // ground probe: cast a ray downward to find the terrain surface
         const groundY = this._probeGround(this._position);
+        this.supportHeight = this._heldFloorY === null ? groundY : null;
         const hasGround = groundY !== null;
+        if (this.recoverDrops && this._collision) {
+            if (hasGround && this._grounded && !this._jumping) this._supportedEye.copy(this._position);
+            else if (!hasGround && this._position.y < this._supportedEye.y - 0.85 * this.unitsPerMeter) {
+                this._position.copy(this._supportedEye);
+                this._prevPosition.copy(this._supportedEye);
+                this._velocity.set(0, 0, 0);
+                this._jumping = false;
+                return;
+            }
+        }
 
         // jump (require release before re-triggering)
         if (this._velocity.y < 0) {
@@ -315,7 +367,7 @@ class WalkController implements CameraController {
             const targetY = groundY + this.hoverHeight + this.eyeHeight;
             const displacement = this._position.y - targetY;
 
-            if (displacement > 0.1) {
+            if (displacement > 0.1 * this.unitsPerMeter) {
                 // well above target (jump/ledge): freefall, snap to rest height on arrival
                 this._velocity.y -= this.gravity * dt;
                 const nextY = this._position.y + this._velocity.y * dt;
@@ -362,6 +414,7 @@ class WalkController implements CameraController {
      */
     goto(camera: Camera) {
         // position
+        this.supportHeight = null;
         this._hasPosition = true;
         this._position.copy(camera.position);
         this._prevPosition.copy(this._position);

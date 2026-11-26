@@ -25,9 +25,15 @@ test('loading visibility remains gated and the v1.29.1 near clip is clamped', as
 
 test('streaming quality uses v1.29.1 SH while writing LOD range on the component', async () => {
     const viewer = await readText('../src/viewer.ts');
-    const applyPerf = viewer.slice(viewer.indexOf('const applyPerfSettings'), viewer.indexOf('if (config.fullload)'));
+    const start = viewer.indexOf('const applyPerfSettings');
+    const end = viewer.indexOf('if (config.fullload)', start);
+    assert.ok(start >= 0 && end > start, 'streaming quality settings must precede the full-load branch');
+    const applyPerf = viewer.slice(start, end);
 
-    assert.match(applyPerf, /gsplat\.colorUpdateAngle = state\.performanceMode \? 1 : 0\.2/);
+    const quality = await readText('../src/quality.ts');
+    assert.match(applyPerf, /gsplat\.colorUpdateAngle = global\.quality\.colorUpdateAngle/);
+    assert.match(quality, /COLOR_UPDATE_ANGLE = 0\.2;/);
+    assert.match(quality, /COLOR_UPDATE_ANGLE_PERFORMANCE = 1;/);
     assert.match(applyPerf, /gsplatComponent\.lodRangeMin = 0/);
     assert.match(applyPerf, /gsplatComponent\.lodRangeMax = 1000/);
     assert.match(applyPerf, /app\.renderNextFrame = true/);

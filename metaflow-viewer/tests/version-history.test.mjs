@@ -5,7 +5,8 @@ import { execFileSync } from 'node:child_process';
 import { readFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import { classifyPaths, loadComponentRegistry } from '../../scripts/mcl.mjs';
-import { validateProductionHistoryRecovery } from '../../scripts/production-history-provenance.mjs';
+import { createHash } from 'node:crypto';
+import { assertRealCommit, validateProductionHistoryRecovery } from '../../scripts/production-history-provenance.mjs';
 
 const repoRoot = fileURLToPath(new URL('../..', import.meta.url));
 const LEGACY_DISPLAY_CUTOFF = '5.18a';
@@ -199,7 +200,7 @@ test('generated index release matches current version history', async () => {
 });
 
 test('viewer console output is wired to the version history display version', async () => {
-    const [index]=await sources('index.ts');assert.match(index,/versionHistory\.current\.displayVersion/);assert.match(index,/appVersion/);assert.match(index,/engineVersion/);assert.match(index,/SuperSplat v1\.37\.0/);
+    const [index]=await sources('index.ts');assert.match(index,/versionHistory\.current\.displayVersion/);assert.match(index,/appVersion/);assert.match(index,/engineVersion/);assert.match(index,/SuperSplat 1\.43\.3 rendering/);
 });
 
 test('change ledger preserves every version with Git or bounded production-history provenance', async () => {
@@ -231,24 +232,7 @@ test('change ledger preserves every version with Git or bounded production-histo
         // Only the four exact records from the independently hash-checked snapshot
         // use observed-production provenance. All other refs keep the original checks.
         if (productionRecovery?.importedRefs.has(ref)) continue;
-        execFileSync('git', ['cat-file', '-e', `${ref}^{commit}`], {
-            cwd: repoRoot,
-            stdio: 'ignore'
-        });
-        // Recovery releases can predate the main-branch squash that incorporates them.
-        // Keep their published SHA immutable and require an existing release tag witness.
-        try {
-            execFileSync('git', ['merge-base', '--is-ancestor', ref, 'HEAD'], {
-                cwd: repoRoot,
-                stdio: 'ignore'
-            });
-        } catch {
-            const releaseTags = execFileSync('git', ['tag', '--contains', ref, '--list', 'viewer-v*'], {
-                cwd: repoRoot,
-                encoding: 'utf8'
-            }).trim();
-            assert.ok(releaseTags, `${ref} must be in HEAD or a preserved Viewer release tag`);
-        }
+        assertRealCommit(repoRoot, ref);
     }
 });
 
@@ -362,6 +346,20 @@ test('commits after the legacy cutoff require records only for affected product 
             isDocumentedEditorRelease,
             isDocumentedViewerRelease
         });
+        if (unexpectedFiles.length && files.includes('metadata/netlify-releases/viewer-v5.27.0.json')) {
+            const receipt = JSON.parse(execFileSync('git', ['show', `${ref}:metadata/netlify-releases/viewer-v5.27.0.json`], { cwd: repoRoot }));
+            const parent = execFileSync('git', ['rev-parse', `${ref}^`], { cwd: repoRoot, encoding: 'utf8' }).trim();
+            if (['bf51c3a2f014f89a7a5a71aecc066e17676ef7a9', 'd5f1b918fe8caed67027dd8b2c824e1bb3d13f8a'].includes(parent)) {
+                // Match every before/after product object, including its mode, in this one source import.
+                const delta = execFileSync('git', ['diff', '--raw', '--no-abbrev', '--no-renames', '-z',
+                    parent, ref, '--', ...receipt.importPaths], { cwd: repoRoot, maxBuffer: 8 * 1024 * 1024 });
+                assert.equal(createHash('sha256').update(delta).digest('hex'), receipt.importDeltaSha256);
+                for (const [name, oid] of Object.entries(receipt.gitObjects)) {
+                    assert.equal(execFileSync('git', ['rev-parse', `${ref}:${name}`], { cwd: repoRoot, encoding: 'utf8' }).trim(), oid);
+                }
+                continue;
+            }
+        }
         if (unexpectedFiles.length === 1 && unexpectedFiles[0] === 'data/index.json' &&
             files.includes('metadata/version-history.json')) {
             // A release-record commit refers to the preceding product SHA. It must
@@ -408,8 +406,10 @@ test('package and public release versions match the structured current version',
     assert.equal(pkg.version, manifest.current.appSemver);
     assert.equal(lock.version, manifest.current.appSemver);
     assert.equal(lock.packages[''].version, manifest.current.appSemver);
-    assert.equal(manifest.current.displayVersion, '5.23.2');
+    assert.equal(manifest.entries.find((entry) => entry.displayVersion === '5.25.1')?.gitRef, '59fac5306f0eddae69caa0c87624a68a5034ac2b');
+    assert.equal(manifest.entries.find((entry) => entry.displayVersion === '5.26.1')?.gitRef, '18b8702e9878147bac431561f43b9c31f33695e8');
+    assert.equal(manifest.current.displayVersion, '5.27.0');
     assert.equal(manifest.current.gitRef, manifest.documentedThrough);
     assert.equal(manifest.current.upstream.repository, 'playcanvas/supersplat-viewer');
-    assert.equal(manifest.current.upstream.version, '1.37.0');
+    assert.equal(manifest.current.upstream.version, '1.43.3');
 });

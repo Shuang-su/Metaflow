@@ -2,15 +2,15 @@
   "version": "1.0",
   "schemaVersion": "1.2",
   "release": {
-    "displayVersion": "5.23.2",
-    "appSemver": "5.23.2",
+    "displayVersion": "5.27.0",
+    "appSemver": "5.27.0",
     "schemaVersion": "1.2",
     "historyUrl": "/data/version-history.json",
-    "updatedAt": "2026-11-14",
-    "gitRef": "7cbe28cd2f552dcd850c7a5724365244d523bb65"
+    "updatedAt": "2026-11-27",
+    "gitRef": "25a4954d4f14b44c0448f36cbbce4e53a8351ac7"
   },
-  "lastUpdated": "2026-09-30",
-  "totalResources": 100,
+  "lastUpdated": "2026-11-27",
+  "totalResources": 105,
   "categories": {
     "animals": {
       "name": "动物",
@@ -140,18 +140,20 @@
       "source": "photogrammetry",
       "experienceType": "character",
       "files": {
-        "model": "ACG/SZTUCCF260919/A003C0005_700101_RH8603/scene.sog",
-        "environment": "ACG/SZTUCCF260919/A003C0005_700101_RH8603/environment.compressed.ply",
+        "model": "ACG/SZTUCCF260919/A003C0005_700101_RH8603/sog-v3/scene.sog",
+        "environment": "ACG/SZTUCCF260919/A003C0005_700101_RH8603/rebuild-20261019/environment.compressed.ply",
         "settings": "ACG/SZTUCCF260919/A003C0005_700101_RH8603/settings.json",
-        "thumbnail": "ACG/SZTUCCF260919/A003C0005_700101_RH8603/cover-4096.webp",
-        "voxel": "ACG/SZTUCCF260919/A003C0005_700101_RH8603/walk.voxel.json"
+        "thumbnail": "ACG/SZTUCCF260919/A003C0005_700101_RH8603/rebuild-20261019/cover-4096.webp",
+        "voxel": "ACG/SZTUCCF260919/A003C0005_700101_RH8603/rebuild-20261019/walk.voxel.json",
+        "compatibilityModel": "ACG/SZTUCCF260919/A003C0005_700101_RH8603/rebuild-20261019/scene.sog"
       },
       "fileSize": {
-        "model": 9735290,
-        "environment": 621622,
-        "thumbnail": 4718796,
-        "total": 16345766,
-        "voxel": 1270058
+        "model": 11865400,
+        "environment": 724739,
+        "thumbnail": 4851306,
+        "total": 18541715,
+        "voxel": 1100270,
+        "compatibilityModel": 11343567
       },
       "meta": {
         "date": null,
@@ -171,7 +173,7 @@
       },
       "version": {
         "addedIn": "5.19.3",
-        "updatedIn": "5.19.3"
+        "updatedIn": "5.26.0"
       }
     },
     {
@@ -186,18 +188,20 @@
       "source": "photogrammetry",
       "experienceType": "character",
       "files": {
-        "model": "ACG/SZTUCCF260919/A003C0006_700101_RH8603/scene.sog",
-        "environment": "ACG/SZTUCCF260919/A003C0006_700101_RH8603/environment.compressed.ply",
+        "model": "ACG/SZTUCCF260919/A003C0006_700101_RH8603/sog-v3/scene.sog",
+        "environment": "ACG/SZTUCCF260919/A003C0006_700101_RH8603/rebuild-20261019/environment.compressed.ply",
         "settings": "ACG/SZTUCCF260919/A003C0006_700101_RH8603/settings.json",
-        "thumbnail": "ACG/SZTUCCF260919/A003C0006_700101_RH8603/cover-4096.webp",
-        "voxel": "ACG/SZTUCCF260919/A003C0006_700101_RH8603/walk.voxel.json"
+        "thumbnail": "ACG/SZTUCCF260919/A003C0006_700101_RH8603/rebuild-20261019/cover-4096.webp",
+        "voxel": "ACG/SZTUCCF260919/A003C0006_700101_RH8603/rebuild-20261019/walk.voxel.json",
+        "compatibilityModel": "ACG/SZTUCCF260919/A003C0006_700101_RH8603/rebuild-20261019/scene.sog"
       },
       "fileSize": {
-        "model": 9973929,
-        "environment": 353948,
-        "thumbnail": 4314024,
-        "total": 16278873,
-        "voxel": 1636972
+        "model": 10848429,
+        "environment": 454858,
+        "thumbnail": 4376586,
+        "total": 16796728,
+        "voxel": 1116855,
+        "compatibilityModel": 11190663
       },
       "meta": {
         "date": null,
@@ -217,7 +221,7 @@
       },
       "version": {
         "addedIn": "5.19.3",
-        "updatedIn": "5.19.3"
+        "updatedIn": "5.26.0"
       }
     },
     {
@@ -232,18 +236,20 @@
       "source": "photogrammetry",
       "experienceType": "character",
       "files": {
-        "model": "ACG/SZTUCCF260919/A003C0010_700101_RH8603/scene.sog",
-        "environment": "ACG/SZTUCCF260919/A003C0010_700101_RH8603/environment.compressed.ply",
+        "model": "ACG/SZTUCCF260919/A003C0010_700101_RH8603/sog-v3/scene.sog",
+        "environment": "ACG/SZTUCCF260919/A003C0010_700101_RH8603/rebuild-20261019/environment.compressed.ply",
         "settings": "ACG/SZTUCCF260919/A003C0010_700101_RH8603/settings.json",
-        "thumbnail": "ACG/SZTUCCF260919/A003C0010_700101_RH8603/cover-4096.webp",
-        "voxel": "ACG/SZTUCCF260919/A003C0010_700101_RH8603/walk.voxel.json"
+        "thumbnail": "ACG/SZTUCCF260919/A003C0010_700101_RH8603/rebuild-20261019/cover-4096.webp",
+        "voxel": "ACG/SZTUCCF260919/A003C0010_700101_RH8603/rebuild-20261019/walk.voxel.json",
+        "compatibilityModel": "ACG/SZTUCCF260919/A003C0010_700101_RH8603/rebuild-20261019/scene.sog"
       },
       "fileSize": {
-        "model": 10215508,
-        "environment": 208913,
-        "thumbnail": 5431304,
-        "total": 18312380,
-        "voxel": 2456655
+        "model": 12483109,
+        "environment": 325450,
+        "thumbnail": 5793520,
+        "total": 20272568,
+        "voxel": 1670489,
+        "compatibilityModel": 12094273
       },
       "meta": {
         "date": null,
@@ -263,7 +269,7 @@
       },
       "version": {
         "addedIn": "5.19.3",
-        "updatedIn": "5.19.3"
+        "updatedIn": "5.26.0"
       }
     },
     {
@@ -278,18 +284,20 @@
       "source": "photogrammetry",
       "experienceType": "character",
       "files": {
-        "model": "ACG/SZTUCCF260919/A003C0011_700101_RH8603/scene.sog",
-        "environment": "ACG/SZTUCCF260919/A003C0011_700101_RH8603/environment.compressed.ply",
+        "model": "ACG/SZTUCCF260919/A003C0011_700101_RH8603/sog-v3/scene.sog",
+        "environment": "ACG/SZTUCCF260919/A003C0011_700101_RH8603/rebuild-20261019/environment.compressed.ply",
         "settings": "ACG/SZTUCCF260919/A003C0011_700101_RH8603/settings.json",
-        "thumbnail": "ACG/SZTUCCF260919/A003C0011_700101_RH8603/cover-4096.webp",
-        "voxel": "ACG/SZTUCCF260919/A003C0011_700101_RH8603/walk.voxel.json"
+        "thumbnail": "ACG/SZTUCCF260919/A003C0011_700101_RH8603/rebuild-20261019/cover-4096.webp",
+        "voxel": "ACG/SZTUCCF260919/A003C0011_700101_RH8603/rebuild-20261019/walk.voxel.json",
+        "compatibilityModel": "ACG/SZTUCCF260919/A003C0011_700101_RH8603/rebuild-20261019/scene.sog"
       },
       "fileSize": {
-        "model": 10962618,
-        "environment": 388862,
-        "thumbnail": 5133364,
-        "total": 18768334,
-        "voxel": 2283490
+        "model": 12679174,
+        "environment": 506996,
+        "thumbnail": 5489554,
+        "total": 20148616,
+        "voxel": 1472892,
+        "compatibilityModel": 12741842
       },
       "meta": {
         "date": null,
@@ -309,7 +317,7 @@
       },
       "version": {
         "addedIn": "5.19.3",
-        "updatedIn": "5.19.3"
+        "updatedIn": "5.26.0"
       }
     },
     {
@@ -324,18 +332,20 @@
       "source": "photogrammetry",
       "experienceType": "character",
       "files": {
-        "model": "ACG/SZTUCCF260919/A003C0012_700101_RH8603/scene.sog",
-        "environment": "ACG/SZTUCCF260919/A003C0012_700101_RH8603/environment.compressed.ply",
+        "model": "ACG/SZTUCCF260919/A003C0012_700101_RH8603/sog-v3/scene.sog",
+        "environment": "ACG/SZTUCCF260919/A003C0012_700101_RH8603/rebuild-20261019/environment.compressed.ply",
         "settings": "ACG/SZTUCCF260919/A003C0012_700101_RH8603/settings.json",
-        "thumbnail": "ACG/SZTUCCF260919/A003C0012_700101_RH8603/cover-4096.webp",
-        "voxel": "ACG/SZTUCCF260919/A003C0012_700101_RH8603/walk.voxel.json"
+        "thumbnail": "ACG/SZTUCCF260919/A003C0012_700101_RH8603/rebuild-20261019/cover-4096.webp",
+        "voxel": "ACG/SZTUCCF260919/A003C0012_700101_RH8603/rebuild-20261019/walk.voxel.json",
+        "compatibilityModel": "ACG/SZTUCCF260919/A003C0012_700101_RH8603/rebuild-20261019/scene.sog"
       },
       "fileSize": {
-        "model": 10987399,
-        "environment": 295527,
-        "thumbnail": 5891766,
-        "total": 19350064,
-        "voxel": 2175372
+        "model": 12906513,
+        "environment": 395228,
+        "thumbnail": 5895834,
+        "total": 20555513,
+        "voxel": 1357938,
+        "compatibilityModel": 12648270
       },
       "meta": {
         "date": null,
@@ -355,7 +365,7 @@
       },
       "version": {
         "addedIn": "5.19.3",
-        "updatedIn": "5.19.3"
+        "updatedIn": "5.26.0"
       }
     },
     {
@@ -370,18 +380,20 @@
       "source": "photogrammetry",
       "experienceType": "character",
       "files": {
-        "model": "ACG/SZTUCCF260919/A003C0013_700101_RH8603/scene.sog",
-        "environment": "ACG/SZTUCCF260919/A003C0013_700101_RH8603/environment.compressed.ply",
+        "model": "ACG/SZTUCCF260919/A003C0013_700101_RH8603/sog-v3/scene.sog",
+        "environment": "ACG/SZTUCCF260919/A003C0013_700101_RH8603/rebuild-20261019/environment.compressed.ply",
         "settings": "ACG/SZTUCCF260919/A003C0013_700101_RH8603/settings.json",
-        "thumbnail": "ACG/SZTUCCF260919/A003C0013_700101_RH8603/cover-4096.webp",
-        "voxel": "ACG/SZTUCCF260919/A003C0013_700101_RH8603/walk.voxel.json"
+        "thumbnail": "ACG/SZTUCCF260919/A003C0013_700101_RH8603/rebuild-20261019/cover-4096.webp",
+        "voxel": "ACG/SZTUCCF260919/A003C0013_700101_RH8603/rebuild-20261019/walk.voxel.json",
+        "compatibilityModel": "ACG/SZTUCCF260919/A003C0013_700101_RH8603/rebuild-20261019/scene.sog"
       },
       "fileSize": {
-        "model": 11569588,
-        "environment": 333441,
-        "thumbnail": 4846864,
-        "total": 18846575,
-        "voxel": 2096682
+        "model": 15376809,
+        "environment": 448392,
+        "thumbnail": 4963042,
+        "total": 22335169,
+        "voxel": 1546926,
+        "compatibilityModel": 13377144
       },
       "meta": {
         "date": null,
@@ -401,7 +413,7 @@
       },
       "version": {
         "addedIn": "5.19.3",
-        "updatedIn": "5.19.3"
+        "updatedIn": "5.26.0"
       }
     },
     {
@@ -416,18 +428,20 @@
       "source": "photogrammetry",
       "experienceType": "character",
       "files": {
-        "model": "ACG/SZTUCCF260919/A003C0023_700101_RH8603/scene.sog",
-        "environment": "ACG/SZTUCCF260919/A003C0023_700101_RH8603/environment.compressed.ply",
+        "model": "ACG/SZTUCCF260919/A003C0023_700101_RH8603/sog-v3/scene.sog",
+        "environment": "ACG/SZTUCCF260919/A003C0023_700101_RH8603/rebuild-20261019/environment.compressed.ply",
         "settings": "ACG/SZTUCCF260919/A003C0023_700101_RH8603/settings.json",
-        "thumbnail": "ACG/SZTUCCF260919/A003C0023_700101_RH8603/cover-4096.webp",
-        "voxel": "ACG/SZTUCCF260919/A003C0023_700101_RH8603/walk.voxel.json"
+        "thumbnail": "ACG/SZTUCCF260919/A003C0023_700101_RH8603/rebuild-20261019/cover-4096.webp",
+        "voxel": "ACG/SZTUCCF260919/A003C0023_700101_RH8603/rebuild-20261019/walk.voxel.json",
+        "compatibilityModel": "ACG/SZTUCCF260919/A003C0023_700101_RH8603/rebuild-20261019/scene.sog"
       },
       "fileSize": {
-        "model": 10552782,
-        "environment": 315546,
-        "thumbnail": 5332738,
-        "total": 18360070,
-        "voxel": 2159004
+        "model": 11854236,
+        "environment": 416223,
+        "thumbnail": 5379140,
+        "total": 19125697,
+        "voxel": 1476098,
+        "compatibilityModel": 11606080
       },
       "meta": {
         "date": null,
@@ -447,7 +461,7 @@
       },
       "version": {
         "addedIn": "5.19.3",
-        "updatedIn": "5.19.3"
+        "updatedIn": "5.26.0"
       }
     },
     {
@@ -462,18 +476,20 @@
       "source": "photogrammetry",
       "experienceType": "character",
       "files": {
-        "model": "ACG/SZTUCCF260919/A003C0024_700101_RH8603/scene.sog",
-        "environment": "ACG/SZTUCCF260919/A003C0024_700101_RH8603/environment.compressed.ply",
+        "model": "ACG/SZTUCCF260919/A003C0024_700101_RH8603/sog-v3/scene.sog",
+        "environment": "ACG/SZTUCCF260919/A003C0024_700101_RH8603/rebuild-20261019/environment.compressed.ply",
         "settings": "ACG/SZTUCCF260919/A003C0024_700101_RH8603/settings.json",
-        "thumbnail": "ACG/SZTUCCF260919/A003C0024_700101_RH8603/cover-4096.webp",
-        "voxel": "ACG/SZTUCCF260919/A003C0024_700101_RH8603/walk.voxel.json"
+        "thumbnail": "ACG/SZTUCCF260919/A003C0024_700101_RH8603/rebuild-20261019/cover-4096.webp",
+        "voxel": "ACG/SZTUCCF260919/A003C0024_700101_RH8603/rebuild-20261019/walk.voxel.json",
+        "compatibilityModel": "ACG/SZTUCCF260919/A003C0024_700101_RH8603/rebuild-20261019/scene.sog"
       },
       "fileSize": {
-        "model": 11144319,
-        "environment": 299187,
-        "thumbnail": 4633262,
-        "total": 17198323,
-        "voxel": 1121555
+        "model": 14747152,
+        "environment": 462067,
+        "thumbnail": 4704130,
+        "total": 21227105,
+        "voxel": 1313756,
+        "compatibilityModel": 12755371
       },
       "meta": {
         "date": null,
@@ -493,7 +509,7 @@
       },
       "version": {
         "addedIn": "5.19.3",
-        "updatedIn": "5.19.3"
+        "updatedIn": "5.26.0"
       }
     },
     {
@@ -508,18 +524,20 @@
       "source": "photogrammetry",
       "experienceType": "character",
       "files": {
-        "model": "ACG/SZTUCCF260919/A003C0025_700101_RH8603/scene.sog",
-        "environment": "ACG/SZTUCCF260919/A003C0025_700101_RH8603/environment.compressed.ply",
+        "model": "ACG/SZTUCCF260919/A003C0025_700101_RH8603/sog-v3/scene.sog",
+        "environment": "ACG/SZTUCCF260919/A003C0025_700101_RH8603/rebuild-20261019/environment.compressed.ply",
         "settings": "ACG/SZTUCCF260919/A003C0025_700101_RH8603/settings.json",
-        "thumbnail": "ACG/SZTUCCF260919/A003C0025_700101_RH8603/cover-4096.webp",
-        "voxel": "ACG/SZTUCCF260919/A003C0025_700101_RH8603/walk.voxel.json"
+        "thumbnail": "ACG/SZTUCCF260919/A003C0025_700101_RH8603/rebuild-20261019/cover-4096.webp",
+        "voxel": "ACG/SZTUCCF260919/A003C0025_700101_RH8603/rebuild-20261019/walk.voxel.json",
+        "compatibilityModel": "ACG/SZTUCCF260919/A003C0025_700101_RH8603/rebuild-20261019/scene.sog"
       },
       "fileSize": {
-        "model": 9887653,
-        "environment": 348214,
-        "thumbnail": 5156798,
-        "total": 18196624,
-        "voxel": 2803959
+        "model": 12898224,
+        "environment": 467435,
+        "thumbnail": 5310724,
+        "total": 20522084,
+        "voxel": 1845701,
+        "compatibilityModel": 11790097
       },
       "meta": {
         "date": null,
@@ -539,7 +557,7 @@
       },
       "version": {
         "addedIn": "5.19.3",
-        "updatedIn": "5.19.3"
+        "updatedIn": "5.26.0"
       }
     },
     {
@@ -554,16 +572,18 @@
       "source": "photogrammetry",
       "experienceType": "character",
       "files": {
-        "model": "ACG/yzx/260124 yzx.sog",
+        "model": "ACG/yzx/migration-v3/260124 yzx/scene.sog",
         "environment": "ACG/yzx/260124 yzx_environment.compressed.ply",
         "settings": "ACG/yzx/settings.json",
-        "thumbnail": "ACG/yzx/260124 yzx.jpg"
+        "thumbnail": "ACG/yzx/260124 yzx.jpg",
+        "compatibilityModel": "ACG/yzx/260124 yzx.sog"
       },
       "fileSize": {
-        "model": 33032995,
+        "model": 37316646,
         "environment": 172703,
         "thumbnail": 701090,
-        "total": 33906788
+        "total": 38190439,
+        "compatibilityModel": 33032995
       },
       "meta": {
         "date": null,
@@ -580,7 +600,7 @@
       },
       "version": {
         "addedIn": "1.0a",
-        "updatedIn": "1.0a"
+        "updatedIn": "5.26.0"
       }
     },
     {
@@ -595,16 +615,18 @@
       "source": "scanner",
       "experienceType": "character",
       "files": {
-        "model": "ACG/AD05/260102 163416 AD05 三角洲/260102 163416 AD05 Delta Force.sog",
+        "model": "ACG/AD05/260102 163416 AD05 三角洲/migration-v3/260102 163416 AD05 Delta Force/scene.sog",
         "environment": "ACG/AD05/260102 163416 AD05 三角洲/260102 163416 AD05 Delta Force_environment.compressed.ply",
         "settings": "ACG/AD05/260102 163416 AD05 三角洲/settings.json",
-        "thumbnail": "ACG/AD05/260102 163416 AD05 三角洲/260102 163416 AD05 Delta Force.jpg"
+        "thumbnail": "ACG/AD05/260102 163416 AD05 三角洲/260102 163416 AD05 Delta Force.jpg",
+        "compatibilityModel": "ACG/AD05/260102 163416 AD05 三角洲/260102 163416 AD05 Delta Force.sog"
       },
       "fileSize": {
-        "model": 39172964,
+        "model": 42649303,
         "environment": 1075716,
         "thumbnail": 377539,
-        "total": 40626219
+        "total": 44102558,
+        "compatibilityModel": 39172964
       },
       "meta": {
         "date": "2026-01-02",
@@ -621,7 +643,7 @@
       },
       "version": {
         "addedIn": "1.0a",
-        "updatedIn": "1.0a"
+        "updatedIn": "5.26.0"
       }
     },
     {
@@ -636,16 +658,18 @@
       "source": "scanner",
       "experienceType": "character",
       "files": {
-        "model": "ACG/AD05/260102 165752 AD05 葬送的芙莉莲 芙莉莲辛美尔/260102 165752 AD05 Frieren.sog",
+        "model": "ACG/AD05/260102 165752 AD05 葬送的芙莉莲 芙莉莲辛美尔/migration-v3/260102 165752 AD05 Frieren/scene.sog",
         "environment": "ACG/AD05/260102 165752 AD05 葬送的芙莉莲 芙莉莲辛美尔/260102 165752 AD05 Frieren_environment.compressed.ply",
         "settings": "ACG/AD05/260102 165752 AD05 葬送的芙莉莲 芙莉莲辛美尔/settings.json",
-        "thumbnail": "ACG/AD05/260102 165752 AD05 葬送的芙莉莲 芙莉莲辛美尔/260102 165752 AD05 Frieren.jpg"
+        "thumbnail": "ACG/AD05/260102 165752 AD05 葬送的芙莉莲 芙莉莲辛美尔/260102 165752 AD05 Frieren.jpg",
+        "compatibilityModel": "ACG/AD05/260102 165752 AD05 葬送的芙莉莲 芙莉莲辛美尔/260102 165752 AD05 Frieren.sog"
       },
       "fileSize": {
-        "model": 20273636,
+        "model": 24866843,
         "environment": 2112101,
         "thumbnail": 344344,
-        "total": 22730081
+        "total": 27323288,
+        "compatibilityModel": 20273636
       },
       "meta": {
         "date": "2026-01-02",
@@ -662,7 +686,7 @@
       },
       "version": {
         "addedIn": "1.0a",
-        "updatedIn": "1.0a"
+        "updatedIn": "5.26.0"
       }
     },
     {
@@ -677,16 +701,18 @@
       "source": "scanner",
       "experienceType": "character",
       "files": {
-        "model": "ACG/AD05/260102 161941 AD05 王者荣耀 公孙离 花间舞/260102 161941 AD05 gongsunli_1024.sog",
+        "model": "ACG/AD05/260102 161941 AD05 王者荣耀 公孙离 花间舞/migration-v3/260102 161941 AD05 gongsunli_1024/scene.sog",
         "environment": "ACG/AD05/260102 161941 AD05 王者荣耀 公孙离 花间舞/260102 161941 AD05 gongsunli_1024_environment.compressed.ply",
         "settings": "ACG/AD05/260102 161941 AD05 王者荣耀 公孙离 花间舞/settings.json",
-        "thumbnail": "ACG/AD05/260102 161941 AD05 王者荣耀 公孙离 花间舞/260102 161941 AD05 gongsunli_1024.jpg"
+        "thumbnail": "ACG/AD05/260102 161941 AD05 王者荣耀 公孙离 花间舞/260102 161941 AD05 gongsunli_1024.jpg",
+        "compatibilityModel": "ACG/AD05/260102 161941 AD05 王者荣耀 公孙离 花间舞/260102 161941 AD05 gongsunli_1024.sog"
       },
       "fileSize": {
-        "model": 24231237,
+        "model": 29547879,
         "environment": 881848,
         "thumbnail": 301408,
-        "total": 25414493
+        "total": 30731135,
+        "compatibilityModel": 24231237
       },
       "meta": {
         "date": "2026-01-02",
@@ -703,7 +729,7 @@
       },
       "version": {
         "addedIn": "1.0a",
-        "updatedIn": "1.0a"
+        "updatedIn": "5.26.0"
       }
     },
     {
@@ -718,16 +744,18 @@
       "source": "scanner",
       "experienceType": "character",
       "files": {
-        "model": "ACG/AD05/260102 160304 AD05 魔道祖师 江厌离/260102 160304 AD05 jiangyanli.sog",
+        "model": "ACG/AD05/260102 160304 AD05 魔道祖师 江厌离/migration-v3/260102 160304 AD05 jiangyanli/scene.sog",
         "environment": "ACG/AD05/260102 160304 AD05 魔道祖师 江厌离/260102 160304 AD05 jiangyanli_environment.compressed.ply",
         "settings": "ACG/AD05/260102 160304 AD05 魔道祖师 江厌离/settings.json",
-        "thumbnail": "ACG/AD05/260102 160304 AD05 魔道祖师 江厌离/260102 160304 AD05 jiangyanli.jpg"
+        "thumbnail": "ACG/AD05/260102 160304 AD05 魔道祖师 江厌离/260102 160304 AD05 jiangyanli.jpg",
+        "compatibilityModel": "ACG/AD05/260102 160304 AD05 魔道祖师 江厌离/260102 160304 AD05 jiangyanli.sog"
       },
       "fileSize": {
-        "model": 35013526,
+        "model": 38604721,
         "environment": 1464378,
         "thumbnail": 453336,
-        "total": 36931240
+        "total": 40522435,
+        "compatibilityModel": 35013526
       },
       "meta": {
         "date": "2026-01-02",
@@ -744,7 +772,7 @@
       },
       "version": {
         "addedIn": "1.0a",
-        "updatedIn": "1.0a"
+        "updatedIn": "5.26.0"
       }
     },
     {
@@ -759,16 +787,18 @@
       "source": "scanner",
       "experienceType": "character",
       "files": {
-        "model": "ACG/AD05/260102 162440 AD05 最终幻想 萨菲罗斯/260102 162440 AD05 Sephiroth.sog",
+        "model": "ACG/AD05/260102 162440 AD05 最终幻想 萨菲罗斯/migration-v3/260102 162440 AD05 Sephiroth/scene.sog",
         "environment": "ACG/AD05/260102 162440 AD05 最终幻想 萨菲罗斯/260102 162440 AD05 Sephiroth_environment.compressed.ply",
         "settings": "ACG/AD05/260102 162440 AD05 最终幻想 萨菲罗斯/settings.json",
-        "thumbnail": "ACG/AD05/260102 162440 AD05 最终幻想 萨菲罗斯/260102 162440 AD05 Sephiroth.jpg"
+        "thumbnail": "ACG/AD05/260102 162440 AD05 最终幻想 萨菲罗斯/260102 162440 AD05 Sephiroth.jpg",
+        "compatibilityModel": "ACG/AD05/260102 162440 AD05 最终幻想 萨菲罗斯/260102 162440 AD05 Sephiroth.sog"
       },
       "fileSize": {
-        "model": 26989439,
+        "model": 31168543,
         "environment": 2071930,
         "thumbnail": 348263,
-        "total": 29409632
+        "total": 33588736,
+        "compatibilityModel": 26989439
       },
       "meta": {
         "date": "2026-01-02",
@@ -785,7 +815,7 @@
       },
       "version": {
         "addedIn": "1.0a",
-        "updatedIn": "1.0a"
+        "updatedIn": "5.26.0"
       }
     },
     {
@@ -800,16 +830,18 @@
       "source": "scanner",
       "experienceType": "character",
       "files": {
-        "model": "ACG/AD05/260102 161509 AD05 紫罗兰永恒花园 薇尔莉特·伊芙加登/260102 161509 AD05 Violet Evergarden.sog",
+        "model": "ACG/AD05/260102 161509 AD05 紫罗兰永恒花园 薇尔莉特·伊芙加登/migration-v3/260102 161509 AD05 Violet Evergarden/scene.sog",
         "environment": "ACG/AD05/260102 161509 AD05 紫罗兰永恒花园 薇尔莉特·伊芙加登/260102 161509 AD05 Violet Evergarden_environment.compressed.ply",
         "settings": "ACG/AD05/260102 161509 AD05 紫罗兰永恒花园 薇尔莉特·伊芙加登/settings.json",
-        "thumbnail": "ACG/AD05/260102 161509 AD05 紫罗兰永恒花园 薇尔莉特·伊芙加登/260102 161509 AD05 Violet Evergarden.jpg"
+        "thumbnail": "ACG/AD05/260102 161509 AD05 紫罗兰永恒花园 薇尔莉特·伊芙加登/260102 161509 AD05 Violet Evergarden.jpg",
+        "compatibilityModel": "ACG/AD05/260102 161509 AD05 紫罗兰永恒花园 薇尔莉特·伊芙加登/260102 161509 AD05 Violet Evergarden.sog"
       },
       "fileSize": {
-        "model": 26901829,
+        "model": 31063498,
         "environment": 470287,
         "thumbnail": 278332,
-        "total": 27650448
+        "total": 31812117,
+        "compatibilityModel": 26901829
       },
       "meta": {
         "date": "2026-01-02",
@@ -826,7 +858,7 @@
       },
       "version": {
         "addedIn": "1.0a",
-        "updatedIn": "1.0a"
+        "updatedIn": "5.26.0"
       }
     },
     {
@@ -841,16 +873,18 @@
       "source": "scanner",
       "experienceType": "character",
       "files": {
-        "model": "ACG/AD05/260102 155010 AD05 如鸢 诸葛亮/260102 155010 AD05 yuan_zhugeliang.sog",
+        "model": "ACG/AD05/260102 155010 AD05 如鸢 诸葛亮/migration-v3/260102 155010 AD05 yuan_zhugeliang/scene.sog",
         "environment": "ACG/AD05/260102 155010 AD05 如鸢 诸葛亮/260102 155010 AD05 yuan_zhugeliang_environment.compressed.ply",
         "settings": "ACG/AD05/260102 155010 AD05 如鸢 诸葛亮/settings.json",
-        "thumbnail": "ACG/AD05/260102 155010 AD05 如鸢 诸葛亮/260102 155010 AD05 yuan_zhugeliang.jpg"
+        "thumbnail": "ACG/AD05/260102 155010 AD05 如鸢 诸葛亮/260102 155010 AD05 yuan_zhugeliang.jpg",
+        "compatibilityModel": "ACG/AD05/260102 155010 AD05 如鸢 诸葛亮/260102 155010 AD05 yuan_zhugeliang.sog"
       },
       "fileSize": {
-        "model": 20777477,
+        "model": 25024395,
         "environment": 1827826,
         "thumbnail": 384230,
-        "total": 22989533
+        "total": 27236451,
+        "compatibilityModel": 20777477
       },
       "meta": {
         "date": "2026-01-02",
@@ -867,7 +901,7 @@
       },
       "version": {
         "addedIn": "1.0a",
-        "updatedIn": "1.0a"
+        "updatedIn": "5.26.0"
       }
     },
     {
@@ -882,16 +916,18 @@
       "source": "scanner",
       "experienceType": "character",
       "files": {
-        "model": "ACG/J04/260118 153546 J04 守护甜心 日奈森亚梦/260118 153546 J04 Hinamori Amu.sog",
+        "model": "ACG/J04/260118 153546 J04 守护甜心 日奈森亚梦/migration-v3/260118 153546 J04 Hinamori Amu/scene.sog",
         "environment": "ACG/J04/260118 153546 J04 守护甜心 日奈森亚梦/260118 153546 J04 Hinamori Amu_environment.compressed.ply",
         "settings": "ACG/J04/260118 153546 J04 守护甜心 日奈森亚梦/settings.json",
-        "thumbnail": "ACG/J04/260118 153546 J04 守护甜心 日奈森亚梦/260118 153546 J04 Hinamori Amu.jpg"
+        "thumbnail": "ACG/J04/260118 153546 J04 守护甜心 日奈森亚梦/260118 153546 J04 Hinamori Amu.jpg",
+        "compatibilityModel": "ACG/J04/260118 153546 J04 守护甜心 日奈森亚梦/260118 153546 J04 Hinamori Amu.sog"
       },
       "fileSize": {
-        "model": 19788148,
+        "model": 25012419,
         "environment": 322141,
         "thumbnail": 517138,
-        "total": 20627427
+        "total": 25851698,
+        "compatibilityModel": 19788148
       },
       "meta": {
         "date": "2026-01-18",
@@ -908,7 +944,7 @@
       },
       "version": {
         "addedIn": "1.0a",
-        "updatedIn": "1.0a"
+        "updatedIn": "5.26.0"
       }
     },
     {
@@ -923,16 +959,18 @@
       "source": "scanner",
       "experienceType": "character",
       "files": {
-        "model": "ACG/J04/260118 183217 J04 电锯人 电次/260118 183217 J04 Denji.sog",
+        "model": "ACG/J04/260118 183217 J04 电锯人 电次/migration-v3/260118 183217 J04 Denji/scene.sog",
         "environment": "ACG/J04/260118 183217 J04 电锯人 电次/260118 183217 J04 Denji_environment.compressed.ply",
         "settings": "ACG/J04/260118 183217 J04 电锯人 电次/settings.json",
-        "thumbnail": "ACG/J04/260118 183217 J04 电锯人 电次/260118 183217 J04 Denji.jpg"
+        "thumbnail": "ACG/J04/260118 183217 J04 电锯人 电次/260118 183217 J04 Denji.jpg",
+        "compatibilityModel": "ACG/J04/260118 183217 J04 电锯人 电次/260118 183217 J04 Denji.sog"
       },
       "fileSize": {
-        "model": 19355282,
+        "model": 25006591,
         "environment": 95848,
         "thumbnail": 386079,
-        "total": 19837209
+        "total": 25488518,
+        "compatibilityModel": 19355282
       },
       "meta": {
         "date": "2026-01-18",
@@ -949,7 +987,7 @@
       },
       "version": {
         "addedIn": "1.0a",
-        "updatedIn": "1.0a"
+        "updatedIn": "5.26.0"
       }
     },
     {
@@ -964,16 +1002,18 @@
       "source": "scanner",
       "experienceType": "character",
       "files": {
-        "model": "ACG/J04/260118 180245 J04 王者荣耀 朵莉亚1/260118_180245_J04_Dolia1-2.sog",
+        "model": "ACG/J04/260118 180245 J04 王者荣耀 朵莉亚1/migration-v3/260118_180245_J04_Dolia1-2/scene.sog",
         "environment": "ACG/J04/260118 180245 J04 王者荣耀 朵莉亚1/260118_180245_J04_Dolia1-2_environment.compressed.ply",
         "settings": "ACG/J04/260118 180245 J04 王者荣耀 朵莉亚1/settings.json",
-        "thumbnail": "ACG/J04/260118 180245 J04 王者荣耀 朵莉亚1/260118_180245_J04_Dolia1-2.ssproj.jpg"
+        "thumbnail": "ACG/J04/260118 180245 J04 王者荣耀 朵莉亚1/260118_180245_J04_Dolia1-2.ssproj.jpg",
+        "compatibilityModel": "ACG/J04/260118 180245 J04 王者荣耀 朵莉亚1/260118_180245_J04_Dolia1-2.sog"
       },
       "fileSize": {
-        "model": 16757050,
+        "model": 22755080,
         "environment": 108913,
         "thumbnail": 335158,
-        "total": 17201121
+        "total": 23199151,
+        "compatibilityModel": 16757050
       },
       "meta": {
         "date": "2026-01-18",
@@ -990,7 +1030,7 @@
       },
       "version": {
         "addedIn": "1.0a",
-        "updatedIn": "1.0a"
+        "updatedIn": "5.26.0"
       }
     },
     {
@@ -1005,16 +1045,18 @@
       "source": "scanner",
       "experienceType": "character",
       "files": {
-        "model": "ACG/J04/260118 181326 J04 王者荣耀 朵莉亚2/260118 181326 J04 Dolia2.sog",
+        "model": "ACG/J04/260118 181326 J04 王者荣耀 朵莉亚2/migration-v3/260118 181326 J04 Dolia2/scene.sog",
         "environment": "ACG/J04/260118 181326 J04 王者荣耀 朵莉亚2/260118 181326 J04 Dolia2_environment.compressed.ply",
         "settings": "ACG/J04/260118 181326 J04 王者荣耀 朵莉亚2/settings.json",
-        "thumbnail": "ACG/J04/260118 181326 J04 王者荣耀 朵莉亚2/260118 181326 J04 Dolia2.jpg"
+        "thumbnail": "ACG/J04/260118 181326 J04 王者荣耀 朵莉亚2/260118 181326 J04 Dolia2.jpg",
+        "compatibilityModel": "ACG/J04/260118 181326 J04 王者荣耀 朵莉亚2/260118 181326 J04 Dolia2.sog"
       },
       "fileSize": {
-        "model": 18892298,
+        "model": 24759872,
         "environment": 101166,
         "thumbnail": 356927,
-        "total": 19350391
+        "total": 25217965,
+        "compatibilityModel": 18892298
       },
       "meta": {
         "date": "2026-01-18",
@@ -1031,7 +1073,7 @@
       },
       "version": {
         "addedIn": "1.0a",
-        "updatedIn": "1.0a"
+        "updatedIn": "5.26.0"
       }
     },
     {
@@ -1046,16 +1088,18 @@
       "source": "scanner",
       "experienceType": "character",
       "files": {
-        "model": "ACG/J04/260118 152808 J04 福瑞/260118 152808 J04 furry.sog",
+        "model": "ACG/J04/260118 152808 J04 福瑞/migration-v3/260118 152808 J04 furry/scene.sog",
         "environment": "ACG/J04/260118 152808 J04 福瑞/260118 152808 J04 furry_environment.compressed.ply",
         "settings": "ACG/J04/260118 152808 J04 福瑞/settings.json",
-        "thumbnail": "ACG/J04/260118 152808 J04 福瑞/260118 152808 J04 furry.jpg"
+        "thumbnail": "ACG/J04/260118 152808 J04 福瑞/260118 152808 J04 furry.jpg",
+        "compatibilityModel": "ACG/J04/260118 152808 J04 福瑞/260118 152808 J04 furry.sog"
       },
       "fileSize": {
-        "model": 22470023,
+        "model": 28439213,
         "environment": 72718,
         "thumbnail": 322085,
-        "total": 22864826
+        "total": 28834016,
+        "compatibilityModel": 22470023
       },
       "meta": {
         "date": "2026-01-18",
@@ -1072,7 +1116,7 @@
       },
       "version": {
         "addedIn": "1.0a",
-        "updatedIn": "1.0a"
+        "updatedIn": "5.26.0"
       }
     },
     {
@@ -1087,16 +1131,20 @@
       "source": "scanner",
       "experienceType": "scene",
       "files": {
-        "model": "ACG/J04/260118 190943 J04 场景 ggc高谷仓/260118 190943 J04 ggc.sog",
+        "model": "lod-independent/acg/j04/ggc/streamed/lod-meta.json",
         "environment": null,
         "settings": "ACG/J04/260118 190943 J04 场景 ggc高谷仓/settings.json",
-        "thumbnail": null
+        "thumbnail": null,
+        "compatibilityModel": "ACG/J04/260118 190943 J04 场景 ggc高谷仓/260118 190943 J04 ggc.sog",
+        "voxel": "ACG/J04/260118 190943 J04 场景 ggc高谷仓/migration-v3/collision/walk.voxel.json"
       },
       "fileSize": {
-        "model": 193190726,
+        "model": 963179724,
         "environment": 0,
         "thumbnail": 0,
-        "total": 193190726
+        "total": 972690824,
+        "compatibilityModel": 193190726,
+        "voxel": 9511100
       },
       "meta": {
         "date": "2026-01-18",
@@ -1110,7 +1158,10 @@
       },
       "version": {
         "addedIn": "1.0a",
-        "updatedIn": "1.0a"
+        "updatedIn": "5.26.0"
+      },
+      "viewer": {
+        "voxelCoordinateSpace": "world"
       }
     },
     {
@@ -1125,7 +1176,7 @@
       "source": "scanner",
       "experienceType": "scene",
       "files": {
-        "model": "ACG/J04/260118 150402 J04 痛车/260118 150402 J04 Itasha.sog",
+        "model": "lod-independent/acg/j04/itasha/streamed/lod-meta.json",
         "environment": "ACG/J04/260118 150402 J04 痛车/260118 150402 J04 Itasha_environment.compressed.ply",
         "settings": "ACG/J04/260118 150402 J04 痛车/settings.json",
         "thumbnail": "ACG/J04/260118 150402 J04 痛车/260118 150402 J04 Itasha.jpg",
@@ -1135,14 +1186,18 @@
             "file": "ACG/J04/260118 150402 J04 痛车/260118 150402 J04 Itasha_LOD1.sog",
             "size": 59780865
           }
-        ]
+        ],
+        "compatibilityModel": "ACG/J04/260118 150402 J04 痛车/260118 150402 J04 Itasha.sog",
+        "voxel": "ACG/J04/260118 150402 J04 痛车/migration-v3/collision/walk.voxel.json"
       },
       "fileSize": {
-        "model": 112692221,
+        "model": 532785725,
         "environment": 2039456,
         "thumbnail": 758250,
-        "total": 115489927,
-        "recommended": "lod1"
+        "total": 555029050,
+        "recommended": "lod1",
+        "compatibilityModel": 112692221,
+        "voxel": 19445619
       },
       "meta": {
         "date": "2026-01-18",
@@ -1156,7 +1211,10 @@
       },
       "version": {
         "addedIn": "1.0a",
-        "updatedIn": "1.0a"
+        "updatedIn": "5.26.0"
+      },
+      "viewer": {
+        "voxelCoordinateSpace": "world"
       }
     },
     {
@@ -1171,16 +1229,18 @@
       "source": "scanner",
       "experienceType": "character",
       "files": {
-        "model": "ACG/J04/260118 161109 J04 假面骑士 build创骑 极狐 景和将军形态/260118 161109 J04 kamen rider.sog",
+        "model": "ACG/J04/260118 161109 J04 假面骑士 build创骑 极狐 景和将军形态/migration-v3/260118 161109 J04 kamen rider/scene.sog",
         "environment": "ACG/J04/260118 161109 J04 假面骑士 build创骑 极狐 景和将军形态/260118 161109 J04 kamen rider_environment.compressed.ply",
         "settings": "ACG/J04/260118 161109 J04 假面骑士 build创骑 极狐 景和将军形态/settings.json",
-        "thumbnail": "ACG/J04/260118 161109 J04 假面骑士 build创骑 极狐 景和将军形态/260118 161109 J04 kamen rider.jpg"
+        "thumbnail": "ACG/J04/260118 161109 J04 假面骑士 build创骑 极狐 景和将军形态/260118 161109 J04 kamen rider.jpg",
+        "compatibilityModel": "ACG/J04/260118 161109 J04 假面骑士 build创骑 极狐 景和将军形态/260118 161109 J04 kamen rider.sog"
       },
       "fileSize": {
-        "model": 33660304,
+        "model": 38038666,
         "environment": 4570725,
         "thumbnail": 448136,
-        "total": 38679165
+        "total": 43057527,
+        "compatibilityModel": 33660304
       },
       "meta": {
         "date": "2026-01-18",
@@ -1197,7 +1257,7 @@
       },
       "version": {
         "addedIn": "1.0a",
-        "updatedIn": "1.0a"
+        "updatedIn": "5.26.0"
       }
     },
     {
@@ -1212,16 +1272,18 @@
       "source": "scanner",
       "experienceType": "character",
       "files": {
-        "model": "ACG/J04/260118 155718 J04 赛博朋克边缘行者 露西/260118 155718 J04 Lucyna.sog",
+        "model": "ACG/J04/260118 155718 J04 赛博朋克边缘行者 露西/migration-v3/260118 155718 J04 Lucyna/scene.sog",
         "environment": "ACG/J04/260118 155718 J04 赛博朋克边缘行者 露西/260118 155718 J04 Lucyna_environment.compressed.ply",
         "settings": "ACG/J04/260118 155718 J04 赛博朋克边缘行者 露西/settings.json",
-        "thumbnail": "ACG/J04/260118 155718 J04 赛博朋克边缘行者 露西/260118 155718 J04 Lucyna.jpg"
+        "thumbnail": "ACG/J04/260118 155718 J04 赛博朋克边缘行者 露西/260118 155718 J04 Lucyna.jpg",
+        "compatibilityModel": "ACG/J04/260118 155718 J04 赛博朋克边缘行者 露西/260118 155718 J04 Lucyna.sog"
       },
       "fileSize": {
-        "model": 32298195,
+        "model": 36896253,
         "environment": 4448149,
         "thumbnail": 504943,
-        "total": 37251287
+        "total": 41849345,
+        "compatibilityModel": 32298195
       },
       "meta": {
         "date": "2026-01-18",
@@ -1233,7 +1295,7 @@
       },
       "version": {
         "addedIn": "1.0a",
-        "updatedIn": "1.0a"
+        "updatedIn": "5.26.0"
       }
     },
     {
@@ -1248,16 +1310,18 @@
       "source": "scanner",
       "experienceType": "character",
       "files": {
-        "model": "ACG/J04/260118 181757 J04 境界的彼方 栗山未来/260118 181757 J04 Kuriyama Mirai.sog",
+        "model": "ACG/J04/260118 181757 J04 境界的彼方 栗山未来/migration-v3/260118 181757 J04 Kuriyama Mirai/scene.sog",
         "environment": "ACG/J04/260118 181757 J04 境界的彼方 栗山未来/260118 181757 J04 Kuriyama Mirai_environment.compressed.ply",
         "settings": "ACG/J04/260118 181757 J04 境界的彼方 栗山未来/settings.json",
-        "thumbnail": "ACG/J04/260118 181757 J04 境界的彼方 栗山未来/260118 181757 J04 Kuriyama Mirai.jpg"
+        "thumbnail": "ACG/J04/260118 181757 J04 境界的彼方 栗山未来/260118 181757 J04 Kuriyama Mirai.jpg",
+        "compatibilityModel": "ACG/J04/260118 181757 J04 境界的彼方 栗山未来/260118 181757 J04 Kuriyama Mirai.sog"
       },
       "fileSize": {
-        "model": 23473776,
+        "model": 28252912,
         "environment": 99580,
         "thumbnail": 433180,
-        "total": 24006536
+        "total": 28785672,
+        "compatibilityModel": 23473776
       },
       "meta": {
         "date": "2026-01-18",
@@ -1274,7 +1338,7 @@
       },
       "version": {
         "addedIn": "1.0a",
-        "updatedIn": "1.0a"
+        "updatedIn": "5.26.0"
       }
     },
     {
@@ -1289,16 +1353,18 @@
       "source": "scanner",
       "experienceType": "character",
       "files": {
-        "model": "ACG/J04/260118 181014 J04 王者荣耀 少司缘/260118 181014 J04 shaosiyuan.sog",
+        "model": "ACG/J04/260118 181014 J04 王者荣耀 少司缘/migration-v3/260118 181014 J04 shaosiyuan/scene.sog",
         "environment": "ACG/J04/260118 181014 J04 王者荣耀 少司缘/260118 181014 J04 shaosiyuan_environment.compressed.ply",
         "settings": "ACG/J04/260118 181014 J04 王者荣耀 少司缘/settings.json",
-        "thumbnail": "ACG/J04/260118 181014 J04 王者荣耀 少司缘/260118 181014 J04 shaosiyuan.jpg"
+        "thumbnail": "ACG/J04/260118 181014 J04 王者荣耀 少司缘/260118 181014 J04 shaosiyuan.jpg",
+        "compatibilityModel": "ACG/J04/260118 181014 J04 王者荣耀 少司缘/260118 181014 J04 shaosiyuan.sog"
       },
       "fileSize": {
-        "model": 19788589,
+        "model": 25449456,
         "environment": 101959,
         "thumbnail": 386829,
-        "total": 20277377
+        "total": 25938244,
+        "compatibilityModel": 19788589
       },
       "meta": {
         "date": "2026-01-18",
@@ -1315,7 +1381,7 @@
       },
       "version": {
         "addedIn": "1.0a",
-        "updatedIn": "1.0a"
+        "updatedIn": "5.26.0"
       }
     },
     {
@@ -1330,16 +1396,18 @@
       "source": "scanner",
       "experienceType": "character",
       "files": {
-        "model": "ACG/J04/260118 182644 J04 明日方舟 史尔特尔/260118 182644 J04 Surtr.sog",
+        "model": "ACG/J04/260118 182644 J04 明日方舟 史尔特尔/migration-v3/260118 182644 J04 Surtr/scene.sog",
         "environment": "ACG/J04/260118 182644 J04 明日方舟 史尔特尔/260118 182644 J04 Surtr_environment.compressed.ply",
         "settings": "ACG/J04/260118 182644 J04 明日方舟 史尔特尔/settings.json",
-        "thumbnail": "ACG/J04/260118 182644 J04 明日方舟 史尔特尔/260118 182644 J04 Surtr.jpg"
+        "thumbnail": "ACG/J04/260118 182644 J04 明日方舟 史尔特尔/260118 182644 J04 Surtr.jpg",
+        "compatibilityModel": "ACG/J04/260118 182644 J04 明日方舟 史尔特尔/260118 182644 J04 Surtr.sog"
       },
       "fileSize": {
-        "model": 19527161,
+        "model": 25857939,
         "environment": 92249,
         "thumbnail": 333116,
-        "total": 19952526
+        "total": 26283304,
+        "compatibilityModel": 19527161
       },
       "meta": {
         "date": "2026-01-18",
@@ -1356,7 +1424,7 @@
       },
       "version": {
         "addedIn": "1.0a",
-        "updatedIn": "1.0a"
+        "updatedIn": "5.26.0"
       }
     },
     {
@@ -1371,16 +1439,18 @@
       "source": "scanner",
       "experienceType": "character",
       "files": {
-        "model": "ACG/J04/260118 190306 J04 小林家的龙女仆 托尔/260118 190306 J04 Tohru.sog",
+        "model": "ACG/J04/260118 190306 J04 小林家的龙女仆 托尔/migration-v3/260118 190306 J04 Tohru/scene.sog",
         "environment": "ACG/J04/260118 190306 J04 小林家的龙女仆 托尔/260118 190306 J04 Tohru_environment.compressed.ply",
         "settings": "ACG/J04/260118 190306 J04 小林家的龙女仆 托尔/settings.json",
-        "thumbnail": "ACG/J04/260118 190306 J04 小林家的龙女仆 托尔/260118 190306 J04 Tohru.jpg"
+        "thumbnail": "ACG/J04/260118 190306 J04 小林家的龙女仆 托尔/260118 190306 J04 Tohru.jpg",
+        "compatibilityModel": "ACG/J04/260118 190306 J04 小林家的龙女仆 托尔/260118 190306 J04 Tohru.sog"
       },
       "fileSize": {
-        "model": 22552206,
+        "model": 28292743,
         "environment": 124967,
         "thumbnail": 411090,
-        "total": 23088263
+        "total": 28828800,
+        "compatibilityModel": 22552206
       },
       "meta": {
         "date": "2026-01-18",
@@ -1397,7 +1467,7 @@
       },
       "version": {
         "addedIn": "1.0a",
-        "updatedIn": "1.0a"
+        "updatedIn": "5.26.0"
       }
     },
     {
@@ -1412,16 +1482,18 @@
       "source": "scanner",
       "experienceType": "character",
       "files": {
-        "model": "ACG/J04/260118 155035 J04 原神 散兵/260118 155035 J04 GenshinImpact_Wanderer.sog",
+        "model": "ACG/J04/260118 155035 J04 原神 散兵/migration-v3/260118 155035 J04 GenshinImpact_Wanderer/scene.sog",
         "environment": "ACG/J04/260118 155035 J04 原神 散兵/260118 155035 J04 GenshinImpact_Wanderer_environment.compressed.ply",
         "settings": "ACG/J04/260118 155035 J04 原神 散兵/settings.json",
-        "thumbnail": "ACG/J04/260118 155035 J04 原神 散兵/260118 155035 J04 GenshinImpact_Wanderer.jpg"
+        "thumbnail": "ACG/J04/260118 155035 J04 原神 散兵/260118 155035 J04 GenshinImpact_Wanderer.jpg",
+        "compatibilityModel": "ACG/J04/260118 155035 J04 原神 散兵/260118 155035 J04 GenshinImpact_Wanderer.sog"
       },
       "fileSize": {
-        "model": 30797647,
+        "model": 35228405,
         "environment": 4357437,
         "thumbnail": 555338,
-        "total": 35710422
+        "total": 40141180,
+        "compatibilityModel": 30797647
       },
       "meta": {
         "date": "2026-01-18",
@@ -1438,7 +1510,7 @@
       },
       "version": {
         "addedIn": "1.0a",
-        "updatedIn": "1.14a"
+        "updatedIn": "5.26.0"
       }
     },
     {
@@ -1453,16 +1525,18 @@
       "source": "scanner",
       "experienceType": "character",
       "files": {
-        "model": "ACG/J04/260118 145218 J04 王者荣耀 小乔 纯白花嫁/260118 145218 J04 xiaoqiao.sog",
+        "model": "ACG/J04/260118 145218 J04 王者荣耀 小乔 纯白花嫁/migration-v3/260118 145218 J04 xiaoqiao/scene.sog",
         "environment": "ACG/J04/260118 145218 J04 王者荣耀 小乔 纯白花嫁/260118 145218 J04 xiaoqiao_environment.compressed.ply",
         "settings": "ACG/J04/260118 145218 J04 王者荣耀 小乔 纯白花嫁/settings.json",
-        "thumbnail": "ACG/J04/260118 145218 J04 王者荣耀 小乔 纯白花嫁/260118 145218 J04 xiaoqiao.jpg"
+        "thumbnail": "ACG/J04/260118 145218 J04 王者荣耀 小乔 纯白花嫁/260118 145218 J04 xiaoqiao.jpg",
+        "compatibilityModel": "ACG/J04/260118 145218 J04 王者荣耀 小乔 纯白花嫁/260118 145218 J04 xiaoqiao.sog"
       },
       "fileSize": {
-        "model": 27259034,
+        "model": 32361877,
         "environment": 5082379,
         "thumbnail": 555287,
-        "total": 32896700
+        "total": 37999543,
+        "compatibilityModel": 27259034
       },
       "meta": {
         "date": "2026-01-18",
@@ -1479,7 +1553,7 @@
       },
       "version": {
         "addedIn": "1.0a",
-        "updatedIn": "1.0a"
+        "updatedIn": "5.26.0"
       }
     },
     {
@@ -1494,16 +1568,18 @@
       "source": "scanner",
       "experienceType": "character",
       "files": {
-        "model": "ACG/J04/260118 164325 J04 王者荣耀 西施 织梦人/260118 164325 J04 xishi.sog",
+        "model": "ACG/J04/260118 164325 J04 王者荣耀 西施 织梦人/migration-v3/260118 164325 J04 xishi/scene.sog",
         "environment": "ACG/J04/260118 164325 J04 王者荣耀 西施 织梦人/260118 164325 J04 xishi_point_cloud.compressed.ply",
         "settings": "ACG/J04/260118 164325 J04 王者荣耀 西施 织梦人/settings.json",
-        "thumbnail": "ACG/J04/260118 164325 J04 王者荣耀 西施 织梦人/260118 164325 J04 xishi.jpg"
+        "thumbnail": "ACG/J04/260118 164325 J04 王者荣耀 西施 织梦人/260118 164325 J04 xishi.jpg",
+        "compatibilityModel": "ACG/J04/260118 164325 J04 王者荣耀 西施 织梦人/260118 164325 J04 xishi.sog"
       },
       "fileSize": {
-        "model": 18940464,
+        "model": 24129047,
         "environment": 90297,
         "thumbnail": 301355,
-        "total": 19332116
+        "total": 24520699,
+        "compatibilityModel": 18940464
       },
       "meta": {
         "date": "2026-01-18",
@@ -1520,7 +1596,7 @@
       },
       "version": {
         "addedIn": "1.0a",
-        "updatedIn": "1.0a"
+        "updatedIn": "5.26.0"
       }
     },
     {
@@ -1535,16 +1611,18 @@
       "source": "scanner",
       "experienceType": "character",
       "files": {
-        "model": "ACG/J04/260118 145712 J04 间谍过家家 约尔1/260118 145712 J04 Yor1.sog",
+        "model": "ACG/J04/260118 145712 J04 间谍过家家 约尔1/migration-v3/260118 145712 J04 Yor1/scene.sog",
         "environment": "ACG/J04/260118 145712 J04 间谍过家家 约尔1/260118 145712 J04 Yor1_environment.compressed.ply",
         "settings": "ACG/J04/260118 145712 J04 间谍过家家 约尔1/settings.json",
-        "thumbnail": "ACG/J04/260118 145712 J04 间谍过家家 约尔1/260118 145712 J04 Yor1.jpg"
+        "thumbnail": "ACG/J04/260118 145712 J04 间谍过家家 约尔1/260118 145712 J04 Yor1.jpg",
+        "compatibilityModel": "ACG/J04/260118 145712 J04 间谍过家家 约尔1/260118 145712 J04 Yor1.sog"
       },
       "fileSize": {
-        "model": 26922889,
+        "model": 31179493,
         "environment": 7226879,
         "thumbnail": 350711,
-        "total": 34500479
+        "total": 38757083,
+        "compatibilityModel": 26922889
       },
       "meta": {
         "date": "2026-01-18",
@@ -1561,7 +1639,7 @@
       },
       "version": {
         "addedIn": "1.0a",
-        "updatedIn": "1.0a"
+        "updatedIn": "5.26.0"
       }
     },
     {
@@ -1576,16 +1654,18 @@
       "source": "scanner",
       "experienceType": "character",
       "files": {
-        "model": "ACG/J04/260118 150009 J04 间谍过家家 约尔2/260118 145712 J04 Yor2.sog",
+        "model": "ACG/J04/260118 150009 J04 间谍过家家 约尔2/migration-v3/260118 145712 J04 Yor2/scene.sog",
         "environment": "ACG/J04/260118 150009 J04 间谍过家家 约尔2/260118 145712 J04 Yor2_environment.compressed.ply",
         "settings": "ACG/J04/260118 150009 J04 间谍过家家 约尔2/settings.json",
-        "thumbnail": "ACG/J04/260118 150009 J04 间谍过家家 约尔2/260118 145712 J04 Yor2_407.jpg"
+        "thumbnail": "ACG/J04/260118 150009 J04 间谍过家家 约尔2/260118 145712 J04 Yor2_407.jpg",
+        "compatibilityModel": "ACG/J04/260118 150009 J04 间谍过家家 约尔2/260118 145712 J04 Yor2.sog"
       },
       "fileSize": {
-        "model": 26671221,
+        "model": 30955628,
         "environment": 6347863,
         "thumbnail": 347842,
-        "total": 33366926
+        "total": 37651333,
+        "compatibilityModel": 26671221
       },
       "meta": {
         "date": "2026-01-18",
@@ -1602,7 +1682,7 @@
       },
       "version": {
         "addedIn": "1.0a",
-        "updatedIn": "1.0a"
+        "updatedIn": "5.26.0"
       }
     },
     {
@@ -1617,16 +1697,18 @@
       "source": "scanner",
       "experienceType": "character",
       "files": {
-        "model": "ACG/J05/260315 162919 J05 01/260315 162919 J05 01.sog",
+        "model": "ACG/J05/260315 162919 J05 01/migration-v3/260315 162919 J05 01/scene.sog",
         "environment": "ACG/J05/260315 162919 J05 01/260315 162919 J05 01_environment.compressed.ply",
         "settings": "ACG/J05/260315 162919 J05 01/settings.json",
-        "thumbnail": "ACG/J05/260315 162919 J05 01/260315 162919 J05 01.jpg"
+        "thumbnail": "ACG/J05/260315 162919 J05 01/260315 162919 J05 01.jpg",
+        "compatibilityModel": "ACG/J05/260315 162919 J05 01/260315 162919 J05 01.sog"
       },
       "fileSize": {
-        "model": 25551692,
+        "model": 30658425,
         "environment": 164712,
         "thumbnail": 597126,
-        "total": 26313530
+        "total": 31420263,
+        "compatibilityModel": 25551692
       },
       "meta": {
         "date": "2026-03-15",
@@ -1643,7 +1725,7 @@
       },
       "version": {
         "addedIn": "2.10a",
-        "updatedIn": "3.4"
+        "updatedIn": "5.26.0"
       }
     },
     {
@@ -1658,16 +1740,18 @@
       "source": "scanner",
       "experienceType": "character",
       "files": {
-        "model": "ACG/J05/260315 165959 J05 05 重返未來1999 贝丽尔/260315 173745 J05 05 Beryl Bouanich.sog",
+        "model": "ACG/J05/260315 165959 J05 05 重返未來1999 贝丽尔/sog-v3/scene.sog",
         "environment": "ACG/J05/260315 165959 J05 05 重返未來1999 贝丽尔/260315 173745 J05 05 Beryl Bouanich_environment.compressed.ply",
         "settings": "ACG/J05/260315 165959 J05 05 重返未來1999 贝丽尔/settings.json",
-        "thumbnail": "ACG/J05/260315 165959 J05 05 重返未來1999 贝丽尔/260315 173745 J05 05 Beryl Bouanich.jpg"
+        "thumbnail": "ACG/J05/260315 165959 J05 05 重返未來1999 贝丽尔/260315 173745 J05 05 Beryl Bouanich.jpg",
+        "compatibilityModel": "ACG/J05/260315 165959 J05 05 重返未來1999 贝丽尔/260315 173745 J05 05 Beryl Bouanich.sog"
       },
       "fileSize": {
-        "model": 22782243,
+        "model": 25014796,
         "environment": 114109,
         "thumbnail": 586786,
-        "total": 23483138
+        "total": 25715691,
+        "compatibilityModel": 22782243
       },
       "meta": {
         "date": "2026-03-15",
@@ -1684,7 +1768,7 @@
       },
       "version": {
         "addedIn": "2.10a",
-        "updatedIn": "3.4"
+        "updatedIn": "5.26.0"
       }
     },
     {
@@ -1699,16 +1783,18 @@
       "source": "scanner",
       "experienceType": "character",
       "files": {
-        "model": "ACG/J05/260315 180620 J05 06 第五人格 红夫人 小女孩/260315 180620 J05 06 BloodyQueen.sog",
+        "model": "ACG/J05/260315 180620 J05 06 第五人格 红夫人 小女孩/migration-v3/260315 180620 J05 06 BloodyQueen/scene.sog",
         "environment": "ACG/J05/260315 180620 J05 06 第五人格 红夫人 小女孩/260315 180620 J05 06 BloodyQueen_environment.compressed.ply",
         "settings": "ACG/J05/260315 180620 J05 06 第五人格 红夫人 小女孩/settings.json",
-        "thumbnail": "ACG/J05/260315 180620 J05 06 第五人格 红夫人 小女孩/260315 180620 J05 06 BloodyQueen.jpg"
+        "thumbnail": "ACG/J05/260315 180620 J05 06 第五人格 红夫人 小女孩/260315 180620 J05 06 BloodyQueen.jpg",
+        "compatibilityModel": "ACG/J05/260315 180620 J05 06 第五人格 红夫人 小女孩/260315 180620 J05 06 BloodyQueen.sog"
       },
       "fileSize": {
-        "model": 32001679,
+        "model": 36304863,
         "environment": 4800239,
         "thumbnail": 437074,
-        "total": 37238992
+        "total": 41542176,
+        "compatibilityModel": 32001679
       },
       "meta": {
         "date": "2026-03-15",
@@ -1725,7 +1811,7 @@
       },
       "version": {
         "addedIn": "2.10a",
-        "updatedIn": "3.4"
+        "updatedIn": "5.26.0"
       }
     },
     {
@@ -1740,16 +1826,18 @@
       "source": "scanner",
       "experienceType": "character",
       "files": {
-        "model": "ACG/J05/260315 163519 J05 02 黑执事 夏尔/260315 163519 J05 02 Ciel Phantomhive.sog",
+        "model": "ACG/J05/260315 163519 J05 02 黑执事 夏尔/migration-v3/260315 163519 J05 02 Ciel Phantomhive/scene.sog",
         "environment": "ACG/J05/260315 163519 J05 02 黑执事 夏尔/260315 163519 J05 02 Ciel Phantomhive_environment.compressed.ply",
         "settings": "ACG/J05/260315 163519 J05 02 黑执事 夏尔/settings.json",
-        "thumbnail": "ACG/J05/260315 163519 J05 02 黑执事 夏尔/260315 163519 J05 02 Ciel Phantomhive.jpg"
+        "thumbnail": "ACG/J05/260315 163519 J05 02 黑执事 夏尔/260315 163519 J05 02 Ciel Phantomhive.jpg",
+        "compatibilityModel": "ACG/J05/260315 163519 J05 02 黑执事 夏尔/260315 163519 J05 02 Ciel Phantomhive.sog"
       },
       "fileSize": {
-        "model": 26558800,
+        "model": 32062567,
         "environment": 57577,
         "thumbnail": 674036,
-        "total": 27290413
+        "total": 32794180,
+        "compatibilityModel": 26558800
       },
       "meta": {
         "date": "2026-03-15",
@@ -1766,7 +1854,7 @@
       },
       "version": {
         "addedIn": "2.10a",
-        "updatedIn": "3.4"
+        "updatedIn": "5.26.0"
       }
     },
     {
@@ -1781,16 +1869,18 @@
       "source": "scanner",
       "experienceType": "character",
       "files": {
-        "model": "ACG/J05/260315 165007 J05 03 lolita/260315 165007 J05 03 lolita.sog",
+        "model": "ACG/J05/260315 165007 J05 03 lolita/migration-v3/260315 165007 J05 03 lolita/scene.sog",
         "environment": "ACG/J05/260315 165007 J05 03 lolita/260315 165007 J05 03 lolita_environment.compressed.ply",
         "settings": "ACG/J05/260315 165007 J05 03 lolita/settings.json",
-        "thumbnail": "ACG/J05/260315 165007 J05 03 lolita/260315 165007 J05 03 lolita.jpg"
+        "thumbnail": "ACG/J05/260315 165007 J05 03 lolita/260315 165007 J05 03 lolita.jpg",
+        "compatibilityModel": "ACG/J05/260315 165007 J05 03 lolita/260315 165007 J05 03 lolita.sog"
       },
       "fileSize": {
-        "model": 26244529,
+        "model": 31226439,
         "environment": 56967,
         "thumbnail": 501558,
-        "total": 26803054
+        "total": 31784964,
+        "compatibilityModel": 26244529
       },
       "meta": {
         "date": "2026-03-15",
@@ -1807,7 +1897,7 @@
       },
       "version": {
         "addedIn": "2.10a",
-        "updatedIn": "3.4"
+        "updatedIn": "5.26.0"
       }
     },
     {
@@ -1822,16 +1912,18 @@
       "source": "scanner",
       "experienceType": "character",
       "files": {
-        "model": "ACG/J05/260315 165959 J05 04 lolita2/260315 165959 J05 04 lolita2.sog",
+        "model": "ACG/J05/260315 165959 J05 04 lolita2/migration-v3/260315 165959 J05 04 lolita2/scene.sog",
         "environment": "ACG/J05/260315 165959 J05 04 lolita2/260315 165959 J05 04 lolita2_environment.compressed.ply",
         "settings": "ACG/J05/260315 165959 J05 04 lolita2/settings.json",
-        "thumbnail": "ACG/J05/260315 165959 J05 04 lolita2/260315 165959 J05 04 lolita2.jpg"
+        "thumbnail": "ACG/J05/260315 165959 J05 04 lolita2/260315 165959 J05 04 lolita2.jpg",
+        "compatibilityModel": "ACG/J05/260315 165959 J05 04 lolita2/260315 165959 J05 04 lolita2.sog"
       },
       "fileSize": {
-        "model": 23469823,
+        "model": 29160523,
         "environment": 89288980,
         "thumbnail": 443673,
-        "total": 113202476
+        "total": 118893176,
+        "compatibilityModel": 23469823
       },
       "meta": {
         "date": "2026-03-15",
@@ -1848,7 +1940,7 @@
       },
       "version": {
         "addedIn": "2.10a",
-        "updatedIn": "3.4"
+        "updatedIn": "5.26.0"
       }
     },
     {
@@ -1863,16 +1955,18 @@
       "source": "scanner",
       "experienceType": "character",
       "files": {
-        "model": "ACG/J05/260315 190259 J05 09 lolita3/260315 190259 J05 09 lolita3.sog",
+        "model": "ACG/J05/260315 190259 J05 09 lolita3/migration-v3/260315 190259 J05 09 lolita3/scene.sog",
         "environment": "ACG/J05/260315 190259 J05 09 lolita3/260315 190259 J05 09 lolita3_environment.compressed.ply",
         "settings": "ACG/J05/260315 190259 J05 09 lolita3/settings.json",
-        "thumbnail": "ACG/J05/260315 190259 J05 09 lolita3/260315 190259 J05 09 lolita3.jpg"
+        "thumbnail": "ACG/J05/260315 190259 J05 09 lolita3/260315 190259 J05 09 lolita3.jpg",
+        "compatibilityModel": "ACG/J05/260315 190259 J05 09 lolita3/260315 190259 J05 09 lolita3.sog"
       },
       "fileSize": {
-        "model": 21189116,
+        "model": 26160143,
         "environment": 61359,
         "thumbnail": 408886,
-        "total": 21659361
+        "total": 26630388,
+        "compatibilityModel": 21189116
       },
       "meta": {
         "date": "2026-03-15",
@@ -1889,7 +1983,7 @@
       },
       "version": {
         "addedIn": "2.10a",
-        "updatedIn": "3.4"
+        "updatedIn": "5.26.0"
       }
     },
     {
@@ -1904,16 +1998,18 @@
       "source": "scanner",
       "experienceType": "character",
       "files": {
-        "model": "ACG/J05/260315 183428 J05 07 原神 娜维娅/260315 183428 J05 07 Navia Caspar.sog",
+        "model": "ACG/J05/260315 183428 J05 07 原神 娜维娅/migration-v3/260315 183428 J05 07 Navia Caspar/scene.sog",
         "environment": "ACG/J05/260315 183428 J05 07 原神 娜维娅/260315 183428 J05 07 Navia Caspar_environment.compressed.ply",
         "settings": "ACG/J05/260315 183428 J05 07 原神 娜维娅/settings.json",
-        "thumbnail": "ACG/J05/260315 183428 J05 07 原神 娜维娅/260315 183428 J05 07 Navia Caspar.jpg"
+        "thumbnail": "ACG/J05/260315 183428 J05 07 原神 娜维娅/260315 183428 J05 07 Navia Caspar.jpg",
+        "compatibilityModel": "ACG/J05/260315 183428 J05 07 原神 娜维娅/260315 183428 J05 07 Navia Caspar.sog"
       },
       "fileSize": {
-        "model": 34732454,
+        "model": 39309116,
         "environment": 2826673,
         "thumbnail": 480272,
-        "total": 38039399
+        "total": 42616061,
+        "compatibilityModel": 34732454
       },
       "meta": {
         "date": "2026-03-15",
@@ -1930,7 +2026,7 @@
       },
       "version": {
         "addedIn": "2.10a",
-        "updatedIn": "3.4"
+        "updatedIn": "5.26.0"
       }
     },
     {
@@ -1945,17 +2041,17 @@
       "source": "scanner",
       "experienceType": "scene",
       "files": {
-        "model": "ACG/J05/260315 184701 J05 08 寻洋派/lod-meta.json",
+        "model": "lod-independent/acg/j05/xunyangpai/streamed/lod-meta.json",
         "environment": "ACG/J05/260315 184701 J05 08 寻洋派/260315 184701 J05 08 xunyangpai_environment.compressed.ply",
         "settings": "ACG/J05/260315 184701 J05 08 寻洋派/settings.json",
         "thumbnail": "ACG/J05/260315 184701 J05 08 寻洋派/260315 184701 J05 08 xunyangpai.jpg",
         "voxel": "ACG/J05/260315 184701 J05 08 寻洋派/260315 184701 J05 08 xunyangpai_collision.voxel.json"
       },
       "fileSize": {
-        "model": 113820142,
+        "model": 100056086,
         "environment": 330972,
         "thumbnail": 379368,
-        "total": 143197534,
+        "total": 129433478,
         "voxel": 28667052
       },
       "meta": {
@@ -1977,7 +2073,7 @@
       },
       "version": {
         "addedIn": "2.10a",
-        "updatedIn": "3.4"
+        "updatedIn": "5.26.0"
       }
     },
     {
@@ -1992,18 +2088,20 @@
       "source": "photogrammetry",
       "experienceType": "character",
       "files": {
-        "model": "ACG/PhoenixFes26/260328 172013 huaijiao/260328 172013 huaijiao.sog",
+        "model": "ACG/PhoenixFes26/260328 172013 huaijiao/migration-v3/260328 172013 huaijiao/scene.sog",
         "environment": "ACG/PhoenixFes26/260328 172013 huaijiao/260328 172013 huaijiao_environment.compressed.ply",
         "settings": "ACG/PhoenixFes26/260328 172013 huaijiao/settings-v2.json",
         "thumbnail": null,
-        "voxel": "ACG/PhoenixFes26/260328 172013 huaijiao/voxel_lod0_r0.08_a0.20_rot90_0_0/meta.voxel.json"
+        "voxel": "ACG/PhoenixFes26/260328 172013 huaijiao/voxel_lod0_r0.08_a0.20_rot90_0_0/meta.voxel.json",
+        "compatibilityModel": "ACG/PhoenixFes26/260328 172013 huaijiao/260328 172013 huaijiao.sog"
       },
       "fileSize": {
-        "model": 13543792,
+        "model": 20826731,
         "environment": 125699,
         "thumbnail": 0,
-        "total": 15785476,
-        "voxel": 2115985
+        "total": 23068415,
+        "voxel": 2115985,
+        "compatibilityModel": 13543792
       },
       "meta": {
         "date": "2026-03-28",
@@ -2016,7 +2114,7 @@
       },
       "version": {
         "addedIn": "3.20a",
-        "updatedIn": "3.20a"
+        "updatedIn": "5.26.0"
       }
     },
     {
@@ -2031,17 +2129,17 @@
       "source": "photogrammetry",
       "experienceType": "scene",
       "files": {
-        "model": "ACG/PhoenixFes26/260328 154958 痛车/supersplat_lod_rot90_0_0/lod-meta.json",
+        "model": "lod-independent/acg/phoenixfes26/itasha/streamed/lod-meta.json",
         "environment": null,
         "settings": "ACG/PhoenixFes26/260328 154958 痛车/settings-merged.json",
         "thumbnail": "ACG/PhoenixFes26/260328 154958 痛车/260328 154958 itasha.jpg",
         "voxel": "ACG/PhoenixFes26/260328 154958 痛车/voxel_lod0_r0.08_a0.20_rot90_0_0/meta.voxel.json"
       },
       "fileSize": {
-        "model": 605605322,
+        "model": 585959687,
         "environment": 0,
         "thumbnail": 1056083,
-        "total": 620272471,
+        "total": 600626836,
         "voxel": 13611066
       },
       "meta": {
@@ -2060,7 +2158,7 @@
       },
       "version": {
         "addedIn": "3.20a",
-        "updatedIn": "3.20a"
+        "updatedIn": "5.26.0"
       }
     },
     {
@@ -2075,18 +2173,20 @@
       "source": "photogrammetry",
       "experienceType": "character",
       "files": {
-        "model": "ACG/PhoenixFes26/260328 171625 崩铁 银狼/260328 171625 Silver Wolf.sog",
+        "model": "ACG/PhoenixFes26/260328 171625 崩铁 银狼/migration-v3/260328 171625 Silver Wolf/scene.sog",
         "environment": "ACG/PhoenixFes26/260328 171625 崩铁 银狼/260328 171625 Silver Wolf_environment.compressed.ply",
         "settings": "ACG/PhoenixFes26/260328 171625 崩铁 银狼/settings-v2.json",
         "thumbnail": null,
-        "voxel": "ACG/PhoenixFes26/260328 171625 崩铁 银狼/voxel_lod0_r0.08_a0.20_rot90_0_0/meta.voxel.json"
+        "voxel": "ACG/PhoenixFes26/260328 171625 崩铁 银狼/voxel_lod0_r0.08_a0.20_rot90_0_0/meta.voxel.json",
+        "compatibilityModel": "ACG/PhoenixFes26/260328 171625 崩铁 银狼/260328 171625 Silver Wolf.sog"
       },
       "fileSize": {
-        "model": 34940378,
+        "model": 41305110,
         "environment": 1166855,
         "thumbnail": 0,
-        "total": 41666169,
-        "voxel": 5558936
+        "total": 48030901,
+        "voxel": 5558936,
+        "compatibilityModel": 34940378
       },
       "meta": {
         "date": "2026-03-28",
@@ -2099,7 +2199,7 @@
       },
       "version": {
         "addedIn": "3.20a",
-        "updatedIn": "3.20a"
+        "updatedIn": "5.26.0"
       }
     },
     {
@@ -2114,17 +2214,17 @@
       "source": "photogrammetry",
       "experienceType": "scene",
       "files": {
-        "model": "ACG/PhoenixFes26/260328 172811 舞台/supersplat_lod_rot90_0_0/lod-meta.json",
+        "model": "lod-independent/acg/phoenixfes26/stage/streamed/lod-meta.json",
         "environment": null,
         "settings": "ACG/PhoenixFes26/260328 172811 舞台/settings-merged.json",
         "thumbnail": "ACG/PhoenixFes26/260328 172811 舞台/260328 172811 stage.jpg",
         "voxel": "ACG/PhoenixFes26/260328 172811 舞台/voxel_lod0_r0.08_a0.20_rot90_0_0/meta.voxel.json"
       },
       "fileSize": {
-        "model": 106340666,
+        "model": 127675989,
         "environment": 0,
         "thumbnail": 1062546,
-        "total": 117014864,
+        "total": 138350187,
         "voxel": 9611652
       },
       "meta": {
@@ -2143,7 +2243,7 @@
       },
       "version": {
         "addedIn": "3.20a",
-        "updatedIn": "3.20a"
+        "updatedIn": "5.26.0"
       }
     },
     {
@@ -2158,17 +2258,17 @@
       "source": "photogrammetry",
       "experienceType": "scene",
       "files": {
-        "model": "ACG/FireflyFes38/260502 165708 scene 02 碧蓝航线/streamed_noenv/lod-meta.json",
+        "model": "lod-independent/acg/fireflyfes38/azur-lane/streamed/lod-meta.json",
         "environment": "ACG/FireflyFes38/260502 165708 scene 02 碧蓝航线/260502 165708 scene 02 Azur Lane_environment.compressed.ply",
         "settings": "ACG/FireflyFes38/260502 165708 scene 02 碧蓝航线/settings-merged.json",
         "thumbnail": "ACG/FireflyFes38/260502 165708 scene 02 碧蓝航线/260502 165708 scene 02 Azur Lane.jpg",
         "voxel": "ACG/FireflyFes38/260502 165708 scene 02 碧蓝航线/voxel_ply_lod0_r0.08_a0.20/meta.voxel.json"
       },
       "fileSize": {
-        "model": 148710227,
+        "model": 194354545,
         "environment": 461202,
         "thumbnail": 615985,
-        "total": 160685646,
+        "total": 206329964,
         "voxel": 10898232
       },
       "meta": {
@@ -2187,7 +2287,7 @@
       },
       "version": {
         "addedIn": "4.2",
-        "updatedIn": "4.2b"
+        "updatedIn": "5.26.0"
       }
     },
     {
@@ -2202,18 +2302,20 @@
       "source": "photogrammetry",
       "experienceType": "character",
       "files": {
-        "model": "ACG/FireflyFes38/260502 172930 03 崩坏星穹铁道 昔涟/260502 172930 03 Cyrene.sog",
+        "model": "ACG/FireflyFes38/260502 172930 03 崩坏星穹铁道 昔涟/migration-v3/260502 172930 03 Cyrene/scene.sog",
         "environment": "ACG/FireflyFes38/260502 172930 03 崩坏星穹铁道 昔涟/260502 172930 03 Cyrene_environment.compressed.ply",
         "settings": "ACG/FireflyFes38/260502 172930 03 崩坏星穹铁道 昔涟/settings-v2.json",
         "thumbnail": "ACG/FireflyFes38/260502 172930 03 崩坏星穹铁道 昔涟/260502 172930 03 Cyrene.jpg",
-        "voxel": "ACG/FireflyFes38/260502 172930 03 崩坏星穹铁道 昔涟/voxel_ply_lod0_r0.08_a0.20/meta.voxel.json"
+        "voxel": "ACG/FireflyFes38/260502 172930 03 崩坏星穹铁道 昔涟/voxel_ply_lod0_r0.08_a0.20/meta.voxel.json",
+        "compatibilityModel": "ACG/FireflyFes38/260502 172930 03 崩坏星穹铁道 昔涟/260502 172930 03 Cyrene.sog"
       },
       "fileSize": {
-        "model": 25014364,
+        "model": 30566237,
         "environment": 468461,
         "thumbnail": 801947,
-        "total": 30110127,
-        "voxel": 3825355
+        "total": 35662000,
+        "voxel": 3825355,
+        "compatibilityModel": 25014364
       },
       "meta": {
         "date": "2026-05-02",
@@ -2227,7 +2329,7 @@
       },
       "version": {
         "addedIn": "4.2",
-        "updatedIn": "5.3a"
+        "updatedIn": "5.26.0"
       }
     },
     {
@@ -2242,18 +2344,20 @@
       "source": "photogrammetry",
       "experienceType": "character",
       "files": {
-        "model": "ACG/FireflyFes38/260502 184535 05 王者荣耀 貂蝉 馥梦繁花/260502 184535 05 diaochan.sog",
+        "model": "ACG/FireflyFes38/260502 184535 05 王者荣耀 貂蝉 馥梦繁花/migration-v3/260502 184535 05 diaochan/scene.sog",
         "environment": "ACG/FireflyFes38/260502 184535 05 王者荣耀 貂蝉 馥梦繁花/260502 184535 05 diaochan_environment.compressed.ply",
         "settings": "ACG/FireflyFes38/260502 184535 05 王者荣耀 貂蝉 馥梦繁花/settings-v2.json",
         "thumbnail": "ACG/FireflyFes38/260502 184535 05 王者荣耀 貂蝉 馥梦繁花/260502 184535 05 diaochan.jpg",
-        "voxel": "ACG/FireflyFes38/260502 184535 05 王者荣耀 貂蝉 馥梦繁花/voxel_ply_lod0_r0.08_a0.20/meta.voxel.json"
+        "voxel": "ACG/FireflyFes38/260502 184535 05 王者荣耀 貂蝉 馥梦繁花/voxel_ply_lod0_r0.08_a0.20/meta.voxel.json",
+        "compatibilityModel": "ACG/FireflyFes38/260502 184535 05 王者荣耀 貂蝉 馥梦繁花/260502 184535 05 diaochan.sog"
       },
       "fileSize": {
-        "model": 16460597,
+        "model": 22520829,
         "environment": 1429152,
         "thumbnail": 296646,
-        "total": 22077025,
-        "voxel": 3890630
+        "total": 28137257,
+        "voxel": 3890630,
+        "compatibilityModel": 16460597
       },
       "meta": {
         "date": "2026-05-02",
@@ -2267,7 +2371,7 @@
       },
       "version": {
         "addedIn": "4.2",
-        "updatedIn": "4.2b"
+        "updatedIn": "5.26.0"
       }
     },
     {
@@ -2282,17 +2386,17 @@
       "source": "photogrammetry",
       "experienceType": "scene",
       "files": {
-        "model": "ACG/FireflyFes38/260502 162735 scene 01/streamed_noenv/lod-meta.json",
+        "model": "lod-independent/acg/fireflyfes38/fireflyfes38/streamed/lod-meta.json",
         "environment": "ACG/FireflyFes38/260502 162735 scene 01/260502 162735 scene 01_environment.compressed.ply",
         "settings": "ACG/FireflyFes38/260502 162735 scene 01/settings-v2.json",
         "thumbnail": "ACG/FireflyFes38/260502 162735 scene 01/260502 162735 scene 01.jpg",
         "voxel": "ACG/FireflyFes38/260502 162735 scene 01/voxel_ply_lod0_r0.08_a0.20/meta.voxel.json"
       },
       "fileSize": {
-        "model": 309694917,
+        "model": 439642626,
         "environment": 1314090,
         "thumbnail": 429492,
-        "total": 334148012,
+        "total": 464095721,
         "voxel": 22709513
       },
       "meta": {
@@ -2311,7 +2415,7 @@
       },
       "version": {
         "addedIn": "4.2",
-        "updatedIn": "4.2b"
+        "updatedIn": "5.26.0"
       }
     },
     {
@@ -2326,18 +2430,20 @@
       "source": "photogrammetry",
       "experienceType": "character",
       "files": {
-        "model": "ACG/FireflyFes38/260502 180249 04 国风兽装/260502 180249 04 Fursuit.sog",
+        "model": "ACG/FireflyFes38/260502 180249 04 国风兽装/migration-v3/260502 180249 04 Fursuit/scene.sog",
         "environment": "ACG/FireflyFes38/260502 180249 04 国风兽装/260502 180249 04 Fursuit_environment.compressed.ply",
         "settings": "ACG/FireflyFes38/260502 180249 04 国风兽装/settings-v2-micro.json",
         "thumbnail": "ACG/FireflyFes38/260502 180249 04 国风兽装/260502 180249 04 Fursuit.jpg",
-        "voxel": "ACG/FireflyFes38/260502 180249 04 国风兽装/voxel_ply_lod0_r0.08_a0.20/meta.voxel.json"
+        "voxel": "ACG/FireflyFes38/260502 180249 04 国风兽装/voxel_ply_lod0_r0.08_a0.20/meta.voxel.json",
+        "compatibilityModel": "ACG/FireflyFes38/260502 180249 04 国风兽装/260502 180249 04 Fursuit.sog"
       },
       "fileSize": {
-        "model": 28886114,
+        "model": 34153221,
         "environment": 424813,
         "thumbnail": 502116,
-        "total": 36331906,
-        "voxel": 6518863
+        "total": 41599013,
+        "voxel": 6518863,
+        "compatibilityModel": 28886114
       },
       "meta": {
         "date": "2026-05-02",
@@ -2351,7 +2457,7 @@
       },
       "version": {
         "addedIn": "4.2",
-        "updatedIn": "4.2b"
+        "updatedIn": "5.26.0"
       }
     },
     {
@@ -2366,18 +2472,20 @@
       "source": "photogrammetry",
       "experienceType": "character",
       "files": {
-        "model": "ACG/FireflyFes38/260502 160157 01 绝区零 南宫羽/260502 160157 01 NangongYu.sog",
+        "model": "ACG/FireflyFes38/260502 160157 01 绝区零 南宫羽/migration-v3/260502 160157 01 NangongYu/scene.sog",
         "environment": "ACG/FireflyFes38/260502 160157 01 绝区零 南宫羽/260502 160157 01 Nangong Yu_environment.compressed.ply",
         "settings": "ACG/FireflyFes38/260502 160157 01 绝区零 南宫羽/settings-v2.json",
         "thumbnail": "ACG/FireflyFes38/260502 160157 01 绝区零 南宫羽/260502 160157 01 NangongYu.jpg",
-        "voxel": "ACG/FireflyFes38/260502 160157 01 绝区零 南宫羽/voxel_ply_lod0_r0.08_a0.20/meta.voxel.json"
+        "voxel": "ACG/FireflyFes38/260502 160157 01 绝区零 南宫羽/voxel_ply_lod0_r0.08_a0.20/meta.voxel.json",
+        "compatibilityModel": "ACG/FireflyFes38/260502 160157 01 绝区零 南宫羽/260502 160157 01 NangongYu.sog"
       },
       "fileSize": {
-        "model": 22584368,
+        "model": 27230495,
         "environment": 5463481,
         "thumbnail": 353067,
-        "total": 35231572,
-        "voxel": 6830656
+        "total": 39877699,
+        "voxel": 6830656,
+        "compatibilityModel": 22584368
       },
       "meta": {
         "date": "2026-05-02",
@@ -2391,7 +2499,7 @@
       },
       "version": {
         "addedIn": "4.2",
-        "updatedIn": "4.2b"
+        "updatedIn": "5.26.0"
       }
     },
     {
@@ -2406,18 +2514,20 @@
       "source": "photogrammetry",
       "experienceType": "character",
       "files": {
-        "model": "ACG/FireflyFes38/260502 161428 02 绝区零 拉米尔/260502 161428 02 Remielle Dan.sog",
+        "model": "ACG/FireflyFes38/260502 161428 02 绝区零 拉米尔/migration-v3/260502 161428 02 Remielle Dan/scene.sog",
         "environment": "ACG/FireflyFes38/260502 161428 02 绝区零 拉米尔/260502 161428 02 Remielle Dan_environment.compressed.ply",
         "settings": "ACG/FireflyFes38/260502 161428 02 绝区零 拉米尔/settings-v2.json",
         "thumbnail": "ACG/FireflyFes38/260502 161428 02 绝区零 拉米尔/260502 161428 02 Remielle Dan.jpg",
-        "voxel": "ACG/FireflyFes38/260502 161428 02 绝区零 拉米尔/voxel_ply_lod0_r0.08_a0.20/meta.voxel.json"
+        "voxel": "ACG/FireflyFes38/260502 161428 02 绝区零 拉米尔/voxel_ply_lod0_r0.08_a0.20/meta.voxel.json",
+        "compatibilityModel": "ACG/FireflyFes38/260502 161428 02 绝区零 拉米尔/260502 161428 02 Remielle Dan.sog"
       },
       "fileSize": {
-        "model": 24436880,
+        "model": 28919854,
         "environment": 7456896,
         "thumbnail": 405635,
-        "total": 38817339,
-        "voxel": 6517928
+        "total": 43300313,
+        "voxel": 6517928,
+        "compatibilityModel": 24436880
       },
       "meta": {
         "date": "2026-05-02",
@@ -2431,7 +2541,7 @@
       },
       "version": {
         "addedIn": "4.2",
-        "updatedIn": "4.2b"
+        "updatedIn": "5.26.0"
       }
     },
     {
@@ -2446,18 +2556,20 @@
       "source": "photogrammetry",
       "experienceType": "character",
       "files": {
-        "model": "ACG/FireflyFes38/260502 160903 02b 绝区零 拉米尔/260502 160903 02b Remielle Dan.sog",
+        "model": "ACG/FireflyFes38/260502 160903 02b 绝区零 拉米尔/migration-v3/260502 160903 02b Remielle Dan/scene.sog",
         "environment": "ACG/FireflyFes38/260502 160903 02b 绝区零 拉米尔/260502 160903 02b Remielle Dan_environment.compressed.ply",
         "settings": "ACG/FireflyFes38/260502 160903 02b 绝区零 拉米尔/settings-v2.json",
         "thumbnail": "ACG/FireflyFes38/260502 160903 02b 绝区零 拉米尔/260502 160903 02b Remielle Dan.jpg",
-        "voxel": "ACG/FireflyFes38/260502 160903 02b 绝区零 拉米尔/voxel_ply_lod0_r0.08_a0.20/meta.voxel.json"
+        "voxel": "ACG/FireflyFes38/260502 160903 02b 绝区零 拉米尔/voxel_ply_lod0_r0.08_a0.20/meta.voxel.json",
+        "compatibilityModel": "ACG/FireflyFes38/260502 160903 02b 绝区零 拉米尔/260502 160903 02b Remielle Dan.sog"
       },
       "fileSize": {
-        "model": 21956595,
+        "model": 26709839,
         "environment": 12724892,
         "thumbnail": 405635,
-        "total": 36765220,
-        "voxel": 1678098
+        "total": 41518464,
+        "voxel": 1678098,
+        "compatibilityModel": 21956595
       },
       "meta": {
         "date": "2026-05-02",
@@ -2471,7 +2583,7 @@
       },
       "version": {
         "addedIn": "4.2",
-        "updatedIn": "4.2b"
+        "updatedIn": "5.26.0"
       }
     },
     {
@@ -2486,16 +2598,18 @@
       "source": "photogrammetry",
       "experienceType": "character",
       "files": {
-        "model": "ACG/BitCity260711/4D_A002C0063_709_3840 雷姆/4D_A002C0063_709_3840 雷姆.sog",
+        "model": "ACG/BitCity260711/4D_A002C0063_709_3840 雷姆/migration-v3/4D_A002C0063_709_3840 雷姆/scene.sog",
         "environment": null,
         "settings": "ACG/BitCity260711/4D_A002C0063_709_3840 雷姆/settings-v2.json",
-        "thumbnail": "ACG/BitCity260711/4D_A002C0063_709_3840 雷姆/4D_A002C0063_709_3840 雷姆.jpg"
+        "thumbnail": "ACG/BitCity260711/4D_A002C0063_709_3840 雷姆/4D_A002C0063_709_3840 雷姆.jpg",
+        "compatibilityModel": "ACG/BitCity260711/4D_A002C0063_709_3840 雷姆/4D_A002C0063_709_3840 雷姆.sog"
       },
       "fileSize": {
-        "model": 12503118,
+        "model": 18677698,
         "environment": 0,
         "thumbnail": 3430480,
-        "total": 15933598
+        "total": 22108178,
+        "compatibilityModel": 12503118
       },
       "meta": {
         "date": "2026-07-11",
@@ -2508,7 +2622,7 @@
       },
       "version": {
         "addedIn": "5.18.1",
-        "updatedIn": "5.18.1"
+        "updatedIn": "5.26.0"
       }
     },
     {
@@ -2523,16 +2637,18 @@
       "source": "photogrammetry",
       "experienceType": "character",
       "files": {
-        "model": "ACG/BitCity260711/4D_A002C0062_709_3840 天宫赐福_异域谢怜/4D_A002C0062_709_3840 天宫赐福_异域谢怜.sog",
+        "model": "ACG/BitCity260711/4D_A002C0062_709_3840 天宫赐福_异域谢怜/migration-v3/4D_A002C0062_709_3840 天宫赐福_异域谢怜/scene.sog",
         "environment": null,
         "settings": "ACG/BitCity260711/4D_A002C0062_709_3840 天宫赐福_异域谢怜/settings-v2.json",
-        "thumbnail": "ACG/BitCity260711/4D_A002C0062_709_3840 天宫赐福_异域谢怜/4D_A002C0062_709_3840 天宫赐福_异域谢怜.jpg"
+        "thumbnail": "ACG/BitCity260711/4D_A002C0062_709_3840 天宫赐福_异域谢怜/4D_A002C0062_709_3840 天宫赐福_异域谢怜.jpg",
+        "compatibilityModel": "ACG/BitCity260711/4D_A002C0062_709_3840 天宫赐福_异域谢怜/4D_A002C0062_709_3840 天宫赐福_异域谢怜.sog"
       },
       "fileSize": {
-        "model": 13116158,
+        "model": 17638444,
         "environment": 0,
         "thumbnail": 3752212,
-        "total": 16868370
+        "total": 21390656,
+        "compatibilityModel": 13116158
       },
       "meta": {
         "date": "2026-07-11",
@@ -2545,7 +2661,7 @@
       },
       "version": {
         "addedIn": "5.18.1",
-        "updatedIn": "5.18.1"
+        "updatedIn": "5.26.0"
       }
     },
     {
@@ -2560,16 +2676,18 @@
       "source": "photogrammetry",
       "experienceType": "character",
       "files": {
-        "model": "ACG/BitCity260711/P4P_20260711203735_0514_709 天宫赐福_异域谢怜2/P4P_20260711203735_0514_709 天宫赐福_异域谢怜2.sog",
+        "model": "ACG/BitCity260711/P4P_20260711203735_0514_709 天宫赐福_异域谢怜2/migration-v3/P4P_20260711203735_0514_709 天宫赐福_异域谢怜2/scene.sog",
         "environment": null,
         "settings": "ACG/BitCity260711/P4P_20260711203735_0514_709 天宫赐福_异域谢怜2/settings-v2.json",
-        "thumbnail": "ACG/BitCity260711/P4P_20260711203735_0514_709 天宫赐福_异域谢怜2/P4P_20260711203735_0514_709 天宫赐福_异域谢怜2.jpg"
+        "thumbnail": "ACG/BitCity260711/P4P_20260711203735_0514_709 天宫赐福_异域谢怜2/P4P_20260711203735_0514_709 天宫赐福_异域谢怜2.jpg",
+        "compatibilityModel": "ACG/BitCity260711/P4P_20260711203735_0514_709 天宫赐福_异域谢怜2/P4P_20260711203735_0514_709 天宫赐福_异域谢怜2.sog"
       },
       "fileSize": {
-        "model": 8890360,
+        "model": 8456825,
         "environment": 0,
         "thumbnail": 3811821,
-        "total": 12702181
+        "total": 12268646,
+        "compatibilityModel": 8890360
       },
       "meta": {
         "date": "2026-07-11",
@@ -2582,7 +2700,7 @@
       },
       "version": {
         "addedIn": "5.18.1",
-        "updatedIn": "5.18.1"
+        "updatedIn": "5.26.0"
       }
     },
     {
@@ -2597,16 +2715,18 @@
       "source": "photogrammetry",
       "experienceType": "character",
       "files": {
-        "model": "ACG/SZCAF15/A001C0033_260724_PQWJ 傩戏大祭司/A001C0033_260724_PQWJ 傩戏大祭司.sog",
+        "model": "ACG/SZCAF15/A001C0033_260724_PQWJ 傩戏大祭司/migration-v3/A001C0033_260724_PQWJ 傩戏大祭司/scene.sog",
         "environment": null,
         "settings": "ACG/SZCAF15/A001C0033_260724_PQWJ 傩戏大祭司/settings-v2.json",
-        "thumbnail": "ACG/SZCAF15/A001C0033_260724_PQWJ 傩戏大祭司/A001C0033_260724_PQWJ 傩戏大祭司.jpg"
+        "thumbnail": "ACG/SZCAF15/A001C0033_260724_PQWJ 傩戏大祭司/A001C0033_260724_PQWJ 傩戏大祭司.jpg",
+        "compatibilityModel": "ACG/SZCAF15/A001C0033_260724_PQWJ 傩戏大祭司/A001C0033_260724_PQWJ 傩戏大祭司.sog"
       },
       "fileSize": {
-        "model": 23568571,
+        "model": 28875758,
         "environment": 0,
         "thumbnail": 4827275,
-        "total": 28395846
+        "total": 33703033,
+        "compatibilityModel": 23568571
       },
       "meta": {
         "date": "2026-07-24",
@@ -2619,7 +2739,7 @@
       },
       "version": {
         "addedIn": "5.18.1",
-        "updatedIn": "5.18.1"
+        "updatedIn": "5.26.0"
       }
     },
     {
@@ -2634,16 +2754,18 @@
       "source": "photogrammetry",
       "experienceType": "character",
       "files": {
-        "model": "ACG/SZCAF15/A001C0028_260724_PQWJ 麦晓雯 维什戴尔/A001C0028_260724_PQWJ 麦晓雯 维什戴尔.sog",
+        "model": "ACG/SZCAF15/A001C0028_260724_PQWJ 麦晓雯 维什戴尔/migration-v3/A001C0028_260724_PQWJ 麦晓雯 维什戴尔/scene.sog",
         "environment": null,
         "settings": "ACG/SZCAF15/A001C0028_260724_PQWJ 麦晓雯 维什戴尔/settings-v2.json",
-        "thumbnail": "ACG/SZCAF15/A001C0028_260724_PQWJ 麦晓雯 维什戴尔/A001C0028_260724_PQWJ 麦晓雯 维什戴尔.jpg"
+        "thumbnail": "ACG/SZCAF15/A001C0028_260724_PQWJ 麦晓雯 维什戴尔/A001C0028_260724_PQWJ 麦晓雯 维什戴尔.jpg",
+        "compatibilityModel": "ACG/SZCAF15/A001C0028_260724_PQWJ 麦晓雯 维什戴尔/A001C0028_260724_PQWJ 麦晓雯 维什戴尔.sog"
       },
       "fileSize": {
-        "model": 20682351,
+        "model": 24759754,
         "environment": 0,
         "thumbnail": 3815096,
-        "total": 24497447
+        "total": 28574850,
+        "compatibilityModel": 20682351
       },
       "meta": {
         "date": "2026-07-24",
@@ -2656,7 +2778,7 @@
       },
       "version": {
         "addedIn": "5.18.1",
-        "updatedIn": "5.18.1"
+        "updatedIn": "5.26.0"
       }
     },
     {
@@ -2671,16 +2793,18 @@
       "source": "photogrammetry",
       "experienceType": "character",
       "files": {
-        "model": "ACG/SZCAF15/A001C0034_260724_PQWJ 露娜霜月吟/A001C0034_260724_PQWJ 露娜霜月吟.sog",
+        "model": "ACG/SZCAF15/A001C0034_260724_PQWJ 露娜霜月吟/migration-v3/A001C0034_260724_PQWJ 露娜霜月吟/scene.sog",
         "environment": null,
         "settings": "ACG/SZCAF15/A001C0034_260724_PQWJ 露娜霜月吟/settings-v2.json",
-        "thumbnail": "ACG/SZCAF15/A001C0034_260724_PQWJ 露娜霜月吟/A001C0034_260724_PQWJ 露娜霜月吟.jpg"
+        "thumbnail": "ACG/SZCAF15/A001C0034_260724_PQWJ 露娜霜月吟/A001C0034_260724_PQWJ 露娜霜月吟.jpg",
+        "compatibilityModel": "ACG/SZCAF15/A001C0034_260724_PQWJ 露娜霜月吟/A001C0034_260724_PQWJ 露娜霜月吟.sog"
       },
       "fileSize": {
-        "model": 21517592,
+        "model": 26480505,
         "environment": 0,
         "thumbnail": 3855443,
-        "total": 25373035
+        "total": 30335948,
+        "compatibilityModel": 21517592
       },
       "meta": {
         "date": "2026-07-24",
@@ -2693,7 +2817,7 @@
       },
       "version": {
         "addedIn": "5.18.1",
-        "updatedIn": "5.18.1"
+        "updatedIn": "5.26.0"
       }
     },
     {
@@ -2708,16 +2832,18 @@
       "source": "photogrammetry",
       "experienceType": "character",
       "files": {
-        "model": "ACG/SZCAF15/A001C0035_260724_PQWJ 花园新泽西花嫁/A001C0035_260724_PQWJ 花园新泽西花嫁.sog",
+        "model": "ACG/SZCAF15/A001C0035_260724_PQWJ 花园新泽西花嫁/migration-v3/A001C0035_260724_PQWJ 花园新泽西花嫁/scene.sog",
         "environment": null,
         "settings": "ACG/SZCAF15/A001C0035_260724_PQWJ 花园新泽西花嫁/settings-v2.json",
-        "thumbnail": "ACG/SZCAF15/A001C0035_260724_PQWJ 花园新泽西花嫁/A001C0035_260724_PQWJ 花园新泽西花嫁.jpg"
+        "thumbnail": "ACG/SZCAF15/A001C0035_260724_PQWJ 花园新泽西花嫁/A001C0035_260724_PQWJ 花园新泽西花嫁.jpg",
+        "compatibilityModel": "ACG/SZCAF15/A001C0035_260724_PQWJ 花园新泽西花嫁/A001C0035_260724_PQWJ 花园新泽西花嫁.sog"
       },
       "fileSize": {
-        "model": 20361408,
+        "model": 24932163,
         "environment": 0,
         "thumbnail": 4539157,
-        "total": 24900565
+        "total": 29471320,
+        "compatibilityModel": 20361408
       },
       "meta": {
         "date": "2026-07-24",
@@ -2730,7 +2856,7 @@
       },
       "version": {
         "addedIn": "5.18.1",
-        "updatedIn": "5.18.1"
+        "updatedIn": "5.26.0"
       }
     },
     {
@@ -2745,16 +2871,18 @@
       "source": "photogrammetry",
       "experienceType": "character",
       "files": {
-        "model": "ACG/SZCAF15/A001C0026_260724_PQWJ 女警雷姆/A001C0026_260724_PQWJ 女警雷姆.sog",
+        "model": "ACG/SZCAF15/A001C0026_260724_PQWJ 女警雷姆/migration-v3/A001C0026_260724_PQWJ 女警雷姆/scene.sog",
         "environment": null,
         "settings": "ACG/SZCAF15/A001C0026_260724_PQWJ 女警雷姆/settings-v2.json",
-        "thumbnail": "ACG/SZCAF15/A001C0026_260724_PQWJ 女警雷姆/A001C0026_260724_PQWJ 女警雷姆.jpg"
+        "thumbnail": "ACG/SZCAF15/A001C0026_260724_PQWJ 女警雷姆/A001C0026_260724_PQWJ 女警雷姆.jpg",
+        "compatibilityModel": "ACG/SZCAF15/A001C0026_260724_PQWJ 女警雷姆/A001C0026_260724_PQWJ 女警雷姆.sog"
       },
       "fileSize": {
-        "model": 14455892,
+        "model": 19490049,
         "environment": 0,
         "thumbnail": 3686501,
-        "total": 18142393
+        "total": 23176550,
+        "compatibilityModel": 14455892
       },
       "meta": {
         "date": "2026-07-24",
@@ -2767,7 +2895,7 @@
       },
       "version": {
         "addedIn": "5.18.1",
-        "updatedIn": "5.18.1"
+        "updatedIn": "5.26.0"
       }
     },
     {
@@ -2782,16 +2910,18 @@
       "source": "photogrammetry",
       "experienceType": "character",
       "files": {
-        "model": "ACG/SZCAF15/A001C0024_260724_PQWJ 茄皇/A001C0024_260724_PQWJ 茄皇.sog",
+        "model": "ACG/SZCAF15/A001C0024_260724_PQWJ 茄皇/migration-v3/A001C0024_260724_PQWJ 茄皇/scene.sog",
         "environment": null,
         "settings": "ACG/SZCAF15/A001C0024_260724_PQWJ 茄皇/settings-v2.json",
-        "thumbnail": "ACG/SZCAF15/A001C0024_260724_PQWJ 茄皇/A001C0024_260724_PQWJ 茄皇.jpg"
+        "thumbnail": "ACG/SZCAF15/A001C0024_260724_PQWJ 茄皇/A001C0024_260724_PQWJ 茄皇.jpg",
+        "compatibilityModel": "ACG/SZCAF15/A001C0024_260724_PQWJ 茄皇/A001C0024_260724_PQWJ 茄皇.sog"
       },
       "fileSize": {
-        "model": 14664809,
+        "model": 19930346,
         "environment": 0,
         "thumbnail": 4342546,
-        "total": 19007355
+        "total": 24272892,
+        "compatibilityModel": 14664809
       },
       "meta": {
         "date": "2026-07-24",
@@ -2804,7 +2934,7 @@
       },
       "version": {
         "addedIn": "5.18.1",
-        "updatedIn": "5.18.1"
+        "updatedIn": "5.26.0"
       }
     },
     {
@@ -2819,16 +2949,18 @@
       "source": "photogrammetry",
       "experienceType": "character",
       "files": {
-        "model": "ACG/SZCAF15/A001C0044_260724_PQWJ 西施续相思/A001C0044_260724_PQWJ 西施续相思.sog",
+        "model": "ACG/SZCAF15/A001C0044_260724_PQWJ 西施续相思/migration-v3/A001C0044_260724_PQWJ 西施续相思/scene.sog",
         "environment": null,
         "settings": "ACG/SZCAF15/A001C0044_260724_PQWJ 西施续相思/settings-v2.json",
-        "thumbnail": "ACG/SZCAF15/A001C0044_260724_PQWJ 西施续相思/A001C0044_260724_PQWJ 西施续相思.jpg"
+        "thumbnail": "ACG/SZCAF15/A001C0044_260724_PQWJ 西施续相思/A001C0044_260724_PQWJ 西施续相思.jpg",
+        "compatibilityModel": "ACG/SZCAF15/A001C0044_260724_PQWJ 西施续相思/A001C0044_260724_PQWJ 西施续相思.sog"
       },
       "fileSize": {
-        "model": 13446577,
+        "model": 18673399,
         "environment": 0,
         "thumbnail": 3709726,
-        "total": 17156303
+        "total": 22383125,
+        "compatibilityModel": 13446577
       },
       "meta": {
         "date": "2026-07-24",
@@ -2841,7 +2973,7 @@
       },
       "version": {
         "addedIn": "5.18.1",
-        "updatedIn": "5.18.1"
+        "updatedIn": "5.26.0"
       }
     },
     {
@@ -2856,16 +2988,18 @@
       "source": "photogrammetry",
       "experienceType": "character",
       "files": {
-        "model": "ACG/SZCAF15/A001C0084_260725_PQWJ 红夫人虚妄/A001C0084_260725_PQWJ 红夫人虚妄.sog",
+        "model": "ACG/SZCAF15/A001C0084_260725_PQWJ 红夫人虚妄/migration-v3/A001C0084_260725_PQWJ 红夫人虚妄/scene.sog",
         "environment": null,
         "settings": "ACG/SZCAF15/A001C0084_260725_PQWJ 红夫人虚妄/settings-v2.json",
-        "thumbnail": "ACG/SZCAF15/A001C0084_260725_PQWJ 红夫人虚妄/A001C0084_260725_PQWJ 红夫人虚妄.jpg"
+        "thumbnail": "ACG/SZCAF15/A001C0084_260725_PQWJ 红夫人虚妄/A001C0084_260725_PQWJ 红夫人虚妄.jpg",
+        "compatibilityModel": "ACG/SZCAF15/A001C0084_260725_PQWJ 红夫人虚妄/A001C0084_260725_PQWJ 红夫人虚妄.sog"
       },
       "fileSize": {
-        "model": 23589914,
+        "model": 28182735,
         "environment": 0,
         "thumbnail": 4160674,
-        "total": 27750588
+        "total": 32343409,
+        "compatibilityModel": 23589914
       },
       "meta": {
         "date": "2026-07-25",
@@ -2878,7 +3012,7 @@
       },
       "version": {
         "addedIn": "5.18.1",
-        "updatedIn": "5.18.1"
+        "updatedIn": "5.26.0"
       }
     },
     {
@@ -2893,16 +3027,18 @@
       "source": "photogrammetry",
       "experienceType": "character",
       "files": {
-        "model": "ACG/SZCAF15/A001C0087_260725_PQWJ 嫦娥落星盏/A001C0087_260725_PQWJ 嫦娥落星盏.sog",
+        "model": "ACG/SZCAF15/A001C0087_260725_PQWJ 嫦娥落星盏/migration-v3/A001C0087_260725_PQWJ 嫦娥落星盏/scene.sog",
         "environment": null,
         "settings": "ACG/SZCAF15/A001C0087_260725_PQWJ 嫦娥落星盏/settings-v2.json",
-        "thumbnail": "ACG/SZCAF15/A001C0087_260725_PQWJ 嫦娥落星盏/A001C0087_260725_PQWJ 嫦娥落星盏.jpg"
+        "thumbnail": "ACG/SZCAF15/A001C0087_260725_PQWJ 嫦娥落星盏/A001C0087_260725_PQWJ 嫦娥落星盏.jpg",
+        "compatibilityModel": "ACG/SZCAF15/A001C0087_260725_PQWJ 嫦娥落星盏/A001C0087_260725_PQWJ 嫦娥落星盏.sog"
       },
       "fileSize": {
-        "model": 22380578,
+        "model": 27151523,
         "environment": 0,
         "thumbnail": 3996987,
-        "total": 26377565
+        "total": 31148510,
+        "compatibilityModel": 22380578
       },
       "meta": {
         "date": "2026-07-25",
@@ -2915,7 +3051,7 @@
       },
       "version": {
         "addedIn": "5.18.1",
-        "updatedIn": "5.18.1"
+        "updatedIn": "5.26.0"
       }
     },
     {
@@ -2930,16 +3066,18 @@
       "source": "photogrammetry",
       "experienceType": "character",
       "files": {
-        "model": "ACG/SZCAF15/A001C0090_260725_PQWJ 达妮娅/A001C0090_260725_PQWJ 达妮娅.sog",
+        "model": "ACG/SZCAF15/A001C0090_260725_PQWJ 达妮娅/migration-v3/A001C0090_260725_PQWJ 达妮娅/scene.sog",
         "environment": null,
         "settings": "ACG/SZCAF15/A001C0090_260725_PQWJ 达妮娅/settings-v2.json",
-        "thumbnail": "ACG/SZCAF15/A001C0090_260725_PQWJ 达妮娅/A001C0090_260725_PQWJ 达妮娅.jpg"
+        "thumbnail": "ACG/SZCAF15/A001C0090_260725_PQWJ 达妮娅/A001C0090_260725_PQWJ 达妮娅.jpg",
+        "compatibilityModel": "ACG/SZCAF15/A001C0090_260725_PQWJ 达妮娅/A001C0090_260725_PQWJ 达妮娅.sog"
       },
       "fileSize": {
-        "model": 16809325,
+        "model": 20783517,
         "environment": 0,
         "thumbnail": 3845559,
-        "total": 20654884
+        "total": 24629076,
+        "compatibilityModel": 16809325
       },
       "meta": {
         "date": "2026-07-25",
@@ -2952,7 +3090,7 @@
       },
       "version": {
         "addedIn": "5.18.1",
-        "updatedIn": "5.18.1"
+        "updatedIn": "5.26.0"
       }
     },
     {
@@ -2967,16 +3105,18 @@
       "source": "photogrammetry",
       "experienceType": "character",
       "files": {
-        "model": "ACG/SZCAF15/A001C0091_260725_PQWJ 达妮娅2/A001C0091_260725_PQWJ 达妮娅2.sog",
+        "model": "ACG/SZCAF15/A001C0091_260725_PQWJ 达妮娅2/migration-v3/A001C0091_260725_PQWJ 达妮娅2/scene.sog",
         "environment": null,
         "settings": "ACG/SZCAF15/A001C0091_260725_PQWJ 达妮娅2/settings-v2.json",
-        "thumbnail": "ACG/SZCAF15/A001C0091_260725_PQWJ 达妮娅2/A001C0091_260725_PQWJ 达妮娅2.jpg"
+        "thumbnail": "ACG/SZCAF15/A001C0091_260725_PQWJ 达妮娅2/A001C0091_260725_PQWJ 达妮娅2.jpg",
+        "compatibilityModel": "ACG/SZCAF15/A001C0091_260725_PQWJ 达妮娅2/A001C0091_260725_PQWJ 达妮娅2.sog"
       },
       "fileSize": {
-        "model": 17917547,
+        "model": 22221487,
         "environment": 0,
         "thumbnail": 3791569,
-        "total": 21709116
+        "total": 26013056,
+        "compatibilityModel": 17917547
       },
       "meta": {
         "date": "2026-07-25",
@@ -2989,7 +3129,7 @@
       },
       "version": {
         "addedIn": "5.18.1",
-        "updatedIn": "5.18.1"
+        "updatedIn": "5.26.0"
       }
     },
     {
@@ -3004,16 +3144,18 @@
       "source": "photogrammetry",
       "experienceType": "character",
       "files": {
-        "model": "ACG/SZCAF15/A001C0086_260725_PQWJ 1999伊索尔德若向死振翅/A001C0086_260725_PQWJ 1999伊索尔德若向死振翅.sog",
+        "model": "ACG/SZCAF15/A001C0086_260725_PQWJ 1999伊索尔德若向死振翅/migration-v3/A001C0086_260725_PQWJ 1999伊索尔德若向死振翅/scene.sog",
         "environment": null,
         "settings": "ACG/SZCAF15/A001C0086_260725_PQWJ 1999伊索尔德若向死振翅/settings-v2.json",
-        "thumbnail": "ACG/SZCAF15/A001C0086_260725_PQWJ 1999伊索尔德若向死振翅/A001C0086_260725_PQWJ 1999伊索尔德若向死振翅.jpg"
+        "thumbnail": "ACG/SZCAF15/A001C0086_260725_PQWJ 1999伊索尔德若向死振翅/A001C0086_260725_PQWJ 1999伊索尔德若向死振翅.jpg",
+        "compatibilityModel": "ACG/SZCAF15/A001C0086_260725_PQWJ 1999伊索尔德若向死振翅/A001C0086_260725_PQWJ 1999伊索尔德若向死振翅.sog"
       },
       "fileSize": {
-        "model": 20791606,
+        "model": 25881814,
         "environment": 0,
         "thumbnail": 4184486,
-        "total": 24976092
+        "total": 30066300,
+        "compatibilityModel": 20791606
       },
       "meta": {
         "date": "2026-07-25",
@@ -3026,7 +3168,7 @@
       },
       "version": {
         "addedIn": "5.18.1",
-        "updatedIn": "5.18.1"
+        "updatedIn": "5.26.0"
       }
     },
     {
@@ -3041,16 +3183,18 @@
       "source": "photogrammetry",
       "experienceType": "character",
       "files": {
-        "model": "ACG/SZCAF15/A001C0092_260725_PQWJ 娜维娅/A001C0092_260725_PQWJ 娜维娅.sog",
+        "model": "ACG/SZCAF15/A001C0092_260725_PQWJ 娜维娅/migration-v3/A001C0092_260725_PQWJ 娜维娅/scene.sog",
         "environment": null,
         "settings": "ACG/SZCAF15/A001C0092_260725_PQWJ 娜维娅/settings-v2.json",
-        "thumbnail": "ACG/SZCAF15/A001C0092_260725_PQWJ 娜维娅/A001C0092_260725_PQWJ 娜维娅.jpg"
+        "thumbnail": "ACG/SZCAF15/A001C0092_260725_PQWJ 娜维娅/A001C0092_260725_PQWJ 娜维娅.jpg",
+        "compatibilityModel": "ACG/SZCAF15/A001C0092_260725_PQWJ 娜维娅/A001C0092_260725_PQWJ 娜维娅.sog"
       },
       "fileSize": {
-        "model": 21888387,
+        "model": 26885205,
         "environment": 0,
         "thumbnail": 4345145,
-        "total": 26233532
+        "total": 31230350,
+        "compatibilityModel": 21888387
       },
       "meta": {
         "date": "2026-07-25",
@@ -3063,7 +3207,7 @@
       },
       "version": {
         "addedIn": "5.18.1",
-        "updatedIn": "5.18.1"
+        "updatedIn": "5.26.0"
       }
     },
     {
@@ -3078,16 +3222,18 @@
       "source": "photogrammetry",
       "experienceType": "character",
       "files": {
-        "model": "ACG/SZCAF15/A001C0105_260725_PQWJ 雷姆双人/A001C0105_260725_PQWJ 雷姆双人.sog",
+        "model": "ACG/SZCAF15/A001C0105_260725_PQWJ 雷姆双人/migration-v3/A001C0105_260725_PQWJ 雷姆双人/scene.sog",
         "environment": null,
         "settings": "ACG/SZCAF15/A001C0105_260725_PQWJ 雷姆双人/settings-v2.json",
-        "thumbnail": "ACG/SZCAF15/A001C0105_260725_PQWJ 雷姆双人/A001C0105_260725_PQWJ 雷姆双人.jpg"
+        "thumbnail": "ACG/SZCAF15/A001C0105_260725_PQWJ 雷姆双人/A001C0105_260725_PQWJ 雷姆双人.jpg",
+        "compatibilityModel": "ACG/SZCAF15/A001C0105_260725_PQWJ 雷姆双人/A001C0105_260725_PQWJ 雷姆双人.sog"
       },
       "fileSize": {
-        "model": 20149918,
+        "model": 24658464,
         "environment": 0,
         "thumbnail": 3936397,
-        "total": 24086315
+        "total": 28594861,
+        "compatibilityModel": 20149918
       },
       "meta": {
         "date": "2026-07-25",
@@ -3100,7 +3246,7 @@
       },
       "version": {
         "addedIn": "5.18.1",
-        "updatedIn": "5.18.1"
+        "updatedIn": "5.26.0"
       }
     },
     {
@@ -3115,16 +3261,18 @@
       "source": "photogrammetry",
       "experienceType": "character",
       "files": {
-        "model": "ACG/SZCAF15/A001C0093_260725_PQWJ 知更鸟/A001C0093_260725_PQWJ 知更鸟.sog",
+        "model": "ACG/SZCAF15/A001C0093_260725_PQWJ 知更鸟/migration-v3/A001C0093_260725_PQWJ 知更鸟/scene.sog",
         "environment": null,
         "settings": "ACG/SZCAF15/A001C0093_260725_PQWJ 知更鸟/settings-v2.json",
-        "thumbnail": "ACG/SZCAF15/A001C0093_260725_PQWJ 知更鸟/A001C0093_260725_PQWJ 知更鸟.jpg"
+        "thumbnail": "ACG/SZCAF15/A001C0093_260725_PQWJ 知更鸟/A001C0093_260725_PQWJ 知更鸟.jpg",
+        "compatibilityModel": "ACG/SZCAF15/A001C0093_260725_PQWJ 知更鸟/A001C0093_260725_PQWJ 知更鸟.sog"
       },
       "fileSize": {
-        "model": 21153863,
+        "model": 25978199,
         "environment": 0,
         "thumbnail": 3975851,
-        "total": 25129714
+        "total": 29954050,
+        "compatibilityModel": 21153863
       },
       "meta": {
         "date": "2026-07-25",
@@ -3137,7 +3285,7 @@
       },
       "version": {
         "addedIn": "5.18.1",
-        "updatedIn": "5.18.1"
+        "updatedIn": "5.26.0"
       }
     },
     {
@@ -3152,16 +3300,18 @@
       "source": "photogrammetry",
       "experienceType": "character",
       "files": {
-        "model": "ACG/SZCAF15/A001C0085_260725_PQWJ 瑶时之祈愿/A001C0085_260725_PQWJ 瑶时之祈愿.sog",
+        "model": "ACG/SZCAF15/A001C0085_260725_PQWJ 瑶时之祈愿/migration-v3/A001C0085_260725_PQWJ 瑶时之祈愿/scene.sog",
         "environment": null,
         "settings": "ACG/SZCAF15/A001C0085_260725_PQWJ 瑶时之祈愿/settings-v2.json",
-        "thumbnail": "ACG/SZCAF15/A001C0085_260725_PQWJ 瑶时之祈愿/A001C0085_260725_PQWJ 瑶时之祈愿.jpg"
+        "thumbnail": "ACG/SZCAF15/A001C0085_260725_PQWJ 瑶时之祈愿/A001C0085_260725_PQWJ 瑶时之祈愿.jpg",
+        "compatibilityModel": "ACG/SZCAF15/A001C0085_260725_PQWJ 瑶时之祈愿/A001C0085_260725_PQWJ 瑶时之祈愿.sog"
       },
       "fileSize": {
-        "model": 20826850,
+        "model": 24830007,
         "environment": 0,
         "thumbnail": 3885607,
-        "total": 24712457
+        "total": 28715614,
+        "compatibilityModel": 20826850
       },
       "meta": {
         "date": "2026-07-25",
@@ -3174,7 +3324,7 @@
       },
       "version": {
         "addedIn": "5.18.1",
-        "updatedIn": "5.18.1"
+        "updatedIn": "5.26.0"
       }
     },
     {
@@ -3189,16 +3339,18 @@
       "source": "photogrammetry",
       "experienceType": "character",
       "files": {
-        "model": "ACG/SZCAF15/A001C0049_260725_PQWJ 雨诺/A001C0049_260725_PQWJ 雨诺.sog",
+        "model": "ACG/SZCAF15/A001C0049_260725_PQWJ 雨诺/migration-v3/A001C0049_260725_PQWJ 雨诺/scene.sog",
         "environment": null,
         "settings": "ACG/SZCAF15/A001C0049_260725_PQWJ 雨诺/settings-v2.json",
-        "thumbnail": "ACG/SZCAF15/A001C0049_260725_PQWJ 雨诺/A001C0049_260725_PQWJ 雨诺.jpg"
+        "thumbnail": "ACG/SZCAF15/A001C0049_260725_PQWJ 雨诺/A001C0049_260725_PQWJ 雨诺.jpg",
+        "compatibilityModel": "ACG/SZCAF15/A001C0049_260725_PQWJ 雨诺/A001C0049_260725_PQWJ 雨诺.sog"
       },
       "fileSize": {
-        "model": 9645845,
+        "model": 14680287,
         "environment": 0,
         "thumbnail": 3496449,
-        "total": 13142294
+        "total": 18176736,
+        "compatibilityModel": 9645845
       },
       "meta": {
         "date": "2026-07-25",
@@ -3214,7 +3366,7 @@
       ],
       "version": {
         "addedIn": "5.18.1",
-        "updatedIn": "5.18.1"
+        "updatedIn": "5.26.0"
       }
     },
     {
@@ -3229,16 +3381,18 @@
       "source": "photogrammetry",
       "experienceType": "character",
       "files": {
-        "model": "ACG/SZCAF15/A001C0223_260726_PQWJ 公孙离 离恨烟/A001C0223_260726_PQWJ 公孙离 离恨烟.sog",
+        "model": "ACG/SZCAF15/A001C0223_260726_PQWJ 公孙离 离恨烟/migration-v3/A001C0223_260726_PQWJ 公孙离 离恨烟/scene.sog",
         "environment": null,
         "settings": "ACG/SZCAF15/A001C0223_260726_PQWJ 公孙离 离恨烟/settings-v2.json",
-        "thumbnail": "ACG/SZCAF15/A001C0223_260726_PQWJ 公孙离 离恨烟/A001C0223_260726_PQWJ 公孙离 离恨烟.jpg"
+        "thumbnail": "ACG/SZCAF15/A001C0223_260726_PQWJ 公孙离 离恨烟/A001C0223_260726_PQWJ 公孙离 离恨烟.jpg",
+        "compatibilityModel": "ACG/SZCAF15/A001C0223_260726_PQWJ 公孙离 离恨烟/A001C0223_260726_PQWJ 公孙离 离恨烟.sog"
       },
       "fileSize": {
-        "model": 16838703,
+        "model": 22392666,
         "environment": 0,
         "thumbnail": 4147796,
-        "total": 20986499
+        "total": 26540462,
+        "compatibilityModel": 16838703
       },
       "meta": {
         "date": "2026-07-26",
@@ -3251,7 +3405,7 @@
       },
       "version": {
         "addedIn": "5.18.1",
-        "updatedIn": "5.18.1"
+        "updatedIn": "5.26.0"
       }
     },
     {
@@ -3266,16 +3420,18 @@
       "source": "photogrammetry",
       "experienceType": "character",
       "files": {
-        "model": "ACG/SZCAF15/A001C0214_260726_PQWJ 貂蝉馥梦繁花2/A001C0214_260726_PQWJ 貂蝉馥梦繁花2.sog",
+        "model": "ACG/SZCAF15/A001C0214_260726_PQWJ 貂蝉馥梦繁花2/migration-v3/A001C0214_260726_PQWJ 貂蝉馥梦繁花2/scene.sog",
         "environment": null,
         "settings": "ACG/SZCAF15/A001C0214_260726_PQWJ 貂蝉馥梦繁花2/settings-v2.json",
-        "thumbnail": "ACG/SZCAF15/A001C0214_260726_PQWJ 貂蝉馥梦繁花2/A001C0214_260726_PQWJ 貂蝉馥梦繁花2.jpg"
+        "thumbnail": "ACG/SZCAF15/A001C0214_260726_PQWJ 貂蝉馥梦繁花2/A001C0214_260726_PQWJ 貂蝉馥梦繁花2.jpg",
+        "compatibilityModel": "ACG/SZCAF15/A001C0214_260726_PQWJ 貂蝉馥梦繁花2/A001C0214_260726_PQWJ 貂蝉馥梦繁花2.sog"
       },
       "fileSize": {
-        "model": 17135187,
+        "model": 23119190,
         "environment": 0,
         "thumbnail": 4107609,
-        "total": 21242796
+        "total": 27226799,
+        "compatibilityModel": 17135187
       },
       "meta": {
         "date": "2026-07-26",
@@ -3288,7 +3444,7 @@
       },
       "version": {
         "addedIn": "5.18.1",
-        "updatedIn": "5.18.1"
+        "updatedIn": "5.26.0"
       }
     },
     {
@@ -3303,16 +3459,18 @@
       "source": "photogrammetry",
       "experienceType": "character",
       "files": {
-        "model": "ACG/SZCAF15/A001C0221_260726_PQWJ 舞女琉璃的月光/A001C0221_260726_PQWJ 舞女琉璃的月光.sog",
+        "model": "ACG/SZCAF15/A001C0221_260726_PQWJ 舞女琉璃的月光/migration-v3/A001C0221_260726_PQWJ 舞女琉璃的月光/scene.sog",
         "environment": null,
         "settings": "ACG/SZCAF15/A001C0221_260726_PQWJ 舞女琉璃的月光/settings-v2.json",
-        "thumbnail": "ACG/SZCAF15/A001C0221_260726_PQWJ 舞女琉璃的月光/A001C0221_260726_PQWJ 舞女琉璃的月光.jpg"
+        "thumbnail": "ACG/SZCAF15/A001C0221_260726_PQWJ 舞女琉璃的月光/A001C0221_260726_PQWJ 舞女琉璃的月光.jpg",
+        "compatibilityModel": "ACG/SZCAF15/A001C0221_260726_PQWJ 舞女琉璃的月光/A001C0221_260726_PQWJ 舞女琉璃的月光.sog"
       },
       "fileSize": {
-        "model": 15586978,
+        "model": 20810481,
         "environment": 0,
         "thumbnail": 3795327,
-        "total": 19382305
+        "total": 24605808,
+        "compatibilityModel": 15586978
       },
       "meta": {
         "date": "2026-07-26",
@@ -3325,7 +3483,7 @@
       },
       "version": {
         "addedIn": "5.18.1",
-        "updatedIn": "5.18.1"
+        "updatedIn": "5.26.0"
       }
     },
     {
@@ -3340,16 +3498,18 @@
       "source": "photogrammetry",
       "experienceType": "character",
       "files": {
-        "model": "ACG/SZCAF15/A001C0222_260726_PQWJ 李信问剑心/A001C0222_260726_PQWJ 李信问剑心.sog",
+        "model": "ACG/SZCAF15/A001C0222_260726_PQWJ 李信问剑心/migration-v3/A001C0222_260726_PQWJ 李信问剑心/scene.sog",
         "environment": null,
         "settings": "ACG/SZCAF15/A001C0222_260726_PQWJ 李信问剑心/settings-v2.json",
-        "thumbnail": "ACG/SZCAF15/A001C0222_260726_PQWJ 李信问剑心/A001C0222_260726_PQWJ 李信问剑心.jpg"
+        "thumbnail": "ACG/SZCAF15/A001C0222_260726_PQWJ 李信问剑心/A001C0222_260726_PQWJ 李信问剑心.jpg",
+        "compatibilityModel": "ACG/SZCAF15/A001C0222_260726_PQWJ 李信问剑心/A001C0222_260726_PQWJ 李信问剑心.sog"
       },
       "fileSize": {
-        "model": 17724568,
+        "model": 23532052,
         "environment": 0,
         "thumbnail": 4203358,
-        "total": 21927926
+        "total": 27735410,
+        "compatibilityModel": 17724568
       },
       "meta": {
         "date": "2026-07-26",
@@ -3362,7 +3522,7 @@
       },
       "version": {
         "addedIn": "5.18.1",
-        "updatedIn": "5.18.1"
+        "updatedIn": "5.26.0"
       }
     },
     {
@@ -3377,16 +3537,18 @@
       "source": "photogrammetry",
       "experienceType": "character",
       "files": {
-        "model": "ACG/SZCAF15/A001C0224_260726_PQWJ 赛车初音/A001C0224_260726_PQWJ 赛车初音.sog",
+        "model": "ACG/SZCAF15/A001C0224_260726_PQWJ 赛车初音/migration-v3/A001C0224_260726_PQWJ 赛车初音/scene.sog",
         "environment": null,
         "settings": "ACG/SZCAF15/A001C0224_260726_PQWJ 赛车初音/settings-v2.json",
-        "thumbnail": "ACG/SZCAF15/A001C0224_260726_PQWJ 赛车初音/A001C0224_260726_PQWJ 赛车初音.jpg"
+        "thumbnail": "ACG/SZCAF15/A001C0224_260726_PQWJ 赛车初音/A001C0224_260726_PQWJ 赛车初音.jpg",
+        "compatibilityModel": "ACG/SZCAF15/A001C0224_260726_PQWJ 赛车初音/A001C0224_260726_PQWJ 赛车初音.sog"
       },
       "fileSize": {
-        "model": 14233993,
+        "model": 19789204,
         "environment": 0,
         "thumbnail": 4000872,
-        "total": 18234865
+        "total": 23790076,
+        "compatibilityModel": 14233993
       },
       "meta": {
         "date": "2026-07-26",
@@ -3399,7 +3561,7 @@
       },
       "version": {
         "addedIn": "5.18.1",
-        "updatedIn": "5.18.1"
+        "updatedIn": "5.26.0"
       }
     },
     {
@@ -3414,18 +3576,20 @@
       "source": "photogrammetry",
       "experienceType": "character",
       "files": {
-        "model": "ACG/SZCAF15/A001C0190_260726_PQWJ/scene.sog",
+        "model": "ACG/SZCAF15/A001C0190_260726_PQWJ/migration-v3/scene/scene.sog",
         "environment": "ACG/SZCAF15/A001C0190_260726_PQWJ/environment.compressed.ply",
         "settings": "ACG/SZCAF15/A001C0190_260726_PQWJ/settings.json",
         "thumbnail": "ACG/SZCAF15/A001C0190_260726_PQWJ/cover-4096-q82.webp",
-        "voxel": "ACG/SZCAF15/A001C0190_260726_PQWJ/walk.voxel.json"
+        "voxel": "ACG/SZCAF15/A001C0190_260726_PQWJ/walk.voxel.json",
+        "compatibilityModel": "ACG/SZCAF15/A001C0190_260726_PQWJ/scene.sog"
       },
       "fileSize": {
-        "model": 10563265,
+        "model": 10147626,
         "environment": 896601,
         "thumbnail": 361112,
-        "total": 14487738,
-        "voxel": 2666760
+        "total": 14072099,
+        "voxel": 2666760,
+        "compatibilityModel": 10563265
       },
       "meta": {
         "date": "2026-07-26",
@@ -3442,7 +3606,7 @@
       ],
       "version": {
         "addedIn": "5.20.1",
-        "updatedIn": "5.21.11"
+        "updatedIn": "5.26.0"
       }
     },
     {
@@ -3457,16 +3621,18 @@
       "source": "photogrammetry",
       "experienceType": "character",
       "files": {
-        "model": "ACG/SZCAF15/A001C0225_260726_PQWJ 小乔/A001C0225_260726_PQWJ 小乔.sog",
+        "model": "ACG/SZCAF15/A001C0225_260726_PQWJ 小乔/migration-v3/A001C0225_260726_PQWJ 小乔/scene.sog",
         "environment": null,
         "settings": "ACG/SZCAF15/A001C0225_260726_PQWJ 小乔/settings-v2.json",
-        "thumbnail": "ACG/SZCAF15/A001C0225_260726_PQWJ 小乔/A001C0225_260726_PQWJ 小乔.jpg"
+        "thumbnail": "ACG/SZCAF15/A001C0225_260726_PQWJ 小乔/A001C0225_260726_PQWJ 小乔.jpg",
+        "compatibilityModel": "ACG/SZCAF15/A001C0225_260726_PQWJ 小乔/A001C0225_260726_PQWJ 小乔.sog"
       },
       "fileSize": {
-        "model": 13433119,
+        "model": 19643857,
         "environment": 0,
         "thumbnail": 3744154,
-        "total": 17177273
+        "total": 23388011,
+        "compatibilityModel": 13433119
       },
       "meta": {
         "date": "2026-07-26",
@@ -3479,7 +3645,7 @@
       },
       "version": {
         "addedIn": "5.18.1",
-        "updatedIn": "5.18.1"
+        "updatedIn": "5.26.0"
       }
     },
     {
@@ -3494,16 +3660,18 @@
       "source": "photogrammetry",
       "experienceType": "character",
       "files": {
-        "model": "ACG/SZCAF15/A001C0226_260726_PQWJ 殷紫萍 天禄瑞光/A001C0226_260726_PQWJ 殷紫萍 天禄瑞光.sog",
+        "model": "ACG/SZCAF15/A001C0226_260726_PQWJ 殷紫萍 天禄瑞光/migration-v3/A001C0226_260726_PQWJ 殷紫萍 天禄瑞光/scene.sog",
         "environment": null,
         "settings": "ACG/SZCAF15/A001C0226_260726_PQWJ 殷紫萍 天禄瑞光/settings-v2.json",
-        "thumbnail": "ACG/SZCAF15/A001C0226_260726_PQWJ 殷紫萍 天禄瑞光/A001C0226_260726_PQWJ 殷紫萍 天禄瑞光.jpg"
+        "thumbnail": "ACG/SZCAF15/A001C0226_260726_PQWJ 殷紫萍 天禄瑞光/A001C0226_260726_PQWJ 殷紫萍 天禄瑞光.jpg",
+        "compatibilityModel": "ACG/SZCAF15/A001C0226_260726_PQWJ 殷紫萍 天禄瑞光/A001C0226_260726_PQWJ 殷紫萍 天禄瑞光.sog"
       },
       "fileSize": {
-        "model": 15318353,
+        "model": 20413255,
         "environment": 0,
         "thumbnail": 3972315,
-        "total": 19290668
+        "total": 24385570,
+        "compatibilityModel": 15318353
       },
       "meta": {
         "date": "2026-07-26",
@@ -3516,7 +3684,7 @@
       },
       "version": {
         "addedIn": "5.18.1",
-        "updatedIn": "5.18.1"
+        "updatedIn": "5.26.0"
       }
     },
     {
@@ -3531,17 +3699,17 @@
       "source": "photogrammetry",
       "experienceType": "object",
       "files": {
-        "model": "Animals/Cats/mangzhong/2609160002/scene.sog",
+        "model": "Animals/Cats/mangzhong/2609160002/migration-v3/scene/scene.sog",
         "environment": null,
         "settings": "Animals/Cats/mangzhong/2609160002/settings.json",
         "thumbnail": "Animals/Cats/mangzhong/2609160002/cover-4096.webp",
         "voxel": "Animals/Cats/mangzhong/2609160002/walk.voxel.json"
       },
       "fileSize": {
-        "model": 12371864,
+        "model": 17046218,
         "environment": 0,
         "thumbnail": 4167002,
-        "total": 16623736,
+        "total": 21298090,
         "voxel": 84870
       },
       "meta": {
@@ -3556,7 +3724,7 @@
       },
       "version": {
         "addedIn": "5.19.3",
-        "updatedIn": "5.19.3"
+        "updatedIn": "5.26.0"
       }
     },
     {
@@ -3571,17 +3739,17 @@
       "source": "photogrammetry",
       "experienceType": "object",
       "files": {
-        "model": "Animals/Cats/mangzhong/2609160028/scene.sog",
+        "model": "Animals/Cats/mangzhong/2609160028/migration-v3/scene/scene.sog",
         "environment": null,
         "settings": "Animals/Cats/mangzhong/2609160028/settings.json",
         "thumbnail": "Animals/Cats/mangzhong/2609160028/cover-4096.webp",
         "voxel": "Animals/Cats/mangzhong/2609160028/walk.voxel.json"
       },
       "fileSize": {
-        "model": 14966222,
+        "model": 19903064,
         "environment": 0,
         "thumbnail": 5671662,
-        "total": 20722103,
+        "total": 25658945,
         "voxel": 84219
       },
       "meta": {
@@ -3596,7 +3764,7 @@
       },
       "version": {
         "addedIn": "5.19.3",
-        "updatedIn": "5.19.3"
+        "updatedIn": "5.26.0"
       }
     },
     {
@@ -3611,17 +3779,17 @@
       "source": "photogrammetry",
       "experienceType": "object",
       "files": {
-        "model": "Animals/Cats/mangzhong/2609160031/scene.sog",
+        "model": "Animals/Cats/mangzhong/2609160031/migration-v3/scene/scene.sog",
         "environment": null,
         "settings": "Animals/Cats/mangzhong/2609160031/settings.json",
         "thumbnail": "Animals/Cats/mangzhong/2609160031/cover-4096.webp",
         "voxel": "Animals/Cats/mangzhong/2609160031/walk.voxel.json"
       },
       "fileSize": {
-        "model": 10561623,
+        "model": 15610716,
         "environment": 0,
         "thumbnail": 5041958,
-        "total": 15745642,
+        "total": 20794735,
         "voxel": 142061
       },
       "meta": {
@@ -3636,7 +3804,7 @@
       },
       "version": {
         "addedIn": "5.19.3",
-        "updatedIn": "5.19.3"
+        "updatedIn": "5.26.0"
       }
     },
     {
@@ -3650,17 +3818,17 @@
       "source": "photogrammetry",
       "experienceType": "scene",
       "files": {
-        "model": "Shenzhen/250917 Dayun/lod-meta.json",
+        "model": "lod-independent/shenzhen/dayun/streamed/lod-meta.json",
         "environment": null,
         "settings": "Shenzhen/250917 Dayun/settings-rx90-close.json",
         "thumbnail": "Shenzhen/250917 Dayun/250917 dayun.jpg",
         "voxelManifest": "Shenzhen/250917 Dayun/tiled-voxel/voxel-tiles.json"
       },
       "fileSize": {
-        "model": 5203432324,
+        "model": 5307504509,
         "environment": 0,
         "thumbnail": 1238503,
-        "total": 6383790154,
+        "total": 6487862339,
         "voxelManifest": 1179119327
       },
       "meta": {
@@ -3680,7 +3848,7 @@
       },
       "version": {
         "addedIn": "3.14a",
-        "updatedIn": "4.4"
+        "updatedIn": "5.26.0"
       }
     },
     {
@@ -3694,18 +3862,18 @@
       "source": "photogrammetry",
       "experienceType": "scene",
       "files": {
-        "model": "Shenzhen/260326 Bijiashan Park/supersplat_lod_noenv_rot90_0_0/lod-meta.json",
+        "model": "lod-independent/shenzhen/bijiashan/streamed/lod-meta.json",
         "environment": null,
         "settings": "Shenzhen/260326 Bijiashan Park/settings-merged-2.json",
         "thumbnail": "Shenzhen/260326 Bijiashan Park/260326 quanjin futian43.jpg",
-        "voxelManifest": "Shenzhen/260326 Bijiashan Park/derived_lcc_tiled_full_rot0_0_m180_xz_v2.4.0_lod1_r0.08_a0.20_tile64_o8/voxel-tiles.json"
+        "voxelManifest": "Shenzhen/260326 Bijiashan Park/derived_lcc_tiled_full_rot0_0_m180_xz_v2.4.0_lod1_r0.08_a0.20_tile64_o8/voxel-tiles-verified.json"
       },
       "fileSize": {
-        "model": 1833627158,
+        "model": 1808917481,
         "environment": 0,
         "thumbnail": 1288766,
-        "total": 2355809886,
-        "voxelManifest": 520893962
+        "total": 2331008720,
+        "voxelManifest": 520802473
       },
       "meta": {
         "date": "2026-03-26",
@@ -3727,7 +3895,7 @@
       },
       "version": {
         "addedIn": "5.18a",
-        "updatedIn": "5.18a"
+        "updatedIn": "5.26.0"
       }
     },
     {
@@ -3741,16 +3909,16 @@
       "source": "photogrammetry",
       "experienceType": "object",
       "files": {
-        "model": "SZCAEE/ciqi_r2j-2_full_15MSplats_150kSteps_SSIM0.942_260112_clear/ciqi_r2j-2_full_15MSplats_150kSteps_SSIM0.942_260112_clear.sog",
+        "model": "SZCAEE/ciqi_r2j-2_full_15MSplats_150kSteps_SSIM0.942_260112_clear/migration-v3/ciqi_r2j-2_full_15MSplats_150kSteps_SSIM0.942_260112_clear/scene.sog",
         "environment": null,
         "settings": "SZCAEE/ciqi_r2j-2_full_15MSplats_150kSteps_SSIM0.942_260112_clear/settings.json",
         "thumbnail": "SZCAEE/ciqi_r2j-2_full_15MSplats_150kSteps_SSIM0.942_260112_clear/ciqi_r2j-2_full_15MSplats_150kSteps_SSIM0.942_260112_clear-image.jpg"
       },
       "fileSize": {
-        "model": 36251198,
+        "model": 41863680,
         "environment": 0,
         "thumbnail": 264077,
-        "total": 36515275
+        "total": 42127757
       },
       "meta": {
         "date": "2026-01-12",
@@ -3764,7 +3932,7 @@
       },
       "version": {
         "addedIn": "1.0a",
-        "updatedIn": "1.0a"
+        "updatedIn": "5.26.0"
       }
     },
     {
@@ -3778,16 +3946,16 @@
       "source": "photogrammetry",
       "experienceType": "object",
       "files": {
-        "model": "SZCAEE/foxiang_r2j-3-2_full_14.95MSplats_152kSteps_SSIM0.946_260112_crop/foxiang_r2j-3-2_full_14.95MSplats_152kSteps_SSIM0.946_260112_crop.sog",
+        "model": "SZCAEE/foxiang_r2j-3-2_full_14.95MSplats_152kSteps_SSIM0.946_260112_crop/migration-v3/foxiang_r2j-3-2_full_14.95MSplats_152kSteps_SSIM0.946_260112_crop/scene.sog",
         "environment": null,
         "settings": "SZCAEE/foxiang_r2j-3-2_full_14.95MSplats_152kSteps_SSIM0.946_260112_crop/settings.json",
         "thumbnail": "SZCAEE/foxiang_r2j-3-2_full_14.95MSplats_152kSteps_SSIM0.946_260112_crop/foxiang_r2j-3-2_full_14.95MSplats_152kSteps_SSIM0.946_260112_crop.jpg"
       },
       "fileSize": {
-        "model": 19569923,
+        "model": 25308303,
         "environment": 0,
         "thumbnail": 72671,
-        "total": 19642594
+        "total": 25380974
       },
       "meta": {
         "date": "2026-01-12",
@@ -3801,7 +3969,7 @@
       },
       "version": {
         "addedIn": "1.0a",
-        "updatedIn": "1.0a"
+        "updatedIn": "5.26.0"
       }
     },
     {
@@ -3815,16 +3983,16 @@
       "source": "photogrammetry",
       "experienceType": "object",
       "files": {
-        "model": "SZCAEE/guanyin_r2j-2_full_16MSplats_300kSteps_SSIM0.913_260113_clear-2/guanyin_r2j-2_full_16MSplats_300kSteps_SSIM0.913_260113_clear-2.sog",
+        "model": "SZCAEE/guanyin_r2j-2_full_16MSplats_300kSteps_SSIM0.913_260113_clear-2/migration-v3/guanyin_r2j-2_full_16MSplats_300kSteps_SSIM0.913_260113_clear-2/scene.sog",
         "environment": null,
         "settings": "SZCAEE/guanyin_r2j-2_full_16MSplats_300kSteps_SSIM0.913_260113_clear-2/settings.json",
         "thumbnail": "SZCAEE/guanyin_r2j-2_full_16MSplats_300kSteps_SSIM0.913_260113_clear-2/guanyin_r2j-2_full_16MSplats_300kSteps_SSIM0.913_260113_clear-2.jpg"
       },
       "fileSize": {
-        "model": 42676396,
+        "model": 49748941,
         "environment": 0,
         "thumbnail": 103299,
-        "total": 42779695
+        "total": 49852240
       },
       "meta": {
         "date": "2026-01-13",
@@ -3838,7 +4006,7 @@
       },
       "version": {
         "addedIn": "1.0a",
-        "updatedIn": "1.0a"
+        "updatedIn": "5.26.0"
       }
     },
     {
@@ -3852,16 +4020,18 @@
       "source": "photogrammetry",
       "experienceType": "scene",
       "files": {
-        "model": "SZMG/251217 广电大厦6楼演播室/SZMG6L.sog",
+        "model": "lod-independent/szmg/广电大厦6楼演播室/streamed/lod-meta.json",
         "environment": null,
         "settings": "SZMG/251217 广电大厦6楼演播室/settings.json",
-        "thumbnail": "SZMG/251217 广电大厦6楼演播室/SZMG6L.jpg"
+        "thumbnail": "SZMG/251217 广电大厦6楼演播室/SZMG6L.jpg",
+        "voxel": "SZMG/251217 广电大厦6楼演播室/migration-v3/collision/walk.voxel.json"
       },
       "fileSize": {
-        "model": 54533945,
+        "model": 218141057,
         "environment": 0,
         "thumbnail": 344695,
-        "total": 54878640
+        "total": 220319091,
+        "voxel": 1833339
       },
       "meta": {
         "date": "2025-12-17",
@@ -3875,7 +4045,10 @@
       },
       "version": {
         "addedIn": "1.0a",
-        "updatedIn": "1.0a"
+        "updatedIn": "5.26.0"
+      },
+      "viewer": {
+        "voxelCoordinateSpace": "world"
       }
     },
     {
@@ -3889,16 +4062,16 @@
       "source": "photogrammetry",
       "experienceType": "scene",
       "files": {
-        "model": "SZTU/250324 SZTU C4-HangPai/250324 C4hangpai.sog",
+        "model": "lod-independent/sztu/c4-hangpai/streamed/lod-meta.json",
         "environment": null,
         "settings": "SZTU/250324 SZTU C4-HangPai/settings.json",
         "thumbnail": "SZTU/250324 SZTU C4-HangPai/250324 C4hangpai.jpg"
       },
       "fileSize": {
-        "model": 45200899,
+        "model": 142488750,
         "environment": 0,
         "thumbnail": 366883,
-        "total": 45567782
+        "total": 142855633
       },
       "meta": {
         "date": "2025-03-24",
@@ -3915,7 +4088,7 @@
       },
       "version": {
         "addedIn": "1.36a",
-        "updatedIn": "1.36a"
+        "updatedIn": "5.26.0"
       }
     },
     {
@@ -3929,16 +4102,18 @@
       "source": "photogrammetry",
       "experienceType": "scene",
       "files": {
-        "model": "SZTU/250424 SZTU C2-Lib/SZTU_C2-Lib_M3E_WU_5286px_5000ksplats_150kStep_5000ksplats_250508_Cleansky.sog",
+        "model": "lod-independent/sztu/c2-lib/streamed/lod-meta.json",
         "environment": null,
         "settings": "SZTU/250424 SZTU C2-Lib/settings.json",
-        "thumbnail": "SZTU/250424 SZTU C2-Lib/SZTU_C2-Lib_M3E_WU_5286px_5000ksplats_150kStep_5000ksplats_250508_Cleansky.jpg"
+        "thumbnail": "SZTU/250424 SZTU C2-Lib/SZTU_C2-Lib_M3E_WU_5286px_5000ksplats_150kStep_5000ksplats_250508_Cleansky.jpg",
+        "voxel": "SZTU/250424 SZTU C2-Lib/migration-v3/collision/walk.voxel.json"
       },
       "fileSize": {
-        "model": 73111603,
+        "model": 363573330,
         "environment": 0,
         "thumbnail": 697720,
-        "total": 73809323
+        "total": 368000166,
+        "voxel": 3729116
       },
       "meta": {
         "date": "2025-04-24",
@@ -3946,7 +4121,8 @@
         "folderName": "250424 SZTU C2-Lib"
       },
       "viewer": {
-        "animationFirstExitMode": "orbit"
+        "animationFirstExitMode": "orbit",
+        "voxelCoordinateSpace": "world"
       },
       "aliases": [
         "/c2-lib"
@@ -3958,7 +4134,7 @@
       },
       "version": {
         "addedIn": "1.0a",
-        "updatedIn": "1.12c"
+        "updatedIn": "5.26.0"
       }
     },
     {
@@ -3972,7 +4148,7 @@
       "source": "photogrammetry",
       "experienceType": "scene",
       "files": {
-        "model": "SZTU/251220 SZTU B1-SDI-206/251220 SZTU B1-SDI-206 zhan_20500.sog",
+        "model": "lod-independent/sztu/b1-sdi-206/streamed/lod-meta.json",
         "environment": "SZTU/251220 SZTU B1-SDI-206/251220 SZTU B1-SDI-206 zhan_20500_environment.compressed.ply",
         "settings": "SZTU/251220 SZTU B1-SDI-206/settings.json",
         "thumbnail": "SZTU/251220 SZTU B1-SDI-206/251220 SZTU B1-SDI-206 zhan_20500.jpg",
@@ -3982,14 +4158,18 @@
             "file": "SZTU/251220 SZTU B1-SDI-206/251220 SZTU B1-SDI-206 zhan_20500_LOD1.sog",
             "size": 84581533
           }
-        ]
+        ],
+        "compatibilityModel": "SZTU/251220 SZTU B1-SDI-206/251220 SZTU B1-SDI-206 zhan_20500.sog",
+        "voxel": "SZTU/251220 SZTU B1-SDI-206/migration-v3/collision/walk.voxel.json"
       },
       "fileSize": {
-        "model": 154380940,
+        "model": 323842957,
         "environment": 575213,
         "thumbnail": 307334,
-        "total": 155263487,
-        "recommended": "lod1"
+        "total": 334615838,
+        "recommended": "lod1",
+        "compatibilityModel": 154380940,
+        "voxel": 9890334
       },
       "meta": {
         "date": "2025-12-20",
@@ -4006,7 +4186,10 @@
       },
       "version": {
         "addedIn": "1.5a",
-        "updatedIn": "1.12b"
+        "updatedIn": "5.26.0"
+      },
+      "viewer": {
+        "voxelCoordinateSpace": "world"
       }
     },
     {
@@ -4020,16 +4203,16 @@
       "source": "photogrammetry",
       "experienceType": "scene",
       "files": {
-        "model": "SZTU/251225 SZTU D1-UTL-107/SZTURacingCarStudio_260206.sog",
+        "model": "lod-independent/sztu/d1-utl-107/streamed/lod-meta.json",
         "environment": "SZTU/251225 SZTU D1-UTL-107/SZTURacingCarStudio_260206_environment.compressed.ply",
         "settings": "SZTU/251225 SZTU D1-UTL-107/settings.json",
         "thumbnail": "SZTU/251225 SZTU D1-UTL-107/SZTURacingCarStudio_260206.jpg"
       },
       "fileSize": {
-        "model": 203322144,
+        "model": 399308357,
         "environment": 89867,
         "thumbnail": 575343,
-        "total": 203987354
+        "total": 399973567
       },
       "meta": {
         "date": "2025-12-25",
@@ -4046,7 +4229,7 @@
       },
       "version": {
         "addedIn": "1.36a",
-        "updatedIn": "1.36a"
+        "updatedIn": "5.26.0"
       }
     },
     {
@@ -4060,17 +4243,17 @@
       "source": "photogrammetry",
       "experienceType": "scene",
       "files": {
-        "model": "SZTU/260418 SZTU C1-BDI-206/supersplat_lod_noenv_rot90_0_0/lod-meta.json",
+        "model": "lod-independent/sztu/c1-bdi-206/streamed/lod-meta.json",
         "environment": "SZTU/260418 SZTU C1-BDI-206/260418 182725 uava_environment.compressed.ply",
         "settings": "SZTU/260418 SZTU C1-BDI-206/settings-merged.json",
         "thumbnail": "SZTU/260418 SZTU C1-BDI-206/260418 182725 uava.jpg",
         "voxel": "SZTU/260418 SZTU C1-BDI-206/voxel_lod0_r0.08_a0.20_rot90_0_0/uava.voxel.json"
       },
       "fileSize": {
-        "model": 393660275,
+        "model": 370387576,
         "environment": 285988,
         "thumbnail": 766746,
-        "total": 400544125,
+        "total": 377271426,
         "voxel": 5831116
       },
       "meta": {
@@ -4092,7 +4275,7 @@
       },
       "version": {
         "addedIn": "4.0a",
-        "updatedIn": "4.0a"
+        "updatedIn": "5.26.0"
       }
     },
     {
@@ -4105,19 +4288,19 @@
       ],
       "route": "/sztu/fes/top10-26",
       "source": "photogrammetry",
-      "experienceType": "scene",
+      "experienceType": "character",
       "files": {
-        "model": "SZTU/FES/260418 Top10_26/scene.sog",
+        "model": "SZTU/FES/260418 Top10_26/sog-v3/scene.sog",
         "environment": "SZTU/FES/260418 Top10_26/environment.compressed.ply",
         "settings": "SZTU/FES/260418 Top10_26/settings-merged.json",
         "thumbnail": "SZTU/FES/260418 Top10_26/260418 215346 top10_26.jpg",
         "voxel": "SZTU/FES/260418 Top10_26/voxel_lod0_r0.08_a0.20_rot90_0_0/walk.voxel.json"
       },
       "fileSize": {
-        "model": 11489463,
+        "model": 11172226,
         "environment": 69191,
         "thumbnail": 580170,
-        "total": 15247920,
+        "total": 14930683,
         "voxel": 3109096
       },
       "meta": {
@@ -4130,12 +4313,273 @@
         "/fes/top10-26"
       ],
       "viewer": {
-        "voxelCoordinateSpace": "metaflow-rz180"
+        "voxelCoordinateSpace": "metaflow-rz180",
+        "animationFirstExitMode": "orbit"
       },
       "version": {
         "addedIn": "4.0a",
-        "updatedIn": "4.0a"
+        "updatedIn": "5.26.0"
       }
+    },
+    {
+      "id": "shenzhenCivilCenter",
+      "title": "深圳市民中心",
+      "titleEn": "Shenzhen Civic Center",
+      "category": [
+        "shenzhen"
+      ],
+      "route": "/shenzhen/shenzhen-civic-center",
+      "source": "photogrammetry",
+      "experienceType": "scene",
+      "files": {
+        "model": "Shenzhen/sp-20261102/261024shenzhenCivilCenter/fusion/streamed-recomputed-20261125/lod-meta.json",
+        "settings": "Shenzhen/sp-20261102/261024shenzhenCivilCenter/settings.json",
+        "sceneManifest": "Shenzhen/sp-20261102/261024shenzhenCivilCenter/scene-manifest-recomputed-20261125-aligned.json",
+        "voxelManifest": "Shenzhen/sp-20261102/261024shenzhenCivilCenter/fusion/voxel-v001/scene.voxel-tiles.json",
+        "poster": "Shenzhen/sp-20261102/261024shenzhenCivilCenter/posters/cover-4096.webp",
+        "thumbnail": "Shenzhen/sp-20261102/261024shenzhenCivilCenter/posters/cover-4096.webp"
+      },
+      "meta": {
+        "date": "2026-10-24",
+        "device": null,
+        "folderName": "261024shenzhenCivilCenter",
+        "gaussianScope": "Independent 7-level central fusion + full outer video, one shared renderer"
+      },
+      "viewer": {
+        "defaultCameraMode": "anim",
+        "animationFirstExitMode": "orbit",
+        "voxelCoordinateSpace": "world",
+        "worldUnitsPerMeter": 0.018994308848046808
+      },
+      "animation": {
+        "duration": 25,
+        "frameRate": 60,
+        "loopMode": "repeat"
+      },
+      "version": {
+        "addedIn": "5.24.0",
+        "updatedIn": "5.26.0"
+      },
+      "aliases": [
+        "/shenzhen/shiminzhongxin"
+      ],
+      "fileSize": {
+        "runtimeTotal": 2478641476,
+        "runtimeFiles": 2725,
+        "settings": 15474,
+        "poster": 12135550,
+        "total": 2490780189,
+        "additionalPosters": 0,
+        "model": 2478641476,
+        "thumbnail": 12135550
+      }
+    },
+    {
+      "id": "szu",
+      "title": "深圳大学粤海校区",
+      "titleEn": "Shenzhen University (Yuehai Campus)",
+      "category": [
+        "shenzhen"
+      ],
+      "route": "/shenzhen/shenzhen-university-yuehai-campus",
+      "aliases": [
+        "/shenzhen/szu",
+        "/shenzhen/shenzhendaxue",
+        "/shenzhen/shenzhendaxueyuehai"
+      ],
+      "files": {
+        "model": "Shenzhen/sp-20261102/261013szu/scene/campus-huixing-20261125/lod-meta.json",
+        "settings": "Shenzhen/sp-20261102/261013szu/settings.json",
+        "sceneManifest": "Shenzhen/sp-20261102/261013szu/scene-manifest-recomputed-20261125.json",
+        "voxelManifest": "Shenzhen/sp-20261102/261013szu/voxel-v001/scene.voxel-tiles.json",
+        "poster": "Shenzhen/sp-20261102/261013szu/posters/orbit-v012-4096.webp",
+        "thumbnail": "Shenzhen/sp-20261102/261013szu/posters/orbit-v012-4096.webp",
+        "backgroundSky": "Shenzhen/sp-20261102/261013szu/config/reference-sky.png"
+      },
+      "viewer": {
+        "defaultCameraMode": "anim",
+        "animationFirstExitMode": "orbit",
+        "voxelCoordinateSpace": "world",
+        "worldUnitsPerMeter": 1,
+        "walkFallbackPosition": [
+          36.11290777837705,
+          1.26,
+          -24.339634236988804
+        ]
+      },
+      "tracks": {
+        "orbit": "Shenzhen/sp-20261102/261013szu/animations/orbit.json"
+      },
+      "fileSize": {
+        "runtimeTotal": 10257729767,
+        "runtimeFiles": 10782,
+        "settings": 641,
+        "poster": 13359750,
+        "additionalPosters": 0,
+        "total": 10277686667,
+        "model": 10257729767,
+        "thumbnail": 13359750
+      },
+      "trackPosters": {
+        "orbit": "Shenzhen/sp-20261102/261013szu/posters/orbit-v012-4096.webp"
+      },
+      "source": "photogrammetry",
+      "experienceType": "scene",
+      "version": {
+        "addedIn": "5.24.0",
+        "updatedIn": "5.26.0"
+      },
+      "meta": {
+        "date": "2026-10-13",
+        "device": null,
+        "folderName": "261013szu"
+      }
+    },
+    {
+      "id": "huafa",
+      "title": "前海冰雪世界（华发冰雪世界）",
+      "titleEn": "Huafa Ice and Snow World",
+      "category": [
+        "shenzhen"
+      ],
+      "route": "/shenzhen/huafa-ice-and-snow-world",
+      "source": "photogrammetry",
+      "experienceType": "scene",
+      "files": {
+        "model": "Shenzhen/sp-20261102/260722huafa/streamed/lod-meta.json",
+        "settings": "Shenzhen/sp-20261102/260722huafa/settings.json",
+        "voxelManifest": "Shenzhen/sp-20261102/260722huafa/voxel/scene.voxel-tiles.json",
+        "bookmarks": "Shenzhen/sp-20261102/260722huafa/bookmarks.json",
+        "poster": "Shenzhen/sp-20261102/260722huafa/posters/cover-4096.webp",
+        "thumbnail": "Shenzhen/sp-20261102/260722huafa/posters/cover-4096.webp"
+      },
+      "fileSize": {
+        "runtimeTotal": 4557285806,
+        "runtimeFiles": 7936,
+        "settings": 3773,
+        "poster": 7361666,
+        "total": 4564647472,
+        "additionalPosters": 0,
+        "model": 4557285806,
+        "thumbnail": 7361666
+      },
+      "meta": {
+        "date": "2026-07-22",
+        "folderName": "260722huafa",
+        "gaussianScope": "Complete cleaned L2 and manually cleaned P1, 8 independently simplified LOD levels",
+        "sourceVersion": "v005_双清理版正式合并_流式体素",
+        "coordinateUnits": "L2 coordinate units; physical unit unverified"
+      },
+      "viewer": {
+        "defaultCameraMode": "anim",
+        "animationFirstExitMode": "orbit",
+        "voxelCoordinateSpace": "world",
+        "budget": 8
+      },
+      "animation": {
+        "duration": 20,
+        "frameRate": 1,
+        "loopMode": "repeat"
+      },
+      "aliases": [
+        "/shenzhen/qianhaibingxueshijie",
+        "/shenzhen/huafabingxueshijie"
+      ],
+      "version": {
+        "addedIn": "5.24.0",
+        "updatedIn": "5.25.0"
+      }
+    },
+    {
+      "id": "nanhai-e-cool-building-3",
+      "route": "/shenzhen/nanhai-e-cool-building-3",
+      "title": "南海意库3栋",
+      "titleEn": "Nanhai E-Cool",
+      "category": [
+        "shenzhen"
+      ],
+      "source": "photogrammetry",
+      "experienceType": "scene",
+      "files": {
+        "model": "Shenzhen/nanhai-e-cool-v1/streamed/lod-meta.json",
+        "environment": "Shenzhen/nanhai-e-cool-v1/environment.sog",
+        "settings": "Shenzhen/nanhai-e-cool-v1/opening-settings.json",
+        "collision": "Shenzhen/nanhai-e-cool-v1/collision.glb",
+        "thumbnail": "Shenzhen/nanhai-e-cool-v1/cover-4096.webp",
+        "poster": "Shenzhen/nanhai-e-cool-v1/cover-4096.webp"
+      },
+      "fileSize": {
+        "model": 1040050537,
+        "environment": 1936977,
+        "settings": 1081,
+        "collision": 6151824,
+        "thumbnail": 14026970,
+        "total": 1072175110,
+        "poster": 14026970
+      },
+      "meta": {
+        "date": "2026-11-12",
+        "device": null,
+        "folderName": "nanhai-e-cool-v1"
+      },
+      "viewer": {
+        "defaultCameraMode": "anim",
+        "syntheticAnimation": "figure8",
+        "animationFirstExitMode": "orbit"
+      },
+      "version": {
+        "addedIn": "5.24.0",
+        "updatedIn": "5.25.1"
+      },
+      "aliases": [
+        "/shenzhen/nanhaiyiku"
+      ]
+    },
+    {
+      "id": "apec-media-center-2026",
+      "route": "/shenzhen/APECMediaCenter",
+      "title": "2026年亚太经合组织领导人会议周新闻中心",
+      "titleEn": "APEC Media Center 2026",
+      "location": "深圳会展中心（福田）2号馆",
+      "description": "APEC ECONOMIC LEADERS' WEEK MEDIA CENTER",
+      "category": [
+        "shenzhen"
+      ],
+      "source": "photogrammetry",
+      "experienceType": "scene",
+      "files": {
+        "model": "Shenzhen/apec-media-center-2026-v1/streamed/lod-meta.json",
+        "settings": "Shenzhen/apec-media-center-2026-v1/opening-settings.json",
+        "collision": "Shenzhen/apec-media-center-2026-v1/collision.glb",
+        "thumbnail": "Shenzhen/apec-media-center-2026-v1/cover.webp",
+        "poster": "Shenzhen/apec-media-center-2026-v1/cover.webp",
+        "map": "Shenzhen/apec-media-center-2026-v1/map.json",
+        "mapImage": "Shenzhen/apec-media-center-2026-v1/map.webp",
+        "areas": "Shenzhen/apec-media-center-2026-v1/areas.json"
+      },
+      "fileSize": {
+        "settings": 1177,
+        "collision": 11304500,
+        "thumbnail": 1797152,
+        "map": 1999,
+        "mapImage": 1310360,
+        "areas": 657070,
+        "poster": 1797152,
+        "model": 2223203392,
+        "total": 2238275650
+      },
+      "meta": {
+        "date": null,
+        "device": null,
+        "folderName": "apec-media-center-2026-v1"
+      },
+      "version": {
+        "addedIn": "5.26.1",
+        "updatedIn": "5.27.0"
+      },
+      "aliases": [
+        "/shenzhen/apecmediacenter"
+      ]
     }
   ]
 }

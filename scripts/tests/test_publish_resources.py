@@ -23,7 +23,13 @@ class PublicationTests(unittest.TestCase):
             root=Path(tmp);folder=root/'Animals/Cats/mangzhong/2609160002';folder.mkdir(parents=True)
             (folder/'scene.sog').write_bytes(b'model')
             (folder/'cover-4096.webp').write_bytes(b'webp')
-            with patch.object(g,'DATA_DIR',root):
+            # This fixture contains one catalog resource and its independent LOD payload.
+            payload = root/'lod-independent'/'sztu'/'sample'/'streamed'
+            payload.mkdir(parents=True)
+            (payload/'lod-meta.json').write_text('{}')
+            (root/'metadata').mkdir()
+            (root/'metadata'/'shenzhen-hosted-scenes.json').write_text('[]')
+            with patch.object(g,'DATA_DIR',root), patch.object(g,'REPO_ROOT',root):
                 resources=g.scan_data_directory()
             self.assertEqual(len(resources),1)
             r=resources[0]
@@ -35,7 +41,10 @@ class PublicationTests(unittest.TestCase):
 
     def test_published_batch_contract(self):
         index=json.loads((g.DATA_DIR/'index.json').read_text())
-        self.assertEqual(len(index['resources']),100)
+        hosted = json.loads((g.REPO_ROOT/'metadata/shenzhen-hosted-scenes.json').read_text())
+        self.assertEqual(len(index['resources']),104)
+        self.assertEqual(len(index['resources'][:-len(hosted)]),100)
+        self.assertEqual([r['route'] for r in index['resources'][-4:]], [r['route'] for r in hosted])
         acg=[r for r in index['resources'] if r['route'].startswith('/acg/sztuccf260919/')]
         cats=[r for r in index['resources'] if r['route'].startswith('/animals/cats/mangzhong/')]
         self.assertEqual(len(acg),9);self.assertEqual(len(cats),3)
@@ -69,13 +78,20 @@ class PublicationTests(unittest.TestCase):
         self.assertIsNone(r['meta']['device'])
         self.assertEqual(r['meta']['date'],'2026-07-26')
         self.assertNotIn('tags',r)
-        self.assertEqual(r['version'],{'addedIn':'5.20.1','updatedIn':'5.20.1'})
+        history = g.load_version_history()
+        release = next(i for i, e in enumerate(history['entries']) if e['displayVersion'] == '5.20.1')
+        self.assertEqual(history['entries'][release]['gitRef'], 'ff201e5')
+        original = {'route': r['route']}
+        g.apply_resource_versions([original], {**history, 'entries': history['entries'][:release+1]})
+        self.assertEqual(original['version'],{'addedIn':'5.20.1','updatedIn':'5.20.1'})
+        self.assertEqual(r['version'],{'addedIn':'5.20.1','updatedIn':'5.21.11'})
         self.assertEqual(r['viewer']['syntheticAnimation'],'figure8')
         self.assertEqual(r['viewer']['animationFirstExitMode'],'orbit')
         self.assertNotIn('voxelCoordinateSpace',r['viewer'])
         folder='ACG/SZCAF15/A001C0190_260726_PQWJ/'
-        for key,name in [('model','scene.sog'),('environment','environment.compressed.ply'),
-                         ('settings','settings.json'),('thumbnail','cover-4096.webp'),('voxel','walk.voxel.json')]:
+        for key,name in [('compatibilityModel','scene.sog'),('model','migration-v3/scene/scene.sog'),
+                         ('environment','environment.compressed.ply'),
+                         ('settings','settings.json'),('thumbnail','cover-4096-q82.webp'),('voxel','walk.voxel.json')]:
             self.assertEqual(r['files'][key],folder+name)
             self.assertTrue((g.DATA_DIR/r['files'][key]).is_file())
 

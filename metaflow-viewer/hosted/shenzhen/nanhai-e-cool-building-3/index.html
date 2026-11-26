@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <meta name="color-scheme" content="dark">
+    <title>南海意库3栋 · Nanhai E-Cool</title>
+    <link rel="preload" as="image" href="/data/Shenzhen/nanhai-e-cool-v1/cover-4096.webp">
+    <link rel="icon" href="/assets/metaflow_logo.svg">
+    <link rel="stylesheet" href="/index.css?v=5.25.0">
+    <link rel="stylesheet" href="/shenzhen/map-window.css">
+    <link rel="stylesheet" href="/shenzhen/nanhai-e-cool-building-3/map.css?v=5.25.1">
+</head>
+<body>
+    <main id="viewer" aria-label="南海意库3栋"></main>
+    <template id="map-control"><button class="sse-mapButton sse-controlButton" id="map-launcher" aria-controls="site-map" title="小地图" aria-label="小地图" aria-pressed="false">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true">
+                        <path d="m3 5 6-2 6 2 6-2v16l-6 2-6-2-6 2Zm6-2v16m6-14v16"/>
+                    </svg>
+                </button></template>
+    <aside class="sse-guidance" id="site-map" role="region" aria-label="小地图" hidden>
+        <div class="sse-guidanceSurface">
+            <span class="map-a11y" id="current-floor" role="status"></span>
+            <div class="sse-guidanceMapViewport">
+                <canvas id="map-canvas" width="440" height="440" role="img" aria-label="现场地图、当前位置和朝向" aria-describedby="current-floor"></canvas>
+                <button class="map-action" type="button" id="map-mode" aria-label="切换到跟随" title="切换到跟随">
+                    <svg class="map-follow-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2v3" fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="2"/><path fill="currentColor" d="M11.2 7.5a.9.9 0 0 1 1.6 0l6.1 13.1c.4.9-.4 1.5-1.2.9L12 17.4l-5.7 4.1c-.8.6-1.6 0-1.2-.9Z"/></svg>
+                    <svg class="map-overview-icon" viewBox="0 0 24 24" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="6" cy="4.5" r="2.6"/><path d="M6 7c0 6.3 12 2.5 12 10"/></g><circle cx="18" cy="19" r="3.3" fill="currentColor"/></svg>
+                </button>
+                <button class="map-action" type="button" id="map-locate" aria-label="恢复地图视角" aria-hidden="true" tabindex="-1" inert>
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M20.4 3.3a.9.9 0 0 1 1.2 1.2l-7.3 16.1c-.5.9-1.7.7-1.9-.3l-1.2-7.2-7.2-1.2c-.9-.2-1.2-1.4-.2-1.9Z"/></svg>
+                </button>
+            </div>
+        </div>
+        <div class="map-window-menu sse-settingsSurface" id="map-window-menu" role="group" aria-label="地图窗口选项" aria-hidden="true" inert>
+            <div class="sse-settingsGroup">
+                <div class="sse-settingsRow">
+                    <button type="button" id="map-window-size">
+                        <svg class="map-expand-icon" viewBox="0 0 24 24" aria-hidden="true"><use href="#enterFullscreenIcon"/></svg>
+                        <svg class="map-restore-icon" viewBox="0 0 24 24" aria-hidden="true"><use href="#exitFullscreenIcon"/></svg>
+                        <span>进入全屏幕</span>
+                    </button>
+                </div>
+                <div class="sse-settingsRow">
+                    <button type="button" id="map-minimize">
+                        <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="11" width="16" height="2" rx="1"/></svg>
+                        <span>最小化</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </aside>
+    <button id="repairs" hidden aria-pressed="false">显示补面</button>
+    <script type="module" src="/shenzhen/nanhai.js?v=5.25.0"></script>
+</body>
+</html>

@@ -1046,11 +1046,23 @@ const loadVoxelCollision = async (
         throw new Error(`Failed to fetch voxel binary: ${binResponse.statusText}`);
     }
     const buffer = await binResponse.arrayBuffer();
-    const view = new Uint32Array(buffer);
-
     const nodeWordCount = metadata.nodeWordCount ?? metadata.nodeCount;
-    const nodes = view.slice(0, nodeWordCount);
-    const leafData = view.slice(nodeWordCount, nodeWordCount + metadata.leafDataCount);
+    const leafWordCount = metadata.leafDataCount;
+    const wordSize = Uint32Array.BYTES_PER_ELEMENT;
+    if (
+        !Number.isSafeInteger(nodeWordCount) ||
+        nodeWordCount < 0 ||
+        !Number.isSafeInteger(leafWordCount) ||
+        leafWordCount < 0 ||
+        buffer.byteLength % wordSize !== 0 ||
+        nodeWordCount + leafWordCount > buffer.byteLength / wordSize
+    ) {
+        throw new Error(`Invalid voxel binary size: ${binUrl}`);
+    }
+    // Keep the node and leaf views on the downloaded buffer. A second full
+    // allocation during parsing is expensive for large monolithic collision files.
+    const nodes = new Uint32Array(buffer, 0, nodeWordCount);
+    const leafData = new Uint32Array(buffer, nodeWordCount * wordSize, leafWordCount);
 
     if (options.coordinateSpace === 'metaflow-rz180') {
         return new FlippedVoxelCollision(metadata, nodes, leafData);

@@ -9,6 +9,7 @@ import type { AnalyticsClient } from './analytics/client';
 import type { CaptureResult } from './capture';
 import type { Localize } from './localization';
 import type { ViewerAssets, ViewerFlags } from './options';
+import type { Quality } from './quality';
 import type { Annotation, ExperienceSettings } from './settings';
 
 type CameraMode = 'orbit' | 'anim' | 'fly' | 'walk';
@@ -68,7 +69,11 @@ type Config = ViewerAssets &
     };
 
 // observable state that can change at runtime
+type QualityLevel = 'performance' | 'default' | 'high' | 'max';
+
 type State = {
+    quality: QualityLevel;
+    qualityAvailable: QualityLevel[];
     /** True once the first complete frame has rendered. */
     loaded: boolean;
     readyToRender: boolean;
@@ -137,6 +142,7 @@ type State = {
 type WritableStateKey =
     | 'cameraMode'
     | 'performanceMode'
+    | 'quality'
     | 'showAnnotations'
     | 'gamingControls'
     | 'animationPaused'
@@ -166,6 +172,8 @@ type CaptureOptions = {
 type ViewerHandle = {
     /** The engine application, for a host that needs to reach past this api. */
     readonly app: AppBase;
+    /** Height sampled by the active walk capsule. */
+    readonly walkSupportHeight: number | null;
     /** Observable state. Writes to its writable keys take effect at once. */
     readonly state: ViewerState;
     /** Fires `<key>:changed` with `(value, previous)` for every key of {@link ViewerState}. */
@@ -243,6 +251,7 @@ type ViewerHandle = {
 };
 
 type Global = {
+    quality: Quality;
     app: AppBase;
     /** Authored scene content, independently transformable from the camera/XR rig. */
     sceneRoot: Entity;
@@ -264,6 +273,7 @@ type Global = {
 export { CameraMode, InputMode, XrMode, Config, State, Global, ViewerState, CaptureOptions, ViewerHandle };
 
 export type {
+    QualityLevel,
     LoadMode,
     LoadingStage,
     PrimarySourceKind,

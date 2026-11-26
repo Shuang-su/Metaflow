@@ -66,7 +66,10 @@ class SphereMover {
 
     private _hasLastClearPosition = false;
 
-    constructor(radius: number) {
+    constructor(
+        radius: number,
+        private readonly unitsPerMeter = 1
+    ) {
         this.radius = radius;
     }
 
@@ -166,7 +169,7 @@ class SphereMover {
                 dir.x,
                 dir.y,
                 dir.z,
-                distance + rayExtension + COLLISION_SKIN
+                distance + rayExtension + COLLISION_SKIN * this.unitsPerMeter
             );
             if (!hit) {
                 continue;
@@ -177,7 +180,7 @@ class SphereMover {
             const hz = hit.z - sweepOrigin.z;
             const hitDistance = Math.max(0, hx * dir.x + hy * dir.y + hz * dir.z);
             const clearance = centerRay ? this.radius : 0;
-            const travel = math.clamp(hitDistance - clearance - COLLISION_SKIN, 0, distance);
+            const travel = math.clamp(hitDistance - clearance - COLLISION_SKIN * this.unitsPerMeter, 0, distance);
             if (travel >= bestTravel) {
                 continue;
             }
@@ -236,7 +239,9 @@ class SphereMover {
     }
 
     private _isMoveComplete(move: Vec3): boolean {
-        return move.x * move.x + move.y * move.y + move.z * move.z <= MIN_MOVE_SQ;
+        return (
+            move.x * move.x + move.y * move.y + move.z * move.z <= MIN_MOVE_SQ * this.unitsPerMeter * this.unitsPerMeter
+        );
     }
 
     private _isSphereClear(position: Vec3): boolean {

@@ -152,10 +152,13 @@ const findCylinderSpawn = (
     oz: number,
     halfHeight: number,
     radius: number,
-    out: SpawnOut
+    out: SpawnOut,
+    unitsPerMeter = 1,
+    maxDropMetres = RAY_MAX_DIST
 ): boolean => {
     const step = collision.voxelResolution;
-    const maxCells = Math.ceil(SEARCH_RADIUS / step);
+    const searchRadius = SEARCH_RADIUS * unitsPerMeter;
+    const maxCells = Math.ceil(searchRadius / step);
 
     // Round up so float division (e.g. 0.2 / 0.05) can't accidentally drop
     // the outer ring of footprint cells; the Euclidean check below trims any
@@ -182,7 +185,7 @@ const findCylinderSpawn = (
 
                 for (let dx = -r; dx <= r; dx += dxStep) {
                     const distSq = (dx * dx + dy * dy + dz * dz) * step * step;
-                    if (distSq >= bestDistSq || distSq > SEARCH_RADIUS_SQ) continue;
+                    if (distSq >= bestDistSq || distSq > SEARCH_RADIUS_SQ * unitsPerMeter * unitsPerMeter) continue;
 
                     const cx = ox + dx * step;
                     const cy = oy + dy * step;
@@ -209,14 +212,14 @@ const findCylinderSpawn = (
                             const fx = cx + fxOff;
                             const fz = cz + fzOff;
 
-                            const down = collision.queryRay(fx, cy, fz, 0, -1, 0, RAY_MAX_DIST);
+                            const down = collision.queryRay(fx, cy, fz, 0, -1, 0, maxDropMetres * unitsPerMeter);
                             if (!down) {
                                 supported = false;
                                 break;
                             }
                             if (down.y > floor) floor = down.y;
 
-                            const up = collision.queryRay(fx, cy, fz, 0, 1, 0, RAY_MAX_DIST);
+                            const up = collision.queryRay(fx, cy, fz, 0, 1, 0, RAY_MAX_DIST * unitsPerMeter);
                             if (up && up.y < ceiling) ceiling = up.y;
                         }
                     }

@@ -1,7 +1,7 @@
 import { MultiTouchSource, Vec3 } from 'playcanvas';
 
 import type { Global } from '../../types';
-import { DISPLACEMENT_SCALE, TAP_EPSILON, screenToWorld } from '../shared';
+import { DISPLACEMENT_SCALE, TAP_EPSILON, screenToMove } from '../shared';
 import type { CameraInputFrame, InputDevice, UpdateContext } from '../shared';
 
 const tmpV = new Vec3();
@@ -106,7 +106,7 @@ class TouchDevice implements InputDevice {
 
     update(ctx: UpdateContext, frame: CameraInputFrame): void {
         const { touch, pinch, count } = this._source.read();
-        const { isFly, isWalk, isFirstPerson, isOrbit, gamingControls, dt, distance, cameraComponent } = ctx;
+        const { isFly, isWalk, isFirstPerson, isOrbit, gamingControls, dt, cameraComponent } = ctx;
         const isLandscape = window.innerWidth > window.innerHeight;
 
         // running touch count
@@ -192,7 +192,7 @@ class TouchDevice implements InputDevice {
         // screen-space mapping in every mode so dragging feels the same —
         // what your fingers move, the camera moves. Walk zeros y because
         // WalkController treats any nonzero move[1] as a jump trigger.
-        screenToWorld(cameraComponent, touch[0], touch[1], distance, orbitMove);
+        screenToMove(ctx, touch[0], touch[1], orbitMove);
         if (isWalk) {
             orbitMove.y = 0;
         }

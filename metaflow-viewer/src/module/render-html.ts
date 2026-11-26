@@ -3,6 +3,8 @@ import css from '../../public/index.css';
 import js from '../../public/index.js';
 import type { ViewerAssets } from '../options';
 
+import standaloneHtml from './standalone.html';
+
 /**
  * Asset urls and settings the embedder supplies to the viewer. The asset urls are the same
  * fields `createViewer` takes in a page ({@link ViewerAssets}); here every one is optional,
@@ -25,6 +27,8 @@ type ViewerBootstrap = Partial<Omit<ViewerAssets, 'environmentContents'>> & {
 
 /** Options for {@link renderViewerHtml}. */
 type RenderViewerHtmlOptions = {
+    /** Self-contained export entry with no platform routing, analytics or online assets. */
+    standalone?: boolean;
     /** Asset urls and settings for the viewer to boot with. */
     bootstrap?: ViewerBootstrap;
     /** Value for the document's `<base href>`, for a viewer served from a sub-path. */
@@ -117,7 +121,7 @@ const BODY_OPEN = /<body\b[^>]*>/;
 const renderViewerHtml = (options: RenderViewerHtmlOptions = {}) => {
     const { bootstrap, baseHref, backgroundColor, headExtras, bodyStartExtras, inlineCss, inlineJs } = options;
 
-    let result = html;
+    let result = options.standalone ? standaloneHtml : html;
 
     // Order matters. Each seam is matched with a non-global regex, so the *first* occurrence
     // in the document wins — and caller-controlled content (the bootstrap json, `headExtras`)

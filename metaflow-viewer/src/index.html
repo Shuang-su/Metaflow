@@ -67,6 +67,7 @@
             const normalizeRoutePath = (value) => {
                 if (!value || value === '/') return '/';
                 const trimmed = value.endsWith('/') ? value.slice(0, -1) : value;
+                if (trimmed.toLowerCase() === '/shenzhen/apecmediacenter') return '/shenzhen/APECMediaCenter';
                 return trimmed || '/';
             };
 
@@ -91,7 +92,8 @@
                 const model = typeof files.model === 'string' ? files.model : null;
                 const lod = Array.isArray(files.lod) ? files.lod : [];
 
-                if (!lod.length) return model;
+                if (!lod.length || model?.endsWith('/lod-meta.json') || (model && files.compatibilityModel))
+                    return model;
 
                 const recommendedRaw = resource?.fileSize?.recommended ?? resource?.recommended ?? files?.recommended;
                 const recommendedLevel = parseRecommendedLevel(recommendedRaw);
@@ -266,6 +268,8 @@
             let animationFirstExitMode = bootstrap.animationFirstExitMode ?? null;
             let experienceType = bootstrap.experienceType ?? null;
             let analyticsResource = bootstrap.analyticsResource ?? null;
+            let directorCompatibilityUrl;
+            let hostedResource;
             let analyticsRouteMatched = bootstrap.analyticsRouteMatched ?? false;
 
             const initConfig = async () => {
@@ -290,6 +294,7 @@
 
                         if (resource) {
                             analyticsRouteMatched = true;
+                            hostedResource = resource;
                             analyticsResource = {
                                 id: resource?.id,
                                 route: resource?.route,
@@ -301,6 +306,7 @@
                                 version: resource?.version
                             };
                             contentUrl = dataUrl(pickModelFile(resource));
+                            directorCompatibilityUrl = dataUrl(resource?.files?.compatibilityModel) || undefined;
                             settingsUrl = dataUrl(resource?.files?.settings);
                             posterUrl = posterUrl || dataUrl(resource?.files?.thumbnail);
                             voxelManifestUrl = voxelManifestUrl || dataUrl(resource?.files?.voxelManifest);
@@ -328,6 +334,10 @@
                     settingsUrl = './settings.json';
                 }
 
+                const requestedRenderer = url.searchParams.get('renderer');
+                if (hostedResource && ['webgl', 'webgl2', 'webgpu'].includes(requestedRenderer)) {
+                    url.searchParams.set(requestedRenderer === 'webgl2' ? 'webgl' : requestedRenderer, '');
+                }
                 const renderer = url.searchParams.has('webgl') ? 'webgl' : 'webgpu';
                 const budgetParam = url.searchParams.get('budget');
                 const budget = budgetParam !== null ? Number(budgetParam) : undefined;
@@ -398,6 +408,7 @@
                     posthogHost,
                     posthogReplay,
                     analyticsResource,
+                    directorCompatibilityUrl,
                     analyticsResourceUrls: {
                         index: dataUrl('index.json'),
                         content: contentUrl,
@@ -438,6 +449,7 @@
                 const sseConfig = await initConfig();
                 window.sse = {
                     config: sseConfig,
+                    hostedResource,
                     settings: bootstrap.settings ?? loadSettings(settingsUrl)
                 };
                 // Module loading can finish after settings have already failed.

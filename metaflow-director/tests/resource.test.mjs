@@ -15,7 +15,8 @@ const { loadResource } = await import(
 );
 const index = JSON.parse(await readFile("../data/index.json"));
 const resources = index.resources.filter(
-  (r) => r.category?.includes("acg") && /\.(sog|ply)$/i.test(r.files.model),
+  (r) => r.category?.includes("acg") &&
+    /\.(sog|ply)$/i.test(r.files.compatibilityModel ?? r.files.model),
 );
 test("all eligible resources initialize from either JSON format when storage is unavailable", async () => {
   const original = globalThis.fetch;
@@ -51,10 +52,39 @@ test("all eligible resources initialize from either JSON format when storage is 
       assert.equal(scene.pose.controls.focusMode, "manual");
       assert.equal(scene.assets.length, r.files.environment ? 2 : 1);
       assert.equal(requests.length, r.files.environment ? 4 : 3);
+      const model = r.files.compatibilityModel ?? r.files.model;
+      assert.equal(decodeURIComponent(requests[2]), "/data/" + model);
+      assert.equal(scene.format, /\.ply$/i.test(model) ? "ply" : "sog");
     }
   } finally {
     globalThis.fetch = original;
     delete globalThis.sessionStorage;
+  }
+});
+test("a PLY compatibility subject keeps its format when Viewer opens a stream", async () => {
+  const baseline = resources[0];
+  const model = "legacy/subject.ply";
+  const route = {
+    ...baseline,
+    files: { ...baseline.files, model: "v3/lod-meta.json", compatibilityModel: model },
+  };
+  const original = globalThis.fetch;
+  const requested = [];
+  globalThis.fetch = async (url) => {
+    requested.push(decodeURIComponent(url));
+    if (url === "/data/index.json") return Response.json({ resources: [route] });
+    if (String(url).endsWith(".json")) {
+      return new Response(await readFile("../" + decodeURIComponent(url).slice(1)));
+    }
+    return new Response(new Uint8Array([1, 2, 3]));
+  };
+  try {
+    const scene = await loadResource(route.route + "/director", AbortSignal.timeout(2000), () => {});
+    assert.equal(scene.format, "ply");
+    assert.equal(requested[2], "/data/" + model);
+    assert.match(scene.assets[0].name, /\.ply$/);
+  } finally {
+    globalThis.fetch = original;
   }
 });
 test("declared environment failure never resolves a partial photography scene", async () => {

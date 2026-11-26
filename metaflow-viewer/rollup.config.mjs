@@ -1,4 +1,5 @@
 import { copyFileSync, existsSync, readFileSync } from 'fs';
+import { fileURLToPath } from 'node:url';
 import path from 'path';
 
 import json from '@rollup/plugin-json';
@@ -10,7 +11,7 @@ import copy from 'rollup-plugin-copy';
 import { dts } from 'rollup-plugin-dts';
 import scss from 'rollup-plugin-scss';
 import { string } from 'rollup-plugin-string';
-import sass from 'sass';
+import sass, { compile as compileSass } from 'sass';
 import ts from 'typescript';
 
 import { siteHtml } from './site-html.mjs';
@@ -174,9 +175,10 @@ const buildCss = {
 const debugEngine = process.env.ENGINE === 'debug';
 
 const buildPublic = {
-    input: 'src/index.ts',
+    input: 'src/hosted.ts',
     output: {
         dir: 'public',
+        entryFileNames: 'index.js',
         inlineDynamicImports: true,
         format: 'esm',
         sourcemap: true
@@ -187,6 +189,14 @@ const buildPublic = {
         json(),
         htmlTemplatePlugin(),
         htmlPlugin(),
+        {
+            name: 'nanhai-map-styles',
+            generateBundle() {
+                const source = compileSass('src/shenzhen/nanhai-map.scss');
+                source.loadedUrls.forEach((url) => this.addWatchFile(fileURLToPath(url)));
+                this.emitFile({ type: 'asset', fileName: 'assets/nanhai-map.css', source: source.css });
+            }
+        },
         copy({ targets: [{ src: 'src/assets/*', dest: 'public/assets' }] })
     ]
 };
@@ -215,7 +225,7 @@ const buildDist = {
 const engineExternal = [/^playcanvas(\/|$)/];
 
 const buildViewer = {
-    input: 'src/index.ts',
+    input: 'src/module/viewer-entry.ts',
     output: {
         file: 'dist/viewer.js',
         inlineDynamicImports: true,
@@ -265,7 +275,7 @@ const buildDistTypes = {
 // are imported rather than inlined. The markup template and package.json are values the bundle
 // carries, with nothing for the declaration bundler to read.
 const buildViewerTypes = {
-    input: 'src/index.ts',
+    input: 'src/module/viewer-entry.ts',
     output: { file: 'dist/viewer.d.ts', format: 'es' },
     external: [...engineExternal, /\.html$/, /package\.json$/],
     plugins: [dts()]

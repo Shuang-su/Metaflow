@@ -1,6 +1,6 @@
 # Editor 导出契约
 
-当前实现位于 `supersplat-v2.28.0/src/ui/export-popup.ts`、`src/file-handler.ts` 和 `src/splat-serialize.ts`。
+当前实现位于 `supersplat-v3.5.2/src/ui/export-popup.ts`、`src/file-handler.ts` 和 `src/splat-serialize.ts`；兼容版同名实现位于 `supersplat-v2.32.5/`。1.3.1 已于 2026-10-22 通过 CLI 发布。
 
 ## 通用模型导出
 
@@ -49,3 +49,11 @@ scene.compressed.ply
 不要把 Editor 的 HTML/ZIP 文件名结构当成 `data/index.json` schema；两者是不同交付契约。
 
 进入稳定 route 的主体模型还必须符合 [资源索引 schema](resource-index.md#可索引模型边界)：当前是 SOG 或 streaming JSON，独立 compressed PLY 只适合 direct URL/legacy package。
+
+## 1.3.0 渐变背景
+
+两版 Editor 的背景入口支持纯色、线性与径向渐变。渐变随工程保存；`view.background` 可选，旧 `view.bgColor` 保留。导出的 settings 仍为 version 2；`background.color` 是色标透明度的合成底色及兼容值。
+
+渐变场景的 HTML、SOG Package 与 legacy ZIP 使用共享背景实现的 Metaflow Viewer。HTML 是单文件；Package 包含 `scene.sog`；legacy ZIP 继续恰好包含 `index.html`、`index.css`、`index.js`、`settings.json`、`scene.compressed.ply`。导出页面关闭平台路由与分析服务，无线上运行时依赖。纯色场景沿用原有上游导出路径。
+
+图片、普通及粒子视频在最终输出画幅合成背景；360° 在全景投影之后合成。选择透明背景时跳过整个背景层。模型、相机、粒子时钟、编码预检和取消/失败恢复契约不变。

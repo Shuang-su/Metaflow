@@ -15,6 +15,7 @@ import {
 import type { GraphicsDevice, Keyboard, Mouse, TouchDevice } from 'playcanvas';
 
 import { installSogMetadataGuard } from './guard-sog-metadata';
+import { installPrefetchedOctree } from './prefetched-octree';
 
 type AppConstructorOptions = {
     graphicsDevice: GraphicsDevice;
@@ -48,7 +49,9 @@ class App extends AppBase {
         appOptions.xr = XrManager;
 
         this.init(appOptions);
-        installSogMetadataGuard(this.loader.getHandler('gsplat') as GSplatHandler);
+        const splatHandler = this.loader.getHandler('gsplat') as GSplatHandler;
+        installSogMetadataGuard(splatHandler);
+        installPrefetchedOctree(splatHandler);
     }
 }
 

@@ -59,7 +59,7 @@ const resolveAnimationExitMode = (options) => {
  *   hasExplicitStartPose: boolean,
  *   hasCollider: boolean,
  *   preferredCameraMode?: CameraMode,
- *   syntheticAnimation?: 'figure8'
+ *   syntheticAnimation?: 'figure8' | 'none'
  * }} options
  * @returns {{
  *   trackKind: AnimationTrackKind,
@@ -85,9 +85,9 @@ const resolveAnimationPolicy = (options) => {
         trackKind = 'explicit';
     } else if (syntheticAnimation === 'figure8' && hasExplicitStartPose) {
         trackKind = 'figure8';
-    } else if (isObjectExperience) {
+    } else if (isObjectExperience && syntheticAnimation !== 'none') {
         trackKind = 'rotate';
-    } else if (hasExplicitStartPose) {
+    } else if (hasExplicitStartPose && syntheticAnimation !== 'none') {
         trackKind = 'figure8';
     }
 

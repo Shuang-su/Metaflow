@@ -117,7 +117,14 @@
     {
       "id": "editor-source",
       "category": "editor",
-      "includePaths": ["metaflow-editor/**", "supersplat-v2.28.0/**"],
+      "includePaths": [
+        "editor-shared/**",
+        "metaflow-editor/**",
+        "metaflow-editor-legacy/**",
+        "supersplat-v2.28.0/**",
+        "supersplat-v3.5.2/**",
+        "supersplat-v2.32.5/**"
+      ],
       "excludePaths": [
         "**/*.md",
         "**/package.json",
@@ -134,7 +141,11 @@
         "supersplat-v2.28.0/package.json",
         "supersplat-v2.28.0/package-lock.json",
         "supersplat-v2.28.0/pnpm-lock.yaml",
-        "supersplat-v2.28.0/yarn.lock"
+        "supersplat-v2.28.0/yarn.lock",
+        "supersplat-v3.5.2/package.json",
+        "supersplat-v3.5.2/package-lock.json",
+        "supersplat-v2.32.5/package.json",
+        "supersplat-v2.32.5/package-lock.json"
       ],
       "excludePaths": [],
       "checks": ["editor"]
@@ -145,7 +156,8 @@
       "includePaths": [
         "data/editor-version-history.json",
         "metadata/editor-version-history.json",
-        "scripts/generate_editor_version.py"
+        "scripts/generate_editor_version.py",
+        "scripts/stage-editor.mjs"
       ],
       "excludePaths": [],
       "checks": ["data", "editor"]

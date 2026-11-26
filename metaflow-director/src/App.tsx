@@ -19,7 +19,7 @@ import {
   type FrameState,
 } from "./render/runtime";
 import { loadResource, type ResourceScene } from "./resource";
-import { directorBasePath } from "../../metaflow-viewer/src/director-handoff";
+import { directorBasePath, handoffIdentity } from "../../metaflow-viewer/src/director-handoff";
 import {
   DEFAULT_POSE,
   createProject,
@@ -86,7 +86,7 @@ export function App() {
   ref.current = snapshot;
   const recovery = useRef<{
     resourceId: string;
-    files: string;
+    identity: string;
     snapshot: Snapshot;
     selected: string;
     dirty: boolean;
@@ -416,7 +416,7 @@ export function App() {
       const saved = recovery.current;
       const restoring =
         saved?.resourceId === loaded.resource.id &&
-        saved.files === JSON.stringify(loaded.resource.files);
+        saved.identity === handoffIdentity(loaded.resource);
       const workingPose = restoring ? saved.snapshot.pose : loaded.pose;
       const p = restoring ? saved.snapshot.project : createProject();
       p.name = loaded.resource.title ?? loaded.resource.id;
@@ -426,7 +426,7 @@ export function App() {
         {
           id: loaded.resource.id,
           name: p.name,
-          format: loaded.resource.files.model!.endsWith(".ply") ? "ply" : "sog",
+          format: loaded.format,
           size: loaded.assets.reduce((n, a) => n + a.bytes.byteLength, 0),
           hash: loaded.resource.id,
         },
@@ -1279,7 +1279,7 @@ export function App() {
                   stopMotion();
                   recovery.current = {
                     resourceId: resource.resource.id,
-                    files: JSON.stringify(resource.resource.files),
+                    identity: handoffIdentity(resource.resource),
                     snapshot: structuredClone(ref.current),
                     selected,
                     dirty,

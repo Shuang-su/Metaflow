@@ -50,6 +50,7 @@ class TiledVoxelCollision implements Collision {
     }
 
     private _centerId = '';
+    private _walkEntryId: string | undefined;
 
     onTilesChanged: (() => void) | null = null;
 
@@ -91,6 +92,29 @@ class TiledVoxelCollision implements Collision {
         return this._centerId !== '' && this._loaded.has(this._centerId);
     }
 
+    preloadWalkEntry(x: number, z: number): void {
+        const tile = this._tileAtWorldPosition(x, z);
+        if (tile) {
+            this._walkEntryId = tile.id;
+            this._activeIds.add(tile.id);
+            this._ensureLoaded(tile.id);
+        }
+    }
+
+    isTileLoadedAt(x: number, z: number): boolean {
+        const tile = this._tileAtWorldPosition(x, z);
+        return !!tile && this._loaded.has(tile.id);
+    }
+
+    private _tileAtWorldPosition(x: number, z: number) {
+        return this._findTile(this.loadOptions.coordinateSpace === 'metaflow-rz180' ? -x : x, z);
+    }
+
+    updateForWorldPosition(x: number, z: number): void {
+        const queryX = this.loadOptions.coordinateSpace === 'metaflow-rz180' ? -x : x;
+        this.updateForQueryPosition(queryX, z);
+    }
+
     updateForQueryPosition(x: number, z: number): void {
         const center = this._findTile(x, z);
         if (!center || center.id === this._centerId) {
@@ -99,6 +123,7 @@ class TiledVoxelCollision implements Collision {
 
         this._centerId = center.id;
         const desired = new Set<string>();
+        if (this._walkEntryId) desired.add(this._walkEntryId);
         for (const tile of this.manifest.tiles) {
             if (Math.abs(tile.ix - center.ix) <= 1 && Math.abs(tile.iz - center.iz) <= 1) {
                 desired.add(tile.id);

@@ -1,3 +1,5 @@
+import type { BackgroundGradient } from '../background';
+
 import {
     assertObject,
     assertNumber,
@@ -93,18 +95,7 @@ type ExperienceSettings = {
     background: {
         color: [number, number, number];
         skyboxUrl?: string;
-        gradient?: {
-            topColor: [number, number, number];
-            horizonColor?: [number, number, number];
-            bottomColor: [number, number, number];
-            horizonStop?: number;
-            bottomStop?: number;
-            type?: 'linear' | 'radial';
-            stops?: { position: number; color: [number, number, number]; opacity?: number }[];
-            angle?: number;
-            center?: [number, number];
-            radius?: [number, number];
-        };
+        gradient?: BackgroundGradient;
     };
     postEffectSettings: PostEffectSettings;
 
@@ -224,6 +215,28 @@ const validateV2 = (data: unknown): ExperienceSettings => {
             assertNumber(gradient.horizonStop, 'settings.background.gradient.horizonStop');
         if (gradient.bottomStop !== undefined)
             assertNumber(gradient.bottomStop, 'settings.background.gradient.bottomStop');
+        if (gradient.type !== undefined) {
+            assertEnum(gradient.type, ['linear', 'radial'], 'settings.background.gradient.type');
+            const stops = assertArray(gradient.stops, 'settings.background.gradient.stops');
+            if (stops.length < 2) throw new Error('A gradient requires at least two stops');
+            stops.forEach((value: unknown, i: number) => {
+                const stop = assertObject(value, `gradient.stops[${i}]`);
+                assertTuple3(stop.color, `gradient.stops[${i}].color`);
+                for (const field of ['position', 'opacity']) {
+                    if (field === 'opacity' && stop[field] === undefined) continue;
+                    const v = assertNumber(stop[field], `gradient.stops[${i}].${field}`);
+                    if (v < 0 || v > 1) throw new Error(`gradient.stops[${i}].${field} must be within 0..1`);
+                }
+            });
+        }
+        if (gradient.angle !== undefined) assertNumber(gradient.angle, 'gradient.angle');
+        for (const field of ['center', 'radius']) {
+            if (gradient[field] !== undefined) {
+                const pair = assertNumberArray(gradient[field], `gradient.${field}`);
+                if (pair.length !== 2 || pair.some((v) => (field === 'radius' ? v <= 0 || v > 4 : v < 0 || v > 1)))
+                    throw new Error(`Invalid gradient.${field}`);
+            }
+        }
     }
 
     validatePostEffects(obj.postEffectSettings, 'settings.postEffectSettings');

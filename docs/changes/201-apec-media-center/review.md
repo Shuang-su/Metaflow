@@ -18,3 +18,20 @@
 桌面和移动端共用 SuperSplat 顶部菜单，按 Studio A–F 分区选择 37 个原始展示机位。APEC 全览在馆内接近边界时扩框，手动拖缩和跟随仍可独立使用。中央通道的 L2 Pro 原片和成品地坪共同支持本次碰撞修改。
 
 [相对 5.26.1 生产树的完整增量](apec-5270-production-relative.patch.gz)与[逐文件变更、SHA-256 及重放树](apec-5270-patch-proof.json)可用于本地复现。解压后对清单指定的 base 执行 `git apply --index`，再用 `git write-tree` 核对。线上实测与回退记录见 [MF-201](https://github.com/Shuang-su/Metaflow/issues/201)。
+
+## 与 Mac Studio 发行合并到主线
+
+Viewer 5.27.0 直接继承 Mac Studio 的 Viewer 5.26.0 和独立发行的 Editor 1.4.0。合并包括 Viewer、Director、两代 Editor 源码与发布镜像、公开索引，以及两次发行的记录。5.26.0 准备阶段的记录仍保留在原文件中。两次实际部署的产品提交、构建提交和部署 ID 以[联合发行记录](../../../metadata/netlify-releases/viewer-v5.27.0.json)为准。
+
+完整资源继续由不可变 Netlify 部署交付。资源锁覆盖 105 个入口、57,939 个数据文件和 59,012,720,028 字节。校验包括索引的 SHA-256、每个文件的大小和内容摘要。可恢复单个场景或完整发布目录。大运的流式模型和碰撞位于不同目录，按场景恢复同时包含两者。
+
+```bash
+python3 scripts/materialize-data.py --route /shenzhen/dayun --output .codex-work/dayun-data
+python3 scripts/materialize-data.py --all --output metaflow-viewer/public/data
+```
+
+两代 Editor 继续使用 1.4.0 自带的独立导出 Viewer。重新构建 Editor 导出模块会验证当前源码和实际模块字节。原始发布分支的 Git 提交对象和 5.26.0 索引保存在压缩凭据中，可以从 Netlify 发布提交沿父链验证旧版本。联合源码与各次原始部署使用各自的提交号。
+
+[联合 PR](https://github.com/Shuang-su/Metaflow/pull/200) · [APEC 增量 PR](https://github.com/Shuang-su/Metaflow/pull/203) · [资源锁](../../../metadata/data-releases/active.lock.json)
+
+GitHub 对这次 Git 推送授权了仓库内容写入。原始发行历史还包含九个 Actions 工作流的变化，需要单独的 workflow 写权限。这些差异与 [5.26.0 / 5.27.0 原始工作流补丁](prior-release-workflows.patch)一起保存，可在当前主线使用 `git apply --check` 验证。主线当前实际启用的 CI 与发行工作流沿用合并前的配置。

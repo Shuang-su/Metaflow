@@ -24,8 +24,8 @@ const spawnProbe = new Vec3();
 const clearProbe = { x: 0, y: 0, z: 0 };
 
 // Whether the camera sphere fits at `position` without intersecting collision geometry.
-const isClear = (collision: Collision, position: Vec3) =>
-    !collision.querySphere(position.x, position.y, position.z, CAMERA_RADIUS, clearProbe);
+const isClear = (collision: Collision, position: Vec3, radius: number) =>
+    !collision.querySphere(position.x, position.y, position.z, radius, clearProbe);
 
 class FlyController implements CameraController {
     fov = 90;
@@ -42,7 +42,12 @@ class FlyController implements CameraController {
 
     private _spawn = new SpawnState();
 
-    private _mover = new SphereMover(CAMERA_RADIUS);
+    private _mover: SphereMover;
+
+    constructor(readonly unitsPerMeter = 1) {
+        if (!Number.isFinite(unitsPerMeter) || unitsPerMeter <= 0) throw Error('Invalid world units per metre');
+        this._mover = new SphereMover(CAMERA_RADIUS * unitsPerMeter, unitsPerMeter);
+    }
 
     // Collision that arrived while the camera was inside geometry, held until it is somewhere
     // valid. See the `collision` setter.
@@ -62,7 +67,7 @@ class FlyController implements CameraController {
         // attachment until the camera is somewhere valid and let `update` engage it, which keeps
         // the flight the user is already making instead of teleporting them out. `onEnter` falls
         // back to the same hold when its spawn search cannot place the camera.
-        if (value && this._hasPosition && !isClear(value, this._position)) {
+        if (value && this._hasPosition && !isClear(value, this._position, CAMERA_RADIUS * this.unitsPerMeter)) {
             this._pendingCollision = value;
 
             // Detaching the mover is part of holding, not an optimisation. Left engaged it keeps
@@ -109,7 +114,7 @@ class FlyController implements CameraController {
                     this._position.x,
                     this._position.y,
                     this._position.z,
-                    CAMERA_RADIUS,
+                    CAMERA_RADIUS * this.unitsPerMeter,
                     spawnProbe
                 )
             ) {
@@ -129,7 +134,10 @@ class FlyController implements CameraController {
 
     update(deltaTime: number, inputFrame: CameraFrame, camera: Camera) {
         // engage a held attachment as soon as the camera flies back into valid space
-        if (this._pendingCollision && isClear(this._pendingCollision, this._position)) {
+        if (
+            this._pendingCollision &&
+            isClear(this._pendingCollision, this._position, CAMERA_RADIUS * this.unitsPerMeter)
+        ) {
             this._reengage();
         }
 
@@ -194,6 +202,9 @@ class FlyController implements CameraController {
         offset.x += worldMove[0];
         offset.y += worldMove[1];
         offset.z += worldMove[2];
+        // Both input channels are physical metres; worldMove selects axes,
+        // not a different unit system (e.g. the touch elevation control).
+        offset.mulScalar(this.unitsPerMeter);
         this._mover.move(this._position, offset);
     }
 }

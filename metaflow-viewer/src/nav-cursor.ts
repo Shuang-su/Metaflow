@@ -147,7 +147,13 @@ class CursorRing {
 
     private readonly innerY = new Float64Array(NUM_SAMPLES);
 
-    constructor(svg: SVGSVGElement, canvas: HTMLCanvasElement, camera: Entity, smoothing: boolean) {
+    constructor(
+        svg: SVGSVGElement,
+        canvas: HTMLCanvasElement,
+        camera: Entity,
+        smoothing: boolean,
+        private readonly unitsPerMeter: number
+    ) {
         this.svg = svg;
         this.canvas = canvas;
         this.camera = camera;
@@ -231,7 +237,7 @@ class CursorRing {
         const outerRadius =
             screenPixels !== null
                 ? worldRadiusForPixels(this.camera, this.canvas.clientHeight || 1, pos, screenPixels)
-                : BASE_OUTER_RADIUS;
+                : BASE_OUTER_RADIUS * this.unitsPerMeter;
         const innerRadius = outerRadius * INNER_OUTER_RATIO;
 
         this.projectCircle(pos.x, pos.y, pos.z, nx, ny, nz, outerRadius, this.outerX, this.outerY);
@@ -303,7 +309,8 @@ class NavCursor {
         collision: Collision | null,
         events: EventHandler,
         state: State,
-        reticle: boolean
+        reticle: boolean,
+        private readonly unitsPerMeter = 1
     ) {
         this.camera = camera;
         this.collision = collision;
@@ -330,8 +337,8 @@ class NavCursor {
         this.captureMarker.style.display = 'none';
         this.svg.appendChild(this.captureMarker);
 
-        this.hoverRing = new CursorRing(this.svg, this.canvas, camera, true);
-        this.targetRing = new CursorRing(this.svg, this.canvas, camera, false);
+        this.hoverRing = new CursorRing(this.svg, this.canvas, camera, true, unitsPerMeter);
+        this.targetRing = new CursorRing(this.svg, this.canvas, camera, false, unitsPerMeter);
 
         this.svg.style.display = 'none';
 
@@ -496,7 +503,7 @@ class NavCursor {
 
         const camPos = this.camera.getPosition();
         const dist = camPos.distance(this.targetPos);
-        if (this.targetMode !== 'orbit' && dist < 2.0) {
+        if (this.targetMode !== 'orbit' && dist < 2 * this.unitsPerMeter) {
             this.targetRing.hide();
             return;
         }

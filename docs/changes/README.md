@@ -27,6 +27,7 @@
 | [MF-85](https://github.com/Shuang-su/Metaflow/issues/85) | Completed；产品 [PR #86](https://github.com/Shuang-su/Metaflow/pull/86)、发布记录 [PR #87](https://github.com/Shuang-su/Metaflow/pull/87) | Viewer `5.20.0` 已生产发布并观察；已完成 | [唯一 Spec](85-viewer-upstream-v1.35.2/spec.md)、[Plan](85-viewer-upstream-v1.35.2/plan.md)、[采用决策](85-viewer-upstream-v1.35.2/adoption.md) 与 [发布完成记录](85-viewer-upstream-v1.35.2/completion.md)；接受上游 LOD 内存增量，99 项资源与 Editor 保持不变 |
 | [MF-106](https://github.com/Shuang-su/Metaflow/issues/106) | ACG Director实验入口已上线；剩余动画/浏览器/画质验收Open | Viewer `5.21.6` 已部署并观察；限定产品化 | [唯一Spec](106-acg-director/spec.md)、[Plan](106-acg-director/plan.md)、[实际验证](106-acg-director/verification.md)；79条单文件ACG/环境摄影和机位交接，调整Fast反馈，停止后完整孔径成片；严格光学限制仍归MF-62 |
 | [MF-151](https://github.com/Shuang-su/Metaflow/issues/151) | Completed；产品 [PR152](https://github.com/Shuang-su/Metaflow/pull/152)、发布记录 [PR153](https://github.com/Shuang-su/Metaflow/pull/153) | Viewer `5.22.0` 生产发布与15分钟观察完成 | [唯一 Spec](151-viewer-upstream-v1.37.0/spec.md)、[Plan](151-viewer-upstream-v1.37.0/plan.md)、[验证与发布记录](151-viewer-upstream-v1.37.0/verification.md)；稳定上游 v1.37.0 / PlayCanvas 2.23.0、整体 XR 与显式随机预览；100 资源及 Editor/Director 保留，实体头显未验收 |
+| [MF-201](https://github.com/Shuang-su/Metaflow/issues/201) | Open；[产品 PR #203](https://github.com/Shuang-su/Metaflow/pull/203) | 兼容资源发布候选 | [唯一 Spec](201-apec-media-center/spec.md)、[Plan](201-apec-media-center/plan.md) 与 [发行验证](201-apec-media-center/verification.md)，以 5.26.0 正式发布链为基线准备 5.26.1 |
 
 ## 权威顺序
 

@@ -6,6 +6,7 @@ import type { ScenePicker } from '../picker';
 import type { ViewerHandle } from '../types';
 
 import { Annotation, AnnotationContext } from './annotation';
+import { directoryItem, localized } from './annotation-directory';
 
 // how long the camera must be still before the hotspots are tested against the scene
 const SETTLE_MS = 150;
@@ -68,8 +69,9 @@ class Annotations {
             entity.script.create(Annotation);
             const script = (entity.script as ScriptComponent & { annotation: Annotation }).annotation;
             script.context = context;
-            script.label = (i + 1).toString();
-            script.title = ann.title;
+            const item = directoryItem(ann);
+            script.label = item?.code ?? (i + 1).toString();
+            script.title = item ? localized(item.name, root.lang) : ann.title;
             script.text = ann.text;
             entity.setPosition(ann.position[0], ann.position[1], ann.position[2]);
             parent.addChild(entity);
