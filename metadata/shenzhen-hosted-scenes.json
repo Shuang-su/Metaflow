@@ -213,5 +213,47 @@
     "aliases": [
       "/shenzhen/nanhaiyiku"
     ]
+  },
+  {
+    "id": "apec-media-center-2026",
+    "route": "/shenzhen/APECMediaCenter",
+    "title": "APEC 媒体中心",
+    "titleEn": "APEC Media Center",
+    "category": [
+      "shenzhen"
+    ],
+    "source": "photogrammetry",
+    "experienceType": "scene",
+    "files": {
+      "model": "Shenzhen/apec-media-center-2026-v1/streamed/lod-meta.json",
+      "settings": "Shenzhen/apec-media-center-2026-v1/opening-settings.json",
+      "collision": "Shenzhen/apec-media-center-2026-v1/collision.glb",
+      "thumbnail": "Shenzhen/apec-media-center-2026-v1/cover.webp",
+      "poster": "Shenzhen/apec-media-center-2026-v1/cover.webp",
+      "map": "Shenzhen/apec-media-center-2026-v1/map.json",
+      "mapImage": "Shenzhen/apec-media-center-2026-v1/map.webp",
+      "areas": "Shenzhen/apec-media-center-2026-v1/areas.json"
+    },
+    "fileSize": {
+      "settings": 1177,
+      "collision": 11301368,
+      "thumbnail": 1797152,
+      "map": 1592,
+      "mapImage": 1154540,
+      "areas": 637725,
+      "poster": 1797152,
+      "model": 2223203392,
+      "total": 2238096946
+    },
+    "meta": {
+      "date": null,
+      "device": null,
+      "folderName": "apec-media-center-2026-v1"
+    },
+    "version": {
+      "addedIn": "5.25.2",
+      "updatedIn": "5.25.2"
+    },
+    "aliases": []
   }
 ]
