@@ -10,6 +10,10 @@
 
 结构化版本号的权威来源仍是 [`metadata/version-history.json`](../metadata/version-history.json)。本文档是面向维护者的行为审计层。
 
+## 2026-11-26 深圳场景统一入口本地候选
+
+`a22ddb2fcb0a7af8d60b6d28b8f3ad064cc1385c`、`135f6e03daedd22d05398c4e30381bc25946bff3` 将四个深圳场景接入主 Viewer。市民中心从原相机启动米制 8 字微动，粤海使用原 orbit 轨迹，华发保留 38 个直接机位，南海意库沿用小地图和碰撞。`a68634c5f6f32f67754f2e255b1a43139d9bf0eb` 保证高空环绕下没有就近地面时使用已有步行落脚点。`1c324ccd4af1c87ed37dc31d1a66a19b57f7f8d3` 复用同一套天空渲染处理晴空与原始贴图。`05f3ab8f8b204625c06db986406e261aeaf7c67c` 让第一人称平移和导航圆环按米制换算一次。此候选构建只打包共享入口及南海地图样式。数据检查点 `cc68ee0c78cbbde846ed6f800f3a6d889db692ed` 记录 B1 SDI 206 采用已修复的重算流式包。
+
 ## 2026-11-14 生产历史恢复与兼容发布
 
 ### 已公开记录的有界导入
@@ -20,6 +24,65 @@
 - `f4520e159c38cc7b775e329d66929bc6f8723f92`：生产历史中的渐变格式维护记录，按原文导入。
 
 上述四个 Git 对象在当前可访问仓库中不存在。固定生产快照、原始记录摘要、不可变部署 URL 与公开镜像构成生产发布事实见证，不替代 Git 对象见证，也不补造原始 trace。来源契约只覆盖这四条旧记录；仓库原有记录与本次及未来版本仍检查真实 Git 对象和祖先／发布标签。篡改快照、旧记录、来源清单，扩大导入范围，或将 current 指向这些缺失对象均必须失败。详见 [恢复证据](guides/production-runtime-recovery.md)。
+
+### 5.25.1 Studio 104 路本地候选
+
+产品源码检查点 `65417c1dc7c3f58b01285381198e2ec9a44e2a2f`。5.25.1 的四个独立深圳体验、南海意库小地图及全库原生画质选择沿用。主体 Viewer 集成 SuperSplat Viewer 1.43.3 与 PlayCanvas 2.24.2，在流式粗层所需批次完成后刷新驻留，兼容旧 SOG。Director 读取同场景的兼容主体并保持 v2 导出入口。单体与流式模型的选择和身份由候选索引单独登记。此处记录本地候选。高精开场检查点为 `88c356ee5dc013614eaa6ad83389bfc340ddff81`。图八流式资源在初始机位目标细节实际就绪后才启动揭示及微动；同一 5.25.1 的已发布记录保持原样。当前数据登记为 `9dc5cc2292d93695d8162fe49cf0fcf56f847c36`，以 104 条生产路由为底，明确登记 99 个资源覆盖项。 索引生成器与旧批次防回归检查点为 `0478d3241a5e3e8a1d73079915a088565565846a`，从正式素材及本地 LFS 逐资源重算后保持 104 条与发布索引一致。
+
+### `5.25.1` · `59fac5306f0eddae69caa0c87624a68a5034ac2b`
+
+南海意库小地图顶部三点直径 6 px，点间净距 3 px。手机横竖屏采用 A 款，四边等宽 12 px，上下各留 3 px；桌面采用 B 款，四边等宽 14 px，上下各留 4 px。角部采用 5 px 同心圆弧，含圆头长约 40 px。样式初稿与登记提交为 `520ecfca96728ff520d420c198fb7084c55599b3`、`c1ee2fd3fef3e02c23df9f69250873cf26a57d98`。短弧初稿与登记提交为 `a2be9a21f0ba034335cff6ff69bf66ded76617c8`、`e48014fc16d80cea8247dab8ef2b5c265e7ee473`。参考间距试样与登记提交为 `cedddff4827a383772454e92620471b01bdff66a`、`d9a6c4a2f54f8a508610920725755d0457ce8856`。紧凑试样与登记提交为 `f960a899de2e2a736e6eb26e8ca9b206a58ed1b7`、`278bbb942aa77204e0defd148bb7712eae92f505`。上一版构建提交为 `bfd49986249245a0529021d1da66edff32e6e01b`。[变更与验收](https://github.com/Shuang-su/Metaflow/pull/192)
+
+### `5.25.0` · `3b4e4b1b5ecb938be52caf4187e6d536a8a90172`
+
+所有资源入口采用 SuperSplat 四档画质。流式模型按设备能力选择点数预算，单体 SOG 可调整排序渲染的画面分辨率。初版实现和登记分别为 `4530aaf339bd56ccf7508abbf74d946680d42422`、`5a9f2fdf9b957def3ffaa05ca99346538dd56e07`。上一版打包提交为 `f1a44e4a02a73d2c075694113be9011ec777d668`，回滚部署为 `6b03663817075900a88c396e`。[变更与验收](https://github.com/Shuang-su/Metaflow/pull/191)
+
+### `5.24.2` · `21170dd6e8b231a40b3b0d098c6803984c209af5`
+
+南海意库小地图的三点把手沿用 SP 拖动横条的半透明灰，普通与全屏视图都使用四边等宽的 9 像素边框，三点居中对齐上边。地图内圆角半径取自圆钮中心离地图边缘的 28 像素距离，外圆角半径为 37 像素。弧形缩放把手沿同一圆心绘制，与外框留出 5 像素间距。窗口菜单复用 SuperSplat 设置面板的材质、圆角、按键与全屏图标。触屏菜单按钮的点击高度为 44 像素。环绕相机的跟随地图将蓝点固定在中央，方向扇面朝向屏幕正上方，按实际相机方位反向旋转底图。上一版生产打包提交为 `438e3e45f9ab04c0de402c73c334916dfc38caac`，回滚部署为 `6b0344f9e80f34cd2adf7bf1`。[变更记录](https://github.com/Shuang-su/Metaflow/pull/189)
+
+圆钮对齐预览检查点为 `6fd4503dd1d61ba07d3cf9e187a7b4883753d53e`，打包记录为 `373b3f7fdaa278edaae7f914488fed44b695d3d5`。第一版同心圆角的预览检查点为 `3120309f34f7584bc4f8e630877aaa1aa954b2f3`，打包记录为 `b5fd4e5b21c69c32d43cf9af54e70c0918b5b4a2`。等宽边框预览检查点为 `365630cffe4d178a4f7f697f2bcc7e8dcefb8d4e`，打包记录为 `50e149e69084ff65564fba32d074870c15f6ff5c`。窗口样式的初版检查点为 `4eb530ea524d55c1c0e413163b91877fe4f2c1a3`。打包检查点 `b0c47ebea5d4a1944db74012928ac6ed35084316` 记录版本目录，`b83e5e0f9cf5eb3acbe4def8a8c7d37cd8cce7b5` 更新托管 JS 的缓存版本。
+
+### `5.24.1` · `a8476fdc9f4c8f7dc1ec086e050a09d3bea67f77`
+
+南海意库的全览和跟随共用右下圆钮。手动浏览后，左下定位钮恢复进入自由浏览前的模式。蓝点扇面随视线转动。场外遮罩改为中性灰，测绘墙线、楼梯及楼板配准沿用正式资源。地图、设置、信息与操作示意共用浮窗状态。
+
+`41af9823c4871f8ba3832fab4c94011757feffd8` 记录 5.24.0 的生产打包身份。该部署 `6b0310ec986f9611eda9d7f0` 可整体恢复。[MF-187 验收记录](https://github.com/Shuang-su/Metaflow/issues/187)
+
+参考图通过现场网格与模型投影配准。封面、微动八字和环绕视角共用初始镜头，方向移动切换飞行。粒子揭示在目标细节实际就绪后开始，加载界面和地图按首帧交接。
+
+地图三点把手支持拖动、全屏、还原和最小化。浮窗在进度条和工具栏上方保留间距。补绘房间与场外共用路面采样灰，覆盖遮罩按原始透明度重新合成。新增 `/shenzhen/nanhaiyiku` 别名。实景封面按初始机位完整渲染为 4096 × 4096 无损 WebP。
+
+后翼恢复原始高斯颜色，以逐像素覆盖率与道路灰合成，再绘制实测线条。
+
+后翼房间、中庭、两端侧翼以连续正交墙线和留空门洞补绘，现场颜色和灰底按原始覆盖率合成。
+
+后翼通道用现场轨迹和碰撞核对，66 处绘图开口保留底图。
+
+- `4be41420fbd0c16245b4485f615f47ee5746b3d2` 为初版线稿的产品检查点。
+- `1c793aa0e21ff5e727dfc14e1e0ce6674a301b46` 为初版线稿的打包检查点。
+- `ce714239f690c30e3fec9b087776677911099661` 为后翼颜色预览的产品检查点。
+- `566157edfe1c1a9edf3b7ebdc42e05bef48be406` 为该预览的打包检查点。
+- `029603b673581625b6b20941028b4b0b0ffdf755` 为地图窗口的预览检查点。
+- `ef2c9d11baf75b0fb361ffae4014964ad69bf05a` 为该预览的打包检查点。
+- `7a7820fc806f932658eb332824216157b8bb3c94` 为横幅封面预览的产品检查点。
+- `9190a9b2179f42f4b233c3b5c442b79010c8852f` 为横幅封面预览的打包检查点。
+- `b21ef37c3889dd21d28247a2c9e6165442e5330c` 为上一步地图预览的本地或打包检查点。
+- `39641687d8273f7e1569658ced23da020d308872` 为上一步地图预览的本地或打包检查点。
+- `56fea5d49b0cf86ae7c456a5608d33b6444bb31b` 为上一步地图预览的本地或打包检查点。
+
+### `5.24.0` · `04ebcb0f69292d6a86486585ec71eacae9e5e6d7`
+
+四个深圳场景使用独立正式地址和六个兼容别名。深大、华发与市民中心沿用已核对的 SP 运行包。南海意库新增独立 v3 读取器、SH3 分层主体、独立环境、可检查的局部碰撞补面和现场地图。工具栏的小地图按钮控制同一底图，按实测支撑切换楼层。地图窗口沿用 SP 的布局和地图相机，提供跟随和全览。
+
+资源清单包含 22,044 个运行文件的字节数与 SHA-256。生产叠加基线为 `6af7dd331a213d5c4bc9918b`。预览、正式部署与逐入口回读记录在 [MF-185](https://github.com/Shuang-su/Metaflow/issues/185)。[产品 PR](https://github.com/Shuang-su/Metaflow/pull/186)
+
+- `401bfca27b5add08c11aae69a11a3ded9d6b0b79` 记录 5.23.2 的正式打包身份。
+- `aa54f4950f5981bc0012fc49be3f47fb686dae83` 记录独立发布规格与验收计划。
+- `13c1dc69e36a2a67b549cd0afbc79fbd0a325a15` 为本次地图与场景接入的开发检查点。
+
+- `b3989b00608f9dc479fdca9226b1d88d1fe5dd36` 记录四场景清单与现场地图。
+- `535ecacdba3c72e62e0569d1ec8dfce792bd6c67` 记录未发布预览的打包身份。
 
 ### `5.23.2` · `7cbe28cd2f552dcd850c7a5724365244d523bb65`
 
@@ -764,3 +827,43 @@ The 2026-08-15 Viewer 5.19.2 release-record commit updated package/version/index
 ### `fbaa45efa00e4e625b60934b8c8bd7f3abd36bc7` · 5.23.2 最终发布身份回填
 
 按仓库 squash 发布流程，将尚未发布的 5.23.2 身份、恢复来源清单和公开镜像统一为实际产品 `7cbe28cd2f552dcd850c7a5724365244d523bb65`，测试使用仍在 main 的真实祖先。完整保留生产 135／76 条历史；原候选仅作为 PR 过程证据，不再列入正式维护历史。本后续记录只引用已存在的支撑 SHA；生产尚未切换，授权阻塞见恢复记录。
+
+### 2026-11-27 本地候选的资源与历史记录
+
+| 提交 | 实际改动 |
+| --- | --- |
+| `1a4b600e2d6f71821af1189a4463f77167868968` | Record the independently released Desktop Companion Air, head tracking and palm presentation changes in the Viewer experiment directory. |
+| `7c7bf0a5e354383abb53b82243eae8c0651ca9cb` | Record Desktop Companion usability, room detail and low-FPS animation fixes in the Viewer experiment directory. |
+| `1a43674490915c2f0720eef5a14e95da045916cf` | Stage nine verified Campus Club Fair reconstructions for the SOG v3 Viewer and Director. Retain the legacy object URLs. |
+
+### `5.27.0` · `25a4954d4f14b44c0448f36cbbce4e53a8351ac7`
+
+APEC 新闻中心采用原 Studio A–F 分区和 37 个展示机位。桌面及手机共用顶部下拉菜单，手机 Logo 在菜单栏下方，展开面板沿用 Viewer 设置面板样式。接近 2 号馆边界时，地图全览可容纳通道和 3 号馆。两馆通行路径按原始实景及步行碰撞复核。
+
+前一发布为 5.26.1，回退点 `6b089c3b88480b427ca2a6ed`。线上实测与资源变化见 [MF-201](https://github.com/Shuang-su/Metaflow/issues/201) 和 [源码审查](https://github.com/Shuang-su/Metaflow/pull/203)。
+
+- `2a607c80f8ed8db8253a5f90070c85a2fe0b65ff` feat(viewer): use the SP grouped marker menu on desktop and mobile in APEC
+- `40fb66f38a919978168b2f47c82fbb1aed94deb5` Reuse native Viewer setting surfaces and keep menu dismissal independent of camera input
+- `4d546b2f45080395452a708ea07d51cd53fff478` feat(viewer): adapt the APEC overview before crossing the hall boundary
+
+### `5.26.1` · `18b8702e9878147bac431561f43b9c31f33695e8`
+
+新增 APEC 媒体中心实景入口 `/shenzhen/APECMediaCenter`。按需加载流式 LOD，保留作者开场机位和 37 个 Studio 独立展示机位，整站 CAD 地图与 Viewer 世界配准，步行使用实测碰撞与边界防掉落。已有 104 条资源原序保留。
+
+原生步行回放覆盖 2 号馆经服务通道到 3 号馆的 154.75 米路线和 2 号馆到入口的 128.75 米路线，两条路线全程有地面支撑。缺少可靠地坪的区域采用环视。CL096 与 CL101 的高位接触保留，完整上下楼路线待核。
+
+新增资源目录包含 5231 个文件。运行台账 SHA-256 为 `2b8c94d449d26c31d326c65bac98bf468699b299b616b1f9fed52eebd281b6a8`。本条目记录候选产品源码及静态资源，生产切换、最终部署和观察证据跟踪于 [产品 PR #203](https://github.com/Shuang-su/Metaflow/pull/203) 与 [MF-201](https://github.com/Shuang-su/Metaflow/issues/201)。
+
+- `9a8421892507b3dd5b0e600278a02c810d5829ae` 为产品准备或实现检查点。
+- `16381e95229203a19e00f6147591f66165f39c71` 为产品准备或实现检查点。
+- `6feeaae664a6f198f3e6f5febd6d597e89242196` 为产品准备或实现检查点。
+- `6e40c8c7093a49a1695c3ff0c1604e5ffbd3e8e3` 为产品准备或实现检查点。
+- `c7abc39d450ae208d8b3bbba9c053f7a6cfe9da6` 为产品准备或实现检查点。
+
+### `5.26.0` · 2026-11-27 · `3fa19fdb314f5b726403b0912228842f433c00b2`
+
+主 Viewer 采用高精度 SOG v3，Director 继续用明确的 v2 兼容资源。104 条路线合批，深圳四场景统一入口，九人重建沿用原路由及别名。Netlify 静态部署保留既有模型地址，回退至 `6b03bede9a3e24d0cbc3a191`。 [发布记录](https://github.com/Shuang-su/Metaflow/pull/200)
+
+- `2e3e06bd565f41b1d29b0031f43594b6dff64c48` · 通过格式检查与静态平台校验，单独暂存运行时以配合经校验的 Netlify 模型预览。
+
+- `3a54cb263d8baeb202f5e93306cb6c93c04ca532` · 接入已验收的市民中心和粤海流式包。

@@ -1,11 +1,12 @@
 {
     "name": "Metaflow Editor",
     "short_name": "Metaflow",
-    "description": "Metaflow Editor is an advanced browser-based editor for manipulating and optimizing 3D Gaussian Splats.",
+    "description": "Metaflow Editor prepares 3D Gaussian Splats and Metaflow Viewer experiences, based on SuperSplat.",
     "display": "fullscreen",
     "start_url": "./",
     "scope": "./",
-    "background_color": "#ffffff",
+    "background_color": "#000000",
+    "theme_color": "#000000",
     "icons": [
         {
             "src": "./static/icons/logo-192.png",
@@ -36,7 +37,8 @@
         {
             "action": "./",
             "accept": {
-                "application/ply": [".ply"]
+                "application/ply": [".ply"],
+                "application/octet-stream": [".splat", ".sog", ".spz", ".ksplat", ".ssproj"]
             }
         }
     ]

@@ -1,0 +1,300 @@
+.sse-viewer .sse-guidance {
+  position: absolute;
+  right: max(16px, env(safe-area-inset-right));
+  bottom: calc(max(16px, env(safe-area-inset-bottom)) + var(--sse-toolbar-height, 58px) + 12px);
+  width: 240px;
+  overflow: visible;
+  --sse-map-padding: 12px;
+  --sse-map-radius: 16px;
+  box-sizing: border-box;
+  color: var(--sse-text);
+  pointer-events: auto;
+  font-size: 12px;
+  line-height: 1.45;
+  z-index: 12;
+}
+.sse-viewer .sse-guidance[hidden] {
+  display: none;
+}
+.sse-viewer .sse-guidance .sse-guidanceSurface {
+  box-sizing: border-box;
+  width: 100%;
+  padding: var(--sse-map-padding);
+  padding-top: 21px;
+  border-radius: var(--sse-map-radius);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: color-mix(in srgb, var(--sse-bkg) 70%, transparent);
+  overflow-y: auto;
+  scrollbar-width: thin;
+  overscroll-behavior: contain;
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+}
+.sse-viewer .sse-guidance p {
+  margin: 0 0 8px;
+  overflow-wrap: anywhere;
+}
+.sse-viewer .sse-guidance p:empty {
+  display: none;
+}
+.sse-viewer .sse-guidance canvas {
+  display: block;
+  width: 100%;
+  aspect-ratio: 1;
+  height: auto;
+  touch-action: none;
+  background: var(--sse-bkg-darkest);
+  border-radius: 10px;
+}
+.sse-viewer .sse-guidance select,
+.sse-viewer .sse-guidance button {
+  box-sizing: border-box;
+  max-width: 100%;
+  min-height: 32px;
+  padding: 6px 8px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 8px;
+  background: var(--sse-bkg-dark);
+  color: var(--sse-text);
+  font: inherit;
+}
+.sse-viewer .sse-guidance select {
+  width: 100%;
+  margin-bottom: 8px;
+}
+.sse-viewer .sse-guidance button {
+  cursor: pointer;
+}
+.sse-viewer .sse-guidance button:hover {
+  background: var(--sse-bkg-light);
+}
+.sse-viewer .sse-guidance .sse-guidanceMapViewport {
+  position: relative;
+  min-height: 0;
+  overflow: hidden;
+}
+.sse-viewer .sse-guidance .sse-guidanceMapViewport canvas {
+  width: auto;
+  height: 100%;
+  max-width: 100%;
+  aspect-ratio: 1;
+  margin: auto;
+}
+.sse-viewer .sse-guidance .sse-guidanceMapViewport:not([style*=height]) canvas {
+  width: 100%;
+  height: auto;
+}
+.sse-viewer .sse-guidance .sse-guidanceMapActions {
+  display: flex;
+  gap: 6px;
+  margin-top: 8px;
+}
+.sse-viewer .sse-guidance .sse-guidanceMapActions > button {
+  flex: 1 1 0;
+  min-width: 0;
+  min-height: 44px;
+}
+.sse-viewer .sse-guidance .sse-guidanceMapView {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 6px;
+  background: color-mix(in srgb, var(--sse-bkg) 88%, transparent);
+  white-space: nowrap;
+}
+.sse-viewer .sse-guidance .sse-guidanceMapView svg {
+  flex-shrink: 0;
+}
+.sse-viewer .sse-guidance .sse-guidanceMapView.sse-active {
+  color: var(--sse-accent);
+}
+.sse-viewer .sse-guidance .sse-guidanceMapView:focus-visible {
+  outline: 2px solid var(--sse-accent);
+  outline-offset: 2px;
+}
+.sse-viewer .sse-guidance .sse-guidanceCancel {
+  white-space: normal;
+  overflow-wrap: anywhere;
+  line-height: 1.25;
+  background: rgba(255, 255, 255, 0.04);
+}
+.sse-viewer .sse-guidance.sse-map-compact {
+  --sse-map-padding: 8px;
+  font-size: 11px;
+}
+.sse-viewer .sse-guidance.sse-map-compact .sse-guidanceMapActions {
+  gap: 4px;
+}
+.sse-viewer .sse-guidance.sse-map-compact .sse-guidanceMapActions .sse-guidanceMapView {
+  flex: 0 0 44px;
+}
+.sse-viewer .sse-guidance.sse-map-compact .sse-guidanceMapActions .sse-guidanceMapView span {
+  display: none;
+}
+.sse-viewer .sse-guidance.sse-map-compact .sse-guidanceMapActions .sse-guidanceCancel {
+  padding-inline: 4px;
+}
+.sse-viewer .sse-guidance .sse-mapHandle {
+  position: absolute;
+  z-index: 2;
+  box-sizing: border-box;
+  width: 44px;
+  height: 44px;
+  min-height: 44px;
+  max-width: none;
+  padding: 0;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+  opacity: 1;
+  transition: opacity 180ms ease;
+}
+.sse-viewer .sse-guidance .sse-mapHandle::before {
+  content: "";
+  position: absolute;
+  background: rgba(209, 218, 220, 0.68);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  transition: background-color 180ms ease, filter 180ms ease;
+}
+.sse-viewer .sse-guidance .sse-mapHandle:hover {
+  background: transparent;
+}
+.sse-viewer .sse-guidance .sse-mapHandle:focus-visible {
+  outline: 2px solid var(--sse-accent);
+  outline-offset: 1px;
+}
+.sse-viewer .sse-guidance .sse-mapHandle.sse-pressed::before {
+  background: rgba(232, 237, 238, 0.9);
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.25));
+}
+.sse-viewer .sse-guidance .sse-mapHandle-resize {
+  left: -23px;
+  top: -23px;
+  cursor: nwse-resize;
+  clip-path: polygon(0 0, 100% 0, 100% 31px, 31px 31px, 31px 100%, 0 100%);
+}
+.sse-viewer .sse-guidance .sse-mapHandle-resize::before {
+  left: 12px;
+  top: 12px;
+  width: 32px;
+  height: 32px;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath d='M3.5 29V27a23.5 23.5 0 0 1 23.5-23.5h2' fill='none' stroke='white' stroke-width='5' stroke-linecap='round'/%3E%3C/svg%3E") center/contain no-repeat;
+}
+.sse-viewer .sse-guidance .sse-mapHandle-move {
+  width: min(80px, 100% - 48px);
+  height: 48px;
+  left: 50%;
+  transform: translateX(-50%);
+  top: -27px;
+  cursor: grab;
+}
+.sse-viewer .sse-guidance .sse-mapHandle-move::before {
+  width: 32px;
+  height: 5px;
+  border-radius: 2.5px;
+  left: calc(50% - 16px);
+  top: 35px;
+}
+.sse-viewer .sse-guidance .sse-mapHandle-move.sse-pressed {
+  cursor: grabbing;
+}
+.sse-viewer .sse-guidance .sse-mapMoveText {
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+.sse-viewer .sse-guidance .sse-mapMoveText.sse-pressed {
+  cursor: grabbing;
+}
+.sse-viewer.sse-map-expanded .sse-mapMoveText {
+  cursor: auto;
+  touch-action: pan-y;
+}
+.sse-viewer .sse-guidance[data-resize-corner=ne] .sse-mapHandle-resize {
+  left: auto;
+  right: -23px;
+  transform: rotate(90deg);
+  cursor: nesw-resize;
+}
+.sse-viewer .sse-guidance[data-resize-corner=se] .sse-mapHandle-resize {
+  left: auto;
+  right: -23px;
+  top: auto;
+  bottom: -23px;
+  transform: rotate(180deg);
+}
+.sse-viewer .sse-guidance[data-resize-corner=sw] .sse-mapHandle-resize {
+  top: auto;
+  bottom: -23px;
+  transform: rotate(-90deg);
+  cursor: nesw-resize;
+}
+.sse-viewer.sse-map-controls-dimmed .sse-mapHandle {
+  opacity: 0.3;
+}
+.sse-viewer.sse-map-controls-hidden .sse-mapHandle {
+  opacity: 0;
+  pointer-events: auto;
+}
+.sse-viewer .sse-guidance:focus-within .sse-mapHandle,
+.sse-viewer .sse-guidance.sse-map-adjusting .sse-mapHandle {
+  opacity: 1;
+  pointer-events: auto;
+}
+.sse-viewer .sse-mapClose, .sse-viewer .sse-mapBackdrop {
+  display: none;
+}
+.sse-viewer.sse-map-collapsed:not(.sse-map-expanded) .sse-guidance {
+  visibility: hidden;
+  pointer-events: none;
+}
+.sse-viewer.sse-map-expanded .sse-mapBackdrop {
+  display: block;
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+  background: rgba(0, 0, 0, 0.5333333333);
+  z-index: 30;
+}
+.sse-viewer.sse-map-expanded .sse-guidance {
+  z-index: 31;
+  visibility: visible;
+}
+.sse-viewer.sse-map-expanded .sse-guidanceSurface {
+  padding-top: 48px;
+}
+.sse-viewer.sse-map-expanded .sse-mapClose {
+  display: block;
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  width: 44px;
+  height: 44px;
+  font-size: 26px;
+}
+.sse-viewer.sse-map-expanded .sse-mapHandle {
+  display: none;
+}
+.sse-viewer.sse-map-obscured .sse-mapBackdrop {
+  display: none;
+}
+
+.sse-viewer .sse-guidance .sse-guidanceMapActions .sse-guidanceMapView {
+  flex: 1 1 0;
+  min-width: 0;
+}
+.sse-viewer .sse-guidance .sse-guidanceMapActions .sse-guidanceMapView span {
+  display: inline;
+}
+
+.sse-viewer .sse-guidance.sse-map-compact .sse-guidanceMapActions svg {
+  display: none;
+}

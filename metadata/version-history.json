@@ -1,18 +1,18 @@
 {
   "schemaVersion": "1.1",
   "cutoffGitRef": "c613a87",
-  "documentedThrough": "7cbe28cd2f552dcd850c7a5724365244d523bb65",
+  "documentedThrough": "25a4954d4f14b44c0448f36cbbce4e53a8351ac7",
   "defaultResourceVersion": "1.0a",
   "current": {
-    "displayVersion": "5.23.2",
-    "appSemver": "5.23.2",
+    "displayVersion": "5.27.0",
+    "appSemver": "5.27.0",
     "indexSchemaVersion": "1.2",
-    "date": "2026-11-14",
-    "gitRef": "7cbe28cd2f552dcd850c7a5724365244d523bb65",
+    "date": "2026-11-27",
+    "gitRef": "25a4954d4f14b44c0448f36cbbce4e53a8351ac7",
     "historyUrl": "/data/version-history.json",
     "upstream": {
       "repository": "playcanvas/supersplat-viewer",
-      "version": "1.37.0"
+      "version": "1.43.3"
     }
   },
   "versioning": {
@@ -438,6 +438,352 @@
       "date": "2026-11-14",
       "type": "release-support",
       "summary": "Finalize Viewer 5.23.2 against the real PR #167 squash product; preserve all published history and bind recovery evidence and fixtures to main-history commits."
+    },
+    {
+      "gitRef": "401bfca27b5add08c11aae69a11a3ded9d6b0b79",
+      "date": "2026-11-14",
+      "type": "release-support",
+      "summary": "Record the packaging identity and rollback evidence of the published Viewer 5.23.2."
+    },
+    {
+      "gitRef": "aa54f4950f5981bc0012fc49be3f47fb686dae83",
+      "date": "2026-11-22",
+      "type": "release-support",
+      "summary": "Define the scope and acceptance plan for MF-185."
+    },
+    {
+      "gitRef": "13c1dc69e36a2a67b549cd0afbc79fbd0a325a15",
+      "date": "2026-11-22",
+      "type": "release-support",
+      "summary": "Unpublished MF-185 implementation checkpoint, integrated into Viewer 5.24.0."
+    },
+    {
+      "gitRef": "b3989b00608f9dc479fdca9226b1d88d1fe5dd36",
+      "date": "2026-11-22",
+      "type": "release-support",
+      "summary": "Register the four-scene asset manifest and surveyed map before the final SP map window."
+    },
+    {
+      "gitRef": "535ecacdba3c72e62e0569d1ec8dfce792bd6c67",
+      "date": "2026-11-22",
+      "type": "release-support",
+      "summary": "Bind the unpublished preview to the preceding product checkpoint."
+    },
+    {
+      "gitRef": "41af9823c4871f8ba3832fab4c94011757feffd8",
+      "date": "2026-11-22",
+      "type": "release-support",
+      "summary": "Bind the published four-scene 5.24.0 deployment to its verified SP map implementation."
+    },
+    {
+      "gitRef": "b21ef37c3889dd21d28247a2c9e6165442e5330c",
+      "date": "2026-11-23",
+      "type": "release-support",
+      "summary": "Unpublished 5.24.1 checkpoint. fix(viewer): restore SP minimap controls and touch exploration for Nanhai"
+    },
+    {
+      "gitRef": "39641687d8273f7e1569658ced23da020d308872",
+      "date": "2026-11-23",
+      "type": "release-support",
+      "summary": "Unpublished 5.24.1 checkpoint. chore(release): bind Viewer 5.24.1 to the Nanhai map patch"
+    },
+    {
+      "gitRef": "56fea5d49b0cf86ae7c456a5608d33b6444bb31b",
+      "date": "2026-11-23",
+      "type": "release-support",
+      "summary": "Unpublished 5.24.1 checkpoint. test(viewer): pin the 5.24.1 release identity"
+    },
+    {
+      "gitRef": "7a7820fc806f932658eb332824216157b8bb3c94",
+      "date": "2026-11-23",
+      "summary": "Registered opening with a provisional landscape poster, unpublished candidate"
+    },
+    {
+      "gitRef": "9190a9b2179f42f4b233c3b5c442b79010c8852f",
+      "date": "2026-11-23",
+      "summary": "Release packaging for the superseded registered opening draft"
+    },
+    {
+      "gitRef": "029603b673581625b6b20941028b4b0b0ffdf755",
+      "date": "2026-11-23",
+      "summary": "Nanhai map window and square cover preview before retaining rear-wing coverage"
+    },
+    {
+      "gitRef": "ef2c9d11baf75b0fb361ffae4014964ad69bf05a",
+      "date": "2026-11-23",
+      "summary": "Packaging checkpoint for the previous Nanhai map window preview"
+    },
+    {
+      "gitRef": "ce714239f690c30e3fec9b087776677911099661",
+      "date": "2026-11-23",
+      "summary": "Rear-wing Gaussian texture preview before completed cartographic linework"
+    },
+    {
+      "gitRef": "566157edfe1c1a9edf3b7ebdc42e05bef48be406",
+      "date": "2026-11-23",
+      "summary": "Packaging checkpoint for the Gaussian texture preview"
+    },
+    {
+      "gitRef": "4be41420fbd0c16245b4485f615f47ee5746b3d2",
+      "date": "2026-11-23",
+      "summary": "Rear-wing linework checkpoint before surveyed door corrections"
+    },
+    {
+      "gitRef": "1c793aa0e21ff5e727dfc14e1e0ce6674a301b46",
+      "date": "2026-11-23",
+      "summary": "Packaging checkpoint for the initial linework preview"
+    },
+    {
+      "gitRef": "438e3e45f9ab04c0de402c73c334916dfc38caac",
+      "date": "2026-11-23",
+      "type": "release-support",
+      "summary": "Bind the published 5.24.1 packaging checkpoint to the surveyed Nanhai doorways."
+    },
+    {
+      "gitRef": "b0c47ebea5d4a1944db74012928ac6ed35084316",
+      "date": "2026-11-23",
+      "type": "release-support",
+      "summary": "Bind the Nanhai window styling to the Viewer 5.24.2 catalog."
+    },
+    {
+      "gitRef": "b83e5e0f9cf5eb3acbe4def8a8c7d37cd8cce7b5",
+      "date": "2026-11-23",
+      "type": "release-support",
+      "summary": "Refresh the hosted entry cache key for the Viewer 5.24.2 runtime identity."
+    },
+    {
+      "gitRef": "4eb530ea524d55c1c0e413163b91877fe4f2c1a3",
+      "date": "2026-11-23",
+      "type": "release-support",
+      "summary": "Preview the shared menu style before equalizing all four map borders."
+    },
+    {
+      "gitRef": "365630cffe4d178a4f7f697f2bcc7e8dcefb8d4e",
+      "date": "2026-11-23",
+      "type": "release-support",
+      "summary": "Equalize all four map borders in the preview before correcting the inner corner radii."
+    },
+    {
+      "gitRef": "50e149e69084ff65564fba32d074870c15f6ff5c",
+      "date": "2026-11-23",
+      "type": "release-support",
+      "summary": "Record the equal-width border preview in the release catalog."
+    },
+    {
+      "gitRef": "3120309f34f7584bc4f8e630877aaa1aa954b2f3",
+      "date": "2026-11-23",
+      "type": "release-support",
+      "summary": "Preview the inset-adjusted inner corner radius before aligning the frame with the round controls."
+    },
+    {
+      "gitRef": "b5fd4e5b21c69c32d43cf9af54e70c0918b5b4a2",
+      "date": "2026-11-23",
+      "type": "release-support",
+      "summary": "Register the first concentric corner preview."
+    },
+    {
+      "gitRef": "6fd4503dd1d61ba07d3cf9e187a7b4883753d53e",
+      "date": "2026-11-23",
+      "type": "release-support",
+      "summary": "Align the frame and resize arc with the round controls in the Nanhai preview."
+    },
+    {
+      "gitRef": "373b3f7fdaa278edaae7f914488fed44b695d3d5",
+      "date": "2026-11-23",
+      "type": "release-support",
+      "summary": "Record the aligned frame and controls before the orbit follow correction."
+    },
+    {
+      "gitRef": "f1a44e4a02a73d2c075694113be9011ec777d668",
+      "date": "2026-11-23",
+      "type": "release-support",
+      "summary": "Register the 5.24.2 production package for heading-up orbit follow."
+    },
+    {
+      "gitRef": "4530aaf339bd56ccf7508abbf74d946680d42422",
+      "date": "2026-11-23",
+      "type": "release-support",
+      "summary": "Implement native quality controls across all catalog routes."
+    },
+    {
+      "gitRef": "5a9f2fdf9b957def3ffaa05ca99346538dd56e07",
+      "date": "2026-11-23",
+      "type": "release-support",
+      "summary": "Register the complete catalog quality release candidate."
+    },
+    {
+      "gitRef": "bfd49986249245a0529021d1da66edff32e6e01b",
+      "date": "2026-11-23",
+      "type": "release-support",
+      "summary": "Register the 5.25.0 native quality release package."
+    },
+    {
+      "gitRef": "520ecfca96728ff520d420c198fb7084c55599b3",
+      "date": "2026-11-23",
+      "type": "release-support",
+      "summary": "Align the map grip and frame dimensions."
+    },
+    {
+      "gitRef": "c1ee2fd3fef3e02c23df9f69250873cf26a57d98",
+      "date": "2026-11-23",
+      "type": "release-support",
+      "summary": "Register the first map grip candidate."
+    },
+    {
+      "gitRef": "a2be9a21f0ba034335cff6ff69bf66ded76617c8",
+      "date": "2026-11-23",
+      "type": "release-support",
+      "summary": "Shorten the concentric map resize grip."
+    },
+    {
+      "gitRef": "e48014fc16d80cea8247dab8ef2b5c265e7ee473",
+      "date": "2026-11-23",
+      "type": "release-support",
+      "summary": "Register the first shortened grip candidate."
+    },
+    {
+      "gitRef": "cedddff4827a383772454e92620471b01bdff66a",
+      "date": "2026-11-23",
+      "type": "release-support",
+      "summary": "Verify the reference dot spacing."
+    },
+    {
+      "gitRef": "d9a6c4a2f54f8a508610920725755d0457ce8856",
+      "date": "2026-11-23",
+      "type": "release-support",
+      "summary": "Record the reference spacing candidate."
+    },
+    {
+      "gitRef": "f960a899de2e2a736e6eb26e8ca9b206a58ed1b7",
+      "date": "2026-11-23",
+      "type": "release-support",
+      "summary": "Verify the compact frame candidate."
+    },
+    {
+      "gitRef": "278bbb942aa77204e0defd148bb7712eae92f505",
+      "date": "2026-11-23",
+      "type": "release-support",
+      "summary": "Register the compact frame candidate."
+    },
+    {
+      "gitRef": "65417c1dc7c3f58b01285381198e2ec9a44e2a2f",
+      "date": "2026-11-23",
+      "type": "integration",
+      "summary": "Local 5.25.1 product checkpoint for the registered 104-route candidate. Preserve the Shenzhen pages, Nanhai map and native quality controls, and integrate the verified SOG v3, Director compatibility and Editor export runtime."
+    },
+    {
+      "gitRef": "88c356ee5dc013614eaa6ad83389bfc340ddff81",
+      "date": "2026-11-23",
+      "type": "local-candidate",
+      "baseReleaseGitRef": "59fac5306f0eddae69caa0c87624a68a5034ac2b",
+      "summary": "5.25.1 local candidate. Streamed figure-eight openings wait for the initial camera detail before starting the reveal and motion."
+    },
+    {
+      "gitRef": "9dc5cc2292d93695d8162fe49cf0fcf56f847c36",
+      "date": "2026-11-23",
+      "type": "candidate-assets",
+      "summary": "Register the 104-route Studio candidate with 99 verified model/source overlays. Preserve the four published Shenzhen experiences and pin the reviewed streaming and Director compatibility packages."
+    },
+    {
+      "gitRef": "0478d3241a5e3e8a1d73079915a088565565846a",
+      "date": "2026-11-23",
+      "type": "candidate-index-generator",
+      "summary": "Regenerate the 104-resource 5.25.1 candidate from materialized sources and local LFS metadata without registering derived payload directories as new routes."
+    },
+    {
+      "gitRef": "cc68ee0c78cbbde846ed6f800f3a6d889db692ed",
+      "date": "2026-11-25",
+      "summary": "Integrate the verified repaired B1 SDI 206 stream in the local candidate"
+    },
+    {
+      "gitRef": "a22ddb2fcb0a7af8d60b6d28b8f3ad064cc1385c",
+      "date": "2026-11-26",
+      "summary": "Unify Shenzhen scene startup, layers, sky and map in the local Viewer candidate"
+    },
+    {
+      "gitRef": "135f6e03daedd22d05398c4e30381bc25946bff3",
+      "date": "2026-11-26",
+      "summary": "Keep the three Shenzhen outdoor scenes’ initial image and safely dispose the Nanhai map extension"
+    },
+    {
+      "gitRef": "a68634c5f6f32f67754f2e255b1a43139d9bf0eb",
+      "date": "2026-11-26",
+      "summary": "Use the authored campus walk entry when the orbit camera has no local support"
+    },
+    {
+      "gitRef": "1c324ccd4af1c87ed37dc31d1a66a19b57f7f8d3",
+      "date": "2026-11-26",
+      "summary": "Reuse the hosted sky renderer for Shenzhen authored skies and fallbacks"
+    },
+    {
+      "gitRef": "05f3ab8f8b204625c06db986406e261aeaf7c67c",
+      "date": "2026-11-26",
+      "summary": "Apply the scene scale once to first-person camera panning and physical navigation rings"
+    },
+    {
+      "gitRef": "1a4b600e2d6f71821af1189a4463f77167868968",
+      "date": "2026-11-14",
+      "summary": "Record the independently released Desktop Companion Air, head tracking and palm presentation changes in the Viewer experiment directory."
+    },
+    {
+      "gitRef": "7c7bf0a5e354383abb53b82243eae8c0651ca9cb",
+      "date": "2026-11-15",
+      "summary": "Record Desktop Companion usability, room detail and low-FPS animation fixes in the Viewer experiment directory."
+    },
+    {
+      "gitRef": "1a43674490915c2f0720eef5a14e95da045916cf",
+      "date": "2026-11-27",
+      "summary": "Stage nine verified Campus Club Fair reconstructions for the SOG v3 Viewer and Director. Retain the legacy object URLs."
+    },
+    {
+      "gitRef": "2e3e06bd565f41b1d29b0031f43594b6dff64c48",
+      "date": "2026-11-27",
+      "summary": "Resolve release checking diagnostics and support staging the runtime separately from the verified Netlify static data manifest."
+    },
+    {
+      "gitRef": "3a54cb263d8baeb202f5e93306cb6c93c04ca532",
+      "date": "2026-11-27",
+      "summary": "Select the previously verified Civic Center and Yuehai data for the 104-route candidate."
+    },
+    {
+      "gitRef": "9a8421892507b3dd5b0e600278a02c810d5829ae",
+      "date": "2026-11-27",
+      "summary": "MF-201 checkpoint: chore(release): prepare APEC media center against Viewer 5.26.0"
+    },
+    {
+      "gitRef": "16381e95229203a19e00f6147591f66165f39c71",
+      "date": "2026-11-27",
+      "summary": "MF-201 checkpoint: chore(data): bind the APEC catalog and assets to 37 Studio viewpoints"
+    },
+    {
+      "gitRef": "6feeaae664a6f198f3e6f5febd6d597e89242196",
+      "date": "2026-11-27",
+      "summary": "MF-201 checkpoint: fix(data): publish the official APEC Media Center names and location"
+    },
+    {
+      "gitRef": "6e40c8c7093a49a1695c3ff0c1604e5ffbd3e8e3",
+      "date": "2026-11-27",
+      "summary": "MF-201 checkpoint: fix(data): publish the lowercase APEC compatibility alias"
+    },
+    {
+      "gitRef": "c7abc39d450ae208d8b3bbba9c053f7a6cfe9da6",
+      "date": "2026-11-27",
+      "summary": "MF-201 checkpoint: chore(data): verify the expanded APEC site map assets"
+    },
+    {
+      "gitRef": "2a607c80f8ed8db8253a5f90070c85a2fe0b65ff",
+      "date": "2026-11-27",
+      "summary": "MF-201 checkpoint: feat(viewer): use the SP grouped marker menu on desktop and mobile in APEC"
+    },
+    {
+      "gitRef": "40fb66f38a919978168b2f47c82fbb1aed94deb5",
+      "date": "2026-11-27",
+      "summary": "MF-201 checkpoint: Reuse native Viewer setting surfaces and keep menu dismissal independent of camera input"
+    },
+    {
+      "gitRef": "4d546b2f45080395452a708ea07d51cd53fff478",
+      "date": "2026-11-27",
+      "summary": "MF-201 checkpoint: feat(viewer): adapt the APEC overview before crossing the hall boundary"
     }
   ],
   "entries": [
@@ -2098,6 +2444,299 @@
         "pullRequest": "https://github.com/Shuang-su/Metaflow/pull/167",
         "evidence": "docs/guides/production-runtime-recovery.md",
         "releaseTag": "viewer-v5.23.2"
+      }
+    },
+    {
+      "displayVersion": "5.24.0",
+      "appSemver": "5.24.0",
+      "type": "feature",
+      "scope": "viewer",
+      "date": "2026-11-22",
+      "gitRef": "04ebcb0f69292d6a86486585ec71eacae9e5e6d7",
+      "summary": "Add four Shenzhen scenes, six compatible routes and the SP follow and overview map for Nanhai E-Cool",
+      "resourceChanges": [
+        {
+          "action": "add",
+          "routes": [
+            "/shenzhen/shenzhen-civic-center",
+            "/shenzhen/shenzhen-university-yuehai-campus",
+            "/shenzhen/huafa-ice-and-snow-world",
+            "/shenzhen/nanhai-e-cool-building-3"
+          ]
+        }
+      ],
+      "trace": {
+        "changeId": "MF-185",
+        "pullRequest": "https://github.com/Shuang-su/Metaflow/pull/186",
+        "spec": "docs/changes/185-shenzhen-scenes/spec.md",
+        "plan": "docs/changes/185-shenzhen-scenes/plan.md",
+        "evidence": "https://github.com/Shuang-su/Metaflow/issues/185",
+        "releaseTag": "viewer-v5.24.0"
+      }
+    },
+    {
+      "displayVersion": "5.24.1",
+      "appSemver": "5.24.1",
+      "type": "fix",
+      "scope": "viewer",
+      "date": "2026-11-23",
+      "gitRef": "a8476fdc9f4c8f7dc1ec086e050a09d3bea67f77",
+      "summary": "Restore open doorways and align passages with recorded survey paths in the Nanhai rear-wing plan over real Gaussian color. Add map window controls, the nanhaiyiku alias, square poster, opening-view pre-render, figure-eight motion, fly input and radial particles.",
+      "resourceChanges": [
+        {
+          "action": "update",
+          "routes": [
+            "/shenzhen/nanhai-e-cool-building-3"
+          ]
+        }
+      ],
+      "trace": {
+        "changeId": "MF-187",
+        "pullRequest": "https://github.com/Shuang-su/Metaflow/pull/188",
+        "spec": "docs/changes/187-nanhai-map/spec.md",
+        "plan": "docs/changes/187-nanhai-map/plan.md",
+        "evidence": "https://github.com/Shuang-su/Metaflow/issues/187",
+        "releaseTag": "viewer-v5.24.1"
+      }
+    },
+    {
+      "displayVersion": "5.24.2",
+      "appSemver": "5.24.2",
+      "type": "fix",
+      "scope": "viewer",
+      "date": "2026-11-23",
+      "gitRef": "21170dd6e8b231a40b3b0d098c6803984c209af5",
+      "summary": "Match the map window menu and translucent grip to SuperSplat. Align the outer and inner corners of the uniform frame with both circular map controls and the external resize grip. In orbit follow mode, lock the position and forward-facing cone to the center while the map rotates with camera yaw.",
+      "resourceChanges": [
+        {
+          "action": "update",
+          "routes": [
+            "/shenzhen/nanhai-e-cool-building-3"
+          ]
+        }
+      ],
+      "trace": {
+        "changeId": "MF-187",
+        "pullRequest": "https://github.com/Shuang-su/Metaflow/pull/189",
+        "spec": "docs/changes/187-nanhai-map/spec.md",
+        "plan": "docs/changes/187-nanhai-map/plan.md",
+        "evidence": "https://github.com/Shuang-su/Metaflow/issues/187",
+        "releaseTag": "viewer-v5.24.2"
+      }
+    },
+    {
+      "displayVersion": "5.25.0",
+      "appSemver": "5.25.0",
+      "type": "feature",
+      "scope": "viewer",
+      "date": "2026-11-23",
+      "gitRef": "3b4e4b1b5ecb938be52caf4187e6d536a8a90172",
+      "summary": "Expose the native SuperSplat quality slider on every resource route. Fit the streaming budget to the selected level and device, and apply the selected render scale to single-file and streaming content.",
+      "resourceChanges": [
+        {
+          "action": "update",
+          "routes": [
+            "/shenzhen/shenzhen-civic-center",
+            "/shenzhen/shenzhen-university-yuehai-campus",
+            "/shenzhen/huafa-ice-and-snow-world",
+            "/shenzhen/nanhai-e-cool-building-3"
+          ]
+        }
+      ],
+      "trace": {
+        "changeId": "MF-185",
+        "pullRequest": "https://github.com/Shuang-su/Metaflow/pull/191",
+        "spec": "docs/changes/185-shenzhen-scenes/spec.md",
+        "plan": "docs/changes/185-shenzhen-scenes/plan.md",
+        "evidence": "https://github.com/Shuang-su/Metaflow/issues/185",
+        "releaseTag": "viewer-v5.25.0"
+      }
+    },
+    {
+      "displayVersion": "5.25.1",
+      "appSemver": "5.25.1",
+      "type": "fix",
+      "scope": "viewer",
+      "date": "2026-11-23",
+      "gitRef": "59fac5306f0eddae69caa0c87624a68a5034ac2b",
+      "summary": "Use a 12px frame on touch-first devices and a 14px desktop frame for the Nanhai minimap. Center three 6px dots with 3px gaps and retain the 5px concentric corner grip.",
+      "resourceChanges": [
+        {
+          "action": "update",
+          "routes": [
+            "/shenzhen/nanhai-e-cool-building-3"
+          ]
+        }
+      ],
+      "trace": {
+        "changeId": "MF-187",
+        "pullRequest": "https://github.com/Shuang-su/Metaflow/pull/192",
+        "spec": "docs/changes/187-nanhai-map/spec.md",
+        "plan": "docs/changes/187-nanhai-map/plan.md",
+        "evidence": "https://github.com/Shuang-su/Metaflow/issues/187",
+        "releaseTag": "viewer-v5.25.1"
+      }
+    },
+    {
+      "displayVersion": "5.26.0",
+      "appSemver": "5.26.0",
+      "type": "feature",
+      "scope": "viewer",
+      "date": "2026-11-27",
+      "gitRef": "3fa19fdb314f5b726403b0912228842f433c00b2",
+      "summary": "Read high-precision SOG v3 throughout the current catalog, unify the Shenzhen scenes in the main Viewer, and ship the verified Campus Club Fair reconstructions.",
+      "resourceChanges": [
+        {
+          "action": "update",
+          "routes": [
+            "/acg/sztuccf260919/fate_stay_night-sakura_matou-1",
+            "/acg/sztuccf260919/fate_stay_night-sakura_matou-2",
+            "/acg/sztuccf260919/evangelion-asuka-racing_outfit",
+            "/acg/sztuccf260919/arknights-angelina",
+            "/acg/sztuccf260919/ave_mujica-timoris",
+            "/acg/sztuccf260919/arknights-w",
+            "/acg/sztuccf260919/arknights-exusiai",
+            "/acg/sztuccf260919/arknights-lappland",
+            "/acg/sztuccf260919/lolita-burgundy_lace",
+            "/acg/yzx/yzx",
+            "/acg/ad05/delta-force",
+            "/acg/ad05/frieren",
+            "/acg/ad05/gongsunli",
+            "/acg/ad05/jiangyanli",
+            "/acg/ad05/sephiroth",
+            "/acg/ad05/violet",
+            "/acg/ad05/zhugeliang",
+            "/acg/j04/amu",
+            "/acg/j04/denji",
+            "/acg/j04/dolia1",
+            "/acg/j04/dolia2",
+            "/acg/j04/furry",
+            "/acg/j04/ggc",
+            "/acg/j04/itasha",
+            "/acg/j04/kamen-rider",
+            "/acg/j04/lucy",
+            "/acg/j04/mirai",
+            "/acg/j04/shaosiyuan",
+            "/acg/j04/surtr",
+            "/acg/j04/tohru",
+            "/acg/j04/wanderer",
+            "/acg/j04/xiaoqiao",
+            "/acg/j04/xishi",
+            "/acg/j04/yor1",
+            "/acg/j04/yor2",
+            "/acg/j05/01",
+            "/acg/j05/beryl",
+            "/acg/j05/bloodyqueen",
+            "/acg/j05/ciel",
+            "/acg/j05/lolita",
+            "/acg/j05/lolita2",
+            "/acg/j05/lolita3",
+            "/acg/j05/navia",
+            "/acg/j05/xunyangpai",
+            "/acg/phoenixfes26/huaijiao",
+            "/acg/phoenixfes26/itasha",
+            "/acg/phoenixfes26/silver-wolf",
+            "/acg/phoenixfes26/stage",
+            "/acg/fireflyfes38/azur-lane",
+            "/acg/fireflyfes38/cyrene",
+            "/acg/fireflyfes38/diaochan",
+            "/acg/fireflyfes38/fireflyfes38",
+            "/acg/fireflyfes38/fursuit",
+            "/acg/fireflyfes38/nangong-yu",
+            "/acg/fireflyfes38/remielle-dan",
+            "/acg/fireflyfes38/remielle-dan-b",
+            "/acg/bitcity260711/rem",
+            "/acg/bitcity260711/xielian",
+            "/acg/bitcity260711/xielian2",
+            "/acg/szcaf15/dajishi",
+            "/acg/szcaf15/hackclaw",
+            "/acg/szcaf15/luna",
+            "/acg/szcaf15/new-jersey",
+            "/acg/szcaf15/rem",
+            "/acg/szcaf15/sandrone",
+            "/acg/szcaf15/shi",
+            "/acg/szcaf15/bloody-queen",
+            "/acg/szcaf15/chang-e",
+            "/acg/szcaf15/denia",
+            "/acg/szcaf15/denia2",
+            "/acg/szcaf15/isolde",
+            "/acg/szcaf15/navia",
+            "/acg/szcaf15/rem-duo",
+            "/acg/szcaf15/robin",
+            "/acg/szcaf15/yaria",
+            "/acg/szcaf15/yunuo",
+            "/acg/szcaf15/arli",
+            "/acg/szcaf15/diaochan2",
+            "/acg/szcaf15/female-dancer",
+            "/acg/szcaf15/lixin",
+            "/acg/szcaf15/racing-miku",
+            "/acg/szcaf15/honkai_star_rail-tribbie",
+            "/acg/szcaf15/xiaoqiao",
+            "/acg/szcaf15/zipingyin",
+            "/animals/cats/mangzhong/2609160002",
+            "/animals/cats/mangzhong/2609160028",
+            "/animals/cats/mangzhong/2609160031",
+            "/shenzhen/dayun",
+            "/shenzhen/bijiashan",
+            "/szcaee/ciqi",
+            "/szcaee/foxiang",
+            "/szcaee/guanyin",
+            "/szmg/广电大厦6楼演播室",
+            "/sztu/c4-hangpai",
+            "/sztu/c2-lib",
+            "/sztu/b1-sdi-206",
+            "/sztu/d1-utl-107",
+            "/sztu/c1-bdi-206",
+            "/sztu/fes/top10-26",
+            "/shenzhen/shenzhen-civic-center",
+            "/shenzhen/shenzhen-university-yuehai-campus"
+          ]
+        }
+      ],
+      "trace": {
+        "changeId": "MF-200",
+        "pullRequest": "https://github.com/Shuang-su/Metaflow/pull/200",
+        "releaseTag": "viewer-v5.26.0"
+      }
+    },
+    {
+      "displayVersion": "5.26.1",
+      "appSemver": "5.26.1",
+      "type": "resource",
+      "scope": "viewer",
+      "date": "2026-11-27",
+      "gitRef": "18b8702e9878147bac431561f43b9c31f33695e8",
+      "summary": "Add the APEC Media Center hosted scene with streamed LOD, the authored opening camera, site map, and surveyed walk collision.",
+      "resourceChanges": [
+        {
+          "action": "add",
+          "routes": [
+            "/shenzhen/APECMediaCenter"
+          ]
+        }
+      ],
+      "trace": {
+        "changeId": "MF-201",
+        "pullRequest": "https://github.com/Shuang-su/Metaflow/pull/203",
+        "spec": "docs/changes/201-apec-media-center/spec.md",
+        "plan": "docs/changes/201-apec-media-center/plan.md",
+        "evidence": "https://github.com/Shuang-su/Metaflow/issues/201"
+      }
+    },
+    {
+      "displayVersion": "5.27.0",
+      "appSemver": "5.27.0",
+      "type": "feature",
+      "scope": "viewer",
+      "date": "2026-11-27",
+      "gitRef": "25a4954d4f14b44c0448f36cbbce4e53a8351ac7",
+      "summary": "Add the Studio marker directory, shared touch and desktop toolbar, and adaptive APEC map overview. Restore surveyed inter-hall walk support.",
+      "trace": {
+        "changeId": "MF-201",
+        "pullRequest": "https://github.com/Shuang-su/Metaflow/pull/203",
+        "spec": "docs/changes/201-apec-media-center/spec.md",
+        "plan": "docs/changes/201-apec-media-center/plan.md",
+        "evidence": "https://github.com/Shuang-su/Metaflow/issues/201"
       }
     }
   ],

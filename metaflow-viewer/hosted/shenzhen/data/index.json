@@ -1,0 +1,168 @@
+{
+  "version": "1.0",
+  "schemaVersion": "1.2",
+  "release": {
+    "displayVersion": "0.2.0",
+    "appSemver": "0.2.1",
+    "schemaVersion": "1.2",
+    "gitRef": "149e9f75c9d02b18c87befebaab453cbfc8fdfce+89b7ea512+980292162daa7b48e73fa46057f5b872f7a763d3",
+    "integration": "codex/sp-gitlab-recovery"
+  },
+  "lastUpdated": "2026-11-06",
+  "totalResources": 3,
+  "categories": {
+    "shenzhen": {
+      "name": "深圳项目",
+      "nameEn": "Shenzhen Projects"
+    }
+  },
+  "subcategories": {},
+  "resources": [
+    {
+      "id": "shenzhenCivilCenter",
+      "title": "深圳市民中心",
+      "titleEn": "Shenzhen Civic Center",
+      "category": [
+        "shenzhen"
+      ],
+      "route": "/shenzhen-civic-center",
+      "source": "photogrammetry",
+      "experienceType": "scene",
+      "files": {
+        "model": "261024shenzhenCivilCenter/fusion/streamed/lod-meta.json",
+        "settings": "261024shenzhenCivilCenter/settings.json",
+        "sceneManifest": "261024shenzhenCivilCenter/scene-manifest.json",
+        "voxelManifest": "261024shenzhenCivilCenter/fusion/voxel-v001/scene.voxel-tiles.json",
+        "poster": "261024shenzhenCivilCenter/posters/cover-4096.webp"
+      },
+      "meta": {
+        "date": "2026-10-24",
+        "device": null,
+        "folderName": "261024shenzhenCivilCenter",
+        "gaussianScope": "9-level central fusion + full outer video, one shared renderer"
+      },
+      "viewer": {
+        "defaultCameraMode": "anim",
+        "animationFirstExitMode": "orbit",
+        "voxelCoordinateSpace": "world",
+        "worldUnitsPerMeter": 0.018994308848046808
+      },
+      "animation": {
+        "duration": 25,
+        "frameRate": 60,
+        "loopMode": "repeat"
+      },
+      "version": {
+        "addedIn": "0.2.1",
+        "updatedIn": "0.2.1"
+      },
+      "aliases": [
+        "/shiminzhongxin"
+      ],
+      "fileSize": {
+        "runtimeTotal": 2525832577,
+        "runtimeFiles": 2743,
+        "settings": 15474,
+        "poster": 12135550,
+        "total": 12135550,
+        "additionalPosters": 0
+      }
+    },
+    {
+      "id": "szu",
+      "title": "深圳大学粤海校区",
+      "titleEn": "Shenzhen University (Yuehai Campus)",
+      "category": [
+        "shenzhen"
+      ],
+      "route": "/shenzhen-university-yuehai-campus",
+      "aliases": [
+        "/szu",
+        "/shenzhendaxue",
+        "/shenzhendaxueyuehai"
+      ],
+      "files": {
+        "model": "261013szu/scene/campus/lod-meta.json",
+        "settings": "261013szu/settings.json",
+        "sceneManifest": "261013szu/scene-manifest-v012-20261102.json",
+        "voxelManifest": "261013szu/voxel-v001/scene.voxel-tiles.json",
+        "poster": "261013szu/posters/plaza-v012-4096.webp"
+      },
+      "viewer": {
+        "defaultCameraMode": "anim",
+        "animationFirstExitMode": "orbit",
+        "voxelCoordinateSpace": "world",
+        "worldUnitsPerMeter": 1,
+        "walkFallbackPosition": [
+          36.11290777837705,
+          1.26,
+          -24.339634236988804
+        ]
+      },
+      "tracks": {
+        "plaza": "261013szu/animations/plaza.json",
+        "orbit": "261013szu/animations/orbit.json"
+      },
+      "fileSize": {
+        "runtimeTotal": 10394255573,
+        "runtimeFiles": 10765,
+        "settings": 641,
+        "poster": 17422718,
+        "additionalPosters": 13359750,
+        "total": 10394255573
+      },
+      "trackPosters": {
+        "plaza": "261013szu/posters/plaza-v012-4096.webp",
+        "orbit": "261013szu/posters/orbit-v012-4096.webp"
+      }
+    },
+    {
+      "id": "huafa",
+      "title": "前海冰雪世界（华发冰雪世界）",
+      "titleEn": "Huafa Ice and Snow World",
+      "category": [
+        "shenzhen"
+      ],
+      "route": "/huafa-ice-and-snow-world",
+      "source": "photogrammetry",
+      "experienceType": "scene",
+      "files": {
+        "model": "260722huafa/streamed/lod-meta.json",
+        "settings": "260722huafa/settings.json",
+        "voxelManifest": "260722huafa/voxel/scene.voxel-tiles.json",
+        "bookmarks": "260722huafa/bookmarks.json",
+        "poster": "260722huafa/posters/cover-4096.webp"
+      },
+      "fileSize": {
+        "runtimeTotal": 4557285806,
+        "runtimeFiles": 7936,
+        "settings": 3773,
+        "poster": 7361666,
+        "total": 7361666,
+        "additionalPosters": 0
+      },
+      "meta": {
+        "date": "2026-07-22",
+        "folderName": "260722huafa",
+        "gaussianScope": "Complete cleaned L2 and manually cleaned P1, 8 independently simplified LOD levels",
+        "sourceVersion": "v005_双清理版正式合并_流式体素",
+        "coordinateUnits": "L2 coordinate units; physical unit unverified"
+      },
+      "viewer": {
+        "defaultCameraMode": "anim",
+        "animationFirstExitMode": "orbit",
+        "voxelCoordinateSpace": "world",
+        "budget": 8
+      },
+      "animation": {
+        "duration": 20,
+        "frameRate": 1,
+        "loopMode": "repeat"
+      },
+      "aliases": [
+        "/qianhaibingxueshijie",
+        "/huafabingxueshijie"
+      ]
+    }
+  ]
+}

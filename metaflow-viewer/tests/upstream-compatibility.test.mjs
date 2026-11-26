@@ -60,7 +60,7 @@ test('environment, reveal, loading visibility, and synthetic animation ordering 
     assert.match(index, /const environmentLoad = config\.environmentUrl\s*\? loadEnvironment\(app, config, \(\) => destroyed\)\.then/);
     assert.match(index, /if \(entity && !destroyed\) entity\.reparent\(sceneRoot\)/);
     assert.match(index, /new Viewer\(\s*global,\s*gsplatLoad,\s*environmentLoad,/s);
-    assert.match(viewer, /Promise\.all\(\[gsplatLoad, skyboxLoad\]\)/);
+    assert.match(viewer, /Promise\.all\(\[gsplatLoad, skyboxLoad, config\.initialViewPreload \? environmentLoad : null\]\)/);
     assert.doesNotMatch(viewer, /Promise\.all\(\[gsplatLoad, environmentLoad/);
     assert.match(viewer, /environmentLoad\?\.then/);
     assert.match(viewer, /events\.on\('firstFrame', \(\) => \{\s*state\.loaded = true;[\s\S]*beginRevealWhenSceneVisible\(\)/);
@@ -73,11 +73,11 @@ test('environment, reveal, loading visibility, and synthetic animation ordering 
 test('streaming SH follows v1.29.1 while staged low-to-high LOD remains local behavior', async () => {
     const viewer = await readText('../src/viewer.ts');
 
-    assert.match(viewer, /gsplat\.colorUpdateAngle = state\.performanceMode \? 1 : 0\.2/);
+    assert.match(viewer, /gsplat\.colorUpdateAngle = global\.quality\.colorUpdateAngle/);
     assert.doesNotMatch(viewer, /colorUpdateAngle = state\.performanceMode \? 4 : 2/);
     assert.match(viewer, /gsplatComponent\.lodRangeMax = gsplatComponent\.lodRangeMin = lodLevels - 1/);
     assert.match(viewer, /onSubjectRevealed: openHighDetailLod/);
-    assert.match(viewer, /events\.on\('performanceMode:changed', applyPerfSettings\)/);
+    assert.match(viewer, /events\.on\('quality:changed', applyPerfSettings\)/);
     assert.match(viewer, /app\.scene\.gsplat\.minPixelSize = 0\.5/);
     assert.match(viewer, /app\.scene\.gsplat\.minPixelSize = 2/);
 });
@@ -168,9 +168,13 @@ test('Metaflow dynamic surfaces already request frames explicitly', async () => 
     assert.match(sources.get('canvas'), /performanceMode:changed/);
 });
 
-test('5.19.2 analytics recovery preserves the upstream and Node contracts', async () => {
-    const { readFile } = await import('node:fs/promises');
-    const pkg=JSON.parse(await readFile(new URL('../package.json',import.meta.url),'utf8'));const history=JSON.parse(await readFile(new URL('../../metadata/version-history.json',import.meta.url),'utf8'));
-    assert.equal(pkg.version,history.current.appSemver);assert.equal(pkg.devDependencies.playcanvas,'2.23.0');assert.equal((await readFile(new URL('../../.nvmrc',import.meta.url),'utf8')).trim(),'20.19.0');
-    const [index]=await sources('index.ts');assert.match(index,/SuperSplat v1\.37\.0/);
+test('hosted migration preserves the product version, locks Engine and identifies the renderer', async () => {
+    const [pkg, lock, history] = await Promise.all([
+        '../package.json', '../package-lock.json', '../../metadata/version-history.json'
+    ].map(async path => JSON.parse(await readText(path))));
+    assert.equal(pkg.version, history.current.appSemver);
+    assert.equal(pkg.devDependencies.playcanvas, '2.24.2');
+    assert.equal(lock.packages['node_modules/playcanvas'].version, pkg.devDependencies.playcanvas);
+    assert.equal((await readText('../../.nvmrc')).trim(), '20.19.0');
+    assert.match(await readText('../src/index.ts'), /SuperSplat 1\.43\.3 rendering/);
 });

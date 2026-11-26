@@ -55,6 +55,13 @@ const screenToWorld = (camera: CameraComponent, dx: number, dy: number, dz: numb
     return out;
 };
 
+// Projection returns scene units. First-person controllers expect metres and
+// convert to scene units when applying movement.
+const screenToMove = (ctx: UpdateContext, dx: number, dy: number, out: Vec3) => {
+    screenToWorld(ctx.cameraComponent, dx, dy, ctx.distance, out);
+    return ctx.isFirstPerson ? out.mulScalar(1 / (ctx.unitsPerMeter ?? 1)) : out;
+};
+
 /**
  * The orbit camera and the fly camera disagree on the sign of the z-axis
  * for forward motion. Apply this when emitting a forward/back z-component
@@ -73,6 +80,7 @@ const flipZForOrbit = (mode: CameraMode, z: number) => (mode === 'orbit' ? -z : 
 type UpdateContext = {
     dt: number;
     distance: number;
+    unitsPerMeter?: number;
     cameraComponent: CameraComponent;
     mode: CameraMode;
     isOrbit: boolean;
@@ -91,7 +99,7 @@ type InputDevice = {
     update(ctx: UpdateContext, frame: CameraInputFrame): void;
 };
 
-export { DISPLACEMENT_SCALE, TAP_EPSILON, screenToWorld, flipZForOrbit, CameraInputFrame, UpdateContext, InputDevice };
+export { DISPLACEMENT_SCALE, TAP_EPSILON, screenToMove, flipZForOrbit, CameraInputFrame, UpdateContext, InputDevice };
 
 /** Embedded viewers only accept keys while their own root has focus. */
 export const ownsKeyboard = (global: Global) => {

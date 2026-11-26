@@ -1,0 +1,143 @@
+<style>
+    [data-location-labels] .sse-annotationNav.sse-directory-mode:is(.sse-touch, .sse-desktop) {
+        --directory-top: max(16px, env(safe-area-inset-top));
+        position: absolute;
+        top: var(--directory-top);
+        left: 50%;
+        transform: translateX(-50%);
+        width: min(368px, calc(100% - 32px - env(safe-area-inset-left) - env(safe-area-inset-right)));
+        height: auto;
+        display: flex;
+        align-items: stretch;
+        box-sizing: border-box;
+        overflow: visible;
+        border: 0;
+        background: transparent;
+        pointer-events: auto;
+        z-index: 15;
+    }
+    [data-location-labels] .sse-directory-mode > .sse-annotationBarSurface {
+        position: absolute;
+        inset: 0;
+        z-index: -1;
+        pointer-events: none;
+    }
+    [data-location-labels] .sse-directory-mode:is(.sse-touch, .sse-desktop) > button {
+        position: static;
+        transform: none;
+        width: 38px;
+        height: 38px;
+        min-width: 38px;
+        padding: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        appearance: none;
+        border: 0;
+        border-radius: 10px;
+        color: var(--sse-text-light);
+        font: inherit;
+        background: transparent;
+        cursor: pointer;
+        pointer-events: auto;
+    }
+    [data-location-labels] .sse-directory-mode.sse-touch > button { min-width: 44px; height: 44px; }
+    [data-location-labels] .sse-directory-mode:is(.sse-touch, .sse-desktop) > button.sse-annotationInfo {
+        position: static;
+        display: flex;
+        transform: none;
+        width: auto;
+        flex: 1;
+        min-width: 0;
+        max-width: none;
+        gap: 8px;
+        padding: 0 8px;
+        overflow: hidden;
+        cursor: pointer;
+        pointer-events: auto;
+        background: transparent;
+    }
+    [data-location-labels] .sse-directory-mode .sse-annotationNavTitle {
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        font-size: 14px;
+    }
+    [data-location-labels] .sse-directory-mode:is(.sse-touch, .sse-desktop) > .sse-annotationInfo > .sse-annotationNavNumber {
+        flex: none;
+        width: auto;
+        min-width: 0;
+        height: auto;
+        padding: 0;
+        border: 0;
+        background: transparent;
+        color: var(--sse-text-dark);
+        font-size: 12px;
+        font-variant-numeric: tabular-nums;
+    }
+    [data-location-labels] .sse-directory-mode .sse-annotationInfo > .sse-annotationMenuChevron {
+        flex: 0 0 24px;
+        width: 24px;
+        height: 24px;
+        display: grid;
+        place-items: center;
+        border-radius: 6px;
+        background: rgb(255 255 255 / 8%);
+    }
+    [data-location-labels] .sse-annotationMenuChevron::after {
+        content: '';
+        width: 6px;
+        height: 6px;
+        margin-top: -3px;
+        border: solid currentColor;
+        border-width: 0 1.5px 1.5px 0;
+        transform: rotate(45deg);
+    }
+    [data-location-labels] [aria-expanded='true'] .sse-annotationMenuChevron::after { transform: rotate(225deg); margin-top: 3px; }
+    [data-location-labels] .sse-directory-mode .sse-annotationMenu {
+        position: absolute;
+        inset: calc(100% + 8px) 0 auto;
+        box-sizing: border-box;
+        max-height: calc(100dvh - 120px);
+        overflow-y: auto;
+        overscroll-behavior: contain;
+        pointer-events: auto;
+        scrollbar-width: thin;
+    }
+    [data-location-labels] .sse-annotationMenuBackdrop {
+        position: absolute;
+        inset: 0;
+        z-index: 14;
+        pointer-events: auto;
+        background: transparent;
+    }
+    [data-location-labels] .sse-annotationMenuBackdrop[hidden] { display: none; }
+    [data-location-labels] .sse-annotationMenu[hidden] { display: none; }
+    [data-location-labels] .sse-annotationMenu, [data-location-labels] .sse-annotationMenu * { touch-action: pan-y; }
+    [data-location-labels] .sse-annotationMenuGroupHeading {
+        padding: 4px 8px;
+        color: var(--sse-text-light);
+        font-size: 13px;
+        font-weight: 700;
+    }
+    [data-location-labels] .sse-annotationMenu .sse-settingsRow > .sse-annotationMenuItem {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        height: auto;
+        min-height: 38px;
+        padding: 6px 10px;
+        text-align: left;
+        color: var(--sse-text);
+        line-height: 1.4;
+    }
+    [data-location-labels] .sse-annotationMenuCode { flex: none; font-variant-numeric: tabular-nums; }
+    [data-location-labels] .sse-annotationMenu .sse-settingsRow > [aria-selected='true'] {
+        border-color: var(--sse-accent);
+        color: var(--sse-text-light);
+    }
+    [data-location-labels] .sse-directory-mode button:focus-visible { outline: 2px solid var(--sse-accent); outline-offset: -2px; }
+    [data-location-labels] .sse-ui:has(.sse-directory-mode.sse-touch:not(.sse-hidden)) > .sse-viewerBranding {
+        top: calc(max(16px, env(safe-area-inset-top)) + 54px);
+    }
+</style>

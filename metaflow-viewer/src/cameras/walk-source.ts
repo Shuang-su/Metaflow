@@ -21,6 +21,8 @@ const BLOCKED_DURATION = 0.2;
  * deltas to the shared CameraFrame, and monitors arrival / blocked conditions.
  */
 class WalkSource implements TargetSource {
+    constructor(private readonly unitsPerMeter = 1) {}
+
     /**
      * Forward input scale (matches InputController.moveSpeed for consistent
      * speed with regular WASD walking).
@@ -102,7 +104,7 @@ class WalkSource implements TargetSource {
 
         const dx = target.x - cameraPosition.x;
         const dz = target.z - cameraPosition.z;
-        const xzDist = Math.sqrt(dx * dx + dz * dz);
+        const xzDist = Math.sqrt(dx * dx + dz * dz) / this.unitsPerMeter;
 
         // arrival
         if (xzDist < ARRIVAL_DIST) {

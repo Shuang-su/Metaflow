@@ -21,6 +21,10 @@ class InitialLodProgress {
         this.chunks.set(url, { fraction: 1, complete: true });
     }
 
+    allRequestedChunksReady() {
+        return this.chunks.size > 0 && [...this.chunks.values()].every((chunk) => chunk.complete);
+    }
+
     remove(url: string) {
         this.chunks.delete(url); // Cancellation is not a completed chunk.
     }
@@ -44,7 +48,8 @@ function observeInitialLodProgress(
     registry: AssetRegistry,
     urls: string[],
     base: string,
-    update: (value: number) => void
+    update: (value: number) => void,
+    batchReady?: () => void
 ) {
     const normalize = (url: string) => new URL(url, base).href;
     const sources = new Set(urls.map(normalize));
@@ -67,6 +72,7 @@ function observeInitialLodProgress(
         };
         const load = () => {
             model.complete(url);
+            if (batchReady && model.allRequestedChunksReady()) batchReady();
             publish();
         };
         const error = () => model.start(url);

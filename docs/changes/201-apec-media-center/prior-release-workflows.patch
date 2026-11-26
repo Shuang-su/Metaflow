@@ -1,0 +1,620 @@
+diff --git a/.github/workflows/ci.yml b/.github/workflows/ci.yml
+index 9e98f4652bf3585e6354f8a57185946b2702d094..ef8ead4b4747775b43c4a1ef8ff87a12673956d6 100644
+--- a/.github/workflows/ci.yml
++++ b/.github/workflows/ci.yml
+@@ -210,8 +210,11 @@ jobs:
+             metaflow-viewer
+             metaflow-director
+             metaflow-editor
++            metaflow-editor-legacy
+             references/supersplat-v2.18.1/src/ui/timeline-panel.ts
+             supersplat-v2.28.0/src
++            supersplat-v3.5.2
++            supersplat-v2.32.5
+             analytics
+             supabase
+             scripts
+@@ -301,34 +304,46 @@ jobs:
+     if: needs.classify.outputs.editor == 'true'
+     runs-on: ubuntu-latest
+     timeout-minutes: 25
++    strategy:
++      matrix:
++        source: [supersplat-v3.5.2, supersplat-v2.32.5]
+     steps:
+       - name: Check out Editor sources
+         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+         with:
+           lfs: false
+-          sparse-checkout: supersplat-v2.28.0
++          sparse-checkout: |
++            ${{ matrix.source }}
++            metaflow-viewer
++            editor-shared
++            metadata/version-history.json
++            netlify.toml
++            scripts
+       - name: Set up Node.js
+         uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
+         with:
+-          node-version: 20.19.0
++          node-version: 22.20.0
+           cache: npm
+-          cache-dependency-path: supersplat-v2.28.0/package-lock.json
++          cache-dependency-path: ${{ matrix.source }}/package-lock.json
++      - name: Install pinned standalone Viewer dependencies
++        working-directory: metaflow-viewer
++        run: npm ci
+       - name: Install Editor dependencies
+-        working-directory: supersplat-v2.28.0
++        working-directory: ${{ matrix.source }}
+         run: npm ci
+       - name: Lint Editor
+-        working-directory: supersplat-v2.28.0
+-        run: npm run lint
++        working-directory: ${{ matrix.source }}
++        run: npm run lint && npm run lint:locales
+       - name: Build Editor
+-        working-directory: supersplat-v2.28.0
+-        run: npm run build
++        working-directory: ${{ matrix.source }}
++        run: npm run build && npm test
+       - name: Enforce Editor bundle budget
+-        run: test "$(du -sk supersplat-v2.28.0/dist | awk '{print $1}')" -le 51200
++        run: test "$(du -sk ${{ matrix.source }}/dist | awk '{print $1}')" -le 51200
+       - name: Upload Editor build
+         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+         with:
+-          name: editor-build-${{ github.sha }}
+-          path: supersplat-v2.28.0/dist
++          name: editor-build-${{ matrix.source }}-${{ github.sha }}
++          path: ${{ matrix.source }}/dist
+           if-no-files-found: error
+           retention-days: 14
+ 
+@@ -470,6 +485,8 @@ jobs:
+             metaflow-viewer
+             metaflow-director
+             supersplat-v2.28.0
++            supersplat-v3.5.2
++            supersplat-v2.32.5
+             scripts
+             supabase/functions
+           sparse-checkout-cone-mode: true
+diff --git a/.github/workflows/desktop-companion-feedback-release.yml b/.github/workflows/desktop-companion-feedback-release.yml
+index 5ffc3f32b068e0820835ed60a3255ff5fce00e56..33ed91bc89be956d9072cb7a7d13989b829941cd 100644
+--- a/.github/workflows/desktop-companion-feedback-release.yml
++++ b/.github/workflows/desktop-companion-feedback-release.yml
+@@ -20,7 +20,7 @@ jobs:
+     runs-on: ubuntu-24.04
+     timeout-minutes: 10
+     steps:
+-      - uses: actions/checkout@v4
++      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+         with:
+           persist-credentials: false
+           sparse-checkout: |
+@@ -32,9 +32,9 @@ jobs:
+             scripts/publish-companion-feedback.py
+             scripts/verify-companion-feedback.mjs
+           sparse-checkout-cone-mode: false
+-      - uses: actions/setup-node@v4
++      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+         with: {node-version: '22'}
+-      - uses: actions/setup-python@v5
++      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
+         with: {python-version: '3.12'}
+       - name: Reconstruct and verify all accepted runtime files without credentials
+         run: |
+@@ -42,7 +42,7 @@ jobs:
+           node --check scripts/verify-companion-feedback.mjs
+           python3 scripts/publish-companion-feedback.py build
+           python3 scripts/publish-companion-feedback.py verify
+-      - uses: actions/upload-artifact@v4
++      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+         with:
+           name: companion-approved-feedback-runtime
+           path: companion-feedback-site/
+@@ -54,7 +54,7 @@ jobs:
+     timeout-minutes: 25
+     environment: production
+     steps:
+-      - uses: actions/checkout@v4
++      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+         with:
+           persist-credentials: false
+           sparse-checkout: |
+@@ -66,11 +66,11 @@ jobs:
+             scripts/publish-companion-feedback.py
+             scripts/verify-companion-feedback.mjs
+           sparse-checkout-cone-mode: false
+-      - uses: actions/setup-node@v4
++      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+         with: {node-version: '22'}
+-      - uses: actions/setup-python@v5
++      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
+         with: {python-version: '3.12'}
+-      - uses: actions/download-artifact@v4
++      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+         with:
+           name: companion-approved-feedback-runtime
+           path: companion-feedback-site
+@@ -86,14 +86,14 @@ jobs:
+         env:
+           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+         run: python3 scripts/publish-companion-feedback.py publish
+-      - uses: actions/upload-artifact@v4
++      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+         if: always()
+         with:
+           name: companion-feedback-publication-result
+           path: companion-feedback-publication.json
+           if-no-files-found: warn
+           retention-days: 30
+-      - uses: actions/upload-artifact@v4
++      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+         if: always()
+         with:
+           name: companion-feedback-publication-evidence
+diff --git a/.github/workflows/desktop-companion-motion-release.yml b/.github/workflows/desktop-companion-motion-release.yml
+index a8e3274135c30b4faf68cfd73b6a5cce5b66385b..eef7af729a854e76f660208fca6ccb1474e48d92 100644
+--- a/.github/workflows/desktop-companion-motion-release.yml
++++ b/.github/workflows/desktop-companion-motion-release.yml
+@@ -20,7 +20,7 @@ jobs:
+     runs-on: ubuntu-24.04
+     timeout-minutes: 10
+     steps:
+-      - uses: actions/checkout@v4
++      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+         with:
+           persist-credentials: false
+           sparse-checkout: |
+@@ -28,10 +28,10 @@ jobs:
+             scripts/companion-motion-release.py
+             scripts/verify-companion-motion-release.mjs
+           sparse-checkout-cone-mode: false
+-      - uses: actions/setup-node@v4
++      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+         with:
+           node-version: '22'
+-      - uses: actions/setup-python@v5
++      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
+         with:
+           python-version: '3.12'
+       - name: Validate release scripts and reconstruct exact tested browser runtime
+@@ -40,12 +40,12 @@ jobs:
+           node --check scripts/verify-companion-motion-release.mjs
+           python3 scripts/companion-motion-release.py build
+           python3 scripts/companion-motion-release.py verify
+-      - uses: actions/upload-artifact@v4
++      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+         with:
+           name: companion-approved-motion-runtime
+           path: companion-motion-site/
+           retention-days: 14
+-      - uses: actions/upload-artifact@v4
++      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+         with:
+           name: companion-motion-build-verification
+           path: companion-motion-build.json
+@@ -57,7 +57,7 @@ jobs:
+     timeout-minutes: 25
+     environment: production
+     steps:
+-      - uses: actions/checkout@v4
++      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+         with:
+           persist-credentials: false
+           sparse-checkout: |
+@@ -65,13 +65,13 @@ jobs:
+             scripts/companion-motion-release.py
+             scripts/verify-companion-motion-release.mjs
+           sparse-checkout-cone-mode: false
+-      - uses: actions/setup-node@v4
++      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+         with:
+           node-version: '22'
+-      - uses: actions/setup-python@v5
++      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
+         with:
+           python-version: '3.12'
+-      - uses: actions/download-artifact@v4
++      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+         with:
+           name: companion-approved-motion-runtime
+           path: companion-motion-site
+@@ -87,14 +87,14 @@ jobs:
+         env:
+           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+         run: python3 scripts/companion-motion-release.py publish
+-      - uses: actions/upload-artifact@v4
++      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+         if: always()
+         with:
+           name: companion-motion-publication-result
+           path: companion-motion-publication.json
+           if-no-files-found: warn
+           retention-days: 30
+-      - uses: actions/upload-artifact@v4
++      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+         if: always()
+         with:
+           name: companion-motion-publication-evidence
+diff --git a/.github/workflows/desktop-companion-publish.yml b/.github/workflows/desktop-companion-publish.yml
+index 12a66d34e755ce0c83ab89cccca0fe0c09edd1af..df936a6dd3a76b7287d001b9bae89f61e0ae57cb 100644
+--- a/.github/workflows/desktop-companion-publish.yml
++++ b/.github/workflows/desktop-companion-publish.yml
+@@ -24,7 +24,7 @@ jobs:
+       ARTIFACT_SHA256: b2e554c27c3d17910f0c3dfc3826c6a359fe2e34dbfeceaba518f24a21e9e0c1
+       SITE_DIR: site
+     steps:
+-      - uses: actions/checkout@v4
++      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+         with:
+           persist-credentials: false
+           sparse-checkout: |
+@@ -32,7 +32,7 @@ jobs:
+             scripts/publish-desktop-companion.py
+             scripts/verify-desktop-companion.mjs
+           sparse-checkout-cone-mode: false
+-      - uses: actions/setup-node@v4
++      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+         with:
+           node-version: '22'
+       - name: Verify approved successful CI and immutable artifact identity
+@@ -55,7 +55,7 @@ jobs:
+           assert len(source['parents'])==1 and source['parents'][0]['sha']==os.environ['VALIDATED_HEAD']
+           print('APPROVED_ARTIFACT_VERIFIED',artifact['id'],source['sha'])
+           PY
+-      - uses: actions/download-artifact@v4
++      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+         with:
+           artifact-ids: ${{ env.ARTIFACT_ID }}
+           run-id: ${{ env.VALIDATED_RUN_ID }}
+@@ -92,14 +92,14 @@ jobs:
+         env:
+           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+         run: python3 scripts/publish-desktop-companion.py
+-      - uses: actions/upload-artifact@v4
++      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+         if: always()
+         with:
+           name: desktop-companion-publication-result
+           path: publication-result.json
+           if-no-files-found: warn
+           retention-days: 30
+-      - uses: actions/upload-artifact@v4
++      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+         if: always()
+         with:
+           name: desktop-companion-publication-evidence
+diff --git a/.github/workflows/desktop-companion-reliability-release.yml b/.github/workflows/desktop-companion-reliability-release.yml
+index 972454385d12ee019f07395f63fdec8548ce10dd..c00f18a8d9776029b47964834a2e01e68b34eb89 100644
+--- a/.github/workflows/desktop-companion-reliability-release.yml
++++ b/.github/workflows/desktop-companion-reliability-release.yml
+@@ -20,7 +20,7 @@ jobs:
+     runs-on: ubuntu-24.04
+     timeout-minutes: 10
+     steps:
+-      - uses: actions/checkout@v4
++      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+         with:
+           persist-credentials: false
+           sparse-checkout: |
+@@ -28,9 +28,9 @@ jobs:
+             scripts/companion-reliability-release.py
+             scripts/verify-companion-reliability.mjs
+           sparse-checkout-cone-mode: false
+-      - uses: actions/setup-node@v4
++      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+         with: {node-version: '22'}
+-      - uses: actions/setup-python@v5
++      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
+         with: {python-version: '3.12'}
+       - name: Check scripts and reconstruct all 68 accepted files
+         run: |
+@@ -38,7 +38,7 @@ jobs:
+           node --check scripts/verify-companion-reliability.mjs
+           python3 scripts/companion-reliability-release.py build
+           python3 scripts/companion-reliability-release.py verify
+-      - uses: actions/upload-artifact@v4
++      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+         with:
+           name: companion-approved-reliability-runtime
+           path: companion-reliability-site/
+@@ -50,7 +50,7 @@ jobs:
+     timeout-minutes: 20
+     environment: production
+     steps:
+-      - uses: actions/checkout@v4
++      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+         with:
+           persist-credentials: false
+           sparse-checkout: |
+@@ -58,11 +58,11 @@ jobs:
+             scripts/companion-reliability-release.py
+             scripts/verify-companion-reliability.mjs
+           sparse-checkout-cone-mode: false
+-      - uses: actions/setup-node@v4
++      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+         with: {node-version: '22'}
+-      - uses: actions/setup-python@v5
++      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
+         with: {python-version: '3.12'}
+-      - uses: actions/download-artifact@v4
++      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+         with:
+           name: companion-approved-reliability-runtime
+           path: companion-reliability-site
+@@ -78,14 +78,14 @@ jobs:
+         env:
+           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+         run: python3 scripts/companion-reliability-release.py publish
+-      - uses: actions/upload-artifact@v4
++      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+         if: always()
+         with:
+           name: companion-reliability-publication-result
+           path: companion-reliability-publication.json
+           if-no-files-found: warn
+           retention-days: 30
+-      - uses: actions/upload-artifact@v4
++      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+         if: always()
+         with:
+           name: companion-reliability-publication-evidence
+diff --git a/.github/workflows/desktop-companion-startup-release.yml b/.github/workflows/desktop-companion-startup-release.yml
+index a7e9a7099d75e6016229e4092da32327afc20b98..d70062c06e482ba85634a18e10521b7c0d76c3b9 100644
+--- a/.github/workflows/desktop-companion-startup-release.yml
++++ b/.github/workflows/desktop-companion-startup-release.yml
+@@ -20,7 +20,7 @@ jobs:
+     runs-on: ubuntu-24.04
+     timeout-minutes: 10
+     steps:
+-      - uses: actions/checkout@v4
++      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+         with:
+           persist-credentials: false
+           sparse-checkout: |
+@@ -30,9 +30,9 @@ jobs:
+             scripts/publish-companion-startup.py
+             scripts/verify-companion-startup.mjs
+           sparse-checkout-cone-mode: false
+-      - uses: actions/setup-node@v4
++      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+         with: {node-version: '22'}
+-      - uses: actions/setup-python@v5
++      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
+         with: {python-version: '3.12'}
+       - name: Reconstruct and verify all 69 tested files without credentials
+         run: |
+@@ -40,7 +40,7 @@ jobs:
+           node --check scripts/verify-companion-startup.mjs
+           python3 scripts/publish-companion-startup.py build
+           python3 scripts/publish-companion-startup.py verify
+-      - uses: actions/upload-artifact@v4
++      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+         with:
+           name: companion-approved-startup-runtime
+           path: companion-startup-site/
+@@ -52,7 +52,7 @@ jobs:
+     timeout-minutes: 25
+     environment: production
+     steps:
+-      - uses: actions/checkout@v4
++      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+         with:
+           persist-credentials: false
+           sparse-checkout: |
+@@ -62,11 +62,11 @@ jobs:
+             scripts/publish-companion-startup.py
+             scripts/verify-companion-startup.mjs
+           sparse-checkout-cone-mode: false
+-      - uses: actions/setup-node@v4
++      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+         with: {node-version: '22'}
+-      - uses: actions/setup-python@v5
++      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
+         with: {python-version: '3.12'}
+-      - uses: actions/download-artifact@v4
++      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+         with:
+           name: companion-approved-startup-runtime
+           path: companion-startup-site
+@@ -82,14 +82,14 @@ jobs:
+         env:
+           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+         run: python3 scripts/publish-companion-startup.py publish
+-      - uses: actions/upload-artifact@v4
++      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+         if: always()
+         with:
+           name: companion-startup-publication-result
+           path: companion-startup-publication.json
+           if-no-files-found: warn
+           retention-days: 30
+-      - uses: actions/upload-artifact@v4
++      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+         if: always()
+         with:
+           name: companion-startup-publication-evidence
+diff --git a/.github/workflows/desktop-companion-usability.yml b/.github/workflows/desktop-companion-usability.yml
+index bb6f957da697a081848ebabc44b1415f37be3927..388636362b0e9ee7e76813be4cca8ec93f072604 100644
+--- a/.github/workflows/desktop-companion-usability.yml
++++ b/.github/workflows/desktop-companion-usability.yml
+@@ -17,14 +17,14 @@ jobs:
+     env:
+       APP: metaflow-viewer/experiments/desktop-companion
+     steps:
+-      - uses: actions/checkout@v4
++      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+         with:
+           fetch-depth: 1
+           filter: blob:none
+           sparse-checkout: |
+             metaflow-viewer/experiments/desktop-companion
+             docs/changes/165-desktop-portrait
+-      - uses: actions/setup-node@v4
++      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+         with:
+           node-version: '22'
+       - name: Integrate guarded source changes and validate syntax
+@@ -81,7 +81,7 @@ jobs:
+           PY
+       - name: Preserve screenshots and reports
+         if: always()
+-        uses: actions/upload-artifact@v4
++        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+         with:
+           name: companion-usability-evidence
+           path: ${{ runner.temp }}/companion-evidence/
+@@ -89,7 +89,7 @@ jobs:
+           retention-days: 14
+       - name: Preserve complete tested static site
+         if: success()
+-        uses: actions/upload-artifact@v4
++        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+         with:
+           name: companion-usability-netlify
+           path: metaflow-viewer/experiments/desktop-companion/dist/
+diff --git a/.github/workflows/desktop-companion-voice-release.yml b/.github/workflows/desktop-companion-voice-release.yml
+index 1147d589df9a0cb6e85cc700142562ccc420879b..f62e6c9a743475d71f5c79866ab09d8fd66547c4 100644
+--- a/.github/workflows/desktop-companion-voice-release.yml
++++ b/.github/workflows/desktop-companion-voice-release.yml
+@@ -20,7 +20,7 @@ jobs:
+     runs-on: ubuntu-24.04
+     timeout-minutes: 10
+     steps:
+-      - uses: actions/checkout@v4
++      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+         with:
+           persist-credentials: false
+           sparse-checkout: |
+@@ -29,9 +29,9 @@ jobs:
+             scripts/publish-companion-voice.py
+             scripts/verify-companion-voice.mjs
+           sparse-checkout-cone-mode: false
+-      - uses: actions/setup-node@v4
++      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+         with: {node-version: '22'}
+-      - uses: actions/setup-python@v5
++      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
+         with: {python-version: '3.12'}
+       - name: Reconstruct and verify exact public runtime without credentials
+         run: |
+@@ -39,7 +39,7 @@ jobs:
+           node --check scripts/verify-companion-voice.mjs
+           python3 scripts/publish-companion-voice.py build
+           python3 scripts/publish-companion-voice.py verify
+-      - uses: actions/upload-artifact@v4
++      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+         with:
+           name: companion-approved-voice-runtime
+           path: companion-voice-site/
+@@ -51,7 +51,7 @@ jobs:
+     timeout-minutes: 25
+     environment: production
+     steps:
+-      - uses: actions/checkout@v4
++      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+         with:
+           persist-credentials: false
+           sparse-checkout: |
+@@ -60,11 +60,11 @@ jobs:
+             scripts/publish-companion-voice.py
+             scripts/verify-companion-voice.mjs
+           sparse-checkout-cone-mode: false
+-      - uses: actions/setup-node@v4
++      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+         with: {node-version: '22'}
+-      - uses: actions/setup-python@v5
++      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
+         with: {python-version: '3.12'}
+-      - uses: actions/download-artifact@v4
++      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+         with:
+           name: companion-approved-voice-runtime
+           path: companion-voice-site
+@@ -80,14 +80,14 @@ jobs:
+         env:
+           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+         run: python3 scripts/publish-companion-voice.py publish
+-      - uses: actions/upload-artifact@v4
++      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+         if: always()
+         with:
+           name: companion-voice-publication-result
+           path: companion-voice-publication.json
+           if-no-files-found: warn
+           retention-days: 30
+-      - uses: actions/upload-artifact@v4
++      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+         if: always()
+         with:
+           name: companion-voice-publication-evidence
+diff --git a/.github/workflows/release.yml b/.github/workflows/release.yml
+index 0687fbf4160dbcbceafe62fa96328af7eb375c5a..035209b21902b8e99dd59a697b1d79b6833e9b2c 100644
+--- a/.github/workflows/release.yml
++++ b/.github/workflows/release.yml
+@@ -60,6 +60,9 @@ jobs:
+             metaflow-editor
+             references/supersplat-v2.18.1/src/ui/timeline-panel.ts
+             supersplat-v2.28.0
++            supersplat-v3.5.2
++            supersplat-v2.32.5
++            metaflow-editor-legacy
+             AGENTS.md
+             CONTRIBUTING.md
+             ROADMAP.md
+@@ -77,7 +80,13 @@ jobs:
+           RELEASE_TAG: ${{ inputs.release_tag }}
+         run: |
+           test "$(git rev-parse "$RELEASE_TAG^{commit}")" = "$GITHUB_SHA"
+-          node scripts/mcl.mjs check "$CHANGE_DIRECTORY" --strict
++          if [ -f "$CHANGE_DIRECTORY/completion/manifest.json" ]; then
++            node scripts/mcl.mjs check "$CHANGE_DIRECTORY" --strict
++          else
++            test -f "$CHANGE_DIRECTORY/spec.md"
++            test -f "$CHANGE_DIRECTORY/plan.md"
++            test -f "$CHANGE_DIRECTORY/verification.md"
++          fi
+           node scripts/validate_release_contract.mjs --tag "$RELEASE_TAG" --github-output "$GITHUB_OUTPUT"
+       - name: Validate platform configuration
+         run: python3 scripts/validate_platform.py
+@@ -97,10 +106,22 @@ jobs:
+           npm run type:check
+           npm run publint
+           npm audit --omit=dev
++      - name: Set up Editor toolchain
++        if: steps.tag.outputs.component == 'editor'
++        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
++        with:
++          node-version: 22.20.0
+       - name: Build Editor release payload
+         if: steps.tag.outputs.component == 'editor'
+-        working-directory: supersplat-v2.28.0
+-        run: npm ci && npm run lint && npm run build
++        run: |
++          for editor in supersplat-v3.5.2 supersplat-v2.32.5; do
++            npm --prefix "$editor" ci
++            npm --prefix "$editor" run lint
++            npm --prefix "$editor" run lint:locales
++            npm --prefix "$editor" run build
++            npm --prefix "$editor" test
++          done
++          node scripts/stage-editor.mjs --check
+       - name: Create immutable evidence manifest
+         env:
+           RELEASE_TAG: ${{ inputs.release_tag }}
+@@ -150,6 +171,11 @@ jobs:
+             metadata
+             data/index.json
+           sparse-checkout-cone-mode: false
++      - name: Protect the Editor immutable-candidate publication path
++        if: needs.prepare.outputs.component == 'editor'
++        run: |
++          echo 'Editor publication must promote the byte-verified complete candidate from the approved release plan. The generic Git rebuild hook cannot preserve the existing Viewer/Director payload.' >&2
++          exit 1
+       - name: Trigger the protected Netlify build hook
+         env:
+           NETLIFY_BUILD_HOOK: ${{ secrets.NETLIFY_BUILD_HOOK }}

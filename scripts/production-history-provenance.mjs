@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { hasPublishedGitCommit } from './netlify-release-git.mjs';
 import { execFileSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import { readFile } from 'node:fs/promises';
@@ -29,18 +30,19 @@ function git(root, args) {
     });
 }
 
-function assertRealCommit(root, ref) {
+export function assertRealCommit(root, ref) {
     assert.match(ref ?? '', /^[0-9a-f]{7,40}$/, 'release references must be hexadecimal Git refs');
     try {
         git(root, ['cat-file', '-e', `${ref}^{commit}`]);
     } catch {
+        if (hasPublishedGitCommit(root, ref)) return;
         assert.fail(`${ref} requires an existing Git commit; production evidence cannot prove a new release`);
     }
     try {
         git(root, ['merge-base', '--is-ancestor', ref, 'HEAD']);
     } catch {
         const tags = git(root, ['tag', '--contains', ref, '--list', 'viewer-v*']).toString().trim();
-        assert.ok(tags, `${ref} must be in HEAD or a preserved Viewer release tag`);
+        assert.ok(tags || hasPublishedGitCommit(root, ref), `${ref} must be in HEAD or a preserved Viewer release tag`);
     }
 }
 
@@ -156,7 +158,17 @@ export async function validateProductionHistoryRecovery(root, history) {
     const latest = history.entries.at(-1);
     assert.equal(latest?.displayVersion, current.displayVersion, 'current must identify the new final release entry');
     assert.equal(latest?.appSemver, current.appSemver);
-    assert.equal(latest?.gitRef, current.gitRef, 'current and final release must reference the same real commit');
+    if (current.status === 'local-candidate') {
+        assert.equal(current.baseReleaseGitRef, latest.gitRef, 'candidate must identify the latest published source');
+        const candidate = history.maintenanceCommits.find((entry) => entry.gitRef === current.gitRef);
+        assert.equal(candidate?.type, 'local-candidate', 'candidate must be registered in the maintenance history');
+        assert.equal(candidate.baseReleaseGitRef, latest.gitRef, 'candidate history must identify the same published source');
+        assert.notEqual(current.gitRef, latest.gitRef, 'candidate must reference its own source checkpoint');
+        git(root, ['merge-base', '--is-ancestor', latest.gitRef, current.gitRef]);
+        git(root, ['merge-base', '--is-ancestor', current.gitRef, 'HEAD']);
+    } else {
+        assert.equal(latest?.gitRef, current.gitRef, 'current and final release must reference the same real commit');
+    }
 
     const newRecords = [
         ...newEntries,

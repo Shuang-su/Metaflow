@@ -14,11 +14,17 @@ import { constants } from "node:fs";
 import { execFileSync } from "node:child_process";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { verifyEditorMirrors } from "./stage-editor.mjs";
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
+const args = process.argv.slice(2);
+if (args.some((arg) => arg !== "--runtime-only") || args.length > 1)
+  throw Error("Use --runtime-only to stage the runtime for a separate static data manifest");
+const runtimeOnly = args.length === 1;
+await verifyEditorMirrors(root);
 const publish = path.join(root, "metaflow-viewer/public");
 const registered = execFileSync(
   "git",
-  ["ls-files", "-z", "data", "metaflow-editor"],
+  ["ls-files", "-z", ...(!runtimeOnly ? ["data"] : []), "metaflow-editor", "metaflow-editor-legacy"],
   { cwd: root },
 )
   .toString()
@@ -26,14 +32,14 @@ const registered = execFileSync(
   .filter(Boolean);
 if (!registered.length) throw Error("Missing registered publish assets");
 // Remove only generated directories owned by this build. Models remain untouched.
-for (const name of ["data", "editor", "director"])
+for (const name of [...(!runtimeOnly ? ["data"] : []), "editor", "editor-legacy", "director", "shenzhen"])
   await rm(path.join(publish, name), { recursive: true, force: true });
 for (const file of registered) {
   const dest = path.join(
     publish,
     file.startsWith("data/")
       ? file
-      : file.replace(/^metaflow-editor\//, "editor/"),
+      : file.replace(/^metaflow-editor-legacy\//, "editor-legacy/").replace(/^metaflow-editor\//, "editor/"),
   );
   const source = path.join(root, file);
   const fd = await open(source, "r");
@@ -56,6 +62,11 @@ await cp(
   path.join(publish, "director"),
   { recursive: true },
 );
+const shenzhen = path.join(publish, "shenzhen");
+await cp(path.join(root, "metaflow-viewer/hosted/shenzhen"), shenzhen, { recursive: true });
+const mediaCenter = path.join(shenzhen, "APECMediaCenter");
+await mkdir(mediaCenter, { recursive: true });
+await copyFile(path.join(publish, "index.html"), path.join(mediaCenter, "index.html"));
 const version = JSON.parse(
   await readFile(path.join(root, "metadata/version-history.json"), "utf8"),
 ).current;

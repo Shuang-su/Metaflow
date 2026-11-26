@@ -1,0 +1,41 @@
+<!doctype html>
+<html>
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <title>Metaflow Viewer</title>
+        <base href="./" />
+        <link rel="stylesheet" href="./index.css" />
+        <script type="application/json" id="sse-bootstrap">
+            {}
+        </script>
+    </head>
+    <body>
+        <script type="module">
+            import { createViewer } from './index.js';
+            const bootstrap = JSON.parse(document.getElementById('sse-bootstrap').textContent);
+            try {
+                const settings =
+                    bootstrap.settings ??
+                    (await fetch(bootstrap.settingsUrl ?? './settings.json').then((response) => {
+                        if (!response.ok) throw new Error(`Settings: HTTP ${response.status}`);
+                        return response.json();
+                    }));
+                window.metaflowViewer = await createViewer({
+                    ...bootstrap,
+                    settings,
+                    container: document.body,
+                    noanalytics: true,
+                    exposeGlobals: false,
+                    revealEffect: 'none'
+                });
+            } catch (error) {
+                console.error('[Metaflow] Export failed to load:', error);
+                const message = document.createElement('p');
+                message.textContent =
+                    'Viewer failed to load. Serve this package over HTTP, and check the model and settings files.';
+                document.body.append(message);
+            }
+        </script>
+    </body>
+</html>

@@ -201,9 +201,9 @@ test('global gsplat reveal is shader-based, color-neutral, and skippable by URL'
     assert.match(viewer, /startGsplatReveal = \(revealCallbacks\?:/);
     assert.match(viewer, /onSubjectRevealed: openHighDetailLod/);
     assert.match(viewer, /highDetailOpened/);
-    assert.match(viewer, /events\.on\('performanceMode:changed', applyPerfSettings\);\s+events\.on\('xrMode:changed', applyPerfSettings\);\s+applyPerfSettings\(\);/);
+    assert.match(viewer, /events\.on\('quality:changed', applyPerfSettings\);\s+events\.on\('xrMode:changed', applyPerfSettings\);\s+applyPerfSettings\(\);/);
     assert.match(viewer, /environmentLoad: Promise<Entity \| null> \| null/);
-    assert.match(viewer, /Promise\.all\(\[gsplatLoad, skyboxLoad\]\)/);
+    assert.match(viewer, /Promise\.all\(\[gsplatLoad, skyboxLoad, config\.initialViewPreload \? environmentLoad : null\]\)/);
     assert.doesNotMatch(viewer, /Promise\.all\(\[gsplatLoad, environmentLoad/);
     assert.match(viewer, /environmentLoad\?\.then/);
     assert.match(viewer, /attachEnvironmentToReveal/);
@@ -451,7 +451,9 @@ test('tiled voxel walk readiness waits for the current foot tile, not full neigh
 
     assert.match(tiledSource, /isCurrentTileLoaded\(\): boolean/);
     assert.match(tiledSource, /this\._loaded\.has\(this\._centerId\)/);
-    assert.match(viewer, /collision\.updateForQueryPosition\(-p\.x, p\.z\)/);
+    assert.match(viewer, /collision\.updateForWorldPosition\(p\.x, p\.z\)/);
+    assert.match(tiledSource, /coordinateSpace === 'metaflow-rz180' \? -x : x/);
+    assert.match(tiledSource, /this\.updateForQueryPosition\(queryX, z\)/);
     assert.match(viewer, /collision\.isCurrentTileLoaded\(\)/);
     assert.match(viewer, /foot tile/);
     assert.match(viewer, /not the full 3x3 neighborhood/);

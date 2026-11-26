@@ -1,0 +1,25 @@
+@use 'colors.scss' as *;
+@use 'layout.scss' as *;
+
+// the shell only; its controls are toolbar.scss's
+#right-toolbar {
+    position: absolute;
+    right: $edge;
+    top: 50%;
+    width: $side-toolbar-width;
+    transform: translate(0, -50%);
+    padding: 8px 0px;
+    border-radius: $toolbar-radius;
+
+    background-color: $bcg-dark;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+// the cog glyph's ink sits about 2px high in its em box, unlike the toolbar's
+// other glyphs
+#right-toolbar-settings::before {
+    margin-top: 2px;
+}

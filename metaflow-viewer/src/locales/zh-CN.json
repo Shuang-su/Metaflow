@@ -1,4 +1,9 @@
 {
+    "settings.quality": "画质",
+    "settings.quality-performance": "流畅",
+    "settings.quality-default": "标准",
+    "settings.quality-high": "高",
+    "settings.quality-max": "极高",
     "settings.performance-mode": "性能模式",
     "settings.gaming-controls": "游戏控制",
     "settings.show-annotations": "显示注释",

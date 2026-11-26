@@ -1,6 +1,7 @@
 import { importSettings } from "../../metaflow-viewer/src/settings";
 import {
   resolveDirectorResource,
+  directorModelFile,
   resourceDataUrl,
   handoffIdentity,
   readDirectorPosition,
@@ -11,6 +12,7 @@ import { DEFAULT_POSE, poseFromCamera, type Pose } from "./core/model";
 import { controlsFor } from "./core/camera-controls";
 export type ResourceScene = {
   resource: DirectorResource;
+  format: "sog" | "ply";
   pose: Pose;
   background: string;
   cameraSource: "viewer" | "settings";
@@ -29,6 +31,7 @@ export async function loadResource(
   progress("读取资源目录…");
   const index = await (await response("/data/index.json", signal)).json();
   const resource = resolveDirectorResource(index.resources ?? [], path);
+  const model = directorModelFile(resource)!;
   progress(`读取 ${resource.title ?? resource.id} 的相机设置…`);
   const raw = await (
     await response(resourceDataUrl(resource.files.settings!), signal)
@@ -70,7 +73,7 @@ export async function loadResource(
       )
       .join("");
   const files = [
-    ["主体", resource.files.model!],
+    ["主体", model],
     ...(resource.files.environment
       ? [["环境", resource.files.environment]]
       : []),
@@ -94,6 +97,7 @@ export async function loadResource(
   signal.throwIfAborted();
   return {
     resource,
+    format: /\.ply$/i.test(model) ? "ply" : "sog",
     pose,
     background,
     cameraSource: current ? "viewer" : "settings",

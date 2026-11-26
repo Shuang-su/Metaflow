@@ -1,0 +1,57 @@
+{
+  "version": "5.26.1",
+  "sourceReviewPullRequest": "https://github.com/Shuang-su/Metaflow/pull/203",
+  "evidenceIssue": "https://github.com/Shuang-su/Metaflow/issues/201",
+  "visibleReviewBaseRef": "1b900a24aee42ba2ae55f0246e2c474d32a42cc1",
+  "verifiedProductionBaseProductRef": "3fa19fdb314f5b726403b0912228842f433c00b2",
+  "verifiedProductionBaseRecordRef": "2a0758bb5d63f78336aa5c96a2d07379f67d8f2e",
+  "verifiedProductionBaseDeploy": "6b0878e6d2d60f3a1ba9dcea",
+  "newProductRef": "18b8702e9878147bac431561f43b9c31f33695e8",
+  "newRecordRef": "5c0281808cfc52572ccf85f5cccbecb422b7aa28",
+  "verifiedRecordTree": "2907ab8dd492a03836ea27331c15b6889b276623",
+  "patchedTree": "2907ab8dd492a03836ea27331c15b6889b276623",
+  "patch": {
+    "file": "apec-5261-production-relative.patch",
+    "bytes": 4037162,
+    "sha256": "6fe387338eee0aafab41e50f330b35ee668d6691647d1163bffcf1cb26cc9d91"
+  },
+  "assets": {
+    "manifestSha256": "2b8c94d449d26c31d326c65bac98bf468699b299b616b1f9fed52eebd281b6a8",
+    "paths": 5231,
+    "bytes": 2238272518,
+    "chunkCount": 653
+  },
+  "changedProductPaths": [
+    "data/index.json",
+    "data/version-history.json",
+    "docs/changes/201-apec-media-center/plan.md",
+    "docs/changes/201-apec-media-center/spec.md",
+    "docs/changes/201-apec-media-center/verification.md",
+    "docs/changes/README.md",
+    "docs/metaflow-viewer-change-ledger.md",
+    "metadata/shenzhen-asset-manifest.json.gz",
+    "metadata/shenzhen-hosted-scenes.json",
+    "metadata/version-history.json",
+    "metaflow-viewer/package-lock.json",
+    "metaflow-viewer/package.json",
+    "metaflow-viewer/src/camera-manager.ts",
+    "metaflow-viewer/src/cameras/walk-controller.ts",
+    "metaflow-viewer/src/hosted.ts",
+    "metaflow-viewer/src/index.html",
+    "metaflow-viewer/src/options.ts",
+    "metaflow-viewer/src/shenzhen/apec-panel.html",
+    "metaflow-viewer/src/shenzhen/apec.ts",
+    "metaflow-viewer/src/shenzhen/area-position.ts",
+    "metaflow-viewer/src/shenzhen/hosted-scene.ts",
+    "metaflow-viewer/src/shenzhen/nanhai.ts",
+    "metaflow-viewer/src/shenzhen/site-map.ts",
+    "metaflow-viewer/src/shenzhen/sp-map/map-window.ts",
+    "metaflow-viewer/src/ui/annotation-controls.ts",
+    "metaflow-viewer/tests/version-history.test.mjs"
+  ],
+  "patchArchive": {
+    "file": "apec-5261-production-relative.patch.gz",
+    "bytes": 3258231,
+    "sha256": "24b7d1d66f450dd86b731140b0f7dc2ca262905cca07b3fcdda3c3b46c2e531b"
+  }
+}

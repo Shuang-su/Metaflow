@@ -1,0 +1,5 @@
+{
+  "name": "@metaflow/editor-shared",
+  "private": true,
+  "type": "module"
+}

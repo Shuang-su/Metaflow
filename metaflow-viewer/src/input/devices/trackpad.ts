@@ -1,7 +1,7 @@
 import { Vec3 } from 'playcanvas';
 
 import type { Global } from '../../types';
-import { DISPLACEMENT_SCALE, screenToWorld } from '../shared';
+import { DISPLACEMENT_SCALE, screenToMove } from '../shared';
 import type { CameraInputFrame, InputDevice, UpdateContext } from '../shared';
 
 const tmpV = new Vec3();
@@ -147,7 +147,7 @@ class TrackpadDevice implements InputDevice {
     }
 
     update(ctx: UpdateContext, frame: CameraInputFrame): void {
-        const { isOrbit, isFirstPerson, distance, cameraComponent } = ctx;
+        const { isOrbit, isFirstPerson, cameraComponent } = ctx;
         const orbitFactor = isFirstPerson ? cameraComponent.fov / 120 : 1;
         const { deltas } = frame;
 
@@ -158,7 +158,7 @@ class TrackpadDevice implements InputDevice {
             deltas.rotate.append([v.x, v.y, 0]);
 
             // shift + scroll → pan in world space (matches desktop pan path); reuse tmpV after rotate append
-            screenToWorld(cameraComponent, this._pan[0], this._pan[1], distance, tmpV);
+            screenToMove(ctx, this._pan[0], this._pan[1], tmpV);
             tmpV.mulScalar(this.trackpadPanSensitivity);
             deltas.move.append([tmpV.x, tmpV.y, 0]);
 
@@ -174,8 +174,9 @@ class TrackpadDevice implements InputDevice {
             // shift + scroll → strafe (X) + vertical (Y) via the same
             // screen-space pan pipeline as orbit mode; the fly/walk
             // controllers translate this into sideways/vertical motion
-            screenToWorld(cameraComponent, this._pan[0], this._pan[1], distance, tmpV);
+            screenToMove(ctx, this._pan[0], this._pan[1], tmpV);
             tmpV.mulScalar(this.trackpadPanSensitivity);
+            if (ctx.isWalk) tmpV.y = 0;
             deltas.move.append([tmpV.x, tmpV.y, 0]);
 
             // synthetic-Ctrl pinch → forward/back along z (same sign as the

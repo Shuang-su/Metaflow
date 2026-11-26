@@ -1,4 +1,9 @@
 {
+    "settings.quality": "画質",
+    "settings.quality-performance": "パフォーマンス",
+    "settings.quality-default": "標準",
+    "settings.quality-high": "高",
+    "settings.quality-max": "最高",
     "settings.performance-mode": "パフォーマンスモード",
     "settings.gaming-controls": "ゲームコントロール",
     "settings.show-annotations": "注釈を表示",

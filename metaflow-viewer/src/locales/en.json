@@ -1,4 +1,9 @@
 {
+    "settings.quality": "Quality",
+    "settings.quality-performance": "Performance",
+    "settings.quality-default": "Default",
+    "settings.quality-high": "High",
+    "settings.quality-max": "Max",
     "settings.performance-mode": "Performance Mode",
     "settings.gaming-controls": "Gaming Controls",
     "settings.show-annotations": "Show Annotations",

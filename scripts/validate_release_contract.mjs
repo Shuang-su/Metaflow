@@ -4,6 +4,8 @@ import { appendFile, readFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
 
+import { verifyEditorMirrors } from './stage-editor.mjs';
+
 const RELEASE_TAG = /^(viewer|editor|design)-v(\d+\.\d+\.\d+(?:-beta\.\d+)?)$/;
 const GIT_REF = /^[0-9a-f]{7,40}$/;
 
@@ -68,12 +70,26 @@ export async function validateViewerReleaseContract(root, version) {
     return { productGitRef };
 }
 
+export async function validateEditorReleaseContract(root, version) {
+    const metadata = await readJson(root, 'metadata/editor-version-history.json');
+    const mirror = await readJson(root, 'data/editor-version-history.json');
+    const errors = [];
+    requireEqual(errors, 'Editor appSemver', metadata.current?.appSemver, version);
+    requireEqual(errors, 'Editor displayVersion', metadata.current?.displayVersion, version);
+    if (JSON.stringify(metadata) !== JSON.stringify(mirror)) errors.push('Editor history mirror differs');
+    if (!GIT_REF.test(metadata.current?.gitRef ?? '')) errors.push('Editor product gitRef is invalid');
+    if (errors.length) throw new Error(`Editor release contract validation failed:\n- ${errors.join('\n- ')}`);
+    await verifyEditorMirrors(root);
+    return { productGitRef: metadata.current.gitRef };
+}
+
 export async function validateReleaseContract({ root = process.cwd(), tag }) {
     const parsed = parseReleaseTag(tag);
     const result = {
         ...parsed,
         productGitRef: ''
     };
+    if (parsed.component === 'editor') Object.assign(result, await validateEditorReleaseContract(root, parsed.version));
     if (parsed.component === 'viewer') {
         Object.assign(result, await validateViewerReleaseContract(root, parsed.version));
     }

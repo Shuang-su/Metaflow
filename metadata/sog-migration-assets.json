@@ -1,0 +1,637 @@
+{
+  "/acg/sztuccf260919/evangelion-asuka-racing_outfit": {
+    "files": {
+      "model": "ACG/SZTUCCF260919/A003C0010_700101_RH8603/sog-v3/scene.sog",
+      "compatibilityModel": "ACG/SZTUCCF260919/A003C0010_700101_RH8603/rebuild-20261019/scene.sog",
+      "environment": "ACG/SZTUCCF260919/A003C0010_700101_RH8603/rebuild-20261019/environment.compressed.ply",
+      "voxel": "ACG/SZTUCCF260919/A003C0010_700101_RH8603/rebuild-20261019/walk.voxel.json",
+      "thumbnail": "ACG/SZTUCCF260919/A003C0010_700101_RH8603/rebuild-20261019/cover-4096.webp"
+    }
+  },
+  "/acg/sztuccf260919/arknights-angelina": {
+    "files": {
+      "model": "ACG/SZTUCCF260919/A003C0011_700101_RH8603/sog-v3/scene.sog",
+      "compatibilityModel": "ACG/SZTUCCF260919/A003C0011_700101_RH8603/rebuild-20261019/scene.sog",
+      "environment": "ACG/SZTUCCF260919/A003C0011_700101_RH8603/rebuild-20261019/environment.compressed.ply",
+      "voxel": "ACG/SZTUCCF260919/A003C0011_700101_RH8603/rebuild-20261019/walk.voxel.json",
+      "thumbnail": "ACG/SZTUCCF260919/A003C0011_700101_RH8603/rebuild-20261019/cover-4096.webp"
+    }
+  },
+  "/acg/sztuccf260919/ave_mujica-timoris": {
+    "files": {
+      "model": "ACG/SZTUCCF260919/A003C0012_700101_RH8603/sog-v3/scene.sog",
+      "compatibilityModel": "ACG/SZTUCCF260919/A003C0012_700101_RH8603/rebuild-20261019/scene.sog",
+      "environment": "ACG/SZTUCCF260919/A003C0012_700101_RH8603/rebuild-20261019/environment.compressed.ply",
+      "voxel": "ACG/SZTUCCF260919/A003C0012_700101_RH8603/rebuild-20261019/walk.voxel.json",
+      "thumbnail": "ACG/SZTUCCF260919/A003C0012_700101_RH8603/rebuild-20261019/cover-4096.webp"
+    }
+  },
+  "/acg/sztuccf260919/arknights-w": {
+    "files": {
+      "model": "ACG/SZTUCCF260919/A003C0013_700101_RH8603/sog-v3/scene.sog",
+      "compatibilityModel": "ACG/SZTUCCF260919/A003C0013_700101_RH8603/rebuild-20261019/scene.sog",
+      "environment": "ACG/SZTUCCF260919/A003C0013_700101_RH8603/rebuild-20261019/environment.compressed.ply",
+      "voxel": "ACG/SZTUCCF260919/A003C0013_700101_RH8603/rebuild-20261019/walk.voxel.json",
+      "thumbnail": "ACG/SZTUCCF260919/A003C0013_700101_RH8603/rebuild-20261019/cover-4096.webp"
+    }
+  },
+  "/acg/sztuccf260919/arknights-exusiai": {
+    "files": {
+      "model": "ACG/SZTUCCF260919/A003C0023_700101_RH8603/sog-v3/scene.sog",
+      "compatibilityModel": "ACG/SZTUCCF260919/A003C0023_700101_RH8603/rebuild-20261019/scene.sog",
+      "environment": "ACG/SZTUCCF260919/A003C0023_700101_RH8603/rebuild-20261019/environment.compressed.ply",
+      "voxel": "ACG/SZTUCCF260919/A003C0023_700101_RH8603/rebuild-20261019/walk.voxel.json",
+      "thumbnail": "ACG/SZTUCCF260919/A003C0023_700101_RH8603/rebuild-20261019/cover-4096.webp"
+    }
+  },
+  "/acg/sztuccf260919/arknights-lappland": {
+    "files": {
+      "model": "ACG/SZTUCCF260919/A003C0024_700101_RH8603/sog-v3/scene.sog",
+      "compatibilityModel": "ACG/SZTUCCF260919/A003C0024_700101_RH8603/rebuild-20261019/scene.sog",
+      "environment": "ACG/SZTUCCF260919/A003C0024_700101_RH8603/rebuild-20261019/environment.compressed.ply",
+      "voxel": "ACG/SZTUCCF260919/A003C0024_700101_RH8603/rebuild-20261019/walk.voxel.json",
+      "thumbnail": "ACG/SZTUCCF260919/A003C0024_700101_RH8603/rebuild-20261019/cover-4096.webp"
+    }
+  },
+  "/acg/sztuccf260919/lolita-burgundy_lace": {
+    "files": {
+      "model": "ACG/SZTUCCF260919/A003C0025_700101_RH8603/sog-v3/scene.sog",
+      "compatibilityModel": "ACG/SZTUCCF260919/A003C0025_700101_RH8603/rebuild-20261019/scene.sog",
+      "environment": "ACG/SZTUCCF260919/A003C0025_700101_RH8603/rebuild-20261019/environment.compressed.ply",
+      "voxel": "ACG/SZTUCCF260919/A003C0025_700101_RH8603/rebuild-20261019/walk.voxel.json",
+      "thumbnail": "ACG/SZTUCCF260919/A003C0025_700101_RH8603/rebuild-20261019/cover-4096.webp"
+    }
+  },
+  "/acg/sztuccf260919/fate_stay_night-sakura_matou-1": {
+    "files": {
+      "model": "ACG/SZTUCCF260919/A003C0005_700101_RH8603/sog-v3/scene.sog",
+      "compatibilityModel": "ACG/SZTUCCF260919/A003C0005_700101_RH8603/rebuild-20261019/scene.sog",
+      "environment": "ACG/SZTUCCF260919/A003C0005_700101_RH8603/rebuild-20261019/environment.compressed.ply",
+      "voxel": "ACG/SZTUCCF260919/A003C0005_700101_RH8603/rebuild-20261019/walk.voxel.json",
+      "thumbnail": "ACG/SZTUCCF260919/A003C0005_700101_RH8603/rebuild-20261019/cover-4096.webp"
+    }
+  },
+  "/acg/sztuccf260919/fate_stay_night-sakura_matou-2": {
+    "files": {
+      "model": "ACG/SZTUCCF260919/A003C0006_700101_RH8603/sog-v3/scene.sog",
+      "compatibilityModel": "ACG/SZTUCCF260919/A003C0006_700101_RH8603/rebuild-20261019/scene.sog",
+      "environment": "ACG/SZTUCCF260919/A003C0006_700101_RH8603/rebuild-20261019/environment.compressed.ply",
+      "voxel": "ACG/SZTUCCF260919/A003C0006_700101_RH8603/rebuild-20261019/walk.voxel.json",
+      "thumbnail": "ACG/SZTUCCF260919/A003C0006_700101_RH8603/rebuild-20261019/cover-4096.webp"
+    }
+  },
+  "/acg/j05/beryl": {
+    "files": {
+      "model": "ACG/J05/260315 165959 J05 05 重返未來1999 贝丽尔/sog-v3/scene.sog",
+      "compatibilityModel": "ACG/J05/260315 165959 J05 05 重返未來1999 贝丽尔/260315 173745 J05 05 Beryl Bouanich.sog"
+    }
+  },
+  "/sztu/fes/top10-26": {
+    "files": {
+      "model": "SZTU/FES/260418 Top10_26/sog-v3/scene.sog"
+    },
+    "experienceType": "character",
+    "viewer": {
+      "animationFirstExitMode": "orbit"
+    }
+  },
+  "/shenzhen/dayun": {
+    "files": {
+      "model": "lod-independent/shenzhen/dayun/streamed/lod-meta.json"
+    }
+  },
+  "/shenzhen/bijiashan": {
+    "files": {
+      "voxelManifest": "Shenzhen/260326 Bijiashan Park/derived_lcc_tiled_full_rot0_0_m180_xz_v2.4.0_lod1_r0.08_a0.20_tile64_o8/voxel-tiles-verified.json",
+      "model": "lod-independent/shenzhen/bijiashan/streamed/lod-meta.json"
+    }
+  },
+  "/acg/bitcity260711/rem": {
+    "files": {
+      "model": "ACG/BitCity260711/4D_A002C0063_709_3840 雷姆/migration-v3/4D_A002C0063_709_3840 雷姆/scene.sog",
+      "compatibilityModel": "ACG/BitCity260711/4D_A002C0063_709_3840 雷姆/4D_A002C0063_709_3840 雷姆.sog"
+    }
+  },
+  "/acg/bitcity260711/xielian": {
+    "files": {
+      "model": "ACG/BitCity260711/4D_A002C0062_709_3840 天宫赐福_异域谢怜/migration-v3/4D_A002C0062_709_3840 天宫赐福_异域谢怜/scene.sog",
+      "compatibilityModel": "ACG/BitCity260711/4D_A002C0062_709_3840 天宫赐福_异域谢怜/4D_A002C0062_709_3840 天宫赐福_异域谢怜.sog"
+    }
+  },
+  "/acg/bitcity260711/xielian2": {
+    "files": {
+      "model": "ACG/BitCity260711/P4P_20260711203735_0514_709 天宫赐福_异域谢怜2/migration-v3/P4P_20260711203735_0514_709 天宫赐福_异域谢怜2/scene.sog",
+      "compatibilityModel": "ACG/BitCity260711/P4P_20260711203735_0514_709 天宫赐福_异域谢怜2/P4P_20260711203735_0514_709 天宫赐福_异域谢怜2.sog"
+    }
+  },
+  "/acg/szcaf15/racing-miku": {
+    "files": {
+      "model": "ACG/SZCAF15/A001C0224_260726_PQWJ 赛车初音/migration-v3/A001C0224_260726_PQWJ 赛车初音/scene.sog",
+      "compatibilityModel": "ACG/SZCAF15/A001C0224_260726_PQWJ 赛车初音/A001C0224_260726_PQWJ 赛车初音.sog"
+    }
+  },
+  "/acg/szcaf15/shi": {
+    "files": {
+      "model": "ACG/SZCAF15/A001C0044_260724_PQWJ 西施续相思/migration-v3/A001C0044_260724_PQWJ 西施续相思/scene.sog",
+      "compatibilityModel": "ACG/SZCAF15/A001C0044_260724_PQWJ 西施续相思/A001C0044_260724_PQWJ 西施续相思.sog"
+    }
+  },
+  "/acg/szcaf15/xiaoqiao": {
+    "files": {
+      "model": "ACG/SZCAF15/A001C0225_260726_PQWJ 小乔/migration-v3/A001C0225_260726_PQWJ 小乔/scene.sog",
+      "compatibilityModel": "ACG/SZCAF15/A001C0225_260726_PQWJ 小乔/A001C0225_260726_PQWJ 小乔.sog"
+    }
+  },
+  "/acg/szcaf15/yunuo": {
+    "files": {
+      "model": "ACG/SZCAF15/A001C0049_260725_PQWJ 雨诺/migration-v3/A001C0049_260725_PQWJ 雨诺/scene.sog",
+      "compatibilityModel": "ACG/SZCAF15/A001C0049_260725_PQWJ 雨诺/A001C0049_260725_PQWJ 雨诺.sog"
+    }
+  },
+  "/animals/cats/mangzhong/2609160002": {
+    "files": {
+      "model": "Animals/Cats/mangzhong/2609160002/migration-v3/scene/scene.sog"
+    }
+  },
+  "/animals/cats/mangzhong/2609160028": {
+    "files": {
+      "model": "Animals/Cats/mangzhong/2609160028/migration-v3/scene/scene.sog"
+    }
+  },
+  "/animals/cats/mangzhong/2609160031": {
+    "files": {
+      "model": "Animals/Cats/mangzhong/2609160031/migration-v3/scene/scene.sog"
+    }
+  },
+  "/acg/szcaf15/honkai_star_rail-tribbie": {
+    "files": {
+      "model": "ACG/SZCAF15/A001C0190_260726_PQWJ/migration-v3/scene/scene.sog",
+      "compatibilityModel": "ACG/SZCAF15/A001C0190_260726_PQWJ/scene.sog"
+    }
+  },
+  "/sztu/c4-hangpai": {
+    "files": {
+      "model": "lod-independent/sztu/c4-hangpai/streamed/lod-meta.json",
+      "compatibilityModel": null
+    }
+  },
+  "/szmg/广电大厦6楼演播室": {
+    "viewer": {
+      "voxelCoordinateSpace": "world"
+    },
+    "files": {
+      "model": "lod-independent/szmg/广电大厦6楼演播室/streamed/lod-meta.json",
+      "voxel": "SZMG/251217 广电大厦6楼演播室/migration-v3/collision/walk.voxel.json",
+      "voxelManifest": null,
+      "compatibilityModel": null
+    }
+  },
+  "/sztu/b1-sdi-206": {
+    "files": {
+      "model": "lod-independent/sztu/b1-sdi-206/streamed/lod-meta.json",
+      "compatibilityModel": "SZTU/251220 SZTU B1-SDI-206/251220 SZTU B1-SDI-206 zhan_20500.sog",
+      "voxel": "SZTU/251220 SZTU B1-SDI-206/migration-v3/collision/walk.voxel.json",
+      "voxelManifest": null
+    },
+    "viewer": {
+      "voxelCoordinateSpace": "world"
+    }
+  },
+  "/sztu/d1-utl-107": {
+    "files": {
+      "model": "lod-independent/sztu/d1-utl-107/streamed/lod-meta.json",
+      "compatibilityModel": null
+    }
+  },
+  "/acg/szcaf15/rem": {
+    "files": {
+      "model": "ACG/SZCAF15/A001C0026_260724_PQWJ 女警雷姆/migration-v3/A001C0026_260724_PQWJ 女警雷姆/scene.sog",
+      "compatibilityModel": "ACG/SZCAF15/A001C0026_260724_PQWJ 女警雷姆/A001C0026_260724_PQWJ 女警雷姆.sog"
+    }
+  },
+  "/acg/szcaf15/sandrone": {
+    "files": {
+      "model": "ACG/SZCAF15/A001C0024_260724_PQWJ 茄皇/migration-v3/A001C0024_260724_PQWJ 茄皇/scene.sog",
+      "compatibilityModel": "ACG/SZCAF15/A001C0024_260724_PQWJ 茄皇/A001C0024_260724_PQWJ 茄皇.sog"
+    }
+  },
+  "/sztu/c2-lib": {
+    "viewer": {
+      "voxelCoordinateSpace": "world"
+    },
+    "files": {
+      "model": "lod-independent/sztu/c2-lib/streamed/lod-meta.json",
+      "voxel": "SZTU/250424 SZTU C2-Lib/migration-v3/collision/walk.voxel.json",
+      "voxelManifest": null
+    }
+  },
+  "/acg/j04/itasha": {
+    "viewer": {
+      "voxelCoordinateSpace": "world"
+    },
+    "files": {
+      "model": "lod-independent/acg/j04/itasha/streamed/lod-meta.json",
+      "compatibilityModel": "ACG/J04/260118 150402 J04 痛车/260118 150402 J04 Itasha.sog",
+      "voxel": "ACG/J04/260118 150402 J04 痛车/migration-v3/collision/walk.voxel.json",
+      "voxelManifest": null
+    }
+  },
+  "/acg/j05/xunyangpai": {
+    "files": {
+      "model": "lod-independent/acg/j05/xunyangpai/streamed/lod-meta.json"
+    }
+  },
+  "/sztu/c1-bdi-206": {
+    "files": {
+      "model": "lod-independent/sztu/c1-bdi-206/streamed/lod-meta.json"
+    }
+  },
+  "/acg/j04/ggc": {
+    "viewer": {
+      "voxelCoordinateSpace": "world"
+    },
+    "files": {
+      "model": "lod-independent/acg/j04/ggc/streamed/lod-meta.json",
+      "compatibilityModel": "ACG/J04/260118 190943 J04 场景 ggc高谷仓/260118 190943 J04 ggc.sog",
+      "voxel": "ACG/J04/260118 190943 J04 场景 ggc高谷仓/migration-v3/collision/walk.voxel.json",
+      "voxelManifest": null
+    }
+  },
+  "/acg/phoenixfes26/itasha": {
+    "files": {
+      "model": "lod-independent/acg/phoenixfes26/itasha/streamed/lod-meta.json"
+    }
+  },
+  "/acg/phoenixfes26/huaijiao": {
+    "files": {
+      "model": "ACG/PhoenixFes26/260328 172013 huaijiao/migration-v3/260328 172013 huaijiao/scene.sog",
+      "compatibilityModel": "ACG/PhoenixFes26/260328 172013 huaijiao/260328 172013 huaijiao.sog"
+    }
+  },
+  "/acg/fireflyfes38/remielle-dan-b": {
+    "files": {
+      "model": "ACG/FireflyFes38/260502 160903 02b 绝区零 拉米尔/migration-v3/260502 160903 02b Remielle Dan/scene.sog",
+      "compatibilityModel": "ACG/FireflyFes38/260502 160903 02b 绝区零 拉米尔/260502 160903 02b Remielle Dan.sog"
+    }
+  },
+  "/acg/phoenixfes26/silver-wolf": {
+    "files": {
+      "model": "ACG/PhoenixFes26/260328 171625 崩铁 银狼/migration-v3/260328 171625 Silver Wolf/scene.sog",
+      "compatibilityModel": "ACG/PhoenixFes26/260328 171625 崩铁 银狼/260328 171625 Silver Wolf.sog"
+    }
+  },
+  "/acg/fireflyfes38/azur-lane": {
+    "files": {
+      "model": "lod-independent/acg/fireflyfes38/azur-lane/streamed/lod-meta.json"
+    }
+  },
+  "/acg/fireflyfes38/diaochan": {
+    "files": {
+      "model": "ACG/FireflyFes38/260502 184535 05 王者荣耀 貂蝉 馥梦繁花/migration-v3/260502 184535 05 diaochan/scene.sog",
+      "compatibilityModel": "ACG/FireflyFes38/260502 184535 05 王者荣耀 貂蝉 馥梦繁花/260502 184535 05 diaochan.sog"
+    }
+  },
+  "/acg/j04/dolia1": {
+    "files": {
+      "model": "ACG/J04/260118 180245 J04 王者荣耀 朵莉亚1/migration-v3/260118_180245_J04_Dolia1-2/scene.sog",
+      "compatibilityModel": "ACG/J04/260118 180245 J04 王者荣耀 朵莉亚1/260118_180245_J04_Dolia1-2.sog"
+    }
+  },
+  "/acg/szcaf15/arli": {
+    "files": {
+      "model": "ACG/SZCAF15/A001C0223_260726_PQWJ 公孙离 离恨烟/migration-v3/A001C0223_260726_PQWJ 公孙离 离恨烟/scene.sog",
+      "compatibilityModel": "ACG/SZCAF15/A001C0223_260726_PQWJ 公孙离 离恨烟/A001C0223_260726_PQWJ 公孙离 离恨烟.sog"
+    }
+  },
+  "/acg/szcaf15/denia": {
+    "files": {
+      "model": "ACG/SZCAF15/A001C0090_260725_PQWJ 达妮娅/migration-v3/A001C0090_260725_PQWJ 达妮娅/scene.sog",
+      "compatibilityModel": "ACG/SZCAF15/A001C0090_260725_PQWJ 达妮娅/A001C0090_260725_PQWJ 达妮娅.sog"
+    }
+  },
+  "/acg/szcaf15/diaochan2": {
+    "files": {
+      "model": "ACG/SZCAF15/A001C0214_260726_PQWJ 貂蝉馥梦繁花2/migration-v3/A001C0214_260726_PQWJ 貂蝉馥梦繁花2/scene.sog",
+      "compatibilityModel": "ACG/SZCAF15/A001C0214_260726_PQWJ 貂蝉馥梦繁花2/A001C0214_260726_PQWJ 貂蝉馥梦繁花2.sog"
+    }
+  },
+  "/acg/szcaf15/female-dancer": {
+    "files": {
+      "model": "ACG/SZCAF15/A001C0221_260726_PQWJ 舞女琉璃的月光/migration-v3/A001C0221_260726_PQWJ 舞女琉璃的月光/scene.sog",
+      "compatibilityModel": "ACG/SZCAF15/A001C0221_260726_PQWJ 舞女琉璃的月光/A001C0221_260726_PQWJ 舞女琉璃的月光.sog"
+    }
+  },
+  "/acg/szcaf15/zipingyin": {
+    "files": {
+      "model": "ACG/SZCAF15/A001C0226_260726_PQWJ 殷紫萍 天禄瑞光/migration-v3/A001C0226_260726_PQWJ 殷紫萍 天禄瑞光/scene.sog",
+      "compatibilityModel": "ACG/SZCAF15/A001C0226_260726_PQWJ 殷紫萍 天禄瑞光/A001C0226_260726_PQWJ 殷紫萍 天禄瑞光.sog"
+    }
+  },
+  "/acg/j04/dolia2": {
+    "files": {
+      "model": "ACG/J04/260118 181326 J04 王者荣耀 朵莉亚2/migration-v3/260118 181326 J04 Dolia2/scene.sog",
+      "compatibilityModel": "ACG/J04/260118 181326 J04 王者荣耀 朵莉亚2/260118 181326 J04 Dolia2.sog"
+    }
+  },
+  "/acg/j04/surtr": {
+    "files": {
+      "model": "ACG/J04/260118 182644 J04 明日方舟 史尔特尔/migration-v3/260118 182644 J04 Surtr/scene.sog",
+      "compatibilityModel": "ACG/J04/260118 182644 J04 明日方舟 史尔特尔/260118 182644 J04 Surtr.sog"
+    }
+  },
+  "/acg/j04/xishi": {
+    "files": {
+      "model": "ACG/J04/260118 164325 J04 王者荣耀 西施 织梦人/migration-v3/260118 164325 J04 xishi/scene.sog",
+      "compatibilityModel": "ACG/J04/260118 164325 J04 王者荣耀 西施 织梦人/260118 164325 J04 xishi.sog"
+    }
+  },
+  "/acg/szcaf15/lixin": {
+    "files": {
+      "model": "ACG/SZCAF15/A001C0222_260726_PQWJ 李信问剑心/migration-v3/A001C0222_260726_PQWJ 李信问剑心/scene.sog",
+      "compatibilityModel": "ACG/SZCAF15/A001C0222_260726_PQWJ 李信问剑心/A001C0222_260726_PQWJ 李信问剑心.sog"
+    }
+  },
+  "/acg/j04/denji": {
+    "files": {
+      "model": "ACG/J04/260118 183217 J04 电锯人 电次/migration-v3/260118 183217 J04 Denji/scene.sog",
+      "compatibilityModel": "ACG/J04/260118 183217 J04 电锯人 电次/260118 183217 J04 Denji.sog"
+    }
+  },
+  "/acg/j04/shaosiyuan": {
+    "files": {
+      "model": "ACG/J04/260118 181014 J04 王者荣耀 少司缘/migration-v3/260118 181014 J04 shaosiyuan/scene.sog",
+      "compatibilityModel": "ACG/J04/260118 181014 J04 王者荣耀 少司缘/260118 181014 J04 shaosiyuan.sog"
+    }
+  },
+  "/acg/szcaf15/denia2": {
+    "files": {
+      "model": "ACG/SZCAF15/A001C0091_260725_PQWJ 达妮娅2/migration-v3/A001C0091_260725_PQWJ 达妮娅2/scene.sog",
+      "compatibilityModel": "ACG/SZCAF15/A001C0091_260725_PQWJ 达妮娅2/A001C0091_260725_PQWJ 达妮娅2.sog"
+    }
+  },
+  "/acg/phoenixfes26/stage": {
+    "files": {
+      "model": "lod-independent/acg/phoenixfes26/stage/streamed/lod-meta.json"
+    }
+  },
+  "/acg/j04/amu": {
+    "files": {
+      "model": "ACG/J04/260118 153546 J04 守护甜心 日奈森亚梦/migration-v3/260118 153546 J04 Hinamori Amu/scene.sog",
+      "compatibilityModel": "ACG/J04/260118 153546 J04 守护甜心 日奈森亚梦/260118 153546 J04 Hinamori Amu.sog"
+    }
+  },
+  "/acg/fireflyfes38/fireflyfes38": {
+    "files": {
+      "model": "lod-independent/acg/fireflyfes38/fireflyfes38/streamed/lod-meta.json"
+    }
+  },
+  "/acg/ad05/frieren": {
+    "files": {
+      "model": "ACG/AD05/260102 165752 AD05 葬送的芙莉莲 芙莉莲辛美尔/migration-v3/260102 165752 AD05 Frieren/scene.sog",
+      "compatibilityModel": "ACG/AD05/260102 165752 AD05 葬送的芙莉莲 芙莉莲辛美尔/260102 165752 AD05 Frieren.sog"
+    }
+  },
+  "/acg/ad05/zhugeliang": {
+    "files": {
+      "model": "ACG/AD05/260102 155010 AD05 如鸢 诸葛亮/migration-v3/260102 155010 AD05 yuan_zhugeliang/scene.sog",
+      "compatibilityModel": "ACG/AD05/260102 155010 AD05 如鸢 诸葛亮/260102 155010 AD05 yuan_zhugeliang.sog"
+    }
+  },
+  "/acg/j04/furry": {
+    "files": {
+      "model": "ACG/J04/260118 152808 J04 福瑞/migration-v3/260118 152808 J04 furry/scene.sog",
+      "compatibilityModel": "ACG/J04/260118 152808 J04 福瑞/260118 152808 J04 furry.sog"
+    }
+  },
+  "/acg/j05/lolita3": {
+    "files": {
+      "model": "ACG/J05/260315 190259 J05 09 lolita3/migration-v3/260315 190259 J05 09 lolita3/scene.sog",
+      "compatibilityModel": "ACG/J05/260315 190259 J05 09 lolita3/260315 190259 J05 09 lolita3.sog"
+    }
+  },
+  "/acg/szcaf15/isolde": {
+    "files": {
+      "model": "ACG/SZCAF15/A001C0086_260725_PQWJ 1999伊索尔德若向死振翅/migration-v3/A001C0086_260725_PQWJ 1999伊索尔德若向死振翅/scene.sog",
+      "compatibilityModel": "ACG/SZCAF15/A001C0086_260725_PQWJ 1999伊索尔德若向死振翅/A001C0086_260725_PQWJ 1999伊索尔德若向死振翅.sog"
+    }
+  },
+  "/acg/szcaf15/new-jersey": {
+    "files": {
+      "model": "ACG/SZCAF15/A001C0035_260724_PQWJ 花园新泽西花嫁/migration-v3/A001C0035_260724_PQWJ 花园新泽西花嫁/scene.sog",
+      "compatibilityModel": "ACG/SZCAF15/A001C0035_260724_PQWJ 花园新泽西花嫁/A001C0035_260724_PQWJ 花园新泽西花嫁.sog"
+    }
+  },
+  "/acg/szcaf15/rem-duo": {
+    "files": {
+      "model": "ACG/SZCAF15/A001C0105_260725_PQWJ 雷姆双人/migration-v3/A001C0105_260725_PQWJ 雷姆双人/scene.sog",
+      "compatibilityModel": "ACG/SZCAF15/A001C0105_260725_PQWJ 雷姆双人/A001C0105_260725_PQWJ 雷姆双人.sog"
+    }
+  },
+  "/acg/j04/mirai": {
+    "files": {
+      "model": "ACG/J04/260118 181757 J04 境界的彼方 栗山未来/migration-v3/260118 181757 J04 Kuriyama Mirai/scene.sog",
+      "compatibilityModel": "ACG/J04/260118 181757 J04 境界的彼方 栗山未来/260118 181757 J04 Kuriyama Mirai.sog"
+    }
+  },
+  "/acg/j04/tohru": {
+    "files": {
+      "model": "ACG/J04/260118 190306 J04 小林家的龙女仆 托尔/migration-v3/260118 190306 J04 Tohru/scene.sog",
+      "compatibilityModel": "ACG/J04/260118 190306 J04 小林家的龙女仆 托尔/260118 190306 J04 Tohru.sog"
+    }
+  },
+  "/acg/j05/lolita2": {
+    "files": {
+      "model": "ACG/J05/260315 165959 J05 04 lolita2/migration-v3/260315 165959 J05 04 lolita2/scene.sog",
+      "compatibilityModel": "ACG/J05/260315 165959 J05 04 lolita2/260315 165959 J05 04 lolita2.sog"
+    }
+  },
+  "/acg/szcaf15/hackclaw": {
+    "files": {
+      "model": "ACG/SZCAF15/A001C0028_260724_PQWJ 麦晓雯 维什戴尔/migration-v3/A001C0028_260724_PQWJ 麦晓雯 维什戴尔/scene.sog",
+      "compatibilityModel": "ACG/SZCAF15/A001C0028_260724_PQWJ 麦晓雯 维什戴尔/A001C0028_260724_PQWJ 麦晓雯 维什戴尔.sog"
+    }
+  },
+  "/acg/szcaf15/luna": {
+    "files": {
+      "model": "ACG/SZCAF15/A001C0034_260724_PQWJ 露娜霜月吟/migration-v3/A001C0034_260724_PQWJ 露娜霜月吟/scene.sog",
+      "compatibilityModel": "ACG/SZCAF15/A001C0034_260724_PQWJ 露娜霜月吟/A001C0034_260724_PQWJ 露娜霜月吟.sog"
+    }
+  },
+  "/acg/szcaf15/robin": {
+    "files": {
+      "model": "ACG/SZCAF15/A001C0093_260725_PQWJ 知更鸟/migration-v3/A001C0093_260725_PQWJ 知更鸟/scene.sog",
+      "compatibilityModel": "ACG/SZCAF15/A001C0093_260725_PQWJ 知更鸟/A001C0093_260725_PQWJ 知更鸟.sog"
+    }
+  },
+  "/acg/szcaf15/yaria": {
+    "files": {
+      "model": "ACG/SZCAF15/A001C0085_260725_PQWJ 瑶时之祈愿/migration-v3/A001C0085_260725_PQWJ 瑶时之祈愿/scene.sog",
+      "compatibilityModel": "ACG/SZCAF15/A001C0085_260725_PQWJ 瑶时之祈愿/A001C0085_260725_PQWJ 瑶时之祈愿.sog"
+    }
+  },
+  "/acg/ad05/gongsunli": {
+    "files": {
+      "model": "ACG/AD05/260102 161941 AD05 王者荣耀 公孙离 花间舞/migration-v3/260102 161941 AD05 gongsunli_1024/scene.sog",
+      "compatibilityModel": "ACG/AD05/260102 161941 AD05 王者荣耀 公孙离 花间舞/260102 161941 AD05 gongsunli_1024.sog"
+    }
+  },
+  "/acg/fireflyfes38/cyrene": {
+    "files": {
+      "model": "ACG/FireflyFes38/260502 172930 03 崩坏星穹铁道 昔涟/migration-v3/260502 172930 03 Cyrene/scene.sog",
+      "compatibilityModel": "ACG/FireflyFes38/260502 172930 03 崩坏星穹铁道 昔涟/260502 172930 03 Cyrene.sog"
+    }
+  },
+  "/acg/fireflyfes38/nangong-yu": {
+    "files": {
+      "model": "ACG/FireflyFes38/260502 160157 01 绝区零 南宫羽/migration-v3/260502 160157 01 NangongYu/scene.sog",
+      "compatibilityModel": "ACG/FireflyFes38/260502 160157 01 绝区零 南宫羽/260502 160157 01 NangongYu.sog"
+    }
+  },
+  "/acg/j05/01": {
+    "files": {
+      "model": "ACG/J05/260315 162919 J05 01/migration-v3/260315 162919 J05 01/scene.sog",
+      "compatibilityModel": "ACG/J05/260315 162919 J05 01/260315 162919 J05 01.sog"
+    }
+  },
+  "/acg/szcaf15/bloody-queen": {
+    "files": {
+      "model": "ACG/SZCAF15/A001C0084_260725_PQWJ 红夫人虚妄/migration-v3/A001C0084_260725_PQWJ 红夫人虚妄/scene.sog",
+      "compatibilityModel": "ACG/SZCAF15/A001C0084_260725_PQWJ 红夫人虚妄/A001C0084_260725_PQWJ 红夫人虚妄.sog"
+    }
+  },
+  "/acg/szcaf15/chang-e": {
+    "files": {
+      "model": "ACG/SZCAF15/A001C0087_260725_PQWJ 嫦娥落星盏/migration-v3/A001C0087_260725_PQWJ 嫦娥落星盏/scene.sog",
+      "compatibilityModel": "ACG/SZCAF15/A001C0087_260725_PQWJ 嫦娥落星盏/A001C0087_260725_PQWJ 嫦娥落星盏.sog"
+    }
+  },
+  "/acg/szcaf15/dajishi": {
+    "files": {
+      "model": "ACG/SZCAF15/A001C0033_260724_PQWJ 傩戏大祭司/migration-v3/A001C0033_260724_PQWJ 傩戏大祭司/scene.sog",
+      "compatibilityModel": "ACG/SZCAF15/A001C0033_260724_PQWJ 傩戏大祭司/A001C0033_260724_PQWJ 傩戏大祭司.sog"
+    }
+  },
+  "/acg/szcaf15/navia": {
+    "files": {
+      "model": "ACG/SZCAF15/A001C0092_260725_PQWJ 娜维娅/migration-v3/A001C0092_260725_PQWJ 娜维娅/scene.sog",
+      "compatibilityModel": "ACG/SZCAF15/A001C0092_260725_PQWJ 娜维娅/A001C0092_260725_PQWJ 娜维娅.sog"
+    }
+  },
+  "/acg/fireflyfes38/remielle-dan": {
+    "files": {
+      "model": "ACG/FireflyFes38/260502 161428 02 绝区零 拉米尔/migration-v3/260502 161428 02 Remielle Dan/scene.sog",
+      "compatibilityModel": "ACG/FireflyFes38/260502 161428 02 绝区零 拉米尔/260502 161428 02 Remielle Dan.sog"
+    }
+  },
+  "/acg/j04/xiaoqiao": {
+    "files": {
+      "model": "ACG/J04/260118 145218 J04 王者荣耀 小乔 纯白花嫁/migration-v3/260118 145218 J04 xiaoqiao/scene.sog",
+      "compatibilityModel": "ACG/J04/260118 145218 J04 王者荣耀 小乔 纯白花嫁/260118 145218 J04 xiaoqiao.sog"
+    }
+  },
+  "/acg/j05/ciel": {
+    "files": {
+      "model": "ACG/J05/260315 163519 J05 02 黑执事 夏尔/migration-v3/260315 163519 J05 02 Ciel Phantomhive/scene.sog",
+      "compatibilityModel": "ACG/J05/260315 163519 J05 02 黑执事 夏尔/260315 163519 J05 02 Ciel Phantomhive.sog"
+    }
+  },
+  "/acg/j05/lolita": {
+    "files": {
+      "model": "ACG/J05/260315 165007 J05 03 lolita/migration-v3/260315 165007 J05 03 lolita/scene.sog",
+      "compatibilityModel": "ACG/J05/260315 165007 J05 03 lolita/260315 165007 J05 03 lolita.sog"
+    }
+  },
+  "/acg/ad05/sephiroth": {
+    "files": {
+      "model": "ACG/AD05/260102 162440 AD05 最终幻想 萨菲罗斯/migration-v3/260102 162440 AD05 Sephiroth/scene.sog",
+      "compatibilityModel": "ACG/AD05/260102 162440 AD05 最终幻想 萨菲罗斯/260102 162440 AD05 Sephiroth.sog"
+    }
+  },
+  "/acg/ad05/violet": {
+    "files": {
+      "model": "ACG/AD05/260102 161509 AD05 紫罗兰永恒花园 薇尔莉特·伊芙加登/migration-v3/260102 161509 AD05 Violet Evergarden/scene.sog",
+      "compatibilityModel": "ACG/AD05/260102 161509 AD05 紫罗兰永恒花园 薇尔莉特·伊芙加登/260102 161509 AD05 Violet Evergarden.sog"
+    }
+  },
+  "/acg/fireflyfes38/fursuit": {
+    "files": {
+      "model": "ACG/FireflyFes38/260502 180249 04 国风兽装/migration-v3/260502 180249 04 Fursuit/scene.sog",
+      "compatibilityModel": "ACG/FireflyFes38/260502 180249 04 国风兽装/260502 180249 04 Fursuit.sog"
+    }
+  },
+  "/acg/j04/yor2": {
+    "files": {
+      "model": "ACG/J04/260118 150009 J04 间谍过家家 约尔2/migration-v3/260118 145712 J04 Yor2/scene.sog",
+      "compatibilityModel": "ACG/J04/260118 150009 J04 间谍过家家 约尔2/260118 145712 J04 Yor2.sog"
+    }
+  },
+  "/acg/j04/lucy": {
+    "files": {
+      "model": "ACG/J04/260118 155718 J04 赛博朋克边缘行者 露西/migration-v3/260118 155718 J04 Lucyna/scene.sog",
+      "compatibilityModel": "ACG/J04/260118 155718 J04 赛博朋克边缘行者 露西/260118 155718 J04 Lucyna.sog"
+    }
+  },
+  "/acg/j04/wanderer": {
+    "files": {
+      "model": "ACG/J04/260118 155035 J04 原神 散兵/migration-v3/260118 155035 J04 GenshinImpact_Wanderer/scene.sog",
+      "compatibilityModel": "ACG/J04/260118 155035 J04 原神 散兵/260118 155035 J04 GenshinImpact_Wanderer.sog"
+    }
+  },
+  "/acg/j04/yor1": {
+    "files": {
+      "model": "ACG/J04/260118 145712 J04 间谍过家家 约尔1/migration-v3/260118 145712 J04 Yor1/scene.sog",
+      "compatibilityModel": "ACG/J04/260118 145712 J04 间谍过家家 约尔1/260118 145712 J04 Yor1.sog"
+    }
+  },
+  "/acg/yzx/yzx": {
+    "files": {
+      "model": "ACG/yzx/migration-v3/260124 yzx/scene.sog",
+      "compatibilityModel": "ACG/yzx/260124 yzx.sog"
+    }
+  },
+  "/acg/ad05/jiangyanli": {
+    "files": {
+      "model": "ACG/AD05/260102 160304 AD05 魔道祖师 江厌离/migration-v3/260102 160304 AD05 jiangyanli/scene.sog",
+      "compatibilityModel": "ACG/AD05/260102 160304 AD05 魔道祖师 江厌离/260102 160304 AD05 jiangyanli.sog"
+    }
+  },
+  "/acg/j04/kamen-rider": {
+    "files": {
+      "model": "ACG/J04/260118 161109 J04 假面骑士 build创骑 极狐 景和将军形态/migration-v3/260118 161109 J04 kamen rider/scene.sog",
+      "compatibilityModel": "ACG/J04/260118 161109 J04 假面骑士 build创骑 极狐 景和将军形态/260118 161109 J04 kamen rider.sog"
+    }
+  },
+  "/acg/j05/bloodyqueen": {
+    "files": {
+      "model": "ACG/J05/260315 180620 J05 06 第五人格 红夫人 小女孩/migration-v3/260315 180620 J05 06 BloodyQueen/scene.sog",
+      "compatibilityModel": "ACG/J05/260315 180620 J05 06 第五人格 红夫人 小女孩/260315 180620 J05 06 BloodyQueen.sog"
+    }
+  },
+  "/acg/j05/navia": {
+    "files": {
+      "model": "ACG/J05/260315 183428 J05 07 原神 娜维娅/migration-v3/260315 183428 J05 07 Navia Caspar/scene.sog",
+      "compatibilityModel": "ACG/J05/260315 183428 J05 07 原神 娜维娅/260315 183428 J05 07 Navia Caspar.sog"
+    }
+  },
+  "/acg/ad05/delta-force": {
+    "files": {
+      "model": "ACG/AD05/260102 163416 AD05 三角洲/migration-v3/260102 163416 AD05 Delta Force/scene.sog",
+      "compatibilityModel": "ACG/AD05/260102 163416 AD05 三角洲/260102 163416 AD05 Delta Force.sog"
+    }
+  },
+  "/szcaee/foxiang": {
+    "files": {
+      "model": "SZCAEE/foxiang_r2j-3-2_full_14.95MSplats_152kSteps_SSIM0.946_260112_crop/migration-v3/foxiang_r2j-3-2_full_14.95MSplats_152kSteps_SSIM0.946_260112_crop/scene.sog"
+    }
+  },
+  "/szcaee/ciqi": {
+    "files": {
+      "model": "SZCAEE/ciqi_r2j-2_full_15MSplats_150kSteps_SSIM0.942_260112_clear/migration-v3/ciqi_r2j-2_full_15MSplats_150kSteps_SSIM0.942_260112_clear/scene.sog"
+    }
+  },
+  "/szcaee/guanyin": {
+    "files": {
+      "model": "SZCAEE/guanyin_r2j-2_full_16MSplats_300kSteps_SSIM0.913_260113_clear-2/migration-v3/guanyin_r2j-2_full_16MSplats_300kSteps_SSIM0.913_260113_clear-2/scene.sog"
+    }
+  }
+}

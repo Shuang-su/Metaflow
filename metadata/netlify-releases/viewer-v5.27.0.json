@@ -1,0 +1,35 @@
+{
+  "release": "5.27.0",
+  "buildCommit": "54167e40f9adbaa62e1d5e411c62e56424ec1e7f",
+  "viewerProduct": "25a4954d4f14b44c0448f36cbbce4e53a8351ac7",
+  "deploy": "6b08b2e3966942054cc16160",
+  "studio": {
+    "release": "5.26.0",
+    "buildCommit": "2a0758bb5d63f78336aa5c96a2d07379f67d8f2e",
+    "product": "3fa19fdb314f5b726403b0912228842f433c00b2",
+    "deploy": "6b0878e6d2d60f3a1ba9dcea"
+  },
+  "gitObjects": {
+    "metaflow-viewer/src": "740544ca6f73167167183954d287cd0aea75c9d4",
+    "metaflow-director": "7ef49dbb90fe336539951c77b2bb5520cec6f24b",
+    "editor-shared": "b7f2622380f60e80fa5875206723e1160a2ccb2e",
+    "supersplat-v2.32.5": "bc0167b28d2f9f65dcc6357923c35577a8fb6f3e",
+    "supersplat-v3.5.2": "0a635c7e14e6834832c3c55ad4a204e2f78ebd30",
+    "metaflow-editor": "d056e0a4404236a183180f53d976552e18be378e",
+    "metaflow-editor-legacy": "b9ab4d090ae4ca6e40c67e2124561bf17638fdae",
+    "data/index.json": "381650004ac55944343b3321f957f7a33046fba0",
+    "metadata/version-history.json": "c81e535d3df6e894d6af2940f4d3cc2cda95768d",
+    "metadata/editor-version-history.json": "b33524232afd2df39b9969c6f7bfb5263f161514"
+  },
+  "importPaths": [
+    "metaflow-viewer",
+    "metaflow-director",
+    "data",
+    "metaflow-editor",
+    "metaflow-editor-legacy",
+    "supersplat-v3.5.2",
+    "supersplat-v2.32.5",
+    "editor-shared"
+  ],
+  "importDeltaSha256": "ba2b46558f79938e66bc41295aa3e46d08865c894ca96cebfa621674c1038d5f"
+}

@@ -16,13 +16,33 @@ import type { CameraMode, AnimationFirstExitMode, ExperienceType, RevealEffect, 
  * `renderViewerHtml` — so the two surfaces cannot drift.
  */
 type ViewerAssets = {
+    sceneLayers?: {
+        id: string;
+        url: string;
+        displayEuler?: [number, number, number];
+        storedToWorld?: number[][];
+        visible: boolean;
+    }[];
+    cameraClipping?: { near: number; far: number };
+    /** Number of scene units in one physical metre. Defaults to one. */
+    worldUnitsPerMeter?: number;
+    /** Return to last measured support if the capture has an unmodeled floor gap. */
+    recoverWalkDrops?: boolean;
+    walkFallbackPosition?: [number, number, number];
+    sunnySky?: { dynamicUrl?: string; staticUrl?: string; authoredUrl?: string };
+    /** Scene orientation shared by the subject and its environment. */
+    displayEuler?: [number, number, number];
     voxelUrl?: string;
     voxelManifestUrl?: string;
     voxelCoordinateSpace?: VoxelCoordinateSpace;
     environmentUrl?: string;
     environmentContents?: Promise<Response>;
     defaultCameraMode?: CameraMode;
-    syntheticAnimation?: 'figure8';
+    syntheticAnimation?: 'figure8' | 'none';
+    /** Wait for the selected opening view's detail and a submitted frame before revealing it. */
+    initialViewPreload?: boolean;
+    /** Keyboard movement from orbit or animation may explicitly enter fly mode. */
+    orbitMovementMode?: 'fly';
     animationFirstExitMode?: AnimationFirstExitMode;
     revealEffect?: RevealEffect;
     experienceType?: ExperienceType;
@@ -33,6 +53,7 @@ type ViewerAssets = {
     posthogHost?: string;
     posthogReplay?: boolean;
     analyticsResource?: AnalyticsResourceContext;
+    directorCompatibilityUrl?: string;
     analyticsResourceUrls?: {
         index?: string;
         content?: string;
@@ -79,6 +100,8 @@ type ViewerFlags = {
     ui?: boolean;
     /** Show the centre reticle in desktop fly/walk mode with gaming controls. Defaults to `false`. */
     reticle?: boolean;
+    /** Start with the controls hint closed when the host supplies its own floating panel. */
+    controlsHintInitiallyClosed?: boolean;
     /** Start with the camera animation paused. */
     noanim?: boolean;
     /** Disable post effects. */

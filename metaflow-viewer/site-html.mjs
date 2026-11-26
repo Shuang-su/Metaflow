@@ -113,12 +113,13 @@ export function siteHtml(template) {
                     document.head.appendChild(css);
                     await (${loadDirectorEntry.toString()})();
                 } else {
-                const { createViewer } = await (${loadViewerEntry.toString()})(document.baseURI, undefined, undefined,
+                const { createHostedViewer } = await (${loadViewerEntry.toString()})(document.baseURI, undefined, undefined,
                     (detail) => window.metaflowStartup?.retry(detail));
-                const { config, settings } = await window.sseReady;
+                const { config, settings, hostedResource } = await window.sseReady;
                 window.metaflowStartup?.stage('正在读取场景设置、初始化渲染器…');`
     );
-    replace('exposeGlobals: true\n                });', 'exposeGlobals: true\n                });\n                window.metaflowStartup?.remove();\n                }');
+    replace('window.metaflowViewer = await createViewer({', 'window.metaflowViewer = await createHostedViewer({');
+    replace('exposeGlobals: true\n                });', 'exposeGlobals: true\n                }, hostedResource);\n                window.metaflowStartup?.remove();\n                }');
     replace(
         "message.textContent = 'Viewer failed to load. Please check the resource and retry.';",
         `window.metaflowStartup?.remove();

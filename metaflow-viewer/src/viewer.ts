@@ -20,8 +20,7 @@ import {
     GSPLAT_DEBUG_NONE,
     GSPLAT_RENDERER_RASTER_CPU_SORT,
     GSPLAT_RENDERER_RASTER_GPU_SORT,
-    LAYERID_SKYBOX,
-    platform
+    LAYERID_SKYBOX
 } from 'playcanvas';
 import type { CameraComponent, Entity, GraphicsDevice, GSplatComponent, Layer } from 'playcanvas';
 
@@ -41,6 +40,7 @@ import type { DirectorPosition } from './director-handoff';
 import { initFullscreen } from './fullscreen';
 import { GsplatRevealRadial } from './gsplat-reveal-radial';
 import type { RevealDotProfile } from './gsplat-reveal-radial';
+import { InitialViewGate, openingWork } from './initial-view-preload';
 import { InputController } from './input-controller';
 import { MeshDebugOverlay } from './mesh-debug-overlay';
 import { NavCursor } from './nav-cursor';
@@ -53,7 +53,7 @@ import { observeInitialLodProgress } from './streaming-progress';
 import { createSwitchingPicker } from './switching-picker';
 import type { LoadMode, CaptureOptions, Config, Global, XrMode } from './types';
 import { TiledVoxelDebugOverlay, VoxelDebugOverlay } from './voxel-debug-overlay';
-import { initXr, standaloneHeadset } from './xr';
+import { initXr } from './xr';
 
 function resolveRevealDotProfile(config: Config, loadingMode: LoadMode): RevealDotProfile {
     if (loadingMode === 'legacy-sog' && config.experienceType === 'character') {
@@ -92,23 +92,6 @@ const rendererTable: Record<Config['renderer'], number> = {
     webgl: GSPLAT_RENDERER_RASTER_CPU_SORT,
     webgpu: GSPLAT_RENDERER_RASTER_GPU_SORT
 };
-
-// quality budget, millions of splats
-const budgets = {
-    mobile: {
-        low: 1,
-        high: 2
-    },
-    desktop: {
-        low: 2,
-        high: 4
-    }
-};
-
-// budget while an XR session runs on a standalone headset, millions of splats. On a Quest 3,
-// 1M splats render at about 30 fps (40 at 0.8x resolution), against 10 fps at the 4M desktop
-// budget it otherwise gets
-const standaloneXrBudget = 1;
 
 // how much further away parts of the scene behind the camera count when choosing their detail,
 // which saves a lot of splats while orbiting, and the turn after which detail is chosen again.
@@ -548,17 +531,14 @@ class Viewer {
         if (config.stochastic && renderer === 'webgpu') {
             const worldLayer = app.scene.layers.getLayerByName('World');
             // the largest budget this instance can ask for must fit the device's storage binding
-            const budget =
-                (config.budget && config.budget > 0
-                    ? config.budget
-                    : (platform.mobile ? budgets.mobile : budgets.desktop).high) * 1000000;
+            const budget = global.quality.budget * 1000000;
             if (!StochasticSplatRenderer.cacheFits(app.graphicsDevice, budget)) {
                 console.warn(
                     `stochastic renderer: a ${budget / 1000000}M splat budget exceeds this device's storage binding limit; the sorted renderer draws`
                 );
             } else if (worldLayer) {
                 this.splatRenderer = new StochasticSplatRenderer(app, camera.camera, worldLayer, {
-                    source: config.splatSource,
+                    source: config.splatSource === 'light' ? 'direct' : config.splatSource,
                     variant: config.variant
                 });
                 this.stochasticActive = true;
@@ -635,9 +615,11 @@ class Viewer {
             const far = Math.max(dist + boundRadius, 1e-2);
             const near = Math.max(dist - boundRadius, far / (1024 * 16));
 
-            cameraEntity.camera.farClip = far;
-            cameraEntity.camera.nearClip = Math.min(1.0, near);
+            cameraEntity.camera.farClip = config.cameraClipping?.far ?? far;
+            cameraEntity.camera.nearClip = config.cameraClipping?.near ?? Math.min(1.0, near);
         };
+
+        let holdOpeningView = Boolean(config.initialViewPreload);
 
         // handle application update
         app.on('update', (deltaTime) => {
@@ -646,7 +628,7 @@ class Viewer {
                 return;
             }
 
-            if (this.inputController && this.cameraManager) {
+            if (this.inputController && this.cameraManager && (!holdOpeningView || state.loaded)) {
                 // update inputs
                 this.inputController.update(deltaTime, this.cameraManager.camera.distance);
 
@@ -658,7 +640,7 @@ class Viewer {
 
                 if (this.tiledVoxelCollision) {
                     const p = camera.getPosition();
-                    this.tiledVoxelCollision.updateForQueryPosition(-p.x, p.z);
+                    this.tiledVoxelCollision.updateForWorldPosition(p.x, p.z);
                 }
             }
         });
@@ -689,12 +671,13 @@ class Viewer {
         // Remember only a camera that reached a displayed frame, never an animation destination.
         if (config.exposeGlobals && config.analyticsResource?.category?.includes('acg')) {
             const refs = config.analyticsResourceUrls;
-            if (refs?.content && refs.settings && /\.(sog|ply)$/i.test(refs.content)) {
+            const subject = config.directorCompatibilityUrl ?? refs?.content;
+            if (subject && refs?.settings && /\.(sog|ply)$/i.test(subject)) {
                 const file = (url: string) => decodeURIComponent(new URL(url, location.href).pathname);
                 const identity = handoffIdentity({
                     id: config.analyticsResource.id!,
                     files: {
-                        model: file(refs.content),
+                        model: file(subject),
                         environment: refs.environment ? file(refs.environment) : undefined,
                         settings: file(refs.settings)
                     }
@@ -878,7 +861,29 @@ class Viewer {
                     octree.files.map((file) => file.url),
                     document.baseURI,
                     (value) => {
-                        state.progress = Math.max(state.progress, value);
+                        state.progress = Math.max(
+                            state.progress,
+                            config.initialViewPreload ? Math.floor(value * 0.45) : value
+                        );
+                    },
+                    () => {
+                        if (config.fullload) return;
+                        // Engine 2.24.2 normally polls chunk residency every ten frames.
+                        // Its pending flag coalesces completions until the next streaming update.
+                        const director = app.renderer.gsplatDirector;
+                        for (const cameraData of director?.camerasMap?.values() ?? []) {
+                            for (const layer of cameraData.layersMap.values()) {
+                                const world = layer.gsplatManager?.world;
+                                if (world?.hasOctreeInstances && world._lodUpdateRequested === false) {
+                                    for (const instance of world._octreeInstances.values()) {
+                                        if (instance.octree === octree) {
+                                            world._lodUpdateRequested = true;
+                                            break;
+                                        }
+                                    }
+                                }
+                            }
+                        }
                     }
                 );
                 const frame = (camera: CameraComponent, layer: Layer, ready: boolean, loading: number) =>
@@ -937,7 +942,7 @@ class Viewer {
         }, ignoreLoadFailure);
 
         // wait for the model to load
-        Promise.all([gsplatLoad, skyboxLoad]).then((results) => {
+        Promise.all([gsplatLoad, skyboxLoad, config.initialViewPreload ? environmentLoad : null]).then((results) => {
             // destroyed while loading: the app is gone, so there is nothing to wire up
             if (this.destroyed) return;
 
@@ -969,10 +974,23 @@ class Viewer {
             events.fire('picker:ready', this.picker);
             this.inputController = new InputController(global, this.picker);
             this.cameraManager = new CameraManager(global, sceneBound, collision);
+            const octree = (gsplatComponent.resource as GSplatOctreeResourceLike | null)?.octree ?? null;
+            if (octree && this.cameraManager.startsWithFigure8) {
+                // Select and render detail for the first pose before advancing the synthetic track.
+                holdOpeningView = true;
+            }
             applyCamera(this.cameraManager.camera);
 
             if (!config.noui) {
-                this.navCursor = new NavCursor(app, camera, collision, events, state, config.reticle);
+                this.navCursor = new NavCursor(
+                    app,
+                    camera,
+                    collision,
+                    events,
+                    state,
+                    config.reticle,
+                    config.worldUnitsPerMeter
+                );
             }
 
             const setOverlayLoadingStatus = (status: string) => {
@@ -1027,13 +1045,18 @@ class Viewer {
             };
 
             const updateWalkReadiness = () => {
-                let ready = isWalkAllowed(sceneBound, collision);
+                let ready = isWalkAllowed(sceneBound, collision, config.worldUnitsPerMeter);
                 if (collision instanceof TiledVoxelCollision) {
                     // Walk waits for the foot tile, not the full 3x3 neighborhood.
                     // Adjacent tiles continue loading in the background.
                     const p = camera.getPosition();
-                    collision.updateForQueryPosition(-p.x, p.z);
-                    ready = ready && collision.isCurrentTileLoaded();
+                    const fallback = config.walkFallbackPosition;
+                    collision.updateForWorldPosition(p.x, p.z);
+                    ready =
+                        ready &&
+                        (fallback
+                            ? collision.isTileLoadedAt(p.x, p.z) || collision.isTileLoadedAt(fallback[0], fallback[2])
+                            : collision.isCurrentTileLoaded());
                 }
                 state.walkAllowed = ready;
             };
@@ -1043,6 +1066,10 @@ class Viewer {
                 collision = nextCollision;
                 this.inputController.collision = nextCollision;
                 state.hasCollision = !!nextCollision;
+                const fallback = config.walkFallbackPosition;
+                if (fallback && nextCollision instanceof TiledVoxelCollision) {
+                    nextCollision.preloadWalkEntry(fallback[0], fallback[2]);
+                }
                 updateWalkReadiness();
                 this.cameraManager.setCollision(nextCollision);
                 if (this.navCursor) {
@@ -1215,24 +1242,10 @@ class Viewer {
             }
 
             const applyPerfSettings = () => {
-                const budget = () => {
-                    if (config.budget !== undefined && Number.isFinite(config.budget) && config.budget > 0) {
-                        return config.budget;
-                    }
-                    if (standaloneHeadset && state.xrMode !== null) {
-                        return standaloneXrBudget;
-                    }
-                    const quality = platform.mobile ? budgets.mobile : budgets.desktop;
-                    return state.performanceMode ? quality.low : quality.high;
-                };
-
-                gsplat.splatBudget = budget() * 1000000;
-                // Match SuperSplat Viewer v1.29.1. A non-zero quality
-                // threshold avoids the v1.29.0 every-frame SH regression,
-                // while 1° / 0.2° keeps view-dependent color responsive.
-                gsplat.colorUpdateAngle = state.performanceMode ? 1 : 0.2;
-                gsplat.lodBehindPenalty = state.xrMode === null ? lodBehindPenalty : 1;
-                gsplat.lodUpdateAngle = state.xrMode === null ? lodUpdateAngle : 0;
+                gsplat.splatBudget = global.quality.budget * 1000000;
+                gsplat.colorUpdateAngle = global.quality.colorUpdateAngle;
+                gsplat.lodBehindPenalty = global.quality.lodBehindPenalty;
+                gsplat.lodUpdateAngle = global.quality.lodUpdateAngle;
                 gsplatComponent.lodRangeMin = 0;
                 gsplatComponent.lodRangeMax = 1000;
                 // Restore the default cull threshold lowered during the streaming reveal.
@@ -1266,8 +1279,18 @@ class Viewer {
             // the streamer has left that initial state: work in flight, or splats on screen.
             // Only octree content has a streaming phase to wait for; single-file content is fully
             // loaded before this handler is registered, so it must not be gated.
-            const octree = (gsplatComponent.resource as GSplatOctreeResourceLike | null)?.octree ?? null;
             let streamingStarted = !octree;
+
+            const preload = holdOpeningView && octree ? new InitialViewGate() : null;
+            let completedFrames = 0;
+            const savedUnderfill = gsplat.lodUnderfillLimit;
+            if (preload) {
+                const frame = app.on('frameend', () => {
+                    completedFrames++;
+                });
+                this.onDestroy(() => frame.off());
+                global.root.dataset.initialViewStage = 'coarse';
+            }
 
             const readyHandler = (camera: CameraComponent, layer: Layer, ready: boolean, loading: number) => {
                 // `frame.gsplats` is the rendered splat count, the same stat the ministats panel
@@ -1276,12 +1299,50 @@ class Viewer {
                     streamingStarted = true;
                 }
 
-                if (ready && loading === 0 && streamingStarted) {
+                let viewReady = ready && loading === 0 && streamingStarted;
+                if (preload) {
+                    if (camera !== global.camera.camera || state.loadingStage === 'error' || this.destroyed) return;
+                    const world = (app.renderer as any).gsplatDirector?.camerasMap
+                        .get(camera.camera)
+                        ?.layersMap.get(layer)?.gsplatManager?.world;
+                    const work = openingWork(world);
+                    if (!work.available) return;
+                    if (work.failed) {
+                        state.loadingStage = 'error';
+                        state.loadingStatus = '初始视野分块载入失败，请刷新后重试。';
+                        ignoreLoadFailure(new Error('初始视野分块载入失败 · ' + work.failed));
+                        return;
+                    }
+                    const action = preload.sample({
+                        frame: completedFrames,
+                        ready,
+                        pending: work.pending,
+                        started: streamingStarted && work.available && work.resident > 0
+                    });
+                    global.root.dataset.initialViewStage = preload.phase;
+                    if (action === 'open-detail') {
+                        gsplat.lodUnderfillLimit = 0;
+                        applyPerfSettings();
+                        world.markInstancesNeedLodUpdate();
+                        state.progress = Math.max(45, state.progress);
+                        app.autoRender = true;
+                    }
+                    if (preload.phase === 'detail') {
+                        state.loadingStatus = '正在预渲染初始视野的高精度高斯…';
+                        if (work.resident)
+                            state.progress = Math.max(
+                                state.progress,
+                                45 + Math.floor((49 * work.resident) / (work.resident + work.pending))
+                            );
+                    }
+                    viewReady = action === 'reveal';
+                }
+                if (viewReady) {
                     // scene is done with initial/reveal loading
                     eventHandler.off('frame:ready', readyHandler);
 
                     stopProgress?.();
-                    state.progress = 100;
+                    state.progress = preload ? 97 : 100;
 
                     // switch to on-demand rendering (frame:request + camera-change detection)
                     app.autoRender = false;
@@ -1294,7 +1355,7 @@ class Viewer {
                             return;
                         }
                         highDetailOpened = true;
-                        events.on('performanceMode:changed', applyPerfSettings);
+                        events.on('quality:changed', applyPerfSettings);
                         events.on('xrMode:changed', applyPerfSettings);
                         applyPerfSettings();
                     };
@@ -1306,7 +1367,7 @@ class Viewer {
                     state.readyToRender = true;
                     state.loadingStage = 'prepare';
                     state.loadingStatus = 'LOD 数据就绪，正在准备首帧...';
-                    state.progress = 100;
+                    state.progress = preload ? 97 : 100;
 
                     if (config.revealEffect === 'none') {
                         // No reveal will fire onComplete, so load high detail immediately.
@@ -1321,7 +1382,13 @@ class Viewer {
                     }
 
                     // wait for the first valid frame to complete rendering
+                    app.renderNextFrame = true;
                     app.once('frameend', () => {
+                        if (this.destroyed || state.loadingStage === 'error') return;
+                        if (preload) {
+                            gsplat.lodUnderfillLimit = savedUnderfill;
+                            global.root.dataset.initialViewStage = 'complete';
+                        }
                         events.fire('firstFrame');
 
                         // emit first frame event on window
@@ -1330,7 +1397,7 @@ class Viewer {
                 }
 
                 // update loading status
-                if (!state.loaded) {
+                if (!state.loaded && (!preload || preload.phase === 'coarse')) {
                     if (loading > 0) {
                         state.loadingStage =
                             state.loadingMode === 'streaming-json' ? 'stream-loading' : 'legacy-lod-loading';

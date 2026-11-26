@@ -2,39 +2,243 @@
   "schemaVersion": "1.1",
   "current": {
     "productName": "Metaflow Editor",
-    "displayVersion": "1.1",
-    "appSemver": "1.1.0",
-    "date": "2026-06-27",
-    "gitRef": "aa4c35f",
+    "displayVersion": "1.4.0",
+    "appSemver": "1.4.0",
+    "date": "2026-11-27",
+    "gitRef": "3fa19fdb314f5b726403b0912228842f433c00b2",
     "historyUrl": "/data/editor-version-history.json",
     "runtimeUrl": "/editor/version.json",
-    "sourcePath": "supersplat-v2.28.0",
+    "sourcePath": "supersplat-v3.5.2",
     "upstream": {
       "name": "SuperSplat Editor",
-      "version": "2.28.0",
-      "tag": "v2.28.0",
-      "gitRef": "9f4dfe1",
-      "releaseUrl": "https://github.com/playcanvas/supersplat/releases/tag/v2.28.0"
+      "version": "3.9.2",
+      "tag": "v3.9.2",
+      "gitRef": "7912e1d78b7a98cff26f7c8c2820a784b537819e",
+      "releaseUrl": "https://github.com/playcanvas/supersplat/releases/tag/v3.9.2"
     },
     "dependencies": {
-      "@playcanvas/splat-transform": "2.5.1",
+      "@playcanvas/splat-transform": "3.12.0",
       "@playcanvas/supersplat-viewer": "1.26.3",
-      "@playcanvas/pcui": "6.1.4",
-      "playcanvas": "2.19.2"
+      "@playcanvas/pcui": "6.2.0",
+      "playcanvas": "2.24.2",
+      "mediabunny": "1.65.2"
     }
   },
   "versioning": {
     "mode": "editor-fork",
-    "displayVersion": "major.minor for Metaflow Editor behavior and upstream sync milestones",
+    "displayVersion": "full appSemver from 1.2.0; preserve historical major.minor labels",
     "upstreamVersion": "pinned SuperSplat Editor release tag",
     "sourceDirectories": "versioned source directories use original repository name plus upstream tag, such as supersplat-v2.28.0",
     "rules": [
       "Every upstream editor sync records the SuperSplat tag, dependency set, and Metaflow customizations.",
       "Versioned supersplat-v* source directories are the rebuild source of truth for metaflow-editor.",
-      "Generated /data/editor-version-history.json and /editor/version.json must match this metadata file."
+      "Generated /data/editor-version-history.json and /editor/version.json must match this metadata file.",
+      "From Editor 1.2.0, displayVersion equals full appSemver; current is the default edition and compatibility pins the WebGL2 source/runtime. A repository candidate is not proof of production deployment."
     ]
   },
   "entries": [
+    {
+      "displayVersion": "1.4.0",
+      "appSemver": "1.4.0",
+      "gitRef": "3fa19fdb314f5b726403b0912228842f433c00b2",
+      "date": "2026-11-27",
+      "type": "feature",
+      "scope": "editor",
+      "status": "release",
+      "summary": "Stage verified SOG v3 and v2 exports and offline Viewer runtime",
+      "changes": [
+        {
+          "area": "default",
+          "summary": "SuperSplat 3.9.2 with PlayCanvas 2.24.2 and SplatTransform 3.12.0."
+        },
+        {
+          "area": "compatibility",
+          "summary": "Retain the locked SuperSplat 2.32.5 edition and explicit legacy SOG v2 exports."
+        },
+        {
+          "area": "appearance",
+          "summary": "Keep the gradient picker visible immediately while a viewport resize is applied."
+        }
+      ],
+      "sourcePath": "supersplat-v3.5.2",
+      "upstream": {
+        "version": "3.9.2",
+        "tag": "v3.9.2",
+        "gitRef": "7912e1d78b7a98cff26f7c8c2820a784b537819e"
+      },
+      "trace": {
+        "changeId": "MF-200",
+        "pullRequest": "https://github.com/Shuang-su/Metaflow/pull/200",
+        "releaseTag": "editor-v1.4.0"
+      }
+    },
+    {
+      "displayVersion": "1.3.2",
+      "appSemver": "1.3.2",
+      "gitRef": "7dedcfb65d0a61751b32393f263293ed3e7ef40e",
+      "date": "2026-10-22",
+      "type": "fix",
+      "scope": "editor",
+      "summary": "Native background picker with inline colour palette and Figma-style numeric scrubbing",
+      "changes": [
+        {
+          "area": "appearance",
+          "summary": "Match native swatches and PCUI theme; compact inline SV/hue/alpha palette, HEX/RGB selection and stable stop editing in both editions."
+        },
+        {
+          "area": "interaction",
+          "summary": "Label or Option/Alt numeric dragging with four speed bands, single-step undo, cancellation and pointer-capture fallback; retain existing rendering and settings contracts."
+        }
+      ],
+      "sourcePath": "supersplat-v3.5.2",
+      "upstream": {
+        "version": "3.5.2",
+        "tag": "v3.5.2",
+        "gitRef": "f2a1b4975b4766e0ee0c95e63c2737dc2ecb6e5b"
+      },
+      "trace": {
+        "changeId": "MF-200",
+        "pullRequest": "https://github.com/Shuang-su/Metaflow/pull/200",
+        "evidence": "docs/metaflow-editor-change-ledger.md",
+        "historicalDeploy": "6ada23d5f9932a76c8050090",
+        "backfill": true
+      }
+    },
+    {
+      "displayVersion": "1.3.1",
+      "appSemver": "1.3.1",
+      "gitRef": "3c95767645a506dbe311d3ecce59380c011fe780",
+      "date": "2026-10-22",
+      "type": "fix",
+      "scope": "editor",
+      "summary": "Normalize legacy RGBA background tuples before shared RGB sampling; recover gradient release",
+      "changes": [
+        {
+          "area": "compatibility",
+          "summary": "Preserve four-component legacy background settings on the wire; write exactly RGB plus alpha to the gradient texture and retain ordinary RGB behavior."
+        },
+        {
+          "area": "validation",
+          "summary": "Add LUT overflow regression and WebGL/WebGPU old RGBA-scene coverage after rolling back the initial gradient deployment."
+        }
+      ],
+      "sourcePath": "supersplat-v3.5.2",
+      "upstream": {
+        "version": "3.5.2",
+        "tag": "v3.5.2",
+        "gitRef": "f2a1b4975b4766e0ee0c95e63c2737dc2ecb6e5b"
+      },
+      "trace": {
+        "changeId": "MF-200",
+        "pullRequest": "https://github.com/Shuang-su/Metaflow/pull/200",
+        "evidence": "docs/metaflow-editor-change-ledger.md",
+        "historicalDeploy": "6ad9f33ef3986bec2802fc18",
+        "backfill": true
+      }
+    },
+    {
+      "displayVersion": "1.3.0",
+      "appSemver": "1.3.0",
+      "date": "2026-10-22",
+      "gitRef": "1074d34f9db25729e9d6abf14d1fb13f084d1b22",
+      "type": "feature",
+      "scope": "editor",
+      "sourcePath": "supersplat-v3.5.2",
+      "summary": "Shared solid, multi-stop linear and radial background picker in both Editor editions",
+      "upstream": {
+        "version": "3.5.2",
+        "tag": "v3.5.2",
+        "gitRef": "f2a1b4975b4766e0ee0c95e63c2737dc2ecb6e5b"
+      },
+      "changes": [
+        {
+          "area": "appearance",
+          "summary": "Popover stop editing, alpha, angle/radial geometry, single-gesture undo and project persistence with legacy bgColor."
+        },
+        {
+          "area": "render",
+          "summary": "Shared screen-space background composition for both backends, PNG and ordinary/particle/360 video; transparent exports bypass the layer."
+        },
+        {
+          "area": "export",
+          "summary": "Gradient HTML/Package/legacy ZIP use a self-contained Metaflow Viewer; settings remain version 2 and solid exports retain the previous path."
+        },
+        {
+          "area": "provenance",
+          "summary": "Shared background, picker and standalone Viewer source/artifact fingerprints reject stale export runtimes."
+        }
+      ],
+      "files": [
+        "editor-shared/",
+        "metaflow-viewer/src/background.ts",
+        "metaflow-viewer/src/background-renderer.ts",
+        "supersplat-v3.5.2/",
+        "supersplat-v2.32.5/",
+        "metadata/editor-export-viewer.json"
+      ],
+      "trace": {
+        "changeId": "MF-200",
+        "pullRequest": "https://github.com/Shuang-su/Metaflow/pull/200",
+        "evidence": "docs/metaflow-editor-change-ledger.md",
+        "historicalDeploy": "6ad9ee70ea6b55163656a72f",
+        "backfill": true
+      }
+    },
+    {
+      "displayVersion": "1.2.0",
+      "appSemver": "1.2.0",
+      "date": "2026-10-21",
+      "gitRef": "83ef04a7c4ffdea5625047f120b7a139aaa2df8c",
+      "type": "upstream-sync",
+      "scope": "editor",
+      "sourcePath": "supersplat-v3.5.2",
+      "summary": "Adopt SuperSplat 3.5.2 and release deterministic particle video with a WebGL2 compatibility edition",
+      "upstream": {
+        "version": "3.5.2",
+        "tag": "v3.5.2",
+        "gitRef": "f2a1b4975b4766e0ee0c95e63c2737dc2ecb6e5b"
+      },
+      "changes": [
+        {
+          "area": "source",
+          "summary": "Default Editor adopts pinned SuperSplat 3.5.2 / PlayCanvas 2.23.0; immutable older source snapshots remain available."
+        },
+        {
+          "area": "compatibility",
+          "summary": "/editor-legacy/ uses SuperSplat 2.32.5 and WebGL2, including the same Metaflow exports, long timeline and particle-video options."
+        },
+        {
+          "area": "export",
+          "summary": "Retain 100000 frames, Metaflow branding, upstream HTML/Package, five-file legacy ZIP and settings-only JSON."
+        },
+        {
+          "area": "video",
+          "summary": "Render characterSog or streamingScene reveal with deterministic camera/frame clocks, stable offline GPU ordering, transactional cancellation and recovery."
+        },
+        {
+          "area": "cache",
+          "summary": "Retire only Editor-owned offline caches without reloading unsaved tabs; both editions revalidate their assets."
+        },
+        {
+          "area": "provenance",
+          "summary": "Build-time source digests and staged file hashes reject stale mirrors before a site build."
+        }
+      ],
+      "files": [
+        "supersplat-v3.5.2/",
+        "supersplat-v2.32.5/",
+        "metaflow-viewer/src/gsplat-reveal-radial.ts",
+        "scripts/stage-editor.mjs",
+        "metadata/editor-version-history.json"
+      ],
+      "trace": {
+        "changeId": "MF-200",
+        "pullRequest": "https://github.com/Shuang-su/Metaflow/pull/200",
+        "evidence": "docs/metaflow-editor-change-ledger.md",
+        "historicalDeploy": "6ad8aa70b39fb4902864eca3",
+        "backfill": true
+      }
+    },
     {
       "displayVersion": "1.1",
       "appSemver": "1.1.0",
@@ -111,5 +315,23 @@
         "supersplat-v2.18.1/package-lock.json"
       ]
     }
-  ]
+  ],
+  "compatibility": {
+    "sourcePath": "supersplat-v2.32.5",
+    "runtimeUrl": "/editor-legacy/version.json",
+    "upstream": {
+      "name": "SuperSplat Editor",
+      "version": "2.32.5",
+      "tag": "v2.32.5",
+      "gitRef": "e060989b202548848eb440a5005cd41a8b26f7db",
+      "releaseUrl": "https://github.com/playcanvas/supersplat/releases/tag/v2.32.5"
+    },
+    "dependencies": {
+      "@playcanvas/splat-transform": "3.3.3",
+      "@playcanvas/supersplat-viewer": "1.26.3",
+      "@playcanvas/pcui": "6.1.4",
+      "playcanvas": "2.21.4",
+      "mediabunny": "1.55.2"
+    }
+  }
 }

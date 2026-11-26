@@ -1,0 +1,111 @@
+@use 'colors.scss' as *;
+@use 'layout.scss' as *;
+@use 'toolbar.scss';
+
+.select-toolbar {
+    position: absolute;
+    left: 50%;
+    // floating just above the bottom toolbar
+    bottom: $edge + $bottom-toolbar-height + 22px;
+    height: $bottom-toolbar-height;
+    transform: translate(-50%, 0);
+    padding: 0px 8px;
+    border-radius: $toolbar-radius;
+
+    background-color: $bcg-primary;
+
+    &:not(.pcui-hidden) {
+        display: flex;
+    }
+    flex-direction: row;
+    align-items: center;
+
+    // icon apply buttons (set/add/remove/intersect)
+    .select-toolbar-op {
+        @extend %toolbar-bare;
+    }
+
+    // gizmo mode buttons are the bottom toolbar's tool buttons, in a
+    // .toolbar-well
+    .select-toolbar-mode {
+        @extend %toolbar-tool;
+    }
+
+    .select-toolbar-separator {
+        width: 2px;
+        height: 38px;
+        margin: 0px 10px;
+        background-color: $bcg-dark;
+    }
+
+    // text action buttons (e.g. the orient tool's align/clear); shorter than
+    // the icon buttons so they sit in balance with the labels and inputs
+    .select-toolbar-button {
+        height: 28px;
+        margin: 0px 1px;
+        padding: 0px 12px;
+        border-radius: 2px;
+        line-height: 28px;
+    }
+
+    // the measure/orient toolbars: a hint label plus text actions and inputs,
+    // spaced with a uniform flex gap rather than the icon-cluster margins
+    &.select-toolbar-tool {
+        gap: 12px;
+        padding: 0px 16px;
+
+        .select-toolbar-label,
+        .select-toolbar-button {
+            margin: 0px;
+        }
+    }
+
+    // 16px group break from the preceding cluster, 6px to the input it labels
+    .select-toolbar-label {
+        margin: 0px 6px 0px 16px;
+        color: $text-secondary;
+
+        // no group break when the label leads the toolbar (e.g. measure, orient)
+        &:first-child {
+            margin-left: 0px;
+        }
+    }
+
+    // match the height treatment of the transform panel's inputs (see transform.scss);
+    // all numeric fields share one width so standalone inputs align with vector components
+    $input-height: 22px;
+    $field-width: 56px;
+    $field-gap: 10px;
+
+    .select-toolbar-vector {
+        width: $field-width * 3 + $field-gap * 2;
+        margin: 0px;
+        gap: $field-gap;
+        height: $input-height;
+
+        > .pcui-numeric-input {
+            margin: 0px;
+            height: $input-height;
+            line-height: $input-height;
+
+            > input {
+                padding: 0px;
+                margin: 0px 0px 0px 4px;
+                height: $input-height;
+            }
+        }
+    }
+
+    > .pcui-numeric-input {
+        width: $field-width;
+        margin: 0px;
+        height: $input-height;
+        line-height: $input-height;
+
+        > input {
+            padding: 0px;
+            margin: 0px 0px 0px 4px;
+            height: $input-height;
+        }
+    }
+}

@@ -3,14 +3,18 @@
 自动扫描 data 目录，生成 index.json 资源索引
 """
 
+import argparse
 import json
 import re
 from datetime import datetime
 from pathlib import Path
 
+from sog_migration_index import logical_size, migrated_resources, read_asset_bytes, read_asset_json
+
 REPO_ROOT = Path(__file__).resolve().parent.parent
 DATA_DIR = REPO_ROOT / "data"
 OUTPUT_FILE = DATA_DIR / "index.json"
+SOG_MIGRATION_FILE = REPO_ROOT / "metadata" / "sog-migration-assets.json"
 VERSION_HISTORY_FILE = REPO_ROOT / "metadata" / "version-history.json"
 OUTPUT_VERSION_HISTORY_FILE = DATA_DIR / "version-history.json"
 INDEX_SCHEMA_VERSION = "1.2"
@@ -739,25 +743,26 @@ def load_settings_json(settings_file):
         return None
 
     try:
-        return json.loads(settings_file.read_text(encoding='utf-8'))
+        text = read_asset_bytes(DATA_DIR, settings_file).decode("utf-8")
+    except (OSError, UnicodeDecodeError):
+        return None
+    try:
+        return json.loads(text)
     except json.JSONDecodeError:
         try:
-            stripped = strip_json_comments(settings_file.read_text(encoding='utf-8'))
-            return json.loads(stripped)
-        except Exception:
+            return json.loads(strip_json_comments(text))
+        except json.JSONDecodeError:
             return None
-    except Exception:
-        return None
 
 
 def get_voxel_size(voxel_file):
     if not voxel_file:
         return 0
 
-    total = voxel_file.stat().st_size
+    total = logical_size(voxel_file)
     voxel_bin = voxel_file.with_suffix(".bin")
     if voxel_bin.exists():
-        total += voxel_bin.stat().st_size
+        total += logical_size(voxel_bin)
     return total
 
 
@@ -765,9 +770,9 @@ def get_voxel_manifest_size(manifest_file):
     if not manifest_file:
         return 0
 
-    total = manifest_file.stat().st_size
+    total = logical_size(manifest_file)
     try:
-        manifest = json.loads(manifest_file.read_text(encoding="utf-8"))
+        manifest = read_asset_json(DATA_DIR, manifest_file)
     except Exception:
         return total
 
@@ -785,10 +790,10 @@ def get_voxel_manifest_size(manifest_file):
             continue
         if not tile_json.exists() or not tile_json.is_file():
             continue
-        total += tile_json.stat().st_size
+        total += logical_size(tile_json)
         tile_bin = tile_json.with_suffix(".bin")
         if tile_bin.exists() and tile_bin.is_file():
-            total += tile_bin.stat().st_size
+            total += logical_size(tile_bin)
     return total
 
 
@@ -821,7 +826,7 @@ def get_streaming_model_size(folder_path, settings_file=None, thumbnail_file=Non
             continue
         if file.resolve() in excluded_paths:
             continue
-        total += file.stat().st_size
+        total += logical_size(file)
 
     return total
 
@@ -861,7 +866,7 @@ def scan_resource_folder(folder_path, category, subcategory=None):
             lod_files.append({
                 "level": level,
                 "file": str(sog.relative_to(DATA_DIR)),
-                "size": sog.stat().st_size
+                "size": logical_size(sog)
             })
         elif not streaming_model_override:
             main_model = sog
@@ -918,9 +923,9 @@ def scan_resource_folder(folder_path, category, subcategory=None):
             extra_excluded_paths=sog_files if streaming_model_override else None
         )
     else:
-        model_size = main_model.stat().st_size if main_model.exists() else 0
-    env_size = environment_ply.stat().st_size if environment_ply else 0
-    thumbnail_size = thumbnail_file.stat().st_size if thumbnail_file else 0
+        model_size = logical_size(main_model) if main_model.exists() else 0
+    env_size = logical_size(environment_ply) if environment_ply else 0
+    thumbnail_size = logical_size(thumbnail_file) if thumbnail_file else 0
     voxel_size = get_voxel_size(voxel_file)
     voxel_manifest_size = get_voxel_manifest_size(voxel_manifest_file)
     
@@ -1024,12 +1029,17 @@ def scan_resource_folder(folder_path, category, subcategory=None):
 
 def scan_data_directory():
     """扫描整个 data 目录"""
+    hosted = json.loads((REPO_ROOT / "metadata" / "shenzhen-hosted-scenes.json").read_text(encoding="utf-8"))
+    hosted_roots = {Path(row["files"]["model"]).parts[1] for row in hosted}
     resources = []
-    
+
     for category_dir in DATA_DIR.iterdir():
         if not category_dir.is_dir() or category_dir.name.startswith('.'):
             continue
         
+        # Independently packaged LOD files belong to registered routes in the migration index.
+        if category_dir.name == "lod-independent":
+            continue
         category = category_dir.name.lower()
         
         # Named animals keep their approved species/name/capture hierarchy.
@@ -1067,6 +1077,8 @@ def scan_data_directory():
         else:
             # 其他类别直接包含资源文件夹
             for resource_dir in category_dir.iterdir():
+                if category == "shenzhen" and resource_dir.name in hosted_roots:
+                    continue
                 if not resource_dir.is_dir() or resource_dir.name.startswith('.'):
                     continue
                 
@@ -1085,15 +1097,27 @@ def scan_data_directory():
                     if resource:
                         resources.append(resource)
     
-    return resources
+    resources.sort(key=lambda row: (row["category"][0], row["meta"]["date"] or "", row["id"]))
+    # Hosted pages follow the library in their registered publication order.
+    return resources + hosted
 
 def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--update-migrated-assets', action='store_true')
+    args = parser.parse_args()
+    migrations = json.loads(SOG_MIGRATION_FILE.read_text()) if SOG_MIGRATION_FILE.is_file() else {}
+    if args.update_migrated_assets:
+        index = json.loads(OUTPUT_FILE.read_text())
+        migrated_resources(index["resources"], migrations, DATA_DIR)
+        OUTPUT_FILE.write_text(json.dumps(index, ensure_ascii=False, indent=2) + "\n")
+        print(f"Updated {len(migrations)} canonical migration routes")
+        return
+
     print("🔍 扫描 data 目录...")
     version_history = load_version_history()
     resources = scan_data_directory()
+    migrated_resources(resources, migrations, DATA_DIR)
     
-    # 按类别和日期排序
-    resources.sort(key=lambda x: (x["category"][0], x["meta"]["date"] or "", x["id"]))
     apply_resource_versions(resources, version_history)
     
     # 生成索引

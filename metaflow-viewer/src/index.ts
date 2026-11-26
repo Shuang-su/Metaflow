@@ -24,12 +24,17 @@ import { observe } from './core/observe';
 import { initLocalization } from './localization';
 import type { CreateViewerOptions } from './options';
 import { parseSettings } from './parse-settings';
+import { canvasPixelRatio, Quality, resolutionScaleFor } from './quality';
 import { persistPreferences, readPreferences } from './preferences';
 import { configureWebglImageDecoding, isAppleMobileWebKit } from './render-compatibility.js';
 import { importSettings } from './settings';
 import { initPoster, initUI } from './ui';
 import uiHtml from './ui.html';
 import { Viewer } from './viewer';
+import { assembleSceneLayers } from './scene-composition';
+import { applySceneTransform } from './scene-transform';
+import type { SceneTransform } from './scene-transform';
+import { installSunnySky } from './sunny-sky';
 import { version as appVersion } from '../package.json';
 
 type LoadCallbacks = {
@@ -60,7 +65,13 @@ const formatError = (err: unknown) => {
     };
 };
 
-const loadGsplat = async (app: AppBase, config: Config, callbacks: LoadCallbacks, cancelled: () => boolean) => {
+const loadGsplat = async (
+    app: AppBase,
+    config: Config,
+    callbacks: LoadCallbacks,
+    cancelled: () => boolean,
+    transform?: SceneTransform
+) => {
     const { contents, contentUrl, aa } = config;
     const c = contents as unknown as ArrayBuffer;
     const filename = config.contentFilename || new URL(contentUrl, location.href).pathname.split('/').pop() || '';
@@ -114,7 +125,7 @@ const loadGsplat = async (app: AppBase, config: Config, callbacks: LoadCallbacks
             }
             callbacks.onStage('gpu');
             const entity = new Entity('gsplat', app);
-            entity.setLocalEulerAngles(0, 0, 180);
+            applySceneTransform(entity, transform ?? { displayEuler: config.displayEuler });
             entity.addComponent('gsplat', {
                 unified: true,
                 asset
@@ -183,7 +194,7 @@ const loadEnvironment = async (app: AppBase, config: Config, cancelled: () => bo
                 return;
             }
             const entity = new Entity('environment', app);
-            entity.setLocalEulerAngles(0, 0, 180);
+            entity.setLocalEulerAngles(...(config.displayEuler ?? ([0, 0, 180] as const)));
             entity.addComponent('gsplat', {
                 unified: true,
                 asset
@@ -318,15 +329,11 @@ const measureCanvas = (canvas: HTMLCanvasElement) => ({
 const resizeCanvas = (
     canvas: HTMLCanvasElement,
     cssSize: { width: number; height: number },
-    performanceMode: boolean
+    resolutionScale: number
 ) => {
     if (!cssSize.width || !cssSize.height) return;
 
-    // maximum pixel dimension we will allow along the shortest screen dimension based on platform
-    const maxPixelDim = platform.mobile ? 1080 : 2160;
-    const pixelRatio = Math.min(maxPixelDim / Math.min(screen.width, screen.height), window.devicePixelRatio);
-
-    const scale = pixelRatio * (performanceMode ? 0.5 : 1.0);
+    const scale = canvasPixelRatio() * resolutionScale;
     const width = Math.ceil(cssSize.width * scale);
     const height = Math.ceil(cssSize.height * scale);
     if (width !== canvas.width || height !== canvas.height) {
@@ -337,7 +344,7 @@ const resizeCanvas = (
 
 // initialize canvas size and resizing
 const initCanvas = (global: Global) => {
-    const { app, events, state } = global;
+    const { app, events } = global;
     const { canvas } = app.graphicsDevice;
 
     // the canvas css size, kept current by the resize observer. measured directly at
@@ -349,7 +356,7 @@ const initCanvas = (global: Global) => {
         // and resetting canvas dimensions can invalidate the XRWebGLLayer
         if (app.xr?.active) return;
 
-        resizeCanvas(canvas, cssSize, state.performanceMode);
+        resizeCanvas(canvas, cssSize, global.quality.resolutionScale);
     };
 
     const resizeObserver = new ResizeObserver((entries: ResizeObserverEntry[]) => {
@@ -363,7 +370,7 @@ const initCanvas = (global: Global) => {
     });
     resizeObserver.observe(canvas);
 
-    events.on('performanceMode:changed', () => {
+    events.on('quality:changed', () => {
         app.renderNextFrame = true;
     });
 
@@ -415,6 +422,7 @@ const resolveConfig = (options: CreateViewerOptions): Config => ({
     heatmap: options.heatmap ?? false,
     debug: options.debug ?? false,
     lang: options.lang,
+    controlsHintInitiallyClosed: options.controlsHintInitiallyClosed ?? false,
     exposeGlobals: options.exposeGlobals ?? false
 });
 
@@ -485,7 +493,10 @@ const fetchWithRetry = async (url: string): Promise<Response> => {
     }
 };
 
-const createViewer = async (options: CreateViewerOptions): Promise<ViewerHandle> => {
+const createViewerWithExtension = async (
+    options: CreateViewerOptions,
+    attach?: (handle: ViewerHandle) => () => void
+): Promise<ViewerHandle> => {
     const loadStarted = performance.now();
     const { container } = options;
     const config = resolveConfig(options);
@@ -562,7 +573,11 @@ const createViewer = async (options: CreateViewerOptions): Promise<ViewerHandle>
     // chain and any backbuffer-sized resources start at the correct resolution instead
     // of being recreated on the first frame's resize. a hidden embed keeps the default
     // canvas size here; the resize observer sizes it on reveal
-    resizeCanvas(canvas, measureCanvas(canvas), preferences.performanceMode);
+    resizeCanvas(
+        canvas,
+        measureCanvas(canvas),
+        resolutionScaleFor(preferences.quality, config.stochastic && config.renderer === 'webgpu')
+    );
 
     const { app, camera, renderer } = await createApp(canvas, config).catch((error) => {
         disposePoster?.();
@@ -582,6 +597,7 @@ const createViewer = async (options: CreateViewerOptions): Promise<ViewerHandle>
         loadingStatus: '',
         walkCapability: !!(config.voxelManifestUrl || config.voxelUrl || config.collisionUrl),
         ...preferences,
+        qualityAvailable: [],
         progress: 0,
         inputMode: platform.mobile ? 'touch' : 'desktop',
         cameraMode: 'orbit',
@@ -626,7 +642,20 @@ const createViewer = async (options: CreateViewerOptions): Promise<ViewerHandle>
 
     const sceneRoot = new Entity('scene root', app);
     app.root.addChild(sceneRoot);
+    const quality = new Quality(app, config, state, events, renderer);
+    // Existing embedders can still set performanceMode to select the corresponding stop.
+    state.performanceMode = state.quality === 'performance';
+    events.on('quality:changed', () => {
+        state.performanceMode = state.quality === 'performance';
+    });
+    events.on('performanceMode:changed', (on: boolean) => {
+        if (on !== (state.quality === 'performance')) {
+            state.quality = on ? 'performance' : 'default';
+            events.fire('legacyPerformancePreference', on);
+        }
+    });
     const global: Global = {
+        quality,
         app,
         sceneRoot,
         settings: importedSettings,
@@ -759,6 +788,14 @@ const createViewer = async (options: CreateViewerOptions): Promise<ViewerHandle>
               return entity;
           })
         : null;
+    const layers = config.sceneLayers;
+    const companionContents = new Map(
+        layers?.slice(1).map((layer) => {
+            const contents = fetchWithRetry(layer.url);
+            void contents.catch((): void => undefined);
+            return [layer.id, contents];
+        })
+    );
     const gsplatLoad = (async () => {
         state.loadingStage = 'detect';
         state.loadingStatus = '正在识别资源结构...';
@@ -769,7 +806,9 @@ const createViewer = async (options: CreateViewerOptions): Promise<ViewerHandle>
                 config,
                 {
                     onProgress: (progress: number) => {
-                        state.progress = progress;
+                        state.progress = config.initialViewPreload
+                            ? Math.floor(Math.max(0, progress) * 0.05)
+                            : progress;
                     },
                     onStatus: (status: string) => {
                         state.loadingStatus = status;
@@ -784,12 +823,50 @@ const createViewer = async (options: CreateViewerOptions): Promise<ViewerHandle>
                         state.loadingConflict = conflict;
                     }
                 },
-                () => destroyed
+                () => destroyed,
+                layers?.[0]
             );
-            if (entity && !destroyed) entity.reparent(sceneRoot);
+            if (entity && !destroyed) {
+                if (layers?.length) {
+                    await assembleSceneLayers(
+                        entity,
+                        layers,
+                        sceneRoot,
+                        (layer) =>
+                            loadGsplat(
+                                app,
+                                {
+                                    ...config,
+                                    contentUrl: layer.url,
+                                    contentFilename: undefined,
+                                    contents: companionContents.get(layer.id)
+                                },
+                                {
+                                    onStage: () => undefined,
+                                    onStatus: () => undefined,
+                                    onProgress: () => undefined,
+                                    onMode: () => undefined,
+                                    onConflict: () => undefined
+                                },
+                                () => destroyed,
+                                layer
+                            ),
+                        () => destroyed,
+                        (node) => {
+                            const ref = node.gsplat?.asset;
+                            const asset = typeof ref === 'number' ? app.assets?.get(ref) : ref;
+                            node.destroy();
+                            asset?.unload();
+                            if (asset) app.assets?.remove(asset);
+                        }
+                    );
+                } else {
+                    entity.reparent(sceneRoot);
+                }
+            }
             state.loadingStage = 'prepare';
             state.loadingStatus = '主体模型已就绪，正在准备首帧...';
-            state.progress = -1;
+            state.progress = config.initialViewPreload ? Math.max(5, state.progress) : -1;
             return entity;
         } catch (err) {
             if (destroyed) throw err;
@@ -856,9 +933,20 @@ const createViewer = async (options: CreateViewerOptions): Promise<ViewerHandle>
         collisionLoadPlan.immediate,
         collisionLoadPlan.deferred
     );
+    if (config.sunnySky) {
+        viewer.onDestroy(
+            installSunnySky(app, config.sunnySky, (sky) => {
+                root.dataset.sky = sky;
+            })
+        );
+    }
+    viewer.onDestroy(() => quality.destroy());
     viewer.onDestroy(persistPreferences(events));
     const handle: ViewerHandle = {
         app,
+        get walkSupportHeight() {
+            return viewer.cameraManager?.getWalkSupportHeight() ?? null;
+        },
         state,
         events,
         annotations: global.settings.annotations,
@@ -888,6 +976,7 @@ const createViewer = async (options: CreateViewerOptions): Promise<ViewerHandle>
     viewer.onDestroy(() => {
         destroyed = true;
     });
+    if (attach) viewer.onDestroy(attach(handle));
     viewer.onDestroy(disposeCanvas);
     viewer.onDestroy(() => analytics.stop());
     if (disposeUI) {
@@ -901,9 +990,13 @@ const createViewer = async (options: CreateViewerOptions): Promise<ViewerHandle>
     return handle;
 };
 
-console.log(`Metaflow Viewer v${appVersion} | SuperSplat v1.37.0 | Engine v${engineVersion} (${engineRevision})`);
+console.log(
+    `Metaflow Viewer v${appVersion} | SOG migration preview (SuperSplat 1.43.3 rendering) | Engine v${engineVersion} (${engineRevision})`
+);
 
 export type { CaptureResult } from './capture';
 export type { CreateViewerOptions, ViewerAssets, ViewerFlags } from './options';
 export type { CaptureOptions, ViewerHandle, ViewerState, XrMode } from './types';
-export { createViewer };
+const createViewer = (options: CreateViewerOptions) => createViewerWithExtension(options);
+
+export { createViewer, createViewerWithExtension };

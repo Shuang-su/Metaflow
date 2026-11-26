@@ -1,4 +1,4 @@
-/** Private same-tab handoff. This module adds no Viewer SDK or resource schema fields. */
+/** Private same-tab handoff. Director and Viewer use the same selected compatibility subject. */
 export type DirectorPosition = { position: [number, number, number]; target: [number, number, number] };
 export type DirectorResource = {
     id: string;
@@ -6,7 +6,7 @@ export type DirectorResource = {
     route: string;
     aliases?: string[];
     category?: string[];
-    files: { model?: string; environment?: string; settings?: string; lod?: unknown[] };
+    files: { model?: string; compatibilityModel?: string; environment?: string; settings?: string; lod?: unknown[] };
 };
 export const HANDOFF_TTL = 30 * 60 * 1000;
 export function normalizeDirectorPath(path: string): string {
@@ -27,6 +27,9 @@ export function resourceDataUrl(file: string): string {
         throw new Error('摄影仅允许索引中的同站 /data/ 素材');
     return '/data/' + path.split('/').map(encodeURIComponent).join('/');
 }
+export function directorModelFile(resource: Pick<DirectorResource, 'files'>): string | undefined {
+    return resource.files?.compatibilityModel ?? resource.files?.model;
+}
 export function resolveDirectorResource(resources: DirectorResource[], path: string): DirectorResource {
     const base = directorBasePath(path);
     if (base === null) throw new Error('请在已有 ACG 资源地址后添加 /director');
@@ -35,13 +38,13 @@ export function resolveDirectorResource(resources: DirectorResource[], path: str
     );
     if (!resource) throw new Error('没有找到这个资源；请检查资源地址');
     if (!resource.category?.includes('acg')) throw new Error('Director 实验版目前仅支持 ACG 资源');
-    if (!/\.(sog|ply)$/i.test(resource.files?.model ?? ''))
-        throw new Error('此资源为流式或不支持的格式；实验版仅支持单文件 SOG / PLY');
+    const model = directorModelFile(resource);
+    if (!/\.(sog|ply)$/i.test(model ?? '')) throw new Error('此资源为流式或不支持的格式；实验版仅支持单文件 SOG / PLY');
     if (!resource.files.settings) throw new Error('此资源缺少摄影所需的初始相机设置');
     if (resource.files.environment && !/\.(sog|ply)$/i.test(resource.files.environment))
         throw new Error('此资源声明了不支持的环境模型格式');
     Object.values({
-        model: resource.files.model,
+        model,
         environment: resource.files.environment,
         settings: resource.files.settings
     })
@@ -62,7 +65,7 @@ export function validDirectorPosition(value: unknown): value is DirectorPosition
 export function handoffIdentity(resource: Pick<DirectorResource, 'id' | 'files'>): string {
     return JSON.stringify([
         resource.id,
-        resourceDataUrl(resource.files.model!),
+        resourceDataUrl(directorModelFile(resource)!),
         resource.files.environment ? resourceDataUrl(resource.files.environment) : null,
         resourceDataUrl(resource.files.settings!)
     ]);

@@ -1,4 +1,9 @@
 {
+    "settings.quality": "Качество",
+    "settings.quality-performance": "Производительность",
+    "settings.quality-default": "Стандартное",
+    "settings.quality-high": "Высокое",
+    "settings.quality-max": "Максимальное",
     "settings.performance-mode": "Режим производительности",
     "settings.gaming-controls": "Игровое управление",
     "settings.show-annotations": "Показать аннотации",

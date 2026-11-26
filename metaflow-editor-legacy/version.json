@@ -1,0 +1,48 @@
+{
+  "productName": "Metaflow Editor",
+  "displayVersion": "1.4.0",
+  "appSemver": "1.4.0",
+  "date": "2026-11-27",
+  "gitRef": "3fa19fdb314f5b726403b0912228842f433c00b2",
+  "historyUrl": "/data/editor-version-history.json",
+  "runtimeUrl": "/editor-legacy/version.json",
+  "sourcePath": "supersplat-v2.32.5",
+  "edition": "compatibility",
+  "development": false,
+  "buildType": "release",
+  "buildId": "f2162149077fddf666ebfd01b6ecf79276fb05e52ef983761fadfa242d12106c",
+  "upstream": {
+    "name": "SuperSplat Editor",
+    "version": "2.32.5",
+    "tag": "v2.32.5",
+    "gitRef": "e060989b202548848eb440a5005cd41a8b26f7db",
+    "releaseUrl": "https://github.com/playcanvas/supersplat/releases/tag/v2.32.5"
+  },
+  "dependencies": {
+    "@playcanvas/splat-transform": "3.3.3",
+    "@playcanvas/supersplat-viewer": "1.26.3",
+    "@playcanvas/pcui": "6.1.4",
+    "playcanvas": "2.21.4",
+    "mediabunny": "1.55.2"
+  },
+  "latestChange": {
+    "type": "feature",
+    "scope": "editor",
+    "summary": "Stage verified SOG v3 and v2 exports and offline Viewer runtime",
+    "changes": [
+      {
+        "area": "default",
+        "summary": "SuperSplat 3.9.2 with PlayCanvas 2.24.2 and SplatTransform 3.12.0."
+      },
+      {
+        "area": "compatibility",
+        "summary": "Retain the locked SuperSplat 2.32.5 edition and explicit legacy SOG v2 exports."
+      },
+      {
+        "area": "appearance",
+        "summary": "Keep the gradient picker visible immediately while a viewport resize is applied."
+      }
+    ]
+  },
+  "generatedFrom": "metadata/editor-version-history.json"
+}

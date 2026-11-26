@@ -2,8 +2,13 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readdir, readFile, stat } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
+import { resolve, sep } from 'node:path';
 
 const dataRoot = fileURLToPath(new URL('../../data/', import.meta.url));
+// Studio can use its verified package checkout while the candidate worktree is sparse.
+const eventPackageRoot = process.env.METAFLOW_EVENT_PACKAGE_ROOT
+    ? resolve(process.env.METAFLOW_EVENT_PACKAGE_ROOT) + sep
+    : dataRoot;
 const readJson = async (path) => JSON.parse(await readFile(path, 'utf8'));
 
 const EVENT_RESOURCES = [
@@ -132,12 +137,13 @@ const FORBIDDEN_ROUTE_VARIANTS = [
     '/acg/szcaf15/racingmiku'
 ];
 
-test('BitCity and SZCAF resources keep their explicit public naming and three-file packages', async () => {
+test('BitCity and SZCAF keep their public names, original bundles and explicit migration assets', async () => {
     const index = await readJson(new URL('../../data/index.json', import.meta.url));
     const routeMap = new Map(index.resources.map((resource) => [resource.route, resource]));
+    const migration = await readJson(new URL('../../metadata/sog-migration-assets.json', import.meta.url));
 
     assert.equal(index.schemaVersion, '1.2');
-    assert.equal(index.totalResources, 100);
+    assert.equal(index.totalResources, index.resources.length);
     assert.deepEqual(index.subcategories.bitcity260711, {
         name: 'BitCity 次元小镇 · 2026-07-11',
         device: '709'
@@ -170,20 +176,31 @@ test('BitCity and SZCAF resources keep their explicit public naming and three-fi
 
         const dataDirectory = expected.subcategory === 'bitcity260711' ? 'BitCity260711' : 'SZCAF15';
         const relativeDirectory = `ACG/${dataDirectory}/${expected.folder}`;
-        assert.equal(resource.files.model, `${relativeDirectory}/${expected.folder}.sog`);
+        const legacyModel = `${relativeDirectory}/${expected.folder}.sog`;
+        const migrated = migration[route]?.files;
+        if (migrated?.model) {
+            assert.equal(resource.files.model, migrated.model);
+            assert.equal(resource.files.compatibilityModel, legacyModel);
+            assert.equal(migrated.compatibilityModel, legacyModel);
+            assert.ok(migrated.model.startsWith(relativeDirectory + '/migration-v3/'));
+        } else {
+            assert.equal(resource.files.model, legacyModel);
+            assert.equal(resource.files.compatibilityModel, undefined);
+        }
         assert.equal(resource.files.thumbnail, `${relativeDirectory}/${expected.folder}.jpg`);
         assert.equal(resource.files.settings, `${relativeDirectory}/settings-v2.json`);
         assert.equal(resource.files.environment, null);
 
-        const directory = `${dataRoot}${relativeDirectory}`;
+        const directory = `${eventPackageRoot}${relativeDirectory}`;
         const packageFiles = (await readdir(directory)).toSorted();
         assert.deepEqual(packageFiles, [
             `${expected.folder}.jpg`,
             `${expected.folder}.sog`,
-            'settings-v2.json'
-        ].toSorted(), `${route} must contain only the public three-file package`);
-        for (const relativePath of [resource.files.model, resource.files.thumbnail, resource.files.settings]) {
-            assert.ok((await stat(`${dataRoot}${relativePath}`)).isFile(), `missing ${relativePath}`);
+            'settings-v2.json',
+            ...(migrated?.model ? ['migration-v3'] : [])
+        ].toSorted(), `${route} must keep its original three files plus the declared migration package`);
+        for (const relativePath of new Set([legacyModel, resource.files.model, resource.files.thumbnail, resource.files.settings])) {
+            assert.ok((await stat(`${eventPackageRoot}${relativePath}`)).isFile(), `missing ${relativePath}`);
         }
 
         const settings = await readJson(`${directory}/settings-v2.json`);

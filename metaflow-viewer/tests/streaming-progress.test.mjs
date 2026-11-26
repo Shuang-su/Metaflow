@@ -58,3 +58,24 @@ test('observation is scoped to the octree, works without UI, and releases every 
     p.stop(); p.stop(); p.frame(0); assert.equal(values.length, before);
     for (const object of [a, other, registry]) assert.ok([...object.listeners.values()].every(set => set.size === 0));
 });
+
+test('the initial pass wakes once the requested batch in the observed octree is ready', () => {
+    const chunk = emitter({ file: { url: '/scene/8/meta.json' } });
+    const second = emitter({ file: { url: '/scene/8/b.json' } });
+    const other = emitter({ file: { url: '/elsewhere/meta.json' } });
+    const registry = emitter({ list: () => [chunk, second, other] });
+    let wakes = 0;
+    const observation = observeInitialLodProgress(registry, ['/scene/8/meta.json', '/scene/8/b.json'], 'https://viewer.test/',
+        () => {}, () => wakes++);
+    chunk.fire('progress', 100, 100);
+    chunk.fire('error');
+    other.fire('load');
+    assert.equal(wakes, 0);
+    chunk.fire('load');
+    assert.equal(wakes, 0);
+    second.fire('load');
+    assert.equal(wakes, 1);
+    observation.stop();
+    chunk.fire('load');
+    assert.equal(wakes, 1);
+});

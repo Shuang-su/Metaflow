@@ -57,9 +57,13 @@ const settleFrom = (slope: number) => (x: number) =>
 // back to fly as the default first-person mode.
 const WALK_MIN_HORIZONTAL_RANGE = 5;
 
-const isWalkAllowed = (bbox: BoundingBox, collision: Collision | null): boolean => {
+const isWalkAllowed = (bbox: BoundingBox, collision: Collision | null, unitsPerMeter = 1): boolean => {
     const { x, z } = bbox.halfExtents;
-    return !!collision && x * 2 >= WALK_MIN_HORIZONTAL_RANGE && z * 2 >= WALK_MIN_HORIZONTAL_RANGE;
+    return (
+        !!collision &&
+        x * 2 >= WALK_MIN_HORIZONTAL_RANGE * unitsPerMeter &&
+        z * 2 >= WALK_MIN_HORIZONTAL_RANGE * unitsPerMeter
+    );
 };
 
 const createCamera = (position: Vec3, target: Vec3, fov: number) => {
@@ -76,6 +80,8 @@ const createFrameCamera = (bbox: BoundingBox, fov: number) => {
 };
 
 class CameraManager {
+    readonly startsWithFigure8: boolean;
+
     update: (deltaTime: number, cameraFrame: CameraFrame) => void;
 
     seek: (time: number) => void;
@@ -98,13 +104,15 @@ class CameraManager {
     // and the mode the camera falls back to when an animation is interrupted.
     setCollision: (collision: Collision | null) => void;
 
+    getWalkSupportHeight: () => number | null;
+
     // holds the camera state
     camera = new Camera();
 
     constructor(global: Global, bbox: BoundingBox, collision: Collision | null = null) {
         const { config, events, settings, state } = global;
 
-        let walkAllowed = isWalkAllowed(bbox, collision);
+        let walkAllowed = isWalkAllowed(bbox, collision, config.worldUnitsPerMeter);
         let currentCollision = collision;
         let pendingDefaultWalk = config.defaultCameraMode === 'walk' && !currentCollision;
 
@@ -134,6 +142,9 @@ class CameraManager {
             syntheticAnimation: config.syntheticAnimation
         });
 
+        this.startsWithFigure8 =
+            animationPolicy.trackKind === 'figure8' && animationPolicy.initialCameraMode === 'anim';
+
         const getAnimTrack = (initial: Camera, trackKind: string) => {
             const { animTracks } = settings;
 
@@ -144,7 +155,7 @@ class CameraManager {
                 return createRotateTrack(initial.position, tmpv, initial.fov);
             } else if (trackKind === 'figure8') {
                 initial.calcFocusPoint(tmpv);
-                return createFigure8Track(initial.position, tmpv, initial.fov);
+                return createFigure8Track(initial.position, tmpv, initial.fov, config.worldUnitsPerMeter);
             }
 
             return null;
@@ -154,18 +165,20 @@ class CameraManager {
 
         const controllers = {
             orbit: new OrbitController(),
-            fly: new FlyController(),
-            walk: new WalkController(),
+            fly: new FlyController(config.worldUnitsPerMeter),
+            walk: new WalkController(config.worldUnitsPerMeter, config.walkFallbackPosition),
             anim: animTrack ? new AnimController(animTrack) : null
         };
 
         controllers.orbit.fov = resetCamera.fov;
         controllers.fly.fov = resetCamera.fov;
         controllers.fly.collision = collision;
+        controllers.walk.recoverDrops = config.recoverWalkDrops ?? false;
         controllers.walk.collision = collision;
+        this.getWalkSupportHeight = () => (state.cameraMode === 'walk' ? controllers.walk.supportHeight : null);
 
-        const walkSource = new WalkSource();
-        const flySource = new FlySource();
+        const walkSource = new WalkSource(config.worldUnitsPerMeter);
+        const flySource = new FlySource(config.worldUnitsPerMeter);
         const sourcesByMode: Partial<Record<CameraMode, TargetSource>> = {
             walk: walkSource,
             fly: flySource
@@ -237,7 +250,7 @@ class CameraManager {
         this.setCollision = (nextCollision: Collision | null) => {
             const hadCollision = !!currentCollision;
             currentCollision = nextCollision;
-            walkAllowed = isWalkAllowed(bbox, nextCollision);
+            walkAllowed = isWalkAllowed(bbox, nextCollision, config.worldUnitsPerMeter);
             controllers.fly.collision = nextCollision;
             controllers.walk.collision = nextCollision;
 
@@ -342,7 +355,7 @@ class CameraManager {
                 case 'requestFirstPerson':
                     // movement input from a non-first-person mode: walk where the scene allows
                     // it, fly otherwise, the same preference as the animation fallback
-                    state.cameraMode = walkAllowed ? 'walk' : 'fly';
+                    state.cameraMode = config.orbitMovementMode === 'fly' || !state.walkAllowed ? 'fly' : 'walk';
                     break;
                 case 'toggleWalk':
                     if (state.walkAllowed) {

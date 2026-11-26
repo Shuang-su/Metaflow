@@ -52,6 +52,10 @@ const getStopDistance = (fov: number) => {
  * Generates synthetic move/rotate input to auto-fly toward a target position.
  */
 class FlySource implements TargetSource {
+    constructor(private readonly unitsPerMeter = 1) {
+        if (!Number.isFinite(unitsPerMeter) || unitsPerMeter <= 0) throw Error('Invalid world units per metre');
+    }
+
     /**
      * Forward input scale (matches InputController.moveSpeed).
      */
@@ -149,7 +153,10 @@ class FlySource implements TargetSource {
         const cameraPosition = camera.position;
         const cameraAngles = camera.angles;
         toTarget.sub2(target, cameraPosition);
-        const dist = toTarget.length();
+        const worldDist = toTarget.length();
+        // Keep all motion, braking and stopping calculations in metres.
+        // FlyController converts the resulting input to scene units once.
+        const dist = worldDist / this.unitsPerMeter;
         const stopDistance = getStopDistance(camera.fov);
         const remainingDist = dist - stopDistance;
         const activeRemainingDist = Math.max(0, remainingDist);
@@ -163,7 +170,7 @@ class FlySource implements TargetSource {
             return;
         }
 
-        const invDist = 1 / dist;
+        const invDist = worldDist > 0 ? 1 / worldDist : 0;
         const dirX = toTarget.x * invDist;
         const dirY = toTarget.y * invDist;
         const dirZ = toTarget.z * invDist;

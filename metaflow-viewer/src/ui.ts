@@ -3,9 +3,11 @@ import type { EventHandler } from 'playcanvas';
 
 import { version as appVersion } from '../package.json';
 
+import { ownsKeyboard } from './input/shared';
 import { initLoadingDetails } from './loading-details';
 import type { Picker } from './picker';
 import { initPoster } from './poster';
+import { QUALITY_LEVELS } from './quality';
 import { Tooltip } from './tooltip';
 import type { Global, ViewerHandle } from './types';
 import { initAnnotationControls } from './ui/annotation-controls';
@@ -30,7 +32,7 @@ const TRACKED_UI_ACTIONS: Record<string, string> = {
     settings: 'settings_toggle',
     enterFullscreen: 'fullscreen_enter',
     exitFullscreen: 'fullscreen_exit',
-    performanceModeRow: 'performance_mode_toggle',
+    qualityTrack: 'quality_select',
     gamingControlsRow: 'gaming_controls_toggle',
     annotationsRow: 'annotations_toggle',
     frame: 'frame_scene',
@@ -105,9 +107,10 @@ const initUI = (
         'orbitCamera',
         'flyCamera',
         'fpsCamera',
-        'performanceModeRow',
-        'performanceModeCheck',
-        'performanceModeOption',
+        'qualityValue',
+        'qualityTrack',
+        'qualityRail',
+        'qualityThumb',
         'gamingControlsRow',
         'gamingControlsCheck',
         'gamingControlsOption',
@@ -231,16 +234,72 @@ const initUI = (
         dom.loadingWrap.classList.add('sse-hidden');
     });
 
-    // Performance mode toggle
-    dom.performanceModeRow.addEventListener('click', () => {
-        state.performanceMode = !state.performanceMode;
+    // The Quality slider: a stop per position, the ones the device cannot hold disabled. A press
+    // or drag on the track moves the thumb to the nearest available stop
+    dom.qualityTrack.setAttribute('aria-label', localize('settings.quality'));
+    const qualityStops = Array.from(dom.qualityRail.querySelectorAll<HTMLElement>('.sse-qualityStop'));
+    const stopLeft = (index: number) => `${(index / (QUALITY_LEVELS.length - 1)) * 100}%`;
+    qualityStops.forEach((stop, i) => {
+        stop.style.left = stopLeft(i);
     });
 
-    const updatePerformanceMode = () => {
-        dom.performanceModeCheck.classList.toggle('sse-active', state.performanceMode);
+    const pickQuality = (event: PointerEvent) => {
+        const rail = dom.qualityRail.getBoundingClientRect();
+        const t = rail.width > 0 ? Math.min(1, Math.max(0, (event.clientX - rail.left) / rail.width)) : 0;
+        const at = t * (QUALITY_LEVELS.length - 1);
+        // the nearest available stop to the pointer
+        const nearest = state.qualityAvailable
+            .map((level) => ({ level, distance: Math.abs(QUALITY_LEVELS.indexOf(level) - at) }))
+            .sort((a, b) => a.distance - b.distance)[0];
+        if (nearest && nearest.level !== state.quality) state.quality = nearest.level;
     };
-    on('performanceMode:changed', updatePerformanceMode);
-    updatePerformanceMode();
+    dom.qualityTrack.addEventListener('pointerdown', (event: PointerEvent) => {
+        if (event.button !== 0) return;
+        dom.qualityTrack.setPointerCapture(event.pointerId);
+        pickQuality(event);
+    });
+    dom.qualityTrack.addEventListener('pointermove', (event: PointerEvent) => {
+        if (dom.qualityTrack.hasPointerCapture(event.pointerId)) pickQuality(event);
+    });
+
+    dom.qualityTrack.addEventListener('keydown', (event) => {
+        const available = state.qualityAvailable;
+        let index = available.indexOf(state.quality);
+        switch (event.key) {
+            case 'ArrowLeft':
+            case 'ArrowDown':
+                index--;
+                break;
+            case 'ArrowRight':
+            case 'ArrowUp':
+                index++;
+                break;
+            case 'Home':
+                index = 0;
+                break;
+            case 'End':
+                index = available.length - 1;
+                break;
+            default:
+                return;
+        }
+        event.preventDefault();
+        event.stopPropagation();
+        if (available.length) state.quality = available[Math.max(0, Math.min(available.length - 1, index))];
+    });
+    const updateQuality = () => {
+        dom.qualityThumb.style.left = stopLeft(QUALITY_LEVELS.indexOf(state.quality));
+        const budget = global.quality.levels().find((entry) => entry.level === state.quality)?.budget;
+        dom.qualityValue.textContent = `${localize(`settings.quality-${state.quality}`)}${budget == null ? '' : ` · ${budget}M`}`;
+        dom.qualityTrack.setAttribute('aria-valuenow', String(QUALITY_LEVELS.indexOf(state.quality)));
+        dom.qualityTrack.setAttribute('aria-valuetext', dom.qualityValue.textContent);
+        qualityStops.forEach((stop, i) => {
+            stop.classList.toggle('sse-disabled', !state.qualityAvailable.includes(QUALITY_LEVELS[i]));
+        });
+    };
+    on('quality:changed', updateQuality);
+    on('qualityAvailable:changed', updateQuality);
+    updateQuality();
 
     // Gaming mode toggle (settings row visible on mobile only)
     dom.gamingControlsRow.addEventListener('click', () => {
@@ -269,15 +328,25 @@ const initUI = (
     // panel's open state is the user's choice and persists: it stays open while the scene is used,
     // and shows once the scene has loaded. Settings is a quick look, so while it is open it only
     // stands in for the controls panel, which comes back when it closes.
-    let controlsOpen = readControlsOpen();
+    let controlsOpen = !global.config.controlsHintInitiallyClosed && readControlsOpen();
 
+    let mapMounted = false;
     const applyControls = () => {
-        const visible = controlsOpen && state.loaded && !isVisible(dom.settingsPanel);
+        const settings = isVisible(dom.settingsPanel);
+        const info = isVisible(dom.infoPanel);
+        const visible = controlsOpen && state.loaded && !settings && !(mapMounted && info);
         dom.controlsHint.classList.toggle('sse-hidden', !visible);
         dom.controlsButton.classList.toggle('sse-active', visible);
+        if (mapMounted)
+            events.fire('ui:mapObscured', !state.loaded || Boolean(state.xrMode) || visible || settings || info);
     };
 
+    const setInfoVisible = (visible: boolean) => {
+        dom.infoPanel.classList.toggle('sse-hidden', !visible);
+        dom.info.classList.toggle('sse-active', visible);
+    };
     const showSettings = (visible: boolean) => {
+        if (visible && mapMounted) setInfoVisible(false);
         dom.settingsPanel.classList.toggle('sse-hidden', !visible);
         dom.settings.classList.toggle('sse-active', visible);
         applyControls();
@@ -288,7 +357,10 @@ const initUI = (
     const showControls = (open: boolean) => {
         controlsOpen = open;
         writeControlsOpen(open);
-        if (open) showSettings(false);
+        if (open) {
+            if (mapMounted) setInfoVisible(false);
+            showSettings(false);
+        }
         applyControls();
     };
 
@@ -313,9 +385,37 @@ const initUI = (
         dom.infoShortcuts.classList.toggle('sse-hidden', state.inputMode !== 'desktop');
         dom.walkShortcut.classList.toggle('sse-hidden', !state.walkAllowed);
         dom.playShortcut.classList.toggle('sse-hidden', !state.hasAnimation);
-        dom.infoPanel.classList.toggle('sse-hidden', !visible);
-        dom.info.classList.toggle('sse-active', visible);
+        if (visible && mapMounted) showSettings(false);
+        setInfoVisible(visible);
+        applyControls();
     };
+
+    on('ui:mapMount', (mounted: boolean) => {
+        mapMounted = mounted;
+        if (mounted && isVisible(dom.infoPanel)) showSettings(false);
+        applyControls();
+    });
+    on('xrMode:changed', applyControls);
+    on('ui:requestMap', () => {
+        if (!mapMounted) return;
+        setInfoVisible(false);
+        if (controlsOpen) showControls(false);
+        showSettings(false);
+    });
+
+    // Dismiss the temporary panel before Escape is interpreted as leaving walk mode.
+    const dismissMapPanel = (event: KeyboardEvent) => {
+        if (event.key !== 'Escape' || !mapMounted || !ownsKeyboard(global)) return;
+        if (isVisible(dom.infoPanel)) showInfo(false);
+        else if (isVisible(dom.settingsPanel)) showSettings(false);
+        else if (isVisible(dom.controlsHint)) showControls(false);
+        else return;
+        event.preventDefault();
+        event.stopImmediatePropagation();
+        showUI();
+    };
+    window.addEventListener('keydown', dismissMapPanel, true);
+    disposers.push(() => window.removeEventListener('keydown', dismissMapPanel, true));
 
     // Info panel
     const toggleHelp = () => showInfo(!isVisible(dom.infoPanel));
