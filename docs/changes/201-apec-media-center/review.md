@@ -12,3 +12,9 @@
 - 附 [精确生产相对补丁](apec-5261-production-relative.patch.gz)、[重放校验](apec-5261-patch-proof.json) 与 [发行验收](verification.md)。
 - 补丁从实际生产基线 2a0758bb5d63f78336aa5c96a2d07379f67d8f2e 在独立临时 Git 索引重放后，完整源码树指纹为 2907ab8dd492a03836ea27331c15b6889b276623，与本地发行记录逐项一致。
 - 资源增量有 5,231 项，SHA-256 2b8c94d449d26c31d326c65bac98bf468699b299b616b1f9fed52eebd281b6a8。补丁包含本次产品源码、元数据和发行记录。
+
+## Viewer 5.27.0
+
+桌面和移动端共用 SuperSplat 顶部菜单，按 Studio A–F 分区选择 37 个原始展示机位。APEC 全览在馆内接近边界时扩框，手动拖缩和跟随仍可独立使用。中央通道的 L2 Pro 原片和成品地坪共同支持本次碰撞修改。
+
+[相对 5.26.1 生产树的完整增量](apec-5270-production-relative.patch.gz)与[逐文件变更、SHA-256 及重放树](apec-5270-patch-proof.json)可用于本地复现。解压后对清单指定的 base 执行 `git apply --index`，再用 `git write-tree` 核对。线上实测与回退记录见 [MF-201](https://github.com/Shuang-su/Metaflow/issues/201)。
