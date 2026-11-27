@@ -1,14 +1,14 @@
 {
   "schemaVersion": "1.1",
   "cutoffGitRef": "c613a87",
-  "documentedThrough": "25a4954d4f14b44c0448f36cbbce4e53a8351ac7",
+  "documentedThrough": "7fdd34d4dc20c74218bc3ecb69d1b911bbefed94",
   "defaultResourceVersion": "1.0a",
   "current": {
-    "displayVersion": "5.27.0",
-    "appSemver": "5.27.0",
+    "displayVersion": "5.28.0",
+    "appSemver": "5.28.0",
     "indexSchemaVersion": "1.2",
     "date": "2026-11-27",
-    "gitRef": "25a4954d4f14b44c0448f36cbbce4e53a8351ac7",
+    "gitRef": "7fdd34d4dc20c74218bc3ecb69d1b911bbefed94",
     "historyUrl": "/data/version-history.json",
     "upstream": {
       "repository": "playcanvas/supersplat-viewer",
@@ -2737,6 +2737,22 @@
         "spec": "docs/changes/201-apec-media-center/spec.md",
         "plan": "docs/changes/201-apec-media-center/plan.md",
         "evidence": "https://github.com/Shuang-su/Metaflow/issues/201"
+      }
+    },
+    {
+      "displayVersion": "5.28.0",
+      "appSemver": "5.28.0",
+      "type": "feature",
+      "scope": "viewer",
+      "date": "2026-11-27",
+      "gitRef": "7fdd34d4dc20c74218bc3ecb69d1b911bbefed94",
+      "summary": "Measure streamed opening progress by compressed bytes and throughput. Allow budgeted target-first loading for measured figure-eight openings.",
+      "trace": {
+        "changeId": "MF-205",
+        "pullRequest": "https://github.com/Shuang-su/Metaflow/pull/206",
+        "spec": "docs/changes/205-opening-stream-progress/spec.md",
+        "plan": "docs/changes/205-opening-stream-progress/plan.md",
+        "evidence": "https://github.com/Shuang-su/Metaflow/issues/205"
       }
     }
   ],
