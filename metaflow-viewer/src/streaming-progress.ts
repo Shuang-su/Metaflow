@@ -5,7 +5,7 @@ type Chunk = {
     points: number;
     received: number;
     reportedTotal: number;
-    parts: Map<string, { bytes: number; cached: boolean }>;
+    parts: Map<string, number>;
     ready: boolean;
 };
 export type OpeningSnapshot = {
@@ -45,7 +45,7 @@ export class OpeningBytes {
         this.required = new Set(urls);
     }
     private remember(url: string, c: Chunk) {
-        const finished = [...c.parts.values()].reduce((sum, part) => sum + part.bytes, 0);
+        const finished = [...c.parts.values()].reduce((sum, part) => sum + part, 0);
         const bytes = Math.max(c.size, finished, c.received);
         if (bytes) this.completed.set(url, bytes);
     }
@@ -63,11 +63,11 @@ export class OpeningBytes {
         c.received = Math.max(c.received, bytes);
         if (Number.isFinite(total) && total > 0) c.reportedTotal = total;
     }
-    resource(url: string, part: string, bytes: number, cached: boolean) {
+    resource(url: string, part: string, bytes: number, wireBytes: number) {
         const c = this.chunks.get(url);
         if (!c || !Number.isFinite(bytes) || bytes <= 0) return;
-        if (!cached && this.required.has(url)) this.networkBytes += bytes;
-        c.parts.set(part, { bytes, cached });
+        if (wireBytes > 0 && this.required.has(url)) this.networkBytes += Math.min(bytes, wireBytes);
+        c.parts.set(part, bytes);
     }
     complete(url: string) {
         const c = this.chunks.get(url);
@@ -92,7 +92,7 @@ export class OpeningBytes {
             const c = this.chunks.get(url);
             if (!c) continue;
             let finished = 0;
-            for (const part of c.parts.values()) finished += part.bytes;
+            for (const part of c.parts.values()) finished += part;
             const received = Math.max(finished, c.received);
             const measured = c.size || (c.ready && received) || c.reportedTotal;
             estimated ||= !c.size;
@@ -191,7 +191,7 @@ export function observeOpeningBytes(
                           ? url.href
                           : url.pathname.endsWith('.webp') && loose.get(new URL('.', url).href);
                       if (owner && !(entry.responseStatus >= 400))
-                          model.resource(owner, url.href, entry.encodedBodySize, entry.transferSize === 0);
+                          model.resource(owner, url.href, entry.encodedBodySize, Math.max(0, entry.transferSize - 300));
                   }
               })
             : null;

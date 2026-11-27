@@ -8,7 +8,8 @@ if (!origin || !output || !cases.length)
 const routes = {
     apec: '/shenzhen/APECMediaCenter',
     nanhai: '/shenzhen/nanhai-e-cool-building-3',
-    orbit: '/acg/2568/2026'
+    acg: '/acg/2568/2026',
+    orbit: '/shenzhen/shenzhen-university-yuehai-campus'
 };
 await fs.mkdir(output, { recursive: true });
 const browser = await chromium.launch({
@@ -47,6 +48,7 @@ try {
                     forward: c?.forward.toArray(),
                     fov: c?.camera.fov,
                     time: v?.state.animationTime,
+                    mode: v?.state.cameraMode,
                     points: v?.app.stats.frame.gsplats
                 };
             };

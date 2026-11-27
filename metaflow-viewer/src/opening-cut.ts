@@ -44,7 +44,7 @@ export function measuredLink(entries: PerformanceResourceTiming[], since: number
     const downloads = entries.filter(
         (e) =>
             e.startTime >= since &&
-            e.transferSize > 0 &&
+            e.transferSize > 300 &&
             e.encodedBodySize >= 8192 &&
             e.responseEnd > e.responseStart &&
             e.responseStart > 0

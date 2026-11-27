@@ -26,4 +26,4 @@ for (const manifest of sizes.keys()) {
     }
     if (Object.keys(chunks).length) index['/' + manifest] = chunks;
 }
-fs.writeFileSync(new URL('../src/shenzhen/opening-byte-index.json', import.meta.url), JSON.stringify(index) + '\n');
+fs.writeFileSync(new URL('../src/shenzhen/opening-byte-index.json', import.meta.url), JSON.stringify(index, null, 4) + '\n');

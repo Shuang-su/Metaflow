@@ -22,7 +22,7 @@ test('the selected high precision cut contributes its full byte size before a re
     m.complete('other');
     assert.equal(m.snapshot(0).fraction, 0.1);
     m.progress('detail', 4e6, 9e6);
-    m.resource('detail', 'texture', 3e6, false);
+    m.resource('detail', 'texture', 3e6, 3e6);
     assert.equal(m.snapshot(1000).bytes, 5e6);
     assert.equal(m.snapshot(1000).rate, 3e6);
     m.select(['detail']);
@@ -40,13 +40,13 @@ test('retry, cancellation and a cache hit contribute once to useful bytes and se
     m.select(['a', 'b']);
     m.snapshot(0);
     m.progress('a', 650, 1000);
-    m.resource('a', 'tex', 650, false);
+    m.resource('a', 'tex', 650, 650);
     m.start('a');
     m.progress('a', 200, -1);
     assert.equal(m.snapshot(1000).bytes, 200);
     m.select(['b']);
     m.complete('b');
-    m.resource('b', 'cached', 1000, true);
+    m.resource('b', 'cached', 1000, 0);
     const s = m.snapshot(1500);
     assert.equal(s.bytes, 1000);
     assert.equal(s.total, 1000);
