@@ -1,6 +1,6 @@
 {
   "name": "metaflow-viewer",
-  "version": "5.27.0",
+  "version": "5.28.0",
   "description": "Gaussian Splatting Viewer for metaflow.shuang-su.com",
   "license": "MIT",
   "type": "module",
@@ -57,6 +57,7 @@
     "typescript": "5.9.3"
   },
   "scripts": {
+    "prebuild": "node scripts/opening-byte-index.mjs",
     "build": "rollup -c",
     "develop": "concurrently --kill-others \"npm run watch\" \"tsc --noEmit --watch\" \"npm run serve\"",
     "e2e:build": "E2E_MODE=build playwright test",

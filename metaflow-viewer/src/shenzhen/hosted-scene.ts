@@ -3,6 +3,7 @@ import type { SceneTransform } from '../scene-transform';
 import type { AnimTrack, CameraPose, ExperienceSettings } from '../settings';
 
 import { prepareApec } from './apec';
+import openingBytes from './opening-byte-index.json';
 
 type HostedResource = {
     id: string;
@@ -62,6 +63,10 @@ async function orbitSettings(settings: ExperienceSettings, orbitUrl: string): Pr
 }
 
 export async function prepareHostedScene(options: CreateViewerOptions, resource?: HostedResource) {
+    const source = new URL(options.contentUrl, location.href);
+    if (source.origin === location.origin && Object.hasOwn(openingBytes, source.pathname)) {
+        options = { ...options, openingChunkBytes: openingBytes[source.pathname as keyof typeof openingBytes] };
+    }
     if (resource?.id === 'apec-media-center-2026') return prepareApec(options);
     if (!resource || !hostedIds.has(resource.id)) return { options };
     const locationUrl = new URL(location.href);

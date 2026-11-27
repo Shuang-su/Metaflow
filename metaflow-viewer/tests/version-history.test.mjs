@@ -408,7 +408,8 @@ test('package and public release versions match the structured current version',
     assert.equal(lock.packages[''].version, manifest.current.appSemver);
     assert.equal(manifest.entries.find((entry) => entry.displayVersion === '5.25.1')?.gitRef, '59fac5306f0eddae69caa0c87624a68a5034ac2b');
     assert.equal(manifest.entries.find((entry) => entry.displayVersion === '5.26.1')?.gitRef, '18b8702e9878147bac431561f43b9c31f33695e8');
-    assert.equal(manifest.current.displayVersion, '5.27.0');
+    assert.equal(manifest.entries.find((entry) => entry.displayVersion === '5.27.0')?.gitRef, '25a4954d4f14b44c0448f36cbbce4e53a8351ac7');
+    assert.equal(manifest.current.displayVersion, '5.28.0');
     assert.equal(manifest.current.gitRef, manifest.documentedThrough);
     assert.equal(manifest.current.upstream.repository, 'playcanvas/supersplat-viewer');
     assert.equal(manifest.current.upstream.version, '1.43.3');

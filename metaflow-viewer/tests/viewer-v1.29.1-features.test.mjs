@@ -171,7 +171,7 @@ test('model and environment prefetches retry only transient failures and expose 
     assert.doesNotMatch(html, /retryableResponseStatuses[^;]*404/);
 
     assert.match(types, /\| 'error'/);
-    assert.match(index, /state\.progress = 100;[\s\S]*state\.loadingStage = 'error'/);
+    assert.match(index, /state\.progress = Math\.min\(99, state\.progress\);\s*state\.loadingStage = 'error'/);
     assert.match(index, /请检查网络后刷新页面重试/);
     assert.match(index, /app\.autoRender = false;[\s\S]*app\.renderNextFrame = false;/);
     assert.match(ui, /loadingStatus\.textContent = state\.loadingStatus/);

@@ -106,6 +106,16 @@ const loadGsplat = async (
             const manifest: unknown = await response.clone().json();
             validateStreamingLodManifest(manifest);
             data = manifest as object;
+            const chunks = manifest as { filenames: string[]; fileBytes?: number[] };
+            if (
+                Array.isArray(chunks.fileBytes) &&
+                chunks.fileBytes.length === chunks.filenames.length &&
+                chunks.fileBytes.every((n) => Number.isSafeInteger(n) && n > 0)
+            ) {
+                config.openingChunkBytes = Object.fromEntries(
+                    chunks.filenames.map((name, i) => [name, chunks.fileBytes[i]])
+                );
+            }
         } catch (err) {
             callbacks.onConflict(true);
             const error = formatError(err);
@@ -595,6 +605,7 @@ const createViewerWithExtension = async (
         loadingStage: 'init',
         loadingConflict: false,
         loadingStatus: '',
+        openingTransfer: '',
         walkCapability: !!(config.voxelManifestUrl || config.voxelUrl || config.collisionUrl),
         ...preferences,
         qualityAvailable: [],
@@ -806,9 +817,10 @@ const createViewerWithExtension = async (
                 config,
                 {
                     onProgress: (progress: number) => {
-                        state.progress = config.initialViewPreload
-                            ? Math.floor(Math.max(0, progress) * 0.05)
-                            : progress;
+                        state.progress =
+                            config.initialViewPreload || state.loadingMode === 'streaming-json'
+                                ? Math.floor(Math.max(0, progress) * 0.05)
+                                : progress;
                     },
                     onStatus: (status: string) => {
                         state.loadingStatus = status;
@@ -882,7 +894,7 @@ const createViewerWithExtension = async (
                 },
                 { beacon: true }
             );
-            state.progress = 100;
+            state.progress = Math.min(99, state.progress);
             state.loadingStage = 'error';
             state.loadingStatus = `主体模型加载失败：${error.error_message}。请检查网络后刷新页面重试。`;
             app.autoRender = false;

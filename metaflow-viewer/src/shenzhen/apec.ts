@@ -62,6 +62,7 @@ export async function prepareApec(options: CreateViewerOptions) {
         recoverWalkDrops: true,
         revealEffect: 'none',
         initialViewPreload: true,
+        openingFigure8: true,
         controlsHintInitiallyClosed: true
     };
     return { options: config, apec: { dataRoot, areas } };

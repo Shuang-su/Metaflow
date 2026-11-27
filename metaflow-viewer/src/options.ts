@@ -41,6 +41,10 @@ type ViewerAssets = {
     syntheticAnimation?: 'figure8' | 'none';
     /** Wait for the selected opening view's detail and a submitted frame before revealing it. */
     initialViewPreload?: boolean;
+    /** Compressed bytes per octree filename, supplied by versioned hosted packages. */
+    openingChunkBytes?: Record<string, number>;
+    /** Set by the authoring adapter for an explicit generated figure-eight track. */
+    openingFigure8?: boolean;
     /** Keyboard movement from orbit or animation may explicitly enter fly mode. */
     orbitMovementMode?: 'fly';
     animationFirstExitMode?: AnimationFirstExitMode;
