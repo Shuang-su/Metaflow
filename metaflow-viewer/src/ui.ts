@@ -123,6 +123,7 @@ const initUI = (
         'loadingText',
         'loadingBar',
         'loadingStatus',
+        'openingTransfer',
         'loadingDetails',
         'showCollisionRow',
         'showCollisionCheck',
@@ -224,6 +225,10 @@ const initUI = (
         dom.loadingStatus.textContent = state.loadingStatus;
         dom.loadingBar.classList.toggle('sse-failed', state.loadingStage === 'error');
     };
+    on('openingTransfer:changed', () => {
+        dom.openingTransfer.textContent = state.openingTransfer;
+    });
+    dom.openingTransfer.textContent = state.openingTransfer;
     on('loadingStatus:changed', showStatus);
     on('loadingStage:changed', showStatus);
     showStatus();

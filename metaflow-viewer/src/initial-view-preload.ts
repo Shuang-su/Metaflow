@@ -4,15 +4,18 @@ export class InitialViewGate {
     phase: 'coarse' | 'detail' | 'submitted' = 'coarse';
     private openedAt = -1;
     private stableAt = -1;
+    beginDetail(frame: number) {
+        this.phase = 'detail';
+        this.openedAt = frame;
+    }
     sample({ frame, ready, pending, started }: { frame: number; ready: boolean; pending: number; started: boolean }) {
         if (this.phase === 'submitted') return 'wait';
         if (this.phase === 'coarse') {
             if (!started || !ready || pending !== 0) return 'wait';
-            this.phase = 'detail';
-            this.openedAt = frame;
+            this.beginDetail(frame);
             return 'open-detail';
         }
-        if (frame < this.openedAt + 2 || !ready || pending !== 0) {
+        if (!started || frame < this.openedAt + 2 || !ready || pending !== 0) {
             this.stableAt = -1;
             return 'wait';
         }

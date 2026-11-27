@@ -179,7 +179,9 @@ function initLoadingDetails(global: Global, node: HTMLElement) {
         const value = observable ? String(metrics.completed) : localize('loading.unavailable');
         node.textContent =
             `${localize('loading.requests')} ${value} · ${localize('loading.active')} ${active}\n` +
-            `${localize('loading.received')} ${bytes > 0 ? formatBytes(bytes) : localize('loading.unavailable')} · ${localize('loading.rate')} ${bytes === 0 || rate === null ? localize('loading.unavailable') : formatBytes(rate) + '/s'}\n` +
+            (global.state?.openingTransfer
+                ? ''
+                : `${localize('loading.received')} ${bytes > 0 ? formatBytes(bytes) : localize('loading.unavailable')} · ${localize('loading.rate')} ${bytes === 0 || rate === null ? localize('loading.unavailable') : formatBytes(rate) + '/s'}\n`) +
             `${localize('loading.elapsed')} ${seconds.toFixed(1)} s · ${localize('loading.retries')} ${metrics.retries} · ${localize('loading.cache')} ${metrics.cached}` +
             (metrics.lastError
                 ? `\n${localize('loading.last-error')} ${localize(loadingIssueKey(metrics.lastError))}`

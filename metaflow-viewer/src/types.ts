@@ -81,6 +81,7 @@ type State = {
     loadingStage: LoadingStage;
     loadingConflict: boolean;
     loadingStatus: string;
+    openingTransfer: string;
     walkCapability: boolean;
     /** Halves the render resolution. Persisted in local storage; defaults on for mobile. */
     performanceMode: boolean;

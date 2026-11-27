@@ -44,12 +44,15 @@ import { InitialViewGate, openingWork } from './initial-view-preload';
 import { InputController } from './input-controller';
 import { MeshDebugOverlay } from './mesh-debug-overlay';
 import { NavCursor } from './nav-cursor';
+import { targetCut, installTargetRequests, measuredLink } from './opening-cut';
+import type { OpeningTree, CutInstance } from './opening-cut';
 import { Picker } from './picker';
 import type { ScenePicker } from './picker';
 import { FrameDepthPicker } from './picker-frame-depth';
 import { StochasticSplatRenderer } from './render/stochastic-splat-renderer';
 import type { ExperienceSettings, PostEffectSettings } from './settings';
-import { observeInitialLodProgress } from './streaming-progress';
+import { observeOpeningBytes, openingFraction } from './streaming-progress';
+import type { OpeningSnapshot } from './streaming-progress';
 import { createSwitchingPicker } from './switching-picker';
 import type { LoadMode, CaptureOptions, Config, Global, XrMode } from './types';
 import { TiledVoxelDebugOverlay, VoxelDebugOverlay } from './voxel-debug-overlay';
@@ -841,13 +844,42 @@ class Viewer {
             }, ignoreLoadFailure);
         }
 
-        // Loading progress has to start reporting as soon as the splat data starts streaming,
-        // which is well before the reveal. The reveal is wired up in the `Promise.all` below, so
-        // it also waits on the skybox and the collision data — and a collision download can take
-        // far longer than the splats themselves (ten seconds against under six, on a 4G trace of
-        // a real scene), leaving the bar frozen at 0% for the whole wait. Chaining off
-        // `gsplatLoad` alone lets the bar track the one load it can measure, from the moment
-        // that load begins. The reveal below stops it and puts the bar at 100.
+        // Observe the held opening camera until its budgeted frame has been submitted.
+        const companions = [
+            ...(config.initialViewPreload && config.environmentUrl ? [config.environmentUrl] : []),
+            ...(config.sceneLayers?.slice(1).map((layer) => layer.url) ?? [])
+        ];
+        const formatTransfer = (sample: OpeningSnapshot) => {
+            const mb = (bytes: number) => (bytes / 1e6).toFixed(1);
+            const total = sample.total ? (sample.estimated ? '≈' : '') + mb(sample.total) : '…';
+            const rate = sample.rate === null ? '…' : mb(sample.rate);
+            return mb(sample.bytes) + ' / ' + total + ' MB · ' + rate + ' MB/s';
+        };
+        if (companions.length) {
+            const early = observeOpeningBytes(
+                app.assets,
+                companions.map((url) => ({ url })),
+                document.baseURI,
+                undefined,
+                Number(global.root.dataset.loadStarted) || 0
+            );
+            const timer = setInterval(() => {
+                const sample = early.sample(companions, performance.now());
+                if (sample.bytes > 0 && !state.loaded) state.openingTransfer = formatTransfer(sample);
+            }, 200);
+            const stop = () => {
+                clearInterval(timer);
+                early.stop();
+            };
+            gsplatLoad.then(stop, stop);
+            this.onDestroy(stop);
+        }
+        let detailActive = false;
+        let transfer: ReturnType<typeof observeOpeningBytes>;
+        let cutTree: OpeningTree;
+        let fileSize: (i: number) => number;
+        let download: OpeningSnapshot;
+        let restoreRequests: (() => void) | undefined;
         let stopProgress: (() => void) | undefined;
         gsplatLoad.then((entity) => {
             if (this.destroyed) return;
@@ -856,42 +888,65 @@ class Viewer {
 
             const octree = (entity.gsplat?.resource as GSplatOctreeResourceLike | null)?.octree;
             if (octree?.files) {
-                const progress = observeInitialLodProgress(
-                    app.assets,
-                    octree.files.map((file) => file.url),
-                    document.baseURI,
-                    (value) => {
-                        state.progress = Math.max(
-                            state.progress,
-                            config.initialViewPreload ? Math.floor(value * 0.45) : value
-                        );
-                    },
-                    () => {
-                        if (config.fullload) return;
-                        // Engine 2.24.2 normally polls chunk residency every ten frames.
-                        // Its pending flag coalesces completions until the next streaming update.
-                        const director = app.renderer.gsplatDirector;
-                        for (const cameraData of director?.camerasMap?.values() ?? []) {
-                            for (const layer of cameraData.layersMap.values()) {
-                                const world = layer.gsplatManager?.world;
-                                if (world?.hasOctreeInstances && world._lodUpdateRequested === false) {
-                                    for (const instance of world._octreeInstances.values()) {
-                                        if (instance.octree === octree) {
-                                            world._lodUpdateRequested = true;
-                                            break;
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
+                cutTree = octree as OpeningTree;
+                const base = new URL('.', new URL(config.contentUrl, document.baseURI)).href;
+                const byUrl = new Map(
+                    Object.entries(config.openingChunkBytes ?? {}).map(([name, n]) => [new URL(name, base).href, n])
                 );
-                const frame = (camera: CameraComponent, layer: Layer, ready: boolean, loading: number) =>
-                    progress.frame(loading);
+                fileSize = (i) => byUrl.get(new URL(cutTree.files[i].url, document.baseURI).href) || 0;
+                const counts = new Float64Array(cutTree.files.length);
+                cutTree.nodes?.forEach((node, n) => {
+                    const lod = node.lods[cutTree.nodeLevel[n]];
+                    if (lod.fileIndex >= 0) counts[lod.fileIndex] += lod.count;
+                });
+                const primaryFiles = octree.files.map((f, i) => ({ url: f.url, size: fileSize(i), points: counts[i] }));
+                let world: any;
+                transfer = observeOpeningBytes(
+                    app.assets,
+                    [...primaryFiles, ...companions.map((url) => ({ url }))],
+                    document.baseURI,
+                    () => {
+                        if (world && !config.fullload) world._lodUpdateRequested = true;
+                    },
+                    Number(global.root.dataset.loadStarted) || 0
+                );
+                let lastUpdate = -Infinity;
+                const frame = (camera: CameraComponent, layer: Layer) => {
+                    if (camera !== global.camera.camera) return;
+                    world = (app.renderer as any).gsplatDirector?.camerasMap.get(camera.camera)?.layersMap.get(layer)
+                        ?.gsplatManager?.world;
+                    const now = performance.now();
+                    if (!world || now - lastUpdate < 150) return;
+                    const urls = new Set<string>(companions);
+                    let solved = false;
+                    for (const inst of world._octreeInstances.values()) {
+                        if (inst.octree !== cutTree) continue;
+                        if (detailActive && (inst.rangeMin > 0 || inst.needsLodUpdate)) continue;
+                        solved ||= inst.treeStamp > 0;
+                        const include = (i: number) => urls.add(cutTree.files[i].url);
+                        for (const i of targetCut(inst as CutInstance).keys()) include(i);
+                        for (const [i, priority] of inst._fileRequests) if (priority >= 1) include(i);
+                        for (const i of inst.pending) include(i);
+                        inst.filePlacements.forEach((p: { resource: unknown } | null, i: number) => {
+                            if (p?.resource) include(i);
+                        });
+                    }
+                    if (!solved || !urls.size) return;
+                    lastUpdate = now;
+                    download = transfer.sample(urls, now);
+                    state.openingTransfer = formatTransfer(download);
+                    // A new cut can change the denominator. The coarse pass stops at its own milestone.
+                    const weight = openingFraction(download);
+                    const gated = holdOpeningView || !this.cameraManager;
+                    state.progress = Math.trunc(
+                        detailActive ? 15 + 82 * weight : gated ? 5 + 10 * weight : 5 + 92 * weight
+                    );
+                };
                 eventHandler.on('frame:ready', frame);
                 stopProgress = () => {
                     eventHandler.off('frame:ready', frame);
-                    progress.stop();
+                    transfer.stop();
+                    restoreRequests?.();
                 };
                 this.onDestroy(stopProgress);
                 return;
@@ -1289,7 +1344,52 @@ class Viewer {
                     completedFrames++;
                 });
                 this.onDestroy(() => frame.off());
-                global.root.dataset.initialViewStage = 'coarse';
+                const strategy = new URLSearchParams(location.search).get('openingStrategy');
+                const isFigure8 =
+                    this.cameraManager.startsWithFigure8 || (config.openingFigure8 && state.cameraMode === 'anim');
+                // Automatic direct scheduling is enabled only for released benchmarked profiles.
+                const rootUrl = new URL('.', new URL(config.contentUrl, document.baseURI)).href;
+                const rate = measuredLink(
+                    (performance.getEntriesByType('resource') as PerformanceResourceTiming[]).filter((e) =>
+                        e.name.startsWith(rootUrl)
+                    ),
+                    Math.max(0, Number(global.root.dataset.loadStarted || 0) - 3000)
+                );
+                // MF-205: the measured mobile APEC cut saved one unnecessary coarse pack.
+                const released =
+                    !strategy &&
+                    config.openingFigure8 &&
+                    app.graphicsDevice.deviceType === 'webgl2' &&
+                    global.quality.budget <= 2 &&
+                    innerWidth <= 600 &&
+                    rate >= 0.5e6 &&
+                    rate <= 8e6;
+                const mayAttempt = released || strategy === 'target' || (strategy === 'adaptive' && rate > 0);
+                if (!config.fullload && cutTree?.submitRequests && isFigure8 && mayAttempt) {
+                    restoreRequests = installTargetRequests(
+                        cutTree,
+                        fileSize,
+                        rate,
+                        strategy === 'target',
+                        (mode, forecast) => {
+                            global.root.dataset.openingForecast = JSON.stringify(forecast);
+                            global.root.dataset.openingStrategy = mode;
+                            if (mode === 'native') {
+                                preload.phase = 'coarse';
+                                detailActive = false;
+                                gsplatComponent.lodRangeMax = gsplatComponent.lodRangeMin = cutTree.lodLevels - 1;
+                                gsplat.lodUnderfillLimit = savedUnderfill;
+                            }
+                        }
+                    );
+                    preload.beginDetail(completedFrames);
+                    gsplat.lodUnderfillLimit = 0;
+                    applyPerfSettings();
+                    app.autoRender = true;
+                    detailActive = true;
+                }
+                global.root.dataset.openingStrategy ??= 'coarse';
+                global.root.dataset.initialViewStage = preload.phase;
             }
 
             const readyHandler = (camera: CameraComponent, layer: Layer, ready: boolean, loading: number) => {
@@ -1308,6 +1408,8 @@ class Viewer {
                     const work = openingWork(world);
                     if (!work.available) return;
                     if (work.failed) {
+                        stopProgress?.();
+                        eventHandler.off('frame:ready', readyHandler);
                         state.loadingStage = 'error';
                         state.loadingStatus = '初始视野分块载入失败，请刷新后重试。';
                         ignoreLoadFailure(new Error('初始视野分块载入失败 · ' + work.failed));
@@ -1324,16 +1426,15 @@ class Viewer {
                         gsplat.lodUnderfillLimit = 0;
                         applyPerfSettings();
                         world.markInstancesNeedLodUpdate();
-                        state.progress = Math.max(45, state.progress);
+                        detailActive = true;
+                        state.progress = 15;
                         app.autoRender = true;
                     }
                     if (preload.phase === 'detail') {
-                        state.loadingStatus = '正在预渲染初始视野的高精度高斯…';
-                        if (work.resident)
-                            state.progress = Math.max(
-                                state.progress,
-                                45 + Math.floor((49 * work.resident) / (work.resident + work.pending))
-                            );
+                        state.loadingStatus =
+                            download?.fraction >= 0.999
+                                ? '高清数据就绪，正在解码、排序并准备画面…'
+                                : '正在加载初始视野的高精度分块…';
                     }
                     viewReady = action === 'reveal';
                 }
@@ -1342,7 +1443,7 @@ class Viewer {
                     eventHandler.off('frame:ready', readyHandler);
 
                     stopProgress?.();
-                    state.progress = preload ? 97 : 100;
+                    state.progress = 99;
 
                     // switch to on-demand rendering (frame:request + camera-change detection)
                     app.autoRender = false;
@@ -1367,7 +1468,7 @@ class Viewer {
                     state.readyToRender = true;
                     state.loadingStage = 'prepare';
                     state.loadingStatus = 'LOD 数据就绪，正在准备首帧...';
-                    state.progress = preload ? 97 : 100;
+                    state.progress = 99;
 
                     if (config.revealEffect === 'none') {
                         // No reveal will fire onComplete, so load high detail immediately.
