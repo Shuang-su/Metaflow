@@ -836,9 +836,11 @@ The 2026-08-15 Viewer 5.19.2 release-record commit updated package/version/index
 | `7c7bf0a5e354383abb53b82243eae8c0651ca9cb` | Record Desktop Companion usability, room detail and low-FPS animation fixes in the Viewer experiment directory. |
 | `1a43674490915c2f0720eef5a14e95da045916cf` | Stage nine verified Campus Club Fair reconstructions for the SOG v3 Viewer and Director. Retain the legacy object URLs. |
 
-### `5.28.0` · `7fdd34d4dc20c74218bc3ecb69d1b911bbefed94`
+### `5.28.0` · `57a0f3df5d8c13ccd7020bfd39fe94d555fc2b86`
 
 流式首帧按预算选中的分块字节、传输速度和资源就绪状态反馈。APEC 新闻中心在经过量测的手机视口与网速条件下，可直接请求八字开场需要的混合 LOD。独立回退参数为 `openingStrategy=coarse`，整站回退部署为 `6b08b2e3966942054cc16160`。[MF-205](https://github.com/Shuang-su/Metaflow/issues/205) · [PR 206](https://github.com/Shuang-su/Metaflow/pull/206)
+
+实现与首轮对照 `7fdd34d4dc20c74218bc3ecb69d1b911bbefed94`。
 
 ### `5.27.0` · `25a4954d4f14b44c0448f36cbbce4e53a8351ac7`
 

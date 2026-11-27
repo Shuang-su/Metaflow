@@ -1,14 +1,14 @@
 {
   "schemaVersion": "1.1",
   "cutoffGitRef": "c613a87",
-  "documentedThrough": "7fdd34d4dc20c74218bc3ecb69d1b911bbefed94",
+  "documentedThrough": "57a0f3df5d8c13ccd7020bfd39fe94d555fc2b86",
   "defaultResourceVersion": "1.0a",
   "current": {
     "displayVersion": "5.28.0",
     "appSemver": "5.28.0",
     "indexSchemaVersion": "1.2",
     "date": "2026-11-27",
-    "gitRef": "7fdd34d4dc20c74218bc3ecb69d1b911bbefed94",
+    "gitRef": "57a0f3df5d8c13ccd7020bfd39fe94d555fc2b86",
     "historyUrl": "/data/version-history.json",
     "upstream": {
       "repository": "playcanvas/supersplat-viewer",
@@ -784,6 +784,11 @@
       "gitRef": "4d546b2f45080395452a708ea07d51cd53fff478",
       "date": "2026-11-27",
       "summary": "MF-201 checkpoint: feat(viewer): adapt the APEC overview before crossing the hall boundary"
+    },
+    {
+      "gitRef": "7fdd34d4dc20c74218bc3ecb69d1b911bbefed94",
+      "date": "2026-11-27",
+      "summary": "MF-205 byte-weighted stream progress, current-view cut selection and renderer tests."
     }
   ],
   "entries": [
@@ -2745,7 +2750,7 @@
       "type": "feature",
       "scope": "viewer",
       "date": "2026-11-27",
-      "gitRef": "7fdd34d4dc20c74218bc3ecb69d1b911bbefed94",
+      "gitRef": "57a0f3df5d8c13ccd7020bfd39fe94d555fc2b86",
       "summary": "Measure streamed opening progress by compressed bytes and throughput. Allow budgeted target-first loading for measured figure-eight openings.",
       "trace": {
         "changeId": "MF-205",
